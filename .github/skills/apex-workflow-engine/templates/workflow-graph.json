@@ -141,7 +141,8 @@
             "lenses": ["security-governance", "architecture-reliability"]
           }
         },
-        "exit_criteria": "all-passes-APPROVED"
+        "exit_criteria": "all-passes-APPROVED",
+        "exception_exit_criteria": "current-explicit-lab-authorization-and-separate-human-approval"
       }
     },
     "gate-3": {
@@ -153,14 +154,14 @@
       "preconditions": [
         {
           "id": "plan-readiness",
-          "description": "All plan-level challenger passes returned APPROVED. CodeGen agents (06b/06t) must not run plan-level adversarial review or self-edit 04-implementation-plan.md; any plan must_fix returns to step-4.",
-          "check": "challenger.exit_criteria == 'all-passes-APPROVED' for step-4",
+          "description": "Default: all Plan passes APPROVED. Alternate: current default-mode lab risk authorization explicitly covers every unresolved finding and permits plan-complete, followed by separate human gate approval. Report exception-authorized, never relabel NEEDS_REVISION. CodeGen requires its own listed action and frozen inputs.",
+          "check": "all required Plan passes APPROVED OR session.gate_readiness['plan-complete'].status == 'exception-authorized'; separate human Plan approval remains required",
           "on_fail": "stay-at-step-4"
         },
         {
           "id": "plan-architecture-escalation",
           "description": "Anti-livelock: gate-3 may re-open when any step-4 finding has requires_step == 'step-2'. Control returns to 03-Architect via the step-4 → step-2 return_edge.",
-          "check": "no step-4 challenger finding has requires_step == 'step-2'",
+          "check": "no unresolved requires_step == 'step-2' finding lacks explicit current lab authorization coverage",
           "on_fail": "stay-at-step-4"
         }
       ]
@@ -461,7 +462,15 @@
   "orchestrator_targets": ["01-Orchestrator"],
   "ui_pseudo_targets": ["agent"],
   "metadata": {
-    "version": "2.4",
+    "version": "2.5",
+    "risk_acceptance": {
+      "contract": "risk-authorization-v1",
+      "eligibility": "non-production-lab",
+      "readiness_command": "apex-recall check-gate",
+      "kit_actions": ["plan-complete", "codegen", "code-complete"],
+      "deployment_requires": "separate-adopter-tenant-subscription-event-authorization-and-human-approval",
+      "review_verdicts_unchanged": true
+    },
     "iac_tracks": ["Bicep", "Terraform"],
     "total_gates": 6,
     "total_steps": 7,

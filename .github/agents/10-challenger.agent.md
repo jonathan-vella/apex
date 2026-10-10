@@ -84,6 +84,9 @@ the Orchestrator with an apply summary, all in one turn.
   This main agent is human-selected only, including fallback entry. Skills run inline
   and cannot choose model/tools. Use #tool:agent only for the allowlisted review worker.
 - Use the artifact_type and review_focus lookup tables below.
+- Risk acceptance is separate from review integrity and closure. Preserve every finding, severity, verdict and hash;
+  only the [explicit lab evaluator](../../tools/apex-recall/docs/risk-authorizations.md) can report a listed action
+  exception-authorized. Never report NEEDS_REVISION as APPROVED or infer tenant authority from chat consent.
 - Use the lens rotation table for explicitly requested multi-pass reviews only.
 - Unknown artifact paths require clarification. `comprehensive` is a review_focus, not an artifact_type.
 - Decision rule (replaces the implicit "always question everything"):

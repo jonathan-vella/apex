@@ -120,6 +120,10 @@ sidecar is missing (exit code 2). Both `complete-step` and `transition --complet
 present reviews with unresolved must-fix findings, mismatched artifact/lens, or failed strict freshness validation,
 before any state mutation. This requires Node and the workspace review validator; unavailable validation fails closed.
 An accepted decision is not verified closure. Invalid present evidence cannot use a missing-review bypass.
+Explicit default-mode non-production-lab risk authorization is a separate, externally trusted contract:
+[`risk-authorizations.md`](tools/apex-recall/docs/risk-authorizations.md). It preserves NEEDS_REVISION and unresolved
+findings while reporting only listed gates as exception-authorized after separate human approval. Kit authorization
+never grants adopter deployment permission. Existing projects and rationale-only decisions gain no authorization.
 For a separately authorized later Governance review, `complete-step` and `transition --complete` accept
 `--governance-review <path>` with `--governance-review-reason "<reason>"`. Selection is explicit, Step 3.5-only,
 strictly validated and logged with its byte hash; earlier reviews remain untouched. No latest-file inference,

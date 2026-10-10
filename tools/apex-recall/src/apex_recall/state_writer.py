@@ -5,9 +5,9 @@ from __future__ import annotations
 import hashlib
 import json
 import os
-import shutil
 import tempfile
 import time
+from collections.abc import Callable
 from contextlib import contextmanager
 from datetime import UTC
 from pathlib import Path
@@ -227,6 +227,7 @@ class StateDocument(dict):
         self.path = path.resolve()
         self.revision = revision
         self.input_revisions: dict[Path, str | None] = {}
+        self.validation_deadlines: list[str] = []
 
 
 def validate_state(data: dict) -> None:
@@ -274,6 +275,48 @@ def validate_state(data: dict) -> None:
         ):
             raise ValueError("Unsupported or malformed review-selection-v1 record")
 
+    authorizations = data.get("risk_authorizations", {})
+    if not isinstance(authorizations, dict):
+        raise ValueError("Invalid risk authorization map; explicit owner migration required")
+    exception_marker = data.get("decisions", {}).get("plan_status") == "EXCEPTION_AUTHORIZED" or any(
+        isinstance(entry, dict) and entry.get("choice") == "EXCEPTION_AUTHORIZED"
+        for entry in data.get("decision_log", [])
+    )
+    if exception_marker and not authorizations:
+        raise ValueError("Exception-authorized Plan requires preserved risk authorization history")
+    for action, record in authorizations.items():
+        if action not in (
+            "plan-complete",
+            "codegen",
+            "code-complete",
+            "deploy",
+            "deployment-complete",
+            "teardown-complete",
+        ):
+            raise ValueError("Unknown risk authorization action")
+        if not isinstance(record, dict) or record.get("schema_version") != "risk-selection-v1":
+            raise ValueError("Unsupported risk selection; explicit owner migration required")
+        if not record.get("authorization") or not record.get("approval"):
+            raise ValueError("Risk selection requires authorization and separate human approval")
+        for field in ("authorization", "approval", "context", "execution"):
+            ref = record.get(field)
+            if ref is not None and (
+                not isinstance(ref, dict)
+                or not isinstance(ref.get("path"), str)
+                or not ref["path"]
+                or Path(ref["path"]).is_absolute()
+                or ".." in Path(ref["path"]).parts
+                or not isinstance(ref.get("sha256"), str)
+                or len(ref["sha256"]) != 64
+            ):
+                raise ValueError("Malformed risk-selection-v1 evidence reference")
+        if action in ("deployment-complete", "teardown-complete") and not record.get("execution"):
+            raise ValueError("Lifecycle completion requires preserved canonical execution identity")
+        if record.get("execution") and (
+            not isinstance(record["execution"].get("id"), str) or not record["execution"]["id"].strip()
+        ):
+            raise ValueError("Canonical execution identity requires an accountable execution ID")
+
 
 def read_state(path: Path) -> StateDocument:
     """Read primary state without recovery or index mutation."""
@@ -292,6 +335,10 @@ def check_state_revision(data: StateDocument, path: Path) -> None:
     for input_path, revision in data.input_revisions.items():
         if file_revision(input_path) != revision:
             raise StateConflict(f"Input conflict: validated bytes changed at {input_path}")
+    from datetime import datetime
+
+    if any(datetime.now(UTC) >= datetime.fromisoformat(deadline) for deadline in data.validation_deadlines):
+        raise StateConflict("Authorization expired before commit; revalidate before retrying")
 
 
 @contextmanager
@@ -324,7 +371,9 @@ def project_write_lock(path: Path):
                 fcntl.flock(handle.fileno(), fcntl.LOCK_UN)
 
 
-def atomic_write(path: Path, data: dict, *, backup: bool = True) -> None:
+def atomic_write(
+    path: Path, data: dict, *, backup: bool = True, before_commit: Callable[[], None] | None = None
+) -> None:
     """Write JSON atomically: .tmp → rename → .bak."""
     path.parent.mkdir(parents=True, exist_ok=True)
     bak = path.with_suffix(".json.bak")
@@ -337,12 +386,23 @@ def atomic_write(path: Path, data: dict, *, backup: bool = True) -> None:
         handle.write(content)
         handle.flush()
         os.fsync(handle.fileno())
+    backup_tmp = None
     try:
         if backup and path.exists():
-            shutil.copy2(str(path), str(bak))
+            with tempfile.NamedTemporaryFile(dir=path.parent, prefix=".recall-backup-", delete=False) as handle:
+                backup_tmp = Path(handle.name)
+                handle.write(path.read_bytes())
+                handle.flush()
+                os.fsync(handle.fileno())
+        if before_commit:
+            before_commit()
+        if backup_tmp:
+            backup_tmp.replace(bak)
         tmp.replace(path)
     finally:
         tmp.unlink(missing_ok=True)
+        if backup_tmp:
+            backup_tmp.unlink(missing_ok=True)
 
 
 def write_state(project: str, data: dict, workspace_root: Path | None = None) -> Path:
@@ -355,7 +415,11 @@ def write_state(project: str, data: dict, workspace_root: Path | None = None) ->
             raise StateConflict("State conflict: existing state requires a revision-aware read before writing")
         data["updated"] = _iso_now()
         validate_state(data)
-        atomic_write(path, data)
+        atomic_write(
+            path,
+            data,
+            before_commit=(lambda: check_state_revision(data, path)) if isinstance(data, StateDocument) else None,
+        )
         if isinstance(data, StateDocument):
             data.revision = file_revision(path)
         try:

@@ -30,6 +30,7 @@
 import fs from "node:fs";
 import path from "node:path";
 import { Reporter } from "./_lib/reporter.mjs";
+import { validateProject } from "./validate-risk-authorizations.mjs";
 
 const ROOT = "agent-output";
 
@@ -113,6 +114,13 @@ if (projects.length === 0) {
 for (const project of projects) {
   const projectDir = path.join(ROOT, project);
   const sessionState = path.join(projectDir, "00-session-state.json");
+  if (fs.existsSync(sessionState)) {
+    try {
+      for (const error of validateProject(path.resolve("."), project)) r.error(project, error);
+    } catch (error) {
+      r.error(project, `Risk authorization check unavailable: ${error.message}`);
+    }
+  }
   for (const [stepKey, gate] of Object.entries(GATES)) {
     r.tick();
     const gatingArtifact = [gate.gatingArtifact, gate.alternativeArtifact].find(

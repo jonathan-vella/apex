@@ -1,0 +1,354 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "risk-authorization-v1",
+  "oneOf": [
+    { "$ref": "#/$defs/authorization" },
+    { "$ref": "#/$defs/approval" },
+    { "$ref": "#/$defs/eligibility" },
+    { "$ref": "#/$defs/exception" },
+    { "$ref": "#/$defs/receipt" },
+    { "$ref": "#/$defs/trust" },
+    { "$ref": "#/$defs/envelope" }
+  ],
+  "$defs": {
+    "text": { "type": "string", "minLength": 1, "pattern": "\\S" },
+    "hash": { "type": "string", "pattern": "^[a-f0-9]{64}$" },
+    "texts": { "type": "array", "minItems": 1, "uniqueItems": true, "items": { "$ref": "#/$defs/text" } },
+    "actions": {
+      "type": "array",
+      "minItems": 1,
+      "uniqueItems": true,
+      "items": {
+        "enum": ["plan-complete", "codegen", "code-complete", "deploy", "deployment-complete", "teardown-complete"]
+      }
+    },
+    "ref": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["path", "sha256"],
+      "properties": { "path": { "$ref": "#/$defs/text" }, "sha256": { "$ref": "#/$defs/hash" } }
+    },
+    "envelope": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["schema_version", "key_id", "payload", "signature"],
+      "properties": {
+        "schema_version": { "const": "risk-envelope-v1" },
+        "key_id": { "$ref": "#/$defs/text" },
+        "payload": { "$ref": "#/$defs/text" },
+        "signature": { "$ref": "#/$defs/text" }
+      }
+    },
+    "scope": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["kind", "environment", "operation"],
+      "properties": {
+        "kind": { "enum": ["kit", "deployment"] },
+        "environment": { "const": "non-production-lab" },
+        "operation": { "$ref": "#/$defs/text" },
+        "tenant_id": { "$ref": "#/$defs/text" },
+        "subscription_id": { "$ref": "#/$defs/text" },
+        "event_id": { "$ref": "#/$defs/text" },
+        "event_expires_at": { "$ref": "#/$defs/text" },
+        "cleanup_owner": { "$ref": "#/$defs/text" },
+        "teardown_due_at": { "$ref": "#/$defs/text" },
+        "deployment_context": { "$ref": "#/$defs/ref" }
+      }
+    },
+    "finding": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "id",
+        "classification",
+        "rule_reference",
+        "rationale",
+        "residual_impact",
+        "owner",
+        "eligibility_evidence"
+      ],
+      "properties": {
+        "id": { "type": "string", "pattern": "^[a-f0-9]{8}$" },
+        "classification": { "enum": ["best-practice", "residual-risk", "mandatory-with-exception"] },
+        "rule_reference": { "$ref": "#/$defs/text" },
+        "rationale": { "$ref": "#/$defs/text" },
+        "residual_impact": { "$ref": "#/$defs/text" },
+        "owner": { "$ref": "#/$defs/text" },
+        "eligibility_evidence": { "type": "array", "minItems": 1, "items": { "$ref": "#/$defs/ref" } },
+        "mandatory_exception": { "$ref": "#/$defs/ref" }
+      }
+    },
+    "binding": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["review", "artifact", "cache_inputs", "supporting_inputs", "findings"],
+      "properties": {
+        "review": { "$ref": "#/$defs/ref" },
+        "artifact": { "$ref": "#/$defs/ref" },
+        "cache_inputs": { "type": "object", "minProperties": 6, "additionalProperties": { "$ref": "#/$defs/text" } },
+        "supporting_inputs": { "type": "array", "minItems": 1, "items": { "$ref": "#/$defs/ref" } },
+        "findings": { "type": "array", "minItems": 1, "items": { "$ref": "#/$defs/finding" } }
+      }
+    },
+    "obligation": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "phase", "owner", "requirement"],
+      "properties": {
+        "id": { "$ref": "#/$defs/text" },
+        "phase": { "enum": ["before-plan", "before-codegen", "before-deploy", "after-execution", "after-teardown"] },
+        "owner": { "$ref": "#/$defs/text" },
+        "requirement": { "$ref": "#/$defs/text" }
+      }
+    },
+    "authorization": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "schema_version",
+        "id",
+        "project",
+        "scope",
+        "actions",
+        "issued_at",
+        "not_before",
+        "expires_at",
+        "revocation_conditions",
+        "authority_evidence",
+        "preserved_reviews",
+        "bindings",
+        "obligations"
+      ],
+      "properties": {
+        "schema_version": { "const": "risk-authorization-v1" },
+        "id": { "$ref": "#/$defs/text" },
+        "project": { "$ref": "#/$defs/text" },
+        "scope": { "$ref": "#/$defs/scope" },
+        "actions": { "$ref": "#/$defs/actions" },
+        "issued_at": { "$ref": "#/$defs/text" },
+        "not_before": { "$ref": "#/$defs/text" },
+        "expires_at": { "$ref": "#/$defs/text" },
+        "revocation_conditions": {
+          "type": "array",
+          "minItems": 5,
+          "maxItems": 5,
+          "uniqueItems": true,
+          "items": {
+            "enum": ["input-change", "scope-change", "authority-revoked", "authorization-revoked", "validity-expired"]
+          }
+        },
+        "authority_evidence": { "$ref": "#/$defs/text" },
+        "preserved_reviews": { "type": "array", "items": { "$ref": "#/$defs/ref" } },
+        "bindings": { "type": "array", "minItems": 1, "items": { "$ref": "#/$defs/binding" } },
+        "obligations": { "type": "array", "minItems": 1, "items": { "$ref": "#/$defs/obligation" } }
+      }
+    },
+    "approval": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "schema_version",
+        "id",
+        "project",
+        "authorization_sha256",
+        "actions",
+        "approved_at",
+        "not_before",
+        "expires_at",
+        "verified_obligations"
+      ],
+      "properties": {
+        "schema_version": { "const": "risk-gate-approval-v1" },
+        "id": { "$ref": "#/$defs/text" },
+        "project": { "$ref": "#/$defs/text" },
+        "authorization_sha256": { "$ref": "#/$defs/hash" },
+        "actions": { "$ref": "#/$defs/actions" },
+        "approved_at": { "$ref": "#/$defs/text" },
+        "not_before": { "$ref": "#/$defs/text" },
+        "expires_at": { "$ref": "#/$defs/text" },
+        "verified_obligations": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["id", "evidence"],
+            "properties": { "id": { "$ref": "#/$defs/text" }, "evidence": { "$ref": "#/$defs/ref" } }
+          }
+        }
+      }
+    },
+    "eligibility": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "schema_version",
+        "id",
+        "project",
+        "actions",
+        "not_before",
+        "expires_at",
+        "review_sha256",
+        "finding_id",
+        "classification",
+        "rule_reference",
+        "applicable_law",
+        "mandatory_requirement",
+        "technical_deployment_possible",
+        "source_evidence"
+      ],
+      "properties": {
+        "schema_version": { "const": "risk-eligibility-v1" },
+        "id": { "$ref": "#/$defs/text" },
+        "project": { "$ref": "#/$defs/text" },
+        "actions": { "$ref": "#/$defs/actions" },
+        "not_before": { "$ref": "#/$defs/text" },
+        "expires_at": { "$ref": "#/$defs/text" },
+        "review_sha256": { "$ref": "#/$defs/hash" },
+        "finding_id": { "type": "string", "pattern": "^[a-f0-9]{8}$" },
+        "classification": {
+          "enum": [
+            "best-practice",
+            "residual-risk",
+            "mandatory-with-exception",
+            "law",
+            "technically-impossible",
+            "unresolved"
+          ]
+        },
+        "rule_reference": { "$ref": "#/$defs/text" },
+        "applicable_law": { "type": "boolean" },
+        "mandatory_requirement": { "type": "boolean" },
+        "technical_deployment_possible": { "type": "boolean" },
+        "source_evidence": { "type": "array", "minItems": 1, "items": { "$ref": "#/$defs/ref" } }
+      }
+    },
+    "exception": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "schema_version",
+        "id",
+        "project",
+        "actions",
+        "not_before",
+        "expires_at",
+        "review_sha256",
+        "finding_id",
+        "rule_reference",
+        "authority_evidence",
+        "scope",
+        "source_evidence"
+      ],
+      "properties": {
+        "schema_version": { "const": "risk-mandatory-exception-v1" },
+        "id": { "$ref": "#/$defs/text" },
+        "project": { "$ref": "#/$defs/text" },
+        "actions": { "$ref": "#/$defs/actions" },
+        "not_before": { "$ref": "#/$defs/text" },
+        "expires_at": { "$ref": "#/$defs/text" },
+        "review_sha256": { "$ref": "#/$defs/hash" },
+        "finding_id": { "type": "string", "pattern": "^[a-f0-9]{8}$" },
+        "rule_reference": { "$ref": "#/$defs/text" },
+        "authority_evidence": { "$ref": "#/$defs/text" },
+        "scope": { "$ref": "#/$defs/scope" },
+        "source_evidence": { "type": "array", "minItems": 1, "items": { "$ref": "#/$defs/ref" } }
+      }
+    },
+    "receipt": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "schema_version",
+        "id",
+        "project",
+        "actions",
+        "not_before",
+        "expires_at",
+        "scope",
+        "context_sha256",
+        "execution_id",
+        "phase",
+        "started_at",
+        "finished_at",
+        "observed_at",
+        "source_evidence"
+      ],
+      "properties": {
+        "schema_version": { "const": "risk-lifecycle-receipt-v1" },
+        "id": { "$ref": "#/$defs/text" },
+        "project": { "$ref": "#/$defs/text" },
+        "actions": { "$ref": "#/$defs/actions" },
+        "not_before": { "$ref": "#/$defs/text" },
+        "expires_at": { "$ref": "#/$defs/text" },
+        "scope": { "$ref": "#/$defs/scope" },
+        "context_sha256": { "$ref": "#/$defs/hash" },
+        "execution_id": { "$ref": "#/$defs/text" },
+        "phase": { "enum": ["execution", "teardown"] },
+        "started_at": { "$ref": "#/$defs/text" },
+        "finished_at": { "$ref": "#/$defs/text" },
+        "observed_at": { "$ref": "#/$defs/text" },
+        "source_evidence": { "type": "array", "minItems": 1, "items": { "$ref": "#/$defs/ref" } },
+        "prior_execution": { "$ref": "#/$defs/ref" }
+      }
+    },
+    "grant": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "key_id",
+        "principal",
+        "public_key",
+        "roles",
+        "projects",
+        "actions",
+        "authority_evidence",
+        "not_before",
+        "expires_at",
+        "tenants",
+        "subscriptions"
+      ],
+      "properties": {
+        "key_id": { "$ref": "#/$defs/text" },
+        "principal": { "$ref": "#/$defs/text" },
+        "public_key": { "$ref": "#/$defs/text" },
+        "roles": {
+          "type": "array",
+          "minItems": 1,
+          "uniqueItems": true,
+          "items": {
+            "enum": [
+              "kit-maintainer",
+              "deployment-risk-owner",
+              "human-gate-approver",
+              "mandatory-exception-owner",
+              "eligibility-reviewer",
+              "lifecycle-verifier"
+            ]
+          }
+        },
+        "projects": { "$ref": "#/$defs/texts" },
+        "actions": { "$ref": "#/$defs/actions" },
+        "authority_evidence": { "$ref": "#/$defs/text" },
+        "not_before": { "$ref": "#/$defs/text" },
+        "expires_at": { "$ref": "#/$defs/text" },
+        "tenants": { "type": "array", "uniqueItems": true, "items": { "$ref": "#/$defs/text" } },
+        "subscriptions": { "type": "array", "uniqueItems": true, "items": { "$ref": "#/$defs/text" } },
+        "rules": { "type": "array", "uniqueItems": true, "items": { "$ref": "#/$defs/text" } }
+      }
+    },
+    "trust": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["schema_version", "not_before", "expires_at", "revoked_ids", "revoked_keys", "grants"],
+      "properties": {
+        "schema_version": { "const": "risk-trust-v1" },
+        "not_before": { "$ref": "#/$defs/text" },
+        "expires_at": { "$ref": "#/$defs/text" },
+        "revoked_ids": { "type": "array", "uniqueItems": true, "items": { "$ref": "#/$defs/text" } },
+        "revoked_keys": { "type": "array", "uniqueItems": true, "items": { "$ref": "#/$defs/text" } },
+        "grants": { "type": "array", "minItems": 1, "items": { "$ref": "#/$defs/grant" } }
+      }
+    }
+  }
+}

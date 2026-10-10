@@ -256,8 +256,26 @@ for (const edge of graph.edges) {
 
 // Validate metadata.version
 const expectedMajor = "2";
-const knownVersions = new Set(["2.1", "2.2", "2.3", "2.4"]);
+const knownVersions = new Set(["2.1", "2.2", "2.3", "2.4", "2.5"]);
 const metaVersion = graph.metadata?.version;
+if (metaVersion === "2.5") {
+  const contract = graph.metadata?.risk_acceptance;
+  if (
+    contract?.contract !== "risk-authorization-v1" ||
+    contract?.eligibility !== "non-production-lab" ||
+    contract?.review_verdicts_unchanged !== true ||
+    contract?.readiness_command !== "apex-recall check-gate" ||
+    JSON.stringify(contract?.kit_actions) !== JSON.stringify(["plan-complete", "codegen", "code-complete"]) ||
+    contract?.deployment_requires !== "separate-adopter-tenant-subscription-event-authorization-and-human-approval"
+  )
+    r.error("Invalid lab-only risk authorization contract");
+  if (
+    graph.nodes["step-4"]?.challenger?.exit_criteria !== "all-passes-APPROVED" ||
+    graph.nodes["step-4"]?.challenger?.exception_exit_criteria !==
+      "current-explicit-lab-authorization-and-separate-human-approval"
+  )
+    r.error("Plan review exit criteria must preserve the default gate and distinct explicit exception");
+}
 if (metaVersion === undefined) {
   r.warn("metadata.version missing — older consumers may rely on it");
 } else if (!knownVersions.has(metaVersion)) {

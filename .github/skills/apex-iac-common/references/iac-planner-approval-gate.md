@@ -8,13 +8,16 @@ references this file rather than inlining the full text.
 Apply the canonical [review lifecycle](../../apex-azure-defaults/references/adversarial-review-protocol.md#review-lifecycle)
 before the step-specific stages below. Verify proposed mitigations; automatic must-fix repair does not authorize redesign.
 
-## Stage 1 — Auto-apply every `must_fix` (mandatory)
+## Stage 1 — Repair Unexcepted `must_fix` Findings
 
-All `must_fix` findings would block deployment, violate the security
-baseline, or break a hard governance constraint. They are **not
-negotiable** and **must not** be presented as user choices.
+Default: repair every must-fix within the existing authorization and iteration cap. Do not assume every recommendation
+is a mandatory rule. If remediation is infeasible, stop for explicit per-finding owner authorization under the
+[lab risk contract](../../../../tools/apex-recall/docs/risk-authorizations.md). Ordinary consent is not authority.
+Applicable law, technical impossibility and mandatory requirements without a valid rule-authority exception remain
+non-waivable. Unresolved eligibility/authority blocks. Do not automatically select all findings or rewrite review evidence.
+Only a current evaluator result permits skipping repair of its explicitly covered findings for its exact lab action.
 
-For every `must_fix` finding across all passes:
+For every unexcepted `must_fix` finding across all passes:
 
 1. Apply the `suggested_fix.proposed_edit` (formerly `suggested_mitigation`)
   to `04-implementation-plan.md` using available targeted editing tools,
@@ -69,6 +72,13 @@ on the remaining `should_fix` set only:
   `apex-recall checkpoint <project> 4 phase_5_should_fix_decided --json`.
 
 ## Stage 3 — Final proceed gate
+
+For an explicit default-mode lab exception, evaluate `check-gate --action plan-complete --authorization-only` first,
+present unresolved findings and residual impacts, then obtain the separate signed human gate approval per the lab
+contract. Complete with explicit `--risk-authorization` and `--risk-approval`; combine with `--plan-review` only when
+that exact independently authorized review is bound. Keep NEEDS_REVISION unchanged and report `exception-authorized`.
+The completion write records `plan_status=EXCEPTION_AUTHORIZED`, not APPROVED. CodeGen separately checks `codegen`;
+Plan-only permission does not authorize a transition to Step 5. All non-review validators and frozen inputs still apply.
 
 Present the final aggregated summary (counts of accept/reject/defer/edit
 for must_fix + should_fix) and the handoff to the appropriate CodeGen

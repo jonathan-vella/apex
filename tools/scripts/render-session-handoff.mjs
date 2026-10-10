@@ -22,6 +22,22 @@ export function renderHandoff(view, { owner, operation }) {
   for (const result of Object.values(session.effective_reviews || {})) {
     if (result.status !== "current") throw new Error("Selected review is invalid; return to its owner");
   }
+  const action = /CodeGen$/.test(owner)
+    ? "codegen"
+    : /Deploy$/.test(owner)
+      ? "deploy"
+      : owner === "08-As-Built"
+        ? "deployment-complete"
+        : "plan-complete";
+  const readiness = session.gate_readiness?.[action];
+  if (readiness?.status === "blocked") throw new Error(`Requested ${action} gate is blocked: ${readiness.error}`);
+  if (Object.keys(session.risk_authorizations || {}).length && !readiness)
+    throw new Error("Current action-specific authorization evaluation required");
+  const reviewFindings = Object.values(session.effective_reviews || {}).flatMap(
+    (review) => review.unresolved_findings || [],
+  );
+  const unresolved =
+    readiness?.status === "exception-authorized" ? readiness.unresolved_findings || reviewFindings : reviewFindings;
   const lines = [
     `# ${inline(view.project)} - Handoff`,
     `Next owner: ${inline(owner)} | Requested operation: ${inline(operation)}`,
@@ -33,11 +49,24 @@ export function renderHandoff(view, { owner, operation }) {
     ["iac_tool", "region", "deployment_strategy", "plan_status"]
       .filter((key) => session.decisions?.[key] !== undefined)
       .map((key) => `- ${key}: ${inline(session.decisions[key])}`),
-    (session.open_findings || []).map((finding) => `- Recorded finding (owner must reconcile): ${inline(finding)}`),
+    [
+      ...unresolved.map(
+        (finding) =>
+          `- Unresolved must_fix ${inline(finding.id)}: ${readiness?.status === "exception-authorized" ? "risk-accepted" : "unresolved"}, not closed; owner=${inline(finding.owner)}; impact=${inline(finding.residual_impact)}.`,
+      ),
+      ...(session.open_findings || []).map(
+        (finding) => `- Recorded finding (owner must reconcile): ${inline(finding)}`,
+      ),
+    ],
     [
       `- Human-selected next owner: ${inline(owner)}.`,
       "- This handoff grants no new approval, review allowance, deployment permission or data-plane access.",
       "- Preserve frozen inputs and current reviews; incomplete evidence returns to its owner.",
+      ...(readiness?.status === "exception-authorized"
+        ? [
+            `- ${action}: exception-authorized only for ${inline(readiness.scope.kind)} / ${inline(readiness.scope.environment)}; review verdict unchanged.`,
+          ]
+        : []),
     ],
     Object.entries(session.review_selections || {}).map(
       ([step, record]) => `- Step ${inline(step)} selection: ${inline(record.path)}; ${inline(record.input_coverage)}.`,

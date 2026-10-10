@@ -54,3 +54,28 @@ test("handoff refuses evidence failure and overflow instead of dropping blockers
   overflow.session.open_findings = Array.from({ length: 60 }, (_, index) => `must_fix: ${index}`);
   assert.throws(() => renderHandoff(overflow, options), /exceeds limit/);
 });
+
+test("exception handoff keeps findings visible and cannot grant deployment", () => {
+  const authorized = view();
+  authorized.session.risk_authorizations = { "plan-complete": { schema_version: "risk-selection-v1" } };
+  authorized.session.effective_reviews[4] = {
+    status: "current",
+    gate_status: "exception-authorized",
+    unresolved_findings: [{ id: "abcdef01", owner: "kit owner", residual_impact: "limited lab capability" }],
+  };
+  authorized.session.gate_readiness = {
+    codegen: { status: "exception-authorized", scope: { kind: "kit", environment: "non-production-lab" } },
+    deploy: { status: "blocked", error: "Adopter approval required" },
+  };
+  assert.match(renderHandoff(authorized, options), /Unresolved must_fix abcdef01: risk-accepted, not closed/);
+  assert.throws(() => renderHandoff(authorized, { owner: "07b-Bicep Deploy", operation: "deploy" }), /blocked/);
+  authorized.session.gate_readiness["plan-complete"] = { status: "blocked", error: "historical permission expired" };
+  authorized.session.gate_readiness["deployment-complete"] = {
+    status: "exception-authorized",
+    scope: { kind: "deployment", environment: "non-production-lab" },
+  };
+  assert.match(
+    renderHandoff(authorized, { owner: "08-As-Built", operation: "document actual deployment" }),
+    /deployment-complete: exception-authorized/,
+  );
+});

@@ -19,6 +19,10 @@ required lenses, human gates and existing repair caps remain authoritative; this
 2. Verify primary and declared supporting inputs with `--verify-cache`, review identity/lens and unresolved findings.
   A current hash alone is not semantic approval. An accepted mitigation is not verified closure. Missing/stale
   evidence or unresolved current must-fix findings block advancement, regardless of historical step completion.
+  The only supported residual-risk route is the explicit [lab authorization contract](../../../../tools/apex-recall/docs/risk-authorizations.md).
+  Validate authorization separately from review integrity; never change findings, severity, verdicts or review hashes.
+  A current `exception-authorized` action retains NEEDS_REVISION and unresolved findings, and still needs separate
+  human gate approval. Kit permission cannot authorize adopter deployment; unknown authority/eligibility fails closed.
 3. Before an authorized repair, compare the proposed change with approved resource types, SKUs, subnet placement,
   access modes and cost basis. Verify the reviewer's recommendation against provider or recorded proof evidence.
   Fix the finding without inventing topology. A proof establishes tested behavior, not authority to copy all its
@@ -400,7 +404,8 @@ Before building the panel:
 1. If `challenge-findings-{type}-decisions.json` exists, read it.
 2. Compute `issue_id` for every finding in the merged source set (2e).
 3. Reuse an existing decision only for an unchanged issue and mitigation. Verify closure independently;
-  unresolved blockers remain blocking even when previously accepted, rejected or deferred.
+  unresolved blockers remain blocking even when previously accepted, rejected or deferred. Ordinary finding consent
+  is not risk authorization; only the current explicit lab evaluator can authorize a listed action without closure.
 
 If the sidecar is absent, treat as "no prior decisions" — legacy
 artifacts that pre-date this protocol work unchanged.

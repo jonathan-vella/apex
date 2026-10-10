@@ -35,6 +35,10 @@ Step 4` handoff. Do not patch the plan in place.
   Use `session.review_selections` and `session.effective_reviews` from `apex-recall show --json` for newly persisted
   selections. Review selection does not authorize operations. Missing legacy structured selection requires explicit
   owner selection, not parsing audit prose; separately required contract and operational checks still apply.
+  For explicit lab risk acceptance, run `apex-recall check-gate <project> --action codegen --json` before every entry
+  or resume. Only a current action-specific exception and separate human approval permit its listed unresolved
+  findings; retain NEEDS_REVISION, frozen inputs and all contract/security checks. Kit authorization grants no
+  deployment permission. Follow the [lab risk contract](../../../../tools/apex-recall/docs/risk-authorizations.md).
 
 ## Phase 1: Preflight Check
 
@@ -115,7 +119,7 @@ Gate: do not proceed to code generation with unresolved Deny policy violations.
 4. Merge governance tags with baseline defaults (governance wins)
 5. Validate every planned resource can comply
 6. If any Deny policy is unsatisfiable, use `askQuestions` to present the unresolved
-   policies and collect user decision (return to Planner or override)
+  policies and return to Planner; chat consent cannot override a mandatory rule or deployment impossibility
 
 Policy Effect Reference: `apex-azure-defaults/references/policy-effect-decision-tree.md`
 

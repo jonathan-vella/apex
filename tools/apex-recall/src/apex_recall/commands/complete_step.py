@@ -96,7 +96,9 @@ def _challenger_findings_missing(
     return (False, str(gating_path) if gating_path else None, str(sidecar_path) if sidecar_path else None)
 
 
-def _challenger_findings_invalid(project: str, step: str, governance_review: Path | None = None) -> str | None:
+def _challenger_findings_invalid(
+    project: str, step: str, governance_review: Path | None = None, allow_unresolved: bool = False
+) -> str | None:
     """Validate present reviews before mutation; missing-review bypass cannot waive these checks."""
     root = session_state_path(project).parent.parent.parent.resolve()
     validator = root / "tools/scripts/validate-challenger-findings.mjs"
@@ -130,11 +132,20 @@ def _challenger_findings_invalid(project: str, step: str, governance_review: Pat
                 return f"{sidecar}: required pass-{expected_pass} review is invalid"
             if document.get("overall_assessment") in ("BLOCKED", "FAILED"):
                 return f"{sidecar}: reviewer reported blocked/failed"
-            if document.get("must_fix_count") != 0 or any(
-                not isinstance(finding, dict) or finding.get("severity") == "must_fix"
-                for finding in document["findings"]
+            if not allow_unresolved and (
+                document.get("must_fix_count") != 0
+                or any(
+                    not isinstance(finding, dict) or finding.get("severity") == "must_fix"
+                    for finding in document["findings"]
+                )
             ):
                 return f"{sidecar}: unresolved must_fix findings; decisions are not closure evidence"
+            if (
+                allow_unresolved
+                and document.get("must_fix_count", 0)
+                and document.get("overall_assessment") != "NEEDS_REVISION"
+            ):
+                return f"{sidecar}: unresolved findings must retain NEEDS_REVISION, not APPROVED"
             if not validator.is_file():
                 return f"{validator}: required strict review validator unavailable"
             result = subprocess.run(
@@ -358,9 +369,22 @@ def run(args) -> int:
             print('--allow-missing-challenger requires --challenger-skip-reason "<reason>" for the audit trail.')
         return 2
 
-    invalid = _challenger_findings_invalid(project, step, governance_review)
-    if invalid:
-        return _report_invalid_review(project, step, invalid, as_json)
+    from ..risk_gate import COMPLETION_ACTIONS, evaluate_gate, record_authorization
+
+    risk_result = None
+    try:
+        if step in COMPLETION_ACTIONS and (
+            data.get("risk_authorizations") or getattr(args, "risk_authorization", None)
+        ):
+            risk_result = evaluate_gate(project, data, COMPLETION_ACTIONS[step], args, selected=governance_review)
+        else:
+            if getattr(args, "risk_authorization", None) or getattr(args, "risk_approval", None):
+                raise ValueError("Risk authorization is supported only for Plan/CodeGen/lab deployment actions")
+            invalid = _challenger_findings_invalid(project, step, governance_review)
+            if invalid:
+                raise ValueError(invalid)
+    except ValueError as error:
+        return _report_invalid_review(project, step, str(error), as_json)
     check_state_revision(data, session_state_path(project))
 
     prior = data.get("review_selections", {}).get(step)
@@ -370,7 +394,12 @@ def run(args) -> int:
         or prior
         and all(prior.get(key) == value for key, value in selected.items() if key != "selected_at")
     )
-    if data.get("steps", {}).get(step, {}).get("status") == "complete" and same_selection:
+    same_risk = (
+        not risk_result
+        or not risk_result.get("record")
+        or data.get("risk_authorizations", {}).get(risk_result["action"]) == risk_result["record"]
+    )
+    if data.get("steps", {}).get(step, {}).get("status") == "complete" and same_selection and same_risk:
         print(
             json.dumps(
                 {
@@ -390,13 +419,14 @@ def run(args) -> int:
     step_data = data["steps"].get(step, {})
     now = _iso_now()
     step_data["status"] = "complete"
-    step_data["completed"] = now
+    step_data["completed"] = step_data.get("completed") or now
     step_data["sub_step"] = None
     data["steps"][step] = step_data
 
     if blocked and allow_missing:
         _record_skip(data, step, skip_reason, now)
     record_selection(data, step, selection, now)
+    record_authorization(data, risk_result, now)
 
     write_state(project, data)
 
@@ -411,7 +441,10 @@ def run(args) -> int:
         "00-session-state.json write)."
     )
 
-    result = {"project": project, "step": step, "status": "complete", "completed": now}
+    result = {"project": project, "step": step, "status": "complete", "completed": step_data["completed"]}
+    if risk_result:
+        result["review_gate"] = risk_result["status"]
+        result["unresolved_findings"] = risk_result["unresolved_findings"]
     if blocked and allow_missing:
         result["challenger_skip_recorded"] = True
     result["hint"] = hint

@@ -2,6 +2,18 @@
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "https://github.com/jonathan-vella/apex/schemas/session-state.schema.json",
   "title": "APEX Session State",
+  "$defs": {
+    "riskReference": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["path", "sha256"],
+      "properties": {
+        "path": { "type": "string", "minLength": 1 },
+        "sha256": { "type": "string", "pattern": "^[a-f0-9]{64}$" },
+        "id": { "type": "string", "minLength": 1 }
+      }
+    }
+  },
   "description": "Shape of agent-output/{project}/00-session-state.json produced by the Orchestrator. Tracks workflow progress, decisions, and review audit. Enforced by scripts/validate-session-state.mjs.",
   "type": "object",
   "required": [
@@ -17,7 +29,59 @@
     "steps"
   ],
   "additionalProperties": true,
+  "allOf": [
+    {
+      "if": {
+        "anyOf": [
+          {
+            "required": ["decisions"],
+            "properties": {
+              "decisions": {
+                "required": ["plan_status"],
+                "properties": { "plan_status": { "const": "EXCEPTION_AUTHORIZED" } }
+              }
+            }
+          },
+          {
+            "required": ["decision_log"],
+            "properties": {
+              "decision_log": {
+                "contains": {
+                  "type": "object",
+                  "required": ["choice"],
+                  "properties": { "choice": { "const": "EXCEPTION_AUTHORIZED" } }
+                }
+              }
+            }
+          }
+        ]
+      },
+      "then": { "required": ["risk_authorizations"], "properties": { "risk_authorizations": { "minProperties": 1 } } }
+    }
+  ],
   "properties": {
+    "risk_authorizations": {
+      "type": "object",
+      "additionalProperties": false,
+      "patternProperties": {
+        "^(deployment-complete|teardown-complete)$": {
+          "required": ["execution"],
+          "properties": { "execution": { "allOf": [{ "$ref": "#/$defs/riskReference" }, { "required": ["id"] }] } }
+        },
+        "^(plan-complete|codegen|code-complete|deploy|deployment-complete|teardown-complete)$": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["schema_version", "authorization", "approval", "context"],
+          "properties": {
+            "schema_version": { "const": "risk-selection-v1" },
+            "authorization": { "$ref": "#/$defs/riskReference" },
+            "approval": { "$ref": "#/$defs/riskReference" },
+            "execution": { "oneOf": [{ "type": "null" }, { "$ref": "#/$defs/riskReference" }] },
+            "context": { "oneOf": [{ "type": "null" }, { "$ref": "#/$defs/riskReference" }] }
+          }
+        }
+      }
+    },
     "review_selections": {
       "type": "object",
       "additionalProperties": false,

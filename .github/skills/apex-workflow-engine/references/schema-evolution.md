@@ -77,3 +77,4 @@ If a Phase A change ships and a downstream consumer fails:
 | ------- | ---------- | ------------------------------------------------------------------------------------------------------------------ |
 | 2.1     | (initial)  | Original schema with `nodes`, `edges`, per-node `challenger`, `metadata.version`.                                  |
 | 2.2     | 2026-05-09 | Added top-level `challenger`, `return_edges`, `orchestrator_targets`, `ui_pseudo_targets`; condition may be array. |
+| 2.5     | 2026-10-10 | Added explicit lab authorization readiness; preserves default review gates and separate human approval. |

@@ -82,6 +82,8 @@ patch and validate locally without asking, and finish authorized work before ask
 Missing predecessors, stale L0 evidence, unresolved Deny constraints, invalid contracts,
 review failures or missing human approval block completion. Missing tools/models or
 worker eligibility return `blocked`; never skip checks or substitute models.
+Only a current explicit [lab risk authorization](../../tools/apex-recall/docs/risk-authorizations.md) may permit
+an unresolved Plan finding for its listed action; preserve NEEDS_REVISION and obtain separate human gate approval.
 Unwanted early stops: a summary announcing the next phase without taking it, an offer to continue,
 a list of non-blocking decisions, or a milestone report. Track open phases in the todo list.
 
@@ -478,19 +480,9 @@ If any finding has `requires_step == "step-2"`, halt and return to
 03-Architect via the `step-4 → step-2` return_edge — do not mask or
 self-edit the plan. Max **2 attempts** per pass; after the second
 NEEDS_REVISION on the same `finding_id` (the `requires_step == "step-2"`
-flag persists across re-runs), present the user with
-**REVISE / OVERRIDE-WITH-RATIONALE / ABORT**.
-
-OVERRIDE captures the rationale and `finding_id` via apex-recall:
-
-```bash
-apex-recall decide <project> \
-  --key accepted_risks \
-  --value '{"finding_id":"<id>","override_rationale":"<text>","step":"step-4","requires_step":"step-2"}' \
-  --rationale "User OVERRIDE after 2 NEEDS_REVISION attempts" \
-  --step 4 \
-  --json
-```
+flag persists across re-runs), offer REVISE / REQUEST EXPLICIT LAB AUTHORIZATION / ABORT.
+A rationale-only `accepted_risks` decision never unlocks a gate. Eligibility and actual owner authority must be
+independently verified through the lab contract; missing evidence stops, and no retry budget is reset.
 
 #### Subagent invocation
 
@@ -551,7 +543,7 @@ For each pass:
 Then run the **three-stage gate** documented in
 [`apex-iac-common/references/iac-planner-approval-gate.md`](../skills/apex-iac-common/references/iac-planner-approval-gate.md):
 
-- **Stage 1** auto-applies every `must_fix` (mandatory; 2-iteration cap;
+- **Stage 1** auto-applies every unexcepted `must_fix` (mandatory; 2-iteration cap;
   unattended mode defers). **Batch protocol**: apply **all** `must_fix`
    edits with available editing tools, preserving user work, **then** recompute the plan
   SHA-256 once, **then** run `validate:iac-contract` +
@@ -579,7 +571,8 @@ plan markdown, including task YAML blocks the contract validator
 does not see), and (e) every
 required Step 3.5/Step 4 artifact and diagram `.py`, `.png`, `.svg` siblings exist per
 [`apex-iac-common/references/step4-required-artifacts.md`](../skills/apex-iac-common/references/step4-required-artifacts.md).
-Then emit:
+For ordinary approval, emit the decision below. For a validated explicit lab exception, follow Stage 3's separate
+human approval and completion options instead; completion records EXCEPTION_AUTHORIZED and preserves the review verdict.
 
 ```bash
 apex-recall decide <project> \
@@ -590,7 +583,7 @@ apex-recall decide <project> \
   --json
 ```
 
-**`complete-step` is forbidden before this decision is recorded.**
+**`complete-step` requires this ordinary decision or the separately validated explicit lab human approval.**
 CodeGen Plan-Readiness Precondition cross-checks this value at boot.
 
 **On completion** (MANDATORY): `apex-recall complete-step <project> 4 --json`
@@ -598,10 +591,10 @@ CodeGen Plan-Readiness Precondition cross-checks this value at boot.
 ## Boundaries
 
 - **Always**: Read governance constraints, verify AVM modules, ask deployment strategy, generate Python diagrams;
-  auto-apply every `must_fix` finding in Phase 5 Stage 1 (mandatory) and re-run challenger to confirm
+   repair every unexcepted `must_fix` in Phase 5 Stage 1 and re-run challenger to confirm technical closure
 - **Needs approval** (other in-scope work proceeds without asking): `should_fix` findings (Stage 2 batched);
   non-standard phase grouping; deviation from arch assessment
-- **Never**: Write IaC code, re-run governance discovery, assume deployment strategy, ask user about `must_fix` findings
+- **Never**: Write IaC code, re-run governance discovery, assume deployment strategy, treat ordinary consent as risk authority
 - **Terraform-specific never**: Plan HCP/cloud backends (`terraform { cloud { } }`, `TFE_TOKEN`) or use
   `terraform -target`; always plan the Azure Storage Account backend
 
