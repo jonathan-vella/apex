@@ -14,7 +14,7 @@ not grant tools, change the active model, or select a recipient agent.
   evidence. Frozen upstream files stay read-only.
 - Before any specialist step, stop and request manual selection of the exact
   named owner with its configured model using the
-  [workflow entry contract](workflow-entry.md). Never execute a Sol step inline
+  [workflow entry contract](workflow-entry.md). Never execute a specialist step inline
   under MAI or invoke it as a MAI subagent.
 - A request for reviewer fan-out is not permission for unnamed default workers.
   Use only explicitly named, available reviewers permitted by the caller's

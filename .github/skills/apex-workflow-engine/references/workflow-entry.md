@@ -14,7 +14,7 @@ selection in a new session. Do not continue under an inherited picker model.
 Do not add tools to compensate for missing access. Prompt tool overrides may
 only narrow the owning agent's permissions.
 
-MAI must not invoke Sol agents as subagents or perform their work inline.
+MAI must not invoke specialist step agents as subagents or perform their work inline.
 The Orchestrator presents a human handoff and stops. Do not enable experimental
 nesting or `context: fork`; do not infer model-tier eligibility or add fallbacks.
 An explicit caller allowlist controls worker invocation, regardless of a

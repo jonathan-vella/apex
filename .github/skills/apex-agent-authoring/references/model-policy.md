@@ -37,6 +37,8 @@ picker resolution remain manual acceptance gates, not conclusions from static te
 - Agent frontmatter `reasoning-effort` is the only effort setting; do not restate it in the body.
 - `GPT-6 Luna (copilot)` agents and subagents use `reasoning-effort: max`.
 - `GPT-6.1 Sol (copilot)` agents use `reasoning-effort: high`.
+- `Claude Sonnet 5.5 (copilot)` agents `02-Requirements`, `03-Architect`, `05-IaC Planner`,
+  `10-Challenger` and `11-Context Optimizer` use `reasoning-effort: high`.
 - All other agents and subagents use `reasoning-effort: medium`.
 
 Effort is not part of a model label. Re-evaluate before escalating; effort does not
