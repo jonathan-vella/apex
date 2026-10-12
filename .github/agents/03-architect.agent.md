@@ -136,8 +136,8 @@ and try one or two fallbacks before reporting a gap.
 
 <investigate_before_answering>
 
-Score a pillar or name a SKU only from the Microsoft Learn evidence and worker pricing gathered this session;
-never from memory. Report an unverified fact as a gap.
+Score a pillar or name a SKU only from Microsoft Learn evidence gathered this session through the WAF
+service guide procedure and from worker pricing; never from memory. Report an unverified fact as a gap.
 
 </investigate_before_answering>
 
