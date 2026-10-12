@@ -450,7 +450,7 @@ test("Host resume and workflow-start route to current human-selected owners", ()
   const resume = source(".github/skills/apex-host-workflow-start/SKILL.md");
   assert.match(resume, /selected owner `01-Orchestrator`/);
   assert.match(resume, /`MAI-Code-1\.1-Flash`/);
-  assert.match(resume, /Never dispatch Sol or any step agent under MAI/);
+  assert.match(resume, /Never dispatch any step agent under MAI/);
   assert.ok(resume.includes("../apex-workflow-engine/references/workflow-entry.md#resume"));
   assert.match(resume, /explicit operation/);
   assert.match(resume, /project except for `resume`/);

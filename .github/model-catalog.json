@@ -13,14 +13,9 @@
         "metadata_status": "unknown"
       },
       "use_for": [
-        "requirements",
-        "architecture",
-        "iac-planning",
-        "review",
-        "context-optimization",
         "utility-prompts"
       ],
-      "notes": "Requested exact label; availability and runtime effort controls require manual verification. Agents use reasoning-effort: high."
+      "notes": "Requested exact label; availability and runtime effort controls require manual verification. Utility prompts use it; the five step agents moved to Claude Sonnet 5.5 and the label stays authorized. Agents on this label use reasoning-effort: high."
     },
     "GPT-6 Sol (copilot)": {
       "vendor": "OpenAI",
@@ -61,7 +56,7 @@
         "metadata_status": "unknown"
       },
       "use_for": [],
-      "notes": "Requested exact label; availability and runtime effort controls require manual verification. No active assignment after the move to GPT-6.1 Sol; stays authorized."
+      "notes": "Requested exact label; availability and runtime effort controls require manual verification. No active assignment after the step agents moved to Claude Sonnet 5.5; stays authorized."
     },
     "Claude Sonnet 5.5 (copilot)": {
       "vendor": "Anthropic",
@@ -73,6 +68,11 @@
         "metadata_status": "unknown"
       },
       "use_for": [
+        "requirements",
+        "architecture",
+        "iac-planning",
+        "review",
+        "context-optimization",
         "design-diagrams",
         "governance",
         "iac-codegen",
@@ -80,7 +80,7 @@
         "as-built-documentation",
         "diagnosis"
       ],
-      "notes": "Requested exact label; availability and runtime effort controls require manual verification. Agents use reasoning-effort: medium."
+      "notes": "Requested exact label; availability and runtime effort controls require manual verification. Requirements, Architect, IaC Planner, Challenger and Context Optimizer use reasoning-effort: high; all other agents use reasoning-effort: medium."
     },
     "GPT-5.6 Terra (copilot)": {
       "vendor": "OpenAI",
@@ -119,19 +119,19 @@
     "description": "Auto-generated inventory of agent → model assignments derived from frontmatter (canonical source). Do not edit by hand; run `node tools/scripts/generate-model-catalog.mjs` or let the lefthook pre-commit hook refresh it when frontmatter changes.",
     "agents": {
       "01-orchestrator.agent.md": "MAI-Code-1.1-Flash",
-      "02-requirements.agent.md": "GPT-6.1 Sol (copilot)",
-      "03-architect.agent.md": "GPT-6.1 Sol (copilot)",
+      "02-requirements.agent.md": "Claude Sonnet 5.5 (copilot)",
+      "03-architect.agent.md": "Claude Sonnet 5.5 (copilot)",
       "04-design.agent.md": "Claude Sonnet 5.5 (copilot)",
       "04g-governance.agent.md": "Claude Sonnet 5.5 (copilot)",
-      "05-iac-planner.agent.md": "GPT-6.1 Sol (copilot)",
+      "05-iac-planner.agent.md": "Claude Sonnet 5.5 (copilot)",
       "06b-bicep-codegen.agent.md": "Claude Sonnet 5.5 (copilot)",
       "06t-terraform-codegen.agent.md": "Claude Sonnet 5.5 (copilot)",
       "07b-bicep-deploy.agent.md": "Claude Sonnet 5.5 (copilot)",
       "07t-terraform-deploy.agent.md": "Claude Sonnet 5.5 (copilot)",
       "08-as-built.agent.md": "Claude Sonnet 5.5 (copilot)",
       "09-diagnose.agent.md": "Claude Sonnet 5.5 (copilot)",
-      "10-challenger.agent.md": "GPT-6.1 Sol (copilot)",
-      "11-context-optimizer.agent.md": "GPT-6.1 Sol (copilot)"
+      "10-challenger.agent.md": "Claude Sonnet 5.5 (copilot)",
+      "11-context-optimizer.agent.md": "Claude Sonnet 5.5 (copilot)"
     },
     "subagents": {
       "bicep-validate-subagent.agent.md": "GPT-6 Luna (copilot)",

@@ -1,6 +1,6 @@
 {
   "$schema": "../../tools/schemas/explorer-graph.schema.json",
-  "generatedAt": "2026-10-10T08:58:37.235Z",
+  "generatedAt": "2026-10-12T16:19:31.904Z",
   "categories": [
     { "id": "agent", "key": "agents", "label": "Agent", "color": "#3b82f6", "shape": "round-rectangle", "count": 14 },
     {
@@ -82,7 +82,7 @@
       "path": ".github/agents/02-requirements.agent.md",
       "links": { "source": "https://github.com/jonathan-vella/apex/blob/main/.github/agents/02-requirements.agent.md" },
       "meta": {
-        "model": "GPT-6.1 Sol (copilot)",
+        "model": "Claude Sonnet 5.5 (copilot)",
         "invocable": true,
         "disableModelInvocation": true,
         "argumentHint": "Describe the Azure workload or project you want to gather requirements for",
@@ -100,7 +100,7 @@
       "path": ".github/agents/03-architect.agent.md",
       "links": { "source": "https://github.com/jonathan-vella/apex/blob/main/.github/agents/03-architect.agent.md" },
       "meta": {
-        "model": "GPT-6.1 Sol (copilot)",
+        "model": "Claude Sonnet 5.5 (copilot)",
         "invocable": true,
         "disableModelInvocation": true,
         "argumentHint": null,
@@ -160,7 +160,7 @@
       "path": ".github/agents/05-iac-planner.agent.md",
       "links": { "source": "https://github.com/jonathan-vella/apex/blob/main/.github/agents/05-iac-planner.agent.md" },
       "meta": {
-        "model": "GPT-6.1 Sol (copilot)",
+        "model": "Claude Sonnet 5.5 (copilot)",
         "invocable": true,
         "disableModelInvocation": true,
         "argumentHint": null,
@@ -326,7 +326,7 @@
       "path": ".github/agents/10-challenger.agent.md",
       "links": { "source": "https://github.com/jonathan-vella/apex/blob/main/.github/agents/10-challenger.agent.md" },
       "meta": {
-        "model": "GPT-6.1 Sol (copilot)",
+        "model": "Claude Sonnet 5.5 (copilot)",
         "invocable": true,
         "disableModelInvocation": true,
         "argumentHint": "Provide the path to the artifact to challenge (e.g. agent-output/my-project/04-implementation-plan.md)",
@@ -346,7 +346,7 @@
         "source": "https://github.com/jonathan-vella/apex/blob/main/.github/agents/11-context-optimizer.agent.md"
       },
       "meta": {
-        "model": "GPT-6.1 Sol (copilot)",
+        "model": "Claude Sonnet 5.5 (copilot)",
         "invocable": true,
         "disableModelInvocation": true,
         "argumentHint": null,

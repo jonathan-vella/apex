@@ -14,7 +14,7 @@ Require an explicit operation; require a project except for `resume`, which may
 discover candidates. Require the correctly selected named owner, its exact
 configured model, and its permitted tools. A skill cannot bind them.
 **STOP** and ask the user to select the owner if any routing evidence is missing.
-Never execute a Sol step under MAI or dispatch it as a MAI subagent.
+Never execute a specialist step under MAI or dispatch it as a MAI subagent.
 
 ## Procedure
 
@@ -30,7 +30,7 @@ Use a supplied project without reconfirmation; otherwise discover candidates
 and ask only when ambiguous. Empty recall never authorizes a fresh start.
 Preserve missing-input recovery, reviews, checkpoints and approvals. Present
 recovered status and the applicable gate or exact human handoff, then stop.
-Never dispatch Sol or any step agent under MAI, or run specialist work inline.
+Never dispatch any step agent under MAI, or run specialist work inline.
 
 This distinct Host slash name does not replace any Local prompt slash name.
 Local `/apex-resume-workflow` is unchanged. Git commit and debug-log export

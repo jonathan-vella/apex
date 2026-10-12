@@ -104,6 +104,7 @@ test("manual maintenance skills retain validation and import approval boundaries
   assert.match(modelPolicy, /Do not load that manual-only skill automatically/);
   assert.match(modelPolicy, /`GPT-6 Luna \(copilot\)` agents and subagents use `reasoning-effort: max`/);
   assert.match(modelPolicy, /`GPT-6\.1 Sol \(copilot\)` agents use `reasoning-effort: high`/);
+  assert.match(modelPolicy, /`10-Challenger` and `11-Context Optimizer` use `reasoning-effort: high`/);
   assert.match(modelPolicy, /All other agents and subagents use `reasoning-effort: medium`/);
   assert.doesNotMatch(modelPolicy, /High: architecture|Medium: structured code generation/);
   const agentsRoot = new URL("../../../.github/agents/", import.meta.url);
@@ -111,12 +112,19 @@ test("manual maintenance skills retain validation and import approval boundaries
     ...readdirSync(agentsRoot).filter((name) => name.endsWith(".agent.md")),
     ...readdirSync(new URL("_subagents/", agentsRoot)).map((name) => `_subagents/${name}`),
   ];
+  const highEffortSonnet = new Set([
+    "02-requirements.agent.md",
+    "03-architect.agent.md",
+    "05-iac-planner.agent.md",
+    "10-challenger.agent.md",
+    "11-context-optimizer.agent.md",
+  ]);
   for (const name of agentFiles) {
     const source = read(new URL(name, agentsRoot));
     const { model, "reasoning-effort": effort } = parseFrontmatter(source);
     const expectedEffort = model.includes("GPT-6 Luna (copilot)")
       ? "max"
-      : model.includes("GPT-6.1 Sol (copilot)")
+      : model.includes("GPT-6.1 Sol (copilot)") || highEffortSonnet.has(name)
         ? "high"
         : "medium";
     assert.equal(effort, expectedEffort, name);
