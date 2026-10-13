@@ -1,5 +1,5 @@
 {
-  "lastUpdated": "2026-10-13T10:27:17.585Z",
+  "lastUpdated": "2026-10-13T11:17:16.062Z",
   "totalCount": 35,
   "sources": [
     "manual-known",
@@ -62,16 +62,6 @@
       "status": "retired"
     },
     {
-      "service": "Retirement Update: SAP",
-      "title": "Retirement Update: SAP container images removed October 14, 2026",
-      "link": "https://azure.microsoft.com/updates?id=571342",
-      "pubDate": "Wed, 16 Sep 2026 17:19:02 Z",
-      "source": "azure-updates-rss",
-      "sunsetDate": "2026-09-14",
-      "replacement": null,
-      "status": "retired"
-    },
-    {
       "service": "Containerized data connector",
       "title": "Retirement: Containerized data connector agent for the Microsoft Sentinel solution for SAP applications",
       "link": "https://azure.microsoft.com/updates?id=568457",
@@ -102,14 +92,14 @@
       "status": "retired"
     },
     {
-      "service": "Transition to using",
-      "title": "Retirement: Transition to using standard tests for single-step availability testing in Azure Monitor application insights by September 30, 2028",
-      "link": "https://azure.microsoft.com/updates?id=transition-to-using-standard-tests-for-singlestep-availability-testing-in-azure-monitor-application-insights-by-30-september",
-      "pubDate": "Fri, 22 Sep 2023 23:00:56 Z",
+      "service": "SAP container images",
+      "title": "Retirement Update: SAP container images removed October 14, 2026",
+      "link": "https://azure.microsoft.com/updates?id=571342",
+      "pubDate": "Wed, 16 Sep 2026 17:19:02 Z",
       "source": "azure-updates-rss",
-      "sunsetDate": "2026-09-30",
+      "sunsetDate": "2026-10-14",
       "replacement": null,
-      "status": "retired"
+      "status": "upcoming"
     },
     {
       "service": "Support for PowerShell 7.4",
@@ -182,6 +172,16 @@
       "status": "upcoming"
     },
     {
+      "service": "Microsoft HPC Pack",
+      "title": "Retirement: Microsoft HPC Pack",
+      "link": "https://azure.microsoft.com/updates?id=570046",
+      "pubDate": "Tue, 29 Sep 2026 17:26:50 Z",
+      "source": "azure-updates-rss",
+      "sunsetDate": "2027-08-27",
+      "replacement": null,
+      "status": "upcoming"
+    },
+    {
       "service": "Azure VMware Solution",
       "title": "Retirement: Azure VMware Solution License-included service will be retired August 30, 2027",
       "link": "https://azure.microsoft.com/updates?id=569535",
@@ -208,6 +208,16 @@
       "pubDate": "Tue, 29 Sep 2026 19:41:09 Z",
       "source": "azure-updates-rss",
       "sunsetDate": "2027-09-29",
+      "replacement": null,
+      "status": "upcoming"
+    },
+    {
+      "service": "Pod name dimension",
+      "title": "Retirement: Pod name dimension in AKS pod platform metrics",
+      "link": "https://azure.microsoft.com/updates?id=570232",
+      "pubDate": "Tue, 06 Oct 2026 22:37:54 Z",
+      "source": "azure-updates-rss",
+      "sunsetDate": "2027-09-30",
       "replacement": null,
       "status": "upcoming"
     },
@@ -261,6 +271,16 @@
       "status": "upcoming"
     },
     {
+      "service": "Transition to using",
+      "title": "Retirement: Transition to using standard tests for single-step availability testing in Azure Monitor application insights by September 30, 2028",
+      "link": "https://azure.microsoft.com/updates?id=transition-to-using-standard-tests-for-singlestep-availability-testing-in-azure-monitor-application-insights-by-30-september",
+      "pubDate": "Fri, 22 Sep 2023 23:00:56 Z",
+      "source": "azure-updates-rss",
+      "sunsetDate": "2028-09-30",
+      "replacement": null,
+      "status": "upcoming"
+    },
+    {
       "service": "Azure Communication Services",
       "title": "Retirement: Azure Communication Services (ACS) standalone services will be retired on September 30, 2028",
       "link": "https://azure.microsoft.com/updates?id=557117",
@@ -285,6 +305,16 @@
       "title": "Retirement: Azure App Service on Azure Stack Hub",
       "link": "https://azure.microsoft.com/updates?id=568178",
       "pubDate": "Tue, 06 Oct 2026 18:24:43 Z",
+      "source": "azure-updates-rss",
+      "sunsetDate": "2029-09-30",
+      "replacement": null,
+      "status": "upcoming"
+    },
+    {
+      "service": "Arc enabled System Center Virtual Machine Manager",
+      "title": "Retirement: Azure Arc enabled System Center Virtual Machine Manager will be retired September 30, 2029",
+      "link": "https://azure.microsoft.com/updates?id=570283",
+      "pubDate": "Tue, 29 Sep 2026 17:36:13 Z",
       "source": "azure-updates-rss",
       "sunsetDate": "2029-09-30",
       "replacement": null,
@@ -317,33 +347,6 @@
       "replacement": "Standard/Premium",
       "source": "manual",
       "notes": "Basic tier has limited features, consider Premium for production"
-    },
-    {
-      "service": "Pod name dimension",
-      "title": "Retirement: Pod name dimension in AKS pod platform metrics",
-      "link": "https://azure.microsoft.com/updates?id=570232",
-      "pubDate": "Tue, 06 Oct 2026 22:37:54 Z",
-      "source": "azure-updates-rss",
-      "sunsetDate": null,
-      "replacement": null
-    },
-    {
-      "service": "Arc enabled System Center Virtual Machine Manager",
-      "title": "Retirement: Azure Arc enabled System Center Virtual Machine Manager will be retired September 30, 2029",
-      "link": "https://azure.microsoft.com/updates?id=570283",
-      "pubDate": "Tue, 29 Sep 2026 17:36:13 Z",
-      "source": "azure-updates-rss",
-      "sunsetDate": null,
-      "replacement": null
-    },
-    {
-      "service": "Microsoft HPC Pack",
-      "title": "Retirement: Microsoft HPC Pack",
-      "link": "https://azure.microsoft.com/updates?id=570046",
-      "pubDate": "Tue, 29 Sep 2026 17:26:50 Z",
-      "source": "azure-updates-rss",
-      "sunsetDate": null,
-      "replacement": null
     }
   ]
 }

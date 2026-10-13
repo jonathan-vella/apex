@@ -8,6 +8,8 @@
  */
 
 import { writeFileSync, existsSync, readFileSync } from "node:fs";
+import path from "node:path";
+import { fileURLToPath } from "node:url";
 import { XMLParser } from "fast-xml-parser";
 
 const OUTPUT_FILE = ".github/data/azure-deprecations.json";
@@ -115,30 +117,7 @@ async function fetchAzureUpdates() {
     }
 
     const xml = await response.text();
-    const parser = new XMLParser();
-    const result = parser.parse(xml);
-
-    const items = result?.rss?.channel?.item || [];
-    const deprecations = [];
-
-    for (const item of items) {
-      const isDeprecation = String(item.category ?? "")
-        .split(",")
-        .some((tag) => tag.trim() === RETIREMENT_CATEGORY);
-
-      if (isDeprecation) {
-        deprecations.push({
-          service: extractServiceName(item.title),
-          title: item.title,
-          link: item.link,
-          pubDate: item.pubDate,
-          source: "azure-updates-rss",
-          sunsetDate: extractSunsetDate(item.description),
-          replacement: null, // Would need NLP to extract
-        });
-      }
-    }
-
+    const deprecations = parseFeed(xml);
     console.log(`Found ${deprecations.length} deprecation notices in RSS feed`);
     return deprecations;
   } catch (error) {
@@ -147,32 +126,113 @@ async function fetchAzureUpdates() {
   }
 }
 
+export function parseFeed(xml) {
+  const result = new XMLParser().parse(xml);
+  const items = result?.rss?.channel?.item || [];
+  const deprecations = [];
+
+  for (const item of items) {
+    const isRetirement = String(item.category ?? "")
+      .split(",")
+      .some((tag) => tag.trim() === RETIREMENT_CATEGORY);
+    if (!isRetirement) continue;
+    deprecations.push({
+      service: extractServiceName(item.title),
+      title: item.title,
+      link: item.link,
+      pubDate: item.pubDate,
+      source: "azure-updates-rss",
+      sunsetDate: extractSunsetDate(item.title, item.description),
+      replacement: null, // Would need NLP to extract
+    });
+  }
+  return deprecations;
+}
+
 function extractServiceName(title) {
   // Extract service name from title (basic extraction)
-  const bare = title?.replace(/^Retirement:\s*/i, "");
+  const bare = title?.replace(/^Retirement(?: Update)?:\s*/i, "");
   const match = bare?.match(/Azure\s+([A-Za-z\s]+?)(?:\s+(?:is|will|retirement|deprecation))/i);
   return match ? match[1].trim() : bare?.split(" ").slice(0, 3).join(" ") || "Unknown";
 }
 
-function extractSunsetDate(description) {
-  // Try to extract date from description
-  const datePatterns = [
-    /(?:by|on|after|before)\s+(\w+\s+\d{1,2},?\s+\d{4})/i,
-    /(\d{4}-\d{2}-\d{2})/,
-    /(\d{1,2}\/\d{1,2}\/\d{4})/,
-  ];
+const MONTHS = [
+  "january",
+  "february",
+  "march",
+  "april",
+  "may",
+  "june",
+  "july",
+  "august",
+  "september",
+  "october",
+  "november",
+  "december",
+];
+const DATE_PATTERN = /\b(?:([A-Z][a-z]+)\s+(\d{1,2}),?\s+(\d{4})|(\d{1,2})\s+([A-Z][a-z]+)\s+(\d{4}))\b/g;
+// A date introduced by one of these is a milestone (for example the start of wind-down), not the retirement.
+const MILESTONE_LEAD = /\b(?:beginning|starting|starts?|from|since)\s+(?:on\s+)?$/i;
+const RETIREMENT_CUE = /\b(?:retire[sd]?|retirement|ends?|sunset|removed|no longer)\b/i;
 
-  for (const pattern of datePatterns) {
-    const match = description?.match(pattern);
-    if (match) {
-      try {
-        return new Date(match[1]).toISOString().split("T")[0];
-      } catch {
-        continue;
-      }
-    }
+function datesIn(text) {
+  const found = [];
+  for (const match of String(text ?? "").matchAll(DATE_PATTERN)) {
+    const monthName = (match[1] ?? match[5]).toLowerCase();
+    const month = MONTHS.indexOf(monthName);
+    if (month < 0) continue;
+    const day = Number(match[2] ?? match[4]);
+    const year = Number(match[3] ?? match[6]);
+    const date = new Date(Date.UTC(year, month, day));
+    if (date.getUTCMonth() !== month || date.getUTCDate() !== day) continue;
+    found.push({ index: match.index, iso: date.toISOString().split("T")[0] });
   }
-  return null;
+  return found;
+}
+
+/** The title states the retirement date when it carries one; descriptions often lead with an earlier milestone. */
+export function extractSunsetDate(title, description) {
+  const fromTitle = datesIn(title)[0];
+  if (fromTitle) return fromTitle.iso;
+
+  const text = String(description ?? "");
+  const all = datesIn(text);
+  const isMilestone = ({ index }) => MILESTONE_LEAD.test(text.slice(Math.max(0, index - 20), index));
+  const candidates = all.filter((date) => !isMilestone(date));
+  const cued = candidates.find(({ index }) => {
+    const sentence = text
+      .slice(Math.max(0, index - 90), index)
+      .split(".")
+      .pop();
+    return RETIREMENT_CUE.test(sentence);
+  });
+  if (cued) return cued.iso;
+  // "Beginning <date>, support for X is retiring": a milestone date whose own sentence says so is the retirement.
+  const milestoneRetirement = all.find(
+    (date) => isMilestone(date) && /\bretir/i.test(text.slice(date.index, date.index + 160).split(".")[0]),
+  );
+  return (milestoneRetirement ?? candidates[0])?.iso ?? null;
+}
+
+/** Merge feed items into the known list (feed items are identified by link) and stamp retired/upcoming status. */
+export function mergeDeprecations(known, feedItems, now = new Date()) {
+  const merged = [...known];
+  for (const item of feedItems) {
+    const exists = merged.some((d) =>
+      d.link ? d.link === item.link : d.service === item.service && d.sku === item.sku,
+    );
+    if (!exists) merged.push(item);
+  }
+  for (const d of merged) {
+    if (d.sunsetDate) d.status = new Date(d.sunsetDate) <= now ? "retired" : "upcoming";
+  }
+  // Soonest first; undated entries last.
+  merged.sort((a, b) => {
+    if (!a.sunsetDate) return 1;
+    if (!b.sunsetDate) return -1;
+    return new Date(a.sunsetDate) - new Date(b.sunsetDate);
+  });
+  return merged;
 }
 
 async function main() {
@@ -192,29 +252,7 @@ async function main() {
   const rssDeprecations = await fetchAzureUpdates();
 
   // Merge with known deprecations (deduplicate by service+sku)
-  const allDeprecations = [...KNOWN_DEPRECATIONS];
-
-  for (const rss of rssDeprecations) {
-    // Feed items have no SKU, so link is the identity; service alone collapses distinct notices.
-    const exists = allDeprecations.some((d) =>
-      d.link ? d.link === rss.link : d.service === rss.service && d.sku === rss.sku,
-    );
-    if (!exists) {
-      allDeprecations.push(rss);
-    }
-  }
-
-  const today = new Date();
-  for (const d of allDeprecations) {
-    if (d.sunsetDate) d.status = new Date(d.sunsetDate) <= today ? "retired" : "upcoming";
-  }
-
-  // Sort by sunset date (soonest first)
-  allDeprecations.sort((a, b) => {
-    if (!a.sunsetDate) return 1;
-    if (!b.sunsetDate) return -1;
-    return new Date(a.sunsetDate) - new Date(b.sunsetDate);
-  });
+  const allDeprecations = mergeDeprecations(KNOWN_DEPRECATIONS, rssDeprecations);
 
   const output = {
     lastUpdated: new Date().toISOString(),
@@ -244,4 +282,6 @@ async function main() {
   }
 }
 
-main().catch(console.error);
+if (process.argv[1] && path.resolve(process.argv[1]) === fileURLToPath(import.meta.url)) {
+  main().catch(console.error);
+}
