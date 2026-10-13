@@ -16,6 +16,12 @@
     "subscriptions"
   ],
   "additionalProperties": false,
+  "allOf": [
+    {
+      "if": { "required": ["baseline_kind"] },
+      "then": { "required": ["alz_library_ref", "azure_policy_ref", "generated_at"] }
+    }
+  ],
   "properties": {
     "schema_version": {
       "type": "string",

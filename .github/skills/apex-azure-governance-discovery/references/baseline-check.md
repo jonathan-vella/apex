@@ -89,7 +89,9 @@ tenant baseline workflow.
      .github/data/governance-policy-baseline.json.gz --alz-default > /tmp/{project}-baseline-sub.json
    ```
 
-   Then run `render_cached_governance.py` exactly as in step 5 above. The preview carries an **Assumed
+   Then run `render_cached_governance.py` as in step 5 above, adding `--subscription <target-subscription-id>`.
+   The renderer refuses the default without it and writes the target ID, not the synthetic baseline ID, into the
+   artifact (the synthetic ID stays in `provenance.baseline_subscription_id`). The preview carries an **Assumed
    governance** banner; keep it in `04-governance-constraints.md`.
 5. Record the choice with `apex-recall decide <project> --decision "Governance assumed from the ALZ Corp
    default baseline, not tenant-verified" --rationale "<why live discovery was not used>" --json`.

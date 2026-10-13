@@ -20,6 +20,7 @@ from governance_baseline import default_subscription, load_governance_json  # no
 DENY_GUID = "11111111-1111-1111-1111-111111111111"
 DINE_GUID = "22222222-2222-2222-2222-222222222222"
 SET_GUID = "33333333-3333-3333-3333-333333333333"
+TARGET_SUBSCRIPTION = "44444444-4444-4444-4444-444444444444"
 
 
 def _write(path: Path, doc: dict[str, Any]) -> None:
@@ -234,10 +235,50 @@ def test_cached_renderer_accepts_the_default_with_a_fresh_timestamp_and_assumed_
     source.write_text(json.dumps(envelope), encoding="utf-8")
     out = tmp_path / "agent-output" / "demo" / "04-governance-constraints.json"
 
-    assert renderer.main(["--in", str(source), "--out", str(out)]) == 0
+    assert renderer.main(["--in", str(source), "--out", str(out), "--subscription", TARGET_SUBSCRIPTION]) == 0
 
     rendered = json.loads(out.read_text(encoding="utf-8"))
     assert rendered["source"] == "alz-corp-default"
     assert rendered["discovered_at"] > "2026-01-01"
+    assert rendered["subscription_id"] == TARGET_SUBSCRIPTION
+    assert rendered["discovery_metadata"]["scope"]["subscription_id"] == TARGET_SUBSCRIPTION
+    assert rendered["provenance"]["baseline_subscription_id"] == gen.SYNTHETIC_SUBSCRIPTION_ID
     preview = (out.parent / "04-governance-constraints.preview.md").read_text(encoding="utf-8")
     assert "Assumed governance" in preview
+    assert gen.SYNTHETIC_SUBSCRIPTION_ID not in preview
+
+
+@pytest.mark.parametrize("extra", [[], ["--subscription", "not-a-guid"]])
+def test_cached_renderer_rejects_the_default_without_a_valid_target_subscription(
+    tmp_path: Path, sources: tuple[Path, Path], extra: list[str]
+) -> None:
+    import render_cached_governance as renderer
+
+    library, builtins = sources
+    _, envelope = default_subscription(gen.build_baseline(library, builtins, "2020-01-01T00:00:00Z"))
+    source = tmp_path / "sub.json"
+    source.write_text(json.dumps(envelope), encoding="utf-8")
+    out = tmp_path / "agent-output" / "demo" / "04-governance-constraints.json"
+
+    assert renderer.main(["--in", str(source), "--out", str(out), *extra]) == 2
+    assert not out.exists()
+
+
+def test_local_source_trees_require_explicit_refs(tmp_path: Path, sources: tuple[Path, Path]) -> None:
+    library, builtins = sources
+    out = tmp_path / "baseline.json.gz"
+    base = ["--out", str(out), "--library-dir", str(library), "--builtins-dir", str(builtins)]
+
+    with pytest.raises(SystemExit):
+        gen.main(base)
+    with pytest.raises(SystemExit):
+        gen.main([*base, "--library-ref", "platform/alz/9.9.9"])
+    assert not out.exists()
+
+    assert gen.main([*base, "--library-ref", "platform/alz/9.9.9", "--azure-policy-ref", "abc123"]) == 0
+    document = load_governance_json(out)
+    assert document["alz_library_ref"] == "platform/alz/9.9.9"
+    assert document["azure_policy_ref"] == "abc123"
+    provenance = document["subscriptions"][gen.SYNTHETIC_SUBSCRIPTION_ID]["provenance"]
+    assert provenance["alz_library_ref"] == "platform/alz/9.9.9"
+    assert provenance["azure_policy_ref"] == "abc123"

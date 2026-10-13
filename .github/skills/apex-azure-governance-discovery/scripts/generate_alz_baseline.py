@@ -163,7 +163,13 @@ def build_policy_api(library_root: Path, builtins_dir: Path) -> tuple[OfflinePol
     return OfflinePolicyApi(assignments, documents), included
 
 
-def build_baseline(library_root: Path, builtins_dir: Path, generated_at: str) -> dict[str, Any]:
+def build_baseline(
+    library_root: Path,
+    builtins_dir: Path,
+    generated_at: str,
+    library_ref: str = LIBRARY_REF,
+    azure_policy_ref: str = AZURE_POLICY_REF,
+) -> dict[str, Any]:
     api, included = build_policy_api(library_root, builtins_dir)
     envelope = discover_mod.discover(
         SYNTHETIC_SUBSCRIPTION_ID, project=BASELINE_KIND, az_rest=api
@@ -185,8 +191,8 @@ def build_baseline(library_root: Path, builtins_dir: Path, generated_at: str) ->
             scope["subscription_id"] = SYNTHETIC_SUBSCRIPTION_ID
     envelope["provenance"] = {
         "kind": BASELINE_KIND,
-        "alz_library_ref": LIBRARY_REF,
-        "azure_policy_ref": AZURE_POLICY_REF,
+        "alz_library_ref": library_ref,
+        "azure_policy_ref": azure_policy_ref,
         "archetypes": included,
         "verified_against_tenant": False,
     }
@@ -195,8 +201,8 @@ def build_baseline(library_root: Path, builtins_dir: Path, generated_at: str) ->
     return {
         "schema_version": "governance-baseline-v1",
         "baseline_kind": BASELINE_KIND,
-        "alz_library_ref": LIBRARY_REF,
-        "azure_policy_ref": AZURE_POLICY_REF,
+        "alz_library_ref": library_ref,
+        "azure_policy_ref": azure_policy_ref,
         "generated_at": generated_at,
         "management_group_id": ARCHETYPES[-1][1],
         "coverage_status": "COMPLETE",
@@ -251,7 +257,22 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("--out", type=Path, default=DEFAULT_OUT)
     parser.add_argument("--library-dir", type=Path, help="Pre-extracted Azure-Landing-Zones-Library archive root.")
     parser.add_argument("--builtins-dir", type=Path, help="Pre-extracted azure-policy built-in-policies directory.")
+    parser.add_argument("--library-ref", help="ALZ library tag the --library-dir tree was taken from (required with it).")
+    parser.add_argument(
+        "--azure-policy-ref", help="azure-policy commit the --builtins-dir tree was taken from (required with it)."
+    )
     args = parser.parse_args(argv)
+    # A local tree is not the pinned release, so its provenance must be stated rather than assumed.
+    for tree, ref, tree_flag, ref_flag in (
+        (args.library_dir, args.library_ref, "--library-dir", "--library-ref"),
+        (args.builtins_dir, args.azure_policy_ref, "--builtins-dir", "--azure-policy-ref"),
+    ):
+        if tree and not ref:
+            parser.error(f"{tree_flag} requires {ref_flag}")
+        if ref and not tree:
+            parser.error(f"{ref_flag} is only valid with {tree_flag}")
+    library_ref = args.library_ref or LIBRARY_REF
+    azure_policy_ref = args.azure_policy_ref or AZURE_POLICY_REF
 
     with tempfile.TemporaryDirectory() as tmp:
         tmp_path = Path(tmp)
@@ -267,7 +288,7 @@ def main(argv: list[str] | None = None) -> int:
             ) / "built-in-policies"
         generated_at = datetime.now(UTC).strftime("%Y-%m-%dT%H:%M:%SZ")
         try:
-            document = build_baseline(library_root, builtins_dir, generated_at)
+            document = build_baseline(library_root, builtins_dir, generated_at, library_ref, azure_policy_ref)
         except (RuntimeError, KeyError, OSError, ValueError) as error:
             print(f"generate_alz_baseline: {error}", file=sys.stderr)
             return 1
