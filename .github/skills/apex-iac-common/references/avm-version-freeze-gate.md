@@ -64,7 +64,8 @@ Re-resolve the latest stable version and update both the implementation
 plan and `04-iac-contract.json`:
 
 - Bicep: `curl -sf https://mcr.microsoft.com/v2/bicep/avm/res/{path}/tags/list`
-- Terraform: `curl -sf https://registry.terraform.io/v1/modules/Azure/avm-res-{path}/azurerm/versions`
+- Terraform: `curl -sf https://registry.terraform.io/v1/modules/Azure/avm-res-{path}/azurerm/versions`,
+  or Azure MCP `azureterraform avm versions --module-name avm-res-{path}`
 - Or use the corresponding MCP helpers.
 
 Re-run the validator until exit code 0.

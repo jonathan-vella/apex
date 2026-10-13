@@ -20,7 +20,9 @@ indexes** maintained by the Azure Verified Modules team.
 | `tools/scripts/_data/avm-module-cache.json` | Per-module version cache | MCR + `registry.terraform.io`, pre-warmed by the same refresh script               |
 
 The refresh script keeps all four files current; there is no need to
-hand-edit them. In consumer repositories the **Weekly Maintenance**
+hand-edit them. Agents may use Azure MCP `azureterraform` (`avm versions`, `avm get`) for live Terraform
+version and README lookup, but this index stays the source for module existence, lifecycle status and
+resource-type mapping, and the cache stays pre-warmed by the refresh script. In consumer repositories the **Weekly Maintenance**
 template (`refresh-avm-module-index` job) runs it and opens a refresh PR.
 That template does not run in APEX: APEX maintainers run
 `npm run refresh:avm-module-index` manually at least monthly and before

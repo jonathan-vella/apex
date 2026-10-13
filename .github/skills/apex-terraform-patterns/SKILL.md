@@ -43,8 +43,8 @@ Composable architecture building blocks for Azure Terraform. Complements
 
 Wire AVM child modules by passing outputs as inputs (`module.<name>.<output>`); never
 hardcode IDs. **AVM-TF module versions in APEX-generated code MUST be exact semver
-(`version = "X.Y.Z"`)** — pinned at plan time from
-`registry.terraform.io` (newest stable in `modules[0].versions[]`). Range
+(`version = "X.Y.Z"`)** — pinned at plan time to the newest stable release (Azure MCP
+`azureterraform avm versions`, or `modules[0].versions[]` from `registry.terraform.io`). Range
 constraints (`~> X.Y`, `>= X.Y.Z`) are NOT allowed in `04-iac-contract.json` and
 will be flagged by `npm run validate:avm-versions`. Full code sample
 (resource group + key vault) and rationale in
