@@ -28,5 +28,20 @@
         "checksumUrl": "https://github.com/gitleaks/gitleaks/releases/download/v8.30.1/gitleaks_8.30.1_checksums.txt"
       }
     }
+  },
+  "azqr": {
+    "version": "4.2.0",
+    "artifacts": {
+      "amd64": {
+        "url": "https://github.com/Azure/azqr/releases/download/v.4.2.0/azqr-linux-amd64.zip",
+        "sha256": "1cf2482520e9724761084eb3587100bb68f33cd98e15c065a0ec94d807821ee3",
+        "checksumUrl": "https://github.com/Azure/azqr/releases/download/v.4.2.0/azqr-linux-amd64.zip.sha256"
+      },
+      "arm64": {
+        "url": "https://github.com/Azure/azqr/releases/download/v.4.2.0/azqr-linux-arm64.zip",
+        "sha256": "f7524d77a5b85ea34a4a2230b37404d9d0383824c5a01b1ae6b1c71c883e059d",
+        "checksumUrl": "https://github.com/Azure/azqr/releases/download/v.4.2.0/azqr-linux-arm64.zip.sha256"
+      }
+    }
   }
 }
