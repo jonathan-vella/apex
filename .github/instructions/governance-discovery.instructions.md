@@ -12,6 +12,9 @@ committed under `.github/data/governance-policy-baseline.json.gz`.
 **GATE**: This is a mandatory gate. If Azure connectivity fails or policies
 cannot be retrieved during live discovery, STOP and inform the user.
 Do NOT generate governance constraints from assumptions.
+**Single exception**: the user may explicitly choose the shipped `alz-corp-default` baseline as *assumed*
+governance (see `baseline-check.md`). It must be labelled assumed and not tenant-verified in every artifact,
+and the Step 3.5 review stays mandatory.
 Do NOT accept arbitrary static files as governance input — only the approved
 workflow output file (`.github/data/governance-policy-baseline.json.gz`) is valid
 for cached baseline mode.
