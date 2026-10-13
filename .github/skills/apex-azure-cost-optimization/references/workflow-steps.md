@@ -91,8 +91,12 @@ Run azqr to find orphaned resources (immediate cost savings):
 
 📋 **Reference**: [Azure Quick Review](./azure-quick-review.md) — Detailed instructions for running azqr scans
 
-```bash
-azqr scan --subscription-id "<SUBSCRIPTION_ID>" --resource-group "<RESOURCE_GROUP>" --json  # resource group optional
+```javascript
+// Use Azure MCP extension_azqr tool
+extension_azqr({
+  subscription: "<SUBSCRIPTION_ID>",
+  "resource-group": "<RESOURCE_GROUP>", // optional
+});
 ```
 
 **What to look for in azqr results:**

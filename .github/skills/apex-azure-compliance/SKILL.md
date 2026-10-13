@@ -38,6 +38,7 @@ metadata:
 
 | Tool                              | Purpose                                      |
 | --------------------------------- | -------------------------------------------- |
+| `mcp_azure-mcp_extension_azqr`    | Run azqr compliance scans                    |
 | `mcp_azure-mcp_subscription_list` | List available subscriptions                 |
 | `mcp_azure-mcp_group_list`        | List resource groups                         |
 | `keyvault_key_list`               | List all keys in vault                       |

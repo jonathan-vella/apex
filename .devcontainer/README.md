@@ -46,27 +46,8 @@ are installed in the image layer. uv 0.12.23 and gitleaks 8.30.1 are pinned and 
 The existing tool updater does not update these pins; maintain their versions and checksums explicitly.
 
 `post-create.sh` also installs azqr 4.2.0 to `~/.local/bin` with `install-azqr.sh`, verified against the same manifest.
-Azure MCP's default namespace mode does not expose `extension_azqr`, so the skills run the `azqr` CLI directly. The install
-is optional: if it fails, the compliance and cost skills still need `azqr` on `PATH` to scan.
-
-#### Optional Azure MCP extension server
-
-The `extension_azqr`, `extension_cli_generate` and `extension_cli_install` tools exist only in `--mode all` (about 500 tools,
-far over the editor's tool limit). To expose just those three, add a separate, opt-in server to your own `.vscode/mcp.json`;
-`configure-mcp.mjs` does not write it. Use the version pinned for `azure-mcp`:
-
-```jsonc
-"azure-mcp-extension": {
-  "type": "stdio",
-  "command": "npx",
-  "args": ["-y", "@azure/mcp@<pinned-version>", "server", "start", "--read-only",
-           "--tool", "extension_azqr", "--tool", "extension_cli_generate", "--tool", "extension_cli_install"],
-  "env": { "NPM_CONFIG_ALLOW_REMOTE": "all" }
-}
-```
-
-Tools then appear as `mcp_azure-mcp-extension_extension_azqr` and so on. `extension_azqr` is listed only while azqr 3.0.0
-or later is on `PATH`; all three are read-only (`cli_install` returns instructions and does not install).
+Azure MCP 3.0.0 lists `extension_azqr` only while azqr 3.0.0 or later is on `PATH`. The install is optional: if it
+fails, the compliance and cost skills fall back to running `azqr` directly.
 
 ### MCP Servers (auto-configured in `.vscode/mcp.json`)
 

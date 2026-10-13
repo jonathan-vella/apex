@@ -385,10 +385,11 @@ foreach ($sa in $storageAccounts) {
 
 ## Remediation Validation
 
-After applying fixes, re-run the azqr scan to verify the issues have been resolved:
+After applying fixes, re-run the azqr scan using the Azure MCP tool to verify the issues have been resolved:
 
-```bash
-azqr scan --subscription-id <subscription-id> --json
+```
+mcp_azure-mcp_extension_azqr
+  subscription: <subscription-id>
 ```
 
 ## Additional Resources

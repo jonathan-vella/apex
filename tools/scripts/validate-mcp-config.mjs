@@ -81,28 +81,6 @@ if (!azureMcp) {
   r.ok("MCP config includes a structurally valid Azure MCP command; runtime capability is not verified");
 }
 
-const extensionServer = mcpConfig?.servers?.["azure-mcp-extension"];
-if (extensionServer !== undefined) {
-  // Opt-in server: --tool switches to all mode, so anything beyond these three tools would flood the editor.
-  r.tick();
-  const args = Array.isArray(extensionServer?.args) ? extensionServer.args : [];
-  const tools = args.flatMap((arg, i) => (arg === "--tool" ? [args[i + 1]] : []));
-  const expected = ["extension_azqr", "extension_cli_generate", "extension_cli_install"];
-  if (
-    extensionServer?.type !== "stdio" ||
-    typeof extensionServer.command !== "string" ||
-    !extensionServer.command.trim()
-  ) {
-    r.error("azure-mcp-extension must be a stdio server with a nonempty command");
-  } else if (tools.length !== expected.length || !expected.every((tool) => tools.includes(tool))) {
-    r.error(`azure-mcp-extension must expose exactly ${expected.join(", ")} via --tool`);
-  } else if (args.includes("--namespace") || args.includes("--mode") || !args.includes("--read-only")) {
-    r.error("azure-mcp-extension must use --read-only and no --namespace or --mode");
-  } else {
-    r.ok("Optional azure-mcp-extension server exposes exactly the three extension tools");
-  }
-}
-
 const retiredServers = ["azure-pricing", "drawio", "astro-docs", "terraform"];
 for (const name of retiredServers) {
   r.tick();

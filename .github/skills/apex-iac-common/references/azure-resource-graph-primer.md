@@ -9,14 +9,19 @@ in `.github/skills/{apex-azure-compliance,apex-azure-cost-optimization,apex-azur
 
 ## How to Query
 
-Run `az graph query` with a KQL query:
+Use the `extension_cli_generate` MCP tool to generate `az graph query` commands:
+
+```yaml
+mcp_azure-mcp_extension_cli_generate
+  intent: "query Azure Resource Graph to <describe what you want to do>"
+  cli-type: "az"
+```
+
+Or construct directly:
 
 ```bash
 az graph query -q "<KQL>" --query "data[].{name:name, type:type}" -o table
 ```
-
-The opt-in `azure-mcp-extension` server's `extension_cli_generate` tool can draft the command from an intent
-(`cli-type: "az"`); see `.devcontainer/README.md`.
 
 > ⚠️ **Prerequisite:** `az extension add --name resource-graph`
 

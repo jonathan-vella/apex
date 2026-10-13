@@ -31,6 +31,7 @@ findings. It never changes resources, patches IaC or deploys: fixes flow through
 
 | Tool                                   | Purpose                                             |
 | -------------------------------------- | --------------------------------------------------- |
+| `mcp_azure-mcp_extension_cli_generate` | Generate read-only `az` commands for resource queries |
 | `mcp_azure-mcp_subscription_list`      | List available subscriptions                        |
 | `mcp_azure-mcp_group_list`             | List resource groups                                |
 
