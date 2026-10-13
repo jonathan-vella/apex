@@ -15,7 +15,7 @@ const defaults = {
   "azure-mcp": {
     type: "stdio",
     command: "npx",
-    args: ["-y", "@azure/mcp@2.0.5", "server", "start"],
+    args: ["-y", "@azure/mcp@3.0.0", "server", "start"],
     env: { NPM_CONFIG_ALLOW_REMOTE: "all" },
   },
 };

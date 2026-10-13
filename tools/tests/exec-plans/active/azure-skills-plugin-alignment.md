@@ -66,7 +66,7 @@ Checked 2026-09-23: `v1.2.51` is still the latest tag, `main` is unchanged since
 - **Coexistence**: `apex-` names avoid name collisions, and plugin skills appear as `/azure:<skill>`. APEX agents
   reference `apex-*` skills by explicit name or path, so workflow runs keep using APEX copies; free-form chats can
   load either set.
-- **APEX Azure MCP coupling**: [mcp.json](../../../../.vscode/mcp.json) pins `@azure/mcp@2.0.5` and sets
+- **APEX Azure MCP coupling**: [mcp.json](../../../../.vscode/mcp.json) pins `@azure/mcp@3.0.0` and sets
   `NPM_CONFIG_ALLOW_REMOTE=all` for the npm 12 feed. [configure-mcp.mjs](../../../../.devcontainer/configure-mcp.mjs)
   holds the defaults and release check, [validate-mcp-config.mjs](../../../../tools/scripts/validate-mcp-config.mjs)
   requires `servers.azure-mcp`, and
@@ -473,7 +473,7 @@ The weekly drift report (#723) flagged seven pinned skills. Reviewed 2026-10-05 
 
 - No wholesale replacement, consistent with the recorded refresh rule.
 - No upstream pull requests; the drift report tracks convergence instead.
-- Keep the `apex-azure-cost-optimization` and `apex-azure-rbac` names and the pinned `azure-mcp` 2.0.5 server.
+- Keep the `apex-azure-cost-optimization` and `apex-azure-rbac` names and the pinned `azure-mcp` 3.0.0 server.
 - Left out from upstream: Kubernetes app deployment and AKS Automatic readiness; reliability live-change and
   IaC-patching guides; upgrade automation and Java; cloud-migrate deployment guides; prepare MCP templates, the root
   plan file, SQL grant scripts and automatic `azd up`; the cost attribution header and the `temp/` and `output/`

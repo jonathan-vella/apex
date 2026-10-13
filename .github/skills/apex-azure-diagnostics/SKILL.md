@@ -117,9 +117,11 @@ For AI-powered diagnostics, use:
 ```
 mcp_azure-mcp_applens
   intent: "diagnose issues with <resource-name>"
-  command: "diagnose"
+  command: "applens_resource_diagnose"
   parameters:
-    resourceId: "<resource-id>"
+    resource: "<resource-name>"
+    question: "<what to diagnose>"
+    resource-group: "<resource-group>"
 
 Provides:
 - Automated issue detection
@@ -134,9 +136,11 @@ For querying logs and metrics:
 ```
 mcp_azure-mcp_monitor
   intent: "query logs for <resource-name>"
-  command: "logs_query"
+  command: "monitor_workspace_log_query"
   parameters:
-    workspaceId: "<workspace-id>"
+    subscription: "<subscription-id>"
+    workspace: "<workspace-name-or-id>"
+    table: "<table>"
     query: "<KQL-query>"
 ```
 
