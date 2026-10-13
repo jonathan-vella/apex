@@ -56,6 +56,9 @@ elif ! az bicep version --only-show-errors; then
     az bicep version --only-show-errors
 fi
 
+printf "Installing pinned azqr for the Azure MCP extension_azqr tool...\n"
+bash .devcontainer/install-azqr.sh || printf "azqr install skipped; compliance scans fall back to the azqr CLI.\n"
+
 printf "Adding only missing MCP defaults...\n"
 node .devcontainer/configure-mcp.mjs
 node tools/scripts/validate-tool-versions.mjs

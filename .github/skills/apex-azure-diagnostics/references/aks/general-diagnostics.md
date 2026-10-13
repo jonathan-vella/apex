@@ -45,12 +45,15 @@ For AI-powered diagnostics:
 ```text
 mcp_azure-mcp_applens
   intent: "diagnose AKS cluster issues"
-  command: "diagnose"
+  command: "applens_resource_diagnose"
   parameters:
-    resourceId: "/subscriptions/<sub>/resourceGroups/<rg>/providers/Microsoft.ContainerService/managedClusters/<cluster>"
+    resource: "<cluster>"
+    question: "diagnose AKS cluster issues"
+    resource-group: "<rg>"
+    resource-type: "Microsoft.ContainerService/managedClusters"
 ```
 
-> 💡 **Tip:** AppLens automatically detects common issues and provides remediation recommendations using the cluster resource ID.
+> 💡 **Tip:** AppLens automatically detects common issues and provides remediation recommendations for the named cluster.
 
 ---
 

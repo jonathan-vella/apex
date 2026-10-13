@@ -45,6 +45,10 @@ are installed in the image layer. uv 0.12.23 and gitleaks 8.30.1 are pinned and 
 `amd64` and `arm64` using [the download manifest](download-checksums.json).
 The existing tool updater does not update these pins; maintain their versions and checksums explicitly.
 
+`post-create.sh` also installs azqr 4.2.0 to `~/.local/bin` with `install-azqr.sh`, verified against the same manifest.
+Azure MCP 3.0.0 lists `extension_azqr` only while azqr 3.0.0 or later is on `PATH`. The install is optional: if it
+fails, the compliance and cost skills fall back to running `azqr` directly.
+
 ### MCP Servers (auto-configured in `.vscode/mcp.json`)
 
 | Server            | Transport         | Purpose                                          |

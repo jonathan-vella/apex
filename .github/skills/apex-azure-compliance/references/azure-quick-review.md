@@ -8,6 +8,7 @@ This skill enables comprehensive Azure compliance assessments using Azure Quick 
 
 - **Azure authentication** - Logged in via Azure CLI (`az login`) or using Service Principal/Managed Identity
 - **Reader permissions** - Minimum Reader role on target subscription or management group
+- **azqr 3.0.0 or later on `PATH`** - Azure MCP 3.0.0 lists `extension_azqr` only when azqr is installed locally; without it, run `azqr scan --subscription <id>` directly
 
 ## Assessment Workflow
 
