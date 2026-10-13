@@ -670,7 +670,7 @@ test("SK-14 host configuration protects the native endpoint and pins the extensi
 });
 
 test("SK-14 SDK client fixtures parse even when dependencies are unavailable", () => {
-  const source = readFileSync(new URL(import.meta.url), "utf8");
+  const source = readFileSync(new URL(import.meta.url), "utf8").replace(/\r\n/g, "\n");
   const sections = [...source.matchAll(/^test\("SK-14 real (Node|Python) SDK[^\n]*\n([\s\S]*?)(?=^test\()/gm)];
   assert.equal(sections.length, 2);
   for (const [, language, section] of sections) {
