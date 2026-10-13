@@ -322,15 +322,17 @@ For EACH resource in `04-iac-contract.json#resources[]` (canonical
 source; `04-implementation-plan.md` is the prose mirror):
 
 1. Read the approved source and exact version from `04-iac-contract.json#modules.terraform[]`.
-2. Query the public Terraform Registry API for that pinned module version;
-  inspect inputs, outputs, and linked source. No Terraform MCP server is required.
+2. Retrieve the pinned module version's README with the Azure MCP `azureterraform` `avm get` command
+  (`--module-name`, `--module-version`); fall back to the public Terraform Registry API when the tool is
+  unavailable. Inspect inputs, outputs, and linked source.
 3. Cross-check the approved pins and parameter types against the retrieved schema;
   flag mismatches using the AVM Known Pitfalls in the Terraform patterns skill.
 4. Preserve the approved exact `X.Y.Z` module version. Do not replace it with
   a version range or select a newer release. An unavailable pin or required
   version change returns to the Planner under the existing plan-lock contract.
-5. For non-AVM resources, verify arguments against the pinned provider's official
-  Registry documentation and `terraform providers schema -json` after isolated
+5. For non-AVM resources, verify arguments against the pinned provider's documentation (Azure MCP
+  `azureterraform` `azurerm get` or `azapi get`, else the official Registry docs) and
+  `terraform providers schema -json` after isolated
   `terraform init -backend=false -input=false`. Do not infer missing schemas from memory.
 6. Check region limitations
 7. Save to `agent-output/{project}/04-preflight-check.md`
