@@ -11,21 +11,11 @@ import { writeFileSync, existsSync, readFileSync } from "node:fs";
 import { XMLParser } from "fast-xml-parser";
 
 const OUTPUT_FILE = ".github/data/azure-deprecations.json";
-const AZURE_UPDATES_RSS = "https://azure.microsoft.com/en-us/updates/feed/";
+// The old /updates/feed/ URL now 301s to an HTML page, which parsed as zero items.
+const AZURE_UPDATES_RSS = "https://www.microsoft.com/releasecommunications/api/v2/azure/rss";
 
-// Keywords that indicate deprecation in Azure Updates
-const DEPRECATION_KEYWORDS = [
-  "deprecat",
-  "retir",
-  "sunset",
-  "end of life",
-  "end-of-life",
-  "no longer support",
-  "will be removed",
-  "migration required",
-  "upgrade required",
-  "classic",
-];
+// <category> is a comma-separated tag list, e.g. "Compute,Virtual Machines,Retirements".
+const RETIREMENT_CATEGORY = "Retirements";
 
 // Known deprecated SKUs/services (fallback when RSS fails)
 const KNOWN_DEPRECATIONS = [
@@ -77,6 +67,32 @@ const KNOWN_DEPRECATIONS = [
     source: "manual",
     notes: "Basic tier has limited features, consider Premium for production",
   },
+  {
+    service: "Azure Cache for Redis",
+    sku: "Enterprise, Enterprise Flash",
+    sunsetDate: "2027-03-31",
+    replacement: "Azure Managed Redis",
+    source: "manual",
+    notes: "https://learn.microsoft.com/azure/azure-cache-for-redis/retirement-faq",
+    addedDate: "2026-10-13",
+  },
+  {
+    service: "Azure Cache for Redis",
+    sku: "Basic, Standard, Premium",
+    sunsetDate: "2028-09-30",
+    replacement: "Azure Managed Redis",
+    source: "manual",
+    notes: "https://learn.microsoft.com/azure/azure-cache-for-redis/retirement-faq",
+    addedDate: "2026-10-13",
+  },
+  {
+    service: "Azure Functions",
+    sku: "Linux Consumption",
+    sunsetDate: "2028-09-30",
+    replacement: "Flex Consumption",
+    source: "manual",
+    addedDate: "2026-10-13",
+  },
 ];
 
 async function fetchAzureUpdates() {
@@ -106,12 +122,9 @@ async function fetchAzureUpdates() {
     const deprecations = [];
 
     for (const item of items) {
-      const title = (item.title || "").toLowerCase();
-      const description = (item.description || "").toLowerCase();
-      const content = `${title} ${description}`;
-
-      // Check if this update is about deprecation
-      const isDeprecation = DEPRECATION_KEYWORDS.some((keyword) => content.includes(keyword));
+      const isDeprecation = String(item.category ?? "")
+        .split(",")
+        .some((tag) => tag.trim() === RETIREMENT_CATEGORY);
 
       if (isDeprecation) {
         deprecations.push({
@@ -136,8 +149,9 @@ async function fetchAzureUpdates() {
 
 function extractServiceName(title) {
   // Extract service name from title (basic extraction)
-  const match = title?.match(/Azure\s+([A-Za-z\s]+?)(?:\s+(?:is|will|retirement|deprecation))/i);
-  return match ? match[1].trim() : title?.split(" ").slice(0, 3).join(" ") || "Unknown";
+  const bare = title?.replace(/^Retirement:\s*/i, "");
+  const match = bare?.match(/Azure\s+([A-Za-z\s]+?)(?:\s+(?:is|will|retirement|deprecation))/i);
+  return match ? match[1].trim() : bare?.split(" ").slice(0, 3).join(" ") || "Unknown";
 }
 
 function extractSunsetDate(description) {
@@ -181,10 +195,18 @@ async function main() {
   const allDeprecations = [...KNOWN_DEPRECATIONS];
 
   for (const rss of rssDeprecations) {
-    const exists = allDeprecations.some((d) => d.service === rss.service && d.sku === rss.sku);
+    // Feed items have no SKU, so link is the identity; service alone collapses distinct notices.
+    const exists = allDeprecations.some((d) =>
+      d.link ? d.link === rss.link : d.service === rss.service && d.sku === rss.sku,
+    );
     if (!exists) {
       allDeprecations.push(rss);
     }
+  }
+
+  const today = new Date();
+  for (const d of allDeprecations) {
+    if (d.sunsetDate) d.status = new Date(d.sunsetDate) <= today ? "retired" : "upcoming";
   }
 
   // Sort by sunset date (soonest first)
