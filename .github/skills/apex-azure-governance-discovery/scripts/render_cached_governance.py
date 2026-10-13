@@ -107,6 +107,13 @@ def main(argv: list[str] | None = None) -> int:
         sys.stdout.write(json.dumps(status, separators=(",", ":")) + "\n")
         return 2
 
+    if envelope.get("source") == "alz-corp-default":
+        # Static policy set, evaluated now; the generation date says nothing about tenant freshness.
+        rendered_at = datetime.now(UTC).strftime("%Y-%m-%dT%H:%M:%SZ")
+        envelope["discovered_at"] = rendered_at
+        if isinstance(envelope.get("discovery_metadata"), dict):
+            envelope["discovery_metadata"]["discovered_at"] = rendered_at
+
     try:
         metadata = envelope.get("discovery_metadata")
         timestamp = metadata.get("discovered_at") if isinstance(metadata, dict) else envelope.get("discovered_at")

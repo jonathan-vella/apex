@@ -18,7 +18,7 @@
     "discovered_at": { "type": "string", "format": "date-time" },
     "source": {
       "type": "string",
-      "enum": ["azure-policy-rest-api", "az-cli", "static", "partial", "github-actions-baseline"]
+      "enum": ["azure-policy-rest-api", "az-cli", "static", "partial", "github-actions-baseline", "alz-corp-default"]
     },
     "discovery_metadata": {
       "description": "L0 attestation envelope. Mandatory after 30-day rollout window; warn-only before then. Every downstream consumer (05-IaC Planner, 06b/06t CodeGen, 07b/07t Deploy) reads this first and STOPS on staleness, signature drift, or non-COMPLETE status.",
