@@ -19,11 +19,7 @@ Verify AZD is installed:
 azd version
 ```
 
-**If not installed:**
-
-```
-mcp_azure-mcp_extension_cli_install(cli-type: "azd")
-```
+**If not installed:** follow the [azd install guide](https://learn.microsoft.com/azure/developer/azure-developer-cli/install-azd).
 
 ### 2. Schema Validation
 

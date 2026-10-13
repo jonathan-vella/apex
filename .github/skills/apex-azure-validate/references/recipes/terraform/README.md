@@ -28,11 +28,7 @@ Verify Azure CLI is installed:
 az version
 ```
 
-**If not installed:**
-
-```
-mcp_azure-mcp_extension_cli_install(cli-type: "az")
-```
+**If not installed:** follow the [Azure CLI install guide](https://learn.microsoft.com/cli/azure/install-azure-cli).
 
 ### 3. Authentication
 

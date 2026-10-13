@@ -66,7 +66,7 @@ High-level step list (full procedure in
 |   1 | Load Azure cost-optimization best practices via `mcp_azure-mcp_get_azure_bestpractices`        | [`workflow-steps.md`](./references/workflow-steps.md)                   |
 | 1.5 | (Conditional) Redis-specific analysis branch                                                   | [`azure-redis.md`](./references/azure-redis.md)                         |
 | 1.6 | (Redis branch) Choose analysis scope (subscription / prefix / tenant-wide)                     | [`azure-redis.md`](./references/azure-redis.md)                         |
-|   2 | Run Azure Quick Review (`extension_azqr`) for orphaned-resource discovery                      | [`azure-quick-review.md`](./references/azure-quick-review.md)           |
+|   2 | Run Azure Quick Review (`azqr scan`) for orphaned-resource discovery                           | [`azure-quick-review.md`](./references/azure-quick-review.md)           |
 |   3 | Discover resources cross-subscription via Azure Resource Graph                                 | [`azure-resource-graph.md`](./references/azure-resource-graph.md)       |
 | 4–9 | Cost queries, pricing validation, metrics, report, audit trail, cleanup                        | [`detailed-workflow-steps.md`](./references/detailed-workflow-steps.md) |
 

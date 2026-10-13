@@ -8,7 +8,7 @@ This skill enables comprehensive Azure compliance assessments using Azure Quick 
 
 - **Azure authentication** - Logged in via Azure CLI (`az login`) or using Service Principal/Managed Identity
 - **Reader permissions** - Minimum Reader role on target subscription or management group
-- **azqr 3.0.0 or later on `PATH`** - Azure MCP 3.0.0 exposes `extension_azqr` only in `--mode all` and only when azqr is installed locally; the default namespace mode does not, so run `azqr scan --subscription <id>` directly
+- **azqr 3.0.0 or later on `PATH`** - run scans with the `azqr` CLI; the Azure MCP `extension_azqr` tool is not exposed in the default namespace mode (see the optional extension server in `.devcontainer/README.md`)
 
 ## Assessment Workflow
 
@@ -25,12 +25,10 @@ Ask the user or detect from context:
 
 ### Step 2: Run Compliance Scan
 
-Use the Azure MCP tool to run the scan:
+Run the scan with the azqr CLI (writes Excel and JSON reports):
 
-```
-mcp_azure-mcp_extension_azqr
-  subscription: <subscription-id>
-  resource-group: <optional-rg-name>
+```bash
+azqr scan --subscription-id <subscription-id> [--resource-group <rg-name>] --json
 ```
 
 ### Step 3: Analyze Scan Results
@@ -136,7 +134,7 @@ azqr supports 70+ Azure resource types including:
 
 | Tool                              | Purpose                              |
 | --------------------------------- | ------------------------------------ |
-| `mcp_azure-mcp_extension_azqr`    | Run azqr scans via Azure MCP         |
+| `azqr` (CLI)                      | Run azqr scans                       |
 | `mcp_azure-mcp_subscription_list` | List available subscriptions         |
 | `mcp_azure-mcp_group_list`        | List resource groups in subscription |
 

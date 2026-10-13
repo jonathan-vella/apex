@@ -233,6 +233,34 @@ test("MCP validator accepts preserved commands but rejects malformed and retired
   for (const retired of ["azure-pricing", "drawio", "astro-docs", "terraform"]) {
     assert.notEqual(check({ servers: { ...defaults.servers, [retired]: null } }), 0);
   }
+  const extensionArgs = (...tools) => [
+    "-y",
+    "@azure/mcp@3.0.0",
+    "server",
+    "start",
+    "--read-only",
+    ...tools.flatMap((tool) => ["--tool", tool]),
+  ];
+  const all = ["extension_azqr", "extension_cli_generate", "extension_cli_install"];
+  assert.equal(
+    check({
+      servers: {
+        ...defaults.servers,
+        "azure-mcp-extension": { type: "stdio", command: "npx", args: extensionArgs(...all) },
+      },
+    }),
+    0,
+  );
+  for (const args of [
+    extensionArgs(...all.slice(0, 2)),
+    extensionArgs(...all, "group_list"),
+    [...extensionArgs(...all), "--mode", "all"],
+    extensionArgs(...all).filter((arg) => arg !== "--read-only"),
+  ])
+    assert.notEqual(
+      check({ servers: { ...defaults.servers, "azure-mcp-extension": { type: "stdio", command: "npx", args } } }),
+      0,
+    );
   assert.notEqual(check({ servers: [] }), 0);
 });
 

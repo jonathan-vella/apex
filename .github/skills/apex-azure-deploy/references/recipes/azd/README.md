@@ -6,7 +6,7 @@ Deploy to Azure using Azure Developer CLI (azd).
 
 ## Prerequisites
 
-- `azd` CLI installed → Run `mcp_azure-mcp_extension_cli_install` with `cli-type: azd` if needed
+- `azd` CLI installed → [install guide](https://learn.microsoft.com/azure/developer/azure-developer-cli/install-azd) if needed
 - `infra/{iac}/{project}/.azure/plan.md` exists with status `Validated`
 - `azure.yaml` exists and validated
 - Infrastructure files exist (Bicep: `./main.bicep`, Terraform: `./*.tf`) — co-located with `azure.yaml`

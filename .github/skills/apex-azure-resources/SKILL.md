@@ -58,14 +58,12 @@ Use this mode when the user wants to **list / find / show** Azure resources.
 | **Query Language** | KQL (Kusto Query Language subset)                          |
 | **CLI Command**    | `az graph query -q "<KQL>" -o table`                       |
 | **Extension**      | `az extension add --name resource-graph`                   |
-| **MCP Tool**       | `extension_cli_generate` with intent for `az graph query`  |
 | **Best For**       | Cross-subscription queries, orphaned resources, tag audits |
 
 ## MCP Tools
 
 | Tool                              | Purpose                            | When to Use                                     |
 | --------------------------------- | ---------------------------------- | ----------------------------------------------- |
-| `extension_cli_generate`          | Generate `az graph query` commands | Primary — generate ARG queries from user intent |
 | `mcp_azure-mcp_subscription_list` | List available subscriptions       | Discover subscription scope before querying     |
 | `mcp_azure-mcp_group_list`        | List resource groups               | Narrow query scope                              |
 
@@ -73,7 +71,7 @@ Use this mode when the user wants to **list / find / show** Azure resources.
 
 - **Prefer dedicated MCP tools** for single-resource-type queries (`compute`, `storage`, `cosmos`, etc.) before falling back to Azure Resource Graph
 - **Use ARG for cross-cutting queries** — cross-subscription, cross-type, orphaned resources, tag audits
-- **Generate queries via `extension_cli_generate`** — do not hand-author KQL when intent-based generation is available
+- **Start from the vetted query patterns** in `references/azure-resource-graph.md` and the shared primer; adapt them, do not invent KQL. The opt-in `azure-mcp-extension` server's `extension_cli_generate` can draft commands (see `.devcontainer/README.md`)
 - **Shape output with `--query` JMESPath** for tabular display; do not load raw JSON dumps into context
 - **Mode A is read-only** — lookup never modifies resources; remediation is out of scope (use `apex-azure-deploy`)
 - **Mode B (Visualize) is for documentation** — emit Mermaid only when the user explicitly asks for a diagram; do not auto-visualize lookup results
@@ -85,8 +83,8 @@ Use this mode when the user wants to **list / find / show** Azure resources.
 
 Three-step procedure: (1) check for a dedicated MCP tool by resource type
 (`compute` / `storage` / `cosmos` / `keyvault` / `sql` / `acr` / `aks` /
-`appservice` / `eventhubs` / `servicebus`); (2) if no full-coverage tool, generate an
-Azure Resource Graph query via `extension_cli_generate`; (3) execute with `--query`
+`appservice` / `eventhubs` / `servicebus`); (2) if no full-coverage tool, run an
+Azure Resource Graph query adapted from the vetted patterns; (3) execute with `--query`
 JMESPath shaping. Full per-resource-type tool table and example commands in
 [`references/lookup-workflow.md`](references/lookup-workflow.md).
 

@@ -22,14 +22,10 @@ excludeSections:
 
 ## Run the azqr Scan
 
-Execute the scan using Azure MCP or CLI:
+Run the scan with the azqr CLI:
 
 ```powershell
-# Via Azure MCP (extension_azqr is exposed only in --mode all, with azqr 3.0.0 or later on PATH)
-# Use the extension_azqr tool with subscription and optional resource-group parameters
-
-# Or via direct CLI:
-azqr scan --subscription "<SUBSCRIPTION_ID>" --resource-group "<RESOURCE_GROUP>" --filters ./filters.yaml --output json
+azqr scan --subscription-id "<SUBSCRIPTION_ID>" --resource-group "<RESOURCE_GROUP>" --filters ./filters.yaml --json --output-name "agent-output/{project}/azqr_report_<YYYYMMDD_HHMMSS>"
 ```
 
 ## Save Output

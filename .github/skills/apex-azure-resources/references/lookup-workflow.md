@@ -27,17 +27,16 @@ back to Azure Resource Graph:
 
 If a dedicated tool is available with full coverage, use it. Otherwise proceed to Step 2.
 
-## Step 2: Generate the ARG Query
+## Step 2: Build the ARG Query
 
-Use `extension_cli_generate` to build the `az graph query` command:
+Adapt a query from [Azure Resource Graph Query Patterns](./azure-resource-graph.md); for example:
 
-```yaml
-mcp_azure-mcp_extension_cli_generate
-  intent: "query Azure Resource Graph to <user's request>"
-  cli-type: "az"
+```bash
+az graph query -q "Resources | where type =~ 'microsoft.web/sites' | project name, resourceGroup, location"
 ```
 
-See [Azure Resource Graph Query Patterns](./azure-resource-graph.md) for common KQL patterns.
+The opt-in `azure-mcp-extension` server's `extension_cli_generate` (`intent`, `cli-type: "az"`) can draft a command
+instead; see `.devcontainer/README.md`.
 
 ## Step 3: Execute and Format Results
 
