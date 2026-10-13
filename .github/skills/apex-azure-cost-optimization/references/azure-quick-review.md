@@ -25,7 +25,7 @@ excludeSections:
 Execute the scan using Azure MCP or CLI:
 
 ```powershell
-# Via Azure MCP (only listed when azqr 3.0.0 or later is installed locally)
+# Via Azure MCP (extension_azqr is exposed only in --mode all, with azqr 3.0.0 or later on PATH)
 # Use the extension_azqr tool with subscription and optional resource-group parameters
 
 # Or via direct CLI:

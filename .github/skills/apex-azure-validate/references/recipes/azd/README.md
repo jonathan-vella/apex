@@ -27,8 +27,12 @@ mcp_azure-mcp_extension_cli_install(cli-type: "azd")
 
 ### 2. Schema Validation
 
-Azure MCP has no azd tool. Validate `azure.yaml` against the published schema
-(`https://raw.githubusercontent.com/Azure/azure-dev/main/schemas/v1.0/azure.yaml.json`, the `$schema` line azd templates use);
+Validate `azure.yaml` against the official schema:
+
+```
+mcp_azure-mcp_azd(command: "validate_azure_yaml", parameters: { path: "./azure.yaml" })
+```
+
 `azd provision --preview` also fails on an invalid manifest.
 
 ### 3. Environment Setup

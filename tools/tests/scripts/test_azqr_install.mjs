@@ -40,6 +40,8 @@ function fixture(context, { tamper = false } = {}) {
     chmodSync(file, 0o755);
   };
   stub("dpkg", "echo amd64");
+  // Shadows any azqr installed on the host so the pinned-version skip never fires by accident.
+  stub("azqr", "echo 'azqr version v.0.0.0'");
   stub(
     "curl",
     `out=""; while [ "$#" -gt 0 ]; do [ "$1" = "--output" ] && out="$2"; shift; done; cp "${archive}" "$out"`,
@@ -52,7 +54,7 @@ function fixture(context, { tamper = false } = {}) {
         encoding: "utf8",
         env: {
           ...process.env,
-          PATH: `${path.join(root, "bin")}:${extraPath}${extraPath ? ":" : ""}${process.env.PATH}`,
+          PATH: `${extraPath}${extraPath ? ":" : ""}${path.join(root, "bin")}:${process.env.PATH}`,
           AZQR_INSTALL_DIR: path.join(root, "install"),
           TMPDIR: tmpdir(),
         },
