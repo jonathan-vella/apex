@@ -12,9 +12,12 @@
 >   → highest stable exact semver in `modules[0].versions[]` (the API is not sorted).
 > - **Guidance:** Azure MCP provides Azure Terraform documentation, best practices,
 >   AVM module READMEs (`avm get`) and provider docs (`azurerm get`, `azapi get`). Use it
->   only for modules the index lists as published. Treat a lookup as "unpublished" only when the
->   tool returns a documented module-not-found for that exact module name; any other error is a
->   verification failure — stop and escalate, do not emit a raw-resource exception.
+>   only for modules the index lists as published. `avm versions` reports a module absent from the AVM list
+>   as `status: 400` with `results.type: "ArgumentException"` and "not found in available modules"; only that
+>   response means "unpublished". Any other status or error is a verification failure — stop and escalate,
+>   do not emit a raw-resource exception. `avm get` on an unknown version returns `status: 422` (HTTP 404), and
+>   `azurerm get` returns `status: 200` even for unknown types: empty `arguments` plus a "Documentation not
+>   found" `summary` means the resource type does not exist.
 > - **Validator:** `npm run validate:avm-versions:freeze` (planner agents
 >   MUST call this before `apex-recall complete-step 4`).
 >
