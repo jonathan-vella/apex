@@ -165,7 +165,8 @@ Reuse current content; recover missing/changed evidence after compaction or resu
 2. Run `apex-recall show <project> --json` to verify project context exists (project name, complexity, decisions)
 3. **Read the committed baseline subscription entry when present**. It is
   comparison evidence, not live policy authority or a prerequisite for live discovery.
-  A missing baseline routes to live discovery; never fabricate an entry. Determine the target
+  A missing baseline routes to live discovery; never fabricate an entry. An `alz-corp-default`
+  baseline has no entry for the target subscription; follow Phase 0.45 instead. Determine the target
    subscription ID from the architecture, load the entire
   `.github/data/governance-policy-baseline.json.gz → subscriptions[<sub-id>]`
   object into context for baseline selection/comparison. The subscription

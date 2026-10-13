@@ -33,12 +33,23 @@ def resolve_path(value: Any, dotted_path: str) -> Any:
     return current
 
 
+def default_subscription(baseline: dict[str, Any]) -> tuple[str, dict[str, Any]]:
+    """Return the single synthetic envelope of an alz-corp-default baseline."""
+    if baseline.get("baseline_kind") != "alz-corp-default":
+        raise KeyError("baseline is not an alz-corp-default baseline")
+    subscriptions = baseline.get("subscriptions")
+    if not isinstance(subscriptions, dict) or len(subscriptions) != 1:
+        raise ValueError("alz-corp-default baseline must hold exactly one subscription entry")
+    return next(iter(subscriptions.items()))
+
+
 def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(description="Read a JSON or JSON.gz governance baseline")
     parser.add_argument("baseline", help="Path to governance baseline")
     group = parser.add_mutually_exclusive_group()
     group.add_argument("--get", dest="field", help="Print one dotted field")
     group.add_argument("--subscription", help="Print one subscriptions.<id> envelope")
+    group.add_argument("--alz-default", action="store_true", help="Print the alz-corp-default envelope")
     parser.add_argument("--compact", action="store_true", help="Emit compact JSON")
     args = parser.parse_args(argv)
 
@@ -48,6 +59,8 @@ def main(argv: list[str] | None = None) -> int:
             value = resolve_path(baseline, args.field)
         elif args.subscription:
             value = baseline["subscriptions"][args.subscription]
+        elif args.alz_default:
+            value = default_subscription(baseline)[1]
         else:
             value = baseline
     except (OSError, gzip.BadGzipFile, UnicodeDecodeError, json.JSONDecodeError, KeyError, ValueError) as exc:

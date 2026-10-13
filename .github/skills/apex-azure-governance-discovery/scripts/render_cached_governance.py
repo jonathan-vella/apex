@@ -11,6 +11,7 @@ from __future__ import annotations
 
 import argparse
 import json
+import re
 import sys
 from datetime import UTC, datetime
 from pathlib import Path
@@ -83,6 +84,11 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("--in", dest="input", required=True, help="Path to governance-constraints-v1 JSON envelope.")
     parser.add_argument("--out", required=True, help="Path to project-local 04-governance-constraints.json.")
     parser.add_argument(
+        "--subscription",
+        default=None,
+        help="Target subscription ID; required for the alz-corp-default baseline, ignored otherwise.",
+    )
+    parser.add_argument(
         "--arch", default=None, help="Path to 02-architecture-assessment.md for policy→resource mapping."
     )
     args = parser.parse_args(argv)
@@ -106,6 +112,29 @@ def main(argv: list[str] | None = None) -> int:
         status = {"status": "FAILED", "error": "schema-mismatch", "detail": "Not a governance-constraints-v1 envelope"}
         sys.stdout.write(json.dumps(status, separators=(",", ":")) + "\n")
         return 2
+
+    if envelope.get("source") == "alz-corp-default":
+        target = args.subscription or ""
+        if not re.fullmatch(r"[0-9a-fA-F-]{36}", target):
+            status = {
+                "status": "FAILED",
+                "error": "subscription-required",
+                "detail": "The ALZ Corp default is rendered for a target; pass --subscription <subscription-id>",
+            }
+            sys.stdout.write(json.dumps(status, separators=(",", ":")) + "\n")
+            return 2
+        # The baseline's synthetic id must not leak into the project artifact; keep it only as provenance.
+        provenance = envelope.setdefault("provenance", {})
+        provenance["baseline_subscription_id"] = envelope.get("subscription_id")
+        envelope["subscription_id"] = target
+        scope = (envelope.get("discovery_metadata") or {}).get("scope")
+        if isinstance(scope, dict):
+            scope["subscription_id"] = target
+        # Static policy set, evaluated now; the generation date says nothing about tenant freshness.
+        rendered_at = datetime.now(UTC).strftime("%Y-%m-%dT%H:%M:%SZ")
+        envelope["discovered_at"] = rendered_at
+        if isinstance(envelope.get("discovery_metadata"), dict):
+            envelope["discovery_metadata"]["discovered_at"] = rendered_at
 
     try:
         metadata = envelope.get("discovery_metadata")

@@ -223,6 +223,15 @@ function generatedOwner(filePath) {
       source_of_truth: "Azure Verified Module registries",
       regeneration_command: "npm run refresh:avm-module-index",
     },
+    ".github/data/governance-policy-baseline.json.gz": {
+      generated_by: [
+        ".github/skills/apex-azure-governance-discovery/scripts/generate_alz_baseline.py",
+        "tools/scripts/collect-governance-baseline.ps1",
+      ],
+      source_of_truth:
+        "pinned ALZ library archetypes (shipped default) or the tenant policy state (collector workflow)",
+      regeneration_command: "npm run generate:governance-baseline-alz",
+    },
   };
   return owners[filePath] ?? { generated_by: [], source_of_truth: null, regeneration_command: null };
 }
