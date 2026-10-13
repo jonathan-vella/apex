@@ -34,7 +34,6 @@ Composable architecture building blocks for Azure Terraform. Complements
 | Plan Interpretation      | Pre-deployment validation and change analysis    | `references/plan-interpretation.md`        |
 | AVM Pitfalls             | Set-type diffs, provider pins, 4.x changes       | `references/avm-pitfalls.md`               |
 | Provider Compatibility   | Why azurerm 4.x / Terraform 1.11 floors          | `references/avm-provider-compatibility.md` |
-| AVM Authoring            | AVM certification requirements, compliance       | `references/avm-authoring-requirements.md` |
 | Module Refactoring       | Monolith → module extraction, state migration    | `references/refactor-module.md`            |
 
 ---
@@ -115,6 +114,5 @@ Applying a Terraform pattern in a root module:
 | `references/bootstrap-backend-template.md` | Backend bootstrap template                                        |
 | `references/deploy-script-template.md`     | Deployment script template                                        |
 | `references/project-scaffold.md`           | Project scaffolding structure                                     |
-| `references/avm-authoring-requirements.md` | AVM certification: 37 requirements, compliance checklist          |
 | `references/refactor-module.md`            | Module extraction, state migration, refactoring patterns          |
 | `references/module-composition.md`         | Canonical AVM module composition example with output wiring       |
