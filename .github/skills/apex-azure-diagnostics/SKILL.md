@@ -155,7 +155,7 @@ See [kql-queries.md](references/kql-queries.md) for common diagnostic queries.
 ```
 mcp_azure-mcp_resourcehealth
   intent: "check health status of <resource-name>"
-  command: "get"
+  command: "resourcehealth_availability-status_get"
   parameters:
     resourceId: "<resource-id>"
 ```
