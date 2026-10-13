@@ -1,6 +1,6 @@
 {
-  "lastUpdated": "2026-06-22T12:09:22.357Z",
-  "totalCount": 6,
+  "lastUpdated": "2026-10-13T11:17:16.062Z",
+  "totalCount": 35,
   "sources": [
     "manual-known",
     "azure-updates-rss"
@@ -12,7 +12,8 @@
       "sunsetDate": "2024-03-31",
       "replacement": "Basic/Standard/Premium",
       "source": "manual",
-      "addedDate": "2023-01-01"
+      "addedDate": "2023-01-01",
+      "status": "retired"
     },
     {
       "service": "Azure CDN",
@@ -20,7 +21,8 @@
       "sunsetDate": "2025-09-30",
       "replacement": "Standard_AzureFrontDoor",
       "source": "manual",
-      "addedDate": "2024-01-15"
+      "addedDate": "2024-01-15",
+      "status": "retired"
     },
     {
       "service": "Azure CDN",
@@ -28,7 +30,8 @@
       "sunsetDate": "2025-09-30",
       "replacement": "Premium_AzureFrontDoor",
       "source": "manual",
-      "addedDate": "2024-01-15"
+      "addedDate": "2024-01-15",
+      "status": "retired"
     },
     {
       "service": "Application Gateway",
@@ -36,7 +39,8 @@
       "sunsetDate": "2026-04-28",
       "replacement": "Standard_v2",
       "source": "manual",
-      "addedDate": "2024-06-01"
+      "addedDate": "2024-06-01",
+      "status": "retired"
     },
     {
       "service": "Application Gateway",
@@ -44,7 +48,297 @@
       "sunsetDate": "2026-04-28",
       "replacement": "WAF_v2",
       "source": "manual",
-      "addedDate": "2024-06-01"
+      "addedDate": "2024-06-01",
+      "status": "retired"
+    },
+    {
+      "service": "Nested confidential (cc_v5)",
+      "title": "Retirement: Nested confidential (cc_v5) VMs will be retired on September 1, 2026",
+      "link": "https://azure.microsoft.com/updates?id=568661",
+      "pubDate": "Wed, 05 Aug 2026 00:22:49 Z",
+      "source": "azure-updates-rss",
+      "sunsetDate": "2026-09-01",
+      "replacement": null,
+      "status": "retired"
+    },
+    {
+      "service": "Containerized data connector",
+      "title": "Retirement: Containerized data connector agent for the Microsoft Sentinel solution for SAP applications",
+      "link": "https://azure.microsoft.com/updates?id=568457",
+      "pubDate": "Wed, 12 Aug 2026 19:41:20 Z",
+      "source": "azure-updates-rss",
+      "sunsetDate": "2026-09-14",
+      "replacement": null,
+      "status": "retired"
+    },
+    {
+      "service": "NVv3-series Azure Virtual",
+      "title": "Retirement: NVv3-series Azure Virtual Machines",
+      "link": "https://azure.microsoft.com/updates?id=573414",
+      "pubDate": "Wed, 30 Sep 2026 18:26:47 Z",
+      "source": "azure-updates-rss",
+      "sunsetDate": "2026-09-30",
+      "replacement": null,
+      "status": "retired"
+    },
+    {
+      "service": "NVv4-series Azure Virtual",
+      "title": "Retirement: NVv4-series Azure Virtual Machines",
+      "link": "https://azure.microsoft.com/updates?id=573415",
+      "pubDate": "Wed, 30 Sep 2026 18:24:01 Z",
+      "source": "azure-updates-rss",
+      "sunsetDate": "2026-09-30",
+      "replacement": null,
+      "status": "retired"
+    },
+    {
+      "service": "SAP container images",
+      "title": "Retirement Update: SAP container images removed October 14, 2026",
+      "link": "https://azure.microsoft.com/updates?id=571342",
+      "pubDate": "Wed, 16 Sep 2026 17:19:02 Z",
+      "source": "azure-updates-rss",
+      "sunsetDate": "2026-10-14",
+      "replacement": null,
+      "status": "upcoming"
+    },
+    {
+      "service": "Support for PowerShell 7.4",
+      "title": "Retirement: Support for PowerShell 7.4 ends on November 10, 2026",
+      "link": "https://azure.microsoft.com/updates?id=572770",
+      "pubDate": "Wed, 23 Sep 2026 16:50:05 Z",
+      "source": "azure-updates-rss",
+      "sunsetDate": "2026-11-10",
+      "replacement": null,
+      "status": "upcoming"
+    },
+    {
+      "service": "Support for .NET",
+      "title": "Retirement: Support for .NET 8 and .NET 9 ends on November 10, 2026—upgrade your apps to .NET 10",
+      "link": "https://azure.microsoft.com/updates?id=572838",
+      "pubDate": "Wed, 23 Sep 2026 16:46:49 Z",
+      "source": "azure-updates-rss",
+      "sunsetDate": "2026-11-10",
+      "replacement": null,
+      "status": "upcoming"
+    },
+    {
+      "service": "Azure Linux with OS",
+      "title": "Retirement: Azure Linux with OS Guard in Azure Kubernetes Service",
+      "link": "https://azure.microsoft.com/updates?id=571257",
+      "pubDate": "Fri, 11 Sep 2026 18:08:28 Z",
+      "source": "azure-updates-rss",
+      "sunsetDate": "2026-12-10",
+      "replacement": null,
+      "status": "upcoming"
+    },
+    {
+      "service": "Deployment Environments",
+      "title": "Retirement: Azure Deployment Environments will be retired on February 22, 2027",
+      "link": "https://azure.microsoft.com/updates?id=567934",
+      "pubDate": "Thu, 08 Oct 2026 18:20:34 Z",
+      "source": "azure-updates-rss",
+      "sunsetDate": "2027-02-22",
+      "replacement": null,
+      "status": "upcoming"
+    },
+    {
+      "service": "Azure Cache for Redis",
+      "sku": "Enterprise, Enterprise Flash",
+      "sunsetDate": "2027-03-31",
+      "replacement": "Azure Managed Redis",
+      "source": "manual",
+      "notes": "https://learn.microsoft.com/azure/azure-cache-for-redis/retirement-faq",
+      "addedDate": "2026-10-13",
+      "status": "upcoming"
+    },
+    {
+      "service": "Support for Node.js",
+      "title": "Retirement: Support for Node.js 22 ends on April 30, 2027",
+      "link": "https://azure.microsoft.com/updates?id=572771",
+      "pubDate": "Tue, 22 Sep 2026 19:22:34 Z",
+      "source": "azure-updates-rss",
+      "sunsetDate": "2027-04-30",
+      "replacement": null,
+      "status": "upcoming"
+    },
+    {
+      "service": "Support for Node",
+      "title": "Retirement: Support for Node 22 LTS ends on April 30, 2027",
+      "link": "https://azure.microsoft.com/updates?id=567334",
+      "pubDate": "Mon, 24 Aug 2026 17:30:43 Z",
+      "source": "azure-updates-rss",
+      "sunsetDate": "2027-04-30",
+      "replacement": null,
+      "status": "upcoming"
+    },
+    {
+      "service": "Microsoft HPC Pack",
+      "title": "Retirement: Microsoft HPC Pack",
+      "link": "https://azure.microsoft.com/updates?id=570046",
+      "pubDate": "Tue, 29 Sep 2026 17:26:50 Z",
+      "source": "azure-updates-rss",
+      "sunsetDate": "2027-08-27",
+      "replacement": null,
+      "status": "upcoming"
+    },
+    {
+      "service": "Azure VMware Solution",
+      "title": "Retirement: Azure VMware Solution License-included service will be retired August 30, 2027",
+      "link": "https://azure.microsoft.com/updates?id=569535",
+      "pubDate": "Tue, 18 Aug 2026 19:52:06 Z",
+      "source": "azure-updates-rss",
+      "sunsetDate": "2027-08-30",
+      "replacement": null,
+      "status": "upcoming"
+    },
+    {
+      "service": "Support for Java",
+      "title": "Retirement: Support for Java 8, 11 and 17 will end on September 1, 2027",
+      "link": "https://azure.microsoft.com/updates?id=568585",
+      "pubDate": "Tue, 06 Oct 2026 18:21:59 Z",
+      "source": "azure-updates-rss",
+      "sunsetDate": "2027-09-01",
+      "replacement": null,
+      "status": "upcoming"
+    },
+    {
+      "service": "Functions on Azure",
+      "title": "Retirement: Functions on Azure Container Apps V1",
+      "link": "https://azure.microsoft.com/updates?id=570800",
+      "pubDate": "Tue, 29 Sep 2026 19:41:09 Z",
+      "source": "azure-updates-rss",
+      "sunsetDate": "2027-09-29",
+      "replacement": null,
+      "status": "upcoming"
+    },
+    {
+      "service": "Pod name dimension",
+      "title": "Retirement: Pod name dimension in AKS pod platform metrics",
+      "link": "https://azure.microsoft.com/updates?id=570232",
+      "pubDate": "Tue, 06 Oct 2026 22:37:54 Z",
+      "source": "azure-updates-rss",
+      "sunsetDate": "2027-09-30",
+      "replacement": null,
+      "status": "upcoming"
+    },
+    {
+      "service": "Azure Key Vault",
+      "title": "Retirement: Azure Key Vault Secrets Provider Extension for Azure Arc enabled Kubernetes clusters",
+      "link": "https://azure.microsoft.com/updates?id=570313",
+      "pubDate": "Fri, 09 Oct 2026 20:27:17 Z",
+      "source": "azure-updates-rss",
+      "sunsetDate": "2027-10-09",
+      "replacement": null,
+      "status": "upcoming"
+    },
+    {
+      "service": "Always Encrypted with",
+      "title": "Retirement: Always Encrypted with Intel SGX Enclaves",
+      "link": "https://azure.microsoft.com/updates?id=569236",
+      "pubDate": "Tue, 06 Oct 2026 16:42:33 Z",
+      "source": "azure-updates-rss",
+      "sunsetDate": "2027-10-31",
+      "replacement": null,
+      "status": "upcoming"
+    },
+    {
+      "service": "Microsoft Dev Box",
+      "title": "Retirement: Microsoft Dev Box will be retired on September 18, 2028",
+      "link": "https://azure.microsoft.com/updates?id=567933",
+      "pubDate": "Thu, 08 Oct 2026 18:23:25 Z",
+      "source": "azure-updates-rss",
+      "sunsetDate": "2028-09-18",
+      "replacement": null,
+      "status": "upcoming"
+    },
+    {
+      "service": "Azure Cache for Redis",
+      "sku": "Basic, Standard, Premium",
+      "sunsetDate": "2028-09-30",
+      "replacement": "Azure Managed Redis",
+      "source": "manual",
+      "notes": "https://learn.microsoft.com/azure/azure-cache-for-redis/retirement-faq",
+      "addedDate": "2026-10-13",
+      "status": "upcoming"
+    },
+    {
+      "service": "Azure Functions",
+      "sku": "Linux Consumption",
+      "sunsetDate": "2028-09-30",
+      "replacement": "Flex Consumption",
+      "source": "manual",
+      "addedDate": "2026-10-13",
+      "status": "upcoming"
+    },
+    {
+      "service": "Transition to using",
+      "title": "Retirement: Transition to using standard tests for single-step availability testing in Azure Monitor application insights by September 30, 2028",
+      "link": "https://azure.microsoft.com/updates?id=transition-to-using-standard-tests-for-singlestep-availability-testing-in-azure-monitor-application-insights-by-30-september",
+      "pubDate": "Fri, 22 Sep 2023 23:00:56 Z",
+      "source": "azure-updates-rss",
+      "sunsetDate": "2028-09-30",
+      "replacement": null,
+      "status": "upcoming"
+    },
+    {
+      "service": "Azure Communication Services",
+      "title": "Retirement: Azure Communication Services (ACS) standalone services will be retired on September 30, 2028",
+      "link": "https://azure.microsoft.com/updates?id=557117",
+      "pubDate": "Thu, 24 Sep 2026 17:51:23 Z",
+      "source": "azure-updates-rss",
+      "sunsetDate": "2028-09-30",
+      "replacement": null,
+      "status": "upcoming"
+    },
+    {
+      "service": "IoT Central",
+      "title": "Retirement: Azure IoT Central will be retired on September 20, 2029",
+      "link": "https://azure.microsoft.com/updates?id=569914",
+      "pubDate": "Tue, 29 Sep 2026 17:25:10 Z",
+      "source": "azure-updates-rss",
+      "sunsetDate": "2029-09-20",
+      "replacement": null,
+      "status": "upcoming"
+    },
+    {
+      "service": "Azure App Service",
+      "title": "Retirement: Azure App Service on Azure Stack Hub",
+      "link": "https://azure.microsoft.com/updates?id=568178",
+      "pubDate": "Tue, 06 Oct 2026 18:24:43 Z",
+      "source": "azure-updates-rss",
+      "sunsetDate": "2029-09-30",
+      "replacement": null,
+      "status": "upcoming"
+    },
+    {
+      "service": "Arc enabled System Center Virtual Machine Manager",
+      "title": "Retirement: Azure Arc enabled System Center Virtual Machine Manager will be retired September 30, 2029",
+      "link": "https://azure.microsoft.com/updates?id=570283",
+      "pubDate": "Tue, 29 Sep 2026 17:36:13 Z",
+      "source": "azure-updates-rss",
+      "sunsetDate": "2029-09-30",
+      "replacement": null,
+      "status": "upcoming"
+    },
+    {
+      "service": "Virtual Machines",
+      "title": "Retirement: DCsv3 and DCdsv3-series Azure Virtual Machines will be retired on October 31, 2029",
+      "link": "https://azure.microsoft.com/updates?id=569592",
+      "pubDate": "Thu, 01 Oct 2026 17:02:55 Z",
+      "source": "azure-updates-rss",
+      "sunsetDate": "2029-10-31",
+      "replacement": null,
+      "status": "upcoming"
+    },
+    {
+      "service": "Dv3, Dsv3, Ev3,",
+      "title": "Retirement: Dv3, Dsv3, Ev3, and Esv3 Azure VMs",
+      "link": "https://azure.microsoft.com/updates?id=572346",
+      "pubDate": "Wed, 30 Sep 2026 17:07:30 Z",
+      "source": "azure-updates-rss",
+      "sunsetDate": "2029-11-15",
+      "replacement": null,
+      "status": "upcoming"
     },
     {
       "service": "Azure Service Bus",
