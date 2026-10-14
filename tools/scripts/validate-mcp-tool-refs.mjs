@@ -12,6 +12,8 @@ const repoRoot = resolve(dirname(fileURLToPath(import.meta.url)), "../..");
 const IGNORE_MARKER = "mcp-ref:ignore";
 const WRAPPER_KEYS = new Set(["command", "intent", "parameters", "learn"]);
 const WINDOW_LINES = 4;
+// Docs write mcp_azure-mcp_<tool>; VS Code lists the same tool as mcp_azure_mcp_ser_<tool>.
+const PREFIX = "mcp_azure[-_]mcp_(?:ser_)?";
 
 const words = (text, pattern) => [...text.matchAll(pattern)].map((match) => match[1]);
 
@@ -59,7 +61,7 @@ function parametersIn(windowLines, windowText, direct) {
   keys.push(...words(windowText, /\(parameters?:\s*`([^`]+)`\)/g));
   if (direct) {
     for (const match of windowText.matchAll(/\(\{([^}]*)\}\)/g)) keys.push(...keysOf(match[1]));
-    keys.push(...yamlBlockKeys(windowLines, /^()\S.*mcp_azure-mcp_\w+\s*$/));
+    keys.push(...yamlBlockKeys(windowLines, new RegExp(`^()\\S.*${PREFIX}\\w+\\s*$`)));
   }
   return keys.filter((key) => !WRAPPER_KEYS.has(key));
 }
@@ -69,10 +71,12 @@ export function scanText(text, snapshot) {
   const lines = text.split(/\r?\n/);
   const problems = [];
   lines.forEach((line, index) => {
-    const matches = [...line.matchAll(/mcp_azure-mcp_([a-z][a-z0-9_]*)/g)];
+    const matches = [...line.matchAll(new RegExp(`${PREFIX}([a-z][a-z0-9_]*)`, "g"))];
     matches.forEach((match, matchIndex) => {
       if (line.includes(IGNORE_MARKER) || (lines[index - 1] ?? "").includes(IGNORE_MARKER)) return;
       const toolName = match[1];
+      // A prefix followed by a placeholder such as <tool> is documentation, not a reference.
+      if (toolName.endsWith("_") && line[match.index + match[0].length] === "<") return;
       const tool = snapshot.tools[toolName];
       if (!tool) {
         problems.push({ line: index + 1, message: `unknown tool mcp_azure-mcp_${toolName}` });
@@ -81,7 +85,7 @@ export function scanText(text, snapshot) {
       const sameLineEnd = matches[matchIndex + 1]?.index ?? line.length;
       const following = [];
       for (const next of lines.slice(index + 1, index + 1 + WINDOW_LINES)) {
-        if (!next.trim() || next.trimStart().startsWith("```") || /mcp_azure-mcp_/.test(next)) break;
+        if (!next.trim() || next.trimStart().startsWith("```") || new RegExp(PREFIX).test(next)) break;
         following.push(next);
       }
       const windowLines = [line.slice(match.index, sameLineEnd), ...following];

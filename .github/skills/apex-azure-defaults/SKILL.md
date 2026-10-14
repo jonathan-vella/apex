@@ -71,6 +71,13 @@ always overrides repository defaults.
 - **Lifecycle is verified live**: selectable engine and runtime versions require
   current support-policy evidence.
 
+## Azure MCP tool names
+
+Skills and agents write Azure MCP tools as `mcp_azure-mcp_<tool>` (for example `mcp_azure-mcp_documentation`). The client may
+show the same tool with a shortened prefix such as `mcp_azure_mcp_ser_<tool>`; the server reports its name as "Azure MCP
+Server", and VS Code derives the prefix from it. Match on `<tool>` and call whichever name the client lists. Both prefixes
+are accepted by `npm run validate:mcp-tool-refs`.
+
 ## Validation
 
 ```bash

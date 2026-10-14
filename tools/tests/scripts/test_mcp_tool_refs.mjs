@@ -36,6 +36,20 @@ test("accepts valid tool, command and parameter references", () => {
   assert.deepEqual(problems('mcp_azure-mcp_extension_cli_generate\n  intent: "x"\n  cli-type: "az"'), []);
 });
 
+test("accepts the shortened client prefix and still validates against it", () => {
+  assert.deepEqual(
+    problems(
+      'Use `mcp_azure_mcp_ser_monitor` with `command: "monitor_workspace_log_query"`, `parameters: { workspace: "w" }`',
+    ),
+    [],
+  );
+  assert.deepEqual(problems("written `mcp_azure-mcp_<tool>` or `mcp_azure_mcp_ser_<tool>`"), []);
+  assert.deepEqual(problems("`mcp_azure_mcp_ser_nope`"), ["unknown tool mcp_azure-mcp_nope"]);
+  assert.deepEqual(problems('`mcp_azure_mcp_ser_monitor` command: "monitor_nope"'), [
+    'mcp_azure-mcp_monitor has no command "monitor_nope"',
+  ]);
+});
+
 test("flags unknown tools, commands and parameters", () => {
   assert.deepEqual(problems("`mcp_azure-mcp_nope`"), ["unknown tool mcp_azure-mcp_nope"]);
   assert.deepEqual(problems('`mcp_azure-mcp_monitor` command: "monitor_nope"'), [
