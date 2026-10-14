@@ -192,7 +192,9 @@ function validateStateFile(filePath, isTemplate) {
     if (!Array.isArray(state.decision_log)) {
       error(label, "decision_log must be an array");
     } else {
-      const requiredEntryFields = ["id", "step", "agent", "title", "choice", "rationale"];
+      // apex-recall writes { decision, rationale?, step?, timestamp }; the risk gate and historical entries add the
+      // structured fields (id, agent, title, choice), which are validated when present.
+      const validLogSteps = new Set(Object.keys(EXPECTED_STEP_NAMES));
       const idPattern = /^D\d+$/;
       for (let i = 0; i < state.decision_log.length; i++) {
         const entry = state.decision_log[i];
@@ -201,16 +203,15 @@ function validateStateFile(filePath, isTemplate) {
           error(label, `${prefix} must be an object`);
           continue;
         }
-        for (const field of requiredEntryFields) {
-          if (!(field in entry)) {
-            error(label, `${prefix}: missing required field "${field}"`);
-          }
+        const structured = typeof entry.title === "string" && typeof entry.choice === "string";
+        if (typeof entry.decision !== "string" && !structured) {
+          error(label, `${prefix}: needs a "decision" string, or both "title" and "choice"`);
         }
         if (entry.id !== undefined && !idPattern.test(entry.id)) {
           error(label, `${prefix}: id must match pattern D001, D002, etc. Got: "${entry.id}"`);
         }
-        if (entry.step !== undefined && (typeof entry.step !== "number" || entry.step < 1 || entry.step > 7)) {
-          error(label, `${prefix}: step must be a number between 1 and 7`);
+        if (entry.step !== undefined && !validLogSteps.has(String(entry.step))) {
+          error(label, `${prefix}: step must be one of ${[...validLogSteps].join(", ")}`);
         }
         if (entry.timestamp !== undefined && entry.timestamp !== null) {
           const d = new Date(entry.timestamp);
