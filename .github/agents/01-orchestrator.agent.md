@@ -481,6 +481,10 @@ Do not require a session-state file before attempting recovery of existing work.
   the applicable approval gate or exact handoff, then stop. Do not ask who should choose the next step.
 5. For an in-progress step or review, preserve its sub-step checkpoint in the handoff context;
   do not skip required review or approval evidence, and do not invoke the next agent directly.
+6. **Reopening a completed step** (`start-step --force`) must leave later steps visibly stale. Confirm
+  `session.steps` marks every dependent step stale and `plan_status` is superseded; otherwise record
+  both with `apex-recall decide`. Regenerate `00-handoff.md` with `render-session-handoff` so Completed
+  Steps and carried findings survive; never hand-write a replacement. Report only verified state.
 
 **Starting a new chat thread mid-workflow?**
 The agent auto-detects progress via `apex-recall show <project> --json`. Just invoke the

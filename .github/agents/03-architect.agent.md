@@ -73,9 +73,9 @@ chart outputs; missing essential tools/models stop work rather than weakening ch
 
 - Without asking: research, WAF scoring, delegated pricing, charts, writing and validating the
   Step 2 outputs, and the required reviews.
-- Needs the user: missing NFR, compliance or budget values; SKU confirmation before committed
-  pricing; non-standard SKU/tier choices or deviations from Well-Architected guidance; and the
-  final [Approval Gate](#approval-gate), which alone completes Step 2 and allows handoff.
+- Needs the user: missing NFR, compliance or budget values; an over-budget owner decision (ask, never substitute);
+  SKU confirmation before committed pricing; non-standard SKU/tier choices or deviations from Well-Architected
+  guidance; and the final [Approval Gate](#approval-gate), which alone completes Step 2 and allows handoff.
 - Never: advance to the next step without that gate, or hand off directly to the IaC Planner.
 
 Deliver the requested Step 2 scope. Raise a better approach in one sentence instead of silently
@@ -180,7 +180,7 @@ in a single form:
 | NFRs       | SLA, RTO, RPO, performance targets |
 | Compliance | Regulatory frameworks              |
 | Budget     | Approximate monthly budget         |
-| Scale      | Users, transactions, data volume   |
+| Scale      | Users, transactions, data volume; operator access path, auth owner, alert recipient, SQL admin |
 
 ## Session State
 
@@ -410,6 +410,7 @@ in your WAF assessment recommendations (still produce the identical artifact str
   for architecture and the separate cost estimate before presenting final approval.
 14. **Approval gate** — follow [Approval Gate](#approval-gate) and resolve blocking findings
   before completion and handoff. Budget or SKU approval alone does not complete Step 2.
+  First archive superseded or `FAILED` files to `_meta/` and delete `02-waf-research.tmp.md`.
 
 ## Cost Estimation
 
@@ -600,28 +601,9 @@ Do not narrate routine tool calls.
 
 ## Validation Checklist
 
-- [ ] All 5 WAF pillars scored with rationale and confidence level
-- [ ] Service Maturity Assessment table included
-- [ ] Cost estimate uses worker-verified MCP data or the documented direct-API evidence fallback, with truthful sources
-- [ ] **Every dollar figure** in 02 and 03 artifacts traces back to `cost-estimate-subagent` response — no hardcoded prices
-- [ ] Line-item totals sum correctly to reported monthly total
-- [ ] H2 headings match apex-azure-artifacts templates exactly
-- [ ] Region selection justified (default: swedencentral)
-- [ ] AVM modules recommended where available
-- [ ] No deprecated services recommended (checked against apex-azure-defaults Deprecated Services table)
-- [ ] Service retirement timelines verified for any multi-year RI commitments
-- [ ] Storage redundancy tier compatible with data residency requirements (no GRS with single-region GDPR)
-- [ ] Global/non-regional services (Front Door, Entra, Traffic Manager) flagged for EU Data Boundary compliance
-- [ ] SKU zone-redundancy capabilities verified for all services claiming AZ support
-
-### WAF scoring table format
-Illustrative structure only; compute every score and confidence from project evidence, never from examples.
-
-```markdown
-| WAF Pillar | Score | Confidence | Key Factor |
-| --- | --- | --- | --- |
-| {pillar} | {evidence-based score}/10 | {confidence} | {verified factor} |
-```
+Before the Approval Gate, load
+[`architect-validation-checklist.md`](../skills/apex-azure-defaults/references/architect-validation-checklist.md)
+once and satisfy every item and its WAF scoring table format.
 
 ## Completion Handoff
 

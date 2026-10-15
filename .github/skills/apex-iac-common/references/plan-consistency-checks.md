@@ -72,6 +72,14 @@ Rule resolution protocol (Phase 2.5):
 - **Auto-fix**: rewrite every phase-gated resource to read the single
   declared phase parameter.
 
+### `phased_param_wiring` (required parameter)
+
+- **Also catches**: a phase parameter with a default (for example `phase = 5`), which deploys every
+  phase when omitted and bypasses per-phase approval. Declare it required with a bounded range and no default.
+- **Also catches**: a consumer ordered before a private endpoint or DNS zone it depends on
+  (image pull, Key Vault reference, SQL, Blob). For each consumer list every private endpoint on its
+  path and confirm `depends_on` and the phase order match before approval.
+
 ### `phase_monotonicity`
 
 - **What it catches**: `Phase 1, Phase 2, Phase 4` (gap) or
