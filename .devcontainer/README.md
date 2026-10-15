@@ -53,7 +53,7 @@ fails, the compliance and cost skills fall back to running `azqr` directly.
 
 | Server            | Transport         | Purpose                                          |
 | ----------------- | ----------------- | ------------------------------------------------ |
-| Azure Resource Manager MCP | http      | Retail pricing and Azure cost management         |
+| Azure Resource Manager MCP | http      | Azure cost management (retail pricing uses Azure MCP) |
 | GitHub MCP        | http              | Copilot-provided GitHub context                  |
 | Azure MCP Server  | stdio (`npx`)      | RBAC-aware Azure context for agents              |
 

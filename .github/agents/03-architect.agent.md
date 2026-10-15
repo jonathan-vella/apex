@@ -1,6 +1,6 @@
 ---
 name: 03-Architect
-description: Expert Architect providing guidance using Azure Well-Architected Framework principles and Microsoft best practices. Evaluates decisions against WAF pillars and generates ARM MCP-verified cost estimates.
+description: Expert Architect providing guidance using Azure Well-Architected Framework principles and Microsoft best practices. Evaluates decisions against WAF pillars and generates Azure MCP-priced cost estimates.
 model: ["Claude Sonnet 5.5 (copilot)"]
 reasoning-effort: high
 user-invocable: true
@@ -10,7 +10,7 @@ tools: [vscode/askQuestions, execute, read, agent, edit, search, web, 'azure-mcp
 handoffs:
   - label: "▶ Refresh Cost Estimate"
     agent: 03-Architect
-    prompt: "Re-query Azure Resource Manager MCP through cost-estimate-subagent to update current pricing and totals. Input: agent-output/{project}/02-architecture-assessment.md SKU list. Output: agent-output/{project}/03-des-cost-estimate.md."
+    prompt: "Re-query Azure MCP pricing through cost-estimate-subagent to update current pricing and totals. Input: agent-output/{project}/02-architecture-assessment.md SKU list. Output: agent-output/{project}/03-des-cost-estimate.md."
     send: true
   - label: "▶ Deep Dive WAF Pillar"
     agent: 03-Architect
@@ -240,8 +240,9 @@ the bulk is authored.
   before pricing; record rejection reasons without requesting irrelevant rates. If one tier is forced,
   document why and include it in the confirmed full estimate; do not invent alternatives to satisfy a count.
 2. **Call `cost-estimate-subagent` in `candidate_sets[]` mode** to price
-  A-vs-B _before_ committing. This comparison-only mode does not require SKU
-  approval and cannot write back the manifest or count as approved pricing.
+  A-vs-B _before_ committing: one call per `decision_id` (own `02-cost-candidates-{decision_id}.json`, no stale `.tmp`),
+  with exact meter hints and usage per the [candidate-set contract](../skills/apex-azure-defaults/references/cost-estimate-parent-contract.md#candidate-set-calls).
+  Comparison-only: no SKU approval, no manifest writeback, not approved pricing.
   Preserve user pins; a worker's cheapest candidate is advice, not an approved choice.
 3. **Pick winners** for each decision; never change user-pinned entries
    (`source: user-pin`) — they are locked.

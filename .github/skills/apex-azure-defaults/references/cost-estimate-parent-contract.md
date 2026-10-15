@@ -30,7 +30,7 @@ model/tools and require explicit selection of the owning agent.
 Parent-side model evaluation found agents hallucinating Azure SKU prices
 (e.g., AKS Standard at $0.60/hr instead of $0.10/hr) when writing from
 parametric knowledge. **ALL dollar figures in user-facing artifacts MUST
-come from `cost-estimate-subagent` (ARM MCP primary; constrained first-party API evidence fallback).**
+come from `cost-estimate-subagent` (Azure MCP `pricing_get` primary; constrained first-party API evidence fallback).**
 Never write a price that did not originate from a subagent response.
 
 ## Delegation Procedure (5 steps)
@@ -76,6 +76,20 @@ Never write a price that did not originate from a subagent response.
    `resources[].monthly_cost` equals `monthly_total`. Flag any
    discrepancy to the user before proceeding to the next phase.
 
+## Candidate-set calls
+
+The worker's 20-request budget is per invocation, and a bundled call can exhaust it. Slow runs came from
+rebuilding the same ambiguous meters across retries.
+
+- Issue one `candidate_sets` call per `decision_id`, each with its own `output_path`
+  (`02-cost-candidates-{decision_id}.json`). Never bundle decisions into one call.
+- Before each call, confirm no stale `{output_path}.tmp` or prior output exists; the worker returns FAILED on a
+  non-owned `.tmp`. Preserve earlier output as `*.failed-attempt-N.json` first.
+- Put the recipe from [candidate meter hints](pricing-guidance.md#candidate-meter-hints) in each candidate's
+  `meter_name`/`notes`, plus every variable-meter usage figure (GB, requests, free-rule assumption) so no line
+  stalls on a missing assumption.
+- On retry, cite prior `.retail-evidence` paths and ask the worker to reuse them rather than re-query.
+
 ## Interrupted pricing recovery
 
 A canceled terminal command or empty worker response is not proof of publication and is not a pricing failure category.
@@ -113,14 +127,11 @@ Only after current pricing evidence exists may artifact generation and independe
 
 | Tool | Purpose | Context |
 | --- | --- | --- |
-| `get_retail_prices` | Planned-resource retail prices | Primary |
-| `query_costs` | Actual cost by Azure scope | Deployed only |
-| `query_aks_costs` | Actual AKS cost breakdown | Deployed only |
-| `forecast_costs` | Scope cost forecast | Optional, deployed only |
-| `get_benefit_recommendations` | Reservation and savings-plan analysis | Optional |
+| `pricing_get` (Azure MCP `pricing`) | Planned-resource retail prices, optional savings-plan data | Only pricing tool |
 
-The subagent deduplicates identical service, ARM SKU, region, meter, price-type,
-and currency queries within its MCP call budget. Include explicit usage for
+The subagent uses no Azure Resource Manager MCP tools. Actual-cost, forecast and benefit analysis are outside this
+contract; the cost-optimization skill covers them. The subagent deduplicates identical service, SKU, region, meter,
+price-type, and currency queries within its MCP call budget. Include explicit usage for
 non-hourly meters. Canonical query and calculation rules live in
 [`pricing-guidance.md`](pricing-guidance.md).
 

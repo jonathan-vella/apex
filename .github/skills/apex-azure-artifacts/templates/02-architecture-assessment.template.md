@@ -320,7 +320,7 @@ or Governance directly. Never route directly to implementation planning.
 
 ---
 
-_Assessment performed using Azure Well-Architected Framework. Pricing data from Azure Resource Manager MCP ({date})._
+_Assessment performed using Azure Well-Architected Framework. Pricing data from Azure MCP pricing ({date})._
 
 ---
 

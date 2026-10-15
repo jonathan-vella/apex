@@ -53,6 +53,22 @@ test("direct fallback preserves raw responses and failure provenance without com
   assert.equal(result.monthly_total, undefined);
 });
 
+test("pricing_get empty results authorize fallback but errors and nonempty prices do not", async () => {
+  const emptyPricingGet = { status: 200, message: "Success", results: { prices: [] } };
+  const input = request();
+  input.mcp_failure.attempts[0].response = emptyPricingGet;
+  const result = await fetchRetailEvidence(input, async () => response(page()));
+  assert.deepEqual(result.mcp_failure.attempts[0].response, emptyPricingGet);
+  for (const body of [
+    { status: 400, message: "must specify sku", results: { prices: [] } },
+    { status: 200, message: "Success", results: { prices: [{ meterName: "Private Zone" }] } },
+  ]) {
+    const blocked = request();
+    blocked.mcp_failure.attempts[0].response = body;
+    await assert.rejects(fetchRetailEvidence(blocked, () => assert.fail("must not fetch")));
+  }
+});
+
 test("query building escapes OData literals and rejects arbitrary filters", () => {
   assert.match(retailQueryUrl({ ...query, meterName: "Owner's Zone" }).searchParams.get("$filter"), /Owner''s Zone/);
   assert.throws(() => retailQueryUrl({ ...query, url: "https://other.test" }));

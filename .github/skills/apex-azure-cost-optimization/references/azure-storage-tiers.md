@@ -132,6 +132,6 @@ Resources
 
 ## Pricing
 
-Use the ARM MCP `get_retail_prices` tool for the requested region, redundancy,
+Use the Azure MCP `pricing_get` tool for the requested region, redundancy,
 tier, and currency. Include storage, transaction, retrieval, early-deletion, and
 rehydration costs when relevant; never rely on embedded rates.

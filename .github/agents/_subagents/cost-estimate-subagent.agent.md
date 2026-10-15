@@ -1,20 +1,20 @@
 ---
 name: cost-estimate-subagent
-description: Azure cost estimation subagent. Uses Azure Resource Manager MCP retail pricing and cost data, then returns a structured cost breakdown through a file-based contract.
+description: Azure cost estimation subagent. Uses Azure MCP pricing (pricing_get) retail data only, then returns a structured cost breakdown through a file-based contract.
 model: ["GPT-6 Luna (copilot)"]
 reasoning-effort: max
 user-invocable: false
 disable-model-invocation: false
 agents: []
-tools: [execute, read, edit, search, "azure-resource-manager-mcp/get_retail_prices", "azure-resource-manager-mcp/query_costs", "azure-resource-manager-mcp/query_aks_costs", "azure-resource-manager-mcp/forecast_costs", "azure-resource-manager-mcp/list_dimensions", "azure-resource-manager-mcp/list_benefit_utilization", "azure-resource-manager-mcp/get_benefit_recommendations"]
+tools: [execute, read, edit, search, "azure-mcp/pricing"]
 ---
 
 # cost-estimate-subagent
 
 ## Role
 
-Price planned Azure resources with the official Azure Resource Manager MCP
-server first; use only the documented public Retail Prices API fallback for unresolved meters after MCP failure.
+Price planned Azure resources with the Azure MCP `pricing` tool (`pricing_get`) only;
+use only the documented public Retail Prices API fallback for unresolved meters after MCP failure.
 Parent agents provide paths and receive only a compact summary; write the
 full result to `output_path`.
 
@@ -54,9 +54,8 @@ Exactly one input mode must be supplied:
   region, quantity, usage?, meter_name?, notes? }] }]`.
 
 Common inputs: `project_name`, `region`, `output_path`, and `overwrite` (default
-`false`). Optional: `compare_regions`, `include_ri_savings`, `scope`, and
-`deployed` (default `false`). Multiple input modes or a missing required field
-must produce `FAILED` with a specific `unresolved_items[]` entry.
+`false`). Optional: `compare_regions` and `include_ri_savings`. Multiple input modes
+or a missing required field must produce `FAILED` with a specific `unresolved_items[]` entry.
 
 Optional `recovery` supplies `draft_path`, `evidence_paths`, `remaining_requests` and `prior_attempt` context
 for a parent-authorized interrupted attempt, while retaining exactly one original pricing input mode.
@@ -72,7 +71,7 @@ content and recover missing/changed evidence after compaction; no skill digest t
 - `../../skills/apex-azure-defaults/references/pricing-guidance.md`
 - `../../skills/apex-azure-artifacts/templates/03-des-cost-estimate.template.md`
 
-The pricing guidance is the canonical source for ARM MCP parameter names,
+The pricing guidance is the canonical source for `pricing_get` parameters and `filter` syntax,
 service names, region handling, meter selection, usage units, and calculations.
 
 ## Workflow
@@ -85,8 +84,9 @@ service names, region handling, meter selection, usage units, and calculations.
   are not documented there. Deployment tiers are not automatically catalog `armSkuName` values;
   use service/region discovery for tier/operation meters and share results across candidate tiers.
 3. Group identical `(serviceName, armSkuName, armRegionName, meterName,
-   priceType, currencyCode)` queries. Call `get_retail_prices` once per distinct
+   priceType, currencyCode)` queries. Call `pricing_get` once per distinct
    group and reuse the returned rows across quantities and candidates.
+  Express meter filters through its OData `filter`; it has no `meterName` input and a bare `service` can be rejected.
   Keep a query ledger including empty/error results; do not repeat successful or empty identical requests.
   After documented empty-result discovery or an exhausted transient retry, use the
   [constrained fallback](../../skills/apex-azure-defaults/references/pricing-guidance.md#constrained-direct-api-fallback)
@@ -97,12 +97,10 @@ service names, region handling, meter selection, usage units, and calculations.
    `unitOfMeasure`, quantity, and explicit usage. Use 730 hours per month only
    for hourly meters. Sum separate meters when a service bills across compute,
    storage, requests, or transfer.
-6. When `deployed: true` and `scope` is supplied, `query_costs` may provide
-   actual cost context. Use `query_aks_costs` only for deployed AKS breakdowns.
-   These tools never replace `get_retail_prices` for hypothetical resources.
-7. If requested, use `forecast_costs` or benefit tools only for authenticated,
-   deployed scopes. Region comparison means repeating the same retail query for
-   the requested regions; do not recommend a region that violates requirements.
+6. Actual-cost, forecast and benefit analysis are out of scope; this worker prices from the retail catalog only.
+7. If `include_ri_savings` is requested, use `include-savings-plan` or the `Reservation` price type.
+   Region comparison means repeating the same retail query for the requested regions;
+   do not recommend a region that violates requirements.
 8. Write the JSON atomically through `{output_path}.tmp`, validate totals and
    status, then rename it to `output_path`.
   Validate JSON syntax before rename; if an existing temporary sibling is not owned
@@ -134,7 +132,7 @@ Finishing all required evidence on request 20 is within budget; exhaustion block
 
 ## Meter rules
 
-- Treat `get_retail_prices` as raw catalog data, not a computed estimate.
+- Treat `pricing_get` as raw catalog data, not a computed estimate.
 - Require explicit usage for non-hourly meters. Do not turn missing usage into
   zero cost.
 - Free resources may be recorded as zero only when a matching returned meter has
@@ -193,7 +191,7 @@ Write this shape to `output_path`:
   "savings_status": "QUANTIFIED | NOT_QUANTIFIED | NOT_APPLICABLE",
   "savings_reason": "reason",
   "eligible_strategies": [],
-  "data_source": "Azure Resource Manager MCP get_retail_prices",
+  "data_source": "Azure MCP pricing_get",
   "queried_at": "ISO 8601 timestamp",
   "confidence": "High | Medium | Low",
   "unresolved_items": [],
@@ -213,7 +211,7 @@ comparison advice only; it is not SKU approval and never changes the manifest.
 When fallback is used, also emit `direct_api_calls_used` and `retail_api_evidence[]` entries with
 `evidence_path`, `resource_names`, `selected_meters` (meter ID, SKU, billing region and tier), and `calculation`.
 Reference the helper's raw responses, original MCP failure and timestamps; do not duplicate raw catalogs in the estimate.
-Set `data_source` to `Azure Resource Manager MCP + Azure Retail Prices API (direct fallback)` for mixed results,
+Set `data_source` to `Azure MCP pricing_get + Azure Retail Prices API (direct fallback)` for mixed results,
 or the direct source label if every priced meter used fallback. Identify the source in each affected line's notes.
 Do not label direct API data as MCP-verified. Evidence paths must remain available alongside the estimate.
 
@@ -246,7 +244,7 @@ budget_exceeded: {true | false}
 - Authentication or authorization failure: return FAILED with the Azure scope
   and missing access described, without exposing tokens or tenant details.
 - API timeout: retry once, then fail the affected lines.
-- Unsupported custom capability: state that ARM MCP does not provide it. Do not
+- Unsupported custom capability: state that Azure MCP `pricing_get` does not provide it. Do not
   recreate Databricks, GitHub, PTU sizing, Spot history, orphan detection,
   customer discounts, fuzzy SKU discovery, or custom bulk-estimate behavior.
 

@@ -10,7 +10,7 @@ const defaults = {
   "azure-resource-manager-mcp": {
     type: "http",
     url: "https://mcp.management.azure.com",
-    headers: { "x-mcp-toolset": "CostManagement, Pricing" },
+    headers: { "x-mcp-toolset": "CostManagement" },
   },
   "azure-mcp": {
     type: "stdio",

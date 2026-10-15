@@ -1,6 +1,6 @@
 {
   "$schema": "../../tools/schemas/explorer-graph.schema.json",
-  "generatedAt": "2026-10-15T11:17:23.831Z",
+  "generatedAt": "2026-10-15T13:38:24.876Z",
   "categories": [
     { "id": "agent", "key": "agents", "label": "Agent", "color": "#3b82f6", "shape": "round-rectangle", "count": 14 },
     {
@@ -20,7 +20,7 @@
       "shape": "rectangle",
       "count": 27
     },
-    { "id": "prompt", "key": "prompts", "label": "Prompt", "color": "#ec4899", "shape": "tag", "count": 27 },
+    { "id": "prompt", "key": "prompts", "label": "Prompt", "color": "#ec4899", "shape": "tag", "count": 28 },
     {
       "id": "validator",
       "key": "validators",
@@ -39,8 +39,8 @@
     },
     { "id": "mcp", "key": "mcp_servers", "label": "MCP Server", "color": "#f43f5e", "shape": "barrel", "count": 3 }
   ],
-  "nodeCount": 187,
-  "edgeCount": 734,
+  "nodeCount": 188,
+  "edgeCount": 738,
   "nodes": [
     {
       "id": "agent:01-orchestrator",
@@ -96,7 +96,7 @@
       "id": "agent:03-architect",
       "category": "agent",
       "label": "03-Architect",
-      "description": "Expert Architect providing guidance using Azure Well-Architected Framework principles and Microsoft best practices. Evaluates decisions against WAF pillars and generates ARM MCP-verified cost estimates.",
+      "description": "Expert Architect providing guidance using Azure Well-Architected Framework principles and Microsoft best practices. Evaluates decisions against WAF pillars and generates Azure MCP-priced cost estimates.",
       "path": ".github/agents/03-architect.agent.md",
       "links": { "source": "https://github.com/jonathan-vella/apex/blob/main/.github/agents/03-architect.agent.md" },
       "meta": {
@@ -414,7 +414,7 @@
       "id": "subagent:cost-estimate-subagent",
       "category": "subagent",
       "label": "cost-estimate-subagent",
-      "description": "Azure cost estimation subagent. Uses Azure Resource Manager MCP retail pricing and cost data, then returns a structured cost breakdown through a file-based contract.",
+      "description": "Azure cost estimation subagent. Uses Azure MCP pricing (pricing_get) retail data only, then returns a structured cost breakdown through a file-based contract.",
       "path": ".github/agents/_subagents/cost-estimate-subagent.agent.md",
       "links": {
         "source": "https://github.com/jonathan-vella/apex/blob/main/.github/agents/_subagents/cost-estimate-subagent.agent.md"
@@ -570,7 +570,7 @@
       "id": "skill:apex-azure-compute",
       "category": "skill",
       "label": "apex-azure-compute",
-      "description": "**ANALYSIS SKILL** — Recommend Azure VM sizes and VMSS for workload, performance, and budget. Uses public docs and the Azure Retail Prices API. WHEN: \"recommend VM size\", \"choose Azure VM\", \"GPU VM\", \"compare VM sizes\", \"VMSS vs VM\", \"autoscale VMs\". DO NOT USE FOR: provisioning VMs (apex-azure-prepare), VM pricing for budgets (ARM MCP).",
+      "description": "**ANALYSIS SKILL** — Recommend Azure VM sizes and VMSS for workload, performance, and budget. Uses public docs and the Azure Retail Prices API. WHEN: \"recommend VM size\", \"choose Azure VM\", \"GPU VM\", \"compare VM sizes\", \"VMSS vs VM\", \"autoscale VMs\". DO NOT USE FOR: provisioning VMs (apex-azure-prepare), VM pricing for budgets (Azure MCP pricing).",
       "path": ".github/skills/apex-azure-compute/SKILL.md",
       "links": {
         "source": "https://github.com/jonathan-vella/apex/blob/main/.github/skills/apex-azure-compute/SKILL.md"
@@ -1442,6 +1442,17 @@
       "path": "tools/apex-prompts/utility-prompts/context-audit.prompt.md",
       "links": {
         "source": "https://github.com/jonathan-vella/apex/blob/main/tools/apex-prompts/utility-prompts/context-audit.prompt.md"
+      },
+      "meta": {}
+    },
+    {
+      "id": "prompt:eventdesk-orchestrator",
+      "category": "prompt",
+      "label": "eventdesk-orchestrator",
+      "description": "Start the Eventdesk project with a fixed intake brief; the only question asked is Bicep or Terraform.",
+      "path": "tools/apex-prompts/utility-prompts/eventdesk-orchestrator.prompt.md",
+      "links": {
+        "source": "https://github.com/jonathan-vella/apex/blob/main/tools/apex-prompts/utility-prompts/eventdesk-orchestrator.prompt.md"
       },
       "meta": {}
     },
@@ -2376,7 +2387,7 @@
       "description": "HTTP: https://mcp.management.azure.com",
       "path": ".vscode/mcp.json",
       "links": { "source": "https://github.com/jonathan-vella/apex/blob/main/.vscode/mcp.json" },
-      "meta": { "type": "http" }
+      "meta": { "type": "http", "orphan": true }
     },
     {
       "id": "mcp:azure-mcp",
@@ -3375,6 +3386,12 @@
       "id": "instruction:agent-authoring--applies-to->prompt:context-audit",
       "source": "instruction:agent-authoring",
       "target": "prompt:context-audit",
+      "kind": "applies-to"
+    },
+    {
+      "id": "instruction:agent-authoring--applies-to->prompt:eventdesk-orchestrator",
+      "source": "instruction:agent-authoring",
+      "target": "prompt:eventdesk-orchestrator",
       "kind": "applies-to"
     },
     {
@@ -5502,6 +5519,12 @@
       "kind": "applies-to"
     },
     {
+      "id": "instruction:no-interactive-shell--applies-to->prompt:eventdesk-orchestrator",
+      "source": "instruction:no-interactive-shell",
+      "target": "prompt:eventdesk-orchestrator",
+      "kind": "applies-to"
+    },
+    {
       "id": "instruction:no-interactive-shell--applies-to->prompt:execution-subagent-gpt",
       "source": "instruction:no-interactive-shell",
       "target": "prompt:execution-subagent-gpt",
@@ -5667,6 +5690,12 @@
       "id": "instruction:prompt--applies-to->prompt:context-audit",
       "source": "instruction:prompt",
       "target": "prompt:context-audit",
+      "kind": "applies-to"
+    },
+    {
+      "id": "instruction:prompt--applies-to->prompt:eventdesk-orchestrator",
+      "source": "instruction:prompt",
+      "target": "prompt:eventdesk-orchestrator",
       "kind": "applies-to"
     },
     {
@@ -5955,6 +5984,12 @@
       "id": "instruction:vendor-prompting--applies-to->prompt:context-audit",
       "source": "instruction:vendor-prompting",
       "target": "prompt:context-audit",
+      "kind": "applies-to"
+    },
+    {
+      "id": "instruction:vendor-prompting--applies-to->prompt:eventdesk-orchestrator",
+      "source": "instruction:vendor-prompting",
+      "target": "prompt:eventdesk-orchestrator",
       "kind": "applies-to"
     },
     {
@@ -6258,9 +6293,9 @@
       "kind": "uses-mcp"
     },
     {
-      "id": "subagent:cost-estimate-subagent--uses-mcp->mcp:azure-resource-manager-mcp",
+      "id": "subagent:cost-estimate-subagent--uses-mcp->mcp:azure-mcp",
       "source": "subagent:cost-estimate-subagent",
-      "target": "mcp:azure-resource-manager-mcp",
+      "target": "mcp:azure-mcp",
       "kind": "uses-mcp"
     },
     {

@@ -218,7 +218,7 @@ Table of recommended controls based on workload pattern and compliance requireme
 ## 💰 Budget
 
 > [!NOTE]
-> Azure Resource Manager MCP provides retail pricing for detailed estimates during
+> Azure MCP pricing provides retail pricing for detailed estimates during
 > architecture assessment (Step 2). Provide an approximate budget here.
 
 | Field              | Value                                               |

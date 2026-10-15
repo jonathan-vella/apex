@@ -8,7 +8,7 @@
       "type": "http",
       "url": "https://mcp.management.azure.com",
       "headers": {
-        "x-mcp-toolset": "CostManagement, Pricing"
+        "x-mcp-toolset": "CostManagement"
       }
     },
     "azure-mcp": {

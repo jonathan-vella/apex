@@ -187,5 +187,5 @@ Key points: the graph owns default and opt-in reviews; cost-estimate-subagent ha
 at Steps 2 and 7; the `apex-azure-governance-discovery` skill runs at Step 3.5 (Governance agent).
 
 **Pricing Accuracy Gate (Steps 2 & 7)**: All prices must originate from
-`cost-estimate-subagent` (Azure Resource Manager MCP). Never write dollar
+`cost-estimate-subagent` (Azure MCP `pricing_get`). Never write dollar
 figures from parametric knowledge.

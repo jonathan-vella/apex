@@ -68,7 +68,7 @@ If the response has a `nextLink`, follow every page before using the results; th
 
 ## Step 5: Validate Pricing
 
-Validate unit prices with the ARM MCP `get_retail_prices` tool, following the
+Validate unit prices with the Azure MCP `pricing_get` tool, following the
 [pricing guidance](../../apex-azure-defaults/references/pricing-guidance.md). Record the query parameters and the
 returned meter in the audit trail. Pricing pages such as
 <https://azure.microsoft.com/pricing/details/container-apps/> are human references, not price evidence.

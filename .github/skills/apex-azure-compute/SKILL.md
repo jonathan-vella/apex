@@ -3,7 +3,7 @@ name: apex-azure-compute
 user-invocable: true
 disable-model-invocation: false
 argument-hint: "workload requirements, region and budget"
-description: '**ANALYSIS SKILL** — Recommend Azure VM sizes and VMSS for workload, performance, and budget. Uses public docs and the Azure Retail Prices API. WHEN: "recommend VM size", "choose Azure VM", "GPU VM", "compare VM sizes", "VMSS vs VM", "autoscale VMs". DO NOT USE FOR: provisioning VMs (apex-azure-prepare), VM pricing for budgets (ARM MCP).'
+description: '**ANALYSIS SKILL** — Recommend Azure VM sizes and VMSS for workload, performance, and budget. Uses public docs and the Azure Retail Prices API. WHEN: "recommend VM size", "choose Azure VM", "GPU VM", "compare VM sizes", "VMSS vs VM", "autoscale VMs". DO NOT USE FOR: provisioning VMs (apex-azure-prepare), VM pricing for budgets (Azure MCP pricing).'
 license: MIT
 metadata:
   author: Microsoft

@@ -18,7 +18,7 @@ handoffs:
     send: false
   - label: "▶ Generate Cost Estimate"
     agent: 03-Architect
-    prompt: "Generate a detailed cost estimate through cost-estimate-subagent and Azure Resource Manager MCP. Save it to agent-output/{project}/03-des-cost-estimate.md."
+    prompt: "Generate a detailed cost estimate through cost-estimate-subagent and Azure MCP pricing. Save it to agent-output/{project}/03-des-cost-estimate.md."
     send: false
   - label: "Step 3.5: Governance Discovery"
     agent: 04g-Governance
