@@ -78,7 +78,8 @@ Rule resolution protocol (Phase 2.5):
   phase when omitted and bypasses per-phase approval. Declare it required with a bounded range and no default.
 - **Also catches**: a consumer ordered before a private endpoint or DNS zone it depends on
   (image pull, Key Vault reference, SQL, Blob). For each consumer list every private endpoint on its
-  path and confirm `depends_on` and the phase order match before approval.
+  path and confirm `depends_on` and the phase order match before approval. Record the relation in the
+  contract: `consumes` on the consumer, `target` on the endpoint, `depends_on` from consumer to endpoint.
 
 ### `phase_monotonicity`
 
@@ -108,6 +109,8 @@ Rule resolution protocol (Phase 2.5):
   mechanical ones.
 - Do not re-trigger these checks on revision loops if the rule already
   recorded a decision; reuse the prior `apex-recall decide` value.
-- Only `phased_param_wiring`'s no-default rule has a validator (`validate:iac-contract` rejects a `phase` or
-  `deployment_phase` parameter with a default). Phase order and private-endpoint-before-consumer stay
-  agent-enforced: contract resources carry no phase and no consumer-to-endpoint relation, so a script would guess.
+- Both phase rules are validator-backed once the contract declares the fields. Emit `phase` on every resource,
+  `consumes` on each resource that reaches another over a private path, and `target` on each private endpoint;
+  `validate:iac-contract` then fails a `depends_on` into a later phase, and a consumer that does not `depends_on`
+  a private endpoint targeting what it consumes. Contracts without the fields are not checked, so emit them for new plans.
+  A phase parameter with a default is rejected for every contract.

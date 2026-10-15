@@ -59,6 +59,11 @@ unresolved required capability only when its `blocks` includes that stage or an 
 Use `go-live` for the check before users or operators depend on the platform. The validator also rejects a `phase`
 or `deployment_phase` parameter that declares a default.
 
+For private paths, set `phase` on every resource, `consumes` on each resource that reaches another over a private path
+(image pull, Key Vault reference, SQL, Blob) and `target` on each `Microsoft.Network/privateEndpoints` resource. The
+validator then rejects a `depends_on` into a later phase and a consumer that does not `depends_on` a private endpoint
+targeting what it consumes (any one endpoint suffices). Contracts without these fields are not checked.
+
 Before freezing private Log Analytics/Application Insights settings, include the required query and ingestion paths
 in the plan and resource inventory. Disabled public access does not create an AMPLS, resource association, private
 endpoint, DNS configuration or client-network route. Establish ownership of existing shared monitoring connectivity

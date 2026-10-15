@@ -103,3 +103,47 @@ test("a plan without the exceptions section only warns", (context) => {
   assert.equal(result.status, 0, output(result));
   assert.match(output(result), /no "### Raw Resource Exceptions" section/);
 });
+
+const resource = (logical_name, type, extra = {}) => ({ logical_name, type, sku: null, ...extra });
+const privatePath = (api, endpoint) => [
+  resource("sql-main", "Microsoft.Sql/servers", { phase: 2 }),
+  resource("pe-sql", "Microsoft.Network/privateEndpoints", { phase: 2, target: "sql-main", ...endpoint }),
+  resource("app-api", "Microsoft.Web/sites", { phase: 3, consumes: ["sql-main"], ...api }),
+];
+
+test("a consumer must depend on the private endpoint of what it consumes", (context) => {
+  const missing = run(contractScript, [fixture(context, { resources: privatePath({}) })]);
+  assert.notEqual(missing.status, 0);
+  assert.match(output(missing), /does not depends_on its private endpoint \(pe-sql\)/);
+  const wired = run(contractScript, [fixture(context, { resources: privatePath({ depends_on: ["pe-sql"] }) })]);
+  assert.equal(wired.status, 0, output(wired));
+});
+
+test("a resource may not depend on one in a later phase", (context) => {
+  const late = run(contractScript, [
+    fixture(context, { resources: privatePath({ depends_on: ["pe-sql"] }, { phase: 4 }) }),
+  ]);
+  assert.notEqual(late.status, 0);
+  assert.match(output(late), /depends_on "pe-sql" in later phase 4/);
+});
+
+test("target belongs to private endpoints and consumes names another resource", (context) => {
+  const wrongType = run(contractScript, [
+    fixture(context, { resources: [resource("vault-main", "Microsoft.KeyVault/vaults", { target: "vault-main" })] }),
+  ]);
+  assert.match(output(wrongType), /only valid on Microsoft\.Network\/privateEndpoints/);
+  const unknown = run(contractScript, [
+    fixture(context, { resources: [resource("app-api", "Microsoft.Web/sites", { consumes: ["missing"] })] }),
+  ]);
+  assert.match(output(unknown), /must name another resource/);
+});
+
+test("a contract without phase, consumes or target is unchanged", (context) => {
+  const result = run(contractScript, [
+    fixture(context, { resources: privatePath({}).map(({ phase: _phase, ...rest }) => rest) }),
+  ]);
+  assert.notEqual(result.status, 0);
+  assert.match(output(result), /does not depends_on its private endpoint/);
+  const plain = run(contractScript, [fixture(context)]);
+  assert.equal(plain.status, 0, output(plain));
+});

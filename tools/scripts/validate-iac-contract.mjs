@@ -24,6 +24,9 @@
  *   7. plan_ref.sha256 + l1m_ref.sha256 match the actual file content when
  *      the referenced files exist on disk (WARN when files missing — common
  *      during local dev before plan is finalised).
+ *   8. Private paths (only for resources declaring phase/consumes/target):
+ *      a depends_on target may not be in a later phase, and a resource that
+ *      consumes a resource with a private endpoint must depend_on one.
  *
  * Usage:
  *   node tools/scripts/validate-iac-contract.mjs
@@ -225,6 +228,46 @@ function checkDependsOn(data, fileRel, r) {
   detectCycles(graph, fileRel, r);
 }
 
+// Applies only to resources that declare `phase`, `consumes` or `target`; contracts without them are unchanged.
+function checkPrivatePaths(data, fileRel, r) {
+  const resources = new Map((data.resources ?? []).map((res) => [res.logical_name, res]));
+  const endpointsByTarget = new Map();
+  for (const res of resources.values()) {
+    if (res.target === undefined) continue;
+    if (res.type !== "Microsoft.Network/privateEndpoints") {
+      r.error(fileRel, `resources["${res.logical_name}"].target is only valid on Microsoft.Network/privateEndpoints`);
+    } else if (!resources.has(res.target)) {
+      r.error(fileRel, `resources["${res.logical_name}"].target "${res.target}" not in resources[]`);
+    } else {
+      endpointsByTarget.set(res.target, [...(endpointsByTarget.get(res.target) ?? []), res.logical_name]);
+    }
+  }
+  for (const res of resources.values()) {
+    for (const dep of res.depends_on ?? []) {
+      const earlier = resources.get(dep);
+      if (res.phase !== undefined && earlier?.phase !== undefined && earlier.phase > res.phase) {
+        r.error(
+          fileRel,
+          `resources["${res.logical_name}"] (phase ${res.phase}) depends_on "${dep}" in later phase ${earlier.phase}`,
+        );
+      }
+    }
+    for (const consumed of res.consumes ?? []) {
+      if (consumed === res.logical_name || !resources.has(consumed)) {
+        r.error(fileRel, `resources["${res.logical_name}"].consumes "${consumed}" must name another resource`);
+        continue;
+      }
+      const endpoints = endpointsByTarget.get(consumed) ?? [];
+      if (endpoints.length > 0 && !endpoints.some((endpoint) => (res.depends_on ?? []).includes(endpoint))) {
+        r.error(
+          fileRel,
+          `resources["${res.logical_name}"] consumes "${consumed}" but does not depends_on its private endpoint (${endpoints.join(", ")}); create the endpoint first`,
+        );
+      }
+    }
+  }
+}
+
 function detectCycles(graph, fileRel, r) {
   const WHITE = 0;
   const GRAY = 1;
@@ -339,6 +382,7 @@ function main() {
     checkCapabilityReadiness(data, fileRel, r, readiness, stage);
     checkPhaseParameter(data, fileRel, r);
     checkDependsOn(data, fileRel, r);
+    checkPrivatePaths(data, fileRel, r);
     checkRefHashes(data, fileRel, r);
     if (r.errors === errorsBefore) {
       r.ok(

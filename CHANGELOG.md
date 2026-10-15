@@ -77,6 +77,9 @@ Migration: add one row per raw resource (resource type, stack, scope, evidence U
   unresolved capability block only the stages it names. A capability without `blocks` still blocks every stage.
 - `policy-property-map` entries accept `status` (`satisfied`, `pending`, `not-applicable`, `unsatisfiable`) and
   `not_applicable_reason`. A not-applicable row needs a reason; an unsatisfiable row fails and routes to Governance.
+- Contract resources accept optional `phase`, `consumes` and `target` (private endpoints). `validate:iac-contract` then
+  fails a `depends_on` into a later phase and a consumer that does not `depends_on` a private endpoint targeting what it
+  consumes. Contracts without the fields are not checked.
 - `npm run sync:draft-contract-hashes` is now a registered command. It updates only the `plan_ref` and `l1m_ref` digest
   bytes, keeps the file's formatting, and `--write` replaces the contract atomically. It still refuses an approved plan.
 - `render-session-handoff` shows stale steps with the reason they are stale.
