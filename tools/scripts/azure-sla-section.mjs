@@ -74,9 +74,20 @@ export function decodeEntities(text) {
     .replace(/&amp;/g, "&");
 }
 
+// A tag without its closing ">" survives a plain tag regex ("<script"), so the closing bracket is optional and the pass repeats to a fixed point.
+export function stripTags(text) {
+  let current = text;
+  let previous;
+  do {
+    previous = current;
+    current = current.replace(/<[^>]*>?/g, "");
+  } while (current !== previous);
+  return current;
+}
+
 export function docxXmlToParagraphs(xml) {
   const paragraphs = xml.match(/<w:p[ >].*?<\/w:p>/gs) ?? [];
-  return paragraphs.map((p) => decodeEntities(p.replace(/<[^>]+>/g, "")).trim()).filter((t) => t.length > 0);
+  return paragraphs.map((p) => decodeEntities(stripTags(p)).trim()).filter((t) => t.length > 0);
 }
 
 export function tocServices(paragraphs) {

@@ -31,6 +31,13 @@ describe("docxXmlToParagraphs", () => {
       "<w:p><w:r><w:t>&lt; 99.95%</w:t></w:r></w:p><w:p><w:pPr/></w:p><w:p w:x='1'><w:t>A &amp; B</w:t></w:p>";
     assert.deepEqual(mod.docxXmlToParagraphs(xml), ["< 99.95%", "A & B"]);
   });
+
+  it("leaves no tag behind, including an unterminated one", () => {
+    assert.equal(mod.stripTags("a<script"), "a");
+    assert.equal(mod.stripTags("<<b>script>alert(1)<</b>/script>"), "script>alert(1)/script>");
+    assert.ok(!mod.stripTags("<scr<b>ipt>x<script").includes("<"));
+    assert.equal(mod.stripTags("plain text"), "plain text");
+  });
 });
 
 describe("tocServices", () => {
