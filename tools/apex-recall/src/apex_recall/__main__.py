@@ -144,6 +144,13 @@ def build_parser() -> argparse.ArgumentParser:
     p_ra.add_argument("--attempt-id", default=None, help="Caller-assigned durable attempt identity")
     p_ra.add_argument("--attempt-kind", choices=["invocation", "repair", "empty-output-retry"], default=None)
     p_ra.add_argument("--input-digest", default=None, help="SHA-256 of the frozen input set")
+    p_ra.add_argument(
+        "--attempt-input",
+        action="append",
+        default=None,
+        metavar="PATH",
+        help="Frozen input file or directory; the digest is computed from these (repeatable, instead of --input-digest)",
+    )
     p_ra.add_argument("--attempt-outcome", choices=["started", "completed", "failed", "unknown"], default=None)
     p_ra.add_argument("--retry-of", default=None, help="Original attempt ID for an identical-input empty-output retry")
 

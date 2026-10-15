@@ -5,6 +5,7 @@ from __future__ import annotations
 import json
 import re
 
+from ..input_digest import inputs_digest
 from ..state_writer import (
     _iso_now,
     check_state_revision,
@@ -35,8 +36,13 @@ def run(args) -> int:
     attempt_options = [
         getattr(args, name, None) for name in ("attempt_kind", "input_digest", "attempt_outcome", "retry_of")
     ]
-    if attempt_id is not None or any(attempt_options):
+    attempt_inputs = getattr(args, "attempt_input", None) or []
+    if attempt_id is not None or any(attempt_options) or attempt_inputs:
         kind, digest, outcome, retry_of = attempt_options
+        if attempt_inputs:
+            if digest:
+                raise ValueError("Use --input-digest or --attempt-input, not both")
+            digest = inputs_digest(path.parent.parent.parent, attempt_inputs)
         if (
             not attempt_id
             or not re.fullmatch(r"[A-Za-z0-9_-]{1,100}", attempt_id)
@@ -55,7 +61,7 @@ def run(args) -> int:
             raise ValueError("Attempt identity cannot be reused for different inputs, kind or step")
         if previous and previous[-1]["outcome"] == outcome:
             check_state_revision(data, path)
-            print(json.dumps({"outcome": "already_applied", "attempt_id": attempt_id}))
+            print(json.dumps({"outcome": "already_applied", "attempt_id": attempt_id, "input_digest": digest}))
             return 0
         if previous and previous[-1]["outcome"] != "started":
             raise ValueError(
@@ -88,7 +94,18 @@ def run(args) -> int:
             }
         )
         write_state(project, data)
-        print(json.dumps({"attempt_id": attempt_id, "outcome": outcome, "authorization": "not_granted"}))
+        # `authorization` is kept for existing readers; this record is evidence only and permits nothing.
+        print(
+            json.dumps(
+                {
+                    "attempt_id": attempt_id,
+                    "outcome": outcome,
+                    "input_digest": digest,
+                    "permission_granted_by_this_record": False,
+                    "authorization": "not_granted",
+                }
+            )
+        )
         return 0
 
     audit_key = f"step_{step}"

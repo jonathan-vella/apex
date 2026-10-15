@@ -18,7 +18,7 @@ import { AGENT_OUTPUT_DIR } from "./_lib/paths.mjs";
 const TEMPLATE_PATH = ".github/skills/apex-azure-artifacts/templates/00-session-state.template.json";
 const STATE_FILENAME = "00-session-state.json";
 
-const VALID_STATUSES = ["pending", "in_progress", "complete", "skipped"];
+const VALID_STATUSES = ["pending", "in_progress", "complete", "skipped", "stale"];
 const VALID_IAC_TOOLS = ["", "Bicep", "Terraform"];
 const REQUIRED_TOP_LEVEL = [
   "schema_version",
