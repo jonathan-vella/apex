@@ -43,6 +43,22 @@ test("handoff derives exact headings and preserves operation limits", () => {
   assert.match(text, /grants no new approval/);
   assert.match(text, /Step 5: pending/);
 });
+
+test("handoff shows reopened steps as stale with the reason and the superseded plan", () => {
+  const reopened = view();
+  reopened.session.steps = {
+    2: { status: "in_progress" },
+    "3_5": { status: "stale", stale_because: "Step 2 was reopened" },
+    4: { status: "stale" },
+  };
+  reopened.session.decisions.plan_status = "SUPERSEDED";
+  reopened.session.open_findings = ["plan-devops-access carried"];
+  const text = renderHandoff(reopened, options);
+  assert.match(text, /Step 3_5: stale \(Step 2 was reopened\); redo after its predecessor\./);
+  assert.match(text, /Step 4: stale \(an upstream step was reopened\)/);
+  assert.match(text, /plan_status: SUPERSEDED/);
+  assert.match(text, /plan-devops-access carried/);
+});
 test("handoff refuses evidence failure and overflow instead of dropping blockers", () => {
   const missingPath = view();
   missingPath.session.open_findings = ["Operator VPN route missing"];
