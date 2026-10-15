@@ -108,7 +108,6 @@ Rule resolution protocol (Phase 2.5):
   mechanical ones.
 - Do not re-trigger these checks on revision loops if the rule already
   recorded a decision; reuse the prior `apex-recall decide` value.
-- Do not write a new validator script for these rules in this PR — they
-  ship as agent-enforced documentation. A future PR can add
-  `npm run validate:plan-consistency` once 5+ projects use the
-  schema.
+- Only `phased_param_wiring`'s no-default rule has a validator (`validate:iac-contract` rejects a `phase` or
+  `deployment_phase` parameter with a default). Phase order and private-endpoint-before-consumer stay
+  agent-enforced: contract resources carry no phase and no consumer-to-endpoint relation, so a script would guess.

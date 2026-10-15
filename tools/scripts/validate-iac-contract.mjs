@@ -40,6 +40,7 @@ import { readJson, sha256File } from "./_lib/json.mjs";
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "../..");
 const SCHEMA_PATH = path.join(ROOT, "tools/schemas/iac-contract.schema.json");
+const STAGES = ["deploy", "post-deploy", "go-live"];
 
 function checkUniqueLogicalNames(data, fileRel, r) {
   const seen = new Set();
@@ -135,11 +136,14 @@ function checkScheduledActions(data, fileRel, reporter) {
   }
 }
 
-function checkCapabilityReadiness(data, fileRel, reporter, required) {
+function checkCapabilityReadiness(data, fileRel, reporter, required, stage = "deploy") {
   if (!data.capability_checks) {
     if (required) reporter.error(fileRel, "Capability coverage absent; owner migration required for readiness mode");
     return;
   }
+  // A capability without `blocks` blocks every stage, which is the behaviour before the field existed.
+  const blocksStage = (capability) =>
+    !capability.blocks?.length || capability.blocks.some((blocked) => STAGES.indexOf(blocked) <= STAGES.indexOf(stage));
   const checks = new Map(data.capability_checks.map((entry) => [entry.id, entry]));
   const visit = (capability, trail = new Set()) => {
     if (trail.has(capability.id)) {
@@ -166,7 +170,13 @@ function checkCapabilityReadiness(data, fileRel, reporter, required) {
     if (capability.status === "designed" && (capability.required_now || capability.security_obligation))
       visit(capability);
     if ((capability.required_now || capability.security_obligation) && capability.status === "unresolved") {
-      reporter.error(fileRel, `Required design path unresolved: ${capability.id}`);
+      if (blocksStage(capability)) reporter.error(fileRel, `Required design path unresolved: ${capability.id}`);
+      else {
+        reporter.warn(
+          fileRel,
+          `Capability ${capability.id} is unresolved and blocks ${capability.blocks.join(", ")}; not blocking stage ${stage}`,
+        );
+      }
     }
     if (
       capability.status === "deferred" &&
@@ -182,6 +192,17 @@ function checkCapabilityReadiness(data, fileRel, reporter, required) {
     }
     if (capability.runtime_status === "verified" && !capability.evidence.length) {
       reporter.error(fileRel, `Runtime verification lacks evidence: ${capability.id}`);
+    }
+  }
+}
+
+function checkPhaseParameter(data, fileRel, r) {
+  for (const param of data.params ?? []) {
+    if ((param.name === "phase" || param.name === "deployment_phase") && "default" in param) {
+      r.error(
+        fileRel,
+        `params["${param.name}"] must be required with no default: a default deploys every phase when it is omitted and bypasses the per-phase approval gates`,
+      );
     }
   }
 }
@@ -260,12 +281,22 @@ function main() {
   const rawArgs = process.argv.slice(2);
   if (rawArgs.includes("--help")) {
     console.log(
-      "Usage: validate-iac-contract.mjs [artifact-path-or-glob ...] [--readiness]\nNo paths: scan project contracts. Readiness requires capability coverage; it does not grant approval.",
+      "Usage: validate-iac-contract.mjs [artifact-path-or-glob ...] [--readiness] [--stage deploy|post-deploy|go-live]\nNo paths: scan project contracts. Readiness requires capability coverage; it does not grant approval.\n--stage (default deploy): an unresolved capability fails only when its `blocks` list includes that stage or an earlier one.",
     );
     return;
   }
   const readiness = rawArgs.includes("--readiness");
-  const args = rawArgs.filter((arg) => arg !== "--readiness");
+  const stageIndex = rawArgs.indexOf("--stage");
+  const stage = stageIndex >= 0 ? rawArgs[stageIndex + 1] : "deploy";
+  if (!STAGES.includes(stage)) {
+    r.error("--stage", `must be one of ${STAGES.join(", ")}`);
+    r.summary();
+    r.exitOnError("Invalid --stage");
+    return;
+  }
+  const args = rawArgs.filter(
+    (arg, index) => arg !== "--readiness" && arg !== "--stage" && (stageIndex < 0 || index !== stageIndex + 1),
+  );
   const patterns = args.length > 0 ? args : defaultGlobs();
 
   let files = [];
@@ -305,7 +336,8 @@ function main() {
     checkIdentity(data, fileRel, r);
     checkDiagnosticsParam(data, fileRel, r);
     checkScheduledActions(data, fileRel, r);
-    checkCapabilityReadiness(data, fileRel, r, readiness);
+    checkCapabilityReadiness(data, fileRel, r, readiness, stage);
+    checkPhaseParameter(data, fileRel, r);
     checkDependsOn(data, fileRel, r);
     checkRefHashes(data, fileRel, r);
     if (r.errors === errorsBefore) {

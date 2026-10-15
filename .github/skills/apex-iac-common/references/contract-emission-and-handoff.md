@@ -53,6 +53,12 @@ Schema validation cannot prove evidence truth: the owning independent review ver
 contracts without this optional map retain schema validation but cannot claim readiness-mode coverage or silently
 migrate at read time. Preserve original reviewed bytes and use owner-approved successor inputs for migration.
 
+An entry may declare `blocks` (`deploy`, `post-deploy`, `go-live`) to state which stages an unresolved capability stops;
+absent means every stage. `validate:iac-contract -- <path> --readiness --stage <stage>` (default `deploy`) fails an
+unresolved required capability only when its `blocks` includes that stage or an earlier one, and warns otherwise.
+Use `go-live` for the check before users or operators depend on the platform. The validator also rejects a `phase`
+or `deployment_phase` parameter that declares a default.
+
 Before freezing private Log Analytics/Application Insights settings, include the required query and ingestion paths
 in the plan and resource inventory. Disabled public access does not create an AMPLS, resource association, private
 endpoint, DNS configuration or client-network route. Establish ownership of existing shared monitoring connectivity
@@ -150,6 +156,14 @@ Pass the plan's frozen inputs as `supporting_paths` on the Plan review so the fi
 `04-governance-constraints.md` and `04-governance-constraints.json` under `agent-output/{project}/`. Exclude
 `sku-manifest.json`; later steps mutate it. Finalize these inputs first: any later byte change makes the review stale.
 The subagent generates the hashes with `--metadata`. Never restamp an older review to add them.
+`--supporting-input` rejects mutable parent-owned files (`sku-manifest.json`, `*-decisions.json`, `00-handoff.md`,
+`README.md`, recall state); strict verification rejects them in existing reviews.
+
+After each plan edit during an unapproved draft, refresh `plan_ref.sha256` and `l1m_ref.sha256` with
+`npm run sync:draft-contract-hashes -- --project <name> --expected-sha <sha of the current contract> --reason "<why>" --write`.
+It changes only the digest bytes, keeps the file's formatting, and refuses an approved plan. Without `--write` it prints
+the corrected contract to stdout. `validate:iac-contract-consistency` also requires every resource without an AVM
+module entry to have a row in the plan's `### Raw Resource Exceptions` section.
 
 The review brief includes these provider constraints, exact input/output paths and actual validator commands/results.
 Ask the first comprehensive reviewer to examine all coupled constraints and return all substantiated findings together,

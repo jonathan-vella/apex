@@ -70,6 +70,8 @@ Brief description of what will be implemented.
   04g-Governance** via `▶ Refresh Governance` per
   [governance-drift-routing.md](../../.github/skills/apex-iac-common/references/governance-drift-routing.md)
 
+Mirror each row in `04-policy-property-map.json`: `status` carries the legend value (`not-applicable` also needs
+`not_applicable_reason`) and the Required Value column is that entry's `target_property.expected_value`.
 **Coverage check**: every Deny policy in
 `04-governance-constraints.json` MUST appear in at least one row. The
 Phase 4.3 challenger pass 1 (security-governance lens) verifies coverage.

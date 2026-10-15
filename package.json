@@ -102,6 +102,7 @@
     "validate:iac-security-baseline": "node tools/scripts/validate-iac-security-baseline.mjs",
     "validate:iac-contract": "node tools/scripts/validate-iac-contract.mjs",
     "validate:iac-contract-consistency": "node tools/scripts/validate-iac-contract-consistency.mjs",
+    "sync:draft-contract-hashes": "node tools/scripts/sync-draft-contract-hashes.mjs",
     "validate:avm-versions": "node tools/scripts/validate-avm-module-versions.mjs --mode=local",
     "validate:avm-versions:ci": "node tools/scripts/validate-avm-module-versions.mjs --mode=ci",
     "validate:avm-versions:freeze": "node tools/scripts/validate-avm-module-versions.mjs --mode=freeze",

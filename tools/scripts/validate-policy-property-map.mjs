@@ -104,6 +104,24 @@ function checkDenyEnrichment(data, fileRel, r) {
   }
 }
 
+function checkPolicyStatus(data, fileRel, r) {
+  for (const p of data.policies ?? []) {
+    if (p.status === "not-applicable" && !p.not_applicable_reason?.trim()) {
+      r.error(fileRel, `Policy "${p.policy_id}" is not-applicable but has no not_applicable_reason.`);
+    }
+    if (p.status !== "not-applicable" && p.not_applicable_reason !== undefined) {
+      r.error(fileRel, `Policy "${p.policy_id}" has not_applicable_reason but status is not not-applicable.`);
+    }
+    if (p.status === "unsatisfiable") {
+      r.error(
+        fileRel,
+        `Policy "${p.policy_id}" is unsatisfiable: no plan shape satisfies it; return to 04g-Governance via Refresh Governance.`,
+      );
+    }
+    if (p.status === "pending") r.warn(fileRel, `Policy "${p.policy_id}" is still pending.`);
+  }
+}
+
 function checkConstraintsRefHash(data, fileRel, r) {
   const ref = data.constraints_ref;
   if (!ref || !ref.sha256) return;
@@ -178,6 +196,7 @@ function main() {
     checkUniquePolicyIds(data, fileRel, r);
     checkDenyCoverage(data, fileRel, r);
     checkDenyEnrichment(data, fileRel, r);
+    checkPolicyStatus(data, fileRel, r);
     checkConstraintsRefHash(data, fileRel, r);
     if (r.errors === errorsBefore) {
       r.ok(fileRel, `policy-property-map (${data.policies.length} policies, depth=${data.governance_depth})`);
