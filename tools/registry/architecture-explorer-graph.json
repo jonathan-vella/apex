@@ -1,6 +1,6 @@
 {
   "$schema": "../../tools/schemas/explorer-graph.schema.json",
-  "generatedAt": "2026-10-12T16:19:31.904Z",
+  "generatedAt": "2026-10-15T11:17:23.831Z",
   "categories": [
     { "id": "agent", "key": "agents", "label": "Agent", "color": "#3b82f6", "shape": "round-rectangle", "count": 14 },
     {
@@ -20,14 +20,14 @@
       "shape": "rectangle",
       "count": 27
     },
-    { "id": "prompt", "key": "prompts", "label": "Prompt", "color": "#ec4899", "shape": "tag", "count": 26 },
+    { "id": "prompt", "key": "prompts", "label": "Prompt", "color": "#ec4899", "shape": "tag", "count": 27 },
     {
       "id": "validator",
       "key": "validators",
       "label": "Validator",
       "color": "#8b5cf6",
       "shape": "hexagon",
-      "count": 62
+      "count": 63
     },
     {
       "id": "workflow",
@@ -39,8 +39,8 @@
     },
     { "id": "mcp", "key": "mcp_servers", "label": "MCP Server", "color": "#f43f5e", "shape": "barrel", "count": 3 }
   ],
-  "nodeCount": 185,
-  "edgeCount": 730,
+  "nodeCount": 187,
+  "edgeCount": 734,
   "nodes": [
     {
       "id": "agent:01-orchestrator",
@@ -1523,6 +1523,17 @@
       "meta": {}
     },
     {
+      "id": "prompt:01-new-project",
+      "category": "prompt",
+      "label": "01-new-project",
+      "description": "Start a new APEX project from a complete intake brief, with owner decisions answered up front.",
+      "path": "tools/apex-prompts/workflow-prompts/01-new-project.prompt.md",
+      "links": {
+        "source": "https://github.com/jonathan-vella/apex/blob/main/tools/apex-prompts/workflow-prompts/01-new-project.prompt.md"
+      },
+      "meta": {}
+    },
+    {
       "id": "prompt:02-requirements",
       "category": "prompt",
       "label": "02-requirements",
@@ -1742,6 +1753,16 @@
       "path": "package.json",
       "links": { "source": "https://github.com/jonathan-vella/apex/blob/main/package.json" },
       "meta": { "command": "node tools/scripts/validate-mcp-config.mjs", "orphan": true },
+      "parent": "group:validator-orphans"
+    },
+    {
+      "id": "validator:validate-mcp-tool-refs",
+      "category": "validator",
+      "label": "validate:mcp-tool-refs",
+      "description": "node tools/scripts/validate-mcp-tool-refs.mjs",
+      "path": "package.json",
+      "links": { "source": "https://github.com/jonathan-vella/apex/blob/main/package.json" },
+      "meta": { "command": "node tools/scripts/validate-mcp-tool-refs.mjs", "orphan": true },
       "parent": "group:validator-orphans"
     },
     {
@@ -2261,11 +2282,11 @@
       "id": "validator:test-governance-baseline-python",
       "category": "validator",
       "label": "test:governance-baseline-python",
-      "description": "python3 -m pytest .github/skills/apex-azure-governance-discovery/scripts/test_governance_baseline.py -q",
+      "description": "python3 -m pytest .github/skills/apex-azure-governance-discovery/scripts/test_governance_baseline.py .github/skills/apex-azure-governance-discovery/scripts/test_generate_alz_baseline.py -q",
       "path": "package.json",
       "links": { "source": "https://github.com/jonathan-vella/apex/blob/main/package.json" },
       "meta": {
-        "command": "python3 -m pytest .github/skills/apex-azure-governance-discovery/scripts/test_governance_baseline.py -q",
+        "command": "python3 -m pytest .github/skills/apex-azure-governance-discovery/scripts/test_governance_baseline.py .github/skills/apex-azure-governance-discovery/scripts/test_generate_alz_baseline.py -q",
         "orphan": true
       },
       "parent": "group:validator-orphans"
@@ -2369,10 +2390,10 @@
     {
       "id": "group:validator-orphans",
       "category": "validator",
-      "label": "Validator (unlinked, 56)",
-      "description": "56 validator nodes with no cross-references in the current graph.",
+      "label": "Validator (unlinked, 57)",
+      "description": "57 validator nodes with no cross-references in the current graph.",
       "isGroup": true,
-      "meta": { "groupSize": 56 }
+      "meta": { "groupSize": 57 }
     },
     {
       "id": "group:workflow-orphans",
@@ -3396,6 +3417,12 @@
       "id": "instruction:agent-authoring--applies-to->prompt:00-resume-workflow",
       "source": "instruction:agent-authoring",
       "target": "prompt:00-resume-workflow",
+      "kind": "applies-to"
+    },
+    {
+      "id": "instruction:agent-authoring--applies-to->prompt:01-new-project",
+      "source": "instruction:agent-authoring",
+      "target": "prompt:01-new-project",
       "kind": "applies-to"
     },
     {
@@ -5517,6 +5544,12 @@
       "kind": "applies-to"
     },
     {
+      "id": "instruction:no-interactive-shell--applies-to->prompt:01-new-project",
+      "source": "instruction:no-interactive-shell",
+      "target": "prompt:01-new-project",
+      "kind": "applies-to"
+    },
+    {
       "id": "instruction:no-interactive-shell--applies-to->prompt:02-requirements",
       "source": "instruction:no-interactive-shell",
       "target": "prompt:02-requirements",
@@ -5676,6 +5709,12 @@
       "id": "instruction:prompt--applies-to->prompt:00-resume-workflow",
       "source": "instruction:prompt",
       "target": "prompt:00-resume-workflow",
+      "kind": "applies-to"
+    },
+    {
+      "id": "instruction:prompt--applies-to->prompt:01-new-project",
+      "source": "instruction:prompt",
+      "target": "prompt:01-new-project",
       "kind": "applies-to"
     },
     {
@@ -5958,6 +5997,12 @@
       "id": "instruction:vendor-prompting--applies-to->prompt:00-resume-workflow",
       "source": "instruction:vendor-prompting",
       "target": "prompt:00-resume-workflow",
+      "kind": "applies-to"
+    },
+    {
+      "id": "instruction:vendor-prompting--applies-to->prompt:01-new-project",
+      "source": "instruction:vendor-prompting",
+      "target": "prompt:01-new-project",
       "kind": "applies-to"
     },
     {
