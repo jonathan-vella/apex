@@ -17,7 +17,7 @@ Rule resolution protocol (Phase 2.5):
 
 | Rule ID               | Trigger                                                                                               | Deterministic check                                                                                                                                                      | Safe default                                                       | Escalation                         |
 | --------------------- | ----------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------ | ------------------------------------------------------------------ | ---------------------------------- |
-| `zone_redundancy`     | Any resource with a `zone_redundant`/`zoneRedundant` knob OR App Service Plan P1v4+ in plan           | Number of declared instances ≥ 2 AND chosen SKU supports zone-redundancy in target region                                                                                | None (architectural decision)                                      | Phase 3.5 → `az_posture`           |
+| `zone_redundancy`     | Production environment only: any resource with a `zone_redundant`/`zoneRedundant` knob OR App Service Plan P1v4+ in plan | Number of declared instances ≥ 2 AND chosen SKU supports zone-redundancy in target region                                                                                | None (architectural decision)                                      | Phase 3.5 → `az_posture`           |
 | `rbac_phase_ordering` | Phased deployment with role assignments                                                               | Every `Microsoft.Authorization/roleAssignments` (Bicep) or `azurerm_role_assignment` (TF) deploys in a phase ≥ phase of its principal identity AND its scope target      | Defer role assignments to the latest phase that owns the principal | None (mechanical fix; auto-apply)  |
 | `deployment_script`   | Plan declares a `Microsoft.Resources/deploymentScripts` or AVM deployment-script wrapper              | Identity (`userAssignedIdentities`) declared, network access either `subnetResourceIds` set OR public access justified, container image pinned to digest (not `:latest`) | Pin image to a known-good digest; require `userAssignedIdentities` | Phase 3.5 → `script_runtime_image` |
 | `public_edge_auth`    | Any public-edge resource (Front Door, Application Gateway, APIM, Container Apps ingress, App Service) | Auth model declared in plan (`waf_policy_id` + `managed_identity` for FD/AppGW; `oauth_provider` for App Service) AND `client_cert_required` set true/false explicitly   | None (architectural decision)                                      | Phase 3.5 → `public_edge_auth`     |
@@ -28,9 +28,10 @@ Rule resolution protocol (Phase 2.5):
 
 ### `zone_redundancy`
 
-- **What it catches**: a plan that promises HA/zone-redundancy but
+- **What it catches**: a production plan that promises HA/zone-redundancy but
   declares a single instance, a non-zone-redundant SKU, or a region that
-  does not expose zones.
+  does not expose zones. Non-production plans are out of scope: single-zone
+  is the expected posture there and is never flagged.
 - **Why it matters**: deploys succeed; runtime fails the first time a
   zone goes down. Discovery cannot catch this — it is a plan-internal
   contradiction between `02-architecture-assessment.md`'s reliability

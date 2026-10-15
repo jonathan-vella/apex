@@ -15,6 +15,8 @@
  * 7. App Service HTTP/2 enabled
  * 8. MySQL/PostgreSQL SSL enforcement
  * 9. Container Registry admin user disabled
+ * 10. ALZ Corp Deny floor: Key Vault soft delete, purge protection and RBAC model,
+ *     no NIC IP forwarding, no hybrid-networking or classic resource types
  *
  * Enforces Golden Principle #10: Mechanical Enforcement Over Documentation.
  *
@@ -102,6 +104,20 @@ const BICEP_VIOLATIONS = [
   [/http20Enabled\s*:\s*false/i, "App Service HTTP/2 should be enabled (http20Enabled must be true)"],
   // --- MUST-FAIL: Container Registry admin user ---
   [/adminUserEnabled\s*:\s*true/i, "Container Registry admin user must be disabled — use managed identity"],
+  // --- MUST-FAIL: ALZ Corp Deny floor ---
+  [/enableRbacAuthorization\s*:\s*false/i, "ALZ Corp: Key Vault must use the Azure RBAC permission model"],
+  [/enableSoftDelete\s*:\s*false/i, "ALZ Corp: Key Vault soft delete must be enabled"],
+  [/enablePurgeProtection\s*:\s*false/i, "ALZ Corp: Key Vault purge protection must be enabled"],
+  [/enableIPForwarding\s*:\s*true/i, "ALZ Corp: network interface IP forwarding must be disabled"],
+  [/Microsoft\.Classic(?:Compute|Network|Storage)\//i, "ALZ Corp: classic resource types are denied"],
+  [
+    /Microsoft\.Network\/(?:expressRoute(?:Circuits|Gateways|Ports)|virtualWans|virtualHubs|vpnGateways|p2svpnGateways|vpnSites|virtualNetworkGateways)\b/i,
+    "ALZ Corp: hybrid networking resource types are denied in the project",
+  ],
+  [
+    /avm\/res\/network\/(?:express-route-circuit|virtual-network-gateway|vpn-gateway|p2s-vpn-gateway|virtual-wan|virtual-hub)\b/i,
+    "ALZ Corp: hybrid networking resource types are denied in the project",
+  ],
 ];
 
 // --- Bicep WARN-ONLY patterns (flag but don't block) ---
@@ -164,6 +180,21 @@ const TERRAFORM_VIOLATIONS = [
   [/http2_enabled\s*=\s*false/i, "App Service HTTP/2 should be enabled (http2_enabled must be true)"],
   // --- MUST-FAIL: Container Registry admin user ---
   [/admin_enabled\s*=\s*true/i, "Container Registry admin user must be disabled — use managed identity"],
+  // --- MUST-FAIL: ALZ Corp Deny floor ---
+  [
+    /(?:rbac_authorization_enabled|enable_rbac_authorization)\s*=\s*false/i,
+    "ALZ Corp: Key Vault must use the Azure RBAC permission model",
+  ],
+  [/purge_protection_enabled\s*=\s*false/i, "ALZ Corp: Key Vault purge protection must be enabled"],
+  [/ip_forwarding_enabled\s*=\s*true/i, "ALZ Corp: network interface IP forwarding must be disabled"],
+  [
+    /resource\s+"azurerm_(?:express_route_circuit|express_route_port|virtual_network_gateway|vpn_gateway|point_to_site_vpn_gateway|virtual_wan|virtual_hub)"/i,
+    "ALZ Corp: hybrid networking resource types are denied in the project",
+  ],
+  [
+    /Azure\/avm-res-network-(?:expressroutecircuit|virtualnetworkgateway|vpngateway|virtualwan|virtualhub)\//i,
+    "ALZ Corp: hybrid networking resource types are denied in the project",
+  ],
 ];
 
 // --- Terraform WARN-ONLY patterns ---

@@ -455,6 +455,15 @@ test("security baseline blocks alternative TLS spellings and scans bicepparam an
     ["infra/bicep/t/main.bicepparam", "param publicNetworkAccess = 'Enabled'", 1],
     ["infra/bicep/t/main.bicepparam", "param publicNetworkAccess = 'Disabled'", 0],
     ["infra/main.bicep", "supportsHttpsTrafficOnly: false", 1],
+    ["infra/bicep/t/main.bicep", "enablePurgeProtection: false", 1],
+    ["infra/bicep/t/main.bicep", "enablePurgeProtection: true", 0],
+    ["infra/bicep/t/main.bicep", "enableRbacAuthorization: false", 1],
+    ["infra/bicep/t/main.bicep", "enableIPForwarding: true", 1],
+    ["infra/bicep/t/main.bicep", "resource gw 'Microsoft.Network/vpnGateways@2024-01-01' = {}", 1],
+    ["infra/bicep/t/main.bicepparam", "param enablePurgeProtection = false", 1],
+    ["infra/terraform/t/main.tf", "purge_protection_enabled = false", 1],
+    ["infra/terraform/t/main.tf", "rbac_authorization_enabled = true", 0],
+    ["infra/terraform/t/main.tf", 'resource "azurerm_virtual_network_gateway" "gw" {}', 1],
   ];
   for (const [relative, content, expected] of cases) {
     const directory = mkdtempSync(path.join(tmpdir(), "baseline-patterns-"));

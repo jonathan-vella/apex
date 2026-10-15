@@ -70,9 +70,11 @@ phases can consume it without re-asking.
 
 ### 4. `az_posture`
 
+- **Applies to**: production environments only. For non-production, record
+  `single-zone-mvp` without asking.
 - **Question**: "What is the target Availability Zone posture?"
 - **Options**:
-  - `single-zone-mvp` (cheapest; acceptable for non-prod)
+  - `single-zone-mvp` (cheapest; the only posture for non-prod)
   - `zone-redundant` (recommended for prod; requires P1v4+/v2+ SKUs
     and 2+ instances)
   - `regional-pair` (zone-redundant primary + read-only or warm
