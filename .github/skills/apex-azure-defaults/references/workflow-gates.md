@@ -71,6 +71,16 @@ Record via `apex-recall decide --key budget_decision --value <approve_overage|re
 Track via `decisions.budget_revise_count`. After the 3rd `revise_sku`
 decision, hard-stop and surface to the user — do not re-prompt.
 
+**Case D — a recorded owner decision cannot meet the budget** (for
+example a `deployment_note` that names a SKU whose price pushes
+`monthly_total` over `budget_cap`): never substitute the compliant
+alternative silently. Ask one blocking `vscode_askQuestions` question
+that shows the owner's choice and the compliant alternative, each with
+its monthly price and the resulting total. Options: `Keep owner choice`
+(then Case C applies) / `Use the compliant alternative` / `Revise
+requirements`. Record the answer with `apex-recall decide`; an
+unanswered question blocks the approval gate.
+
 ## Architect (Step 2) — Cost-monitoring routing in artifact
 
 When writing `02-architecture-assessment.md`, the **WAF Cost** /
@@ -87,7 +97,10 @@ will be delivered for this project:
   `cost_alert_emails`) or reused (discovered at Planner preflight).
 - Anomaly alert is subscription-scoped, daily.
 - Opt-down available in non-prod via `cost_monitoring_mode ∈
-  {minimal, deferred}`.
+  {minimal, deferred}`. `minimal` removes only the cost Action Group and
+  anomaly alert; operational alerts remain. State when the named
+  recipient is not an Owner, because budget notices then reach nobody
+  they name.
 
 This is the **only** place the routing prose appears in agent output —
 do **not** duplicate it in 02-Requirements. Source contract:

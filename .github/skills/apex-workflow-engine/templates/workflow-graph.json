@@ -346,7 +346,7 @@
       "from": "step-2",
       "to": "step-1",
       "condition": "on_refine",
-      "reason": "Architect identifies requirement gaps — return for refinement",
+      "reason": "Architect identifies requirement gaps, or an owner decision that contradicts approved requirements (budget currency, sign-in scope, access path) — return for amendment",
       "ui_label_pattern": "^↩ Return to Step 1$"
     },
     {
@@ -381,7 +381,7 @@
       "from": "step-4",
       "to": "step-3_5",
       "condition": "on_refine",
-      "reason": "IaC Planner needs fresh governance discovery",
+      "reason": "IaC Planner needs fresh governance discovery, including when resource types were added after Step 3.5 (for example by an owner-driven architecture change)",
       "ui_label_pattern": "^▶ Refresh Governance$"
     },
     {

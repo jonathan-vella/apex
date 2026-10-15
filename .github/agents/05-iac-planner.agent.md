@@ -368,7 +368,7 @@ Build **one structured `askQuestions` panel** combining:
 
 Single-shot panel: one `askQuestions` call with all questions. Omit any
 question whose key already appears in `apex-recall show <project>`
-decisions (resume support).
+decisions (resume support). Show the architecture's value per question (see reference).
 
 Persist each answer (MANDATORY) — one `apex-recall decide` call per key:
 

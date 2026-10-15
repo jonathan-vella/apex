@@ -49,9 +49,11 @@
 ### Resolving the Latest AVM Version
 
 ```text
-1. MCP (preferred): mcp_bicep_list_avm_metadata → filter by resource type → newest stable
-2. CLI fallback:    curl -sf https://mcr.microsoft.com/v2/bicep/avm/res/{path}/tags/list \
+1. MCR (authoritative): curl -sf https://mcr.microsoft.com/v2/bicep/avm/res/{path}/tags/list \
                       | jq -r '.tags[]' | grep -E '^[0-9]+\.[0-9]+\.[0-9]+$' | sort -V | tail -1
+   A 404 here is the only valid basis for a "no AVM module" conclusion.
+2. MCP (parameters only): mcp_bicep_list_avm_metadata -> module parameters and outputs.
+   It can omit published modules, so never use it to decide a module does not exist.
 3. Validator:       npm run validate:avm-versions   (runs the same lookup with caching)
 ```
 

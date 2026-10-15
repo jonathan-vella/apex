@@ -64,6 +64,8 @@ Brief description of what will be implemented.
 
 - ✅ `satisfied` — property is wired in the plan with the required value
 - ⚠️ `pending` — property declared but value not yet finalised
+- ➖ `not-applicable` — the Deny targets a resource type absent from the plan; state the reason in the
+  row and keep the row so a later plan change is caught
 - ❌ `unsatisfiable` — no plan shape satisfies this Deny; **return to
   04g-Governance** via `▶ Refresh Governance` per
   [governance-drift-routing.md](../../.github/skills/apex-iac-common/references/governance-drift-routing.md)
@@ -93,6 +95,16 @@ infra/bicep/{project-name}/
 | module1.bicep | `br/public:avm/res/{provider}/{type}` | {x.x.x} | {purpose} |
 | module2.bicep | `br/public:avm/res/{provider}/{type}` | {x.x.x} | {purpose} |
 | module3.bicep | `br/public:avm/res/{provider}/{type}` | {x.x.x} | {purpose} |
+
+### Raw Resource Exceptions
+
+One row per resource emitted without an AVM module, per
+[cost-alerts-baseline.md](../../apex-azure-defaults/references/cost-alerts-baseline.md#raw-resource-exception-record).
+Write `_None._` when every resource uses AVM.
+
+| Resource                      | Stack   | Scope   | Evidence URL | Rationale   | Review After |
+| ----------------------------- | ------- | ------- | ------------ | ----------- | ------------ |
+| `Microsoft.{Provider}/{type}` | {bicep} | {scope} | {url}        | {rationale} | {YYYY-MM-DD} |
 
 ---
 
@@ -273,6 +285,8 @@ is not proof that Storage or Key Vault fits its 24-character limit. Mirror the d
 | Testing       | X minutes          |
 | Deployment    | X minutes          |
 | **Total**     | **~X minutes**     |
+
+`Not estimated` is an accepted value for any row; measured durations are recorded at Step 6.
 
 ---
 
