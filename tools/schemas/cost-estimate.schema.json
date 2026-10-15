@@ -1,0 +1,302 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/jonathan-vella/apex/schemas/cost-estimate.schema.json",
+  "title": "APEX Cost Estimate",
+  "description": "Canonical schema for cost-estimate-subagent output files (02-cost-estimate.json, 02-cost-candidates-*.json, 07-ab-cost-estimate.json) and preflight requests.",
+  "type": "object",
+  "required": [
+    "status",
+    "project_name",
+    "region",
+    "currency",
+    "monthly_total",
+    "yearly_total",
+    "resources",
+    "optimization_notes",
+    "savings_status",
+    "savings_reason",
+    "eligible_strategies",
+    "data_source",
+    "queried_at",
+    "confidence",
+    "unresolved_items",
+    "mcp_calls_used",
+    "budget_exceeded"
+  ],
+  "additionalProperties": false,
+  "properties": {
+    "$schema": {
+      "type": "string"
+    },
+    "schema_version": {
+      "type": "string",
+      "const": "cost-estimate-v1"
+    },
+    "status": {
+      "type": "string",
+      "enum": ["COMPLETE", "FAILED"]
+    },
+    "project_name": {
+      "type": "string",
+      "minLength": 1
+    },
+    "region": {
+      "type": "string",
+      "minLength": 1
+    },
+    "currency": {
+      "type": "string",
+      "pattern": "^[A-Z]{3}$"
+    },
+    "monthly_total": {
+      "type": ["number", "null"],
+      "minimum": 0
+    },
+    "yearly_total": {
+      "type": ["number", "null"],
+      "minimum": 0
+    },
+    "resources": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/resourceLine"
+      }
+    },
+    "optimization_notes": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "savings_status": {
+      "type": "string",
+      "enum": ["QUANTIFIED", "NOT_QUANTIFIED", "NOT_APPLICABLE"]
+    },
+    "savings_reason": {
+      "type": "string"
+    },
+    "eligible_strategies": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "data_source": {
+      "type": "string",
+      "enum": [
+        "Azure MCP pricing_get",
+        "Azure MCP pricing_get + Azure Retail Prices API (direct fallback)",
+        "Azure Retail Prices API (direct fallback)"
+      ]
+    },
+    "queried_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "confidence": {
+      "type": "string",
+      "enum": ["High", "Medium", "Low"]
+    },
+    "unresolved_items": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "minLength": 1
+      }
+    },
+    "mcp_calls_used": {
+      "type": "integer",
+      "minimum": 0,
+      "maximum": 20
+    },
+    "direct_api_calls_used": {
+      "type": "integer",
+      "minimum": 0,
+      "maximum": 20
+    },
+    "budget_exceeded": {
+      "type": "boolean"
+    },
+    "manifest_writeback": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/manifestWritebackItem"
+      }
+    },
+    "decisions": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/candidateDecision"
+      }
+    },
+    "retail_api_evidence": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/retailApiEvidence"
+      }
+    },
+    "query_ledger": {
+      "type": "array",
+      "items": {
+        "type": "object"
+      }
+    }
+  },
+  "$defs": {
+    "resourceLine": {
+      "type": "object",
+      "required": ["name", "service_name", "sku", "region", "quantity", "monthly_cost", "notes"],
+      "additionalProperties": false,
+      "properties": {
+        "name": {
+          "type": "string",
+          "minLength": 1
+        },
+        "manifest_service_id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "source_kind": {
+          "type": "string",
+          "enum": ["manifest", "supplemental", "resource_list", "candidate"]
+        },
+        "environment": {
+          "type": "string"
+        },
+        "stamp": {
+          "type": ["string", "null"]
+        },
+        "service_name": {
+          "type": "string",
+          "minLength": 1
+        },
+        "sku": {
+          "type": "string",
+          "minLength": 1
+        },
+        "region": {
+          "type": "string",
+          "minLength": 1
+        },
+        "billing_region": {
+          "type": "string"
+        },
+        "quantity": {
+          "type": "number",
+          "exclusiveMinimum": 0
+        },
+        "hourly_rate": {
+          "type": ["number", "null"],
+          "minimum": 0
+        },
+        "monthly_cost": {
+          "type": ["number", "null"],
+          "minimum": 0
+        },
+        "estimate_kind": {
+          "type": "string",
+          "enum": ["exact", "entry_band", "upper_bound"]
+        },
+        "notes": {
+          "type": "string",
+          "minLength": 1
+        }
+      }
+    },
+    "manifestWritebackItem": {
+      "type": "object",
+      "required": ["id", "cost_estimate_monthly_usd", "cost_estimated_at"],
+      "additionalProperties": false,
+      "properties": {
+        "id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "cost_estimate_monthly_usd": {
+          "type": "number",
+          "minimum": 0
+        },
+        "cost_estimated_at": {
+          "type": "string",
+          "format": "date-time"
+        }
+      }
+    },
+    "candidateDecision": {
+      "type": "object",
+      "required": ["decision_id", "winner_label", "delta_monthly_usd", "candidates"],
+      "additionalProperties": false,
+      "properties": {
+        "decision_id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "winner_label": {
+          "type": ["string", "null"]
+        },
+        "delta_monthly_usd": {
+          "type": ["number", "null"],
+          "minimum": 0
+        },
+        "candidates": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "type": "object"
+          }
+        }
+      }
+    },
+    "retailApiEvidence": {
+      "type": "object",
+      "required": ["evidence_path", "resource_names", "selected_meters", "calculation"],
+      "additionalProperties": false,
+      "properties": {
+        "evidence_path": {
+          "type": "string",
+          "minLength": 1
+        },
+        "resource_names": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "type": "string",
+            "minLength": 1
+          }
+        },
+        "selected_meters": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "type": "object",
+            "required": ["meterId"],
+            "properties": {
+              "meterId": {
+                "type": "string",
+                "minLength": 1
+              },
+              "skuName": {
+                "type": "string"
+              },
+              "armRegionName": {
+                "type": "string"
+              },
+              "tierMinimumUnits": {
+                "type": "number",
+                "minimum": 0
+              },
+              "retailPrice": {
+                "type": "number",
+                "minimum": 0
+              }
+            }
+          }
+        },
+        "calculation": {
+          "type": "string",
+          "minLength": 1
+        }
+      }
+    }
+  }
+}

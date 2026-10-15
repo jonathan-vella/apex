@@ -16,8 +16,9 @@ MCP tools, cost-query, forecast or benefit tools, and no deployment or resource 
 
 ## Query contract
 
-`pricing_get` takes `sku`, `service`, `region`, `service-family`, `price-type`, `currency`,
-`include-savings-plan` and a raw OData `filter`; at least one of the filter inputs is required.
+Invoke `mcp_azure_mcp_ser_pricing` directly with `command: "pricing_get"` and `learn: false`; never spend a
+turn calling `learn: true`. `pricing_get` takes `sku`, `service`, `region`, `service-family`, `price-type`,
+`currency`, `include-savings-plan` and a raw OData `filter`; at least one of the filter inputs is required.
 Catalog field names map to it as follows:
 
 | Retail catalog field | `pricing_get` input | Purpose |
@@ -29,12 +30,16 @@ Catalog field names map to it as follows:
 | `priceType` | `price-type` | Usually `Consumption` |
 | `currencyCode` | `currency` | Defaults to `USD` |
 
-Observed behaviour on the pinned release: the result is `{ status, message, results: { prices: [...] } }`, an
-empty match is `status: 200` with `prices: []`, and no `NextPageLink` or `tierMinimumUnits` is exposed. A bare
-`service` can be rejected with `status: 400` (for example `SQL Database` requires `sku`); express the same
-constraints in `filter` instead. An unqualified service-and-region query can return over a hundred rows, and
-without paging metadata completeness cannot be proven, so narrow by `productName` or `meterName` and select
-the exact rows locally. If the rows do not define tier bands sufficiently, fail closed.
+Observed behaviour on the pinned `@azure/mcp` 3.0.0 release: the result is `{ status, message, results: { prices: [...] } }`,
+an empty match is `status: 200` with `prices: []`, and only 16 fields are projected (`armSkuName`, `skuName`,
+`productName`, `serviceName`, `serviceFamily`, `region`, `location`, `retailPrice`, `unitPrice`, `currencyCode`,
+`unitOfMeasure`, `priceType`, `effectiveStartDate`, `meterName`, `meterId`, `isPrimaryMeterRegion`) — `tierMinimumUnits`,
+`Count`, and `NextPageLink` are stripped by the MCP wrapper. A bare `service` can be rejected with `status: 400`
+(for example `SQL Database` requires `sku`); express the same constraints in `filter` instead. An unqualified
+service-and-region query can return over a hundred rows, and without paging metadata completeness cannot be proven,
+so narrow by `productName` or `meterName` and select the exact rows locally. When a meter returns multiple rate
+rows without `tierMinimumUnits`, use the `missing_tier_metadata` fallback below to retrieve the raw Retail Prices API
+tier bands.
 
 ```json
 {
@@ -301,6 +306,20 @@ to zero.
 For tiered rows, sort by `tierMinimumUnits` and apply each rate only within its
 band. If the returned rows do not define the bands sufficiently, fail closed.
 
+### Multi-band meters missing `tierMinimumUnits`
+
+Because `@azure/mcp` 3.0.0 strips `tierMinimumUnits` from `pricing_get` responses, tiered consumption meters
+(such as Blob `Hot LRS Data Stored`, `Analytics Logs Data Ingestion`, `Standard Data Processed`, and `Data Transfer Out`)
+appear in `pricing_get` as multiple rows sharing `serviceName`, `productName`, `skuName`, `meterName`, `unitOfMeasure`,
+region, `priceType`, and `currencyCode` with different `retailPrice` values (including `$0` free bands) and no band
+boundaries.
+
+Do not guess band boundaries or invent upper-bound approximations. Whenever `pricing_get` returns `status: 200` with
+two or more distinct `retailPrice` rows for the target meter and omits `tierMinimumUnits`, invoke
+`tools/scripts/fetch-retail-price-evidence.mjs` with `mcp_failure.kind: "missing_tier_metadata"` for that narrow
+meter query. The direct Retail Prices API response preserves `tierMinimumUnits` on every row so exact marginal tier
+bands (including `$0` free allowances) are computed deterministically via `tools/scripts/cost-estimate.mjs`.
+
 A zero-cost line is valid only when a matching returned meter has
 `retailPrice: 0`, or the Azure service itself has no charge. Usage-dependent
 charges around a free control-plane resource remain separate lines.
@@ -321,8 +340,10 @@ a separate workflow when such analysis is required.
 ## Constrained direct-API fallback
 
 This is a first-party evidence fallback, not permission to estimate from memory, scraped prices or a calculator.
-Only the pricing worker may run it, after the existing bounded MCP discovery returned no rows or the original
-transient HTTP failure plus its single retry both failed. Reuse verified current meters for unaffected lines.
+Only the pricing worker may run it, after the existing bounded MCP discovery returned no rows (`kind: "empty_result"`),
+the original transient HTTP failure plus its single retry both failed (`kind: "transient_exhausted"`), or a status-200
+`pricing_get` response returned multiple rate rows for a tiered meter with `tierMinimumUnits` stripped
+(`kind: "missing_tier_metadata"`). Reuse verified current meters for unaffected lines.
 Authentication/authorization failures, missing usage, ambiguous meter selection, missing worker capability,
 unverified source equivalence and an exhausted budget remain blockers; fallback must not bypass them.
 
@@ -365,9 +386,11 @@ Before fetching, create a request JSON with editing tools under `{output_path}.r
 ```
 
 Copy actual MCP responses, not the example. Record the failed `pricing_get` call in the helper's catalog field names
-(`serviceName`, `armRegionName`, `meterName`, `priceType`, `currencyCode`) and keep its real response, either
-`{ "status": 200, "results": { "prices": [] } }` or the retail-page shape shown. Include the relevant discovery attempts; the helper requires a matching
+(`serviceName`, `armSkuName`, `armRegionName`, `productName`, `skuName`, `meterName`, `priceType`, `currencyCode`) and keep its real response, either
+`{ "status": 200, "results": { "prices": [...] } }` or the retail-page shape shown. Include the relevant discovery attempts; the helper requires a matching
 failed query, the same service/currency, and a real timestamp within 24 hours. Never restamp old failure evidence.
+For `kind: "missing_tier_metadata"`, record the single status-200 `pricing_get` attempt whose `results.prices` contains
+multiple rate rows for that meter without `tierMinimumUnits`.
 For `kind: "transient_exhausted"`, record both attempts with `query`, actual `http_status` and `error` text;
 only 408, 429, 500, 502, 503 and 504 are eligible. Unknown statuses do not authorize fallback.
 `remaining_requests` is the actual unused shared budget, not an extra allowance. Identical requests share evidence;
@@ -404,6 +427,9 @@ Prefer narrow `productName`/`meterName` filters over an unqualified service/regi
 | App Service Basic/Standard Linux | `serviceName` `Azure App Service`, region, `meterName` | `productName` `Azure App Service <Tier> Plan - Linux`; `meterName` `B2`, `S2 App` |
 | App Service Premium v3 Linux | same | `Azure App Service Premium v3 Plan - Linux`; `meterName` `P1 v3 App` (space, not `P1v3`); the Windows row also matches |
 | Container Apps Consumption | `serviceName` `Azure Container Apps`, region | active vCPU-second and GiB-second meters plus the separate requests meter; needs monthly request count |
+| Blob Storage Hot LRS | `serviceName` `Storage`, region, `productName` `Blob Storage` | `Hot LRS Data Stored` returns multiple band rates in `pricing_get` without `tierMinimumUnits`: use `missing_tier_metadata` fallback to retrieve exact tier bands; select the read, write and other operations meters locally (per 10K) and never the Hierarchical Namespace product |
+| Log Analytics ingestion | `serviceName` `Log Analytics`, region | `Analytics Logs Data Ingestion` returns `$0` and paid rows in `pricing_get` without `tierMinimumUnits`: use `missing_tier_metadata` fallback to retrieve the 5 GB/month free band and paid band boundaries; retention beyond the included period is the separate `Analytics Logs Data Retention` meter |
+| Azure Monitor alert rules | `serviceName` `Azure Monitor`, region, `skuName` `Alerts` | Resource-scoped metric alert rules bill on `Alerts Resource Monitored` (`unitOfMeasure: "1/Month"`) matched to the caller's `evaluation_frequency` (`1m` → `1 Minute Frequency`, `5m` → `5 Minute Frequency`, `10m` → `10 Minute Frequency`, `15m` → `15 Minute Frequency`) times monitored-resource count; log or custom time-series alert rules require their own explicit meters |
 | SQL DTU tiers | `serviceName` `SQL Database`, region, `productName` | `SQL Database Single Standard`; `meterName` `S2 DTUs`; per-day unit; add `SQL Database Standard - Storage` `Data Stored` |
 | SQL vCore GP | same | `Single/Elastic Pool General Purpose - Compute Gen5`; `armSkuName` `SQLDB_GP_Compute_Gen5_<n>`, `meterName` `vCore` |
 | NAT Gateway | `serviceName` `NAT Gateway`, billing region `Global` | `Standard Gateway` (hourly) and `Standard Data Processed` (per GB) |

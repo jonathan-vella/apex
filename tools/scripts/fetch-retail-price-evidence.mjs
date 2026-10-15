@@ -5,7 +5,7 @@ import { createHash } from "node:crypto";
 import { parseArgs } from "node:util";
 
 const ENDPOINT = "https://prices.azure.com/api/retail/prices";
-const FILTERS = ["serviceName", "armSkuName", "armRegionName", "meterName", "priceType"];
+const FILTERS = ["serviceName", "armSkuName", "armRegionName", "productName", "skuName", "meterName", "priceType"];
 const QUERY_KEYS = [...FILTERS, "currencyCode"];
 
 function validateQuery(query) {
@@ -86,6 +86,34 @@ function validateFailure(request) {
         !attempt.error.trim()
       ) {
         throw new Error("Transient fallback requires recorded retryable HTTP errors, not authentication failures");
+      }
+    } else if (failure.kind === "missing_tier_metadata") {
+      const prices = attempt.response?.results?.prices;
+      const matchingRows = Array.isArray(prices)
+        ? prices.filter(
+            (r) =>
+              r &&
+              typeof r === "object" &&
+              r.serviceName === attempt.query.serviceName &&
+              (!attempt.query.meterName || r.meterName === attempt.query.meterName) &&
+              (!attempt.query.productName || r.productName === attempt.query.productName) &&
+              (!attempt.query.skuName || r.skuName === attempt.query.skuName) &&
+              Number.isFinite(r.retailPrice),
+          )
+        : [];
+      const distinctPrices = new Set(matchingRows.map((r) => r.retailPrice));
+      const omitsTierMinimum =
+        matchingRows.length >= 2 && matchingRows.every((r) => !Object.hasOwn(r, "tierMinimumUnits"));
+      if (
+        attempt.response?.status !== 200 ||
+        attempt.response?.error ||
+        attempt.response?.isError ||
+        !omitsTierMinimum ||
+        distinctPrices.size < 2
+      ) {
+        throw new Error(
+          "Missing-tier-metadata fallback requires a status-200 pricing_get response with multiple rate rows that omit tierMinimumUnits",
+        );
       }
     } else throw new Error("Unsupported MCP failure kind");
   }

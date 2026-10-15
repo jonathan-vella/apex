@@ -74,3 +74,18 @@ test("non-compliant heredoc/tee/append writes to agent-output are each flagged",
   assert.match(snippets, /\| tee /);
   assert.match(snippets, />> /);
 });
+
+test("node-e-double-quoted-bang flags double-quoted !identifier in node -e but allows single-quoted or script calls", () => {
+  const rule = RULES.find((r) => r.id === "node-e-double-quoted-bang");
+  assert.ok(rule, "node-e-double-quoted-bang rule must be registered");
+  assert.equal(
+    rule.pattern.test("node -e \"const fs = require('fs'); if (!fs.existsSync('a')) process.exit(1);\""),
+    true,
+  );
+  assert.equal(rule.pattern.test('node --input-type=module --eval "if (!ok) throw new Error();"'), true);
+  assert.equal(
+    rule.pattern.test('node -e \'const fs = require("fs"); if (!fs.existsSync("a")) process.exit(1);\''),
+    false,
+  );
+  assert.equal(rule.pattern.test("node tools/scripts/cost-estimate.mjs publish --draft a.tmp --output a.json"), false);
+});

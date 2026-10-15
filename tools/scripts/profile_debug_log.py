@@ -57,22 +57,128 @@ BENIGN_ERROR_FRAGMENTS = (
 )
 
 
+def _jsonl_record_to_span(rec: dict[str, Any]) -> dict[str, Any]:
+    """Convert a VS Code Copilot Chat JSONL event record into an OTel-shaped span."""
+    if not isinstance(rec, dict) or ("type" not in rec and "name" not in rec):
+        raise ValueError("JSONL line is not a valid event object")
+
+    raw_attrs = rec.get("attrs") if isinstance(rec.get("attrs"), dict) else {}
+    rtype = str(rec.get("type") or "")
+    rname = str(rec.get("name") or "")
+
+    start_ns: str | None = None
+    end_ns: str | None = None
+    if isinstance(rec.get("ts"), (int, float)):
+        s_ns = int(rec["ts"] * 1_000_000)
+        dur_ms = int(rec.get("dur") or 0) if isinstance(rec.get("dur"), (int, float)) else 0
+        start_ns = str(s_ns)
+        end_ns = str(s_ns + max(0, dur_ms) * 1_000_000)
+
+    attributes: list[dict[str, Any]] = []
+
+    def add_attr(key: str, val: Any) -> None:
+        if val is None:
+            return
+        if isinstance(val, bool):
+            attributes.append({"key": key, "value": {"boolValue": val}})
+        elif isinstance(val, int):
+            attributes.append({"key": key, "value": {"intValue": val}})
+        elif isinstance(val, float):
+            attributes.append({"key": key, "value": {"doubleValue": val}})
+        elif isinstance(val, str):
+            attributes.append({"key": key, "value": {"stringValue": val}})
+        else:
+            attributes.append({"key": key, "value": {"stringValue": json.dumps(val)}})
+
+    span_name = rname
+    if rtype == "llm_request":
+        model = raw_attrs.get("model") or (rname.split(":", 1)[1] if rname.startswith("chat:") else rname or "unknown")
+        span_name = rname if rname.startswith("chat:") else f"chat:{model}"
+        add_attr("gen_ai.operation.name", "chat")
+        add_attr("gen_ai.request.model", str(model))
+        add_attr("gen_ai.usage.input_tokens", raw_attrs.get("inputTokens"))
+        add_attr("gen_ai.usage.output_tokens", raw_attrs.get("outputTokens"))
+    elif rtype == "tool_call":
+        add_attr("gen_ai.operation.name", "execute_tool")
+        add_attr("gen_ai.tool.name", rname)
+        args_val = raw_attrs.get("args")
+        if args_val is not None:
+            add_attr(
+                "gen_ai.tool.call.arguments",
+                args_val if isinstance(args_val, str) else json.dumps(args_val),
+            )
+        if raw_attrs.get("result") is not None:
+            add_attr("gen_ai.tool.call.result", str(raw_attrs.get("result")))
+
+    raw_status = rec.get("status")
+    status_obj: dict[str, Any] = {}
+    if isinstance(raw_status, dict):
+        status_obj = raw_status
+    elif raw_status in ("error", "failed", "ERROR", "FAILED") or raw_attrs.get("error"):
+        status_obj = {
+            "code": 2,
+            "message": str(raw_attrs.get("error") or raw_attrs.get("message") or raw_status or "error"),
+        }
+
+    span: dict[str, Any] = {
+        "name": span_name,
+        "attributes": attributes,
+        "status": status_obj,
+    }
+    if rec.get("tid"):
+        span["traceId"] = str(rec["tid"])
+    if rec.get("sid"):
+        span["spanId"] = str(rec["sid"])
+    if rec.get("pid"):
+        span["parentSpanId"] = str(rec["pid"])
+    if start_ns is not None:
+        span["startTimeUnixNano"] = start_ns
+    if end_ns is not None:
+        span["endTimeUnixNano"] = end_ns
+    if rtype == "subagent":
+        span["_jsonl_subagent"] = str(raw_attrs.get("agentName") or rname or "(unknown)")
+    return span
+
+
 def load_spans(path: Path) -> list[dict[str, Any]]:
-    """Read the log file and return a flat list of spans.
+    """Read an OTel JSON or VS Code JSONL debug log file and return a flat list of spans.
 
     Raises ``ValueError`` on malformed input so the CLI can surface a
     clean diagnostic instead of a stack trace.
     """
+    text = path.read_text(encoding="utf-8")
+    stripped = text.strip()
+    if not stripped:
+        raise ValueError(f"{path}: empty log file")
+
     try:
-        raw = json.loads(path.read_text())
+        raw = json.loads(stripped)
     except json.JSONDecodeError as exc:
-        raise ValueError(f"{path}: not valid JSON ({exc.msg})") from exc
+        lines = [line.strip() for line in stripped.splitlines() if line.strip()]
+        if len(lines) <= 1 and path.suffix.lower() != ".jsonl":
+            raise ValueError(f"{path}: not valid JSON ({exc.msg})") from exc
+        spans: list[dict[str, Any]] = []
+        for idx, line in enumerate(lines, start=1):
+            try:
+                rec = json.loads(line)
+                spans.append(_jsonl_record_to_span(rec))
+            except (json.JSONDecodeError, ValueError) as line_exc:
+                raise ValueError(f"{path}:{idx}: invalid JSONL record ({line_exc})") from line_exc
+        if not spans:
+            raise ValueError(f"{path}: no spans found") from exc
+        return spans
+
+    if isinstance(raw, dict) and ("ts" in raw or "type" in raw) and "resourceSpans" not in raw:
+        return [_jsonl_record_to_span(raw)]
+
+    if not isinstance(raw, dict):
+        raise ValueError(f"{path}: missing resourceSpans[]")
 
     resource_spans = raw.get("resourceSpans")
     if not isinstance(resource_spans, list) or not resource_spans:
         raise ValueError(f"{path}: missing resourceSpans[]")
 
-    spans: list[dict[str, Any]] = []
+    spans = []
     for rs in resource_spans:
         for ss in rs.get("scopeSpans", []):
             spans.extend(ss.get("spans", []))
@@ -115,6 +221,23 @@ def _duration_s(span: dict[str, Any]) -> float:
     except KeyError, ValueError, TypeError:
         return 0.0
     return max(0.0, (end - start) / 1e9)
+
+
+def _interval_union_s(intervals_ns: list[tuple[int, int]]) -> float:
+    """Return merged non-overlapping duration in seconds from (start_ns, end_ns) pairs."""
+    valid = sorted((s, e) for s, e in intervals_ns if e > s)
+    if not valid:
+        return 0.0
+    total_ns = 0
+    cur_s, cur_e = valid[0]
+    for s, e in valid[1:]:
+        if s <= cur_e:
+            cur_e = max(cur_e, e)
+        else:
+            total_ns += cur_e - cur_s
+            cur_s, cur_e = s, e
+    total_ns += cur_e - cur_s
+    return total_ns / 1e9
 
 
 def _bucket(n: int) -> str:
@@ -209,6 +332,10 @@ def profile(
     session_start: int | None = None
     session_end: int | None = None
     agent_chat_wall = 0.0
+    chat_intervals_ns: list[tuple[int, int]] = []
+    tool_intervals_ns: list[tuple[int, int]] = []
+    pricing_learn_calls = 0
+    tool_stalls_over_60s = 0
     seen_spans: set[tuple[str, str]] = set()
     duplicate_exported_spans = 0
 
@@ -223,11 +350,13 @@ def profile(
         attrs = _attrs(span)
 
         # Track overall session bounds for wall-time reporting.
+        span_bounds_ns: tuple[int, int] | None = None
         try:
             s = int(span["startTimeUnixNano"])
             e = int(span["endTimeUnixNano"])
             session_start = s if session_start is None else min(session_start, s)
             session_end = e if session_end is None else max(session_end, e)
+            span_bounds_ns = (s, e)
         except KeyError, ValueError, TypeError:
             pass
 
@@ -263,6 +392,8 @@ def profile(
                 row["output"] += out_tok
                 row["output_samples"] += 1
             agent_chat_wall += _duration_s(span)
+            if span_bounds_ns is not None:
+                chat_intervals_ns.append(span_bounds_ns)
             chat_since_boundary += 1
             continue
 
@@ -281,9 +412,19 @@ def profile(
         if attrs.get("gen_ai.operation.name") == "execute_tool":
             tname = attrs.get("gen_ai.tool.name") or name
             tool_calls[tname] += 1
+            dur_s = _duration_s(span)
+            if span_bounds_ns is not None and tname not in ("vscode_askQuestions", "runSubagent"):
+                tool_intervals_ns.append(span_bounds_ns)
+            if dur_s >= 60.0 and tname not in ("vscode_askQuestions", "runSubagent"):
+                tool_stalls_over_60s += 1
             args_blob = str(attrs.get("gen_ai.tool.call.arguments", ""))
             result_blob = str(attrs.get("gen_ai.tool.call.result", ""))
             tool_payload_bytes[tname] += len(args_blob.encode("utf-8")) + len(result_blob.encode("utf-8"))
+            if tname in ("mcp_azure_mcp_ser_pricing", "azure-mcp/pricing"):
+                with contextlib.suppress(json.JSONDecodeError, TypeError):
+                    parsed_args = json.loads(args_blob) if args_blob else {}
+                    if isinstance(parsed_args, dict) and parsed_args.get("learn") is True:
+                        pricing_learn_calls += 1
             if tname == "read_file":
                 # Pull filePath out of the JSON arguments to map dupes.
                 try:
@@ -309,7 +450,10 @@ def profile(
                 continue
 
         # Subagent invocations.
-        if name in ("challenger-review-subagent", "execution_subagent"):
+        subagent_label = span.get("_jsonl_subagent") or (
+            name if name in ("challenger-review-subagent", "execution_subagent", "cost-estimate-subagent") else None
+        )
+        if subagent_label:
             current = span
             visited = set()
             covered = identity in delegation_ancestors
@@ -324,7 +468,7 @@ def profile(
                 continue
             dur = _duration_s(span)
             subagent_wall += dur
-            subagent_calls.append({"name": name, "duration_s": round(dur, 2)})
+            subagent_calls.append({"name": subagent_label, "duration_s": round(dur, 2)})
 
     # Final inter-boundary check after the loop.
     inter_boundary_max = max(inter_boundary_max, chat_since_boundary)
@@ -382,10 +526,14 @@ def profile(
             "challenger_invocations": sum(1 for c in subagent_calls if c["name"] == "challenger-review-subagent"),
             "error_spans_total": error_spans_raw_count,
             "error_spans_non_benign": len(error_spans),
+            "pricing_learn_calls": pricing_learn_calls,
+            "tool_stalls_over_60s": tool_stalls_over_60s,
         },
         "wall_time_s": {
             "session_total": round(session_wall, 1),
             "agent_chat": round(agent_chat_wall, 1),
+            "agent_chat_union": round(_interval_union_s(chat_intervals_ns), 1),
+            "tool_execution_union": round(_interval_union_s(tool_intervals_ns), 1),
             "subagent": round(subagent_wall, 1),
             "user_wait_askquestions": round(user_wait_wall, 1),
         },

@@ -416,7 +416,9 @@ As-built variants of the parent contract:
 
 - **Resource source (step 1)**: query the **actually deployed**
   environment via `az resource list` + Azure Resource Graph — never
-  re-use the planned resource list from Step 4.
+  re-use the planned resource list from Step 4. Run
+  `node tools/scripts/cost-estimate.mjs preflight --request <request.json>`
+  before delegating so variable-usage assumptions are verified upfront.
 - **Output path (step 2)**: `agent-output/{project}/07-ab-cost-estimate.json`
 - **Checkpoint (step 3)**: `apex-recall checkpoint <project> 7 phase_3_pricing --json`
 - **Cross-check (step 5)**: also compare `monthly_total` against

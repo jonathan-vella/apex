@@ -360,13 +360,16 @@ in your WAF assessment recommendations (still produce the identical artifact str
 6b. **VNet planning gate (MANDATORY when trigger contract holds; honor
     `decisions.vnet_planning_mode`)** — follow the protocol in
     [`workflow-gates.md`](../skills/apex-azure-defaults/references/workflow-gates.md#architect-step-2--phase-6b-vnet-planning-gate).
-    Append any priced network resources (Bastion / Firewall /
-    NAT-Gateway / VPN-Gateway / ER-Gateway / App-Gateway /
-    App-Gateway-for-Containers) from `subnet_plan` to the Step 7
-    resource_list.
-7. **Delegate approved pricing** — Send the confirmed manifest or resource list to `cost-estimate-subagent`;
-    receive verified prices. Precondition guard: refuse to invoke unless
-    `decisions.sku_confirmation_status == "approved"`.
+    Append any priced network and supporting non-manifest resources
+    (Bastion / Firewall / NAT-Gateway / VPN-Gateway / ER-Gateway /
+    App-Gateway / App-Gateway-for-Containers / Private Endpoints /
+    Private DNS / Key Vault / Log Analytics / Application Insights /
+    Alert Rules / Action Groups / VM OS disk / Public IPs) to
+    `supplemental_resources[]` in the Step 7 `manifest_path` request.
+7. **Delegate approved pricing** — Run `node tools/scripts/cost-estimate.mjs preflight` on the request, then send
+    `manifest_path` + `supplemental_resources[]` + `manifest_usage` in a single `cost-estimate-subagent` call writing
+    `agent-output/{project}/02-cost-estimate.json`; receive verified prices and manifest writeback. Precondition guard:
+    refuse to invoke unless `decisions.sku_confirmation_status == "approved"`.
 8. **Generate assessment** — Save `02-architecture-assessment.md` with
     subagent-sourced prices.
     The **WAF Cost** / **WAF Operational Excellence** sections MUST

@@ -31,7 +31,9 @@ Callers: Architect (planned estimates) | As-Built (deployed estimates).
   Preserve all SKU choices, pins, revisions
   and unrelated user edits. No other artifact, recall or Azure writes.
 - Use editing tools for JSON and #tool:execute only for arithmetic, validation, atomic rename,
-  and the documented `fetch-retail-price-evidence.mjs` helper. The helper alone may write its validated
+  and the documented `cost-estimate.mjs` and `fetch-retail-price-evidence.mjs` helpers. Never run inline
+  double-quoted `node -e "... !..."` commands. Never call `mcp_azure_mcp_ser_pricing` with `learn: true`;
+  invoke `command: "pricing_get"` (`learn: false`) directly. The evidence helper alone may write its validated
   direct-API evidence output; it never writes the estimate. Terminal access is not inherently read-only.
 - No questions, todos, delegation or automatic model fallback. Missing essential
   tools/model/inputs return FAILED with `unresolved_items[]`; if persistence is
@@ -49,7 +51,11 @@ Exactly one input mode must be supplied:
 - `resource_list`: `[{ name?, service_name, sku, region, quantity, usage?, meter_name? }]`
 - `manifest_path`: path to `sku-manifest.json`; expand effective services across
   environments, regions, and stamps using the canonical pricing guidance.
-  Optional `manifest_writeback` defaults to `true`.
+  Optional `manifest_writeback` defaults to `true`. Optional `manifest_usage`
+  supplies per-service variable usage keyed by service `id` (or `id:env:region`).
+  Optional `supplemental_resources` (`resource_list`-shaped entries for non-manifest
+  architecture resources) are priced in the same run and included in `resources[]`,
+  `monthly_total`, and `yearly_total`, but excluded from `manifest_writeback[]`.
 - `candidate_sets`: `[{ decision_id, candidates: [{ label, service_name, sku,
   region, quantity, usage?, meter_name?, notes? }] }]`.
 
@@ -65,30 +71,30 @@ After validation, publish without new queries when evidence is sufficient; cance
 
 ## Required references
 
-After input validation, read these before pricing using available tools. Reuse unchanged
+After input validation, read this reference before pricing using available tools. Reuse unchanged
 content and recover missing/changed evidence after compaction; no skill digest tier:
 
 - `../../skills/apex-azure-defaults/references/pricing-guidance.md`
-- `../../skills/apex-azure-artifacts/templates/03-des-cost-estimate.template.md`
 
 The pricing guidance is the canonical source for `pricing_get` parameters and `filter` syntax,
-service names, region handling, meter selection, usage units, and calculations.
+service names, region handling, meter selection, usage units, and calculations. Do not read
+Markdown report templates (`03-des-cost-estimate.template.md`) — this worker emits JSON only.
 
 ## Workflow
 
-1. Validate the input mode and refuse an existing `output_path` unless
-  `overwrite: true`. Reuse an existing COMPLETE result without writing only
-  when the guidance's freshness and equivalence checks pass; otherwise report
-  that a refresh requires overwrite authorization.
+1. Validate the input mode (using `node tools/scripts/cost-estimate.mjs preflight` when a request JSON is present)
+   and refuse an existing `output_path` unless `overwrite: true`. Reuse an existing COMPLETE result without writing only
+   when the guidance's freshness and equivalence checks pass; otherwise report that a refresh requires overwrite authorization.
 2. Normalize each line using the canonical guidance. Do not guess aliases that
   are not documented there. Deployment tiers are not automatically catalog `armSkuName` values;
   use service/region discovery for tier/operation meters and share results across candidate tiers.
 3. Group identical `(serviceName, armSkuName, armRegionName, meterName,
-   priceType, currencyCode)` queries. Call `pricing_get` once per distinct
+   priceType, currencyCode)` queries. Call `pricing_get` (`command: "pricing_get"`, `learn: false`) once per distinct
    group and reuse the returned rows across quantities and candidates.
   Express meter filters through its OData `filter`; it has no `meterName` input and a bare `service` can be rejected.
   Keep a query ledger including empty/error results; do not repeat successful or empty identical requests.
-  After documented empty-result discovery or an exhausted transient retry, use the
+  After documented empty-result discovery, an exhausted transient retry, or a status-200 multi-band response that
+  omits `tierMinimumUnits` (`missing_tier_metadata`), use the
   [constrained fallback](../../skills/apex-azure-defaults/references/pricing-guidance.md#constrained-direct-api-fallback)
   only for unresolved meters and within the remaining shared request budget.
 4. Select only rows matching the requested product, meter, unit, OS, and price
@@ -101,14 +107,15 @@ service names, region handling, meter selection, usage units, and calculations.
 7. If `include_ri_savings` is requested, use `include-savings-plan` or the `Reservation` price type.
    Region comparison means repeating the same retail query for the requested regions;
    do not recommend a region that violates requirements.
-8. Write the JSON atomically through `{output_path}.tmp`, validate totals and
-   status, then rename it to `output_path`.
-  Validate JSON syntax before rename; if an existing temporary sibling is not owned
-  by this invocation, return FAILED rather than overwrite it or unrelated user work.
-9. In manifest mode with `manifest_writeback: true`, atomically update only
-  `cost_estimate_monthly_usd` and `cost_estimated_at` when status is COMPLETE. Sum each service's deployment
-  lines across environments, regions, and stamps; exclude comparison-only
-  candidates. Preserve the original query timestamp when reusing evidence.
+8. Write the JSON draft to `{output_path}.tmp` using editing tools, then run
+   `node tools/scripts/cost-estimate.mjs publish --draft <output_path>.tmp --output <output_path> [--manifest <manifest_path>]`
+   to normalize totals, validate JSON syntax and schema/evidence rules, atomically rename to `output_path`,
+   and print the compact summary. If an existing temporary sibling is not owned
+   by this invocation, return FAILED rather than overwrite it or unrelated user work.
+9. In manifest mode with `manifest_writeback: true`, `cost-estimate.mjs publish --manifest <manifest_path>`
+   atomically updates only `cost_estimate_monthly_usd` and `cost_estimated_at` for manifest-owned `services[]`
+   when status is COMPLETE (excluding `supplemental_resources[]` and comparison-only candidates).
+   Preserve the original query timestamp when reusing evidence.
 10. Return the compact parent summary. Never paste the full JSON into chat.
 
 ## Query budget

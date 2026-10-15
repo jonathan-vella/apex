@@ -262,3 +262,59 @@ def test_invalid_usage_is_unknown_not_a_measured_zero(profiler, value):
 
 def test_empty_profile_is_not_complete_usage(profiler):
     assert profiler.profile([])["usage_coverage"]["complete"] is False
+
+
+def test_jsonl_debug_log_parsing_and_pricing_hygiene_metrics(profiler, tmp_path):
+    jsonl = tmp_path / "worker.jsonl"
+    events = [
+        {
+            "ts": 1000,
+            "dur": 2000,
+            "sid": "s1",
+            "tid": "t1",
+            "type": "llm_request",
+            "name": "chat:gpt-5.4-mini",
+            "status": "ok",
+            "attrs": {"model": "gpt-5.4-mini", "inputTokens": 12000, "outputTokens": 400},
+        },
+        {
+            "ts": 3000,
+            "dur": 500,
+            "sid": "s2",
+            "tid": "t1",
+            "type": "tool_call",
+            "name": "mcp_azure_mcp_ser_pricing",
+            "status": "ok",
+            "attrs": {"args": {"intent": "learn", "learn": True}, "result": "schema"},
+        },
+        {
+            "ts": 3100,
+            "dur": 600,
+            "sid": "s3",
+            "tid": "t1",
+            "type": "tool_call",
+            "name": "mcp_azure_mcp_ser_pricing",
+            "status": "ok",
+            "attrs": {"args": {"intent": "price", "command": "pricing_get", "learn": False}, "result": "{}"},
+        },
+        {
+            "ts": 4000,
+            "dur": 300000,
+            "sid": "s4",
+            "tid": "t1",
+            "type": "tool_call",
+            "name": "run_in_terminal",
+            "status": "ok",
+            "attrs": {"args": {"command": 'node -e "if (!fs.existsSync())"'}, "result": "event not found"},
+        },
+    ]
+    jsonl.write_text("\n".join(json.dumps(e) for e in events), encoding="utf-8")
+    spans = profiler.load_spans(jsonl)
+    assert len(spans) == 4
+    metrics = profiler.profile(spans)
+    assert metrics["totals"]["input_tokens"] == 12000
+    assert metrics["totals"]["output_tokens"] == 400
+    assert metrics["totals"]["chat_calls"] == 1
+    assert metrics["totals"]["pricing_learn_calls"] == 1
+    assert metrics["totals"]["tool_stalls_over_60s"] == 1
+    assert metrics["wall_time_s"]["tool_execution_union"] == 300.7

@@ -1,4 +1,5 @@
 {
+  "schema_version": "cost-estimate-v1",
   "status": "COMPLETE",
   "project_name": "sample",
   "region": "swedencentral",
