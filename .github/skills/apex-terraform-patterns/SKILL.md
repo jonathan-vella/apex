@@ -34,7 +34,6 @@ Composable architecture building blocks for Azure Terraform. Complements
 | Plan Interpretation      | Pre-deployment validation and change analysis    | `references/plan-interpretation.md`        |
 | AVM Pitfalls             | Set-type diffs, provider pins, 4.x changes       | `references/avm-pitfalls.md`               |
 | Provider Compatibility   | Why azurerm 4.x / Terraform 1.11 floors          | `references/avm-provider-compatibility.md` |
-| AVM Authoring            | AVM certification requirements, compliance       | `references/avm-authoring-requirements.md` |
 | Module Refactoring       | Monolith → module extraction, state migration    | `references/refactor-module.md`            |
 
 ---
@@ -43,8 +42,8 @@ Composable architecture building blocks for Azure Terraform. Complements
 
 Wire AVM child modules by passing outputs as inputs (`module.<name>.<output>`); never
 hardcode IDs. **AVM-TF module versions in APEX-generated code MUST be exact semver
-(`version = "X.Y.Z"`)** — pinned at plan time from
-`registry.terraform.io` (newest stable in `modules[0].versions[]`). Range
+(`version = "X.Y.Z"`)** — pinned at plan time to the newest stable release (Azure MCP
+`azureterraform avm versions`, or `modules[0].versions[]` from `registry.terraform.io`). Range
 constraints (`~> X.Y`, `>= X.Y.Z`) are NOT allowed in `04-iac-contract.json` and
 will be flagged by `npm run validate:avm-versions`. Full code sample
 (resource group + key vault) and rationale in
@@ -115,6 +114,5 @@ Applying a Terraform pattern in a root module:
 | `references/bootstrap-backend-template.md` | Backend bootstrap template                                        |
 | `references/deploy-script-template.md`     | Deployment script template                                        |
 | `references/project-scaffold.md`           | Project scaffolding structure                                     |
-| `references/avm-authoring-requirements.md` | AVM certification: 37 requirements, compliance checklist          |
 | `references/refactor-module.md`            | Module extraction, state migration, refactoring patterns          |
 | `references/module-composition.md`         | Canonical AVM module composition example with output wiring       |

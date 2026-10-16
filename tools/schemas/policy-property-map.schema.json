@@ -74,6 +74,16 @@
           "rationale": {
             "type": "string",
             "description": "WAF pillar mapping and reason. Optional in light mode; required for Deny-effect entries in full mode."
+          },
+          "status": {
+            "type": "string",
+            "enum": ["satisfied", "pending", "not-applicable", "unsatisfiable"],
+            "description": "Optional plan-side status. Mirrors the Governance Compliance Matrix legend; absent means satisfied."
+          },
+          "not_applicable_reason": {
+            "type": "string",
+            "minLength": 1,
+            "description": "Required when status is not-applicable: why the targeted resource type is absent from the plan."
           }
         }
       }

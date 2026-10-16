@@ -1,0 +1,5117 @@
+{
+  "schemaVersion": 1,
+  "serverMode": "namespace",
+  "serverVersion": "3.0.0",
+  "tools": {
+    "acr": {
+      "commands": {
+        "acr_registry_list": {
+          "parameters": {
+            "resource-group": false,
+            "subscription": false,
+            "tenant": false
+          }
+        },
+        "acr_registry_repository_list": {
+          "parameters": {
+            "registry": false,
+            "resource-group": false,
+            "subscription": false,
+            "tenant": false
+          }
+        }
+      }
+    },
+    "advisor": {
+      "commands": {
+        "advisor_metadata_get": {
+          "parameters": {
+            "language": false,
+            "recommendation-type-id": true
+          }
+        },
+        "advisor_metadata_list": {
+          "parameters": {
+            "category": false,
+            "impact": false,
+            "language": false,
+            "resource-type": false,
+            "retirement-date": false,
+            "sub-category": false,
+            "tracking-id": false
+          }
+        },
+        "advisor_recommendation_list": {
+          "parameters": {
+            "category": false,
+            "impact": false,
+            "recommendation-type-id": false,
+            "resource": false,
+            "resource-group": false,
+            "resource-type": false,
+            "retirement-date": false,
+            "search": false,
+            "status": false,
+            "sub-category": false,
+            "subscription": false,
+            "tenant": false,
+            "top": false,
+            "tracking-ids": false
+          }
+        },
+        "advisor_recommendation_summary": {
+          "parameters": {
+            "category": false,
+            "group-by": false,
+            "impact": false,
+            "recommendation-type-id": false,
+            "resource": false,
+            "resource-group": false,
+            "resource-type": false,
+            "retirement-date": false,
+            "search": false,
+            "sub-category": false,
+            "subscription": false,
+            "tenant": false,
+            "top": false
+          }
+        },
+        "advisor_recommendation_update": {
+          "parameters": {
+            "postponed-until-date-time": false,
+            "recommendation-dismiss-reason": false,
+            "recommendation-id": true,
+            "recommendation-status": true,
+            "subscription": false,
+            "tenant": false
+          }
+        },
+        "advisor_remediation_get": {
+          "parameters": {
+            "recommendation-type-id": true
+          }
+        }
+      }
+    },
+    "aks": {
+      "commands": {
+        "aks_cluster_get": {
+          "parameters": {
+            "cluster": false,
+            "resource-group": false,
+            "subscription": false,
+            "tenant": false
+          }
+        },
+        "aks_nodepool_get": {
+          "parameters": {
+            "cluster": true,
+            "nodepool": false,
+            "resource-group": true,
+            "subscription": false,
+            "tenant": false
+          }
+        }
+      }
+    },
+    "appconfig": {
+      "commands": {
+        "appconfig_account_list": {
+          "parameters": {
+            "resource-group": false,
+            "subscription": false,
+            "tenant": false
+          }
+        },
+        "appconfig_kv_delete": {
+          "parameters": {
+            "account": true,
+            "key": true,
+            "label": false,
+            "subscription": false,
+            "tenant": false
+          }
+        },
+        "appconfig_kv_get": {
+          "parameters": {
+            "account": true,
+            "key": false,
+            "key-filter": false,
+            "label": false,
+            "label-filter": false,
+            "subscription": false,
+            "tenant": false
+          }
+        },
+        "appconfig_kv_lock_set": {
+          "parameters": {
+            "account": true,
+            "key": true,
+            "label": false,
+            "lock": false,
+            "subscription": false,
+            "tenant": false
+          }
+        },
+        "appconfig_kv_set": {
+          "parameters": {
+            "account": true,
+            "content-type": false,
+            "key": true,
+            "label": false,
+            "subscription": false,
+            "tags": false,
+            "tenant": false,
+            "value": true
+          }
+        }
+      }
+    },
+    "applens": {
+      "commands": {
+        "applens_resource_diagnose": {
+          "parameters": {
+            "question": true,
+            "resource": true,
+            "resource-group": false,
+            "resource-type": false,
+            "subscription": false,
+            "tenant": false
+          }
+        }
+      }
+    },
+    "applicationinsights": {
+      "commands": {
+        "applicationinsights_recommendation_list": {
+          "parameters": {
+            "resource-group": false,
+            "subscription": false,
+            "tenant": false
+          }
+        }
+      }
+    },
+    "appservice": {
+      "commands": {
+        "appservice_database_add": {
+          "parameters": {
+            "app": true,
+            "connection-string": false,
+            "database": true,
+            "database-server": true,
+            "database-type": true,
+            "resource-group": true,
+            "subscription": false,
+            "tenant": false
+          }
+        },
+        "appservice_webapp_change-state": {
+          "parameters": {
+            "app": true,
+            "resource-group": true,
+            "soft-restart": false,
+            "state-change": true,
+            "subscription": false,
+            "tenant": false,
+            "wait-for-completion": false
+          }
+        },
+        "appservice_webapp_deployment_get": {
+          "parameters": {
+            "app": true,
+            "deployment-id": false,
+            "resource-group": true,
+            "subscription": false,
+            "tenant": false
+          }
+        },
+        "appservice_webapp_diagnostic_diagnose": {
+          "parameters": {
+            "app": true,
+            "detector-id": true,
+            "end-time": false,
+            "interval": false,
+            "resource-group": true,
+            "start-time": false,
+            "subscription": false,
+            "tenant": false
+          }
+        },
+        "appservice_webapp_diagnostic_list": {
+          "parameters": {
+            "app": true,
+            "resource-group": true,
+            "subscription": false,
+            "tenant": false
+          }
+        },
+        "appservice_webapp_get": {
+          "parameters": {
+            "app": false,
+            "resource-group": false,
+            "subscription": false,
+            "tenant": false
+          }
+        },
+        "appservice_webapp_settings_get-appsettings": {
+          "parameters": {
+            "app": true,
+            "resource-group": true,
+            "subscription": false,
+            "tenant": false
+          }
+        },
+        "appservice_webapp_settings_update-appsettings": {
+          "parameters": {
+            "app": true,
+            "resource-group": true,
+            "setting-name": true,
+            "setting-update-type": true,
+            "setting-value": false,
+            "subscription": false,
+            "tenant": false
+          }
+        }
+      }
+    },
+    "arm": {
+      "commands": {
+        "cancel_deployment": {
+          "parameters": {
+            "request": true
+          }
+        },
+        "create_deployment": {
+          "parameters": {
+            "request": true
+          }
+        },
+        "create_or_update_resource": {
+          "parameters": {
+            "request": true
+          }
+        },
+        "create_or_update_resource_group": {
+          "parameters": {
+            "request": true
+          }
+        },
+        "execute_query": {
+          "parameters": {
+            "options": false,
+            "query": true
+          }
+        },
+        "generate_query": {
+          "parameters": {
+            "prompt": true
+          }
+        },
+        "get_async_operation_status": {
+          "parameters": {
+            "locationHeaderUrl": true
+          }
+        },
+        "get_deployment_status": {
+          "parameters": {
+            "request": true
+          }
+        },
+        "get_pricesheet_status": {
+          "parameters": {
+            "operationStatusUrl": true
+          }
+        },
+        "get_resource_type_schema": {
+          "parameters": {
+            "apiVersion": true,
+            "resourceType": true
+          }
+        },
+        "get_retail_prices": {
+          "parameters": {
+            "armRegionName": false,
+            "armSkuName": false,
+            "currencyCode": false,
+            "meterName": false,
+            "priceType": false,
+            "serviceName": false
+          }
+        },
+        "list_resource_and_action_types": {
+          "parameters": {}
+        },
+        "query_aks_costs": {
+          "parameters": {
+            "filterDimension": false,
+            "filterValues": false,
+            "from": false,
+            "granularity": false,
+            "groupBy": false,
+            "metric": false,
+            "scope": true,
+            "sortBy": false,
+            "sortDirection": false,
+            "timeframe": false,
+            "to": false,
+            "top": false
+          }
+        },
+        "query_costs": {
+          "parameters": {
+            "filterDimension": false,
+            "filterValues": false,
+            "from": false,
+            "granularity": false,
+            "groupBy": false,
+            "metric": false,
+            "scope": true,
+            "sortBy": false,
+            "sortDirection": false,
+            "timeframe": false,
+            "to": false,
+            "top": false
+          }
+        },
+        "start_pricesheet_download": {
+          "parameters": {
+            "agreementType": true,
+            "billingPeriod": false,
+            "scope": true
+          }
+        },
+        "validate_query": {
+          "parameters": {
+            "query": true
+          }
+        },
+        "whatif_deployment": {
+          "parameters": {
+            "request": true
+          }
+        }
+      }
+    },
+    "azd": {
+      "commands": {
+        "error_troubleshooting": {
+          "parameters": {}
+        },
+        "provision_common_error": {
+          "parameters": {}
+        },
+        "validate_azure_yaml": {
+          "parameters": {
+            "path": true
+          }
+        }
+      }
+    },
+    "azurebackup": {
+      "commands": {
+        "azurebackup_backup_status": {
+          "parameters": {
+            "datasource-id": true,
+            "location": true,
+            "subscription": false,
+            "tenant": false
+          }
+        },
+        "azurebackup_container_get": {
+          "parameters": {
+            "container": false,
+            "resource-group": true,
+            "storage-account": false,
+            "subscription": false,
+            "tenant": false,
+            "vault": true
+          }
+        },
+        "azurebackup_container_list-available": {
+          "parameters": {
+            "filter": false,
+            "resource-group": true,
+            "storage-account": false,
+            "subscription": false,
+            "tenant": false,
+            "vault": true
+          }
+        },
+        "azurebackup_container_refresh": {
+          "parameters": {
+            "backup-management-type": false,
+            "resource-group": true,
+            "subscription": false,
+            "tenant": false,
+            "vault": true
+          }
+        },
+        "azurebackup_container_register": {
+          "parameters": {
+            "acquire-lock": false,
+            "resource-group": true,
+            "storage-account": true,
+            "subscription": false,
+            "tenant": false,
+            "vault": true
+          }
+        },
+        "azurebackup_disasterrecovery_enable-crr": {
+          "parameters": {
+            "resource-group": true,
+            "subscription": false,
+            "tenant": false,
+            "vault": true,
+            "vault-type": false
+          }
+        },
+        "azurebackup_governance_find-unprotected": {
+          "parameters": {
+            "resource-group": false,
+            "resource-type-filter": false,
+            "subscription": false,
+            "tag-filter": false,
+            "tenant": false
+          }
+        },
+        "azurebackup_governance_immutability": {
+          "parameters": {
+            "immutability-duration-days": false,
+            "immutability-state": true,
+            "immutability-type": true,
+            "resource-group": true,
+            "subscription": false,
+            "tenant": false,
+            "vault": true,
+            "vault-type": false
+          }
+        },
+        "azurebackup_governance_soft-delete": {
+          "parameters": {
+            "resource-group": true,
+            "soft-delete": true,
+            "soft-delete-retention-days": true,
+            "subscription": false,
+            "tenant": false,
+            "vault": true,
+            "vault-type": false
+          }
+        },
+        "azurebackup_job_get": {
+          "parameters": {
+            "job": false,
+            "resource-group": true,
+            "subscription": false,
+            "tenant": false,
+            "vault": true,
+            "vault-type": false
+          }
+        },
+        "azurebackup_policy_create": {
+          "parameters": {
+            "archive-tier-after-days": false,
+            "archive-tier-mode": false,
+            "backup-mode": false,
+            "daily-retention-days": false,
+            "differential-retention-days": false,
+            "differential-schedule-days-of-week": false,
+            "enable-snapshot-backup": false,
+            "enable-vault-tier-copy": false,
+            "full-schedule-days-of-week": false,
+            "full-schedule-frequency": false,
+            "hourly-interval-hours": false,
+            "hourly-window-duration-hours": false,
+            "hourly-window-start-time": false,
+            "incremental-retention-days": false,
+            "incremental-schedule-days-of-week": false,
+            "instant-rp-resource-group": false,
+            "instant-rp-retention-days": false,
+            "is-compression": false,
+            "is-sql-compression": false,
+            "log-frequency-minutes": false,
+            "log-retention-days": false,
+            "monthly-retention-days-of-month": false,
+            "monthly-retention-days-of-week": false,
+            "monthly-retention-months": false,
+            "monthly-retention-week-of-month": false,
+            "pitr-retention-days": false,
+            "policy": true,
+            "policy-sub-type": false,
+            "policy-tags": false,
+            "resource-group": true,
+            "schedule-days-of-week": false,
+            "schedule-frequency": false,
+            "schedule-times": false,
+            "smart-tier": false,
+            "snapshot-consistency": false,
+            "snapshot-instant-rp-resource-group": false,
+            "snapshot-instant-rp-retention-days": false,
+            "subscription": false,
+            "tenant": false,
+            "time-zone": false,
+            "vault": true,
+            "vault-tier-copy-after-days": false,
+            "vault-type": false,
+            "weekly-retention-days-of-week": false,
+            "weekly-retention-weeks": false,
+            "workload-type": true,
+            "yearly-retention-days-of-month": false,
+            "yearly-retention-days-of-week": false,
+            "yearly-retention-months": false,
+            "yearly-retention-week-of-month": false,
+            "yearly-retention-years": false
+          }
+        },
+        "azurebackup_policy_get": {
+          "parameters": {
+            "policy": false,
+            "resource-group": true,
+            "subscription": false,
+            "tenant": false,
+            "vault": true,
+            "vault-type": false
+          }
+        },
+        "azurebackup_policy_update": {
+          "parameters": {
+            "daily-retention-days": false,
+            "monthly-retention-days-of-month": false,
+            "monthly-retention-days-of-week": false,
+            "monthly-retention-months": false,
+            "monthly-retention-week-of-month": false,
+            "policy": true,
+            "resource-group": true,
+            "schedule-days-of-week": false,
+            "schedule-frequency": false,
+            "schedule-time": false,
+            "schedule-times": false,
+            "subscription": false,
+            "tenant": false,
+            "time-zone": false,
+            "vault": true,
+            "vault-type": false,
+            "weekly-retention-days-of-week": false,
+            "weekly-retention-weeks": false,
+            "yearly-retention-days-of-month": false,
+            "yearly-retention-days-of-week": false,
+            "yearly-retention-months": false,
+            "yearly-retention-week-of-month": false,
+            "yearly-retention-years": false
+          }
+        },
+        "azurebackup_protectableitem_inquire": {
+          "parameters": {
+            "container": false,
+            "resource-group": true,
+            "storage-account": false,
+            "subscription": false,
+            "tenant": false,
+            "vault": true
+          }
+        },
+        "azurebackup_protectableitem_list": {
+          "parameters": {
+            "resource-group": true,
+            "subscription": false,
+            "tenant": false,
+            "vault": true,
+            "vault-type": false,
+            "workload-type": false
+          }
+        },
+        "azurebackup_protecteditem_get": {
+          "parameters": {
+            "container": false,
+            "protected-item": false,
+            "resource-group": true,
+            "subscription": false,
+            "tenant": false,
+            "vault": true,
+            "vault-type": false
+          }
+        },
+        "azurebackup_protecteditem_protect": {
+          "parameters": {
+            "aks-include-cluster-scope-resources": false,
+            "aks-label-selectors": false,
+            "aks-snapshot-resource-group": false,
+            "container": false,
+            "datasource-id": true,
+            "datasource-type": false,
+            "disk-list-setting": false,
+            "disks-list": false,
+            "exclude-all-data-disks": false,
+            "policy": true,
+            "resource-group": true,
+            "subscription": false,
+            "tenant": false,
+            "vault": true,
+            "vault-type": false
+          }
+        },
+        "azurebackup_protecteditem_undelete": {
+          "parameters": {
+            "container": false,
+            "datasource-id": true,
+            "resource-group": true,
+            "subscription": false,
+            "tenant": false,
+            "vault": true,
+            "vault-type": false
+          }
+        },
+        "azurebackup_protecteditem_update-protection": {
+          "parameters": {
+            "container": false,
+            "datasource-id": true,
+            "disk-list-setting": false,
+            "disks-list": false,
+            "exclude-all-data-disks": false,
+            "policy": false,
+            "resource-group": true,
+            "subscription": false,
+            "tenant": false,
+            "vault": true,
+            "vault-type": false
+          }
+        },
+        "azurebackup_recoverypoint_get": {
+          "parameters": {
+            "container": false,
+            "protected-item": true,
+            "recovery-point": false,
+            "resource-group": true,
+            "subscription": false,
+            "tenant": false,
+            "vault": true,
+            "vault-type": false
+          }
+        },
+        "azurebackup_resourceguard_create": {
+          "parameters": {
+            "excluded-operations": false,
+            "location": true,
+            "resource-group": true,
+            "resource-guard": true,
+            "subscription": false,
+            "tags": false,
+            "tenant": false
+          }
+        },
+        "azurebackup_resourceguard_delete": {
+          "parameters": {
+            "resource-group": true,
+            "resource-guard": true,
+            "subscription": false,
+            "tenant": false
+          }
+        },
+        "azurebackup_resourceguard_get": {
+          "parameters": {
+            "resource-group": false,
+            "resource-guard": false,
+            "subscription": false,
+            "tenant": false
+          }
+        },
+        "azurebackup_security_configure-encryption": {
+          "parameters": {
+            "identity-type": true,
+            "key-name": true,
+            "key-vault-uri": true,
+            "key-version": false,
+            "resource-group": true,
+            "subscription": false,
+            "tenant": false,
+            "user-assigned-identity-id": false,
+            "vault": true,
+            "vault-type": false
+          }
+        },
+        "azurebackup_security_disable-mua": {
+          "parameters": {
+            "resource-group": true,
+            "subscription": false,
+            "tenant": false,
+            "vault": true,
+            "vault-type": false
+          }
+        },
+        "azurebackup_security_enable-mua": {
+          "parameters": {
+            "resource-group": true,
+            "resource-guard-id": false,
+            "subscription": false,
+            "tenant": false,
+            "vault": true,
+            "vault-type": false
+          }
+        },
+        "azurebackup_vault_create": {
+          "parameters": {
+            "enable-public-network-access": false,
+            "location": true,
+            "resource-group": true,
+            "sku": false,
+            "storage-type": false,
+            "subscription": false,
+            "tenant": false,
+            "vault": true,
+            "vault-type": false
+          }
+        },
+        "azurebackup_vault_get": {
+          "parameters": {
+            "expand": false,
+            "resource-group": false,
+            "subscription": false,
+            "tenant": false,
+            "vault": false,
+            "vault-type": false
+          }
+        },
+        "azurebackup_vault_privateendpoint_approve-reject": {
+          "parameters": {
+            "action": true,
+            "description": false,
+            "private-endpoint-name": true,
+            "resource-group": true,
+            "subscription": false,
+            "tenant": false,
+            "vault": true,
+            "vault-type": false
+          }
+        },
+        "azurebackup_vault_privateendpoint_create": {
+          "parameters": {
+            "auto-approve": false,
+            "group-id": false,
+            "location": false,
+            "private-dns-zone-group-name": false,
+            "private-dns-zone-ids": false,
+            "private-endpoint-name": true,
+            "resource-group": true,
+            "subscription": false,
+            "tenant": false,
+            "vault": true,
+            "vault-type": false,
+            "vnet-subnet-id": true
+          }
+        },
+        "azurebackup_vault_privateendpoint_delete": {
+          "parameters": {
+            "private-endpoint-name": true,
+            "resource-group": true,
+            "subscription": false,
+            "tenant": false,
+            "vault": true,
+            "vault-type": false
+          }
+        },
+        "azurebackup_vault_privateendpoint_get": {
+          "parameters": {
+            "private-endpoint-name": false,
+            "resource-group": true,
+            "subscription": false,
+            "tenant": false,
+            "vault": true,
+            "vault-type": false
+          }
+        },
+        "azurebackup_vault_update": {
+          "parameters": {
+            "identity-type": false,
+            "immutability-state": false,
+            "public-network-access": false,
+            "redundancy": false,
+            "resource-group": true,
+            "soft-delete": false,
+            "soft-delete-retention-days": false,
+            "subscription": false,
+            "tags": false,
+            "tenant": false,
+            "user-assigned-identity": false,
+            "vault": true,
+            "vault-type": false
+          }
+        }
+      }
+    },
+    "azuremigrate": {
+      "commands": {
+        "azuremigrate_platformlandingzone_getguidance": {
+          "parameters": {
+            "list-policies": false,
+            "policy-name": false,
+            "scenario": true
+          }
+        },
+        "azuremigrate_platformlandingzone_request": {
+          "parameters": {
+            "action": true,
+            "connectivity-subscription-id": false,
+            "environment-name": false,
+            "firewall-type": false,
+            "identity-subscription-id": false,
+            "location": false,
+            "management-subscription-id": false,
+            "migrate-project-name": true,
+            "network-architecture": false,
+            "organization-name": false,
+            "region-type": false,
+            "regions": false,
+            "resource-group": true,
+            "subscription": false,
+            "tenant": false,
+            "version-control-system": false
+          }
+        }
+      }
+    },
+    "azureterraform": {
+      "commands": {
+        "azureterraform_avm_get": {
+          "parameters": {
+            "module-name": true,
+            "module-version": true
+          }
+        },
+        "azureterraform_avm_list": {
+          "parameters": {}
+        },
+        "azureterraform_avm_versions": {
+          "parameters": {
+            "module-name": true
+          }
+        },
+        "azureterraform_azapi_get": {
+          "parameters": {
+            "api-version": false,
+            "resource-type": true
+          }
+        },
+        "azureterraform_aztfexport_query": {
+          "parameters": {
+            "continue-on-error": false,
+            "include-role-assignment": false,
+            "name-pattern": false,
+            "output-folder": false,
+            "parallelism": false,
+            "provider": false,
+            "query": true
+          }
+        },
+        "azureterraform_aztfexport_resource": {
+          "parameters": {
+            "continue-on-error": false,
+            "include-role-assignment": false,
+            "output-folder": false,
+            "parallelism": false,
+            "provider": false,
+            "resource-id": true,
+            "terraform-resource-name": false
+          }
+        },
+        "azureterraform_aztfexport_resourcegroup": {
+          "parameters": {
+            "continue-on-error": false,
+            "include-role-assignment": false,
+            "name-pattern": false,
+            "output-folder": false,
+            "parallelism": false,
+            "provider": false,
+            "resource-group": true
+          }
+        },
+        "azureterraform_azurerm_get": {
+          "parameters": {
+            "argument": false,
+            "attribute": false,
+            "doc-type": false,
+            "resource-type": true
+          }
+        },
+        "azureterraform_conftest_plan": {
+          "parameters": {
+            "custom-policies": false,
+            "plan-folder": true,
+            "policy-set": false,
+            "severity-filter": false
+          }
+        },
+        "azureterraform_conftest_workspace": {
+          "parameters": {
+            "custom-policies": false,
+            "policy-set": false,
+            "severity-filter": false,
+            "workspace-folder": true
+          }
+        }
+      }
+    },
+    "azureterraformbestpractices": {
+      "commands": {
+        "azureterraformbestpractices_get": {
+          "parameters": {}
+        }
+      }
+    },
+    "bicepschema": {
+      "commands": {
+        "bicepschema_get": {
+          "parameters": {
+            "resource-type": true
+          }
+        }
+      }
+    },
+    "cloudarchitect": {
+      "commands": {
+        "cloudarchitect_design": {
+          "parameters": {
+            "answer": false,
+            "confidence-score": false,
+            "next-question-needed": false,
+            "question": false,
+            "question-number": false,
+            "state": false,
+            "total-questions": false
+          }
+        }
+      }
+    },
+    "communication": {
+      "commands": {
+        "communication_email_send": {
+          "parameters": {
+            "bcc": false,
+            "cc": false,
+            "endpoint": true,
+            "from": true,
+            "is-html": false,
+            "message": true,
+            "reply-to": false,
+            "subject": true,
+            "tenant": false,
+            "to": true
+          }
+        },
+        "communication_sms_send": {
+          "parameters": {
+            "enable-delivery-report": false,
+            "endpoint": true,
+            "from": true,
+            "message": true,
+            "tag": false,
+            "tenant": false,
+            "to": true
+          }
+        }
+      }
+    },
+    "compute": {
+      "commands": {
+        "compute_disk_create": {
+          "parameters": {
+            "disk-access": false,
+            "disk-encryption-set": false,
+            "disk-iops-read-write": false,
+            "disk-mbps-read-write": false,
+            "disk-name": true,
+            "enable-bursting": false,
+            "encryption-type": false,
+            "gallery-image-reference": false,
+            "gallery-image-reference-lun": false,
+            "hyper-v-generation": false,
+            "location": false,
+            "max-shares": false,
+            "network-access-policy": false,
+            "os-type": false,
+            "resource-group": true,
+            "security-type": false,
+            "size-gb": false,
+            "sku": false,
+            "source": false,
+            "subscription": false,
+            "tags": false,
+            "tenant": false,
+            "tier": false,
+            "upload-size-bytes": false,
+            "upload-type": false,
+            "zone": false
+          }
+        },
+        "compute_disk_delete": {
+          "parameters": {
+            "disk-name": true,
+            "resource-group": true,
+            "subscription": false,
+            "tenant": false
+          }
+        },
+        "compute_disk_get": {
+          "parameters": {
+            "disk-name": false,
+            "resource-group": false,
+            "subscription": false,
+            "tenant": false
+          }
+        },
+        "compute_disk_update": {
+          "parameters": {
+            "disk-access": false,
+            "disk-encryption-set": false,
+            "disk-iops-read-write": false,
+            "disk-mbps-read-write": false,
+            "disk-name": true,
+            "enable-bursting": false,
+            "encryption-type": false,
+            "max-shares": false,
+            "network-access-policy": false,
+            "resource-group": false,
+            "size-gb": false,
+            "sku": false,
+            "subscription": false,
+            "tags": false,
+            "tenant": false,
+            "tier": false
+          }
+        },
+        "compute_vm_create": {
+          "parameters": {
+            "admin-password": false,
+            "admin-username": true,
+            "image": true,
+            "location": true,
+            "network-security-group": false,
+            "no-public-ip": false,
+            "os-disk-size-gb": false,
+            "os-disk-type": false,
+            "os-type": false,
+            "public-ip-address": false,
+            "resource-group": true,
+            "source-address-prefix": false,
+            "ssh-public-key": false,
+            "subnet": false,
+            "subscription": false,
+            "tenant": false,
+            "virtual-network": false,
+            "vm-name": true,
+            "vm-size": false,
+            "zone": false
+          }
+        },
+        "compute_vm_delete": {
+          "parameters": {
+            "force-deletion": false,
+            "resource-group": true,
+            "subscription": false,
+            "tenant": false,
+            "vm-name": true
+          }
+        },
+        "compute_vm_get": {
+          "parameters": {
+            "instance-view": false,
+            "resource-group": false,
+            "subscription": false,
+            "tenant": false,
+            "vm-name": false
+          }
+        },
+        "compute_vm_power-state": {
+          "parameters": {
+            "no-wait": false,
+            "power-action": true,
+            "resource-group": true,
+            "skip-shutdown": false,
+            "subscription": false,
+            "tenant": false,
+            "vm-name": true
+          }
+        },
+        "compute_vm_update": {
+          "parameters": {
+            "boot-diagnostics": false,
+            "license-type": false,
+            "resource-group": true,
+            "subscription": false,
+            "tags": false,
+            "tenant": false,
+            "user-data": false,
+            "vm-name": true,
+            "vm-size": false
+          }
+        },
+        "compute_vmss_create": {
+          "parameters": {
+            "admin-password": false,
+            "admin-username": true,
+            "image": true,
+            "instance-count": false,
+            "location": true,
+            "os-disk-size-gb": false,
+            "os-disk-type": false,
+            "os-type": false,
+            "resource-group": true,
+            "ssh-public-key": false,
+            "subnet": false,
+            "subscription": false,
+            "tenant": false,
+            "upgrade-policy": false,
+            "virtual-network": false,
+            "vm-size": false,
+            "vmss-name": true,
+            "zone": false
+          }
+        },
+        "compute_vmss_delete": {
+          "parameters": {
+            "force-deletion": false,
+            "resource-group": true,
+            "subscription": false,
+            "tenant": false,
+            "vmss-name": true
+          }
+        },
+        "compute_vmss_get": {
+          "parameters": {
+            "instance-id": false,
+            "resource-group": false,
+            "subscription": false,
+            "tenant": false,
+            "vmss-name": false
+          }
+        },
+        "compute_vmss_update": {
+          "parameters": {
+            "capacity": false,
+            "enable-auto-os-upgrade": false,
+            "overprovision": false,
+            "resource-group": true,
+            "scale-in-policy": false,
+            "subscription": false,
+            "tags": false,
+            "tenant": false,
+            "upgrade-policy": false,
+            "vm-size": false,
+            "vmss-name": true
+          }
+        }
+      }
+    },
+    "confidentialledger": {
+      "commands": {
+        "confidentialledger_entries_append": {
+          "parameters": {
+            "collection-id": false,
+            "content": true,
+            "ledger": true
+          }
+        },
+        "confidentialledger_entries_get": {
+          "parameters": {
+            "collection-id": false,
+            "ledger": true,
+            "transaction-id": true
+          }
+        }
+      }
+    },
+    "containerapps": {
+      "commands": {
+        "containerapps_list": {
+          "parameters": {
+            "resource-group": false,
+            "subscription": false,
+            "tenant": false
+          }
+        }
+      }
+    },
+    "cosmos": {
+      "commands": {
+        "cosmos_database_container_item_get": {
+          "parameters": {
+            "account": true,
+            "auth-method": false,
+            "container": true,
+            "database": true,
+            "id": true,
+            "partition-key": false,
+            "subscription": false,
+            "tenant": false
+          }
+        },
+        "cosmos_database_container_item_list-recent": {
+          "parameters": {
+            "account": true,
+            "auth-method": false,
+            "container": true,
+            "count": false,
+            "database": true,
+            "subscription": false,
+            "tenant": false
+          }
+        },
+        "cosmos_database_container_item_query": {
+          "parameters": {
+            "account": true,
+            "auth-method": false,
+            "container": true,
+            "database": true,
+            "query": false,
+            "subscription": false,
+            "tenant": false
+          }
+        },
+        "cosmos_database_container_item_text-search": {
+          "parameters": {
+            "account": true,
+            "auth-method": false,
+            "container": true,
+            "count": false,
+            "database": true,
+            "properties-to-select": false,
+            "search-phrase": true,
+            "search-property": true,
+            "subscription": false,
+            "tenant": false
+          }
+        },
+        "cosmos_database_container_item_vector-search": {
+          "parameters": {
+            "account": true,
+            "auth-method": false,
+            "container": true,
+            "count": false,
+            "database": true,
+            "embedding-deployment": true,
+            "embedding-dimensions": false,
+            "openai-endpoint": true,
+            "properties-to-select": false,
+            "search-text": true,
+            "subscription": false,
+            "tenant": false,
+            "vector-property": true
+          }
+        },
+        "cosmos_database_container_schema_infer": {
+          "parameters": {
+            "account": true,
+            "auth-method": false,
+            "container": true,
+            "database": true,
+            "sample-size": false,
+            "subscription": false,
+            "tenant": false
+          }
+        },
+        "cosmos_list": {
+          "parameters": {
+            "account": false,
+            "auth-method": false,
+            "database": false,
+            "resource-group": false,
+            "subscription": false,
+            "tenant": false
+          }
+        }
+      }
+    },
+    "datadog": {
+      "commands": {
+        "datadog_monitoredresources_list": {
+          "parameters": {
+            "datadog-resource": true,
+            "resource-group": true,
+            "subscription": false
+          }
+        }
+      }
+    },
+    "deploy": {
+      "commands": {
+        "deploy_app_logs_get": {
+          "parameters": {
+            "azd-env-name": true,
+            "limit": false,
+            "subscription": false,
+            "workspace-folder": true
+          }
+        },
+        "deploy_architecture_diagram_generate": {
+          "parameters": {
+            "projectName": false,
+            "services": true,
+            "workspaceFolder": true
+          }
+        },
+        "deploy_iac_rules_get": {
+          "parameters": {
+            "deployment-tool": true,
+            "iac-type": false,
+            "resource-types": false
+          }
+        },
+        "deploy_pipeline_guidance_get": {
+          "parameters": {
+            "deploy-option": false,
+            "is-azd-project": false,
+            "pipeline-platform": false
+          }
+        },
+        "deploy_plan_get": {
+          "parameters": {
+            "deploy-option": false,
+            "iac-options": false,
+            "project-name": true,
+            "provisioning-tool": false,
+            "resource-group": false,
+            "source-type": false,
+            "subscription": false,
+            "target-app-service": false
+          }
+        }
+      }
+    },
+    "deviceregistry": {
+      "commands": {
+        "deviceregistry_namespace_list": {
+          "parameters": {
+            "resource-group": false,
+            "subscription": false
+          }
+        }
+      }
+    },
+    "documentation": {
+      "commands": {
+        "microsoft_code_sample_search": {
+          "parameters": {
+            "language": false,
+            "query": true
+          }
+        },
+        "microsoft_docs_fetch": {
+          "parameters": {
+            "url": true
+          }
+        },
+        "microsoft_docs_search": {
+          "parameters": {
+            "query": false
+          }
+        }
+      }
+    },
+    "eventgrid": {
+      "commands": {
+        "eventgrid_events_publish": {
+          "parameters": {
+            "data": true,
+            "resource-group": false,
+            "schema": false,
+            "subscription": false,
+            "tenant": false,
+            "topic": true
+          }
+        },
+        "eventgrid_subscription_list": {
+          "parameters": {
+            "location": false,
+            "resource-group": false,
+            "subscription": false,
+            "tenant": false,
+            "topic": false
+          }
+        },
+        "eventgrid_topic_list": {
+          "parameters": {
+            "resource-group": false,
+            "subscription": false,
+            "tenant": false
+          }
+        }
+      }
+    },
+    "eventhubs": {
+      "commands": {
+        "eventhubs_eventhub_consumergroup_delete": {
+          "parameters": {
+            "consumer-group": true,
+            "eventhub": true,
+            "namespace": true,
+            "resource-group": true,
+            "subscription": false,
+            "tenant": false
+          }
+        },
+        "eventhubs_eventhub_consumergroup_get": {
+          "parameters": {
+            "consumer-group": false,
+            "eventhub": true,
+            "namespace": true,
+            "resource-group": true,
+            "subscription": false,
+            "tenant": false
+          }
+        },
+        "eventhubs_eventhub_consumergroup_update": {
+          "parameters": {
+            "consumer-group": true,
+            "eventhub": true,
+            "namespace": true,
+            "resource-group": true,
+            "subscription": false,
+            "tenant": false,
+            "user-metadata": false
+          }
+        },
+        "eventhubs_eventhub_delete": {
+          "parameters": {
+            "eventhub": true,
+            "namespace": true,
+            "resource-group": true,
+            "subscription": false,
+            "tenant": false
+          }
+        },
+        "eventhubs_eventhub_get": {
+          "parameters": {
+            "eventhub": false,
+            "namespace": true,
+            "resource-group": true,
+            "subscription": false,
+            "tenant": false
+          }
+        },
+        "eventhubs_eventhub_update": {
+          "parameters": {
+            "eventhub": true,
+            "message-retention-in-hours": false,
+            "namespace": true,
+            "partition-count": false,
+            "resource-group": true,
+            "status": false,
+            "subscription": false,
+            "tenant": false
+          }
+        },
+        "eventhubs_namespace_delete": {
+          "parameters": {
+            "namespace": true,
+            "resource-group": true,
+            "subscription": false,
+            "tenant": false
+          }
+        },
+        "eventhubs_namespace_get": {
+          "parameters": {
+            "namespace": false,
+            "resource-group": false,
+            "subscription": false,
+            "tenant": false
+          }
+        },
+        "eventhubs_namespace_update": {
+          "parameters": {
+            "disable-local-auth": false,
+            "is-auto-inflate-enabled": false,
+            "kafka-enabled": false,
+            "location": false,
+            "maximum-throughput-units": false,
+            "namespace": true,
+            "resource-group": true,
+            "sku-capacity": false,
+            "sku-name": false,
+            "sku-tier": false,
+            "subscription": false,
+            "tags": false,
+            "tenant": false,
+            "zone-redundant": false
+          }
+        }
+      }
+    },
+    "extension_azqr": {
+      "parameters": {
+        "resource-group": false,
+        "subscription": false,
+        "tenant": false
+      }
+    },
+    "extension_cli_generate": {
+      "parameters": {
+        "cli-type": true,
+        "intent": true
+      }
+    },
+    "extension_cli_install": {
+      "parameters": {
+        "cli-type": true
+      }
+    },
+    "fileshares": {
+      "commands": {
+        "fileshares_fileshare_check-name-availability": {
+          "parameters": {
+            "location": true,
+            "name": true,
+            "subscription": false,
+            "tenant": false
+          }
+        },
+        "fileshares_fileshare_create": {
+          "parameters": {
+            "allowed-subnets": false,
+            "location": true,
+            "media-tier": false,
+            "mount-name": false,
+            "name": true,
+            "nfs-encryption-in-transit": false,
+            "nfs-root-squash": false,
+            "protocol": false,
+            "provisioned-io-per-sec": false,
+            "provisioned-storage-in-gib": false,
+            "provisioned-throughput-mib-per-sec": false,
+            "public-network-access": false,
+            "redundancy": false,
+            "resource-group": true,
+            "subscription": false,
+            "tags": false,
+            "tenant": false
+          }
+        },
+        "fileshares_fileshare_delete": {
+          "parameters": {
+            "name": true,
+            "resource-group": true,
+            "subscription": false,
+            "tenant": false
+          }
+        },
+        "fileshares_fileshare_get": {
+          "parameters": {
+            "name": false,
+            "resource-group": false,
+            "subscription": false,
+            "tenant": false
+          }
+        },
+        "fileshares_fileshare_peconnection_get": {
+          "parameters": {
+            "connection-name": false,
+            "file-share-name": true,
+            "resource-group": true,
+            "subscription": false,
+            "tenant": false
+          }
+        },
+        "fileshares_fileshare_peconnection_update": {
+          "parameters": {
+            "connection-name": true,
+            "description": false,
+            "file-share-name": true,
+            "resource-group": true,
+            "status": true,
+            "subscription": false,
+            "tenant": false
+          }
+        },
+        "fileshares_fileshare_snapshot_create": {
+          "parameters": {
+            "file-share-name": true,
+            "metadata": false,
+            "resource-group": true,
+            "snapshot-name": true,
+            "subscription": false,
+            "tenant": false
+          }
+        },
+        "fileshares_fileshare_snapshot_delete": {
+          "parameters": {
+            "file-share-name": true,
+            "resource-group": true,
+            "snapshot-name": true,
+            "subscription": false,
+            "tenant": false
+          }
+        },
+        "fileshares_fileshare_snapshot_get": {
+          "parameters": {
+            "file-share-name": true,
+            "resource-group": true,
+            "snapshot-name": false,
+            "subscription": false,
+            "tenant": false
+          }
+        },
+        "fileshares_fileshare_snapshot_update": {
+          "parameters": {
+            "file-share-name": true,
+            "metadata": false,
+            "resource-group": true,
+            "snapshot-name": true,
+            "subscription": false,
+            "tenant": false
+          }
+        },
+        "fileshares_fileshare_update": {
+          "parameters": {
+            "allowed-subnets": false,
+            "name": true,
+            "nfs-encryption-in-transit": false,
+            "nfs-root-squash": false,
+            "provisioned-io-per-sec": false,
+            "provisioned-storage-in-gib": false,
+            "provisioned-throughput-mib-per-sec": false,
+            "public-network-access": false,
+            "resource-group": true,
+            "subscription": false,
+            "tags": false,
+            "tenant": false
+          }
+        },
+        "fileshares_limits": {
+          "parameters": {
+            "location": true,
+            "subscription": false,
+            "tenant": false
+          }
+        },
+        "fileshares_rec": {
+          "parameters": {
+            "location": true,
+            "provisioned-storage-in-gib": true,
+            "subscription": false,
+            "tenant": false
+          }
+        },
+        "fileshares_usage": {
+          "parameters": {
+            "location": true,
+            "subscription": false,
+            "tenant": false
+          }
+        }
+      }
+    },
+    "foundry": {
+      "commands": {
+        "agent_container_control": {
+          "parameters": {
+            "action": true,
+            "agentName": true,
+            "agentVersion": false,
+            "maxReplicas": false,
+            "minReplicas": false,
+            "projectEndpoint": true
+          }
+        },
+        "agent_container_status_get": {
+          "parameters": {
+            "agentName": true,
+            "agentVersion": false,
+            "projectEndpoint": true
+          }
+        },
+        "agent_definition_schema_get": {
+          "parameters": {
+            "schemaType": false
+          }
+        },
+        "agent_delete": {
+          "parameters": {
+            "agentName": true,
+            "projectEndpoint": true
+          }
+        },
+        "agent_get": {
+          "parameters": {
+            "agentName": false,
+            "projectEndpoint": true
+          }
+        },
+        "agent_insights_get": {
+          "parameters": {
+            "after": false,
+            "agentName": true,
+            "category": false,
+            "includeDetails": false,
+            "limit": false,
+            "order": false,
+            "projectEndpoint": true,
+            "severity": false,
+            "status": false
+          }
+        },
+        "agent_invoke": {
+          "parameters": {
+            "agentName": true,
+            "agentVersion": false,
+            "conversationId": false,
+            "inputText": true,
+            "projectEndpoint": true,
+            "protocol": false,
+            "sessionId": false,
+            "stream": false,
+            "useEndpoint": false
+          }
+        },
+        "agent_update": {
+          "parameters": {
+            "agentDefinition": false,
+            "agentName": true,
+            "cloneTargetAgentName": false,
+            "creationOptions": false,
+            "isCloneRequest": false,
+            "modelName": false,
+            "projectEndpoint": true
+          }
+        },
+        "continuous_eval_create": {
+          "parameters": {
+            "agentName": true,
+            "deploymentName": false,
+            "enabled": false,
+            "evaluatorNames": true,
+            "intervalHours": false,
+            "maxHourlyRuns": false,
+            "maxTraces": false,
+            "projectEndpoint": true,
+            "samplingRate": false,
+            "scenario": false
+          }
+        },
+        "continuous_eval_delete": {
+          "parameters": {
+            "agentName": true,
+            "configId": true,
+            "projectEndpoint": true
+          }
+        },
+        "continuous_eval_get": {
+          "parameters": {
+            "agentName": true,
+            "projectEndpoint": true,
+            "scenario": false
+          }
+        },
+        "data_generation_job_cancel": {
+          "parameters": {
+            "jobId": true,
+            "projectEndpoint": true
+          }
+        },
+        "data_generation_job_create": {
+          "parameters": {
+            "agentName": false,
+            "agentSourceDescription": false,
+            "agentVersion": false,
+            "datasetName": false,
+            "datasetSourceDescription": false,
+            "datasetVersion": false,
+            "fileId": false,
+            "fileSourceDescription": false,
+            "generationModelDeploymentName": false,
+            "generationType": false,
+            "jobName": true,
+            "maxSamples": false,
+            "maxTraces": false,
+            "projectEndpoint": true,
+            "promptSource": false,
+            "promptSourceDescription": false,
+            "questionTypes": false,
+            "scenario": false,
+            "traceAgentId": false,
+            "traceAgentName": false,
+            "traceAgentVersion": false,
+            "traceEndTime": false,
+            "traceStartTime": false,
+            "tracesSourceDescription": false,
+            "trainSplit": false
+          }
+        },
+        "data_generation_job_delete": {
+          "parameters": {
+            "jobId": true,
+            "projectEndpoint": true
+          }
+        },
+        "data_generation_job_get": {
+          "parameters": {
+            "jobId": false,
+            "projectEndpoint": true
+          }
+        },
+        "evaluation_agent_batch_eval_create": {
+          "parameters": {
+            "agentName": true,
+            "agentVersion": true,
+            "deploymentName": false,
+            "evaluationId": false,
+            "evaluationName": false,
+            "evaluatorNames": true,
+            "evaluatorThresholds": false,
+            "generateSyntheticData": false,
+            "generationModelDeploymentName": false,
+            "generationPrompt": false,
+            "inputData": false,
+            "outputDatasetName": false,
+            "projectEndpoint": true,
+            "runName": false,
+            "samplesCount": false,
+            "systemPrompt": false
+          }
+        },
+        "evaluation_agent_traces_batch_eval_create": {
+          "parameters": {
+            "agentId": false,
+            "agentName": false,
+            "agentVersion": false,
+            "deploymentName": false,
+            "endTime": false,
+            "evaluationId": false,
+            "evaluationLevel": false,
+            "evaluationName": false,
+            "evaluatorNames": true,
+            "evaluatorThresholds": false,
+            "includeRecentTracePadding": false,
+            "lookbackHours": false,
+            "maxTraces": false,
+            "projectEndpoint": true,
+            "runName": false,
+            "startTime": false
+          }
+        },
+        "evaluation_comparison_create": {
+          "parameters": {
+            "insightRequest": true,
+            "projectEndpoint": true
+          }
+        },
+        "evaluation_comparison_get": {
+          "parameters": {
+            "insightId": false,
+            "projectEndpoint": true
+          }
+        },
+        "evaluation_dataset_batch_eval_create": {
+          "parameters": {
+            "dataKind": false,
+            "datasetFileId": false,
+            "deploymentName": false,
+            "evaluationId": false,
+            "evaluationLevel": false,
+            "evaluationName": false,
+            "evaluatorNames": true,
+            "evaluatorThresholds": false,
+            "includeSampleSchema": false,
+            "itemSchemaFields": false,
+            "jsonlContent": false,
+            "projectEndpoint": true,
+            "runName": false
+          }
+        },
+        "evaluation_dataset_create": {
+          "parameters": {
+            "connectionName": false,
+            "datasetContentUri": true,
+            "datasetName": false,
+            "datasetType": false,
+            "datasetVersion": false,
+            "description": false,
+            "projectEndpoint": true,
+            "tags": false
+          }
+        },
+        "evaluation_dataset_get": {
+          "parameters": {
+            "datasetName": false,
+            "datasetVersion": false,
+            "projectEndpoint": true
+          }
+        },
+        "evaluation_dataset_sas_url_get": {
+          "parameters": {
+            "datasetName": true,
+            "datasetVersion": false,
+            "projectEndpoint": true
+          }
+        },
+        "evaluation_dataset_versions_get": {
+          "parameters": {
+            "datasetName": true,
+            "projectEndpoint": true
+          }
+        },
+        "evaluation_get": {
+          "parameters": {
+            "evalId": false,
+            "evalRunId": false,
+            "isRequestForRuns": false,
+            "projectEndpoint": true
+          }
+        },
+        "evaluation_suite_create": {
+          "parameters": {
+            "dataKind": false,
+            "datasetName": false,
+            "datasetVersion": false,
+            "deploymentName": false,
+            "description": false,
+            "displayName": false,
+            "evaluationLevel": false,
+            "evaluatorNames": true,
+            "evaluatorThresholds": false,
+            "projectEndpoint": true,
+            "suiteName": true,
+            "tags": false,
+            "targetAgentName": false,
+            "targetAgentVersion": false
+          }
+        },
+        "evaluation_suite_delete": {
+          "parameters": {
+            "projectEndpoint": true,
+            "suiteName": true,
+            "version": false
+          }
+        },
+        "evaluation_suite_generation_job_cancel": {
+          "parameters": {
+            "jobId": true,
+            "projectEndpoint": true
+          }
+        },
+        "evaluation_suite_generation_job_create": {
+          "parameters": {
+            "agentName": false,
+            "agentSourceDescription": false,
+            "agentSourceNames": false,
+            "category": false,
+            "dataGenerationType": false,
+            "datasetName": false,
+            "datasetSourceDescription": false,
+            "datasetVersion": false,
+            "deploymentName": false,
+            "fileId": false,
+            "fileSourceDescription": false,
+            "generationModelDeploymentName": true,
+            "initializationParameters": false,
+            "maxSamples": false,
+            "maxTraces": false,
+            "projectEndpoint": true,
+            "promptSource": false,
+            "promptSourceDescription": false,
+            "suiteName": true,
+            "traceAgentId": false,
+            "traceAgentName": false,
+            "traceAgentVersion": false,
+            "traceEndTime": false,
+            "traceStartTime": false,
+            "tracesSourceDescription": false
+          }
+        },
+        "evaluation_suite_generation_job_delete": {
+          "parameters": {
+            "jobId": true,
+            "projectEndpoint": true
+          }
+        },
+        "evaluation_suite_generation_job_get": {
+          "parameters": {
+            "continuationToken": false,
+            "jobId": false,
+            "limit": false,
+            "projectEndpoint": true
+          }
+        },
+        "evaluation_suite_get": {
+          "parameters": {
+            "agentName": false,
+            "continuationToken": false,
+            "limit": false,
+            "listVersions": false,
+            "projectEndpoint": true,
+            "suiteName": false,
+            "version": false
+          }
+        },
+        "evaluation_suite_run": {
+          "parameters": {
+            "evaluationLevel": false,
+            "evaluationName": false,
+            "projectEndpoint": true,
+            "suiteName": true,
+            "version": false
+          }
+        },
+        "evaluation_suite_update": {
+          "parameters": {
+            "description": false,
+            "displayName": false,
+            "projectEndpoint": true,
+            "suiteName": true,
+            "tags": false,
+            "version": true
+          }
+        },
+        "evaluation_traces_batch_eval_create": {
+          "parameters": {
+            "conversationIds": false,
+            "deploymentName": false,
+            "evaluationId": false,
+            "evaluationLevel": false,
+            "evaluationName": false,
+            "evaluatorNames": true,
+            "evaluatorThresholds": false,
+            "projectEndpoint": true,
+            "runName": false,
+            "traceIds": false,
+            "traceSourceType": false
+          }
+        },
+        "evaluator_catalog_create": {
+          "parameters": {
+            "category": true,
+            "codeText": false,
+            "description": false,
+            "desirableDirection": false,
+            "displayName": false,
+            "maxScore": false,
+            "metricName": false,
+            "minScore": false,
+            "name": true,
+            "passThreshold": false,
+            "projectEndpoint": true,
+            "promptText": false,
+            "scoringType": true
+          }
+        },
+        "evaluator_catalog_delete": {
+          "parameters": {
+            "name": true,
+            "projectEndpoint": true,
+            "version": true
+          }
+        },
+        "evaluator_catalog_get": {
+          "parameters": {
+            "continuationToken": false,
+            "limit": false,
+            "listVersions": false,
+            "name": false,
+            "projectEndpoint": true,
+            "type": false,
+            "version": false
+          }
+        },
+        "evaluator_catalog_update": {
+          "parameters": {
+            "baseVersion": false,
+            "category": false,
+            "createNewVersion": false,
+            "description": false,
+            "dimensionDescriptionOverrides": false,
+            "dimensionWeightOverrides": false,
+            "displayName": false,
+            "name": true,
+            "projectEndpoint": true,
+            "version": false
+          }
+        },
+        "evaluator_generation_job_cancel": {
+          "parameters": {
+            "jobId": true,
+            "projectEndpoint": true
+          }
+        },
+        "evaluator_generation_job_create": {
+          "parameters": {
+            "agentSourceDescription": false,
+            "agentSourceNames": false,
+            "category": false,
+            "datasetName": false,
+            "datasetSourceDescription": false,
+            "datasetVersion": false,
+            "evaluatorDescription": false,
+            "evaluatorDisplayName": false,
+            "evaluatorName": true,
+            "modelDeploymentName": true,
+            "projectEndpoint": true,
+            "promptSource": false,
+            "promptSourceDescription": false
+          }
+        },
+        "evaluator_generation_job_get": {
+          "parameters": {
+            "agentName": false,
+            "continuationToken": false,
+            "jobId": false,
+            "limit": false,
+            "projectEndpoint": true,
+            "status": false
+          }
+        },
+        "model_benchmark_get": {
+          "parameters": {}
+        },
+        "model_benchmark_subset_get": {
+          "parameters": {
+            "foundryAccountResourceId": true,
+            "modelPairs": true
+          }
+        },
+        "model_catalog_list": {
+          "parameters": {
+            "licenseName": false,
+            "modelName": false,
+            "publisherName": false,
+            "searchForFreePlayground": false
+          }
+        },
+        "model_deploy": {
+          "parameters": {
+            "deploymentName": true,
+            "foundryAccountResourceId": true,
+            "modelFormat": true,
+            "modelName": true,
+            "modelSource": false,
+            "modelVersion": false,
+            "scaleCapacity": false,
+            "scaleType": false,
+            "skuCapacity": false,
+            "skuName": false
+          }
+        },
+        "model_deploy_azure_direct_model": {
+          "parameters": {
+            "deploymentName": true,
+            "foundryAccountResourceId": true,
+            "modelFormat": true,
+            "modelName": true,
+            "modelSource": false,
+            "modelVersion": false,
+            "scaleCapacity": false,
+            "scaleType": false,
+            "skuCapacity": false,
+            "skuName": false
+          }
+        },
+        "model_deploy_managed_compute": {
+          "parameters": {
+            "acceleratorType": false,
+            "deploymentName": true,
+            "deploymentTemplate": false,
+            "foundryAccountResourceId": true,
+            "instanceCount": false,
+            "modelAssetId": true,
+            "versionUpgradeOption": false
+          }
+        },
+        "model_deployment_delete": {
+          "parameters": {
+            "deploymentName": true,
+            "foundryAccountResourceId": true
+          }
+        },
+        "model_deployment_get": {
+          "parameters": {
+            "deploymentName": false,
+            "foundryAccountResourceId": true
+          }
+        },
+        "model_deprecation_info_get": {
+          "parameters": {
+            "foundryAccountResourceId": true,
+            "modelDeploymentName": true
+          }
+        },
+        "model_details_get": {
+          "parameters": {
+            "modelName": true
+          }
+        },
+        "model_monitoring_metrics_get": {
+          "parameters": {
+            "foundryAccountResourceId": true,
+            "metricCategory": false,
+            "modelDeploymentName": true
+          }
+        },
+        "model_quota_list": {
+          "parameters": {
+            "region": true,
+            "subscriptionId": true
+          }
+        },
+        "model_similar_models_get": {
+          "parameters": {
+            "foundryAccountResourceId": true,
+            "modelDeploymentName": false,
+            "modelName": false,
+            "modelVersion": false
+          }
+        },
+        "model_switch_recommendations_get": {
+          "parameters": {
+            "foundryAccountResourceId": true,
+            "modelDeploymentName": false,
+            "modelName": false,
+            "modelVersion": false,
+            "sortBy": false,
+            "top": false
+          }
+        },
+        "project_connection_create": {
+          "parameters": {
+            "apiKey": false,
+            "authType": true,
+            "category": true,
+            "connectionName": true,
+            "customKeys": false,
+            "expiryTime": false,
+            "foundryProjectResourceId": true,
+            "metadata": false,
+            "target": true
+          }
+        },
+        "project_connection_delete": {
+          "parameters": {
+            "connectionName": true,
+            "foundryProjectResourceId": true
+          }
+        },
+        "project_connection_get": {
+          "parameters": {
+            "connectionName": true,
+            "foundryProjectResourceId": true
+          }
+        },
+        "project_connection_list": {
+          "parameters": {
+            "category": false,
+            "foundryProjectResourceId": true,
+            "includeAll": false,
+            "target": false
+          }
+        },
+        "project_connection_list_metadata": {
+          "parameters": {}
+        },
+        "project_connection_update": {
+          "parameters": {
+            "apiKey": false,
+            "authType": true,
+            "category": true,
+            "connectionName": true,
+            "customKeys": false,
+            "expiryTime": false,
+            "foundryProjectResourceId": true,
+            "metadata": false,
+            "target": true
+          }
+        },
+        "prompt_optimize": {
+          "parameters": {
+            "deploymentName": true,
+            "developerMessage": true,
+            "foundryAccountResourceId": false,
+            "projectEndpoint": false,
+            "requestedChanges": false
+          }
+        },
+        "session_create": {
+          "parameters": {
+            "agentName": true,
+            "projectEndpoint": true,
+            "sessionId": false
+          }
+        },
+        "session_delete": {
+          "parameters": {
+            "agentName": true,
+            "projectEndpoint": true,
+            "sessionId": true
+          }
+        },
+        "session_file_delete": {
+          "parameters": {
+            "agentName": true,
+            "filePath": true,
+            "projectEndpoint": true,
+            "recursive": false,
+            "sessionId": true
+          }
+        },
+        "session_file_download": {
+          "parameters": {
+            "agentName": true,
+            "filePath": true,
+            "projectEndpoint": true,
+            "sessionId": true
+          }
+        },
+        "session_file_list": {
+          "parameters": {
+            "agentName": true,
+            "path": false,
+            "projectEndpoint": true,
+            "sessionId": true
+          }
+        },
+        "session_file_mkdir": {
+          "parameters": {
+            "agentName": true,
+            "createParents": false,
+            "mode": false,
+            "path": true,
+            "projectEndpoint": true,
+            "sessionId": true
+          }
+        },
+        "session_file_stat": {
+          "parameters": {
+            "agentName": true,
+            "filePath": true,
+            "projectEndpoint": true,
+            "sessionId": true
+          }
+        },
+        "session_file_upload": {
+          "parameters": {
+            "agentName": true,
+            "contentBase64": true,
+            "filePath": true,
+            "projectEndpoint": true,
+            "sessionId": true
+          }
+        },
+        "session_get": {
+          "parameters": {
+            "agentName": true,
+            "projectEndpoint": true,
+            "sessionId": true
+          }
+        },
+        "session_list": {
+          "parameters": {
+            "after": false,
+            "agentName": true,
+            "before": false,
+            "limit": false,
+            "order": false,
+            "projectEndpoint": true
+          }
+        },
+        "session_logstream": {
+          "parameters": {
+            "agentName": true,
+            "maxLines": false,
+            "projectEndpoint": true,
+            "sessionId": true
+          }
+        },
+        "toolbox_delete": {
+          "parameters": {
+            "projectEndpoint": true,
+            "toolboxName": true
+          }
+        },
+        "toolbox_get": {
+          "parameters": {
+            "projectEndpoint": true,
+            "toolboxName": false
+          }
+        },
+        "toolbox_update": {
+          "parameters": {
+            "defaultVersion": true,
+            "projectEndpoint": true,
+            "toolboxName": true
+          }
+        },
+        "toolbox_version_create": {
+          "parameters": {
+            "description": false,
+            "metadata": false,
+            "policies": false,
+            "projectEndpoint": true,
+            "skills": false,
+            "toolboxName": true,
+            "tools": true
+          }
+        },
+        "toolbox_version_delete": {
+          "parameters": {
+            "projectEndpoint": true,
+            "toolboxName": true,
+            "version": true
+          }
+        },
+        "toolbox_version_get": {
+          "parameters": {
+            "projectEndpoint": true,
+            "toolboxName": true,
+            "version": false
+          }
+        }
+      }
+    },
+    "foundryextensions": {
+      "commands": {
+        "foundryextensions_knowledge_index_list": {
+          "parameters": {
+            "endpoint": true,
+            "tenant": false
+          }
+        },
+        "foundryextensions_knowledge_index_schema": {
+          "parameters": {
+            "endpoint": true,
+            "index": true,
+            "tenant": false
+          }
+        },
+        "foundryextensions_openai_chat-completions-create": {
+          "parameters": {
+            "auth-method": false,
+            "deployment": true,
+            "frequency-penalty": false,
+            "max-tokens": false,
+            "message-array": true,
+            "presence-penalty": false,
+            "resource-group": true,
+            "resource-name": true,
+            "seed": false,
+            "stop": false,
+            "subscription": false,
+            "temperature": false,
+            "tenant": false,
+            "top-p": false,
+            "user": false
+          }
+        },
+        "foundryextensions_openai_create-completion": {
+          "parameters": {
+            "auth-method": false,
+            "deployment": true,
+            "max-tokens": false,
+            "prompt-text": true,
+            "resource-group": true,
+            "resource-name": true,
+            "subscription": false,
+            "temperature": false,
+            "tenant": false
+          }
+        },
+        "foundryextensions_openai_embeddings-create": {
+          "parameters": {
+            "auth-method": false,
+            "deployment": true,
+            "input-text": true,
+            "resource-group": true,
+            "resource-name": true,
+            "subscription": false,
+            "tenant": false
+          }
+        },
+        "foundryextensions_openai_models-list": {
+          "parameters": {
+            "resource-group": true,
+            "resource-name": true,
+            "subscription": false,
+            "tenant": false
+          }
+        },
+        "foundryextensions_resource_get": {
+          "parameters": {
+            "resource-group": false,
+            "resource-name": false,
+            "subscription": false,
+            "tenant": false
+          }
+        }
+      }
+    },
+    "functionapp": {
+      "commands": {
+        "functionapp_get": {
+          "parameters": {
+            "function-app": false,
+            "resource-group": false,
+            "subscription": false,
+            "tenant": false
+          }
+        }
+      }
+    },
+    "functions": {
+      "commands": {
+        "functions_language_list": {
+          "parameters": {}
+        },
+        "functions_project_get": {
+          "parameters": {
+            "language": true
+          }
+        },
+        "functions_template_get": {
+          "parameters": {
+            "language": true,
+            "output": false,
+            "runtime-version": false,
+            "template": false
+          }
+        }
+      }
+    },
+    "get_azure_bestpractices": {
+      "commands": {
+        "get_azure_bestpractices_ai_app": {
+          "parameters": {}
+        },
+        "get_azure_bestpractices_get": {
+          "parameters": {
+            "action": true,
+            "resource": true
+          }
+        }
+      }
+    },
+    "grafana": {
+      "commands": {
+        "grafana_list": {
+          "parameters": {
+            "resource-group": false,
+            "subscription": false,
+            "tenant": false
+          }
+        }
+      }
+    },
+    "group_list": {
+      "parameters": {
+        "subscription": false,
+        "tenant": false
+      }
+    },
+    "group_resource_list": {
+      "parameters": {
+        "resource-group": true,
+        "subscription": false,
+        "tenant": false
+      }
+    },
+    "insights": {
+      "commands": {
+        "insights_get": {
+          "parameters": {
+            "nocache": false,
+            "query": false,
+            "scope": false,
+            "subscription": false,
+            "tenant": false
+          }
+        }
+      }
+    },
+    "iothub": {
+      "commands": {
+        "iothub_device_list": {
+          "parameters": {
+            "hub-name": true,
+            "max-count": false,
+            "resource-group": true,
+            "subscription": false,
+            "tenant": false
+          }
+        },
+        "iothub_device_show": {
+          "parameters": {
+            "device-id": true,
+            "hub-name": true,
+            "resource-group": true,
+            "subscription": false,
+            "tenant": false
+          }
+        },
+        "iothub_device_stats": {
+          "parameters": {
+            "hub-name": true,
+            "resource-group": true,
+            "subscription": false,
+            "tenant": false
+          }
+        },
+        "iothub_device_twin_get": {
+          "parameters": {
+            "device-id": true,
+            "hub-name": true,
+            "resource-group": true,
+            "subscription": false,
+            "tenant": false
+          }
+        },
+        "iothub_hub_get": {
+          "parameters": {
+            "hub-name": true,
+            "resource-group": true,
+            "subscription": false,
+            "tenant": false
+          }
+        },
+        "iothub_query_run": {
+          "parameters": {
+            "filters": false,
+            "from": false,
+            "hub-name": true,
+            "logical-operator": false,
+            "max-count": false,
+            "query": false,
+            "resource-group": true,
+            "subscription": false,
+            "tenant": false
+          }
+        }
+      }
+    },
+    "iotoperations": {
+      "commands": {
+        "iotoperations_instance_get": {
+          "parameters": {
+            "instance": false,
+            "resource-group": false,
+            "subscription": false
+          }
+        },
+        "iotoperations_instance_list": {
+          "parameters": {
+            "resource-group": false,
+            "subscription": false
+          }
+        }
+      }
+    },
+    "keyvault": {
+      "commands": {
+        "keyvault_admin_settings_get": {
+          "parameters": {
+            "tenant": false,
+            "vault": true
+          }
+        },
+        "keyvault_certificate_create": {
+          "parameters": {
+            "certificate": true,
+            "tenant": false,
+            "vault": true
+          }
+        },
+        "keyvault_certificate_get": {
+          "parameters": {
+            "certificate": false,
+            "tenant": false,
+            "vault": true
+          }
+        },
+        "keyvault_certificate_import": {
+          "parameters": {
+            "certificate": true,
+            "certificate-data": true,
+            "password": false,
+            "tenant": false,
+            "vault": true
+          }
+        },
+        "keyvault_key_create": {
+          "parameters": {
+            "key": true,
+            "key-type": true,
+            "tenant": false,
+            "vault": true
+          }
+        },
+        "keyvault_key_get": {
+          "parameters": {
+            "include-managed": false,
+            "key": false,
+            "tenant": false,
+            "vault": true
+          }
+        },
+        "keyvault_secret_create": {
+          "parameters": {
+            "secret": true,
+            "tenant": false,
+            "value": true,
+            "vault": true
+          }
+        },
+        "keyvault_secret_get": {
+          "parameters": {
+            "secret": false,
+            "tenant": false,
+            "vault": true
+          }
+        }
+      }
+    },
+    "kusto": {
+      "commands": {
+        "kusto_cluster_get": {
+          "parameters": {
+            "cluster": true,
+            "subscription": false,
+            "tenant": false
+          }
+        },
+        "kusto_cluster_list": {
+          "parameters": {
+            "resource-group": false,
+            "subscription": false,
+            "tenant": false
+          }
+        },
+        "kusto_database_list": {
+          "parameters": {
+            "cluster": false,
+            "cluster-uri": false,
+            "subscription": false,
+            "tenant": false
+          }
+        },
+        "kusto_query": {
+          "parameters": {
+            "cluster": false,
+            "cluster-uri": false,
+            "database": true,
+            "query": true,
+            "subscription": false,
+            "tenant": false
+          }
+        },
+        "kusto_sample": {
+          "parameters": {
+            "cluster": false,
+            "cluster-uri": false,
+            "database": true,
+            "limit": false,
+            "subscription": false,
+            "table": true,
+            "tenant": false
+          }
+        },
+        "kusto_table_list": {
+          "parameters": {
+            "cluster": false,
+            "cluster-uri": false,
+            "database": true,
+            "subscription": false,
+            "tenant": false
+          }
+        },
+        "kusto_table_schema": {
+          "parameters": {
+            "cluster": false,
+            "cluster-uri": false,
+            "database": true,
+            "subscription": false,
+            "table": true,
+            "tenant": false
+          }
+        }
+      }
+    },
+    "loadtesting": {
+      "commands": {
+        "loadtesting_test_create": {
+          "parameters": {
+            "description": false,
+            "display-name": false,
+            "duration": false,
+            "endpoint": false,
+            "ramp-up-time": false,
+            "resource-group": false,
+            "subscription": false,
+            "tenant": false,
+            "test-id": true,
+            "test-resource-name": true,
+            "virtual-users": false
+          }
+        },
+        "loadtesting_test_get": {
+          "parameters": {
+            "resource-group": false,
+            "subscription": false,
+            "tenant": false,
+            "test-id": true,
+            "test-resource-name": true
+          }
+        },
+        "loadtesting_testresource_create": {
+          "parameters": {
+            "resource-group": true,
+            "subscription": false,
+            "tenant": false,
+            "test-resource-name": false
+          }
+        },
+        "loadtesting_testresource_list": {
+          "parameters": {
+            "resource-group": false,
+            "subscription": false,
+            "tenant": false,
+            "test-resource-name": false
+          }
+        },
+        "loadtesting_testrun_createorupdate": {
+          "parameters": {
+            "description": false,
+            "display-name": false,
+            "old-testrun-id": false,
+            "resource-group": false,
+            "subscription": false,
+            "tenant": false,
+            "test-id": true,
+            "test-resource-name": true,
+            "testrun-id": true
+          }
+        },
+        "loadtesting_testrun_get": {
+          "parameters": {
+            "resource-group": false,
+            "subscription": false,
+            "tenant": false,
+            "test-id": false,
+            "test-resource-name": true,
+            "testrun-id": false
+          }
+        }
+      }
+    },
+    "managedlustre": {
+      "commands": {
+        "managedlustre_fs_blob_autoexport_cancel": {
+          "parameters": {
+            "filesystem-name": true,
+            "job-name": true,
+            "resource-group": true,
+            "subscription": false,
+            "tenant": false
+          }
+        },
+        "managedlustre_fs_blob_autoexport_create": {
+          "parameters": {
+            "admin-status": false,
+            "autoexport-prefix": false,
+            "filesystem-name": true,
+            "job-name": false,
+            "resource-group": true,
+            "subscription": false,
+            "tenant": false
+          }
+        },
+        "managedlustre_fs_blob_autoexport_delete": {
+          "parameters": {
+            "filesystem-name": true,
+            "job-name": true,
+            "resource-group": true,
+            "subscription": false,
+            "tenant": false
+          }
+        },
+        "managedlustre_fs_blob_autoexport_get": {
+          "parameters": {
+            "filesystem-name": true,
+            "job-name": false,
+            "resource-group": true,
+            "subscription": false,
+            "tenant": false
+          }
+        },
+        "managedlustre_fs_blob_autoimport_cancel": {
+          "parameters": {
+            "filesystem-name": true,
+            "job-name": true,
+            "resource-group": true,
+            "subscription": false,
+            "tenant": false
+          }
+        },
+        "managedlustre_fs_blob_autoimport_create": {
+          "parameters": {
+            "admin-status": false,
+            "autoimport-prefixes": false,
+            "conflict-resolution-mode": false,
+            "enable-deletions": false,
+            "filesystem-name": true,
+            "job-name": false,
+            "maximum-errors": false,
+            "resource-group": true,
+            "subscription": false,
+            "tenant": false
+          }
+        },
+        "managedlustre_fs_blob_autoimport_delete": {
+          "parameters": {
+            "filesystem-name": true,
+            "job-name": true,
+            "resource-group": true,
+            "subscription": false,
+            "tenant": false
+          }
+        },
+        "managedlustre_fs_blob_autoimport_get": {
+          "parameters": {
+            "filesystem-name": true,
+            "job-name": false,
+            "resource-group": true,
+            "subscription": false,
+            "tenant": false
+          }
+        },
+        "managedlustre_fs_blob_import_cancel": {
+          "parameters": {
+            "filesystem-name": true,
+            "job-name": true,
+            "resource-group": true,
+            "subscription": false,
+            "tenant": false
+          }
+        },
+        "managedlustre_fs_blob_import_create": {
+          "parameters": {
+            "conflict-resolution-mode": false,
+            "filesystem-name": true,
+            "import-prefixes": false,
+            "job-name": false,
+            "maximum-errors": false,
+            "resource-group": true,
+            "subscription": false,
+            "tenant": false
+          }
+        },
+        "managedlustre_fs_blob_import_delete": {
+          "parameters": {
+            "filesystem-name": true,
+            "job-name": true,
+            "resource-group": true,
+            "subscription": false,
+            "tenant": false
+          }
+        },
+        "managedlustre_fs_blob_import_get": {
+          "parameters": {
+            "filesystem-name": true,
+            "job-name": false,
+            "resource-group": true,
+            "subscription": false,
+            "tenant": false
+          }
+        },
+        "managedlustre_fs_create": {
+          "parameters": {
+            "custom-encryption": false,
+            "hsm-container": false,
+            "hsm-log-container": false,
+            "import-prefix": false,
+            "key-url": false,
+            "location": true,
+            "maintenance-day": true,
+            "maintenance-time": true,
+            "name": true,
+            "no-squash-nid-list": false,
+            "resource-group": true,
+            "root-squash-mode": false,
+            "size": true,
+            "sku": true,
+            "source-vault": false,
+            "squash-gid": false,
+            "squash-uid": false,
+            "subnet-id": true,
+            "subscription": false,
+            "tenant": false,
+            "user-assigned-identity-id": false,
+            "zone": true
+          }
+        },
+        "managedlustre_fs_expansion_create": {
+          "parameters": {
+            "expansion-job-name": false,
+            "filesystem-name": true,
+            "new-size": true,
+            "resource-group": true,
+            "subscription": false,
+            "tenant": false
+          }
+        },
+        "managedlustre_fs_expansion_delete": {
+          "parameters": {
+            "expansion-job-name": true,
+            "filesystem-name": true,
+            "resource-group": true,
+            "subscription": false,
+            "tenant": false
+          }
+        },
+        "managedlustre_fs_expansion_get": {
+          "parameters": {
+            "expansion-job-name": false,
+            "filesystem-name": true,
+            "resource-group": true,
+            "subscription": false,
+            "tenant": false
+          }
+        },
+        "managedlustre_fs_list": {
+          "parameters": {
+            "resource-group": false,
+            "subscription": false,
+            "tenant": false
+          }
+        },
+        "managedlustre_fs_sku_get": {
+          "parameters": {
+            "location": false,
+            "subscription": false,
+            "tenant": false
+          }
+        },
+        "managedlustre_fs_subnetsize_ask": {
+          "parameters": {
+            "size": true,
+            "sku": true,
+            "subscription": false,
+            "tenant": false
+          }
+        },
+        "managedlustre_fs_subnetsize_validate": {
+          "parameters": {
+            "location": true,
+            "size": true,
+            "sku": true,
+            "subnet-id": true,
+            "subscription": false,
+            "tenant": false
+          }
+        },
+        "managedlustre_fs_update": {
+          "parameters": {
+            "maintenance-day": false,
+            "maintenance-time": false,
+            "name": true,
+            "no-squash-nid-list": false,
+            "resource-group": true,
+            "root-squash-mode": false,
+            "squash-gid": false,
+            "squash-uid": false,
+            "subscription": false,
+            "tenant": false
+          }
+        }
+      }
+    },
+    "marketplace": {
+      "commands": {
+        "marketplace_product_get": {
+          "parameters": {
+            "include-service-instruction-templates": false,
+            "include-stop-sold-plans": false,
+            "language": false,
+            "lookup-offer-in-tenant-level": false,
+            "plan-id": false,
+            "product-id": true,
+            "sku-id": false,
+            "subscription": false,
+            "tenant": false
+          }
+        },
+        "marketplace_product_list": {
+          "parameters": {
+            "expand": false,
+            "filter": false,
+            "language": false,
+            "next-cursor": false,
+            "orderby": false,
+            "search": false,
+            "select": false,
+            "subscription": false,
+            "tenant": false
+          }
+        }
+      }
+    },
+    "monitor": {
+      "commands": {
+        "monitor_activitylog_list": {
+          "parameters": {
+            "event-level": false,
+            "hours": false,
+            "resource-group": false,
+            "resource-name": true,
+            "resource-type": false,
+            "subscription": false,
+            "tenant": false,
+            "top": false
+          }
+        },
+        "monitor_healthmodels_get": {
+          "parameters": {
+            "health-model": true,
+            "resource-group": true,
+            "subscription": false,
+            "tenant": false
+          }
+        },
+        "monitor_healthmodels_list": {
+          "parameters": {
+            "resource-group": false,
+            "subscription": false,
+            "tenant": false
+          }
+        },
+        "monitor_instrumentation_get-learning-resource": {
+          "parameters": {
+            "path": false
+          }
+        },
+        "monitor_instrumentation_orchestrator-next": {
+          "parameters": {
+            "completion-note": true,
+            "session-id": true
+          }
+        },
+        "monitor_instrumentation_orchestrator-start": {
+          "parameters": {
+            "workspace-path": true
+          }
+        },
+        "monitor_instrumentation_send-brownfield-analysis": {
+          "parameters": {
+            "findings-json": true,
+            "session-id": true
+          }
+        },
+        "monitor_instrumentation_send-enhancement-select": {
+          "parameters": {
+            "enhancement-keys": true,
+            "session-id": true
+          }
+        },
+        "monitor_metrics_batchquery": {
+          "parameters": {
+            "aggregation": false,
+            "end-time": false,
+            "filter": false,
+            "interval": false,
+            "max-buckets": false,
+            "metric-names": true,
+            "metric-namespace": true,
+            "order-by": false,
+            "resource-group": false,
+            "resource-type": false,
+            "resources": true,
+            "start-time": false,
+            "subscription": false,
+            "tenant": false,
+            "top": false
+          }
+        },
+        "monitor_metrics_definitions": {
+          "parameters": {
+            "limit": false,
+            "metric-namespace": false,
+            "resource": true,
+            "resource-group": false,
+            "resource-type": false,
+            "search-string": false,
+            "subscription": false,
+            "tenant": false
+          }
+        },
+        "monitor_metrics_query": {
+          "parameters": {
+            "aggregation": false,
+            "end-time": false,
+            "filter": false,
+            "interval": false,
+            "max-buckets": false,
+            "metric-names": true,
+            "metric-namespace": true,
+            "resource": true,
+            "resource-group": false,
+            "resource-type": false,
+            "start-time": false,
+            "subscription": false,
+            "tenant": false
+          }
+        },
+        "monitor_resource_log_query": {
+          "parameters": {
+            "hours": false,
+            "limit": false,
+            "query": true,
+            "resource-id": true,
+            "subscription": false,
+            "table": true,
+            "tenant": false
+          }
+        },
+        "monitor_table_list": {
+          "parameters": {
+            "resource-group": true,
+            "subscription": false,
+            "table-type": true,
+            "tenant": false,
+            "workspace": true
+          }
+        },
+        "monitor_table_type_list": {
+          "parameters": {
+            "resource-group": true,
+            "subscription": false,
+            "tenant": false,
+            "workspace": true
+          }
+        },
+        "monitor_webtests_createorupdate": {
+          "parameters": {
+            "appinsights-component": false,
+            "description": false,
+            "enabled": false,
+            "expected-status-code": false,
+            "follow-redirects": false,
+            "frequency": false,
+            "headers": false,
+            "http-verb": false,
+            "ignore-status-code": false,
+            "location": false,
+            "parse-requests": false,
+            "request-body": false,
+            "request-url": false,
+            "resource-group": true,
+            "retry-enabled": false,
+            "ssl-check": false,
+            "ssl-lifetime-check": false,
+            "subscription": false,
+            "tenant": false,
+            "timeout": false,
+            "webtest": false,
+            "webtest-locations": false,
+            "webtest-resource": true
+          }
+        },
+        "monitor_webtests_get": {
+          "parameters": {
+            "resource-group": false,
+            "subscription": false,
+            "tenant": false,
+            "webtest-resource": false
+          }
+        },
+        "monitor_workspace_list": {
+          "parameters": {
+            "resource-group": false,
+            "subscription": false,
+            "tenant": false
+          }
+        },
+        "monitor_workspace_log_query": {
+          "parameters": {
+            "hours": false,
+            "limit": false,
+            "query": true,
+            "subscription": false,
+            "table": true,
+            "tenant": false,
+            "workspace": true
+          }
+        },
+        "monitor_workspace_log_search": {
+          "parameters": {
+            "limit": false,
+            "query": true,
+            "resource-group": true,
+            "subscription": false,
+            "table": true,
+            "tenant": false,
+            "timespan": true,
+            "workspace": true
+          }
+        }
+      }
+    },
+    "mysql": {
+      "commands": {
+        "mysql_database_query": {
+          "parameters": {
+            "database": true,
+            "query": true,
+            "server": true,
+            "user": true
+          }
+        },
+        "mysql_list": {
+          "parameters": {
+            "database": false,
+            "resource-group": false,
+            "server": false,
+            "subscription": false,
+            "user": false
+          }
+        },
+        "mysql_server_config_get": {
+          "parameters": {
+            "resource-group": true,
+            "server": true,
+            "subscription": false
+          }
+        },
+        "mysql_server_param_get": {
+          "parameters": {
+            "param": true,
+            "resource-group": true,
+            "server": true,
+            "subscription": false
+          }
+        },
+        "mysql_server_param_set": {
+          "parameters": {
+            "param": true,
+            "resource-group": true,
+            "server": true,
+            "subscription": false,
+            "value": true
+          }
+        },
+        "mysql_table_schema_get": {
+          "parameters": {
+            "database": true,
+            "server": true,
+            "table": true,
+            "user": true
+          }
+        }
+      }
+    },
+    "optimization": {
+      "commands": {
+        "optimization_recommendation_alternatives": {
+          "parameters": {
+            "exclude-processor-types": false,
+            "exclude-skus": false,
+            "exclude-vm-series": false,
+            "new-processor-types": false,
+            "new-skus": false,
+            "new-vm-series": false,
+            "resource-id": false,
+            "subscription": false,
+            "tenant": false
+          }
+        },
+        "optimization_recommendation_explain": {
+          "parameters": {
+            "resource-id": false,
+            "subscription": false,
+            "target-sku": false,
+            "tenant": false,
+            "view": false
+          }
+        },
+        "optimization_recommendation_list": {
+          "parameters": {
+            "subscription": false,
+            "tenant": false,
+            "top": false
+          }
+        }
+      }
+    },
+    "policy": {
+      "commands": {
+        "policy_assignment_list": {
+          "parameters": {
+            "scope": false,
+            "subscription": false,
+            "tenant": false
+          }
+        }
+      }
+    },
+    "postgres": {
+      "commands": {
+        "postgres_database_query": {
+          "parameters": {
+            "auth-type": true,
+            "database": true,
+            "password": false,
+            "query": true,
+            "server": true,
+            "user": true
+          }
+        },
+        "postgres_list": {
+          "parameters": {
+            "auth-type": false,
+            "database": false,
+            "password": false,
+            "resource-group": false,
+            "schema": false,
+            "server": false,
+            "subscription": false,
+            "user": false
+          }
+        },
+        "postgres_server_config_get": {
+          "parameters": {
+            "resource-group": true,
+            "server": true,
+            "subscription": false,
+            "tenant": false
+          }
+        },
+        "postgres_server_param_get": {
+          "parameters": {
+            "param": true,
+            "resource-group": true,
+            "server": true,
+            "subscription": false,
+            "tenant": false
+          }
+        },
+        "postgres_server_param_set": {
+          "parameters": {
+            "param": true,
+            "resource-group": true,
+            "server": true,
+            "subscription": false,
+            "tenant": false,
+            "value": true
+          }
+        },
+        "postgres_table_schema_get": {
+          "parameters": {
+            "auth-type": true,
+            "database": true,
+            "password": false,
+            "server": true,
+            "table": true,
+            "user": true
+          }
+        }
+      }
+    },
+    "pricing": {
+      "commands": {
+        "pricing_get": {
+          "parameters": {
+            "currency": false,
+            "filter": false,
+            "include-savings-plan": false,
+            "price-type": false,
+            "region": false,
+            "service": false,
+            "service-family": false,
+            "sku": false
+          }
+        }
+      }
+    },
+    "quota": {
+      "commands": {
+        "quota_region_availability_list": {
+          "parameters": {
+            "cognitive-service-deployment-sku-name": false,
+            "cognitive-service-model-name": false,
+            "cognitive-service-model-version": false,
+            "resource-types": true,
+            "subscription": false
+          }
+        },
+        "quota_usage_check": {
+          "parameters": {
+            "region": true,
+            "resource-types": true,
+            "subscription": false
+          }
+        }
+      }
+    },
+    "redis": {
+      "commands": {
+        "redis_create": {
+          "parameters": {
+            "access-keys-authentication": false,
+            "location": true,
+            "modules": false,
+            "public-network-access": false,
+            "resource": true,
+            "resource-group": true,
+            "sku": false,
+            "subscription": false,
+            "tenant": false
+          }
+        },
+        "redis_list": {
+          "parameters": {
+            "subscription": false,
+            "tenant": false
+          }
+        }
+      }
+    },
+    "resiliency": {
+      "commands": {
+        "resiliency_drill_check-resync-readiness": {
+          "parameters": {
+            "drill": true,
+            "service-group": true,
+            "tenant": false
+          }
+        },
+        "resiliency_drill_create": {
+          "parameters": {
+            "drill": true,
+            "drill-type": true,
+            "rbac-setup-mode": true,
+            "recoveryplan": false,
+            "region": true,
+            "resource-group": false,
+            "service-group": true,
+            "subscription": true,
+            "tenant": false
+          }
+        },
+        "resiliency_drill_delete": {
+          "parameters": {
+            "drill": true,
+            "service-group": true,
+            "tenant": false
+          }
+        },
+        "resiliency_drill_end": {
+          "parameters": {
+            "attestation": true,
+            "attestation-notes": true,
+            "drill": true,
+            "service-group": true,
+            "tenant": false
+          }
+        },
+        "resiliency_drill_get": {
+          "parameters": {
+            "name": false,
+            "service-group": true,
+            "tenant": false
+          }
+        },
+        "resiliency_drill_resource_add-or-update": {
+          "parameters": {
+            "drill": true,
+            "exclude-resources": false,
+            "fault-duration-minutes": true,
+            "force-inclusion-and-update": false,
+            "include-resources": false,
+            "service-group": true,
+            "tenant": false,
+            "update-resources": false
+          }
+        },
+        "resiliency_drill_resource_get": {
+          "parameters": {
+            "drill": true,
+            "name": false,
+            "service-group": true,
+            "tenant": false
+          }
+        },
+        "resiliency_drill_run_add-notes": {
+          "parameters": {
+            "drill": true,
+            "drill-run": true,
+            "notes": true,
+            "service-group": true,
+            "tenant": false
+          }
+        },
+        "resiliency_drill_run_failover": {
+          "parameters": {
+            "auto-failover": false,
+            "drill": true,
+            "drill-run": true,
+            "selected-resource-ids": false,
+            "service-group": true,
+            "source-locations": true,
+            "tenant": false
+          }
+        },
+        "resiliency_drill_run_get": {
+          "parameters": {
+            "drill": true,
+            "name": false,
+            "service-group": true,
+            "tenant": false
+          }
+        },
+        "resiliency_drill_run_mark-complete": {
+          "parameters": {
+            "drill": true,
+            "drill-run": true,
+            "service-group": true,
+            "stage": true,
+            "tenant": false
+          }
+        },
+        "resiliency_drill_run_reprotect": {
+          "parameters": {
+            "drill": true,
+            "drill-run": true,
+            "service-group": true,
+            "tenant": false
+          }
+        },
+        "resiliency_drill_run_resource_get": {
+          "parameters": {
+            "drill": true,
+            "drill-run": true,
+            "name": false,
+            "service-group": true,
+            "tenant": false
+          }
+        },
+        "resiliency_drill_run_resume": {
+          "parameters": {
+            "drill": true,
+            "drill-run": true,
+            "service-group": true,
+            "tenant": false
+          }
+        },
+        "resiliency_drill_start": {
+          "parameters": {
+            "drill": true,
+            "mode": true,
+            "service-group": true,
+            "tenant": false
+          }
+        },
+        "resiliency_drill_update": {
+          "parameters": {
+            "drill": true,
+            "rbac-setup-mode": false,
+            "recoveryplan": false,
+            "region": false,
+            "service-group": true,
+            "subscription": false,
+            "tenant": false
+          }
+        },
+        "resiliency_drill_validate-for-execution": {
+          "parameters": {
+            "drill": true,
+            "service-group": true,
+            "source-locations": true,
+            "tenant": false
+          }
+        },
+        "resiliency_goal_assignment_get": {
+          "parameters": {
+            "name": false,
+            "service-group": true,
+            "tenant": false
+          }
+        },
+        "resiliency_goal_resource_get": {
+          "parameters": {
+            "goal-assignment": true,
+            "name": false,
+            "service-group": true,
+            "tenant": false
+          }
+        },
+        "resiliency_recoveryjob_get": {
+          "parameters": {
+            "name": false,
+            "recoveryplan": true,
+            "service-group": true,
+            "tenant": false
+          }
+        },
+        "resiliency_recoveryjob_resource_get": {
+          "parameters": {
+            "name": false,
+            "recoveryjob": true,
+            "recoveryplan": true,
+            "service-group": true,
+            "tenant": false
+          }
+        },
+        "resiliency_recoveryjob_resume": {
+          "parameters": {
+            "description": false,
+            "recoveryjob": true,
+            "recoveryplan": true,
+            "service-group": true,
+            "tenant": false
+          }
+        },
+        "resiliency_recoveryjob_retry": {
+          "parameters": {
+            "recoveryjob": true,
+            "recoveryplan": true,
+            "service-group": true,
+            "tenant": false
+          }
+        },
+        "resiliency_recoveryplan_checkreadiness": {
+          "parameters": {
+            "recoveryplan": true,
+            "service-group": true,
+            "tenant": false
+          }
+        },
+        "resiliency_recoveryplan_create": {
+          "parameters": {
+            "additional-groups": false,
+            "default-group-description": false,
+            "default-group-post-actions": false,
+            "default-group-pre-actions": false,
+            "identity-type": true,
+            "plan-description": false,
+            "plan-type": true,
+            "recoveryplan": true,
+            "service-group": true,
+            "tenant": false,
+            "user-assigned-identity": false
+          }
+        },
+        "resiliency_recoveryplan_delete": {
+          "parameters": {
+            "recoveryplan": true,
+            "service-group": true,
+            "tenant": false
+          }
+        },
+        "resiliency_recoveryplan_failover": {
+          "parameters": {
+            "recoveryplan": true,
+            "selected-resource-ids": false,
+            "service-group": true,
+            "source-locations": false,
+            "tenant": false,
+            "user-consent": false
+          }
+        },
+        "resiliency_recoveryplan_finalize": {
+          "parameters": {
+            "recoveryplan": true,
+            "service-group": true,
+            "tenant": false
+          }
+        },
+        "resiliency_recoveryplan_get": {
+          "parameters": {
+            "name": false,
+            "service-group": true,
+            "tenant": false
+          }
+        },
+        "resiliency_recoveryplan_reprotect": {
+          "parameters": {
+            "recoveryplan": true,
+            "selected-resource-ids": false,
+            "service-group": true,
+            "tenant": false
+          }
+        },
+        "resiliency_recoveryplan_resource_get": {
+          "parameters": {
+            "name": false,
+            "recoveryplan": true,
+            "service-group": true,
+            "tenant": false
+          }
+        },
+        "resiliency_recoveryplan_resource_update": {
+          "parameters": {
+            "recoveryplan": true,
+            "resources-to-remove": false,
+            "resources-to-update": false,
+            "service-group": true,
+            "tenant": false
+          }
+        },
+        "resiliency_recoveryplan_validateforfailover": {
+          "parameters": {
+            "recoveryplan": true,
+            "selected-resource-ids": false,
+            "service-group": true,
+            "source-locations": false,
+            "tenant": false,
+            "user-consent": false
+          }
+        },
+        "resiliency_recoveryplan_validateforoperation": {
+          "parameters": {
+            "operation-name": true,
+            "recoveryplan": true,
+            "service-group": true,
+            "tenant": false
+          }
+        },
+        "resiliency_recoveryplan_validateforreprotect": {
+          "parameters": {
+            "recoveryplan": true,
+            "selected-resource-ids": false,
+            "service-group": true,
+            "tenant": false
+          }
+        },
+        "resiliency_usageplan_create": {
+          "parameters": {
+            "plan-type": true,
+            "resource-group": true,
+            "subscription": false,
+            "tenant": false,
+            "usage-plan": true
+          }
+        },
+        "resiliency_usageplan_delete": {
+          "parameters": {
+            "resource-group": true,
+            "subscription": false,
+            "tenant": false,
+            "usage-plan": true
+          }
+        },
+        "resiliency_usageplan_enrollment_create": {
+          "parameters": {
+            "enrollment": true,
+            "resource-group": true,
+            "service-group": true,
+            "subscription": false,
+            "tenant": false,
+            "usage-plan": true
+          }
+        },
+        "resiliency_usageplan_enrollment_delete": {
+          "parameters": {
+            "enrollment": true,
+            "resource-group": true,
+            "subscription": false,
+            "tenant": false,
+            "usage-plan": true
+          }
+        },
+        "resiliency_usageplan_enrollment_get": {
+          "parameters": {
+            "name": false,
+            "resource-group": true,
+            "subscription": false,
+            "tenant": false,
+            "usage-plan": true
+          }
+        },
+        "resiliency_usageplan_get": {
+          "parameters": {
+            "name": false,
+            "resource-group": false,
+            "subscription": false,
+            "tenant": false
+          }
+        }
+      }
+    },
+    "resourcehealth": {
+      "commands": {
+        "resourcehealth_availability-status_get": {
+          "parameters": {
+            "resource-group": false,
+            "resourceId": false,
+            "subscription": false,
+            "tenant": false
+          }
+        },
+        "resourcehealth_health-events_list": {
+          "parameters": {
+            "event-type": false,
+            "filter": false,
+            "query-end-time": false,
+            "query-start-time": false,
+            "status": false,
+            "subscription": false,
+            "tenant": false,
+            "tracking-id": false
+          }
+        }
+      }
+    },
+    "role": {
+      "commands": {
+        "role_assignment_list": {
+          "parameters": {
+            "scope": true,
+            "subscription": false,
+            "tenant": false
+          }
+        }
+      }
+    },
+    "search": {
+      "commands": {
+        "search_index_get": {
+          "parameters": {
+            "index": false,
+            "service": true
+          }
+        },
+        "search_index_query": {
+          "parameters": {
+            "index": true,
+            "query": true,
+            "query-type": false,
+            "semantic-configuration": false,
+            "service": true
+          }
+        },
+        "search_knowledge_base_get": {
+          "parameters": {
+            "knowledge-base": false,
+            "service": true
+          }
+        },
+        "search_knowledge_base_retrieve": {
+          "parameters": {
+            "knowledge-base": true,
+            "messages": false,
+            "query": false,
+            "service": true
+          }
+        },
+        "search_knowledge_source_get": {
+          "parameters": {
+            "knowledge-source": false,
+            "service": true
+          }
+        },
+        "search_service_list": {
+          "parameters": {
+            "resource-group": false,
+            "subscription": false,
+            "tenant": false
+          }
+        }
+      }
+    },
+    "servicebus": {
+      "commands": {
+        "servicebus_queue_details": {
+          "parameters": {
+            "namespace": true,
+            "queue": true,
+            "tenant": false
+          }
+        },
+        "servicebus_topic_details": {
+          "parameters": {
+            "namespace": true,
+            "tenant": false,
+            "topic": true
+          }
+        },
+        "servicebus_topic_subscription_details": {
+          "parameters": {
+            "namespace": true,
+            "subscription-name": true,
+            "tenant": false,
+            "topic": true
+          }
+        }
+      }
+    },
+    "servicefabric": {
+      "commands": {
+        "servicefabric_managedcluster_node_get": {
+          "parameters": {
+            "cluster": true,
+            "node": false,
+            "resource-group": true,
+            "subscription": false,
+            "tenant": false
+          }
+        },
+        "servicefabric_managedcluster_nodetype_restart": {
+          "parameters": {
+            "cluster": true,
+            "node-type": true,
+            "nodes": true,
+            "resource-group": true,
+            "subscription": false,
+            "tenant": false,
+            "update-type": false
+          }
+        }
+      }
+    },
+    "signalr": {
+      "commands": {
+        "signalr_runtime_get": {
+          "parameters": {
+            "resource-group": false,
+            "signalr": false,
+            "subscription": false,
+            "tenant": false
+          }
+        }
+      }
+    },
+    "speech": {
+      "commands": {
+        "speech_stt_recognize": {
+          "parameters": {
+            "endpoint": true,
+            "file": true,
+            "format": false,
+            "language": false,
+            "phrases": false,
+            "profanity": false
+          }
+        },
+        "speech_tts_synthesize": {
+          "parameters": {
+            "endpoint": true,
+            "endpointId": false,
+            "format": false,
+            "language": false,
+            "outputAudio": true,
+            "text": true,
+            "voice": false
+          }
+        }
+      }
+    },
+    "sql": {
+      "commands": {
+        "sql_db_create": {
+          "parameters": {
+            "collation": false,
+            "database": true,
+            "elastic-pool-name": false,
+            "max-size-bytes": false,
+            "read-scale": false,
+            "resource-group": true,
+            "server": true,
+            "sku-capacity": false,
+            "sku-name": false,
+            "sku-tier": false,
+            "subscription": false,
+            "zone-redundant": false
+          }
+        },
+        "sql_db_delete": {
+          "parameters": {
+            "database": true,
+            "resource-group": true,
+            "server": true,
+            "subscription": false
+          }
+        },
+        "sql_db_get": {
+          "parameters": {
+            "database": false,
+            "resource-group": true,
+            "server": true,
+            "subscription": false
+          }
+        },
+        "sql_db_rename": {
+          "parameters": {
+            "database": true,
+            "new-database-name": true,
+            "resource-group": true,
+            "server": true,
+            "subscription": false
+          }
+        },
+        "sql_db_update": {
+          "parameters": {
+            "collation": false,
+            "database": true,
+            "elastic-pool-name": false,
+            "max-size-bytes": false,
+            "read-scale": false,
+            "resource-group": true,
+            "server": true,
+            "sku-capacity": false,
+            "sku-name": false,
+            "sku-tier": false,
+            "subscription": false,
+            "zone-redundant": false
+          }
+        },
+        "sql_elastic-pool_list": {
+          "parameters": {
+            "resource-group": true,
+            "server": true,
+            "subscription": false
+          }
+        },
+        "sql_server_create": {
+          "parameters": {
+            "administrator-login": true,
+            "administrator-password": true,
+            "location": true,
+            "public-network-access": false,
+            "resource-group": true,
+            "server": true,
+            "subscription": false,
+            "version": false
+          }
+        },
+        "sql_server_delete": {
+          "parameters": {
+            "resource-group": true,
+            "server": true,
+            "subscription": false
+          }
+        },
+        "sql_server_entra-admin_list": {
+          "parameters": {
+            "resource-group": true,
+            "server": true,
+            "subscription": false
+          }
+        },
+        "sql_server_firewall-rule_create": {
+          "parameters": {
+            "end-ip-address": true,
+            "firewall-rule-name": true,
+            "resource-group": true,
+            "server": true,
+            "start-ip-address": true,
+            "subscription": false
+          }
+        },
+        "sql_server_firewall-rule_delete": {
+          "parameters": {
+            "firewall-rule-name": true,
+            "resource-group": true,
+            "server": true,
+            "subscription": false
+          }
+        },
+        "sql_server_firewall-rule_list": {
+          "parameters": {
+            "resource-group": true,
+            "server": true,
+            "subscription": false
+          }
+        },
+        "sql_server_get": {
+          "parameters": {
+            "resource-group": true,
+            "server": false,
+            "subscription": false
+          }
+        }
+      }
+    },
+    "sreagent": {
+      "commands": {
+        "sreagent_agents_create": {
+          "parameters": {
+            "agent": true,
+            "description": false,
+            "handoffs": false,
+            "instructions": false,
+            "name": true,
+            "resource-group": false,
+            "subscription": false,
+            "tenant": false,
+            "tools": false
+          }
+        },
+        "sreagent_agents_delete": {
+          "parameters": {
+            "agent": true,
+            "name": true,
+            "resource-group": false,
+            "subscription": false,
+            "tenant": false
+          }
+        },
+        "sreagent_agents_get": {
+          "parameters": {
+            "agent": true,
+            "resource-group": false,
+            "subscription": false,
+            "tenant": false
+          }
+        },
+        "sreagent_agents_list": {
+          "parameters": {
+            "resource-group": false,
+            "subscription": false,
+            "tenant": false
+          }
+        },
+        "sreagent_agents_tools_create": {
+          "parameters": {
+            "agent": true,
+            "connector": false,
+            "database": false,
+            "description": false,
+            "name": true,
+            "parameters": false,
+            "query": false,
+            "resource-group": false,
+            "subscription": false,
+            "tenant": false,
+            "tool-type": true,
+            "url-template": false
+          }
+        },
+        "sreagent_agents_tools_get": {
+          "parameters": {
+            "agent": true,
+            "name": true,
+            "resource-group": false,
+            "subscription": false,
+            "tenant": false
+          }
+        },
+        "sreagent_agents_tools_list": {
+          "parameters": {
+            "agent": true,
+            "resource-group": false,
+            "subscription": false,
+            "tenant": false
+          }
+        },
+        "sreagent_architecture_plan": {
+          "parameters": {
+            "kusto-connector": false,
+            "requirements": true,
+            "trigger-type": false
+          }
+        },
+        "sreagent_commonprompts_create": {
+          "parameters": {
+            "agent": true,
+            "content": true,
+            "name": true,
+            "resource-group": false,
+            "subscription": false,
+            "tenant": false
+          }
+        },
+        "sreagent_commonprompts_delete": {
+          "parameters": {
+            "agent": true,
+            "name": true,
+            "resource-group": false,
+            "subscription": false,
+            "tenant": false
+          }
+        },
+        "sreagent_commonprompts_get": {
+          "parameters": {
+            "agent": true,
+            "name": true,
+            "resource-group": false,
+            "subscription": false,
+            "tenant": false
+          }
+        },
+        "sreagent_commonprompts_list": {
+          "parameters": {
+            "agent": true,
+            "resource-group": false,
+            "search": false,
+            "subscription": false,
+            "tenant": false
+          }
+        },
+        "sreagent_connectors_create_kusto": {
+          "parameters": {
+            "agent": true,
+            "cluster-url": true,
+            "database": false,
+            "name": true,
+            "resource-group": false,
+            "subscription": false,
+            "tenant": false
+          }
+        },
+        "sreagent_connectors_create_mcp": {
+          "parameters": {
+            "agent": true,
+            "args": false,
+            "auth-type": false,
+            "bearer-token-env": false,
+            "command": false,
+            "endpoint": false,
+            "envs-json": false,
+            "headers-json": false,
+            "name": true,
+            "resource-group": false,
+            "subscription": false,
+            "tenant": false,
+            "type": true
+          }
+        },
+        "sreagent_connectors_delete": {
+          "parameters": {
+            "agent": true,
+            "name": true,
+            "resource-group": false,
+            "subscription": false,
+            "tenant": false
+          }
+        },
+        "sreagent_connectors_get": {
+          "parameters": {
+            "agent": true,
+            "name": true,
+            "resource-group": false,
+            "subscription": false,
+            "tenant": false
+          }
+        },
+        "sreagent_connectors_list": {
+          "parameters": {
+            "agent": true,
+            "resource-group": false,
+            "subscription": false,
+            "tenant": false
+          }
+        },
+        "sreagent_connectors_test": {
+          "parameters": {
+            "agent": true,
+            "name": true,
+            "resource-group": false,
+            "subscription": false,
+            "tenant": false
+          }
+        },
+        "sreagent_docs_get": {
+          "parameters": {
+            "topic": true
+          }
+        },
+        "sreagent_docs_memories_add": {
+          "parameters": {
+            "agent": true,
+            "content": true,
+            "name": true,
+            "resource-group": false,
+            "subscription": false,
+            "tenant": false
+          }
+        },
+        "sreagent_docs_memories_delete": {
+          "parameters": {
+            "agent": true,
+            "name": true,
+            "resource-group": false,
+            "subscription": false,
+            "tenant": false
+          }
+        },
+        "sreagent_docs_memories_list": {
+          "parameters": {
+            "agent": true,
+            "resource-group": false,
+            "subscription": false,
+            "tenant": false
+          }
+        },
+        "sreagent_docs_memories_reindex": {
+          "parameters": {
+            "agent": true,
+            "resource-group": false,
+            "subscription": false,
+            "tenant": false
+          }
+        },
+        "sreagent_docs_memories_search": {
+          "parameters": {
+            "agent": true,
+            "query": true,
+            "resource-group": false,
+            "subscription": false,
+            "tenant": false
+          }
+        },
+        "sreagent_hooks_delete": {
+          "parameters": {
+            "agent": true,
+            "name": true,
+            "resource-group": false,
+            "subscription": false,
+            "tenant": false
+          }
+        },
+        "sreagent_hooks_get": {
+          "parameters": {
+            "agent": true,
+            "name": true,
+            "resource-group": false,
+            "subscription": false,
+            "tenant": false
+          }
+        },
+        "sreagent_hooks_list": {
+          "parameters": {
+            "agent": true,
+            "resource-group": false,
+            "subscription": false,
+            "tenant": false
+          }
+        },
+        "sreagent_hooks_thread_activate": {
+          "parameters": {
+            "agent": true,
+            "hook-name": true,
+            "resource-group": false,
+            "subscription": false,
+            "tenant": false,
+            "thread-id": true
+          }
+        },
+        "sreagent_hooks_thread_deactivate": {
+          "parameters": {
+            "agent": true,
+            "hook-name": true,
+            "resource-group": false,
+            "subscription": false,
+            "tenant": false,
+            "thread-id": true
+          }
+        },
+        "sreagent_hooks_thread_list": {
+          "parameters": {
+            "agent": true,
+            "resource-group": false,
+            "subscription": false,
+            "tenant": false,
+            "thread-id": true
+          }
+        },
+        "sreagent_incidents_active_list": {
+          "parameters": {
+            "agent": true,
+            "resource-group": false,
+            "subscription": false,
+            "tenant": false
+          }
+        },
+        "sreagent_incidents_create": {
+          "parameters": {
+            "agent": true,
+            "description": true,
+            "resource-group": false,
+            "services": true,
+            "severity": true,
+            "subscription": false,
+            "tenant": false,
+            "title": true
+          }
+        },
+        "sreagent_incidents_plans_create": {
+          "parameters": {
+            "agent": true,
+            "agent-mode": false,
+            "escalation": false,
+            "name": true,
+            "resource-group": false,
+            "runbook-url": false,
+            "services": true,
+            "severity": true,
+            "steps": true,
+            "subscription": false,
+            "tenant": false,
+            "trigger-condition": true
+          }
+        },
+        "sreagent_incidents_plans_list": {
+          "parameters": {
+            "agent": true,
+            "resource-group": false,
+            "subscription": false,
+            "tenant": false
+          }
+        },
+        "sreagent_incidents_setup_pagerduty": {
+          "parameters": {
+            "agent": true,
+            "api-key-env": true,
+            "name": true,
+            "resource-group": false,
+            "subdomain": false,
+            "subscription": false,
+            "tenant": false
+          }
+        },
+        "sreagent_incidents_setup_servicenow": {
+          "parameters": {
+            "agent": true,
+            "auth-type": true,
+            "instance-url": true,
+            "name": true,
+            "password-env": false,
+            "resource-group": false,
+            "subscription": false,
+            "tenant": false,
+            "token-env": false,
+            "username-env": false
+          }
+        },
+        "sreagent_scheduledtasks_create": {
+          "parameters": {
+            "agent": true,
+            "cron-expression": true,
+            "description": false,
+            "message": true,
+            "name": true,
+            "resource-group": false,
+            "subscription": false,
+            "tenant": false
+          }
+        },
+        "sreagent_scheduledtasks_delete": {
+          "parameters": {
+            "agent": true,
+            "resource-group": false,
+            "subscription": false,
+            "task-id": true,
+            "tenant": false
+          }
+        },
+        "sreagent_scheduledtasks_get": {
+          "parameters": {
+            "agent": true,
+            "resource-group": false,
+            "subscription": false,
+            "task-id": true,
+            "tenant": false
+          }
+        },
+        "sreagent_scheduledtasks_list": {
+          "parameters": {
+            "agent": true,
+            "resource-group": false,
+            "subscription": false,
+            "tenant": false
+          }
+        },
+        "sreagent_scheduledtasks_pause": {
+          "parameters": {
+            "agent": true,
+            "resource-group": false,
+            "subscription": false,
+            "task-id": true,
+            "tenant": false
+          }
+        },
+        "sreagent_scheduledtasks_resume": {
+          "parameters": {
+            "agent": true,
+            "resource-group": false,
+            "subscription": false,
+            "task-id": true,
+            "tenant": false
+          }
+        },
+        "sreagent_skills_create": {
+          "parameters": {
+            "agent": true,
+            "content": true,
+            "description": false,
+            "name": true,
+            "resource-group": false,
+            "subscription": false,
+            "tenant": false
+          }
+        },
+        "sreagent_skills_delete": {
+          "parameters": {
+            "agent": true,
+            "name": true,
+            "resource-group": false,
+            "subscription": false,
+            "tenant": false
+          }
+        },
+        "sreagent_skills_list": {
+          "parameters": {
+            "agent": true,
+            "resource-group": false,
+            "subscription": false,
+            "tenant": false
+          }
+        },
+        "sreagent_threads_create": {
+          "parameters": {
+            "agent": true,
+            "message": true,
+            "resource-group": false,
+            "subscription": false,
+            "tenant": false
+          }
+        },
+        "sreagent_threads_delete": {
+          "parameters": {
+            "agent": true,
+            "resource-group": false,
+            "subscription": false,
+            "tenant": false,
+            "thread-id": true
+          }
+        },
+        "sreagent_threads_get": {
+          "parameters": {
+            "agent": true,
+            "resource-group": false,
+            "subscription": false,
+            "tenant": false,
+            "thread-id": true
+          }
+        },
+        "sreagent_threads_investigate": {
+          "parameters": {
+            "agent": true,
+            "max-iterations": false,
+            "message": true,
+            "resource-group": false,
+            "subscription": false,
+            "tenant": false,
+            "timeout-seconds": false
+          }
+        },
+        "sreagent_threads_investigate_yolo": {
+          "parameters": {
+            "agent": true,
+            "max-iterations": false,
+            "message": true,
+            "resource-group": false,
+            "subscription": false,
+            "tenant": false,
+            "timeout-seconds": false
+          }
+        },
+        "sreagent_threads_list": {
+          "parameters": {
+            "agent": true,
+            "resource-group": false,
+            "subscription": false,
+            "tenant": false
+          }
+        },
+        "sreagent_threads_send_message": {
+          "parameters": {
+            "agent": true,
+            "message": true,
+            "resource-group": false,
+            "subscription": false,
+            "tenant": false,
+            "thread-id": true
+          }
+        },
+        "sreagent_workflows_apply": {
+          "parameters": {
+            "agent": true,
+            "resource-group": false,
+            "subscription": false,
+            "tenant": false,
+            "yaml-content": true
+          }
+        },
+        "sreagent_workflows_generate": {
+          "parameters": {
+            "connector": false,
+            "database": false,
+            "description": true,
+            "handoffs": false,
+            "kind": true,
+            "model-or-type": false,
+            "name": true,
+            "parameters": false,
+            "query": false,
+            "tools": false,
+            "url-template": false
+          }
+        },
+        "sreagent_workflows_validate": {
+          "parameters": {
+            "yaml-content": true
+          }
+        }
+      }
+    },
+    "storage": {
+      "commands": {
+        "storage_account_create": {
+          "parameters": {
+            "access-tier": false,
+            "account": true,
+            "allow-shared-key-access": false,
+            "enable-hierarchical-namespace": false,
+            "location": true,
+            "resource-group": true,
+            "sku": false,
+            "subscription": false,
+            "tenant": false
+          }
+        },
+        "storage_account_get": {
+          "parameters": {
+            "account": false,
+            "resource-group": false,
+            "subscription": false,
+            "tenant": false
+          }
+        },
+        "storage_blob_container_create": {
+          "parameters": {
+            "account": true,
+            "container": true,
+            "tenant": false
+          }
+        },
+        "storage_blob_container_get": {
+          "parameters": {
+            "account": true,
+            "container": false,
+            "prefix": false,
+            "tenant": false
+          }
+        },
+        "storage_blob_get": {
+          "parameters": {
+            "account": true,
+            "blob": false,
+            "container": true,
+            "prefix": false,
+            "tenant": false
+          }
+        },
+        "storage_blob_upload": {
+          "parameters": {
+            "account": true,
+            "blob": true,
+            "container": true,
+            "local-file-path": true,
+            "tenant": false
+          }
+        },
+        "storage_table_list": {
+          "parameters": {
+            "account": true,
+            "tenant": false
+          }
+        }
+      }
+    },
+    "storagesync": {
+      "commands": {
+        "storagesync_cloudendpoint_changedetection": {
+          "parameters": {
+            "change-detection-mode": false,
+            "cloud-endpoint-name": true,
+            "directory-path": true,
+            "name": true,
+            "paths": false,
+            "resource-group": true,
+            "subscription": false,
+            "sync-group-name": true,
+            "tenant": false
+          }
+        },
+        "storagesync_cloudendpoint_create": {
+          "parameters": {
+            "azure-file-share-name": true,
+            "change-enumeration-interval-days": false,
+            "cloud-endpoint-name": true,
+            "name": true,
+            "resource-group": true,
+            "storage-account-resource-id": true,
+            "subscription": false,
+            "sync-group-name": true,
+            "tenant": false
+          }
+        },
+        "storagesync_cloudendpoint_delete": {
+          "parameters": {
+            "cloud-endpoint-name": true,
+            "name": true,
+            "resource-group": true,
+            "subscription": false,
+            "sync-group-name": true,
+            "tenant": false
+          }
+        },
+        "storagesync_cloudendpoint_get": {
+          "parameters": {
+            "cloud-endpoint-name": false,
+            "name": true,
+            "resource-group": true,
+            "subscription": false,
+            "sync-group-name": true,
+            "tenant": false
+          }
+        },
+        "storagesync_cloudendpoint_update": {
+          "parameters": {
+            "change-enumeration-interval-days": false,
+            "cloud-endpoint-name": true,
+            "name": true,
+            "resource-group": true,
+            "subscription": false,
+            "sync-group-name": true,
+            "tenant": false
+          }
+        },
+        "storagesync_registeredserver_get": {
+          "parameters": {
+            "name": true,
+            "resource-group": true,
+            "server-id": false,
+            "subscription": false,
+            "tenant": false
+          }
+        },
+        "storagesync_registeredserver_unregister": {
+          "parameters": {
+            "name": true,
+            "resource-group": true,
+            "server-id": true,
+            "subscription": false,
+            "tenant": false
+          }
+        },
+        "storagesync_registeredserver_update": {
+          "parameters": {
+            "name": true,
+            "resource-group": true,
+            "server-id": true,
+            "subscription": false,
+            "tenant": false
+          }
+        },
+        "storagesync_serverendpoint_create": {
+          "parameters": {
+            "cloud-tiering": false,
+            "local-cache-mode": false,
+            "name": true,
+            "resource-group": true,
+            "server-endpoint-name": true,
+            "server-local-path": true,
+            "server-resource-id": true,
+            "subscription": false,
+            "sync-group-name": true,
+            "tenant": false,
+            "tier-files-older-than-days": false,
+            "volume-free-space-percent": false
+          }
+        },
+        "storagesync_serverendpoint_delete": {
+          "parameters": {
+            "name": true,
+            "resource-group": true,
+            "server-endpoint-name": true,
+            "subscription": false,
+            "sync-group-name": true,
+            "tenant": false
+          }
+        },
+        "storagesync_serverendpoint_get": {
+          "parameters": {
+            "name": true,
+            "resource-group": true,
+            "server-endpoint-name": false,
+            "subscription": false,
+            "sync-group-name": true,
+            "tenant": false
+          }
+        },
+        "storagesync_serverendpoint_update": {
+          "parameters": {
+            "cloud-tiering": false,
+            "local-cache-mode": false,
+            "name": true,
+            "resource-group": true,
+            "server-endpoint-name": true,
+            "subscription": false,
+            "sync-group-name": true,
+            "tenant": false,
+            "tier-files-older-than-days": false,
+            "volume-free-space-percent": false
+          }
+        },
+        "storagesync_service_create": {
+          "parameters": {
+            "location": true,
+            "name": true,
+            "resource-group": true,
+            "subscription": false,
+            "tags": false,
+            "tenant": false
+          }
+        },
+        "storagesync_service_delete": {
+          "parameters": {
+            "name": true,
+            "resource-group": true,
+            "subscription": false,
+            "tenant": false
+          }
+        },
+        "storagesync_service_get": {
+          "parameters": {
+            "name": false,
+            "resource-group": false,
+            "subscription": false,
+            "tenant": false
+          }
+        },
+        "storagesync_service_update": {
+          "parameters": {
+            "identity-type": false,
+            "incoming-traffic-policy": false,
+            "name": true,
+            "resource-group": true,
+            "subscription": false,
+            "tags": false,
+            "tenant": false
+          }
+        },
+        "storagesync_syncgroup_create": {
+          "parameters": {
+            "name": true,
+            "resource-group": true,
+            "subscription": false,
+            "sync-group-name": true,
+            "tenant": false
+          }
+        },
+        "storagesync_syncgroup_delete": {
+          "parameters": {
+            "name": true,
+            "resource-group": true,
+            "subscription": false,
+            "sync-group-name": true,
+            "tenant": false
+          }
+        },
+        "storagesync_syncgroup_get": {
+          "parameters": {
+            "name": true,
+            "resource-group": true,
+            "subscription": false,
+            "sync-group-name": false,
+            "tenant": false
+          }
+        }
+      }
+    },
+    "subscription_list": {
+      "parameters": {
+        "tenant": false
+      }
+    },
+    "virtualdesktop": {
+      "commands": {
+        "virtualdesktop_hostpool_host_list": {
+          "parameters": {
+            "hostpool": false,
+            "hostpool-resource-id": false,
+            "resource-group": false,
+            "subscription": false,
+            "tenant": false
+          }
+        },
+        "virtualdesktop_hostpool_host_user-list": {
+          "parameters": {
+            "hostpool": false,
+            "hostpool-resource-id": false,
+            "resource-group": false,
+            "sessionhost": true,
+            "subscription": false,
+            "tenant": false
+          }
+        },
+        "virtualdesktop_hostpool_list": {
+          "parameters": {
+            "resource-group": false,
+            "subscription": false,
+            "tenant": false
+          }
+        }
+      }
+    },
+    "wellarchitectedframework": {
+      "commands": {
+        "wellarchitectedframework_serviceguide_get": {
+          "parameters": {
+            "service": false
+          }
+        }
+      }
+    },
+    "workbooks": {
+      "commands": {
+        "workbooks_create": {
+          "parameters": {
+            "display-name": true,
+            "resource-group": true,
+            "serialized-content": true,
+            "source-id": false,
+            "subscription": false,
+            "tenant": false
+          }
+        },
+        "workbooks_delete": {
+          "parameters": {
+            "tenant": false,
+            "workbook-ids": true
+          }
+        },
+        "workbooks_list": {
+          "parameters": {
+            "category": false,
+            "include-total-count": false,
+            "kind": false,
+            "max-results": false,
+            "modified-after": false,
+            "name-contains": false,
+            "output-format": false,
+            "resource-group": false,
+            "source-id": false,
+            "subscription": false,
+            "tenant": false
+          }
+        },
+        "workbooks_show": {
+          "parameters": {
+            "tenant": false,
+            "workbook-ids": true
+          }
+        },
+        "workbooks_update": {
+          "parameters": {
+            "display-name": false,
+            "serialized-content": false,
+            "tenant": false,
+            "workbook-id": true
+          }
+        }
+      }
+    }
+  }
+}

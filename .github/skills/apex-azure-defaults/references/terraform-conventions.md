@@ -9,11 +9,14 @@ Use one source for each concern:
 | Need | Source |
 | --- | --- |
 | Azure Terraform guidance | Azure MCP documentation and best-practice tools |
-| Provider/module search and versions | Public Terraform Registry API |
+| Provider docs and AVM module READMEs | Azure MCP `azureterraform` (`azurerm get`, `azapi get`, `avm get`) |
+| Module versions | Azure MCP `azureterraform avm versions`, or the public Terraform Registry API |
+| Provider versions and search | Public Terraform Registry API |
 | Initialized provider resource schemas | `terraform providers schema -json` |
 | Existing Azure resource IDs | Azure MCP resource tools or Azure CLI |
 
-Resolve an AVM-TF module version directly from the Registry API:
+Resolve an AVM-TF module version with the Azure MCP `azureterraform avm versions` command, or directly from
+the Registry API:
 
 ```bash
 curl -sf https://registry.terraform.io/v1/modules/Azure/avm-res-{path}/azurerm/versions \
@@ -21,13 +24,11 @@ curl -sf https://registry.terraform.io/v1/modules/Azure/avm-res-{path}/azurerm/v
            | sort_by(split(".") | map(tonumber)) | last'
 ```
 
-The API does not return versions newest-first; always sort as above.
-
-Use `https://registry.terraform.io/v1/providers/{namespace}/{provider}/versions`
+The API does not return versions newest-first; always sort as above (apply the same stable-semver
+filter and sort to `avm versions` output). Use `https://registry.terraform.io/v1/providers/{namespace}/{provider}/versions`
 for provider versions with the same sort (`hashicorp/azurerm`, `hashicorp/random`,
 `Azure/azapi` — azapi is not under `hashicorp`). Run `terraform init` before
-`terraform providers schema -json`. Do not claim Azure MCP exposes Terraform
-Registry metadata.
+`terraform providers schema -json`. Azure MCP does not list provider versions; use the Registry API for those.
 
 ## Tag Syntax (HCL)
 

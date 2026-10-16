@@ -92,7 +92,7 @@ once, passed everywhere.
 | `>= 3.0` provider version range | Use `~> 4.0` major-series constraint |
 | Raw `azurerm_*` when AVM exists | Use AVM-TF modules or get approval |
 | `connection_string` auth        | Use managed identity RBAC          |
-| AVM-TF `version = "~> X.Y"`     | Use exact semver `version = "X.Y.Z"` — resolved live from `registry.terraform.io` at plan time |
+| AVM-TF `version = "~> X.Y"`     | Use exact semver `version = "X.Y.Z"` — resolved live from the AVM registry at plan time |
 
 ## Validation
 

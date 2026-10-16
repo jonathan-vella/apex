@@ -29,6 +29,7 @@ Reusable infrastructure patterns for Azure Bicep templates. Complements
 | Module Composition       | Breaking main.bicep into reusable modules        | [common-patterns](references/common-patterns.md)                       |
 | Managed Identity Binding | Any service-to-service authentication            | [common-patterns](references/common-patterns.md)                       |
 | Budget & Cost Monitoring | Every deployment (mandatory)                     | [budget-pattern](references/budget-pattern.md)                         |
+| Private-Registry App Service | App Service pulling from a private registry, Entra sign-in | [app-service-entra-private-registry-pattern](references/app-service-entra-private-registry-pattern.md) |
 | What-If / AVM Pitfalls   | Pre-deployment validation & AVM gotchas          | [avm-pitfalls](references/avm-pitfalls.md)                             |
 | Batch Bicep Formatting   | After generating/editing the Bicep tree          | `npm run format:bicep -- infra/bicep/{project}` (wraps `bicep format`) |
 
@@ -77,7 +78,8 @@ Applying a pattern in a Bicep template:
   Always run what-if before deploy.
 - **MCR version discovery** — When AVM version helpers are incomplete,
   query `mcr.microsoft.com/v2/bicep/{module}/tags/list` for authoritative
-  published versions.
+  published versions. The metadata tool can omit published modules (it missed
+  `avm/res/consumption/budget`), so never conclude "no AVM module" from it alone.
 - **Cross-RG module `scope:` ARM ID split indexes** — Splitting a full
   resource ID (`/subscriptions/{sub}/resourceGroups/{rg}/providers/...`)
   on `/` yields `['', 'subscriptions', '{sub}', 'resourceGroups', '{rg}', ...]`.
@@ -123,6 +125,7 @@ Applying a pattern in a Bicep template:
 | [private-endpoint-pattern.md](references/private-endpoint-pattern.md) | PE wiring + DNS zone groups + group ID table                          |
 | [common-patterns.md](references/common-patterns.md)                   | Diagnostics, conditional deploy, module composition, managed identity |
 | [budget-pattern.md](references/budget-pattern.md)                     | Consumption budget, forecast alerts, anomaly detection                |
+| [app-service-entra-private-registry-pattern.md](references/app-service-entra-private-registry-pattern.md) | Private-registry image pull routing, certificateless Entra sign-in, AVM gaps |
 | [avm-pitfalls.md](references/avm-pitfalls.md)                         | What-if interpretation, AVM gotchas, learn more links                 |
 | [module-interface.md](references/module-interface.md)                 | Canonical module input/output contract                                |
 

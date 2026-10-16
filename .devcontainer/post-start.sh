@@ -30,4 +30,17 @@ else
     printf "not authenticated - run 'azd auth login'\n"
 fi
 
+# An interactive rm/mv/cp alias can hang an agent terminal waiting for a prompt it never gets.
+# post-start.sh itself is non-interactive, so .bashrc's aliases must be probed via -i.
+interactive_aliases=""
+for name in rm mv cp; do
+    if bash -i -c "alias $name" 2>/dev/null | grep -qE -- '-[a-zA-Z]*i[a-zA-Z]*'; then
+        interactive_aliases="$interactive_aliases $name"
+    fi
+done
+if [ -n "$interactive_aliases" ]; then
+    printf "    WARNING: interactive shell alias(es) found:%s\n" "$interactive_aliases"
+    printf "    Agent terminals inherit these; drop the -i flag (see dotfiles shell/.bashrc).\n"
+fi
+
 printf " Container ready\n\n"

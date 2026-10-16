@@ -9,6 +9,12 @@ Referenced by `iac-bicep-best-practices.instructions.md` and
 Azure Policy always wins. Current Azure Policy implementation cannot
 be changed. Code adapts to policy, never the reverse.
 
+Precedence, highest first: (1) effective policy discovered in the target tenant, including
+management-group-inherited assignments; (2) the [ALZ Corp floor](#alz-corp-inherited-policy-floor)
+when discovery is not used; (3) this baseline where it is stricter than both. Where this baseline
+and the ALZ Corp floor differ, the ALZ Corp floor governs and the difference is reported, not
+silently resolved.
+
 ## Private Networking And DNS
 
 These defaults apply in every environment, including development and synthetic-data tests.
@@ -19,7 +25,7 @@ Policy discovery may add constraints; absence of a Deny policy does not relax th
 | PaaS data services supporting Private Link, except Azure Monitor below | Private endpoints; public access disabled |
 | Log Analytics and workspace-based Application Insights | Authenticated public query/ingestion permitted as below |
 | App Service hosting an API | Private endpoint and public network access disabled |
-| App Service hosting a public-facing web application | Public HTTPS ingress permitted; authentication and other security controls still apply |
+| App Service hosting a public-facing web application | Public HTTPS ingress permitted only where effective policy allows it; the ALZ Corp floor denies it, so use private access behind an approved edge; authentication and other security controls still apply |
 
 Log Analytics workspaces and workspace-based Application Insights do not require AMPLS solely because they
 support Private Link. Public query and ingestion endpoints are permitted when effective Azure Policy and
@@ -44,6 +50,10 @@ Private DNS resolution is mandatory for every private endpoint. The plan must ac
 zone, records/zone group, VNet links and any required forwarding. Reuse verified central DNS where present;
 never point at a zone that no owner provisions.
 
+The ALZ Corp default assigns DINE zone-group creation against zones in a central DNS subscription
+and resource group. Its zone IDs are placeholders, so the platform team must confirm zone and
+VNet-link ownership before the plan relies on it; the project does not deploy duplicate zones.
+
 Project IaC owns the required DNS components unless an effective DeployIfNotExists (DINE) assignment
 is verified to own those specific components. Record its assignment/definition, applicable resource scope,
 parameters and zone IDs, exclusions/exemptions, deployment template, managed identity/RBAC and remediation
@@ -66,7 +76,62 @@ The scanner is single-line source checking: it cannot establish PE coverage, eva
 prove module internals, or test DNS. Plan/code review must check those contracts, and connectivity validation
 must verify actual resolution from the intended private client before claiming operational readiness.
 
+## ALZ Corp Inherited Policy Floor
+
+Source: `alz-corp-default` baseline (`root`, `landing_zones` and `corp` archetypes, pinned in
+`alz_library_ref`). It is assumed governance, not tenant-verified; live discovery replaces it.
+
+### Enforced Deny rules the IaC must satisfy
+
+| Assignment (scope) | IaC requirement |
+| --- | --- |
+| `Deny-Public-Endpoints` (corp) | Public network access disabled, or private-only, for Storage, SQL, Key Vault, Cosmos DB, ACR, Redis, App Configuration, Service Bus, Event Hubs/Grid, Search, AI Services, Data Factory, Data Explorer, Synapse, PostgreSQL/MySQL, AKS (private cluster), Container Apps (environment and external ingress) and App Service, Function and Logic apps and slots. Log Analytics and Application Insights are not listed. |
+| `Deny-Public-IP-On-NIC` (corp) | No public IP on a network interface; Bastion, Application Gateway and Front Door own their own public endpoints. |
+| `Deny-HybridNetworking` (corp) | No ExpressRoute, VPN/P2S gateway, virtual WAN, virtual hub or virtual network gateway in the project. |
+| `Deny-Classic-Resources` (root) | No classic resource types. |
+| `Deny-Subnet-Without-Nsg` (landing_zones) | Every subnet has an NSG except `GatewaySubnet`, `AzureFirewallSubnet`, `AzureFirewallManagementSubnet` and `RouteServerSubnet`. `AzureBastionSubnet` is not excluded and needs an NSG with the Bastion-required rules. |
+| `Deny-MgmtPorts-Internet` (landing_zones) | No inbound management-port rule (for example 22 or 3389) from the Internet. |
+| `Deny-IP-forwarding` (landing_zones) | Network interface IP forwarding disabled. |
+| `Deny-Storage-http`, `Enforce-TLS-SSL-Q225` (landing_zones) | HTTPS-only on Storage, App Service, Function, Logic and Container Apps; TLS 1.2 or newer on SQL, Storage and Event Hubs. |
+| `Enforce-GR-KeyVault` (landing_zones) | Soft delete and purge protection on; Azure RBAC permission model; RSA keys and certificates at least 2048 bits; secrets with a content type and a validity of at most 90 days; certificates not expiring within 90 days. |
+
+### Platform-owned remediation (DINE and Modify)
+
+Expect these assignments to act after deployment. Plan and cost them, and do not duplicate what
+they own: diagnostic settings named `setByPolicy-LogAnalytics` (still wire project diagnostics,
+below), private DNS zone groups, SQL auditing, TDE and threat protection, Defender plans, the
+Activity Log, service health alerts and the DDoS plan association on virtual networks (Modify:
+do not set a DDoS plan in project IaC).
+
+### Assigned but not enforced
+
+The `Enforce-GR-*` guardrails for services other than Key Vault and the `Enforce-Encrypt-CMK0`
+customer-managed key rules are assigned with `DoNotEnforce`. They do not require CMK; treat them
+as recommendations, not gates.
+
+### Stricter than the ALZ Corp floor (kept, reported to the owner)
+
+- Storage shared-key access disabled; SQL Entra-only authentication; Cosmos DB local auth disabled.
+- Container Registry admin user disabled; App Service HTTP/2; FTPS not `AllAllowed`; no remote debugging.
+- Redis non-TLS port blocked and MySQL/PostgreSQL SSL enforcement required.
+- TLS 1.2 minimum on every service, not only the types ALZ lists.
+- Diagnostic settings wired in IaC on every supported resource; ALZ remediates them only after deployment.
+- Key Vault network ACL default action Deny (warning).
+- The APEX greenfield tag set: the ALZ Corp default has no tag policy.
+- Application Gateway WAF: ALZ only audits it.
+
+### Verify at tenant discovery
+
+`Subnets should be private` (default outbound access), zone-resilience and Application Gateway WAF
+assignments are present, but their effect is not recorded in the snapshot. Confirm each effect
+before a design depends on explicit outbound access, and before a production design chooses a
+single-zone posture.
+
 ## Zone Redundancy SKUs
+
+Zone redundancy applies only to production environments. Do not require, plan, price or flag the
+absence of zone redundancy in dev, test or staging; use single-zone SKUs and instance counts there.
+A production design records an explicit `az_posture` decision.
 
 | SKU       | Zone Redundancy | Use Case            |
 | --------- | --------------- | ------------------- |

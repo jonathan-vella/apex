@@ -318,7 +318,9 @@ Use `askQuestions` for:
 - **`cost_monitoring_mode`** — surface this prompt **only when the
   selected environments include `dev` or `sandbox` and exclude
   `prod`/`staging`**. Options: `enforced` (recommended; full
-  budget+AG+anomaly), `minimal` (budget only, no AG, no anomaly), or
+  budget+AG+anomaly), `minimal` (budget only: no cost AG or anomaly alert; operational
+  alerts remain; budget notices reach only Owner-role holders, so say so when the named
+  recipient is not an Owner), or
   `deferred` (no cost-monitoring resources). When `deferred` is
   chosen, follow up with two required freeform prompts:
   `cost_monitoring_exception.rationale` and
@@ -378,7 +380,9 @@ Use `askQuestions` for:
 - Additional security measures beyond the baseline with `multiSelect: true`, only when relevant.
 - Authentication method.
 - Region, defaulting to `swedencentral` unless service availability requires an exception.
-
+- Operations and ownership, batched in one call: how operators reach private services, who owns web
+  sign-in (platform or application team), the budget alert recipient and whether they hold Owner,
+  the SQL Entra admin principal, and tag values the target policy requires. Unanswered items block Step 1.
 Apply GDPR and data residency guardrails when relevant:
 
 - Flag global services such as Front Door, Entra External ID, Traffic Manager, and Azure DNS for

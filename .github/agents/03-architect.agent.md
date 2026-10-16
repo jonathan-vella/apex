@@ -1,6 +1,6 @@
 ---
 name: 03-Architect
-description: Expert Architect providing guidance using Azure Well-Architected Framework principles and Microsoft best practices. Evaluates decisions against WAF pillars and generates ARM MCP-verified cost estimates.
+description: Expert Architect providing guidance using Azure Well-Architected Framework principles and Microsoft best practices. Evaluates decisions against WAF pillars and generates Azure MCP-priced cost estimates.
 model: ["Claude Sonnet 5.5 (copilot)"]
 reasoning-effort: high
 user-invocable: true
@@ -10,7 +10,7 @@ tools: [vscode/askQuestions, execute, read, agent, edit, search, web, 'azure-mcp
 handoffs:
   - label: "▶ Refresh Cost Estimate"
     agent: 03-Architect
-    prompt: "Re-query Azure Resource Manager MCP through cost-estimate-subagent to update current pricing and totals. Input: agent-output/{project}/02-architecture-assessment.md SKU list. Output: agent-output/{project}/03-des-cost-estimate.md."
+    prompt: "Re-query Azure MCP pricing through cost-estimate-subagent to update current pricing and totals. Input: agent-output/{project}/02-architecture-assessment.md SKU list. Output: agent-output/{project}/03-des-cost-estimate.md."
     send: true
   - label: "▶ Deep Dive WAF Pillar"
     agent: 03-Architect
@@ -73,9 +73,9 @@ chart outputs; missing essential tools/models stop work rather than weakening ch
 
 - Without asking: research, WAF scoring, delegated pricing, charts, writing and validating the
   Step 2 outputs, and the required reviews.
-- Needs the user: missing NFR, compliance or budget values; SKU confirmation before committed
-  pricing; non-standard SKU/tier choices or deviations from Well-Architected guidance; and the
-  final [Approval Gate](#approval-gate), which alone completes Step 2 and allows handoff.
+- Needs the user: missing NFR, compliance or budget values; an over-budget owner decision (ask, never substitute);
+  SKU confirmation before committed pricing; non-standard SKU/tier choices or deviations from Well-Architected
+  guidance; and the final [Approval Gate](#approval-gate), which alone completes Step 2 and allows handoff.
 - Never: advance to the next step without that gate, or hand off directly to the IaC Planner.
 
 Deliver the requested Step 2 scope. Raise a better approach in one sentence instead of silently
@@ -180,7 +180,7 @@ in a single form:
 | NFRs       | SLA, RTO, RPO, performance targets |
 | Compliance | Regulatory frameworks              |
 | Budget     | Approximate monthly budget         |
-| Scale      | Users, transactions, data volume   |
+| Scale      | Users, transactions, data volume; operator access path, auth owner, alert recipient, SQL admin |
 
 ## Session State
 
@@ -240,8 +240,9 @@ the bulk is authored.
   before pricing; record rejection reasons without requesting irrelevant rates. If one tier is forced,
   document why and include it in the confirmed full estimate; do not invent alternatives to satisfy a count.
 2. **Call `cost-estimate-subagent` in `candidate_sets[]` mode** to price
-  A-vs-B _before_ committing. This comparison-only mode does not require SKU
-  approval and cannot write back the manifest or count as approved pricing.
+  A-vs-B _before_ committing: one call per `decision_id` (own `02-cost-candidates-{decision_id}.json`, no stale `.tmp`),
+  with exact meter hints and usage per the [candidate-set contract](../skills/apex-azure-defaults/references/cost-estimate-parent-contract.md#candidate-set-calls).
+  Comparison-only: no SKU approval, no manifest writeback, not approved pricing.
   Preserve user pins; a worker's cheapest candidate is advice, not an approved choice.
 3. **Pick winners** for each decision; never change user-pinned entries
    (`source: user-pin`) — they are locked.
@@ -359,13 +360,16 @@ in your WAF assessment recommendations (still produce the identical artifact str
 6b. **VNet planning gate (MANDATORY when trigger contract holds; honor
     `decisions.vnet_planning_mode`)** — follow the protocol in
     [`workflow-gates.md`](../skills/apex-azure-defaults/references/workflow-gates.md#architect-step-2--phase-6b-vnet-planning-gate).
-    Append any priced network resources (Bastion / Firewall /
-    NAT-Gateway / VPN-Gateway / ER-Gateway / App-Gateway /
-    App-Gateway-for-Containers) from `subnet_plan` to the Step 7
-    resource_list.
-7. **Delegate approved pricing** — Send the confirmed manifest or resource list to `cost-estimate-subagent`;
-    receive verified prices. Precondition guard: refuse to invoke unless
-    `decisions.sku_confirmation_status == "approved"`.
+    Append any priced network and supporting non-manifest resources
+    (Bastion / Firewall / NAT-Gateway / VPN-Gateway / ER-Gateway /
+    App-Gateway / App-Gateway-for-Containers / Private Endpoints /
+    Private DNS / Key Vault / Log Analytics / Application Insights /
+    Alert Rules / Action Groups / VM OS disk / Public IPs) to
+    `supplemental_resources[]` in the Step 7 `manifest_path` request.
+7. **Delegate approved pricing** — Run `node tools/scripts/cost-estimate.mjs preflight` on the request, then send
+    `manifest_path` + `supplemental_resources[]` + `manifest_usage` in a single `cost-estimate-subagent` call writing
+    `agent-output/{project}/02-cost-estimate.json`; receive verified prices and manifest writeback. Precondition guard:
+    refuse to invoke unless `decisions.sku_confirmation_status == "approved"`.
 8. **Generate assessment** — Save `02-architecture-assessment.md` with
     subagent-sourced prices.
     The **WAF Cost** / **WAF Operational Excellence** sections MUST
@@ -410,6 +414,7 @@ in your WAF assessment recommendations (still produce the identical artifact str
   for architecture and the separate cost estimate before presenting final approval.
 14. **Approval gate** — follow [Approval Gate](#approval-gate) and resolve blocking findings
   before completion and handoff. Budget or SKU approval alone does not complete Step 2.
+  First archive superseded or `FAILED` files to `_meta/` and delete `02-waf-research.tmp.md`.
 
 ## Cost Estimation
 
@@ -600,28 +605,9 @@ Do not narrate routine tool calls.
 
 ## Validation Checklist
 
-- [ ] All 5 WAF pillars scored with rationale and confidence level
-- [ ] Service Maturity Assessment table included
-- [ ] Cost estimate uses worker-verified MCP data or the documented direct-API evidence fallback, with truthful sources
-- [ ] **Every dollar figure** in 02 and 03 artifacts traces back to `cost-estimate-subagent` response — no hardcoded prices
-- [ ] Line-item totals sum correctly to reported monthly total
-- [ ] H2 headings match apex-azure-artifacts templates exactly
-- [ ] Region selection justified (default: swedencentral)
-- [ ] AVM modules recommended where available
-- [ ] No deprecated services recommended (checked against apex-azure-defaults Deprecated Services table)
-- [ ] Service retirement timelines verified for any multi-year RI commitments
-- [ ] Storage redundancy tier compatible with data residency requirements (no GRS with single-region GDPR)
-- [ ] Global/non-regional services (Front Door, Entra, Traffic Manager) flagged for EU Data Boundary compliance
-- [ ] SKU zone-redundancy capabilities verified for all services claiming AZ support
-
-### WAF scoring table format
-Illustrative structure only; compute every score and confidence from project evidence, never from examples.
-
-```markdown
-| WAF Pillar | Score | Confidence | Key Factor |
-| --- | --- | --- | --- |
-| {pillar} | {evidence-based score}/10 | {confidence} | {verified factor} |
-```
+Before the Approval Gate, load
+[`architect-validation-checklist.md`](../skills/apex-azure-defaults/references/architect-validation-checklist.md)
+once and satisfy every item and its WAF scoring table format.
 
 ## Completion Handoff
 

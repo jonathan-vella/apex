@@ -39,7 +39,7 @@ Get Azure cost optimization best practices to inform recommendations:
 // Use Azure MCP best practices tool
 mcp_azure-mcp_get_azure_bestpractices({
   intent: "Get cost optimization best practices",
-  command: "get_bestpractices",
+  command: "get_azure_bestpractices_get",
   parameters: { resource: "cost-optimization", action: "all" },
 });
 ```

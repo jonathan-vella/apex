@@ -17,6 +17,8 @@ required lenses, human gates and existing repair caps remain authoritative; this
   Do not infer newest files or parse legacy audit prose into a selection. Unsupported replacement scopes return
   to their owner. Preserved superseded failures are history, not current blockers; missing deep lenses still block.
 2. Verify primary and declared supporting inputs with `--verify-cache`, review identity/lens and unresolved findings.
+  Never declare a file a later step must change (`sku-manifest.json`, decision sidecars, handoff, README, recall state)
+  as a supporting input; its edit makes the review fail strict freshness. `validate-challenger-findings.mjs` rejects them.
   A current hash alone is not semantic approval. An accepted mitigation is not verified closure. Missing/stale
   evidence or unresolved current must-fix findings block advancement, regardless of historical step completion.
   The only supported residual-risk route is the explicit [lab authorization contract](../../../../tools/apex-recall/docs/risk-authorizations.md).

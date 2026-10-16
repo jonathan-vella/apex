@@ -82,6 +82,8 @@ storage, Health probes, Multi-region failover. Each row has one status and the r
 - List only relevant resources, one bullet each, with a short reason (`(FC1)`, `(defaulted; no SKU set)`).
   Credit resources that are already compliant with `— already ON`.
 - Drop a row only when no resource in scope could apply to it. No `n/a` cells.
+- Assess and report every environment, including non-production. The production-only zone-redundancy design
+  rule in the security baseline governs what plans must require, not what this assessment flags.
 
 ```text
 Reliability Assessment — {scope}
@@ -100,7 +102,7 @@ Multi-region failover        🔴 OFF      • Single region (swedencentral) —
 | Critical | No zone redundancy AND production workload         | Raise with the IaC owner now        |
 | High     | LRS storage on zone-redundant compute              | Plan the change within days         |
 | Medium   | Single region but zone-redundant                   | Plan for the next change window     |
-| Low      | Missing health probes or monitoring gaps           | Track and fix                       |
+| Low      | No zone redundancy in a non-production workload (report only), missing health probes or monitoring gaps | Track and fix |
 
 ## Reliability Findings
 

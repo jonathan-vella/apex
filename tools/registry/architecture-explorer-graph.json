@@ -1,6 +1,6 @@
 {
   "$schema": "../../tools/schemas/explorer-graph.schema.json",
-  "generatedAt": "2026-10-12T16:19:31.904Z",
+  "generatedAt": "2026-10-15T13:38:24.876Z",
   "categories": [
     { "id": "agent", "key": "agents", "label": "Agent", "color": "#3b82f6", "shape": "round-rectangle", "count": 14 },
     {
@@ -20,14 +20,14 @@
       "shape": "rectangle",
       "count": 27
     },
-    { "id": "prompt", "key": "prompts", "label": "Prompt", "color": "#ec4899", "shape": "tag", "count": 26 },
+    { "id": "prompt", "key": "prompts", "label": "Prompt", "color": "#ec4899", "shape": "tag", "count": 28 },
     {
       "id": "validator",
       "key": "validators",
       "label": "Validator",
       "color": "#8b5cf6",
       "shape": "hexagon",
-      "count": 62
+      "count": 63
     },
     {
       "id": "workflow",
@@ -39,8 +39,8 @@
     },
     { "id": "mcp", "key": "mcp_servers", "label": "MCP Server", "color": "#f43f5e", "shape": "barrel", "count": 3 }
   ],
-  "nodeCount": 185,
-  "edgeCount": 730,
+  "nodeCount": 188,
+  "edgeCount": 738,
   "nodes": [
     {
       "id": "agent:01-orchestrator",
@@ -96,7 +96,7 @@
       "id": "agent:03-architect",
       "category": "agent",
       "label": "03-Architect",
-      "description": "Expert Architect providing guidance using Azure Well-Architected Framework principles and Microsoft best practices. Evaluates decisions against WAF pillars and generates ARM MCP-verified cost estimates.",
+      "description": "Expert Architect providing guidance using Azure Well-Architected Framework principles and Microsoft best practices. Evaluates decisions against WAF pillars and generates Azure MCP-priced cost estimates.",
       "path": ".github/agents/03-architect.agent.md",
       "links": { "source": "https://github.com/jonathan-vella/apex/blob/main/.github/agents/03-architect.agent.md" },
       "meta": {
@@ -414,7 +414,7 @@
       "id": "subagent:cost-estimate-subagent",
       "category": "subagent",
       "label": "cost-estimate-subagent",
-      "description": "Azure cost estimation subagent. Uses Azure Resource Manager MCP retail pricing and cost data, then returns a structured cost breakdown through a file-based contract.",
+      "description": "Azure cost estimation subagent. Uses Azure MCP pricing (pricing_get) retail data only, then returns a structured cost breakdown through a file-based contract.",
       "path": ".github/agents/_subagents/cost-estimate-subagent.agent.md",
       "links": {
         "source": "https://github.com/jonathan-vella/apex/blob/main/.github/agents/_subagents/cost-estimate-subagent.agent.md"
@@ -570,7 +570,7 @@
       "id": "skill:apex-azure-compute",
       "category": "skill",
       "label": "apex-azure-compute",
-      "description": "**ANALYSIS SKILL** — Recommend Azure VM sizes and VMSS for workload, performance, and budget. Uses public docs and the Azure Retail Prices API. WHEN: \"recommend VM size\", \"choose Azure VM\", \"GPU VM\", \"compare VM sizes\", \"VMSS vs VM\", \"autoscale VMs\". DO NOT USE FOR: provisioning VMs (apex-azure-prepare), VM pricing for budgets (ARM MCP).",
+      "description": "**ANALYSIS SKILL** — Recommend Azure VM sizes and VMSS for workload, performance, and budget. Uses public docs and the Azure Retail Prices API. WHEN: \"recommend VM size\", \"choose Azure VM\", \"GPU VM\", \"compare VM sizes\", \"VMSS vs VM\", \"autoscale VMs\". DO NOT USE FOR: provisioning VMs (apex-azure-prepare), VM pricing for budgets (Azure MCP pricing).",
       "path": ".github/skills/apex-azure-compute/SKILL.md",
       "links": {
         "source": "https://github.com/jonathan-vella/apex/blob/main/.github/skills/apex-azure-compute/SKILL.md"
@@ -1446,6 +1446,17 @@
       "meta": {}
     },
     {
+      "id": "prompt:eventdesk-orchestrator",
+      "category": "prompt",
+      "label": "eventdesk-orchestrator",
+      "description": "Start the Eventdesk project with a fixed intake brief; the only question asked is Bicep or Terraform.",
+      "path": "tools/apex-prompts/utility-prompts/eventdesk-orchestrator.prompt.md",
+      "links": {
+        "source": "https://github.com/jonathan-vella/apex/blob/main/tools/apex-prompts/utility-prompts/eventdesk-orchestrator.prompt.md"
+      },
+      "meta": {}
+    },
+    {
       "id": "prompt:execution-subagent-gpt",
       "category": "prompt",
       "label": "execution-subagent-gpt",
@@ -1519,6 +1530,17 @@
       "path": "tools/apex-prompts/workflow-prompts/00-resume-workflow.prompt.md",
       "links": {
         "source": "https://github.com/jonathan-vella/apex/blob/main/tools/apex-prompts/workflow-prompts/00-resume-workflow.prompt.md"
+      },
+      "meta": {}
+    },
+    {
+      "id": "prompt:01-new-project",
+      "category": "prompt",
+      "label": "01-new-project",
+      "description": "Start a new APEX project from a complete intake brief, with owner decisions answered up front.",
+      "path": "tools/apex-prompts/workflow-prompts/01-new-project.prompt.md",
+      "links": {
+        "source": "https://github.com/jonathan-vella/apex/blob/main/tools/apex-prompts/workflow-prompts/01-new-project.prompt.md"
       },
       "meta": {}
     },
@@ -1742,6 +1764,16 @@
       "path": "package.json",
       "links": { "source": "https://github.com/jonathan-vella/apex/blob/main/package.json" },
       "meta": { "command": "node tools/scripts/validate-mcp-config.mjs", "orphan": true },
+      "parent": "group:validator-orphans"
+    },
+    {
+      "id": "validator:validate-mcp-tool-refs",
+      "category": "validator",
+      "label": "validate:mcp-tool-refs",
+      "description": "node tools/scripts/validate-mcp-tool-refs.mjs",
+      "path": "package.json",
+      "links": { "source": "https://github.com/jonathan-vella/apex/blob/main/package.json" },
+      "meta": { "command": "node tools/scripts/validate-mcp-tool-refs.mjs", "orphan": true },
       "parent": "group:validator-orphans"
     },
     {
@@ -2261,11 +2293,11 @@
       "id": "validator:test-governance-baseline-python",
       "category": "validator",
       "label": "test:governance-baseline-python",
-      "description": "python3 -m pytest .github/skills/apex-azure-governance-discovery/scripts/test_governance_baseline.py -q",
+      "description": "python3 -m pytest .github/skills/apex-azure-governance-discovery/scripts/test_governance_baseline.py .github/skills/apex-azure-governance-discovery/scripts/test_generate_alz_baseline.py -q",
       "path": "package.json",
       "links": { "source": "https://github.com/jonathan-vella/apex/blob/main/package.json" },
       "meta": {
-        "command": "python3 -m pytest .github/skills/apex-azure-governance-discovery/scripts/test_governance_baseline.py -q",
+        "command": "python3 -m pytest .github/skills/apex-azure-governance-discovery/scripts/test_governance_baseline.py .github/skills/apex-azure-governance-discovery/scripts/test_generate_alz_baseline.py -q",
         "orphan": true
       },
       "parent": "group:validator-orphans"
@@ -2355,7 +2387,7 @@
       "description": "HTTP: https://mcp.management.azure.com",
       "path": ".vscode/mcp.json",
       "links": { "source": "https://github.com/jonathan-vella/apex/blob/main/.vscode/mcp.json" },
-      "meta": { "type": "http" }
+      "meta": { "type": "http", "orphan": true }
     },
     {
       "id": "mcp:azure-mcp",
@@ -2369,10 +2401,10 @@
     {
       "id": "group:validator-orphans",
       "category": "validator",
-      "label": "Validator (unlinked, 56)",
-      "description": "56 validator nodes with no cross-references in the current graph.",
+      "label": "Validator (unlinked, 57)",
+      "description": "57 validator nodes with no cross-references in the current graph.",
       "isGroup": true,
-      "meta": { "groupSize": 56 }
+      "meta": { "groupSize": 57 }
     },
     {
       "id": "group:workflow-orphans",
@@ -3357,6 +3389,12 @@
       "kind": "applies-to"
     },
     {
+      "id": "instruction:agent-authoring--applies-to->prompt:eventdesk-orchestrator",
+      "source": "instruction:agent-authoring",
+      "target": "prompt:eventdesk-orchestrator",
+      "kind": "applies-to"
+    },
+    {
       "id": "instruction:agent-authoring--applies-to->prompt:execution-subagent-gpt",
       "source": "instruction:agent-authoring",
       "target": "prompt:execution-subagent-gpt",
@@ -3396,6 +3434,12 @@
       "id": "instruction:agent-authoring--applies-to->prompt:00-resume-workflow",
       "source": "instruction:agent-authoring",
       "target": "prompt:00-resume-workflow",
+      "kind": "applies-to"
+    },
+    {
+      "id": "instruction:agent-authoring--applies-to->prompt:01-new-project",
+      "source": "instruction:agent-authoring",
+      "target": "prompt:01-new-project",
       "kind": "applies-to"
     },
     {
@@ -5475,6 +5519,12 @@
       "kind": "applies-to"
     },
     {
+      "id": "instruction:no-interactive-shell--applies-to->prompt:eventdesk-orchestrator",
+      "source": "instruction:no-interactive-shell",
+      "target": "prompt:eventdesk-orchestrator",
+      "kind": "applies-to"
+    },
+    {
       "id": "instruction:no-interactive-shell--applies-to->prompt:execution-subagent-gpt",
       "source": "instruction:no-interactive-shell",
       "target": "prompt:execution-subagent-gpt",
@@ -5514,6 +5564,12 @@
       "id": "instruction:no-interactive-shell--applies-to->prompt:00-resume-workflow",
       "source": "instruction:no-interactive-shell",
       "target": "prompt:00-resume-workflow",
+      "kind": "applies-to"
+    },
+    {
+      "id": "instruction:no-interactive-shell--applies-to->prompt:01-new-project",
+      "source": "instruction:no-interactive-shell",
+      "target": "prompt:01-new-project",
       "kind": "applies-to"
     },
     {
@@ -5637,6 +5693,12 @@
       "kind": "applies-to"
     },
     {
+      "id": "instruction:prompt--applies-to->prompt:eventdesk-orchestrator",
+      "source": "instruction:prompt",
+      "target": "prompt:eventdesk-orchestrator",
+      "kind": "applies-to"
+    },
+    {
       "id": "instruction:prompt--applies-to->prompt:execution-subagent-gpt",
       "source": "instruction:prompt",
       "target": "prompt:execution-subagent-gpt",
@@ -5676,6 +5738,12 @@
       "id": "instruction:prompt--applies-to->prompt:00-resume-workflow",
       "source": "instruction:prompt",
       "target": "prompt:00-resume-workflow",
+      "kind": "applies-to"
+    },
+    {
+      "id": "instruction:prompt--applies-to->prompt:01-new-project",
+      "source": "instruction:prompt",
+      "target": "prompt:01-new-project",
       "kind": "applies-to"
     },
     {
@@ -5919,6 +5987,12 @@
       "kind": "applies-to"
     },
     {
+      "id": "instruction:vendor-prompting--applies-to->prompt:eventdesk-orchestrator",
+      "source": "instruction:vendor-prompting",
+      "target": "prompt:eventdesk-orchestrator",
+      "kind": "applies-to"
+    },
+    {
       "id": "instruction:vendor-prompting--applies-to->prompt:execution-subagent-gpt",
       "source": "instruction:vendor-prompting",
       "target": "prompt:execution-subagent-gpt",
@@ -5958,6 +6032,12 @@
       "id": "instruction:vendor-prompting--applies-to->prompt:00-resume-workflow",
       "source": "instruction:vendor-prompting",
       "target": "prompt:00-resume-workflow",
+      "kind": "applies-to"
+    },
+    {
+      "id": "instruction:vendor-prompting--applies-to->prompt:01-new-project",
+      "source": "instruction:vendor-prompting",
+      "target": "prompt:01-new-project",
       "kind": "applies-to"
     },
     {
@@ -6213,9 +6293,9 @@
       "kind": "uses-mcp"
     },
     {
-      "id": "subagent:cost-estimate-subagent--uses-mcp->mcp:azure-resource-manager-mcp",
+      "id": "subagent:cost-estimate-subagent--uses-mcp->mcp:azure-mcp",
       "source": "subagent:cost-estimate-subagent",
-      "target": "mcp:azure-resource-manager-mcp",
+      "target": "mcp:azure-mcp",
       "kind": "uses-mcp"
     },
     {

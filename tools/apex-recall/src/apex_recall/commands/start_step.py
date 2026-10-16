@@ -5,6 +5,7 @@ from __future__ import annotations
 import json
 import sys
 
+from ..reopen import clear_stale, invalidate_dependents
 from ..risk_gate import check_entry, ordinary_entry_warning, record_authorization
 from ..state_writer import (
     _iso_now,
@@ -50,22 +51,33 @@ def run(args) -> int:
         return 1
 
     now = _iso_now()
+    reopened = step_data.get("status") == "complete"
     step_data["status"] = "in_progress"
     step_data["started"] = now
     step_data["completed"] = None
+    clear_stale(step_data)
     data["steps"][step] = step_data
     data["current_step"] = step_to_int(step)
+    cascade = invalidate_dependents(data, step, now) if reopened else {}
     record_authorization(data, entry_result, now)
 
     write_state(project, data)
 
     result = {"project": project, "step": step, "status": "in_progress", "started": now}
+    if cascade.get("stale_steps"):
+        result["stale_steps"] = cascade["stale_steps"]
+    if cascade.get("superseded_plan_status"):
+        result["plan_status"] = "SUPERSEDED"
     if warning:
         result["warnings"] = [warning]
     if as_json:
         print(json.dumps(result))
     else:
         print(f"Step {step} started for {project}")
+        if cascade.get("stale_steps"):
+            print("Marked stale (re-complete in order): " + ", ".join(cascade["stale_steps"]))
+        if cascade.get("superseded_plan_status"):
+            print(f"plan_status {cascade['superseded_plan_status']} -> SUPERSEDED")
         if warning:
             print(f"Warning: {warning}", file=sys.stderr)
 

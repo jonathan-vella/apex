@@ -46,6 +46,21 @@
    a fresh chat or `/clear` at the current agent before the next expensive phase; resume only from verified state.
 - Tool invocation or package-policy failure is not evidence of an Azure service capability limitation. Do not
    repeatedly attempt unavailable installers or infer availability from unrelated provider-wide region counts.
+- Never pass more than one URL to a single page-fetch call in a research step. Fetch one page, check the size of the
+   result, then decide on the next.
+
+## SLA Figures
+
+Azure SLA percentages come from the Microsoft Online Services SLA document, not from service pages.
+
+- Never fetch `azure.microsoft.com/support/legal/sla/*` pages. They redirect to a licensing index and return a very
+   large, repeated page that stays in the chat.
+- Run `npm run check:azure-sla -- "<service>"` to print one bounded section of the current SLA document (downloaded
+   once and cached). Use `npm run check:azure-sla -- --list <filter>` to find the exact service heading name.
+- The first service-credit threshold in a tier's table is its SLA commitment. Record the figure, the document
+   month and the source URL in the research checkpoint.
+- If the script cannot download the document, report the gap and lower Reliability confidence; do not substitute
+   remembered percentages.
 
 ## WAF Service Guides
 

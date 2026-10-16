@@ -218,7 +218,7 @@ Table of recommended controls based on workload pattern and compliance requireme
 ## 💰 Budget
 
 > [!NOTE]
-> Azure Resource Manager MCP provides retail pricing for detailed estimates during
+> Azure MCP pricing provides retail pricing for detailed estimates during
 > architecture assessment (Step 2). Provide an approximate budget here.
 
 | Field              | Value                                               |
@@ -262,6 +262,16 @@ Table of recommended controls based on workload pattern and compliance requireme
 | Component   | Backup Frequency              | Retention         | Recovery Method      |
 | ----------- | ----------------------------- | ----------------- | -------------------- |
 | {component} | {Daily / Hourly / Continuous} | {30d / 90d / 1yr} | {Automated / Manual} |
+
+### Operations & Ownership
+
+| Item                                     | Value                                                         |
+| ---------------------------------------- | ------------------------------------------------------------- |
+| Operator access path to private services | {Bastion + jump VM / VPN / corporate network / None}          |
+| Web sign-in owner                        | {Platform team / Application team / Not in scope}             |
+| Budget alert recipient and role          | {email} — {Owner / not an Owner}                              |
+| SQL Entra admin principal                | {group or user and object ID}                                 |
+| Required tag values                      | {values the policy requires, or none enforced}                |
 
 ## 🌍 Regional Preferences
 

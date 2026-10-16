@@ -97,7 +97,7 @@ The `<step>` suffix is the integer step number (`1`, `2`, `3_5`, `4`).
 | `public_edge_auth`     | `entra-only` \| `app-gateway-waf` \| `front-door` \| `apim` \| `none`        | n/a                         | 05-IaC Planner                 | 06b/06t CodeGen                        |
 | `script_runtime_image` | container image ref (e.g. `mcr.microsoft.com/azure-cli:2.x`)                 | n/a                         | 05-IaC Planner                 | 06b/06t CodeGen (deployment scripts)   |
 | `az_posture`           | `private-only` \| `hybrid` \| `public-restricted`                            | n/a                         | 05-IaC Planner                 | 06b/06t CodeGen, 04g-Governance review |
-| `plan_status`          | `APPROVED` \| `EXCEPTION_AUTHORIZED`                                          | n/a (plan not approved)     | 05-IaC Planner, apex-recall    | 06b/06t CodeGen                        |
+| `plan_status`          | `APPROVED` \| `EXCEPTION_AUTHORIZED` \| `SUPERSEDED`                           | n/a (plan not approved)     | 05-IaC Planner, apex-recall    | 06b/06t CodeGen                        |
 
 ### Step 6 (Deploy) keys
 

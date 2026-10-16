@@ -71,6 +71,13 @@ always overrides repository defaults.
 - **Lifecycle is verified live**: selectable engine and runtime versions require
   current support-policy evidence.
 
+## Azure MCP tool names
+
+Skills and agents write Azure MCP tools as `mcp_azure-mcp_<tool>` (for example `mcp_azure-mcp_documentation`). The client may
+show the same tool with a shortened prefix such as `mcp_azure_mcp_ser_<tool>`; the server reports its name as "Azure MCP
+Server", and VS Code derives the prefix from it. Match on `<tool>` and call whichever name the client lists. Both prefixes
+are accepted by `npm run validate:mcp-tool-refs`.
+
 ## Validation
 
 ```bash
@@ -94,6 +101,6 @@ Load references progressively; do not read the directory wholesale.
 | Networking | [VNet planning](references/vnet-planning.md), [identity resolution](references/identity-resolution.md) |
 | Cost and sizing | [Cost baseline](references/cost-alerts-baseline.md), [Bicep](references/cost-alerts-bicep.md), [Terraform](references/cost-alerts-terraform.md), [pricing](references/pricing-guidance.md), [service matrices](references/service-matrices.md) |
 | Governance and lifecycle | [Governance discovery](references/governance-discovery.md), [policy effects](references/policy-effect-decision-tree.md), [deprecated services](references/deprecated-services.md), [workflow gates](references/workflow-gates.md) |
-| Architecture and review | [WAF criteria](references/waf-criteria.md), [research workflow](references/research-workflow.md), [review protocol](references/adversarial-review-protocol.md), [deep review](references/adversarial-review-deep.md) |
+| Architecture and review | [WAF criteria](references/waf-criteria.md), [Architect checklist](references/architect-validation-checklist.md), [research workflow](references/research-workflow.md), [review protocol](references/adversarial-review-protocol.md), [deep review](references/adversarial-review-deep.md) |
 | IaC implementation | [Terraform conventions](references/terraform-conventions.md), [plan decisions](references/plan-design-decisions.md), [Azure CLI auth](references/azure-cli-auth-validation.md) |
 | Artifact integration | [Artifact categories](references/artifact-type-categories.md), [cost delegation](references/cost-estimate-parent-contract.md), [service class menu](references/service-class-menu.md) |

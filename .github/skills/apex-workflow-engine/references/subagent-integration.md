@@ -17,7 +17,7 @@ Discovery does not wire or authorize a call. Read the
 > [!NOTE]
 > **Pricing Accuracy Gate (Steps 2 & 7)**: No agent writes dollar figures from
 > parametric knowledge. All prices must originate from `cost-estimate-subagent`
-> (Azure Resource Manager MCP). This policy applies to both the Architect
+> (Azure MCP `pricing_get`). This policy applies to both the Architect
 > (Step 2, `03-des-cost-estimate.md`) and As-Built (Step 7, `07-ab-cost-estimate.md`)
 > agents. Established after model evaluation found pricing hallucinations
 > (see `agent-output/model-eval-scoring.md`).

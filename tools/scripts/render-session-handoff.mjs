@@ -45,7 +45,11 @@ export function renderHandoff(view, { owner, operation }) {
   ];
   const sections = ARTIFACT_HEADINGS["00-handoff.md"];
   const bodies = [
-    Object.entries(session.steps).map(([step, value]) => `- Step ${inline(step)}: ${inline(value.status)}.`),
+    Object.entries(session.steps).map(([step, value]) =>
+      value.status === "stale"
+        ? `- Step ${inline(step)}: stale (${inline(value.stale_because || "an upstream step was reopened")}); redo after its predecessor.`
+        : `- Step ${inline(step)}: ${inline(value.status)}.`,
+    ),
     ["iac_tool", "region", "deployment_strategy", "plan_status"]
       .filter((key) => session.decisions?.[key] !== undefined)
       .map((key) => `- ${key}: ${inline(session.decisions[key])}`),

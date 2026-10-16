@@ -1,7 +1,7 @@
 {
   "$schema": null,
   "schema_version": "avm-module-index-v1",
-  "generated_at": "2026-10-05T10:34:47.364Z",
+  "generated_at": "2026-10-13T10:25:36.344Z",
   "sources": {
     "bicep": "https://azure.github.io/Azure-Verified-Modules/module-indexes/BicepResourceModules.csv",
     "terraform": "https://azure.github.io/Azure-Verified-Modules/module-indexes/TerraformResourceModules.csv"
@@ -292,7 +292,7 @@
       "module_name": "avm/res/api-management/service/named-value",
       "source": "br/public:avm/res/api-management/service/named-value",
       "provider_namespace": "Microsoft.ApiManagement",
-      "resource_type": "service/namesValues",
+      "resource_type": "service/namedValues",
       "module_status": "Available",
       "display_name": "API Management Service - Named Value",
       "repo_url": "https://github.com/Azure/bicep-registry-modules/tree/main/avm/res/api-management/service/named-value",
@@ -711,7 +711,7 @@
       "source": "br/public:avm/res/authorization/policy-assignment",
       "provider_namespace": "Microsoft.Authorization",
       "resource_type": "policyAssignments",
-      "module_status": "Proposed",
+      "module_status": "Available",
       "display_name": "Authorization - Policy Assignment",
       "repo_url": "https://github.com/Azure/bicep-registry-modules/tree/main/avm/res/authorization/policy-assignment",
       "alternative_names": ""
@@ -755,7 +755,7 @@
       "source": "br/public:avm/res/authorization/role-assignment",
       "provider_namespace": "Microsoft.Authorization",
       "resource_type": "roleAssignments",
-      "module_status": "Proposed",
+      "module_status": "Available",
       "display_name": "Authorization - Role Assignment",
       "repo_url": "https://github.com/Azure/bicep-registry-modules/tree/main/avm/res/authorization/role-assignment",
       "alternative_names": ""
@@ -1862,13 +1862,13 @@
     },
     {
       "tool": "bicep",
-      "module_name": "avm/res/db-for-my-sql/flexible-server/advanced-threat-protection",
-      "source": "br/public:avm/res/db-for-my-sql/flexible-server/advanced-threat-protection",
+      "module_name": "avm/res/db-for-my-sql/flexible-server/advanced-threat-protection-setting",
+      "source": "br/public:avm/res/db-for-my-sql/flexible-server/advanced-threat-protection-setting",
       "provider_namespace": "Microsoft.DBforMySQL",
       "resource_type": "flexibleServers/advancedThreatProtectionSettings",
-      "module_status": "Available",
+      "module_status": "Proposed",
       "display_name": "DB for MySQL Flexible Server - Advanced Threat Protection",
-      "repo_url": "https://github.com/Azure/bicep-registry-modules/tree/main/avm/res/db-for-my-sql/flexible-server/advanced-threat-protection",
+      "repo_url": "https://github.com/Azure/bicep-registry-modules/tree/main/avm/res/db-for-my-sql/flexible-server/advanced-threat-protection-setting",
       "alternative_names": ""
     },
     {
@@ -2251,7 +2251,7 @@
       "source": "br/public:avm/res/dev-test-lab/lab/secret",
       "provider_namespace": "Microsoft.DevTestLab",
       "resource_type": "labs/secrets",
-      "module_status": "Orphaned",
+      "module_status": "Deprecated",
       "display_name": "DevTest Lab - Secret",
       "repo_url": "https://github.com/Azure/bicep-registry-modules/tree/main/avm/res/dev-test-lab/lab/secret",
       "alternative_names": ""
@@ -2280,13 +2280,13 @@
     },
     {
       "tool": "bicep",
-      "module_name": "avm/res/devices/iot-hub/consumergroup",
-      "source": "br/public:avm/res/devices/iot-hub/consumergroup",
+      "module_name": "avm/res/devices/iot-hub/event-hub-endpoint/consumergroup",
+      "source": "br/public:avm/res/devices/iot-hub/event-hub-endpoint/consumergroup",
       "provider_namespace": "Microsoft.Devices",
       "resource_type": "IotHubs/eventHubEndpoints/ConsumerGroups",
       "module_status": "Proposed",
       "display_name": "IoT Hub Consumer Groups",
-      "repo_url": "https://github.com/Azure/bicep-registry-modules/tree/main/avm/res/devices/iot-hub/consumergroup",
+      "repo_url": "https://github.com/Azure/bicep-registry-modules/tree/main/avm/res/devices/iot-hub/event-hub-endpoint/consumergroup",
       "alternative_names": ""
     },
     {
@@ -2548,7 +2548,7 @@
       "source": "br/public:avm/res/edge/site",
       "provider_namespace": "Microsoft.Edge",
       "resource_type": "sites",
-      "module_status": "Proposed",
+      "module_status": "Available",
       "display_name": "Edge Site",
       "repo_url": "https://github.com/Azure/bicep-registry-modules/tree/main/avm/res/edge/site",
       "alternative_names": ""
@@ -4264,7 +4264,7 @@
       "source": "br/public:avm/res/network/network-security-group",
       "provider_namespace": "Microsoft.Network",
       "resource_type": "networkSecurityGroups",
-      "module_status": "Orphaned",
+      "module_status": "Available",
       "display_name": "Network Security Group",
       "repo_url": "https://github.com/Azure/bicep-registry-modules/tree/main/avm/res/network/network-security-group",
       "alternative_names": "NSG"
@@ -5463,7 +5463,7 @@
       "source": "br/public:avm/res/sql/server",
       "provider_namespace": "Microsoft.Sql",
       "resource_type": "servers",
-      "module_status": "Orphaned",
+      "module_status": "Available",
       "display_name": "Azure SQL Server",
       "repo_url": "https://github.com/Azure/bicep-registry-modules/tree/main/avm/res/sql/server",
       "alternative_names": ""
@@ -5474,7 +5474,7 @@
       "source": "br/public:avm/res/sql/server/auditing-setting",
       "provider_namespace": "Microsoft.Sql",
       "resource_type": "servers/auditingSettings",
-      "module_status": "Orphaned",
+      "module_status": "Available",
       "display_name": "Azure SQL Server - Auditing Setting",
       "repo_url": "https://github.com/Azure/bicep-registry-modules/tree/main/avm/res/sql/server/auditing-setting",
       "alternative_names": ""
@@ -5485,7 +5485,7 @@
       "source": "br/public:avm/res/sql/server/database",
       "provider_namespace": "Microsoft.Sql",
       "resource_type": "servers/databases",
-      "module_status": "Orphaned",
+      "module_status": "Available",
       "display_name": "Azure SQL Database",
       "repo_url": "https://github.com/Azure/bicep-registry-modules/tree/main/avm/res/sql/server/database",
       "alternative_names": ""
@@ -5496,7 +5496,7 @@
       "source": "br/public:avm/res/sql/server/database/backup-long-term-retention-policy",
       "provider_namespace": "Microsoft.Sql",
       "resource_type": "servers/databases/backupLongTermRetentionPolicies",
-      "module_status": "Orphaned",
+      "module_status": "Available",
       "display_name": "Azure SQL Server - Database - Backup Long Term Retention Policy",
       "repo_url": "https://github.com/Azure/bicep-registry-modules/tree/main/avm/res/sql/server/database/backup-long-term-retention-policy",
       "alternative_names": ""
@@ -5507,7 +5507,7 @@
       "source": "br/public:avm/res/sql/server/database/backup-short-term-retention-policy",
       "provider_namespace": "Microsoft.Sql",
       "resource_type": "servers/databases/backupShortTermRetentionPolicies",
-      "module_status": "Orphaned",
+      "module_status": "Available",
       "display_name": "Azure SQL Server - Database - Backup Short Term Retention Policy",
       "repo_url": "https://github.com/Azure/bicep-registry-modules/tree/main/avm/res/sql/server/database/backup-short-term-retention-policy",
       "alternative_names": ""
@@ -5518,7 +5518,7 @@
       "source": "br/public:avm/res/sql/server/elastic-pool",
       "provider_namespace": "Microsoft.Sql",
       "resource_type": "servers/elasticPools",
-      "module_status": "Orphaned",
+      "module_status": "Available",
       "display_name": "Azure SQL Server - Elastic Pool",
       "repo_url": "https://github.com/Azure/bicep-registry-modules/tree/main/avm/res/sql/server/elastic-pool",
       "alternative_names": ""
@@ -5529,7 +5529,7 @@
       "source": "br/public:avm/res/sql/server/encryption-protector",
       "provider_namespace": "Microsoft.Sql",
       "resource_type": "servers/encryptionProtector",
-      "module_status": "Orphaned",
+      "module_status": "Available",
       "display_name": "Azure SQL Server - Encryption Protector",
       "repo_url": "https://github.com/Azure/bicep-registry-modules/tree/main/avm/res/sql/server/encryption-protector",
       "alternative_names": ""
@@ -5540,7 +5540,7 @@
       "source": "br/public:avm/res/sql/server/failover-group",
       "provider_namespace": "Microsoft.Sql",
       "resource_type": "servers/failoverGroups",
-      "module_status": "Orphaned",
+      "module_status": "Available",
       "display_name": "Azure SQL Server - Failover Group",
       "repo_url": "https://github.com/Azure/bicep-registry-modules/tree/main/avm/res/sql/server/failover-group",
       "alternative_names": ""
@@ -5551,7 +5551,7 @@
       "source": "br/public:avm/res/sql/server/firewall-rule",
       "provider_namespace": "Microsoft.Sql",
       "resource_type": "servers/firewallRules",
-      "module_status": "Orphaned",
+      "module_status": "Available",
       "display_name": "Azure SQL Server - Firewall Rule",
       "repo_url": "https://github.com/Azure/bicep-registry-modules/tree/main/avm/res/sql/server/firewall-rule",
       "alternative_names": ""
@@ -5562,7 +5562,7 @@
       "source": "br/public:avm/res/sql/server/key",
       "provider_namespace": "Microsoft.Sql",
       "resource_type": "servers/keys",
-      "module_status": "Orphaned",
+      "module_status": "Available",
       "display_name": "Azure SQL Server - Key",
       "repo_url": "https://github.com/Azure/bicep-registry-modules/tree/main/avm/res/sql/server/key",
       "alternative_names": ""
@@ -5573,7 +5573,7 @@
       "source": "br/public:avm/res/sql/server/security-alert-policy",
       "provider_namespace": "Microsoft.Sql",
       "resource_type": "servers/securityAlertPolicies",
-      "module_status": "Orphaned",
+      "module_status": "Available",
       "display_name": "Azure SQL Server - Security Alert Policy",
       "repo_url": "https://github.com/Azure/bicep-registry-modules/tree/main/avm/res/sql/server/security-alert-policy",
       "alternative_names": ""
@@ -5584,7 +5584,7 @@
       "source": "br/public:avm/res/sql/server/virtual-network-rule",
       "provider_namespace": "Microsoft.Sql",
       "resource_type": "servers/virtualNetworkRules",
-      "module_status": "Orphaned",
+      "module_status": "Available",
       "display_name": "Azure SQL Server - Virtual Network Rule",
       "repo_url": "https://github.com/Azure/bicep-registry-modules/tree/main/avm/res/sql/server/virtual-network-rule",
       "alternative_names": ""
@@ -5595,7 +5595,7 @@
       "source": "br/public:avm/res/sql/server/vulnerability-assessment",
       "provider_namespace": "Microsoft.Sql",
       "resource_type": "servers/vulnerabilityAssessments",
-      "module_status": "Orphaned",
+      "module_status": "Available",
       "display_name": "Azure SQL Server - Vulnerability Assessment",
       "repo_url": "https://github.com/Azure/bicep-registry-modules/tree/main/avm/res/sql/server/vulnerability-assessment",
       "alternative_names": ""
@@ -6849,7 +6849,7 @@
       "source": "Azure/avm-res-insights-actiongroup/azurerm",
       "provider_namespace": "Microsoft.Insights",
       "resource_type": "actionGroups",
-      "module_status": "Proposed",
+      "module_status": "Available",
       "display_name": "Action Group",
       "repo_url": "https://github.com/Azure/terraform-azurerm-avm-res-insights-actiongroup",
       "alternative_names": ""
@@ -6860,7 +6860,7 @@
       "source": "Azure/avm-res-insights-activitylogalert/azurerm",
       "provider_namespace": "Microsoft.Insights",
       "resource_type": "activityLogAlerts",
-      "module_status": "Proposed",
+      "module_status": "Available",
       "display_name": "Activity log alerts",
       "repo_url": "https://github.com/Azure/terraform-azurerm-avm-res-insights-activitylogalert",
       "alternative_names": ""
@@ -6981,7 +6981,7 @@
       "source": "Azure/avm-res-keyvault-vault/azurerm",
       "provider_namespace": "Microsoft.KeyVault",
       "resource_type": "vaults",
-      "module_status": "Available",
+      "module_status": "Orphaned",
       "display_name": "Key Vault",
       "repo_url": "https://github.com/Azure/terraform-azurerm-avm-res-keyvault-vault",
       "alternative_names": "KV"
@@ -7740,7 +7740,7 @@
       "source": "Azure/avm-res-signalrservice-webpubsub/azurerm",
       "provider_namespace": "Microsoft.SignalRService",
       "resource_type": "webPubSub",
-      "module_status": "Proposed",
+      "module_status": "Available",
       "display_name": "SignalR Service Web PubSub",
       "repo_url": "https://github.com/Azure/terraform-azure-avm-res-signalrservice-webpubsub",
       "alternative_names": ""

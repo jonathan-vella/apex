@@ -46,7 +46,14 @@
           "evidence": { "type": "array", "items": { "type": "string", "minLength": 1 } },
           "approval_ref": { "type": "string", "minLength": 1 },
           "revisit_condition": { "type": "string", "minLength": 1 },
-          "runtime_status": { "enum": ["unverified", "verified", "not-applicable"] }
+          "runtime_status": { "enum": ["unverified", "verified", "not-applicable"] },
+          "blocks": {
+            "type": "array",
+            "minItems": 1,
+            "uniqueItems": true,
+            "items": { "enum": ["deploy", "post-deploy", "go-live"] },
+            "description": "Stages this capability blocks while unresolved. Absent means every stage."
+          }
         }
       }
     },
@@ -140,6 +147,20 @@
             "type": "array",
             "items": { "type": "string" },
             "description": "logical_name references of resources this one depends on. Optional in v0, recommended in v1."
+          },
+          "phase": {
+            "type": "integer",
+            "minimum": 1,
+            "description": "Deployment phase that creates this resource. When present, depends_on targets that also declare a phase must not be in a later phase."
+          },
+          "consumes": {
+            "type": "array",
+            "items": { "type": "string" },
+            "description": "logical_name references of resources this one reaches over a private path (image pull, Key Vault reference, SQL, Blob). When a private endpoint targets a consumed resource, this resource must depend_on one such endpoint."
+          },
+          "target": {
+            "type": "string",
+            "description": "Private endpoints only: logical_name of the resource this endpoint exposes."
           }
         }
       }

@@ -131,12 +131,18 @@ test("build retains Ubuntu, feature locks, host paths and host-process token for
 test("release manifest pins both architectures to versioned upstream assets and checksum sources", () => {
   assert.equal(manifest.uv.version, "0.12.23");
   assert.equal(manifest.gitleaks.version, "8.30.1");
+  const upstream = {
+    uv: { prefix: "https://github.com/astral-sh/uv", tag: (version) => version },
+    gitleaks: { prefix: "https://github.com/gitleaks/gitleaks", tag: (version) => `v${version}` },
+    // The upstream azqr release tags carry a literal "v." prefix.
+    azqr: { prefix: "https://github.com/Azure/azqr", tag: (version) => `v.${version}` },
+  };
   for (const [tool, release] of Object.entries(manifest)) {
     assert.deepEqual(Object.keys(release.artifacts).sort(), ["amd64", "arm64"]);
     for (const artifact of Object.values(release.artifacts)) {
       assert.match(artifact.sha256, /^[0-9a-f]{64}$/);
-      const prefix = tool === "uv" ? "https://github.com/astral-sh/uv" : "https://github.com/gitleaks/gitleaks";
-      const tag = tool === "uv" ? release.version : `v${release.version}`;
+      const { prefix, tag: toTag } = upstream[tool];
+      const tag = toTag(release.version);
       for (const url of [artifact.url, artifact.checksumUrl]) {
         assert.ok(url.startsWith(`${prefix}/releases/download/${tag}/`));
         assert.ok(!url.includes("latest"));

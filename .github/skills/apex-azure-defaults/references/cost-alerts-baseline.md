@@ -71,7 +71,7 @@ other AVM module.
 If a live lookup returns `404` (module genuinely missing) or the
 candidate module fails an AVM-quality check at the target scope, the
 plan may emit the raw resource **only** with a structured exception
-in the plan's exceptions section:
+in the plan's `### Raw Resource Exceptions` section (H3 under Module Structure):
 
 ```json
 {
@@ -189,12 +189,16 @@ implementation plan; Challenger D-6 asserts the merge is faithful.
 | Mode       | Resources emitted                         | Allowed environments   | Extra requirements                                         |
 | ---------- | ----------------------------------------- | ---------------------- | ---------------------------------------------------------- |
 | `enforced` | Budget + Action Group + anomaly           | All (default for prod) | None                                                       |
-| `minimal`  | Budget only                               | `dev`, `sandbox` only  | `governance.deferred_allowed != false`                     |
+| `minimal`  | Budget only (no cost Action Group, no anomaly alert; operational alerts remain) | `dev`, `sandbox` only  | `governance.deferred_allowed != false`                     |
 | `deferred` | None                                      | `dev`, `sandbox` only  | `cost_monitoring_exception = {rationale, expiry_date}`     |
 
 Production (`environment = prod` / `staging`) cannot opt down.
 Sandbox `deferred` produces an informational Challenger finding (not
 a blocker).
+
+Under `minimal`, budget notifications reach only `contactRoles: ['Owner']`. When the named alert
+recipient is not a human Owner at the budget scope, they receive no budget notification; say so
+when offering the opt-down.
 
 ## Cross-references
 

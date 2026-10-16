@@ -104,6 +104,20 @@ test("network pricing recipes use verified billing mappings without omitting var
   assert.match(parent, /do not invent zero usage/);
 });
 
+test("cost worker prices only through Azure MCP pricing and no ARM MCP tools", () => {
+  const worker = path.join(ROOT, ".github/agents/_subagents/cost-estimate-subagent.agent.md");
+  const frontmatter = parseFrontmatter(fs.readFileSync(worker, "utf8"));
+  const tools = [].concat(frontmatter.tools).join(" ");
+  assert.match(tools, /azure-mcp\/pricing/);
+  assert.doesNotMatch(tools, /azure-resource-manager-mcp/);
+  const guidance = fs.readFileSync(
+    path.join(ROOT, ".github/skills/apex-azure-defaults/references/pricing-guidance.md"),
+    "utf8",
+  );
+  assert.doesNotMatch(guidance, /get_retail_prices/);
+  assert.match(guidance, /`pricing_get`/);
+});
+
 test("retail fallback stays worker-owned with shared budgets, source evidence and approval gates", () => {
   const read = (file) => fs.readFileSync(path.join(ROOT, file), "utf8");
   const worker = read(".github/agents/_subagents/cost-estimate-subagent.agent.md");

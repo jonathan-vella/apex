@@ -30,16 +30,22 @@ model/tools and require explicit selection of the owning agent.
 Parent-side model evaluation found agents hallucinating Azure SKU prices
 (e.g., AKS Standard at $0.60/hr instead of $0.10/hr) when writing from
 parametric knowledge. **ALL dollar figures in user-facing artifacts MUST
-come from `cost-estimate-subagent` (ARM MCP primary; constrained first-party API evidence fallback).**
+come from `cost-estimate-subagent` (Azure MCP `pricing_get` primary; constrained first-party API evidence fallback).**
 Never write a price that did not originate from a subagent response.
 
 ## Delegation Procedure (5 steps)
 
-1. **Prepare a resource list** — compile resource types, SKUs, region,
+1. **Prepare the pricing request and run preflight** — compile resource types, SKUs, region,
    and quantities from the upstream source, preserving each environment,
    region, and independent stamp plus effective overrides and explicit usage:
-   - **03-architect**: from the WAF assessment / sku-manifest.
-   - **08-as-built**: from `az resource list` + Azure Resource Graph
+   - **03-architect**: pass `manifest_path` (`agent-output/{project}/sku-manifest.json`),
+     `manifest_usage` (per-service variable usage keyed by service `id` or `id:env:region`),
+     and `supplemental_resources[]` (non-manifest architecture resources such as Bastion,
+     NAT Gateway, Private Endpoints, Private DNS, Key Vault, Log Analytics, Application Insights,
+     Alert Rules, Action Groups, VM OS disk, Public IPs) in a **single** committed pricing run
+     so `02-cost-estimate.json` holds the complete architecture cost while `manifest_writeback[]`
+     updates only manifest-owned `services[]`.
+   - **08-as-built**: pass `resource_list` from `az resource list` + Azure Resource Graph
      queries against the actual deployed environment (NOT the plan).
     For private networking, follow the
     [Private Endpoint and private DNS recipes](pricing-guidance.md#private-endpoint-and-private-dns-meters).
@@ -47,6 +53,8 @@ Never write a price that did not originate from a subagent response.
     Capture central/DINE zone ownership and shared-cost allocation; do not assume private traffic is zero because
     internet egress is excluded. Keep the deployment region unchanged; the worker selects the documented billing region.
     Record unknown usage as unresolved or obtain an explicit assumption before invoking; do not invent zero usage.
+    Validate the request payload before delegation:
+    `node tools/scripts/cost-estimate.mjs preflight --request <request.json>`
 2. **Check current pricing evidence**, then delegate only when needed.
    Reuse a persisted COMPLETE worker result only after the freshness and
    full-input equivalence checks in [pricing guidance](pricing-guidance.md#evidence-reuse).
@@ -54,7 +62,7 @@ Never write a price that did not originate from a subagent response.
    requires `cost-estimate-subagent`; never infer current prices from a path
    or restamp reused rates. Reuse preserves the independent cost-feasibility review.
    Invoke with:
-   - `resource_list`, `project_name`, `region`
+   - `manifest_path` (+ optional `manifest_usage`, `supplemental_resources[]`) or `resource_list`, `project_name`, `region`
    - `output_path` = `agent-output/{project}/<artifact>-cost-estimate.json`
      (per-agent: `02-cost-estimate.json` for 03, `07-ab-cost-estimate.json` for 08)
    - `overwrite` = `false` (set to `true` only when re-running after revisions)
@@ -75,6 +83,20 @@ Never write a price that did not originate from a subagent response.
 5. **Cross-check totals** — verify that the sum of
    `resources[].monthly_cost` equals `monthly_total`. Flag any
    discrepancy to the user before proceeding to the next phase.
+
+## Candidate-set calls
+
+The worker's 20-request budget is per invocation, and a bundled call can exhaust it. Slow runs came from
+rebuilding the same ambiguous meters across retries.
+
+- Issue one `candidate_sets` call per `decision_id`, each with its own `output_path`
+  (`02-cost-candidates-{decision_id}.json`). Never bundle decisions into one call.
+- Before each call, confirm no stale `{output_path}.tmp` or prior output exists; the worker returns FAILED on a
+  non-owned `.tmp`. Preserve earlier output as `*.failed-attempt-N.json` first.
+- Put the recipe from [candidate meter hints](pricing-guidance.md#candidate-meter-hints) in each candidate's
+  `meter_name`/`notes`, plus every variable-meter usage figure (GB, requests, free-rule assumption) so no line
+  stalls on a missing assumption.
+- On retry, cite prior `.retail-evidence` paths and ask the worker to reuse them rather than re-query.
 
 ## Interrupted pricing recovery
 
@@ -113,14 +135,11 @@ Only after current pricing evidence exists may artifact generation and independe
 
 | Tool | Purpose | Context |
 | --- | --- | --- |
-| `get_retail_prices` | Planned-resource retail prices | Primary |
-| `query_costs` | Actual cost by Azure scope | Deployed only |
-| `query_aks_costs` | Actual AKS cost breakdown | Deployed only |
-| `forecast_costs` | Scope cost forecast | Optional, deployed only |
-| `get_benefit_recommendations` | Reservation and savings-plan analysis | Optional |
+| `pricing_get` (Azure MCP `pricing`) | Planned-resource retail prices, optional savings-plan data | Only pricing tool |
 
-The subagent deduplicates identical service, ARM SKU, region, meter, price-type,
-and currency queries within its MCP call budget. Include explicit usage for
+The subagent uses no Azure Resource Manager MCP tools. Actual-cost, forecast and benefit analysis are outside this
+contract; the cost-optimization skill covers them. The subagent deduplicates identical service, SKU, region, meter,
+price-type, and currency queries within its MCP call budget. Include explicit usage for
 non-hourly meters. Canonical query and calculation rules live in
 [`pricing-guidance.md`](pricing-guidance.md).
 

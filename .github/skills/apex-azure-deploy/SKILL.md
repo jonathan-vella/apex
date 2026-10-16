@@ -78,7 +78,10 @@ Activate this skill when user wants to:
 | --------------------------------- | ------------------------------------ |
 | `mcp_azure-mcp_subscription_list` | List available subscriptions         |
 | `mcp_azure-mcp_group_list`        | List resource groups in subscription |
-| `mcp_azure-mcp_azd`               | Execute AZD commands                 |
+| `mcp_azure-mcp_azd`               | `validate_azure_yaml`, `error_troubleshooting`, `provision_common_error` |
+
+The `azd` tool validates `azure.yaml` and returns troubleshooting guidance; it does not run azd. Run `azd up` and
+`azd deploy` through the CLI.
 
 ## References
 

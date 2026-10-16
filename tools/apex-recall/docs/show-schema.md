@@ -108,6 +108,29 @@ must reference a failed original invocation in the same step, never another retr
 The caller must establish that the failure was actually empty output and that the retry is authorized; the audit
 does not confer this permission. Legacy executed totals cannot decrease; do not equate a filename's pass with totals.
 
+Instead of `--input-digest`, pass each frozen input with `--attempt-input <path>` (repeatable; files or directories inside
+the workspace, no symlinks). The digest is the SHA-256 of the compact JSON array of sorted
+`[workspace-relative POSIX path, file SHA-256]` pairs, so the start and the outcome records use the same value and a
+changed input is rejected as a reused identity. The command prints `input_digest` and
+`permission_granted_by_this_record: false`; the older `authorization: not_granted` field remains for existing readers.
+The record is evidence only.
+
+### Reopening a step
+
+`start-step <project> <step> --force` on a completed step marks every dependent step that is `complete` or `in_progress`
+`stale` (clearing `started`, `completed` and `sub_step`, and adding `stale_since`, `stale_because` and
+`previous_completed`). It sets `decisions.plan_status` to `SUPERSEDED` when it was `APPROVED` or `EXCEPTION_AUTHORIZED`
+and the reopened step is 1, 2, 3_5 or 4, and appends a `decision_log` entry. Artifacts and risk authorizations are kept
+as history. A stale step is not complete, so the next step cannot start until it is re-completed in order. Starting or
+transitioning into a stale step clears the stale markers. Readers that do not know `stale` see an unfinished step.
+
+### Step 2 completion check
+
+`complete-step` and `transition --complete` for Step 2 exit with code 2 and `step2_residue` while the project folder
+contains `*.tmp.md` files or `02-cost-estimate*.json`, `02-cost-candidates*.json` or `03-des-cost-estimate*.json` with
+`"status": "FAILED"`. Only the top level is checked; move superseded files to `_meta/`. The check is separate from the
+challenger gate and `--allow-missing-challenger` does not bypass it.
+
 ### `session.steps`
 
 Keys are **strings** (`"1"`, `"2"`, `"3"`, `"3_5"`, `"4"`, `"5"`, `"6"`, `"7"`).
@@ -117,7 +140,7 @@ Each value is an object describing the step's lifecycle:
 {
   "name": "IaC Code",
   "agent": "06b-Bicep CodeGen",
-  "status": "complete", // pending | in-progress | complete | failed
+  "status": "complete", // pending | in_progress | complete | skipped | stale
   "sub_step": "phase_4_validation",
   "started": "2026-05-12T11:00:00Z",
   "completed": "2026-05-12T11:30:00Z",

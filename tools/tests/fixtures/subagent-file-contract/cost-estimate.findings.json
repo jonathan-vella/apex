@@ -1,4 +1,5 @@
 {
+  "schema_version": "cost-estimate-v1",
   "status": "COMPLETE",
   "project_name": "sample",
   "region": "swedencentral",
@@ -64,7 +65,7 @@
   "savings_status": "QUANTIFIED",
   "savings_reason": "RI eligible compute identified",
   "eligible_strategies": ["Reserved Instances (3yr)", "Azure Hybrid Benefit (SQL)"],
-  "data_source": "Azure Resource Manager MCP get_retail_prices",
+  "data_source": "Azure MCP pricing_get",
   "queried_at": "2026-05-08T12:00:00Z",
   "confidence": "High",
   "unresolved_items": [],

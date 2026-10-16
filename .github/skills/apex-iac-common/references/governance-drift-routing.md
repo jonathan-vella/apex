@@ -73,6 +73,11 @@ list` returns child IDs; the constraints envelope's `findings[]`
 
 ## Common scenarios
 
+- **Resource types added after Step 3.5** (for example a Step 2 reopen that
+  adds Bastion, a VM, a NAT Gateway or public IPs) → the approved
+  governance envelope never saw them. The Planner emits
+  `▶ Refresh Governance` before plan approval; do not approve a plan whose
+  resource types are absent from the current reconciliation.
 - **L0 envelope expired (>= `ttl_days`)** → consumer agent (Planner,
   CodeGen, Deploy) emits `▶ Refresh Governance` and stops. The
   Governance agent re-runs discovery and emits a fresh envelope; the

@@ -53,6 +53,22 @@ test("direct fallback preserves raw responses and failure provenance without com
   assert.equal(result.monthly_total, undefined);
 });
 
+test("pricing_get empty results authorize fallback but errors and nonempty prices do not", async () => {
+  const emptyPricingGet = { status: 200, message: "Success", results: { prices: [] } };
+  const input = request();
+  input.mcp_failure.attempts[0].response = emptyPricingGet;
+  const result = await fetchRetailEvidence(input, async () => response(page()));
+  assert.deepEqual(result.mcp_failure.attempts[0].response, emptyPricingGet);
+  for (const body of [
+    { status: 400, message: "must specify sku", results: { prices: [] } },
+    { status: 200, message: "Success", results: { prices: [{ meterName: "Private Zone" }] } },
+  ]) {
+    const blocked = request();
+    blocked.mcp_failure.attempts[0].response = body;
+    await assert.rejects(fetchRetailEvidence(blocked, () => assert.fail("must not fetch")));
+  }
+});
+
 test("query building escapes OData literals and rejects arbitrary filters", () => {
   assert.match(retailQueryUrl({ ...query, meterName: "Owner's Zone" }).searchParams.get("$filter"), /Owner''s Zone/);
   assert.throws(() => retailQueryUrl({ ...query, url: "https://other.test" }));
@@ -158,6 +174,99 @@ test("transient fallback requires the exhausted HTTP retry and excludes authoriz
   await assert.rejects(
     fetchRetailEvidence(input, () => assert.fail("no fetch")),
     /single exhausted retry/,
+  );
+});
+
+test("missing_tier_metadata fallback authorizes multi-rate pricing_get rows that omit tierMinimumUnits", async () => {
+  const blobQuery = {
+    serviceName: "Storage",
+    armRegionName: "swedencentral",
+    productName: "Blob Storage",
+    skuName: "Hot LRS",
+    meterName: "Hot LRS Data Stored",
+    priceType: "Consumption",
+    currencyCode: "USD",
+  };
+  const input = {
+    query: { ...blobQuery },
+    remaining_requests: 3,
+    mcp_failure: {
+      kind: "missing_tier_metadata",
+      recorded_at: new Date(Date.now() - 1000).toISOString(),
+      attempts: [
+        {
+          query: { ...blobQuery },
+          response: {
+            status: 200,
+            message: "Success",
+            results: {
+              prices: [
+                {
+                  serviceName: "Storage",
+                  productName: "Blob Storage",
+                  skuName: "Hot LRS",
+                  meterName: "Hot LRS Data Stored",
+                  retailPrice: 0.0184,
+                },
+                {
+                  serviceName: "Storage",
+                  productName: "Blob Storage",
+                  skuName: "Hot LRS",
+                  meterName: "Hot LRS Data Stored",
+                  retailPrice: 0.017664,
+                },
+              ],
+            },
+          },
+        },
+      ],
+    },
+  };
+  const blobPage = {
+    BillingCurrency: "USD",
+    Items: [
+      {
+        ...row,
+        serviceName: "Storage",
+        armRegionName: "swedencentral",
+        productName: "Blob Storage",
+        skuName: "Hot LRS",
+        meterName: "Hot LRS Data Stored",
+        retailPrice: 0.0184,
+        tierMinimumUnits: 0,
+      },
+      {
+        ...row,
+        serviceName: "Storage",
+        armRegionName: "swedencentral",
+        productName: "Blob Storage",
+        skuName: "Hot LRS",
+        meterName: "Hot LRS Data Stored",
+        retailPrice: 0.017664,
+        tierMinimumUnits: 51200,
+      },
+    ],
+    NextPageLink: null,
+  };
+  const result = await fetchRetailEvidence(input, async () => response(blobPage));
+  assert.equal(result.requests_used, 1);
+
+  // Rejects when tierMinimumUnits is already present in pricing_get response
+  const alreadyHasTiers = structuredClone(input);
+  alreadyHasTiers.mcp_failure.attempts[0].response.results.prices[0].tierMinimumUnits = 0;
+  await assert.rejects(
+    fetchRetailEvidence(alreadyHasTiers, () => assert.fail("must not fetch")),
+    /omit tierMinimumUnits/,
+  );
+
+  // Rejects when only a single rate row was returned
+  const singleRate = structuredClone(input);
+  singleRate.mcp_failure.attempts[0].response.results.prices = [
+    singleRate.mcp_failure.attempts[0].response.results.prices[0],
+  ];
+  await assert.rejects(
+    fetchRetailEvidence(singleRate, () => assert.fail("must not fetch")),
+    /multiple rate rows/,
   );
 });
 

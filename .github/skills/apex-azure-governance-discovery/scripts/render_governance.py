@@ -351,10 +351,20 @@ def emit_preview_md(envelope: dict[str, Any], out_path: Path, arch_resources: li
     a(f"| Tag Policies | {len(tags_required)} tags required | {discovered_at} |")
     a(f"| Security Policies | {len(security)} constraints | {discovered_at} |\n")
     is_cached = envelope.get("source") == "cached_baseline" or envelope.get("cached_baseline", False)
+    is_assumed = envelope.get("source") == "alz-corp-default"
     discovery_method = "Cached governance baseline (governance-policy-baseline.json.gz)" if is_cached else "Azure Policy REST API (discover.py)"
+    if is_assumed:
+        discovery_method = "ALZ Corp default policy set (assumed governance, not verified against the tenant)"
     a(f"**Discovery Method**: {discovery_method}")
     a(f"**Subscription**: {envelope.get('subscription_id', 'unknown')}")
     a(f"**Scope**: Subscription + management-group inherited\n")
+    if is_assumed:
+        provenance = envelope.get("provenance") or {}
+        a(
+            "> ⚠️ **Assumed governance.** These are the default Azure landing zone policies for a subscription under "
+            f"the Corp management group (library `{provenance.get('alz_library_ref', 'unknown')}`). They were not "
+            "read from this tenant; run live discovery to verify before deployment.\n"
+        )
     if blockers:
         a(f"> ⚠️ **{len(blockers)} deployment blocker(s)** detected. Review the [Deployment Blockers](#-deployment-blockers) section before proceeding to IaC planning.\n")
 
@@ -640,6 +650,8 @@ def emit_preview_md(envelope: dict[str, Any], out_path: Path, arch_resources: li
     a("| Tag Governance | [Tagging Strategy](https://learn.microsoft.com/azure/cloud-adoption-framework/ready/azure-best-practices/resource-tagging) |\n")
     a("---\n")
     footer_source = "cached governance baseline" if is_cached else "Azure Policy REST API via discover.py"
+    if is_assumed:
+        footer_source = "the ALZ Corp default policy set (assumed, not tenant-verified)"
     a(f"_Governance constraints discovered from {footer_source}._\n")
 
     preview_path.write_text("\n".join(lines) + "\n")

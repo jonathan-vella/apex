@@ -153,8 +153,8 @@ and the saved checkpoint; read only the predecessor sections the current phase n
 ## IaC Track Detection
 
 Run `apex-recall show <project> --json` and check `decisions.iac_tool`; ask the user when it is unset.
-`"Bicep"` uses the Bicep AVM metadata tools and patterns. `"Terraform"` uses the public Terraform Registry API
-and Terraform patterns; no Terraform MCP server is required.
+`"Bicep"` uses Bicep AVM metadata tools and patterns. `"Terraform"` uses Azure MCP `azureterraform` lookup
+with the public Terraform Registry API as fallback and the AVM module index for existence; plus Terraform patterns.
 
 ## Read Skills First
 
@@ -368,7 +368,7 @@ Build **one structured `askQuestions` panel** combining:
 
 Single-shot panel: one `askQuestions` call with all questions. Omit any
 question whose key already appears in `apex-recall show <project>`
-decisions (resume support).
+decisions (resume support). Show the architecture's value per question (see reference).
 
 Persist each answer (MANDATORY) — one `apex-recall decide` call per key:
 

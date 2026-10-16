@@ -42,6 +42,7 @@ from __future__ import annotations
 import json
 import sys
 
+from ..reopen import clear_stale
 from ..risk_gate import COMPLETION_ACTIONS, check_entry, evaluate_gate, ordinary_entry_warning, record_authorization
 from ..state_writer import (
     _iso_now,
@@ -53,6 +54,7 @@ from ..state_writer import (
     validate_step_key,
     write_state,
 )
+from ..step2_gate import report_residue, step2_residue
 from ..step_order import check_order, report_order_error
 from .complete_step import (
     _challenger_findings_invalid,
@@ -115,6 +117,11 @@ def run(args) -> int:  # noqa: C901 — one CLI dispatcher, branchy by design
         )
     except ValueError as exc:
         return report_order_error(project, to_step, exc, as_json)
+
+    if complete and from_step == "2" and data.get("steps", {}).get(from_step, {}).get("status") != "complete":
+        residue = step2_residue(project)
+        if residue:
+            return report_residue(project, residue, as_json)
 
     try:
         governance_review, selection = _select_replacement_review(project, from_step, args, data)
@@ -276,6 +283,7 @@ def run(args) -> int:  # noqa: C901 — one CLI dispatcher, branchy by design
     to_data["status"] = "in_progress"
     to_data["started"] = now
     to_data["completed"] = None
+    clear_stale(to_data)
     data["steps"][to_step] = to_data
     data["current_step"] = step_to_int(to_step)
 

@@ -16,6 +16,9 @@ shared guidance when attached or explicitly loaded, not as an assumed inherited 
 - Reuse unchanged content still available in context. After a source change,
   compaction, or a new chat, load only the missing or changed material needed for the task.
 - Do not repeat a complete read for an already available section.
+- If the `skill` tool reports a skill as not found, read that skill's `SKILL.md` from the skills directory by path.
+  Its list is not always complete (for example `apex-terraform-patterns`, `apex-workflow-engine` and
+  `apex-microsoft-docs` can be missing).
 
 ## Skill and user precedence
 

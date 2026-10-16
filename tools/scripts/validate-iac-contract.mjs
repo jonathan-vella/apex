@@ -24,6 +24,9 @@
  *   7. plan_ref.sha256 + l1m_ref.sha256 match the actual file content when
  *      the referenced files exist on disk (WARN when files missing — common
  *      during local dev before plan is finalised).
+ *   8. Private paths (only for resources declaring phase/consumes/target):
+ *      a depends_on target may not be in a later phase, and a resource that
+ *      consumes a resource with a private endpoint must depend_on one.
  *
  * Usage:
  *   node tools/scripts/validate-iac-contract.mjs
@@ -40,6 +43,7 @@ import { readJson, sha256File } from "./_lib/json.mjs";
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "../..");
 const SCHEMA_PATH = path.join(ROOT, "tools/schemas/iac-contract.schema.json");
+const STAGES = ["deploy", "post-deploy", "go-live"];
 
 function checkUniqueLogicalNames(data, fileRel, r) {
   const seen = new Set();
@@ -135,11 +139,14 @@ function checkScheduledActions(data, fileRel, reporter) {
   }
 }
 
-function checkCapabilityReadiness(data, fileRel, reporter, required) {
+function checkCapabilityReadiness(data, fileRel, reporter, required, stage = "deploy") {
   if (!data.capability_checks) {
     if (required) reporter.error(fileRel, "Capability coverage absent; owner migration required for readiness mode");
     return;
   }
+  // A capability without `blocks` blocks every stage, which is the behaviour before the field existed.
+  const blocksStage = (capability) =>
+    !capability.blocks?.length || capability.blocks.some((blocked) => STAGES.indexOf(blocked) <= STAGES.indexOf(stage));
   const checks = new Map(data.capability_checks.map((entry) => [entry.id, entry]));
   const visit = (capability, trail = new Set()) => {
     if (trail.has(capability.id)) {
@@ -166,7 +173,13 @@ function checkCapabilityReadiness(data, fileRel, reporter, required) {
     if (capability.status === "designed" && (capability.required_now || capability.security_obligation))
       visit(capability);
     if ((capability.required_now || capability.security_obligation) && capability.status === "unresolved") {
-      reporter.error(fileRel, `Required design path unresolved: ${capability.id}`);
+      if (blocksStage(capability)) reporter.error(fileRel, `Required design path unresolved: ${capability.id}`);
+      else {
+        reporter.warn(
+          fileRel,
+          `Capability ${capability.id} is unresolved and blocks ${capability.blocks.join(", ")}; not blocking stage ${stage}`,
+        );
+      }
     }
     if (
       capability.status === "deferred" &&
@@ -182,6 +195,17 @@ function checkCapabilityReadiness(data, fileRel, reporter, required) {
     }
     if (capability.runtime_status === "verified" && !capability.evidence.length) {
       reporter.error(fileRel, `Runtime verification lacks evidence: ${capability.id}`);
+    }
+  }
+}
+
+function checkPhaseParameter(data, fileRel, r) {
+  for (const param of data.params ?? []) {
+    if ((param.name === "phase" || param.name === "deployment_phase") && "default" in param) {
+      r.error(
+        fileRel,
+        `params["${param.name}"] must be required with no default: a default deploys every phase when it is omitted and bypasses the per-phase approval gates`,
+      );
     }
   }
 }
@@ -202,6 +226,46 @@ function checkDependsOn(data, fileRel, r) {
     graph.set(res.logical_name, deps);
   }
   detectCycles(graph, fileRel, r);
+}
+
+// Applies only to resources that declare `phase`, `consumes` or `target`; contracts without them are unchanged.
+function checkPrivatePaths(data, fileRel, r) {
+  const resources = new Map((data.resources ?? []).map((res) => [res.logical_name, res]));
+  const endpointsByTarget = new Map();
+  for (const res of resources.values()) {
+    if (res.target === undefined) continue;
+    if (res.type !== "Microsoft.Network/privateEndpoints") {
+      r.error(fileRel, `resources["${res.logical_name}"].target is only valid on Microsoft.Network/privateEndpoints`);
+    } else if (!resources.has(res.target)) {
+      r.error(fileRel, `resources["${res.logical_name}"].target "${res.target}" not in resources[]`);
+    } else {
+      endpointsByTarget.set(res.target, [...(endpointsByTarget.get(res.target) ?? []), res.logical_name]);
+    }
+  }
+  for (const res of resources.values()) {
+    for (const dep of res.depends_on ?? []) {
+      const earlier = resources.get(dep);
+      if (res.phase !== undefined && earlier?.phase !== undefined && earlier.phase > res.phase) {
+        r.error(
+          fileRel,
+          `resources["${res.logical_name}"] (phase ${res.phase}) depends_on "${dep}" in later phase ${earlier.phase}`,
+        );
+      }
+    }
+    for (const consumed of res.consumes ?? []) {
+      if (consumed === res.logical_name || !resources.has(consumed)) {
+        r.error(fileRel, `resources["${res.logical_name}"].consumes "${consumed}" must name another resource`);
+        continue;
+      }
+      const endpoints = endpointsByTarget.get(consumed) ?? [];
+      if (endpoints.length > 0 && !endpoints.some((endpoint) => (res.depends_on ?? []).includes(endpoint))) {
+        r.error(
+          fileRel,
+          `resources["${res.logical_name}"] consumes "${consumed}" but does not depends_on its private endpoint (${endpoints.join(", ")}); create the endpoint first`,
+        );
+      }
+    }
+  }
 }
 
 function detectCycles(graph, fileRel, r) {
@@ -260,12 +324,22 @@ function main() {
   const rawArgs = process.argv.slice(2);
   if (rawArgs.includes("--help")) {
     console.log(
-      "Usage: validate-iac-contract.mjs [artifact-path-or-glob ...] [--readiness]\nNo paths: scan project contracts. Readiness requires capability coverage; it does not grant approval.",
+      "Usage: validate-iac-contract.mjs [artifact-path-or-glob ...] [--readiness] [--stage deploy|post-deploy|go-live]\nNo paths: scan project contracts. Readiness requires capability coverage; it does not grant approval.\n--stage (default deploy): an unresolved capability fails only when its `blocks` list includes that stage or an earlier one.",
     );
     return;
   }
   const readiness = rawArgs.includes("--readiness");
-  const args = rawArgs.filter((arg) => arg !== "--readiness");
+  const stageIndex = rawArgs.indexOf("--stage");
+  const stage = stageIndex >= 0 ? rawArgs[stageIndex + 1] : "deploy";
+  if (!STAGES.includes(stage)) {
+    r.error("--stage", `must be one of ${STAGES.join(", ")}`);
+    r.summary();
+    r.exitOnError("Invalid --stage");
+    return;
+  }
+  const args = rawArgs.filter(
+    (arg, index) => arg !== "--readiness" && arg !== "--stage" && (stageIndex < 0 || index !== stageIndex + 1),
+  );
   const patterns = args.length > 0 ? args : defaultGlobs();
 
   let files = [];
@@ -305,8 +379,10 @@ function main() {
     checkIdentity(data, fileRel, r);
     checkDiagnosticsParam(data, fileRel, r);
     checkScheduledActions(data, fileRel, r);
-    checkCapabilityReadiness(data, fileRel, r, readiness);
+    checkCapabilityReadiness(data, fileRel, r, readiness, stage);
+    checkPhaseParameter(data, fileRel, r);
     checkDependsOn(data, fileRel, r);
+    checkPrivatePaths(data, fileRel, r);
     checkRefHashes(data, fileRel, r);
     if (r.errors === errorsBefore) {
       r.ok(

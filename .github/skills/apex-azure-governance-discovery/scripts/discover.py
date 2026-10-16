@@ -234,12 +234,26 @@ def _parallel_fetch_items(
         return list(pool.map(_fetch, urls, expected_ids))
 
 
+# Built-in diagnostic-settings initiatives gate each member's effect on a resource-type list parameter.
+_CONDITIONAL_EFFECT = re.compile(
+    r"\[if\(contains\(parameters\('([^']+)'\),\s*'([^']+)'\),\s*parameters\('([^']+)'\),\s*'([^']+)'\)\]",
+    re.IGNORECASE,
+)
+
+
 def _resolve_parameters(value: Any, parameters: dict[str, Any]) -> Any:
     if isinstance(value, str):
+        normalized = {key.lower(): item for key, item in parameters.items()}
         match = re.fullmatch(r"\[parameters\('([^']+)'\)\]", value.strip(), re.IGNORECASE)
         if match:
-            normalized = {key.lower(): item for key, item in parameters.items()}
             return normalized.get(match.group(1).lower(), value)
+        conditional = _CONDITIONAL_EFFECT.fullmatch(value.strip())
+        if conditional:
+            container = normalized.get(conditional.group(1).lower())
+            chosen = normalized.get(conditional.group(3).lower())
+            if isinstance(container, list) and chosen is not None:
+                listed = {str(item).lower() for item in container}
+                return chosen if conditional.group(2).lower() in listed else conditional.group(4)
     if isinstance(value, dict):
         return {key: _resolve_parameters(item, parameters) for key, item in value.items()}
     if isinstance(value, list):
@@ -878,7 +892,7 @@ def discover(
                 audit_count += 1
                 continue
             if eff not in RELEVANT_EFFECTS:
-                if eff != "Append":
+                if eff not in {"Append", "enforceSetting"}:
                     unresolved.append(original_defn.get("id") or pid)
                 continue
 

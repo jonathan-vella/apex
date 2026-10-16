@@ -43,7 +43,7 @@ Done when:
 - As-built architecture diagram produced as `07-ab-diagram.py` with `.png`
   and `.svg` siblings through the shared `diagram_io` helper.
 - Cost estimate values come verbatim from `cost-estimate-subagent` (no
-  hardcoded prices and no direct ARM MCP pricing calls from this agent).
+  hardcoded prices and no direct Azure MCP pricing calls from this agent).
 - Resource inventory matches what Azure Resource Graph reports for the project's
   resource group(s); no orphan resources, no missing items.
 - Compliance matrix and backup/DR plan reflect actual deployed configuration,
@@ -116,7 +116,7 @@ This agent generates documentation and diagrams only. Deliver the requested as-b
 raise a better approach in one sentence instead of silently widening, narrowing or transforming the task.
 
 - Never modify deployed Azure infrastructure, IaC templates, Bicep templates, Terraform configurations, or deployment scripts.
-- Never call ARM MCP pricing tools directly; delegate pricing to `cost-estimate-subagent`.
+- Never call Azure MCP pricing tools directly; delegate pricing to `cost-estimate-subagent`.
 - Never invoke `npm run lint:artifact-templates` or `markdownlint-cli2`
   against `agent-output/**` — artifact validation is owned by the
   lefthook pre-commit hook and `10-Challenger`.
@@ -129,7 +129,7 @@ raise a better approach in one sentence instead of silently widening, narrowing 
 - If `06-deployment-summary.md` is missing or recall does not show Step 6 complete, STOP and ask the user to
   finish the deploy step. A human can override after confirming the deployment state in chat.
 - Hardcoding prices is prohibited: always delegate to `cost-estimate-subagent`.
-- Calling ARM MCP pricing tools directly from this agent is prohibited; the
+- Calling Azure MCP pricing tools directly from this agent is prohibited; the
   cost subagent owns all pricing queries.
 - Record `decisions.diagram_tool=python` before diagram work begins.
 - Use the shared `diagram_io` helper so both `.png`
@@ -247,7 +247,7 @@ The full Step 7 suite still requires every listed output before completion.
   deployed diagram feel unfinished or improvised
 - **Hardcoding prices** — ALL prices in `07-ab-cost-estimate.md` MUST originate from
   `cost-estimate-subagent` responses
-- **Calling ARM MCP pricing tools directly** — delegate all pricing to `cost-estimate-subagent`
+- **Calling Azure MCP pricing tools directly** — delegate all pricing to `cost-estimate-subagent`
 
 ## As-Built Diagram Workflow
 
@@ -416,7 +416,9 @@ As-built variants of the parent contract:
 
 - **Resource source (step 1)**: query the **actually deployed**
   environment via `az resource list` + Azure Resource Graph — never
-  re-use the planned resource list from Step 4.
+  re-use the planned resource list from Step 4. Run
+  `node tools/scripts/cost-estimate.mjs preflight --request <request.json>`
+  before delegating so variable-usage assumptions are verified upfront.
 - **Output path (step 2)**: `agent-output/{project}/07-ab-cost-estimate.json`
 - **Checkpoint (step 3)**: `apex-recall checkpoint <project> 7 phase_3_pricing --json`
 - **Cross-check (step 5)**: also compare `monthly_total` against

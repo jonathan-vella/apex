@@ -70,9 +70,11 @@ phases can consume it without re-asking.
 
 ### 4. `az_posture`
 
+- **Applies to**: production environments only. For non-production, record
+  `single-zone-mvp` without asking.
 - **Question**: "What is the target Availability Zone posture?"
 - **Options**:
-  - `single-zone-mvp` (cheapest; acceptable for non-prod)
+  - `single-zone-mvp` (cheapest; the only posture for non-prod)
   - `zone-redundant` (recommended for prod; requires P1v4+/v2+ SKUs
     and 2+ instances)
   - `regional-pair` (zone-redundant primary + read-only or warm
@@ -122,6 +124,13 @@ free-text `askQuestions` to capture the custom value, then persist as
   (e.g. from a resume), omit that question from the panel.
 - Do not ask for `identity_model` when the project has zero compute
   resources; default to `none` and persist that.
+- **Show the architecture's value.** Before building the panel, read
+  `02-architecture-assessment.md` for a stated value of each key (for
+  example system-assigned identity) and add it to that option's
+  description as "Architecture assessment: {value}". When the answer
+  differs, record the deviation with `apex-recall decide --decision
+  "{key} deviates from architecture: {old} -> {new}" --step 4` and in
+  the plan's decision table.
 
 ## Anti-patterns
 

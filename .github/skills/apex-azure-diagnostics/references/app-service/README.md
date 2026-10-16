@@ -166,9 +166,9 @@ az webapp config ssl show --certificate-name CERT -g RG
 | `Azure CLI` | `az webapp deployment slot list -n APP -g RG` | Compare slot configurations |
 | `mcp_azure-mcp_appservice` | `appservice_webapp_diagnostic_diagnose` | AI-powered root cause analysis |
 | `mcp_azure-mcp_monitor` | `monitor_resource_log_query` | Run KQL against Log Analytics |
-| `mcp_azure-mcp_resourcehealth` | `get` | Check platform-level health status |
+| `mcp_azure-mcp_resourcehealth` | `resourcehealth_availability-status_get` | Check platform-level health status |
 
-> 💡 **Tip:** Start with `mcp_azure-mcp_appservice` (`diagnose`) — it automatically runs relevant detectors and surfaces the most likely root cause before you dig into logs manually.
+> 💡 **Tip:** Start with `mcp_azure-mcp_appservice` (`appservice_webapp_diagnostic_diagnose`; requires `app`, `detector-id` and `resource-group`) — it runs a chosen detector and surfaces the most likely root cause before you dig into logs manually.
 
 ---
 

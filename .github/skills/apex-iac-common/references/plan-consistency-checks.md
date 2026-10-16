@@ -17,7 +17,7 @@ Rule resolution protocol (Phase 2.5):
 
 | Rule ID               | Trigger                                                                                               | Deterministic check                                                                                                                                                      | Safe default                                                       | Escalation                         |
 | --------------------- | ----------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------ | ------------------------------------------------------------------ | ---------------------------------- |
-| `zone_redundancy`     | Any resource with a `zone_redundant`/`zoneRedundant` knob OR App Service Plan P1v4+ in plan           | Number of declared instances ≥ 2 AND chosen SKU supports zone-redundancy in target region                                                                                | None (architectural decision)                                      | Phase 3.5 → `az_posture`           |
+| `zone_redundancy`     | Production environment only: any resource with a `zone_redundant`/`zoneRedundant` knob OR App Service Plan P1v4+ in plan | Number of declared instances ≥ 2 AND chosen SKU supports zone-redundancy in target region                                                                                | None (architectural decision)                                      | Phase 3.5 → `az_posture`           |
 | `rbac_phase_ordering` | Phased deployment with role assignments                                                               | Every `Microsoft.Authorization/roleAssignments` (Bicep) or `azurerm_role_assignment` (TF) deploys in a phase ≥ phase of its principal identity AND its scope target      | Defer role assignments to the latest phase that owns the principal | None (mechanical fix; auto-apply)  |
 | `deployment_script`   | Plan declares a `Microsoft.Resources/deploymentScripts` or AVM deployment-script wrapper              | Identity (`userAssignedIdentities`) declared, network access either `subnetResourceIds` set OR public access justified, container image pinned to digest (not `:latest`) | Pin image to a known-good digest; require `userAssignedIdentities` | Phase 3.5 → `script_runtime_image` |
 | `public_edge_auth`    | Any public-edge resource (Front Door, Application Gateway, APIM, Container Apps ingress, App Service) | Auth model declared in plan (`waf_policy_id` + `managed_identity` for FD/AppGW; `oauth_provider` for App Service) AND `client_cert_required` set true/false explicitly   | None (architectural decision)                                      | Phase 3.5 → `public_edge_auth`     |
@@ -28,9 +28,10 @@ Rule resolution protocol (Phase 2.5):
 
 ### `zone_redundancy`
 
-- **What it catches**: a plan that promises HA/zone-redundancy but
+- **What it catches**: a production plan that promises HA/zone-redundancy but
   declares a single instance, a non-zone-redundant SKU, or a region that
-  does not expose zones.
+  does not expose zones. Non-production plans are out of scope: single-zone
+  is the expected posture there and is never flagged.
 - **Why it matters**: deploys succeed; runtime fails the first time a
   zone goes down. Discovery cannot catch this — it is a plan-internal
   contradiction between `02-architecture-assessment.md`'s reliability
@@ -72,6 +73,15 @@ Rule resolution protocol (Phase 2.5):
 - **Auto-fix**: rewrite every phase-gated resource to read the single
   declared phase parameter.
 
+### `phased_param_wiring` (required parameter)
+
+- **Also catches**: a phase parameter with a default (for example `phase = 5`), which deploys every
+  phase when omitted and bypasses per-phase approval. Declare it required with a bounded range and no default.
+- **Also catches**: a consumer ordered before a private endpoint or DNS zone it depends on
+  (image pull, Key Vault reference, SQL, Blob). For each consumer list every private endpoint on its
+  path and confirm `depends_on` and the phase order match before approval. Record the relation in the
+  contract: `consumes` on the consumer, `target` on the endpoint, `depends_on` from consumer to endpoint.
+
 ### `phase_monotonicity`
 
 - **What it catches**: `Phase 1, Phase 2, Phase 4` (gap) or
@@ -100,7 +110,8 @@ Rule resolution protocol (Phase 2.5):
   mechanical ones.
 - Do not re-trigger these checks on revision loops if the rule already
   recorded a decision; reuse the prior `apex-recall decide` value.
-- Do not write a new validator script for these rules in this PR — they
-  ship as agent-enforced documentation. A future PR can add
-  `npm run validate:plan-consistency` once 5+ projects use the
-  schema.
+- Both phase rules are validator-backed once the contract declares the fields. Emit `phase` on every resource,
+  `consumes` on each resource that reaches another over a private path, and `target` on each private endpoint;
+  `validate:iac-contract` then fails a `depends_on` into a later phase, and a consumer that does not `depends_on`
+  a private endpoint targeting what it consumes. Contracts without the fields are not checked, so emit them for new plans.
+  A phase parameter with a default is rejected for every contract.

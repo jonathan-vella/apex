@@ -54,6 +54,15 @@ function extractPlanReferences(plan) {
   };
 }
 
+// Returns the body of the plan's `### Raw Resource Exceptions` section, or null when the plan has none.
+function rawExceptionsSection(plan) {
+  const lines = plan.split("\n");
+  const start = lines.findIndex((line) => /^###\s+Raw Resource Exceptions\s*$/i.test(line));
+  if (start < 0) return null;
+  const end = lines.findIndex((line, index) => index > start && /^#{1,3}\s/.test(line));
+  return lines.slice(start + 1, end < 0 ? undefined : end).join("\n");
+}
+
 function defaultGlobs() {
   return ["agent-output/*/04-iac-contract.json"];
 }
@@ -144,6 +153,26 @@ function main() {
           r.warn(
             contractRel,
             `Plan references ${track.toUpperCase()} module "${planMod}" but contract.modules.${track}[] has no matching source.`,
+          );
+        }
+      }
+    }
+    // A resource without an AVM module entry is raw and needs a structured exception record in the plan.
+    const moduled = new Set((contract.modules?.[track] ?? []).map((m) => m.resource_logical_name));
+    const raw = (contract.resources ?? []).filter((res) => !moduled.has(res.logical_name));
+    const exceptions = raw.length > 0 ? rawExceptionsSection(planText) : null;
+    if (raw.length > 0 && exceptions === null) {
+      r.warn(
+        contractRel,
+        `Plan has no "### Raw Resource Exceptions" section; raw resources without an exception record: ${raw.map((res) => res.logical_name).join(", ")}`,
+      );
+    } else if (exceptions !== null) {
+      const body = exceptions.toLowerCase();
+      for (const res of raw) {
+        if (!body.includes(res.type.toLowerCase()) && !body.includes(res.logical_name.toLowerCase())) {
+          r.error(
+            contractRel,
+            `Raw resource "${res.logical_name}" (${res.type}) has no row in "### Raw Resource Exceptions"; add a record per cost-alerts-baseline.md.`,
           );
         }
       }

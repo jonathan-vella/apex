@@ -1,20 +1,20 @@
 ---
 name: cost-estimate-subagent
-description: Azure cost estimation subagent. Uses Azure Resource Manager MCP retail pricing and cost data, then returns a structured cost breakdown through a file-based contract.
+description: Azure cost estimation subagent. Uses Azure MCP pricing (pricing_get) retail data only, then returns a structured cost breakdown through a file-based contract.
 model: ["GPT-6 Luna (copilot)"]
 reasoning-effort: max
 user-invocable: false
 disable-model-invocation: false
 agents: []
-tools: [execute, read, edit, search, "azure-resource-manager-mcp/get_retail_prices", "azure-resource-manager-mcp/query_costs", "azure-resource-manager-mcp/query_aks_costs", "azure-resource-manager-mcp/forecast_costs", "azure-resource-manager-mcp/list_dimensions", "azure-resource-manager-mcp/list_benefit_utilization", "azure-resource-manager-mcp/get_benefit_recommendations"]
+tools: [execute, read, edit, search, "azure-mcp/pricing"]
 ---
 
 # cost-estimate-subagent
 
 ## Role
 
-Price planned Azure resources with the official Azure Resource Manager MCP
-server first; use only the documented public Retail Prices API fallback for unresolved meters after MCP failure.
+Price planned Azure resources with the Azure MCP `pricing` tool (`pricing_get`) only;
+use only the documented public Retail Prices API fallback for unresolved meters after MCP failure.
 Parent agents provide paths and receive only a compact summary; write the
 full result to `output_path`.
 
@@ -31,7 +31,9 @@ Callers: Architect (planned estimates) | As-Built (deployed estimates).
   Preserve all SKU choices, pins, revisions
   and unrelated user edits. No other artifact, recall or Azure writes.
 - Use editing tools for JSON and #tool:execute only for arithmetic, validation, atomic rename,
-  and the documented `fetch-retail-price-evidence.mjs` helper. The helper alone may write its validated
+  and the documented `cost-estimate.mjs` and `fetch-retail-price-evidence.mjs` helpers. Never run inline
+  double-quoted `node -e "... !..."` commands. Never call `mcp_azure_mcp_ser_pricing` with `learn: true`;
+  invoke `command: "pricing_get"` (`learn: false`) directly. The evidence helper alone may write its validated
   direct-API evidence output; it never writes the estimate. Terminal access is not inherently read-only.
 - No questions, todos, delegation or automatic model fallback. Missing essential
   tools/model/inputs return FAILED with `unresolved_items[]`; if persistence is
@@ -49,14 +51,17 @@ Exactly one input mode must be supplied:
 - `resource_list`: `[{ name?, service_name, sku, region, quantity, usage?, meter_name? }]`
 - `manifest_path`: path to `sku-manifest.json`; expand effective services across
   environments, regions, and stamps using the canonical pricing guidance.
-  Optional `manifest_writeback` defaults to `true`.
+  Optional `manifest_writeback` defaults to `true`. Optional `manifest_usage`
+  supplies per-service variable usage keyed by service `id` (or `id:env:region`).
+  Optional `supplemental_resources` (`resource_list`-shaped entries for non-manifest
+  architecture resources) are priced in the same run and included in `resources[]`,
+  `monthly_total`, and `yearly_total`, but excluded from `manifest_writeback[]`.
 - `candidate_sets`: `[{ decision_id, candidates: [{ label, service_name, sku,
   region, quantity, usage?, meter_name?, notes? }] }]`.
 
 Common inputs: `project_name`, `region`, `output_path`, and `overwrite` (default
-`false`). Optional: `compare_regions`, `include_ri_savings`, `scope`, and
-`deployed` (default `false`). Multiple input modes or a missing required field
-must produce `FAILED` with a specific `unresolved_items[]` entry.
+`false`). Optional: `compare_regions` and `include_ri_savings`. Multiple input modes
+or a missing required field must produce `FAILED` with a specific `unresolved_items[]` entry.
 
 Optional `recovery` supplies `draft_path`, `evidence_paths`, `remaining_requests` and `prior_attempt` context
 for a parent-authorized interrupted attempt, while retaining exactly one original pricing input mode.
@@ -66,29 +71,30 @@ After validation, publish without new queries when evidence is sufficient; cance
 
 ## Required references
 
-After input validation, read these before pricing using available tools. Reuse unchanged
+After input validation, read this reference before pricing using available tools. Reuse unchanged
 content and recover missing/changed evidence after compaction; no skill digest tier:
 
 - `../../skills/apex-azure-defaults/references/pricing-guidance.md`
-- `../../skills/apex-azure-artifacts/templates/03-des-cost-estimate.template.md`
 
-The pricing guidance is the canonical source for ARM MCP parameter names,
-service names, region handling, meter selection, usage units, and calculations.
+The pricing guidance is the canonical source for `pricing_get` parameters and `filter` syntax,
+service names, region handling, meter selection, usage units, and calculations. Do not read
+Markdown report templates (`03-des-cost-estimate.template.md`) — this worker emits JSON only.
 
 ## Workflow
 
-1. Validate the input mode and refuse an existing `output_path` unless
-  `overwrite: true`. Reuse an existing COMPLETE result without writing only
-  when the guidance's freshness and equivalence checks pass; otherwise report
-  that a refresh requires overwrite authorization.
+1. Validate the input mode (using `node tools/scripts/cost-estimate.mjs preflight` when a request JSON is present)
+   and refuse an existing `output_path` unless `overwrite: true`. Reuse an existing COMPLETE result without writing only
+   when the guidance's freshness and equivalence checks pass; otherwise report that a refresh requires overwrite authorization.
 2. Normalize each line using the canonical guidance. Do not guess aliases that
   are not documented there. Deployment tiers are not automatically catalog `armSkuName` values;
   use service/region discovery for tier/operation meters and share results across candidate tiers.
 3. Group identical `(serviceName, armSkuName, armRegionName, meterName,
-   priceType, currencyCode)` queries. Call `get_retail_prices` once per distinct
+   priceType, currencyCode)` queries. Call `pricing_get` (`command: "pricing_get"`, `learn: false`) once per distinct
    group and reuse the returned rows across quantities and candidates.
+  Express meter filters through its OData `filter`; it has no `meterName` input and a bare `service` can be rejected.
   Keep a query ledger including empty/error results; do not repeat successful or empty identical requests.
-  After documented empty-result discovery or an exhausted transient retry, use the
+  After documented empty-result discovery, an exhausted transient retry, or a status-200 multi-band response that
+  omits `tierMinimumUnits` (`missing_tier_metadata`), use the
   [constrained fallback](../../skills/apex-azure-defaults/references/pricing-guidance.md#constrained-direct-api-fallback)
   only for unresolved meters and within the remaining shared request budget.
 4. Select only rows matching the requested product, meter, unit, OS, and price
@@ -97,20 +103,19 @@ service names, region handling, meter selection, usage units, and calculations.
    `unitOfMeasure`, quantity, and explicit usage. Use 730 hours per month only
    for hourly meters. Sum separate meters when a service bills across compute,
    storage, requests, or transfer.
-6. When `deployed: true` and `scope` is supplied, `query_costs` may provide
-   actual cost context. Use `query_aks_costs` only for deployed AKS breakdowns.
-   These tools never replace `get_retail_prices` for hypothetical resources.
-7. If requested, use `forecast_costs` or benefit tools only for authenticated,
-   deployed scopes. Region comparison means repeating the same retail query for
-   the requested regions; do not recommend a region that violates requirements.
-8. Write the JSON atomically through `{output_path}.tmp`, validate totals and
-   status, then rename it to `output_path`.
-  Validate JSON syntax before rename; if an existing temporary sibling is not owned
-  by this invocation, return FAILED rather than overwrite it or unrelated user work.
-9. In manifest mode with `manifest_writeback: true`, atomically update only
-  `cost_estimate_monthly_usd` and `cost_estimated_at` when status is COMPLETE. Sum each service's deployment
-  lines across environments, regions, and stamps; exclude comparison-only
-  candidates. Preserve the original query timestamp when reusing evidence.
+6. Actual-cost, forecast and benefit analysis are out of scope; this worker prices from the retail catalog only.
+7. If `include_ri_savings` is requested, use `include-savings-plan` or the `Reservation` price type.
+   Region comparison means repeating the same retail query for the requested regions;
+   do not recommend a region that violates requirements.
+8. Write the JSON draft to `{output_path}.tmp` using editing tools, then run
+   `node tools/scripts/cost-estimate.mjs publish --draft <output_path>.tmp --output <output_path> [--manifest <manifest_path>]`
+   to normalize totals, validate JSON syntax and schema/evidence rules, atomically rename to `output_path`,
+   and print the compact summary. If an existing temporary sibling is not owned
+   by this invocation, return FAILED rather than overwrite it or unrelated user work.
+9. In manifest mode with `manifest_writeback: true`, `cost-estimate.mjs publish --manifest <manifest_path>`
+   atomically updates only `cost_estimate_monthly_usd` and `cost_estimated_at` for manifest-owned `services[]`
+   when status is COMPLETE (excluding `supplemental_resources[]` and comparison-only candidates).
+   Preserve the original query timestamp when reusing evidence.
 10. Return the compact parent summary. Never paste the full JSON into chat.
 
 ## Query budget
@@ -134,7 +139,7 @@ Finishing all required evidence on request 20 is within budget; exhaustion block
 
 ## Meter rules
 
-- Treat `get_retail_prices` as raw catalog data, not a computed estimate.
+- Treat `pricing_get` as raw catalog data, not a computed estimate.
 - Require explicit usage for non-hourly meters. Do not turn missing usage into
   zero cost.
 - Free resources may be recorded as zero only when a matching returned meter has
@@ -193,7 +198,7 @@ Write this shape to `output_path`:
   "savings_status": "QUANTIFIED | NOT_QUANTIFIED | NOT_APPLICABLE",
   "savings_reason": "reason",
   "eligible_strategies": [],
-  "data_source": "Azure Resource Manager MCP get_retail_prices",
+  "data_source": "Azure MCP pricing_get",
   "queried_at": "ISO 8601 timestamp",
   "confidence": "High | Medium | Low",
   "unresolved_items": [],
@@ -213,7 +218,7 @@ comparison advice only; it is not SKU approval and never changes the manifest.
 When fallback is used, also emit `direct_api_calls_used` and `retail_api_evidence[]` entries with
 `evidence_path`, `resource_names`, `selected_meters` (meter ID, SKU, billing region and tier), and `calculation`.
 Reference the helper's raw responses, original MCP failure and timestamps; do not duplicate raw catalogs in the estimate.
-Set `data_source` to `Azure Resource Manager MCP + Azure Retail Prices API (direct fallback)` for mixed results,
+Set `data_source` to `Azure MCP pricing_get + Azure Retail Prices API (direct fallback)` for mixed results,
 or the direct source label if every priced meter used fallback. Identify the source in each affected line's notes.
 Do not label direct API data as MCP-verified. Evidence paths must remain available alongside the estimate.
 
@@ -246,7 +251,7 @@ budget_exceeded: {true | false}
 - Authentication or authorization failure: return FAILED with the Azure scope
   and missing access described, without exposing tokens or tenant details.
 - API timeout: retry once, then fail the affected lines.
-- Unsupported custom capability: state that ARM MCP does not provide it. Do not
+- Unsupported custom capability: state that Azure MCP `pricing_get` does not provide it. Do not
   recreate Databricks, GitHub, PTU sizing, Spot history, orphan detection,
   customer discounts, fuzzy SKU discovery, or custom bulk-estimate behavior.
 

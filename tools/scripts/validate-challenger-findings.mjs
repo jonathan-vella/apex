@@ -77,6 +77,24 @@ const REQUIRED_CACHE_FIELDS = [
   "artifact_hash",
 ];
 const VALID_SEVERITY = new Set(["must_fix", "should_fix", "suggestion"]);
+const MUTABLE_INPUT_NAMES = new Set([
+  "sku-manifest.json",
+  "sku-manifest.md",
+  "00-handoff.md",
+  "00-session-state.json",
+  "README.md",
+]);
+
+// A later step must edit these files, so freezing one as review input guarantees a stale review.
+export function mutableInputProblem(inputPath) {
+  const name = path.basename(String(inputPath));
+  if (!MUTABLE_INPUT_NAMES.has(name) && !name.endsWith("-decisions.json")) return null;
+  return (
+    `${name} is a mutable parent-owned file that a later step must change, so a review that freezes it ` +
+    "fails strict freshness. Remove it from supporting inputs and quote what you read from it in the review " +
+    "text instead (for sku-manifest.json, its current_revision)."
+  );
+}
 
 let r;
 
@@ -144,6 +162,8 @@ function verifyCache(file, doc) {
           const resolved = path.resolve(input.path);
           if (seen.has(resolved)) throw new Error("duplicate supporting input");
           seen.add(resolved);
+          const mutable = mutableInputProblem(input.path);
+          if (mutable) throw new Error(mutable);
           if (cacheInputs(input.path).artifact_sha !== input.sha256) throw new Error("supporting bytes changed");
         } catch (error) {
           r.error(`${file}: invalid supporting input: ${error.message}`);
@@ -286,6 +306,10 @@ export function runValidator(args = process.argv.slice(2)) {
       if (values.metadata !== undefined) metadata.cache_inputs = cacheInputs(values.metadata);
       if (values["supporting-input"]) {
         if (values.metadata === undefined) throw new Error("--supporting-input requires --metadata");
+        for (const input of values["supporting-input"]) {
+          const mutable = mutableInputProblem(input);
+          if (mutable) throw new Error(mutable);
+        }
         metadata.supporting_inputs = [...new Set(values["supporting-input"])].map((input) => ({
           path: input,
           sha256: cacheInputs(input).artifact_sha,

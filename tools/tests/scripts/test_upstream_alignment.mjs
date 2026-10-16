@@ -52,14 +52,14 @@ test("validate recipes run from the per-project IaC folder", () => {
   }
 });
 
-test("cost reports stay in the project folder and prices come from ARM MCP", () => {
+test("cost reports stay in the project folder and prices come from Azure MCP pricing", () => {
   for (const file of ["SKILL.md", ...markdownFiles("apex-azure-cost-optimization/references/")]) {
     const relative = file.startsWith("apex-") ? file : `apex-azure-cost-optimization/${file}`;
     assert.doesNotMatch(read(relative), /(?<!agent-)output\//, relative);
   }
   const steps = read("apex-azure-cost-optimization/references/detailed-workflow-steps.md");
   const pricing = steps.split("## Step 5: Validate Pricing")[1].split("\n## ")[0];
-  assert.match(pricing, /`get_retail_prices`/);
+  assert.match(pricing, /`pricing_get`/);
   assert.doesNotMatch(pricing, /fetch_webpage/);
 });
 

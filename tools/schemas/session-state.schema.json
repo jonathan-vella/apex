@@ -287,7 +287,7 @@
             "agent": { "type": "string" },
             "status": {
               "type": "string",
-              "enum": ["pending", "in_progress", "complete", "skipped"]
+              "enum": ["pending", "in_progress", "complete", "skipped", "stale"]
             },
             "sub_step": { "type": ["string", "null"] },
             "started": { "type": ["string", "null"] },

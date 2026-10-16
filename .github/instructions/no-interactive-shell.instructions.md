@@ -26,6 +26,16 @@ shell builtin (including inside `bash -c '...'`).
 If the user genuinely needs confirmation, use the `vscode_askQuestions`
 tool — never an interactive shell prompt.
 
+### Sub-rule 1a — Aliased `rm`/`mv`/`cp` are still interactive
+
+A plain `rm path` can still prompt if the user's shell aliases it to
+`rm -i` (common in dotfiles, e.g. `alias rm='rm -iv'`). Passing `-f`
+always wins over an aliased `-i`, so prefer `-f` over relying on the
+absence of a flag, or bypass the alias with `command rm -f path`.
+If a background terminal reports no output for an extended period
+right after an `rm`/`mv`/`cp` call with no explicit `-f`, assume an
+interactive prompt is waiting and send `y`; do not poll it repeatedly.
+
 ## Rule 2 — Pipe long output to a file
 
 For commands likely to produce more than ~50 lines of output, redirect

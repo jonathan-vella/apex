@@ -7,7 +7,8 @@ with the `cost-estimation` fallback rows).
 
 ## Tool preference
 
-Use Azure Resource Manager MCP (ARM MCP) first. For Resource Graph, use the
+Use Azure Resource Manager MCP (ARM MCP) first for cost, forecast and benefit operations; public retail prices use
+Azure MCP `pricing_get`. For Resource Graph, use the
 generate, validate, execute sequence.
 
 If a required operation is unavailable, name the fallback API and use an

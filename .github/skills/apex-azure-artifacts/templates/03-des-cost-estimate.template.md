@@ -30,7 +30,7 @@
 **Generated**: {YYYY-MM-DD}
 **Region**: {primary-region}
 **Environment**: {Production|Staging|Development}
-**MCP Tools Used**: {get_retail_prices, forecast_costs, get_benefit_recommendations}
+**MCP Tools Used**: {pricing_get}
 **Architecture Reference**: {relative link to assessment doc, if available}
 **Pricing Evidence**: {relative link to the actual COMPLETE worker JSON and its referenced evidence}
 
