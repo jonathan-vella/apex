@@ -111,6 +111,15 @@ Before composing the response:
 5. If the cost section cannot be filled (no estimate provided by parent),
    write `unavailable` for each line rather than fabricating a number.
 
+## Harness Entry
+
+For `APEX_WORKER_HANDSHAKE`, perform no tools and return `WORKER_READY`,
+this definition's exact name and the parent's nonce. On the nonce-only continuation,
+return `WORKER_READY_ACK` with that same name/nonce and no tools. Work only after
+the same parent sends `WORKER_EXECUTE` following verified routing. A missing
+handshake or execution envelope returns `blocked`, never an inherited-model run.
+Do not ask users, manage parent todos or delegate. Return missing inputs to the parent.
+
 ## Inputs
 
 The parent agent supplies:

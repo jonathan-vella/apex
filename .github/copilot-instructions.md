@@ -123,12 +123,14 @@ body explicitly points to one. There is one tier — no digest, no minimal.
 
 ## Harness And Runtime Boundaries
 
-- Local prompt files are adapters, not Agent Host entry points. On Agent Host,
-  use the shared skill and explicitly select its owning main agent before consequential work.
-  Skills inherit the caller's model/tools; they do not switch agents or confer permissions.
-- Main agents, including `10-Challenger`, use `disable-model-invocation: true`.
-  The Orchestrator routes through human handoffs only. Explicit caller allowlists
-  must not override that boundary; legacy discovery settings are not a security boundary.
+- Target the GitHub Copilot SDK harness inside VS Code. Archived Local prompts are
+  historical, not entry points. Skills inherit caller model/tools and grant no permissions.
+- `01-Orchestrator` remains human-selected (`disable-model-invocation: true`).
+  It alone dispatches allowlisted step agents after human gate approval and
+  [verified worker readiness](skills/apex-workflow-engine/references/worker-readiness.md).
+  Step agents call only authorized leaves; leaves never delegate or ask users.
+  The interactive parent owns `ask_user`; delegated steps return `USER_INPUT_REQUIRED`.
+  Decline never approves and cancellation stops. Static allowlists are not routing evidence.
 - If a required reviewer is unavailable, STOP and request a human handoff to `10-Challenger`;
   never invoke a nested wrapper or fabricate an inline review. Missing/empty reviewer output
   permits exactly one identical-input retry, then a human handoff under the
@@ -138,7 +140,7 @@ body explicitly points to one. There is one tier — no digest, no minimal.
   when missing; do not automatically load vendor-authoring guidance during production work.
 - Agent frontmatter owns model assignments. Sol, Terra, and Luna labels do not prove
   runtime cost-tier eligibility, availability, or API support. Stop on unsupported routing;
-  do not substitute models automatically. Local and Agent Host behavior needs separate verification.
+  do not substitute models automatically. Require attributed SDK runtime evidence before worker execution.
 - Use available editing tools for existing files, preserve user work, and validate before
   dependent follow-up edits. No shared procedure requires a particular bulk-edit tool.
 - Explicit lab risk acceptance follows [the authorization contract](../tools/apex-recall/docs/risk-authorizations.md).

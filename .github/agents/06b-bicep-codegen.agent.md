@@ -4,10 +4,10 @@ description: Expert Azure Bicep IaC specialist that creates near-production-read
 model: ["Claude Sonnet 5.5 (copilot)"]
 reasoning-effort: medium
 user-invocable: true
-disable-model-invocation: true
+disable-model-invocation: false
 agents: ["bicep-validate-subagent", "challenger-review-subagent"]
 tools:
-  [vscode/askQuestions, execute, read, agent, edit, search, web, 'azure-mcp/*', 'bicep/*', todo]
+  [execute, read, agent, edit, search, web, 'azure-mcp/*', 'bicep/*', todo]
 handoffs:
   - label: "▶ Run Preflight Check"
     agent: 06b-Bicep CodeGen
@@ -59,6 +59,13 @@ Done when:
   challenger-review-subagent runs.
 - `05-implementation-reference.md` exists and lists files + validation
   status; project README updated.
+
+## Harness Entry
+
+Delegated: tool-free `APEX_WORKER_HANDSHAKE` returns `WORKER_READY` + exact name/nonce;
+nonce-only continuation returns `WORKER_READY_ACK`; require `WORKER_EXECUTE` before work.
+[Routing](../skills/apex-workflow-engine/references/worker-readiness.md) before leaf calls; direct use owns `ask_user`.
+Return `USER_INPUT_REQUIRED` forms to the interactive parent; cancel stops.
 
 ## Context Awareness
 
@@ -113,7 +120,7 @@ widening, narrowing or transforming the task.
   official code-reference lookup through available tools per pattern (e.g. PostgreSQL AAD-only,
   Key Vault network ACLs). Do not pre-fetch the catalog.
 - Decision rules instead of absolutes:
-  - When preflight surfaces a blocker → present via `askQuestions`, do not
+  - When preflight surfaces a blocker → present via `ask_user`, do not
     chat back-and-forth.
   - When `04-implementation-plan.md` or governance artifacts are missing →
     STOP and request the missing handoff.
@@ -146,7 +153,7 @@ widening, narrowing or transforming the task.
 
 ## Operating frame
 
-Local uses human handoffs; Host requires explicit selection of the named next owner.
+Use the verified Copilot SDK worker contract; human approval gates still block advancement.
 Inline skills do not select model/tools. Use #tool:agent only for allowlisted workers.
 Reviewer resolution failure requires a human transition to `10-Challenger`, not an
 automatic main-agent call. No transition runs the target under the parent's model.
@@ -186,7 +193,7 @@ or changed sections on resume.
 6. Read `.github/skills/apex-context-management/SKILL.md` — runtime
    compression for large plan/governance artifacts (Mode A)
 7. Read the execution-subagent prompt contract
-   [tools/apex-prompts/utility-prompts/execution-subagent.prompt.md](../../tools/apex-prompts/utility-prompts/execution-subagent.prompt.md)
+   [.github/skills/apex-workflow-engine/references/execution-subagent.md](../skills/apex-workflow-engine/references/execution-subagent.md)
   — every #tool:agent call (bicep-validate-subagent,
    challenger-review-subagent) MUST follow the three-H2 contract
    (issue #425).
@@ -327,7 +334,7 @@ source; `04-implementation-plan.md` is the prose mirror):
    pins against schema; flag type mismatches (see AVM Known Pitfalls)
 4. Check region limitations
 5. Save to `agent-output/{project}/04-preflight-check.md`
-6. If blockers found, use the `askQuestions` tool with a single
+6. If blockers found, use the `ask_user` tool with a single
    form (header `Preflight Blockers Found`, options **Fix and re-run
    preflight** / **Abort — return to Planner**) per
    [`apex-iac-common/references/codegen-shared-workflow.md`](../skills/apex-iac-common/references/codegen-shared-workflow.md)
@@ -370,7 +377,7 @@ from scratch.**
   exemption or compliant configuration; otherwise return through Planner to Governance.
 
 > **GOVERNANCE GATE** — Never proceed to code generation with unresolved Deny
-> policy violations. Always use the `askQuestions` tool for user decisions.
+> policy violations. Always use the `ask_user` tool for user decisions.
 
 **Policy Effect Reference**: `apex-azure-defaults/references/policy-effect-decision-tree.md`
 
@@ -579,12 +586,7 @@ decisions needed.
 
 ## Completion Handoff
 
-After `apex-recall complete-step` + writing `00-handoff.md`, end the
-final chat message with this line, **verbatim**, on its own final line
-(full contract:
-[`compression-templates.md`](../skills/apex-context-management/references/compression-templates.md#gate-boundary-clear-handoff-contract);
-validator: `npm run validate:orchestrator-handoff`):
-
-```text
-Run `/clear`, then switch the chat agent picker to `01-Orchestrator` and send `resume <project>` to continue Step N+1.
-```
+Run `apex-recall checkpoint <project> <step> completed --json`; update `00-handoff.md`
+with paths, actual validation results and unresolved findings. Return `STEP_COMPLETE`
+only after required reviews/checks; pending decisions return `USER_INPUT_REQUIRED`.
+Direct use presents the human gate with `ask_user` and stops. Completion is not next-step approval.

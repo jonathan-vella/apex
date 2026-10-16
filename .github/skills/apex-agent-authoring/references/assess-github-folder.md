@@ -1,7 +1,6 @@
 <!-- ref:assess-github-folder-v1 -->
 # .github Folder Assessment → Remediation Plan
 
-Routing source: [Local adapter](../../../../tools/apex-prompts/utility-prompts/assess-github-folder.prompt.md).
 Apply the [operational boundary](../../apex-workflow-engine/references/operational-safety.md) before activities.
 It controls owner selection, tool limits, worker permissions, state, and gates.
 

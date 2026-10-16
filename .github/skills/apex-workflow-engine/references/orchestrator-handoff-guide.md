@@ -67,9 +67,7 @@ reviewers. Never fabricate an inline review or treat a fallback display as appro
 Artifact: agent-output/{project}/02-architecture-assessment.md
 Cost Estimate: agent-output/{project}/03-des-cost-estimate.md
 ✅ Next: Governance Discovery (Step 3.5) or Design Artifacts (Step 3, optional)
-💡 SESSION BREAK REQUIRED after approval: Open a fresh chat,
-   switching the chat agent picker to `01-Orchestrator`, and sending
-   `resume <project>` to continue from Step 3.5.
+💡 After human approval, checkpoint and verify the graph-selected next SDK worker.
 ❓ Review WAF assessment, both reviews, and confirm the graph-selected next step
 ```
 
@@ -97,9 +95,7 @@ Dependency Diagram: agent-output/{project}/04-dependency-diagram.{py,png,svg}
 Runtime Diagram: agent-output/{project}/04-runtime-diagram.{py,png,svg}
 Deployment: {Phased (N phases) | Single}
 ✅ Next: IaC Implementation (Step 5)
-💡 SESSION BREAK REQUIRED after approval: Start a fresh chat for IaC code generation.
-   Switch the chat agent picker to `01-Orchestrator` and send
-   `resume <project>` — context restores via `apex-recall show`.
+💡 After human approval, checkpoint and verify the selected CodeGen worker.
 ❓ Review plan and required reviews, then confirm to proceed
 ```
 
@@ -145,32 +141,28 @@ Header: `# {Project} — Handoff (Step {N} complete)` with metadata line (`Updat
 
 ## Step Delegation
 
-All production main agents, including `10-Challenger`, are human-selected
-entry points with `disable-model-invocation: true`. The Orchestrator uses
-human handoffs only (`agents: []`), never nested main-agent dispatch.
-Frontmatter owns model assignments; names and catalog tiers do not establish
-runtime cost-tier eligibility. Unknown or unsupported routing requires STOP,
-not automatic model fallback. Local and Agent Host support need separate verification.
+Only `01-Orchestrator` dispatches main workers after human gate approval,
+current graph preconditions and [verified readiness](worker-readiness.md).
+Frontmatter owns model/effort; catalog labels are not routing evidence.
+Unknown routing, failed continuation or missing tools blocks execution;
+never perform specialist work under MAI or choose a fallback model.
 
-### Step → Handoff Button (orchestrator → step agent)
+### Step → Named Worker
 
-| Step | Handoff button label                                                        | Notes                                 |
+| Step | Named worker | Notes |
 | ---- | --------------------------------------------------------------------------- | ------------------------------------- |
-| 1    | `Step 1: Gather Requirements`                                               | Uses `askQuestions` in Phases 1–4     |
-| 2    | `Step 2: Architecture Assessment`                                           | —                                     |
-| 3    | `Step 3: Design Artifacts`                                                  | Optional                              |
-| 3.5  | `Step 3.5: Governance Discovery`                                            | —                                     |
-| 4    | `Step 4: IaC Plan (Bicep)` **or** `Step 4: IaC Plan (Terraform)` | Routed by `decisions.iac_tool`        |
-| 5    | `Step 5: Generate Bicep` / `Step 5: Generate Terraform`                     | Routed by `decisions.iac_tool`        |
-| 6    | `Step 6: Deploy (Bicep)` / `Step 6: Deploy (Terraform)`                      | Routed by `decisions.iac_tool`        |
-| 7    | `Step 7: As-Built Documentation`                                            | —                                     |
-| —    | `🔍 Run Challenger Review`                                                  | Surface at any gate that needs review |
+| 1 | `02-Requirements` | Parent mediates discovery forms |
+| 2 | `03-Architect` | Separate architecture and cost reviews |
+| 3 | `04-Design` | Optional |
+| 3.5 | `04g-Governance` | Effective policy discovery |
+| 4 | `05-IaC Planner` | Shared planner |
+| 5 | `06b-Bicep CodeGen` / `06t-Terraform CodeGen` | `decisions.iac_tool` |
+| 6 | `07b-Bicep Deploy` / `07t-Terraform Deploy` | Separate final apply approval |
+| 7 | `08-As-Built` | Observed deployment state |
 
-**Handoff Presentation Rule**: When directing the user to click a handoff
-button, refer to it by its **exact label** as shown in the UI (e.g.,
-_"Click **Step 1: Gather Requirements** below to start."_). Do NOT add
-agent names, arrows, or internal references like "→ @02-Requirements" —
-these are invisible to the user and create confusion.
+Present the exact owner, scope and pending human gate. UI handoff metadata is
+advisory, not an SDK execution dependency or permission. An unavailable reviewer
+still requires a human `10-Challenger` selection, not an automatic wrapper call.
 
 ### Leaf Worker Calls
 

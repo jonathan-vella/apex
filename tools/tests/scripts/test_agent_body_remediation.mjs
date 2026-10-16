@@ -169,7 +169,7 @@ for (const name of agentFiles) {
       assert.equal(frontmatter["user-invocable"], false, name);
       assert.deepEqual(frontmatter.agents, [], name);
     } else {
-      assert.equal(frontmatter["disable-model-invocation"], true, name);
+      assert.equal(frontmatter["disable-model-invocation"], name === "01-orchestrator.agent.md", name);
     }
   });
 }
@@ -194,14 +194,19 @@ test("AB-01/15 one-H1 normalization supports the model-specific body contract", 
   assert.deepEqual(blockers, []);
 });
 
-test("AB-02 fresh setup has one owner; resume preserves recovery and mandatory gate breaks", () => {
+test("AB-02 fresh setup has one owner; resume preserves recovery and verified worker boundaries", () => {
   const body = read("01-orchestrator");
   assert.match(section(body, "## Starting a New Project", "## Resuming a Project"), /Use the single ONE-SHOT/);
   assert.match(body, /use an explicitly supplied project without reconfirming it/);
   assert.match(body, /empty \/ "no project found"[\s\S]*?NOT a/);
   assert.doesNotMatch(body, /Gates 2 and 3 recommend|Recommend session break at Gates/);
-  assert.match(body, /Every accepted Gate \(1, 2, 2.5, 3, 4, 5\) ends with a mandatory/);
-  assert.match(body, /orchestrator never auto-invokes/);
+  assert.match(
+    body,
+    /Do not dispatch a step until its graph prerequisites, human gate and worker readiness are verified/,
+  );
+  assert.match(body, /MODEL_VERIFIED/);
+  assert.match(body, /WORKER_READY_ACK/);
+  assert.match(body, /apex-recall transition --complete/);
 });
 
 test("AB-03 complete prerequisites precede review; compliance none differs from missing", () => {

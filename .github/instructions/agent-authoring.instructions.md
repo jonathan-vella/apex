@@ -22,9 +22,14 @@ or deep audits, load `.github/skills/apex-agent-authoring/SKILL.md`.
 - A nonempty `agents` list requires `agent` in `tools`; `agents: []` does not.
   Leaf workers set `user-invocable: false` and `agents: []`, without delegation,
   user-question, or parent-todo tools. Return missing inputs to the parent.
-- Production main agents, including `10-Challenger`, use
-  `disable-model-invocation: true` and require human selection. Explicit caller
-  allowlists must not override this production boundary.
+- `01-Orchestrator` remains a human-selected entry point with
+  `disable-model-invocation: true`. Other main agents are user-invocable and
+  model-invocable only through Orchestrator's approved, verified background dispatch.
+  Step agents allowlist only their authorized leaves; leaves never delegate.
+- Before any delegated project work, enforce the tool-free handshake and actual
+  model/effort check in
+  [`worker-readiness.md`](../skills/apex-workflow-engine/references/worker-readiness.md).
+  A frontmatter label, allowlist or catalog entry does not prove runtime routing.
 - Replace deprecated `infer` with `user-invocable` and
   `disable-model-invocation`.
 
@@ -110,7 +115,7 @@ belongs to the lefthook `artifact-validation` hook and `10-Challenger` review.
 
 Execution subagent prompts use `## Inputs`, `## Activities`, and `## Outputs`,
 including a bounded failure mode. Canonical template:
-[`tools/apex-prompts/utility-prompts/execution-subagent.prompt.md`](../../tools/apex-prompts/utility-prompts/execution-subagent.prompt.md).
+[`execution-subagent.md`](../skills/apex-workflow-engine/references/execution-subagent.md).
 
 ### No-Shell-Writes-to-Agent-Output Rule
 
@@ -129,6 +134,12 @@ error when available. Full procedure:
 
 ## Decision Logging
 
+Interactive sessions use `ask_user` with `message` and
+`requestedSchema.properties`, one typed field per independent question.
+Use `enum`/`oneOf` for choices and `array`/`items` for multi-select; defaults
+are suggestions, not approvals. Delegated steps return `USER_INPUT_REQUIRED`
+with that form to their interactive parent. Cancel aborts; decline never approves.
+
 Record significant architecture, SKU, deployment, IaC, security, networking, or
 trade-off decisions through `apex-recall`; omit minor implementation choices.
 Commands and decision shape:
@@ -137,8 +148,9 @@ Commands and decision shape:
 ## Model-Prompt Alignment
 
 Validate every fallback label and family in order, without adding fallbacks.
-Custom-agent prompts inherit the target model; generic Local prompts may inherit
-the picker selection. Avoid redundant handoff overrides and follow the matching rules:
+Archive-only prompt fixtures retain their historical model rules. Active SDK
+workers use definition-owned routing; never inherit an unverified picker model.
+Avoid redundant handoff overrides and follow the matching rules:
 
 - [`vendor-prompting.instructions.md`](vendor-prompting.instructions.md)
 - [`apex-vendor-prompting/references/family-support.md`](../skills/apex-vendor-prompting/references/family-support.md)

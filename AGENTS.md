@@ -97,16 +97,19 @@ Rotating multi-pass reviews are an explicit opt-in via
 01-Orchestrator) or via direct `10-Challenger` invocation. Reviews target
 AI-generated creative decisions — not tool output (what-if/plan previews).
 
-Production main agents, including `10-Challenger`, are human-selected entry points
-with `disable-model-invocation: true`; the Orchestrator uses human handoffs only.
+The supported runtime is the GitHub Copilot SDK harness inside VS Code.
+`01-Orchestrator` is human-selected with `disable-model-invocation: true`;
+it dispatches allowlisted specialist workers only after human approval and
+[verified readiness](.github/skills/apex-workflow-engine/references/worker-readiness.md).
+Steps return pending user forms to their interactive parent, not directly to the user.
+Directly selected step agents remain supported; leaves cannot ask users or delegate.
 Unavailable reviewers require a human handoff to `10-Challenger`, never a nested
 wrapper fallback. Missing/empty reviewer output permits exactly one identical-input
 retry, then human escalation. Preserve current review evidence and approval gates.
 
-Local prompt files are adapters; Agent Host uses shared skills with the caller's
-model/tools and explicit selection of the owning agent. Legacy discovery settings
-are not a security boundary. Model labels do not establish runtime cost-tier
-eligibility or API support. Runtime rules and canonical review procedure:
+Archived Local prompts are historical; manual entry skills inherit the caller's
+model/tools without granting permissions. Model labels and discovery settings do
+not prove runtime routing, cost-tier eligibility or API support. Runtime rules:
 [Copilot instructions](.github/copilot-instructions.md#harness-and-runtime-boundaries).
 
 The E2E launch subsystem is retired. Production lesson collection, historical

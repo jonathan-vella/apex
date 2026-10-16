@@ -1,7 +1,6 @@
 <!-- ref:review-imported-iac-v1 -->
 # Review Imported IaC
 
-Routing source: [Local adapter](../../../../tools/apex-prompts/utility-prompts/review-imported-iac.prompt.md).
 Apply the [operational boundary](operational-safety.md) before activities.
 It controls owner selection, tool limits, worker permissions, state, and gates.
 
@@ -34,7 +33,7 @@ validation, AVM audit, governance check, and a WAF review with cost context.
 - Never overwrite unrelated existing projects without explicit approval.
 - If the target project folder already exists and the user did not ask to
   replace it, ask before making structural changes.
-- Collect missing inputs via a single `askQuestions` call — do not spread
+- Collect missing inputs via a single `ask_user` call — do not spread
   intake across multiple turns.
 
 # Output
@@ -96,7 +95,7 @@ agent or validator already exists.
 
 ## Inputs To Collect
 
-If any of these are missing, use one `askQuestions` call to collect them together.
+If any of these are missing, use one `ask_user` call to collect them together.
 Do not spread them across multiple back-and-forth turns.
 
 - workload purpose and users

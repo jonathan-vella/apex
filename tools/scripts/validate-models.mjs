@@ -253,7 +253,7 @@ function runConsistency() {
 
 // ── Mode: deprecated ─────────────────────────────────────────────────────────
 
-const SCAN_GLOBS = [".github/agents", ".github/prompts", "tools/apex-prompts", "tools/tests/prompts"];
+const SCAN_GLOBS = [".github/agents", "tools/tests/prompts"];
 const ALLOWED_FILES = new Set([
   ".github/model-catalog.json",
   "CHANGELOG.md",

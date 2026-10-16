@@ -33,6 +33,7 @@ import { format, resolveConfig } from "prettier";
 import { parseFrontmatter } from "./_lib/parse-frontmatter.mjs";
 import { expandScript } from "./_lib/npm-script-graph.mjs";
 import { extractSkillReferences } from "./_lib/skill-references.mjs";
+import { PROMPT_SOURCE_DIRS } from "./_lib/paths.mjs";
 import { readJson } from "./_lib/json.mjs";
 
 const __filename = fileURLToPath(import.meta.url);
@@ -243,7 +244,7 @@ function collectInstructions() {
 }
 
 export function collectPrompts(root = REPO_ROOT) {
-  const files = [".github/prompts", "tools/apex-prompts"].flatMap((directory) =>
+  const files = PROMPT_SOURCE_DIRS.flatMap((directory) =>
     listFiles(join(root, directory), (file) => file.endsWith(".prompt.md"), true),
   );
   const counts = new Map();

@@ -32,10 +32,12 @@ eligibility is a blocker, not permission to substitute a model.
 > Leaf workers cannot ask user questions, manage todos, or call nested agents.
 > Return missing-input diagnostics to the parent; never fabricate defaults.
 
-All production main agents, including `10-Challenger`, are human-selected
-entry points with `disable-model-invocation: true`. The Orchestrator has
-`agents: []` and uses human handoffs only. An allowlist must not override this
-boundary. This applies even when all inputs exist and no questions are needed.
+`01-Orchestrator` remains human-selected and alone dispatches approved,
+allowlisted main workers after [verified readiness](worker-readiness.md).
+Direct main-agent selection remains supported. Delegated steps return
+`USER_INPUT_REQUIRED` forms to the interactive parent, which owns `ask_user`;
+cancel stops and decline never approves. Steps call only their authorized leaves.
+An allowlist or invocation flag is not runtime routing or approval evidence.
 
 If a required reviewer is unavailable, STOP and request a human handoff to
 `10-Challenger`; never nest a main-agent wrapper or fabricate inline review.

@@ -4,9 +4,9 @@ description: Expert Architect providing guidance using Azure Well-Architected Fr
 model: ["Claude Sonnet 5.5 (copilot)"]
 reasoning-effort: high
 user-invocable: true
-disable-model-invocation: true
+disable-model-invocation: false
 agents: ["cost-estimate-subagent", "challenger-review-subagent"]
-tools: [vscode/askQuestions, execute, read, agent, edit, search, web, 'azure-mcp/*', todo]
+tools: [execute, read, agent, edit, search, web, 'azure-mcp/*', todo]
 handoffs:
   - label: "▶ Refresh Cost Estimate"
     agent: 03-Architect
@@ -54,6 +54,13 @@ Done when:
 - Artifacts derive from the SKU manifest and verified worker pricing.
 - Both required reviews are current and blocking findings are resolved.
 - Approval explicitly covers the current artifact revision.
+
+## Harness Entry
+
+Delegated: tool-free `APEX_WORKER_HANDSHAKE` returns `WORKER_READY` + exact name/nonce;
+nonce-only continuation returns `WORKER_READY_ACK`; require `WORKER_EXECUTE` before work.
+[Routing](../skills/apex-workflow-engine/references/worker-readiness.md) before leaf calls; direct use owns `ask_user`.
+Return `USER_INPUT_REQUIRED` forms to the interactive parent; cancel stops.
 
 ## Constraints
 
@@ -122,7 +129,7 @@ re-running completed discovery.
 
 ## Harness Routing
 
-Local uses human handoffs; Host requires explicit selection of the next named owner.
+Use the verified Copilot SDK worker contract; human approval gates still block advancement.
 Skills run inline and cannot select a model. Use #tool:agent only for allowlisted
 workers, subject to runtime eligibility; unknown cost tiers are not proof of eligibility.
 No model overrides or fallback. On reviewer resolution failure, report `blocked` and
@@ -134,7 +141,7 @@ Before scoring any WAF pillar, search Microsoft Learn for each Azure service in 
 AVM module versions, and service lifecycle status in the target region. Start from each service's
 [WAF service guide](../skills/apex-azure-defaults/references/research-workflow.md#waf-service-guides).
 Do not score from parametric knowledge, and do not quote pricing you did not obtain from `cost-estimate-subagent`.
-When an NFR, compliance, or budget value is missing, gather it via `askQuestions` before assessing.
+When an NFR, compliance, or budget value is missing, gather it via `ask_user` before assessing.
 Research budget: one broad search per service first; search again only when a required fact is missing,
 and try one or two fallbacks before reporting a gap.
 
@@ -172,7 +179,7 @@ investigate before answering) live in
 Validate `01-requirements.md` exists and `apex-recall show <project> --json` reports Step 1 complete.
 If either fails, hand off to Requirements agent unless the human overrides.
 
-Verify these are documented. Use `askQuestions` to collect all missing values
+Verify these are documented. Use `ask_user` to collect all missing values
 in a single form:
 
 | Category   | Required                           |
@@ -215,7 +222,7 @@ when needed. Reuse unchanged content still in context; batch independent missing
 4. **Read** `.github/skills/apex-context-management/SKILL.md` — runtime
    compression tiers for loading large artifacts (Mode A)
 5. **Read** the execution-subagent prompt contract
-   [tools/apex-prompts/utility-prompts/execution-subagent.prompt.md](../../tools/apex-prompts/utility-prompts/execution-subagent.prompt.md)
+   [.github/skills/apex-workflow-engine/references/execution-subagent.md](../skills/apex-workflow-engine/references/execution-subagent.md)
   — every #tool:agent call (cost-estimate-subagent,
    challenger-review-subagent) MUST follow the three-H2 contract
    (issue #425).
@@ -287,9 +294,9 @@ handoff. The manifest is the _decision record_, not the comparison.
 - ✅ Hand off only after the Approval Gate (Design when
   `decisions.skip_design == false`, else Governance Discovery —
   **never directly to IaC Planner**)
-- ✅ Use `askQuestions` in approval gate to present findings — **one
-  question per finding** (Accept / Skip / Defer). MUST NOT batch findings
-  into a single question with `multiSelect`.
+- ✅ Use one `ask_user` form with an independent typed field per finding;
+  use canonical Accept / Reject / Defer / Edit choices. Never combine
+  finding decisions into one multi-select field.
 - ✅ Include collapsible TOC (`<details open>` block), cross-navigation table, and badge row from the template
 - ✅ Include at least one Mermaid diagram (architecture overview from template or actual design)
 - ✅ Use all three traffic-light indicators (✅ / ⚠️ / ❌) in status columns — never omit ⚠️ or ❌
@@ -350,8 +357,8 @@ in your WAF assessment recommendations (still produce the identical artifact str
    - Update session state: `sub_step: "phase_2.5_compacted"`
      **Checkpoint** (MANDATORY): `apex-recall checkpoint <project> 2 phase_2.5_compacted --json`
 
-  If oversized research results remain in context, checkpoint and request `/clear` plus resume on `03-Architect`
-  before pricing. The checkpoint name does not prove actual compaction. Resume from saved research and the failed
+  If oversized research remains, checkpoint and return paths for a fresh verified `03-Architect` worker;
+  resume before pricing. The checkpoint name does not prove compaction. Use saved research and the failed
   boundary without re-running completed discovery; verify freshness and recover only missing evidence.
 
 6a. **SKU confirmation gate (MANDATORY — before committed pricing, after candidate comparison)** — follow the
@@ -553,10 +560,10 @@ Architect-step-2 specifics only below.
    [adversarial-review-protocol.md § Findings Table Rendering Format](../skills/apex-azure-defaults/references/adversarial-review-protocol.md#findings-table-rendering-format).
    Then run the **Per-Finding Decision Protocol** from
    [`adversarial-review-protocol.md`](../skills/apex-azure-defaults/references/adversarial-review-protocol.md).
-  Use one batched `vscode_askQuestions` panel with a separate question per
+  Use one batched `ask_user` panel with a separate question per
   actionable finding, canonical action options, and individual rationales.
   Preserve the protocol's panel cap and resume behavior; never combine
-  multiple findings into one `multiSelect` question.
+  multiple findings into one multi-select field.
 3. Source-merge order for the panel: `challenge-findings-cost-estimate.json`
    → `challenge-findings-architecture.json` (default single-pass) **or**
    `challenge-findings-architecture-pass{1,2,3}.json` (deep-review path;
@@ -611,12 +618,7 @@ once and satisfy every item and its WAF scoring table format.
 
 ## Completion Handoff
 
-After `apex-recall complete-step` + writing `00-handoff.md`, end the
-final chat message with this line, **verbatim**, on its own final line
-(full contract:
-[`compression-templates.md`](../skills/apex-context-management/references/compression-templates.md#gate-boundary-clear-handoff-contract);
-validator: `npm run validate:orchestrator-handoff`):
-
-```text
-Run `/clear`, then switch the chat agent picker to `01-Orchestrator` and send `resume <project>` to continue Step N+1.
-```
+Run `apex-recall checkpoint <project> <step> completed --json`; update `00-handoff.md`
+with paths, actual validation results and unresolved findings. Return `STEP_COMPLETE`
+only after required reviews/checks; pending decisions return `USER_INPUT_REQUIRED`.
+Direct use presents the human gate with `ask_user` and stops. Completion is not next-step approval.

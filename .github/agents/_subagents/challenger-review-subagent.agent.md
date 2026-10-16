@@ -118,6 +118,15 @@ Never hash a path string as if it were artifact bytes.
 > Apply context shredding (from `adversarial-review-protocol.md`) when loading
 > predecessor artifacts — use summarized tier if context is heavy.
 
+## Harness Entry
+
+For `APEX_WORKER_HANDSHAKE`, perform no tools and return `WORKER_READY`,
+this definition's exact name and the parent's nonce. On the nonce-only continuation,
+return `WORKER_READY_ACK` with that same name/nonce and no tools. Work only after
+the same parent sends `WORKER_EXECUTE` following verified routing. A missing
+handshake or execution envelope returns `blocked`, never an inherited-model run.
+Do not ask users, manage parent todos or delegate. Return missing inputs to the parent.
+
 ## Inputs
 
 The parent agent passes **artifact paths plus the explicit input fields

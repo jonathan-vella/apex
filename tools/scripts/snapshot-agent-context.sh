@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # Snapshot agent context files for before/after comparison.
-# Backs up: .github/agents, .github/instructions, tools/apex-prompts, .github/skills, AGENTS.md
+# Backs up active agents, instructions, skills, catalogs and repository conventions.
 
 set -euo pipefail
 
@@ -11,8 +11,6 @@ readonly BASELINES_DIR="${REPO_ROOT}/agent-output/_baselines"
 readonly BACKUP_TARGETS=(
   ".github/agents"
   ".github/instructions"
-  ".github/prompts"
-  "tools/apex-prompts"
   ".github/skills"
   ".github/copilot-instructions.md"
   ".github/model-catalog.json"
@@ -37,8 +35,6 @@ Options:
 Backed-up targets:
   .github/agents/        Agent definitions (including _subagents/)
   .github/instructions/  Instruction files
-  .github/prompts/       Native operational slash prompts
-  tools/apex-prompts/    Prompt files (workspace-only, not auto-loaded)
   .github/skills/        Skills (full recursive)
   .github/copilot-instructions.md  Copilot runtime instructions
   .github/model-catalog.json       Model catalog

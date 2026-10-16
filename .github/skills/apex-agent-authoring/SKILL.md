@@ -142,6 +142,8 @@ Return:
 ## Reference Index
 
 - [Agent fleet assessment](references/assess-agents.md): definition scorecards and a gated remediation plan.
+- [Agent scorecard rubric](references/agent-scorecard-rubric.md): preserved assessment dimensions and scoring.
+- [Agent adversarial checklist](references/agent-adversarial-checklist.md): read-only authoring review lenses.
 - [.github assessment](references/assess-github-folder.md): static authoring-asset inventory and review.
 - [Assessment design history](references/plan-four-layer-agent-assessment.md): reference-only, not executable.
 

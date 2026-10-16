@@ -14,7 +14,7 @@ Run before any `cost-estimate-subagent` invocation. Read
 `agent-output/{project}/sku-manifest.json`. Build a read-only chat
 context block listing user-pinned rows (`source: "user-pin"`) — they
 are locked and must never appear as answer options. Call
-`vscode_askQuestions` exactly once with ONLY architect-derived rows
+`ask_user` exactly once with ONLY architect-derived rows
 and three options: `Approve all` / `Revise SKUs` / `Discuss`. Wait for
 the user; do not auto-default.
 
@@ -33,7 +33,7 @@ Run after pricing receive. Three cases:
 
 **Case A — `decisions.budget_cap_known == false` (no user-supplied
 budget)**: propose `round(monthly_total × 1.2)` and call
-`vscode_askQuestions` with **one blocking** question:
+`ask_user` with **one blocking** question:
 
 - Question: "No budget cap was captured at requirements. Pricing
   estimate is ${monthly_total}/month. Proposed budget cap:
@@ -57,7 +57,7 @@ budget)**: propose `round(monthly_total × 1.2)` and call
 continue.
 
 **Case C — `monthly_total > budget_cap` (overage)**: call
-`vscode_askQuestions` with three options:
+`ask_user` with three options:
 
 1. `Approve overage` — record and continue to charts/artifact write.
 2. `Revise SKUs (loop to 6a)` — record, increment
@@ -74,7 +74,7 @@ decision, hard-stop and surface to the user — do not re-prompt.
 **Case D — a recorded owner decision cannot meet the budget** (for
 example a `deployment_note` that names a SKU whose price pushes
 `monthly_total` over `budget_cap`): never substitute the compliant
-alternative silently. Ask one blocking `vscode_askQuestions` question
+alternative silently. Ask one blocking `ask_user` question
 that shows the owner's choice and the compliant alternative, each with
 its monthly price and the resulting total. Options: `Keep owner choice`
 (then Case C applies) / `Use the compliant alternative` / `Revise
@@ -110,10 +110,10 @@ do **not** duplicate it in 02-Requirements. Source contract:
 
 After the WAF + cost summary and findings table, follow the
 [Per-Finding Decision Protocol](adversarial-review-protocol.md#per-finding-decision-protocol).
-Use one batched `vscode_askQuestions` panel with a separate question per
+Use one batched `ask_user` panel with a separate question per
 actionable finding, canonical action options, and individual free-form notes.
 Keep the protocol's ordering, panel cap, persisted decisions, and final
-proceed/revise gate. Do not combine findings into one `multiSelect` question
+proceed/revise gate. Do not combine findings into one multi-select field
 or repeat a decision already recorded for the current finding.
 
 ## Architect (Step 2) — Cost-feasibility review gate
@@ -146,7 +146,7 @@ Honors `decisions.vnet_planning_mode ∈ {guided, fast, deferred}`
 
 **Branch by mode**:
 
-- `guided` — run Round 1 + Round 2 (full askQuestions flow).
+- `guided` — run Round 1 + Round 2 (full ask_user flow).
 - `fast` — Round 1 only; Round 2 auto-confirms the proposed subnet
   table with a Challenger-tagged informational finding
   (`subnet plan auto-confirmed in fast mode`).
@@ -154,7 +154,7 @@ Honors `decisions.vnet_planning_mode ∈ {guided, fast, deferred}`
   (`VNet planning deferred; sandbox/exploration mode`). Block when
   the inferred environment is `prod`.
 
-**Round 1 — `vscode_askQuestions` (single batched call)**:
+**Round 1 — `ask_user` (single batched call)**:
 
 - Q1 — `vnet_mode`: `create-new` (default) | `use-existing`.
 - Q2 (when `create-new`) — `vnet_address_space`: freeform CIDR
@@ -184,7 +184,7 @@ Honors `decisions.vnet_planning_mode ∈ {guided, fast, deferred}`
 
 **Round 2 — per-row askMe loop**: present the proposed subnet table
 (`purpose / size / address_prefix / delegation / NSG / route-table`)
-then run one `vscode_askQuestions` per row with three options:
+then run one `ask_user` per row with three options:
 `Apply edit (freeform diff)` / `Skip this row` / `Done`. Soft warning
 ("3 edit rounds — consider Done") after 3 consecutive edits; never
 auto-defer.
@@ -247,7 +247,7 @@ missing or empty (zero bytes):
 ## Design (Step 3) — Phase 00: Artifact scope (one-time gate)
 
 Runs **before** Phase 0. Read `decisions.design_scope`. If set, skip
-silently. If absent, raise a single `vscode_askQuestions` with three
+silently. If absent, raise a single `ask_user` with three
 options:
 
 - **Diagrams only** — produce `03-des-diagram.py` with `.png` and `.svg`;

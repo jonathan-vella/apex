@@ -61,7 +61,7 @@ const DESCRIPTION_MAX_LEN = 350;
 const DESCRIPTION_WARN_LEN = 300;
 const PRODUCTION_AGENTS_DIR = fileURLToPath(new URL("../../.github/agents/", import.meta.url));
 const LEAF_WORKER_TOOL_PATTERN =
-  /^(?:\*|agent(?:\/|$)|todo(?:\/|$)|vscode$)|runSubagent|askQuestions|askUser|manage.?todo/i;
+  /^(?:\*|agent(?:\/|$)|todo(?:\/|$)|vscode$)|runSubagent|askQuestions|ask_user|askUser|manage.?todo/i;
 
 function productionAgentKind(agent) {
   const directory = path.dirname(path.resolve(agent.path));
@@ -78,6 +78,7 @@ function validateProductionAgentPolicy(agent, agents) {
   const frontmatter = agent.frontmatter;
   const allowed = frontmatter.agents;
   const tools = frontmatter.tools;
+  const orchestrator = kind === "main" && frontmatter.name === "01-Orchestrator";
   const mainNames = new Set(
     [...agents.values()]
       .filter((candidate) => productionAgentKind(candidate) === "main")
@@ -85,20 +86,25 @@ function validateProductionAgentPolicy(agent, agents) {
   );
   if (Array.isArray(allowed)) {
     for (const name of allowed) {
-      if (name === "*" || mainNames.has(name)) {
-        issues.push(`Production agents cannot allowlist main agents or wildcard targets (got: ${name})`);
+      if (name === "*" || (mainNames.has(name) && !orchestrator)) {
+        issues.push(`Only Orchestrator may allowlist main agents; wildcards are forbidden (got: ${name})`);
+      }
+      if (orchestrator && (!mainNames.has(name) || name === "01-Orchestrator")) {
+        issues.push(`Orchestrator may allowlist only other named main agents (got: ${name})`);
       }
     }
   }
-  if (kind === "main" && frontmatter["disable-model-invocation"] !== true) {
-    issues.push("Production main agents require disable-model-invocation: true");
+  if (kind === "main" && frontmatter["disable-model-invocation"] !== orchestrator) {
+    issues.push(
+      `Production ${orchestrator ? "Orchestrator" : "step agents"} require disable-model-invocation: ${orchestrator}`,
+    );
   }
-  if (kind === "main" && frontmatter.name === "01-Orchestrator") {
-    if (!Array.isArray(allowed) || allowed.length !== 0) {
-      issues.push("Production Orchestrator requires agents: [] and human handoffs only");
+  if (orchestrator) {
+    if (!Array.isArray(allowed) || allowed.length === 0) {
+      issues.push("Production Orchestrator requires an explicit named main-agent allowlist");
     }
-    if (Array.isArray(tools) && tools.some((tool) => /^(?:\*|agent(?:\/|$))|runSubagent/i.test(tool))) {
-      issues.push("Production Orchestrator cannot use delegation tools");
+    if (!Array.isArray(tools) || !tools.includes("agent")) {
+      issues.push("Production Orchestrator requires the agent tool for verified background dispatch");
     }
   }
   if (kind === "worker") {

@@ -194,7 +194,7 @@ test("Architecture bounds research payloads and prices only viable alternatives"
   assert.match(architect, /Exclude tiers that violate required capabilities or user pins/);
   assert.match(architect, /do not invent alternatives to satisfy a count/);
   assert.match(architect, /does not evict previous messages/);
-  assert.match(architect, /request `\/clear` plus resume on `03-Architect`/);
+  assert.match(architect, /checkpoint and return paths for a fresh verified `03-Architect` worker/);
   assert.match(research, /do not fan out more calls to that server/);
   assert.match(research, /Start with one necessary page/);
   assert.match(research, /resume only from verified state/);
@@ -540,10 +540,11 @@ test("shared harness guidance preserves human selection and does not infer model
   for (const file of ["AGENTS.md", ".github/copilot-instructions.md"]) {
     const body = fs.readFileSync(path.join(ROOT, file), "utf8");
     assert.match(body, /disable-model-invocation: true/, file);
-    assert.match(body, /Local prompt files are adapters/, file);
-    assert.match(body, /Agent Host/, file);
-    assert.match(body, /not a security boundary/, file);
-    assert.match(body, /runtime cost-tier/, file);
+    assert.match(body, /SDK harness inside VS Code/, file);
+    assert.match(body, /readiness/, file);
+    assert.match(body, /not prove runtime|not routing evidence/, file);
+    assert.match(body, /without granting permissions|grant no permissions/, file);
+    assert.match(body, /cost-tier eligibility/, file);
   }
   const parent = fs.readFileSync(
     path.join(ROOT, ".github/skills/apex-azure-defaults/references/cost-estimate-parent-contract.md"),

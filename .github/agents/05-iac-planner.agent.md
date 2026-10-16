@@ -4,9 +4,9 @@ description: "Expert Azure IaC planner that creates comprehensive machine-readab
 model: ["Claude Sonnet 5.5 (copilot)"]
 reasoning-effort: high
 user-invocable: true
-disable-model-invocation: true
+disable-model-invocation: false
 agents: ["challenger-review-subagent"]
-tools: [vscode/askQuestions, execute, read, agent, edit, search, web, 'azure-mcp/*', 'bicep/*', todo]
+tools: [execute, read, agent, edit, search, web, 'azure-mcp/*', 'bicep/*', todo]
 handoffs:
   - label: "▶ Refresh Governance"
     agent: 04g-Governance
@@ -58,6 +58,13 @@ Done when:
 - Required diagrams and contracts validate.
 - Plan approval is explicit and current before CodeGen.
 
+## Harness Entry
+
+Delegated: tool-free `APEX_WORKER_HANDSHAKE` returns `WORKER_READY` + exact name/nonce;
+nonce-only continuation returns `WORKER_READY_ACK`; require `WORKER_EXECUTE` before work.
+[Routing](../skills/apex-workflow-engine/references/worker-readiness.md) before leaf calls; direct use owns `ask_user`.
+Return `USER_INPUT_REQUIRED` forms to the interactive parent; cancel stops.
+
 ## Constraints
 
 <scope_fencing>
@@ -103,9 +110,7 @@ a list of non-blocking decisions, or a milestone report. Track open phases in th
 
 ## Harness Routing
 
-Local uses human handoffs; Host requires explicit selection of the next named owner. Only the
-allowlisted reviewer may be called via #tool:agent; on resolution failure, report the error, ask the
-user to select `10-Challenger`, and stop. Spawn no other workers and do not use one to re-check your own plan.
+Use #tool:agent for allowlisted reviews only; no self-checks. Report errors; stop for human `10-Challenger`.
 
 ## Evidence Before Planning
 
@@ -196,7 +201,7 @@ phase-aware loading never permits omitting cost controls, policy mapping, securi
 4. **Read** [`.github/skills/apex-iac-common/references/avm-version-freeze-gate.md`](../skills/apex-iac-common/references/avm-version-freeze-gate.md)
    — Phase 4.4 freeze gate; resolve every AVM pin to MCR-latest before writing the plan.
 5. **Read** the execution-subagent prompt contract
-   [tools/apex-prompts/utility-prompts/execution-subagent.prompt.md](../../tools/apex-prompts/utility-prompts/execution-subagent.prompt.md)
+   [.github/skills/apex-workflow-engine/references/execution-subagent.md](../skills/apex-workflow-engine/references/execution-subagent.md)
    — every #tool:agent prompt for the allowlisted challenger follows its three-H2 contract.
 
 ## Prerequisites Check
@@ -353,7 +358,7 @@ single or phased. Question template, recommended defaults, and skip rules
 live in
 [`plan-design-decisions.md`](../skills/apex-azure-defaults/references/plan-design-decisions.md).
 
-Build **one structured `askQuestions` panel** combining:
+Build **one structured `ask_user` panel** combining:
 
 1. **Deployment strategy** — `Phased` (recommended for >5 resources or
    prod/compliance) vs `Single` (small dev/test <5 resources). If
@@ -366,7 +371,7 @@ Build **one structured `askQuestions` panel** combining:
    `plan-design-decisions.md` question already covers each one; do not
    duplicate.
 
-Single-shot panel: one `askQuestions` call with all questions. Omit any
+Single-shot panel: one `ask_user` call with all questions. Omit any
 question whose key already appears in `apex-recall show <project>`
 decisions (resume support). Show the architecture's value per question (see reference).
 
@@ -572,7 +577,7 @@ Then run the **three-stage gate** documented in
    synchronized. Split a failed batch to isolate defects within the existing retry cap.
 - **Stage 2** runs the Per-Finding Decision Protocol over remaining
   `should_fix` items only. **Batch panel rule**: emit a **single**
-  `askQuestions` call carrying every in-scope `should_fix` (cap 12 per
+  `ask_user` call carrying every in-scope `should_fix` (cap 12 per
   protocol section 2f) — never one panel per finding. Each question
    uses the canonical four-option payload (Accept / Reject / Defer / Edit),
    individual notes, and the `Defer` recommendation for `should_fix` from
@@ -630,12 +635,7 @@ CodeGen Plan-Readiness Precondition cross-checks this value at boot.
 
 ## Completion Handoff
 
-After `apex-recall complete-step` + writing `00-handoff.md`, end the
-final chat message with this line, **verbatim**, on its own final line
-(full contract:
-[`compression-templates.md`](../skills/apex-context-management/references/compression-templates.md#gate-boundary-clear-handoff-contract);
-validator: `npm run validate:orchestrator-handoff`):
-
-```text
-Run `/clear`, then switch the chat agent picker to `01-Orchestrator` and send `resume <project>` to continue Step N+1.
-```
+Run `apex-recall checkpoint <project> <step> completed --json`; update `00-handoff.md`
+with paths, actual validation results and unresolved findings. Return `STEP_COMPLETE`
+only after required reviews/checks; pending decisions return `USER_INPUT_REQUIRED`.
+Direct use presents the human gate with `ask_user` and stops. Completion is not next-step approval.

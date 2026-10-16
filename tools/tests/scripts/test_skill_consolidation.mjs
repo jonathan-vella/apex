@@ -60,7 +60,8 @@ test("active skill metadata preserves reachability and the approved inline visib
     assert.equal(metadata["user-invocable"], !hidden.has(entry.name), entry.name);
     assert.equal(
       metadata["disable-model-invocation"],
-      entry.name.startsWith("apex-host-") || manualSkills.has(entry.name),
+      ["apex-workflow-start", "apex-git-commit", "apex-debug-log-export"].includes(entry.name) ||
+        manualSkills.has(entry.name),
       entry.name,
     );
     assert.equal(Object.hasOwn(metadata, "context"), false, `${entry.name}: production must remain inline`);
@@ -377,7 +378,7 @@ test("skill CLI excludes history, schemas, vendor snapshots and execution eviden
 
 test("skill CLI rejects retired Host callers and accepts the explicit resume operation", (context) => {
   const fixture = cliFixture(context);
-  fixture.skill("apex-host-workflow-start");
+  fixture.skill("apex-workflow-start");
   const retiredHost = ["apex", "host", "resume", "workflow"].join("-");
   for (const file of [
     ".github/prompts/resume.prompt.md",
@@ -393,8 +394,8 @@ test("skill CLI rejects retired Host callers and accepts the explicit resume ope
     const failed = fixture.run();
     assert.equal(failed.status, 1, failed.output);
     assert.ok(failed.output.includes(file), failed.output);
-    assert.match(failed.output, /apex-host-workflow-start resume \[project\]/);
-    fixture.write(file, `${original}Use /apex-host-workflow-start resume demo.\n`);
+    assert.match(failed.output, /apex-workflow-start resume \[project\]/);
+    fixture.write(file, `${original}Use /apex-workflow-start resume demo.\n`);
     const passed = fixture.run();
     assert.equal(passed.status, 0, passed.output);
   }

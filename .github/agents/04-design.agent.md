@@ -4,9 +4,9 @@ model: ["Claude Sonnet 5.5 (copilot)"]
 reasoning-effort: medium
 description: "Step 3 — Design Artifacts. Generates code-based Python architecture diagrams and Architecture Decision Records for approved Azure designs. Optional step before governance and IaC planning."
 user-invocable: true
-disable-model-invocation: true
+disable-model-invocation: false
 agents: ["challenger-review-subagent"]
-tools: [vscode/askQuestions, execute, read, agent, edit, search, web, todo]
+tools: [execute, read, agent, edit, search, web, todo]
 handoffs:
   - label: "▶ Generate Diagram"
     agent: 04-Design
@@ -65,6 +65,13 @@ widening, narrowing or transforming the task.
 
 </scope_fencing>
 
+## Harness Entry
+
+Delegated: tool-free `APEX_WORKER_HANDSHAKE` returns `WORKER_READY` + exact name/nonce;
+nonce-only continuation returns `WORKER_READY_ACK`; require `WORKER_EXECUTE` before work.
+[Routing](../skills/apex-workflow-engine/references/worker-readiness.md) before leaf calls; direct use owns `ask_user`.
+Return `USER_INPUT_REQUIRED` forms to the interactive parent; cancel stops.
+
 ## Stop rules
 
 <stop_conditions>
@@ -80,7 +87,7 @@ continue, or a list of non-blocking decisions before the requested scope is rend
 
 ## Harness Routing
 
-Local uses human handoffs; Host requires explicit selection of the next named owner.
+Use the verified Copilot SDK worker contract; human approval gates still block advancement.
 Skills run inline and do not select model/tools. Use #tool:agent only for the allowlisted
 worker; request human `10-Challenger` selection for reviewer resolution failures and stop.
 Spawn it only for an enabled ADR review, never to re-check your own diagrams.
@@ -220,7 +227,7 @@ Invoke `challenger-review-subagent` once per ADR with:
 - `overwrite: false`
 
 Compose prompts with `## Inputs`, `## Activities`, and `## Outputs` per
-[execution-subagent.prompt.md](../../tools/apex-prompts/utility-prompts/execution-subagent.prompt.md).
+[execution-subagent.prompt.md](../skills/apex-workflow-engine/references/execution-subagent.md).
 Review findings are informational for Step 3, not authority to change architecture.
 Log execution failures through `apex-recall finding` and stop with a human Challenger
 handoff. Missing/empty output permits exactly one identical-input retry; missing
@@ -255,10 +262,9 @@ Do not narrate routine tool calls.
 - [ ] ADRs quote their source and describe WAF trade-offs.
 - [ ] Outputs are under `agent-output/{project}/` with required attribution.
 
-## Completion handoff
+## Completion Handoff
 
-After completion and writing `00-handoff.md`, end with this exact line:
-
-```text
-Run `/clear`, then switch the chat agent picker to `01-Orchestrator` and send `resume <project>` to continue Step N+1.
-```
+Run `apex-recall checkpoint <project> <step> completed --json`; update `00-handoff.md`
+with paths, actual validation results and unresolved findings. Return `STEP_COMPLETE`
+only after required reviews/checks; pending decisions return `USER_INPUT_REQUIRED`.
+Direct use presents the human gate with `ask_user` and stops. Completion is not next-step approval.

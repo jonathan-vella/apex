@@ -340,7 +340,7 @@ revisions that did not actually touch the challenged artifact.
 
 Replaces the legacy single-binary "Approve / Revise" gate with a per-finding
 interactive flow. After all challenger passes for an artifact complete, the
-parent agent presents one batched `askQuestions` call where each in-scope
+parent agent presents one batched `ask_user` call where each in-scope
 finding (`must_fix` + `should_fix`) is its own question with four action
 options. Decisions are persisted in a sidecar JSON file and via
 `apex-recall finding`. A final aggregated proceed/revise gate follows.
@@ -415,7 +415,7 @@ artifacts that pre-date this protocol work unchanged.
 ### 2d. Unattended mode
 
 If the environment variable `APEX_UNATTENDED=1` is set, the protocol
-**bypasses `askQuestions` entirely**:
+**bypasses `ask_user` entirely**:
 
 - All `must_fix` → `action: "defer"`,
   `note: "auto-deferred (unattended)"`.
@@ -459,30 +459,43 @@ Default cap: **12 questions**. If `must_fix + should_fix > 12`:
 
 The cap is a constant. Agents do not override it.
 
-### 2g. `askQuestions` payload shape
+### 2g. `ask_user` payload shape
 
-Per finding:
+Call `ask_user` with `message` and `requestedSchema.properties`. Each finding is
+one string property keyed by `{artifact-type}-pass{N}-{issue_id}` (stable issue ID
+from 2b, not a display index). Keys must be unique across the merged panel.
+Use `title` for the finding title (at most 200 characters), `description` for
+severity, category, description, failure scenario, artifact section and mitigation.
+Use `oneOf` with `const` values `accept`, `reject`, `defer`, `edit` and the four
+fixed display titles: `Accept (apply mitigation)`, `Reject (do not apply)`,
+`Defer (carry to handoff)`, `Edit (custom guidance)`.
+State the recommendation in the description (`accept` for `must_fix`, `defer`
+for `should_fix`); omit defaults so a displayed recommendation is not an answer.
+The field supports freeform input natively; do not send retired `questions[]`,
+`header`, `options`, `recommended` or `allowFreeformInput` payload fields.
 
-| Field                | Value                                                                                                                                                                  |
-| -------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `header`             | `{artifact-type}-pass{N}-{idx}` (≤50 chars). Examples: `architecture-pass1-3`, `cost-estimate-pass1-0`. **Hard rule** — must be unique across the merged batched call. |
-| `question`           | `title` (≤200 chars; truncate with `…`).                                                                                                                               |
-| `message`            | Markdown block with severity badge + `category` + `description` + `failure_scenario` + `artifact_section` + `suggested_mitigation`.                                    |
-| `options`            | Four fixed labels (in this order): `Accept (apply mitigation)`, `Reject (do not apply)`, `Defer (carry to handoff)`, `Edit (custom guidance)`.                          |
-| `recommended`        | `Accept` for `must_fix`; `Defer` for `should_fix`.                                                                                                                     |
-| `allowFreeformInput` | `true` (enables Edit + per-finding notes).                                                                                                                             |
+Delegated owners return this form in `USER_INPUT_REQUIRED`; only the interactive
+parent calls `ask_user` and resumes the owner with the matching request ID.
 Rejecting a `must_fix` finding records a disagreement only. It does not close the finding or accept the risk; the
 finding stays blocking unless a lab risk authorization covers it.
-### 2h. Edit / freeText / skipped semantics
+
+### 2h. Edit / freeform / declined semantics
 
 Deterministic — no agent-level interpretation:
 
 | User input                                                          | Resulting `action` | Resulting `note`                                    |
 | ------------------------------------------------------------------- | ------------------ | --------------------------------------------------- |
-| `Edit` selected + non-empty `freeText`                              | `accept`           | `Edit: <freeText>` (custom replacement guidance) |
-| `Edit` selected + empty `freeText`                                  | `defer`            | `"Edit selected without guidance — auto-deferred."` |
-| `Accept` / `Reject` / `Defer` selected (with or without `freeText`) | matches selection  | `<freeText>` if present, else empty string |
-| `skipped: true`                                                     | `defer`            | `"User skipped — auto-deferred."`                   |
+| Literal `accept`, `reject` or `defer` value or its exact display title | matches selection | Empty string |
+| Non-empty freeform custom mitigation guidance | `accept` | `Edit: <guidance>` |
+| Literal `edit` or its display title | Pending follow-up | Ask one string field for its custom guidance |
+| Non-empty guidance from that follow-up | `accept` | `Edit: <guidance>` |
+| Missing/empty/declined field or empty Edit follow-up | `defer` | `"User skipped or omitted guidance — auto-deferred."` |
+| Cancelled form | No new decisions | Stop the workflow; never advance a gate |
+
+Batch all dependent Edit follow-ups into one form. Ambiguous action-like freeform
+answers require clarification, not inferred acceptance. A declined panel defers
+its findings; it does not approve proceeding. Preserve previously saved decisions
+on cancellation and never mark an unresolved finding closed merely from its disposition.
 
 ### 2i. Persist decisions (sidecar + apex-recall)
 
@@ -542,13 +555,13 @@ After the per-finding panel completes (or is skipped per 2j / 2d):
    e5f6g7h8 should_fix  Cosmos DB region pair                  defer    —
    ```
 
-2. Present a single `askQuestions` with options:
+2. Present one `ask_user` string property `next_action` with `oneOf` choices:
    - `Revise (apply Accepted findings)` —
-     `recommended: true` if any `must_fix` had `action == "accept"`;
-     otherwise not recommended.
-   - `Proceed (handoff next step)` — recommended otherwise.
+     recommend in its description if any `must_fix` had `action == "accept"`.
+   - `Proceed (handoff next step)` — recommend otherwise only when current
+     readiness permits it; a selection never waives unresolved blocking findings.
    - **Governance only**: also `Refresh governance` (preserved from the
-     existing 04g Phase 3 gate).
+     existing 04g Phase 3 gate). Decline stays at the gate; cancel stops.
 
 ### 2m. Payload example
 
@@ -558,37 +571,37 @@ Two-finding panel for an Architect gate. Source files merged per 2e
 
 ```json
 {
-  "questions": [
-    {
-      "header": "cost-estimate-pass1-0",
-      "question": "Cosmos DB autoscale max RU/s exceeds budget by 38%",
-      "message": "**must_fix** · cost-feasibility\n\n**Description**: Configured 4000 RU/s autoscale max but plan caps at 2900.\n\n**Failure scenario**: Burst traffic triggers autoscale to ceiling, monthly bill overruns committed budget.\n\n**Artifact section**: §4 Cost — Cosmos DB row.\n\n**Suggested mitigation**: Lower max_throughput to 2900 or split workload across two containers.",
-      "options": [
-        { "label": "Accept (apply mitigation)", "recommended": true },
-        { "label": "Reject (do not apply)" },
-        { "label": "Defer (carry to handoff)" },
-        { "label": "Edit (custom guidance)" }
-      ],
-      "allowFreeformInput": true
-    },
-    {
-      "header": "architecture-pass1-2",
-      "question": "Storage account allows public blob access",
-      "message": "**must_fix** · security-governance\n\n**Description**: …",
-      "options": [
-        { "label": "Accept (apply mitigation)", "recommended": true },
-        { "label": "Reject (do not apply)" },
-        { "label": "Defer (carry to handoff)" },
-        { "label": "Edit (custom guidance)" }
-      ],
-      "allowFreeformInput": true
+  "message": "Decide each finding independently; custom guidance is accepted as an Edit, not verified closure.",
+  "requestedSchema": {
+    "properties": {
+      "cost-estimate-pass1-a1b2c3d4": {
+        "type": "string",
+        "title": "Cosmos DB autoscale max RU/s exceeds budget by 38%",
+        "description": "must_fix; cost-feasibility. Configured 4000 RU/s max; budget caps at 2900. Failure: burst autoscale exceeds budget. Section: Cost, Cosmos DB. Mitigation: lower max_throughput to 2900. Recommended: accept.",
+        "oneOf": [
+          { "const": "accept", "title": "Accept (apply mitigation)" },
+          { "const": "reject", "title": "Reject (do not apply)" },
+          { "const": "defer", "title": "Defer (carry to handoff)" },
+          { "const": "edit", "title": "Edit (custom guidance)" }
+        ]
+      },
+      "architecture-pass1-e5f6a7b8": {
+        "type": "string",
+        "title": "Storage account allows public blob access",
+        "description": "must_fix; security-governance. Public blobs violate the baseline. Failure: anonymous disclosure. Section: Storage. Mitigation: disable public blob access. Recommended: accept.",
+        "oneOf": [
+          { "const": "accept", "title": "Accept (apply mitigation)" },
+          { "const": "reject", "title": "Reject (do not apply)" },
+          { "const": "defer", "title": "Defer (carry to handoff)" },
+          { "const": "edit", "title": "Edit (custom guidance)" }
+        ]
+      }
     }
-  ]
+  }
 }
 ```
 
-Resulting sidecar entry for the first answered question (user picked
-`Accept` with note "Lower to 2500"):
+Resulting sidecar entry for freeform guidance "Lower to 2500":
 
 ```json
 {
@@ -599,7 +612,7 @@ Resulting sidecar entry for the first answered question (user picked
   "severity": "must_fix",
   "title": "Cosmos DB autoscale max RU/s exceeds budget by 38%",
   "action": "accept",
-  "note": "Lower to 2500",
+  "note": "Edit: Lower to 2500",
   "decided_at": "2026-05-09T14:32:11Z"
 }
 ```
@@ -607,5 +620,5 @@ Resulting sidecar entry for the first answered question (user picked
 Corresponding `apex-recall` call:
 
 ```bash
-apex-recall finding my-project --add "must_fix|accept|a1b2c3d4|Cosmos DB autoscale max RU/s exceeds budget by 38%|Lower to 2500" --json
+apex-recall finding my-project --add "must_fix|accept|a1b2c3d4|Cosmos DB autoscale max RU/s exceeds budget by 38%|Edit: Lower to 2500" --json
 ```

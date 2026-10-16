@@ -4,7 +4,7 @@
 
 Anti-ambiguity rule for 04g-Governance **Phase 3 Revise handling**
 when the user has `Accept`ed (via the Per-Finding Decision Protocol
-`askQuestions` panel) a `governance-reconciliation` `must_fix` finding
+`ask_user` panel) a `governance-reconciliation` `must_fix` finding
 that conflicts with an approved architecture decision.
 
 > **Phase 2.5 never auto-routes.** This rule fires only after the user

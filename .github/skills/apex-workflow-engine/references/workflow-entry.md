@@ -3,23 +3,18 @@
 
 ## Owner Selection
 
-Local adapters bind the named agent in prompt frontmatter. Agent Host does not
-load Local prompt files or legacy configured prompt locations. A skill inherits
-the active session's model and tools; it cannot bind or switch an agent.
+Use the GitHub Copilot SDK harness inside VS Code. Archived Local prompts are not
+entry points. A skill inherits the active session's model/tools; it cannot switch agents.
 
-Before any consequential action, require the user to select the exact named
-owner below and its model from that agent's current frontmatter. If the owner,
-model, or required tools cannot be verified, **STOP** and request manual owner
-selection in a new session. Do not continue under an inherited picker model.
-Do not add tools to compensate for missing access. Prompt tool overrides may
-only narrow the owning agent's permissions.
-
-MAI must not invoke specialist step agents as subagents or perform their work inline.
-The Orchestrator presents a human handoff and stops. Do not enable experimental
-nesting or `context: fork`; do not infer model-tier eligibility or add fallbacks.
-An explicit caller allowlist controls worker invocation, regardless of a
-recipient's model-invocation flag. Workers return missing inputs to the parent
-without user questions, parent todo management, or nested dispatch.
+Select `01-Orchestrator` for end-to-end work. It confirms graph prerequisites
+and human approval, then dispatches the exact allowlisted owner through the
+[verified background-worker protocol](worker-readiness.md). Frontmatter owns
+model and effort; readiness, continuation or tool failures block execution.
+Do not perform specialist work under MAI or introduce a fallback model.
+Direct step selection remains supported with that owner's prerequisites and tools.
+Steps may call only authorized leaves; leaves never delegate or ask the user.
+Delegated steps return `USER_INPUT_REQUIRED` forms for the interactive parent.
+Never enable experimental skill `context: fork` or infer eligibility from labels.
 
 ## Entry Contract
 
@@ -112,13 +107,13 @@ Require `01-Orchestrator`, then follow its
 procedure. Use an explicit project without reconfirmation; otherwise discover
 candidates and ask only when ambiguous. Empty recall is not permission to start
 fresh. Reconcile handoff, checkpoints, reviews and approvals before advancing.
-Present recovered status and the applicable gate or handoff, then stop. Do not
-ask the user to choose the next step when the graph determines it.
+Present recovered status and the applicable human gate. After approval, use verified
+dispatch for the graph-selected owner; do not ask the user to choose a step already determined by the graph.
 
 ## Harness Acceptance
 
-Native Agent Host support is manual and unverified. Static tests prove source
+Native custom-agent acceptance remains unverified. Static tests prove source
 contracts and names, not discovery, exact model availability, tool enforcement,
-or runtime handoff behavior. Test Local and Host fresh/resume/revision on both
+or runtime handoff behavior. Test SDK fresh/resume/revision on both
 IaC tracks, unavailable owners/models, approval stops, and missing review/input
 recovery manually. Do not claim successful native execution from these files.

@@ -25,7 +25,8 @@ file-editing tools.
 
 ## Execution Subagent Prompts
 
-Use `tools/apex-prompts/utility-prompts/execution-subagent.prompt.md`:
+Use `.github/skills/apex-workflow-engine/references/execution-subagent.md`
+after the [verified worker handshake](../../apex-workflow-engine/references/worker-readiness.md):
 
 1. `## Inputs` identifies paths and required state.
 2. `## Activities` lists exact commands or tools.
@@ -39,8 +40,8 @@ Use `tools/apex-prompts/utility-prompts/execution-subagent.prompt.md`:
     then stop and request a human handoff to `10-Challenger`. Report the runtime
     error when available.
 3. Never invoke a nested main-agent wrapper or fabricate an inline review.
-    Production main agents, including `10-Challenger`, require human selection;
-    explicit caller allowlists must not override this production boundary.
+    Only Orchestrator may dispatch approved, readiness-verified main workers;
+    step-agent allowlists never authorize another main-agent wrapper.
 4. If `10-Challenger` is already active, stop and request human intervention
     rather than a self-handoff. Preserve exhausted retry status across handoffs
     and resumed sessions; human selection does not renew the retry allowance.

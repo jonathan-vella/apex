@@ -33,6 +33,11 @@
             }
           ],
           "properties": {
+            "runtime_id": {
+              "type": "string",
+              "minLength": 1,
+              "description": "Expected SDK model ID for readiness comparison, not proof of availability or permission to fall back."
+            },
             "vendor": {
               "type": "string",
               "description": "Model provider (e.g. Anthropic, OpenAI)."

@@ -5,10 +5,9 @@ model: ["Claude Sonnet 5.5 (copilot)"]
 reasoning-effort: high
 argument-hint: "Provide the path to the artifact to challenge (e.g. agent-output/my-project/04-implementation-plan.md)"
 user-invocable: true
-disable-model-invocation: true
+disable-model-invocation: false
 tools:
   [
-    vscode/askQuestions,
     execute,
     read,
     agent,
@@ -57,6 +56,13 @@ Done when:
 - On `Proceed`: hand off to `01-Orchestrator` (or the artifact's
   step-owning agent) with the apply summary.
 
+## Harness Entry
+
+Delegated: tool-free `APEX_WORKER_HANDSHAKE` returns `WORKER_READY` + exact name/nonce;
+nonce-only continuation returns `WORKER_READY_ACK`; require `WORKER_EXECUTE` before work.
+[Routing](../skills/apex-workflow-engine/references/worker-readiness.md) before leaf calls; direct use owns `ask_user`.
+Return `USER_INPUT_REQUIRED` forms to the interactive parent; cancel stops.
+
 ## Constraints
 
 <scope_fencing>
@@ -80,8 +86,8 @@ Done when:
 - Honor `metadata.plan_lock` and upstream ownership: a frozen artifact requires return
   to its owner to reopen approval, not an accepted-finding workaround. Changes invalidate
   affected review/approval evidence; the caller must resolve required re-review before advancement.
-- Local uses human handoffs; Host requires explicit selection of the named next owner.
-  This main agent is human-selected only, including fallback entry. Skills run inline
+- Use the verified Copilot SDK worker contract; human approval gates still block advancement.
+  Only Orchestrator may delegate this main agent after readiness verification. Skills run inline
   and cannot choose model/tools. Use #tool:agent only for the allowlisted review worker.
 - Use the artifact_type and review_focus lookup tables below.
 - Risk acceptance is separate from review integrity and closure. Preserve every finding, severity, verdict and hash;
@@ -98,7 +104,7 @@ Done when:
   `decisions.challenger_invocations_<step>` before the handoff. The
   orchestrator's per-step ceiling (2 in `default`, 4 in `deep`)
   blocks further invocations and triggers an Accept / Override
-  / Abort `askQuestions`. Surface the current invocation count in the chat summary
+  / Abort `ask_user`. Surface the current invocation count in the chat summary
   (e.g. _"Pass 2 of max 2 (default depth)"_). A requested pass cannot bypass an
   exhausted budget: return to its owner for resolution. Governance retains its
   one-pass cap; do not silently grant a general ceiling override to Step 3.5.
@@ -112,7 +118,7 @@ Done when:
     finding's mitigation requires changes elsewhere, classify as
     `defer` with a note pointing to the owning agent.
   - Honor `APEX_UNATTENDED=1` per protocol section 2d (auto-defer,
-    no apply, no `askQuestions`; stop on unresolved `must_fix`).
+    no apply, no `ask_user`; stop on unresolved `must_fix`).
 - Failure handling:
   - If `challenger-review-subagent` errors, times out, or returns
     malformed/absent JSON (distinct from a clean review with findings),
@@ -182,7 +188,7 @@ For simple single-pass reviews, invoke with review_focus + pass_number.
 For multi-pass reviews, invoke with batch_lenses array to run remaining lenses in one invocation.
 
 Every #tool:agent invocation prompt MUST follow the three-H2 contract at
-[`tools/apex-prompts/utility-prompts/execution-subagent.prompt.md`](../../tools/apex-prompts/utility-prompts/execution-subagent.prompt.md)
+[`.github/skills/apex-workflow-engine/references/execution-subagent.md`](../skills/apex-workflow-engine/references/execution-subagent.md)
 (`## Inputs` / `## Activities` / `## Outputs`). Issue #425.
 
 You are a delegation wrapper for standalone adversarial reviews.
@@ -313,7 +319,7 @@ accepted disposition nor a lower severity independently proves a prior blocker c
    [.github/skills/apex-azure-defaults/references/adversarial-review-protocol.md](../skills/apex-azure-defaults/references/adversarial-review-protocol.md#per-finding-decision-protocol):
    - Build the panel from in-scope findings (`must_fix` + `should_fix`)
      per protocol sections 2e (merge order), 2f (12-question cap),
-     and 2g (askQuestions payload shape).
+     and 2g (ask_user payload shape).
    - Auto-load existing decisions from
     the resolved `decisions_path` per 2c so a
      repeated run is idempotent.

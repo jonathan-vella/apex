@@ -120,6 +120,15 @@ Before composing the response:
    `Recommendation` so the parent agent can route it to the correct
    remediation.
 
+## Harness Entry
+
+For `APEX_WORKER_HANDSHAKE`, perform no tools and return `WORKER_READY`,
+this definition's exact name and the parent's nonce. On the nonce-only continuation,
+return `WORKER_READY_ACK` with that same name/nonce and no tools. Work only after
+the same parent sends `WORKER_EXECUTE` following verified routing. A missing
+handshake or execution envelope returns `blocked`, never an inherited-model run.
+Do not ask users, manage parent todos or delegate. Return missing inputs to the parent.
+
 ## Inputs
 
 The parent agent supplies:

@@ -142,9 +142,14 @@ directly.
 The [skill catalog](.github/skills/README.md) describes procedure ownership and invocation flags.
 For explicit prose cleanup, use [/apex-unslop](.github/skills/apex-unslop/SKILL.md); it is manual-only,
 preserves technical content, and is not part of the automatic workflow.
-Local prompt files are adapters. On Agent Host, select the owning agent and use the shared
-manual entry skill; `apex-host-workflow-start` supports an explicit `resume` operation.
-Skills inherit the caller's model/tools and do not bypass human approval gates.
+The supported target is the GitHub Copilot SDK harness **inside VS Code**.
+Select `01-Orchestrator`, then use
+[/apex-workflow-start](.github/skills/apex-workflow-start/SKILL.md) for fresh or `resume` operations.
+After human approval, named specialists run through the
+[verified worker protocol](.github/skills/apex-workflow-engine/references/worker-readiness.md).
+Skills inherit caller model/tools; completion never bypasses approval or independent review.
+Legacy Local prompts are retained only in [.archive/pre-cpharness/](.archive/pre-cpharness/).
+Custom-agent routing, permissions and live workflow acceptance require separate runtime verification.
 
 Explicit risk acceptance is supported only for authorized non-production labs, with externally verified authority,
 individual finding selection and separate human gate approval. Kit authoring permission never grants deployment

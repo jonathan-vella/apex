@@ -5,9 +5,9 @@ reasoning-effort: high
 description: Researches and captures Azure platform engineering project requirements
 argument-hint: Describe the Azure workload or project you want to gather requirements for
 user-invocable: true
-disable-model-invocation: true
+disable-model-invocation: false
 agents: ["challenger-review-subagent"]
-tools: [vscode/askQuestions, execute, read, agent, edit, search, todo]
+tools: [execute, read, agent, edit, search, todo]
 handoffs:
   - label: "▶ Refine Requirements"
     agent: 02-Requirements
@@ -62,6 +62,13 @@ Done when:
 - `apex-recall` records checkpoints, `iac_tool`, region, SKU manifest status, and Step 1 completion.
 - `challenge-findings-requirements.json` is produced by `challenger-review-subagent` and every
   finding is rendered in chat before the proceed/revise gate.
+
+## Harness Entry
+
+Delegated: tool-free `APEX_WORKER_HANDSHAKE` returns `WORKER_READY` + exact name/nonce;
+nonce-only continuation returns `WORKER_READY_ACK`; require `WORKER_EXECUTE` before work.
+[Routing](../skills/apex-workflow-engine/references/worker-readiness.md) before leaf calls; direct use owns `ask_user`.
+Return `USER_INPUT_REQUIRED` forms to the interactive parent; cancel stops.
 
 ## Context Handling
 
@@ -127,12 +134,12 @@ Write questions and notes as plain sentences; use the table only for findings.
   are a constraint, not an architecture decision**. Phase 3j requires explicit preferences or
   "no preference" for every applicable class; use supplied answers and ask only for uncovered classes.
 - Use `apex-recall` for session state. Do not read or write `00-session-state.json` directly.
-- Use `askQuestions` for structured discovery. **Batch independent questions** into a single
-  `askQuestions` call via the `questions[]` array — issue separate calls only when a later
+- Use `ask_user` for structured discovery. **Batch independent questions** into a single
+  `ask_user` call via `requestedSchema.properties` — issue separate calls only when a later
   question's options depend on a prior answer (cascading inputs). One-at-a-time prompting is
   forbidden when answers don't cascade. See
   [Context Hygiene](../instructions/agent-authoring.instructions.md#context-hygiene-token-efficiency).
-  If #tool:vscode/askQuestions is unavailable, report `blocked` and stop before generation.
+  If #tool:ask_user is unavailable, report `blocked` and stop before generation.
 - Allowed writes are the Step 1 outputs below, `00-handoff.md`, and recall-managed state.
   Findings belong to the reviewer; edit only their decision sidecar. `execute` permits
   approved recall, manifest rendering and output checks, not arbitrary filesystem or Azure writes.
@@ -148,7 +155,7 @@ Write questions and notes as plain sentences; use the table only for findings.
 
 ## Harness Routing
 
-Local uses human handoffs; Host requires the user to explicitly select the next named
+The Copilot SDK uses verified workers; human gates remain explicit before the next named
 owner. Inline skills do not change model or tool scope. Use #tool:agent only for the
 allowlisted worker. Missing model, tool, input or invocation eligibility means `blocked`,
 not model substitution or a skipped review. On reviewer failure, preserve the error and
@@ -247,65 +254,71 @@ Step 1 creates `agent-output/{project}/sku-manifest.json` and renders `sku-manif
 
 ### P0 directive — batch independent questions (Plan 01 Phase 4)
 
-Every `askQuestions` call **MUST** bundle every independent question
-for the current phase into a single tool call via the `questions[]`
-array. Sequential calls are only permitted when a later question's
+Every `ask_user` call **MUST** bundle every independent question
+for the current phase into a single tool call via `requestedSchema.properties`.
+Sequential calls are only permitted when a later question's
 wording depends on a prior answer. This is the largest user-wait
-reduction available — the test04 baseline fired 29 askQuestions calls
+reduction available — the test04 baseline fired 29 ask_user calls
 across Step 1 (1,744 s of user-wait); the target is ≤10.
 
 **Numbered example — 6 questions in ONE call**:
 
-```jsonc
-askQuestions({
-  questions: [
-    { header: "project_name",  question: "Confirm or change the project folder." },
-    { header: "industry",      question: "Pick the industry that best matches.", options: [...] },
-    { header: "company_size",  question: "Startup / Mid-Market / Enterprise?", options: [...] },
-    { header: "region_pin",    question: "Any region pin (e.g. EU GDPR)?" },
-    { header: "compliance",    question: "Compliance / regulatory constraints?" },
-    { header: "iac_tool",      question: "Bicep or Terraform?", options: ["Bicep", "Terraform"] }
-  ]
-})
+```json
+{
+  "message": "Confirm the missing business and technical inputs.",
+  "requestedSchema": {
+    "properties": {
+      "project_name": { "type": "string", "title": "Project folder" },
+      "industry": { "type": "string", "title": "Industry" },
+      "company_size": {
+        "type": "string",
+        "title": "Company size",
+        "enum": ["Startup", "Mid-Market", "Enterprise"]
+      },
+      "region_pin": { "type": "string", "title": "Region constraints" },
+      "compliance": { "type": "string", "title": "Compliance constraints" },
+      "iac_tool": { "type": "string", "title": "IaC tool", "enum": ["Bicep", "Terraform"] }
+    }
+  }
+}
 ```
 
-The validator `npm run validate:question-batching` greps this body
-for the P0 directive heading + the numbered example block.
+The validator `npm run validate:question-batching` parses this form's typed fields.
 
-Use `askQuestions` for Round 1:
+Use `ask_user` for Round 1:
 
 - Project name, freeform.
 - Industry, with six common options plus freeform.
 - Company size: Startup, Mid-Market, Enterprise.
 - System type or project description, with common workload options plus freeform.
 
-Use `askQuestions` for Round 1b:
+Use `ask_user` for Round 1b:
 
 - Scenario: greenfield, migration, modernization, or extension.
-- Target environments with `multiSelect: true`; default Dev + Production unless the prompt says otherwise.
+- Target environments with an `array`/`items` field; suggest Dev + Production unless supplied.
 - Brief workload description in one or two sentences.
 
-If migration or modernization is selected, use `askQuestions` for Round 2:
+If migration or modernization is selected, use `ask_user` for Round 2:
 
 - Current platform.
-- Pain points with `multiSelect: true`.
-- Parts to preserve with `multiSelect: true`.
+- Pain points with an `array`/`items` field.
+- Parts to preserve with an `array`/`items` field.
 
 When the initial prompt provides explicit answers, capture them without asking again.
-`askQuestions` options must follow the API rule: either no options
-for pure freeform or two or more options; one option with freeform is invalid.
+Use `enum`/`oneOf` for choices, `array`/`items` for multi-select and plain strings for freeform.
+Cancel stops; decline preserves missing inputs and never approves a decision.
 
 ## Phase 2: Workload Pattern Detection
 
 Infer the workload pattern from the business signals, then ask the user to confirm it rather than
 asking them to classify from scratch.
 
-Use `askQuestions` for:
+Use `ask_user` for:
 
 - Workload pattern confirmation with the inferred pattern recommended and four or five alternatives.
 - Daily users.
 - Monthly budget with options plus freeform.
-- Data sensitivity with `multiSelect: true`.
+- Data sensitivity with an `array`/`items` field.
 - Concurrent users for web/API patterns.
 - Transactions per second for database-heavy, analytics, event-driven, or IoT patterns.
 - IaC tool preference, defaulting to Bicep unless the handoff supplied a value.
@@ -347,7 +360,7 @@ apex-recall decide <project> --key cost_monitoring_exception \
 
 ## Phase 3: Service Recommendations
 
-This phase is required. Read once, then follow the batched-`askQuestions`
+This phase is required. Read once, then follow the batched-`ask_user`
 runbook in
 [`apex-azure-defaults/references/service-class-menu.md`](../skills/apex-azure-defaults/references/service-class-menu.md)
 (Batches A → B → C → 3i confirm → **3j SKU/sizing preferences (mandatory)**).
@@ -374,10 +387,10 @@ ask only for missing or conflicting answers. The canonical security baseline is 
 Distinguish public-facing web applications from APIs and identify private-client access needs.
 Do not offer "private networking only when policy requires". DNS ownership remains pending governance verification.
 
-Use `askQuestions` for:
+Use `ask_user` for:
 
-- Compliance frameworks with `multiSelect: true`.
-- Additional security measures beyond the baseline with `multiSelect: true`, only when relevant.
+- Compliance frameworks with an `array`/`items` field.
+- Additional security measures beyond the baseline with an `array`/`items` field, when relevant.
 - Authentication method.
 - Region, defaulting to `swedencentral` unless service availability requires an exception.
 - Operations and ownership, batched in one call: how operators reach private services, who owns web
@@ -463,7 +476,7 @@ Delegate to `challenger-review-subagent` with:
 - `overwrite`: `false`, except when re-running after revisions
 
 Compose the runtime `prompt` string per
-[tools/apex-prompts/utility-prompts/execution-subagent.prompt.md](../../tools/apex-prompts/utility-prompts/execution-subagent.prompt.md)
+[.github/skills/apex-workflow-engine/references/execution-subagent.md](../skills/apex-workflow-engine/references/execution-subagent.md)
 — the three required H2s are `## Inputs`, `## Activities`,
 `## Outputs`. Do NOT use ad-hoc structures
 (`**Inputs:** / **Review scope:** / **Output format:**`); the template is
@@ -505,7 +518,7 @@ the protocol mapping or show "Not supplied"; do not invent legacy JSON fields.
 Follow `## Per-Finding Decision Protocol` in
 [`adversarial-review-protocol.md`](../skills/apex-azure-defaults/references/adversarial-review-protocol.md)
 for question shape, option labels, deterministic action mapping,
-batched-`askQuestions` rules, and the 12-question cap. Requirements-step
+batched-`ask_user` rules, and the 12-question cap. Requirements-step
 specifics:
 
 - `header` namespace: `requirements-pass1-{idx}` (unique, ≤50 chars).
@@ -543,12 +556,12 @@ Once accepted changes have current review evidence and no unresolved `must_fix` 
 On `Proceed`, require current review, resolved blockers and human approval, run
 `apex-recall complete-step <project> 1 --json`, mark README complete and hand off to Architecture.
 
-If `APEX_UNATTENDED=1` is set, bypass `askQuestions` per the protocol's unattended-mode rules and
+If `APEX_UNATTENDED=1` is set, bypass `ask_user` per the protocol's unattended-mode rules and
 persist deferred decisions. Stop before completion or handoff while any unresolved `must_fix` remains.
 
 ## Required Information
 
-Collected from explicit supplied answers or `askQuestions` across Phases 1–5. Required inputs (must
+Collected from explicit supplied answers or `ask_user` across Phases 1–5. Required inputs (must
 be provided by the user): `project_name`, `project_description`,
 `system_description`, `budget`. Defaults below are suggested answers, not permission
 to infer unanswered IaC, SKU-preference, security/compliance or region choices.
@@ -594,12 +607,7 @@ Do not narrate routine tool calls.
 
 ## Completion Handoff
 
-After `apex-recall complete-step` + writing `00-handoff.md`, end the
-final chat message with this line, **verbatim**, on its own final line
-(full contract:
-[`compression-templates.md`](../skills/apex-context-management/references/compression-templates.md#gate-boundary-clear-handoff-contract);
-validator: `npm run validate:orchestrator-handoff`):
-
-```text
-Run `/clear`, then switch the chat agent picker to `01-Orchestrator` and send `resume <project>` to continue Step N+1.
-```
+Run `apex-recall checkpoint <project> <step> completed --json`; update `00-handoff.md`
+with paths, actual validation results and unresolved findings. Return `STEP_COMPLETE`
+only after required reviews/checks; pending decisions return `USER_INPUT_REQUIRED`.
+Direct use presents the human gate with `ask_user` and stops. Completion is not next-step approval.

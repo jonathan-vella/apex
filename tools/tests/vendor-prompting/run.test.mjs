@@ -611,7 +611,7 @@ test("agent catalog and instructions preserve canonical models and human-selecte
 test("prompt and skill authoring distinguish Local adapters from Host execution", () => {
   const root = path.resolve(__dirname, "../../..");
   for (const filename of [
-    ".github/instructions/prompt.instructions.md",
+    ".archive/pre-cpharness/prompt.instructions.md",
     ".github/instructions/agent-skills.instructions.md",
   ]) {
     const content = fs.readFileSync(path.join(root, filename), "utf8").replace(/\s+/g, " ");

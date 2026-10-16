@@ -53,7 +53,7 @@ Choose the output mode required by the named worker, not a universal disk format
 
 The named worker's agent definition and its explicitly delegated I/O reference
 are the source authority for output mode, schema, verdict, failure shape and allowed
-writes. Read the linked source before invocation; this reference and Local adapters
+writes. Read the linked source before invocation; this reference and entry skills
 cannot override it. Do not convert a text-only worker to file JSON or a file-output
 worker to an inline-only response. Scratch files and saved plans are not findings JSON.
 The parent persists returned evidence only if its own contract explicitly owns that

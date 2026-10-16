@@ -30,6 +30,7 @@
       "notes": "Requested exact label; availability and runtime effort controls require manual verification. No active assignment since the 2026-09 Claude migration; stays authorized."
     },
     "GPT-6 Luna (copilot)": {
+      "runtime_id": "gpt-6-luna",
       "vendor": "OpenAI",
       "tier": null,
       "released": null,
@@ -59,6 +60,7 @@
       "notes": "Requested exact label; availability and runtime effort controls require manual verification. No active assignment after the step agents moved to Claude Sonnet 5.5; stays authorized."
     },
     "Claude Sonnet 5.5 (copilot)": {
+      "runtime_id": "claude-sonnet-5.5",
       "vendor": "Anthropic",
       "tier": null,
       "released": null,
@@ -93,6 +95,7 @@
       "notes": "Balanced GPT-5.6 tier for Local utility prompts. Prompting follows OpenAI's GPT-5.6 prompt guidance plus the APEX outcome-first convention."
     },
     "MAI-Code-1.1-Flash": {
+      "runtime_id": "mai-code-1.1-flash",
       "vendor": "Microsoft",
       "tier": "standard",
       "released": "2026-06",

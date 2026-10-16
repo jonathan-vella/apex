@@ -628,7 +628,8 @@ test("SK10: reachable dispatch guidance preserves main-agent boundaries and grap
   for (const file of ["subagent-integration.md", "orchestrator-handoff-guide.md"]) {
     const body = skill(`apex-workflow-engine/references/${file}`);
     assert.match(body, /workflow-graph.json/);
-    assert.match(body, /human-selected/);
+    assert.match(body, /verified readiness/);
+    assert.match(body, /human/);
     assert.match(body, /exactly one identical-input retry/);
     assert.match(body, /cost-feasibility/);
     assert.doesNotMatch(body, /`#runSubagent` OK|silently fall back to codex|within ceiling|invoke it now/);

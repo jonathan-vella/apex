@@ -2,7 +2,7 @@
 
 # Log profiling — `profile_debug_log.py`
 
-Profiles Copilot Chat OTel debug logs for the token-reduction
+Profiles native SDK event logs (with historical OTel/Local readers) for the token-reduction
 workstream. Used by `11-Context Optimizer` during audits and by the
 multi-log baselining workflow under
 `agent-output/_baselines/`.
@@ -11,13 +11,13 @@ multi-log baselining workflow under
 
 ```sh
 # Plain-text summary
-python3 tools/scripts/profile_debug_log.py logs/test04-01.json
+python3 tools/scripts/profile_debug_log.py ~/.copilot/session-state/SELECTED_SESSION_ID/events.jsonl
 
 # Machine-readable JSON
-python3 tools/scripts/profile_debug_log.py logs/test04-01.json --json
+python3 tools/scripts/profile_debug_log.py ~/.copilot/session-state/SELECTED_SESSION_ID/events.jsonl --json
 
 # npm alias (parity with other repo scripts)
-npm run profile:debug-log -- logs/test04-01.json
+npm run profile:debug-log -- ~/.copilot/session-state/SELECTED_SESSION_ID/events.jsonl
 ```
 
 ## What it extracts
@@ -43,7 +43,7 @@ in ignored scratch storage, never agent-discovery folders or public commits.
 | Section                  | Field                                                                 |
 | ------------------------ | --------------------------------------------------------------------- |
 | Totals                   | `input_tokens`, `output_tokens`, `chat_calls`, avg/p50/max input/call |
-| askQuestions             | Count + per-call durations                                            |
+| ask_user             | Count + per-call durations                                            |
 | Subagents                | Total invocations, challenger invocations                             |
 | Wall time                | `session_total`, `agent_chat`, `subagent`, `user_wait_askquestions`   |
 | Tokens by model          | Per-model input/output/calls/avg                                      |
@@ -51,26 +51,39 @@ in ignored scratch storage, never agent-discovery folders or public commits.
 | Top tool payloads        | 10 largest tools by `arguments + result` byte sum                     |
 | Duplicate file reads     | `read_file` paths invoked > 1× (Phase 2c signal)                      |
 | Errors                   | Total raw + non-benign list (ENOENT-style filtered out)               |
-| Compliance metrics       | `max_chat_spans_between_clears`, `max_askquestions_in_single_phase`   |
+| Native evidence | Worker/execution attribution, closed capture, incomplete operations and unknown models |
+| Cache samples | `observed_cache_tokens`: observed read/write totals and sample counts, not billing |
+| Historical compliance | `/clear` and Local phase counters; `null` for native SDK logs |
 | Warnings                 | Threshold-exceeded notes (informational only)                         |
 
 ## Compliance thresholds
 
-Invocation totals count attempts, including failures. Modern `runSubagent` tool spans use the recorded
+Native default-mode review budgets count attributed `WORKER_EXECUTE` requests, not readiness starts.
+Execution envelopes may arrive as worker `user.message` events without an ordinary send-tool span.
+Matching origin/received envelopes count once; conflicting identities fail explicitly.
+Closure follows root shutdown/resume events in append order, not the existence of an old shutdown.
+External transport records are deduplicated against native tool calls. A transport completion alone
+does not establish execution success; external-only outcomes remain unknown and incomplete.
+Discovery rejects sessions resumed with a different or unknown workspace identity.
+Missing review/resume/usage evidence cannot certify acceptance; use the
+[SDK smoke procedure](../../../../tools/tests/integration/smoke-run.md).
+Per-worker chat counts are diagnostic, not proof that a context was cleared or a phase completed.
+
+Historical invocation totals count attempts, including failures. `runSubagent` tool spans use the recorded
 `agentName`; malformed or absent arguments leave identity unknown. Linked legacy wrapper/child spans count
 once using trace/parent IDs, not timing guesses. Unlinked events cannot be assumed to describe the same invocation.
 Payload sizes are UTF-8 byte counts, not token counts. Cumulative input sums repeated context across observed
 requests; it is not a single context-window size or an uncached bill. Missing child requests and cache/billing
 fields remain unknown. Repeated reads after artifact edits are not automatically redundant.
 
-Two informational warnings drop into the output when a session
+For historical logs only, informational warnings appear when a session
 violates a token-reduction contract — exit code stays 0.
 
 - `--max-spans-between-clears N` (default `50`) flags any run of
   `chat:*` spans between `SessionStart`/`Stop` markers that exceeds
   `N`. Backs **Phase 2a** (Gate-boundary `/clear` handoff).
 - `--max-askquestions-per-phase N` (default `3`) flags any contiguous
-  run between `turn_start:N` markers that exceeds `N` askQuestions
+  run between `turn_start:N` markers that exceeds `N` ask_user
   calls. Backs **Phase 4** (batching enforcement).
 
 ## Multi-log baselining

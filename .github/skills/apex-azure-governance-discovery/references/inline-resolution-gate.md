@@ -146,7 +146,7 @@ project choice, and an unknown policy requirement in existing artifact prose and
 
 ### Step 2: Resolve all topics, asking unresolved questions together
 
-Use one `vscode_askQuestions` call for all currently unresolved topics. Reuse
+Use one `ask_user` call for all currently unresolved topics. Reuse
 only answers satisfying the checks above; changed region or policy inputs
 invalidate affected answers. Discovered values are evidence, not pre-approved
 choices. Include `Unknown — block` and exact freeform input for every question.

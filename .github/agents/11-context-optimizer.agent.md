@@ -4,23 +4,9 @@ model: ["Claude Sonnet 5.5 (copilot)"]
 reasoning-effort: high
 description: "Analyzes Copilot Chat debug logs to audit context-window utilization across agents. Identifies bloated prompts, redundant file reads, missing hand-off points, and wasted tokens. Produces actionable optimization reports. Recommendations only — never edits agents."
 user-invocable: true
-disable-model-invocation: true
+disable-model-invocation: false
 agents: []
-tools:
-  [
-    vscode/askQuestions,
-    execute/runInTerminal,
-    execute/getTerminalOutput,
-    read/readFile,
-    read/problems,
-    read/terminalLastCommand,
-    read/terminalSelection,
-    search/codebase,
-    search/fileSearch,
-    search/listDirectory,
-    search/textSearch,
-    edit,
-  ]
+tools: [execute, read, edit, search]
 handoffs:
   - label: "↩ Return to Orchestrator"
     agent: 01-Orchestrator
@@ -43,11 +29,18 @@ Done when:
 - Recommendations preserve recovery, roles, review cadence and approval boundaries.
 - Unknowns are stated.
 
+## Harness Entry
+
+Delegated: tool-free `APEX_WORKER_HANDSHAKE` returns `WORKER_READY` + exact name/nonce;
+nonce-only continuation returns `WORKER_READY_ACK`; require `WORKER_EXECUTE` before work.
+[Routing](../skills/apex-workflow-engine/references/worker-readiness.md) before leaf calls; direct use owns `ask_user`.
+Return `USER_INPUT_REQUIRED` forms to the interactive parent; cancel stops.
+
 ## Constraints
 
 <scope_fencing>
 
-Use the Audit write scope below in both harnesses. Terminal execution is not read-only
+Use the Audit write scope below in the Copilot SDK harness. Terminal execution is not read-only
 by itself: do not run writing scripts during read-only audits. In report mode, allowed
 writes are the requested report, explicitly authorized baseline/diff outputs and recall
 findings only; use available editing tools for revisions and preserve user work.
@@ -86,7 +79,7 @@ or a milestone report before the requested audit is complete.
 
 ## Harness Routing
 
-Local uses the human handoff; Host requires explicit selection of the next named owner.
+Use the Copilot SDK entry contract; human approval gates still block advancement.
 Skills run inline and cannot change model/tools. No subagent calls or parent-model
 execution of other agents. Refresh missing/changed evidence after compaction or resume.
 
@@ -161,21 +154,21 @@ batch independent reads using available tools and defer phase-specific reference
 > Unknown model limits and runtime cost tiers remain unknown; neither family labels
 > nor a reference's historical figures establish current runtime availability.
 
-### Primary: Chat Debug Logs
+### Primary: Native SDK Events
 
 Location pattern:
-`~/.vscode-server/data/logs/*/exthost1/GitHub.copilot-chat/GitHub Copilot Chat.log`
+`~/.copilot/session-state/<session-id>/events.jsonl` (verified repository scope).
 
 Key signals extracted:
 
 | Signal         | Log Pattern                                          | Indicates                   |
 | -------------- | ---------------------------------------------------- | --------------------------- |
-| Request timing | `ccreq:*.copilotmd \| success \| {model} \| {ms}`    | Per-turn latency + model    |
+| Request timing | `session.usage_record`, linked `apiCallId` | Observed duration and model |
 | Long turns     | Latency > 15000ms                                    | Slow response; cause unknown |
-| Model routing  | `{requested} -> {actual}`                            | Model fallback behavior     |
-| Request type   | `[panel/editAgent]`, `[title]`, `[progressMessages]` | Turn purpose classification |
-| Errors         | `[error]` lines                                      | Failed operations           |
-| Subagent calls | `copilotLanguageModelWrapper` entries                | Delegation frequency        |
+| Model routing | Worker configured/completed events | Definition routing versus actual dispatch |
+| Request type | Root/worker identity and execution envelope | Attributed work; absent attribution is unknown |
+| Errors | Failed tool, hook and worker events | Failed or incomplete operations |
+| Subagent calls | Worker lifecycle and linked task calls | Delegation attempts, not approval |
 
 ### Secondary: Agent Definitions
 
@@ -206,7 +199,7 @@ existing baseline when suitable. Otherwise, with write authorization, create one
 npm run snapshot:baseline -- "ctx-opt-$(date -u +%Y%m%d-%H%M%S)"
 ```
 
-This backs up `.github/agents`, `.github/instructions`, `tools/apex-prompts`,
+This backs up `.github/agents`, `.github/instructions`,
 `.github/skills`, and `AGENTS.md` to `agent-output/_baselines/{label}/`.
 Store the label for Phase 6.
 
@@ -223,16 +216,16 @@ Missing logs do not trigger installation, permission changes or fabricated measu
 
    ```bash
    python3 .github/skills/apex-context-management/scripts/parse-chat-logs.py \
-     --log-dir ~/.vscode-server/data/logs/
+     --log-dir ~/.copilot/session-state/ --repository .
    ```
 
-3. For exported OTel debug logs (`logs/*.json` / `tmp/agent-debug-log-*.json`),
+3. For selected native JSONL logs (historical OTel JSON remains readable),
    run the deeper profiler to extract token totals, per-model splits,
-   askQuestions counts, subagent wall-time, duplicate file reads, and
+   ask_user counts, subagent wall-time, duplicate file reads, and
    compliance warnings:
 
    ```bash
-   npm run profile:debug-log -- logs/<session>.json
+   npm run profile:debug-log -- ~/.copilot/session-state/<session-id>/events.jsonl --json
    ```
 
    Full workflow + thresholds:
@@ -248,13 +241,13 @@ For each session, analyze request patterns:
 
 | Metric                 | What to Calculate                               |
 | ---------------------- | ----------------------------------------------- |
-| Requests per session   | Total `ccreq` entries grouped by session        |
+| Requests per session | Observed API call IDs, deduplicated usage |
 | Avg latency by model   | Mean response time per model                    |
 | Long-tail turns        | Turns > 15s (likely context-heavy)              |
 | Model distribution     | Group by exact model labels observed in the selected logs |
-| Request type breakdown | editAgent vs title vs progressMessages          |
+| Request type breakdown | Root/worker, readiness/execution, unknown |
 | Burst patterns         | Rapid sequential calls (< 2s gap = likely loop) |
-| askQuestions per phase | Count from profiler; flag any single phase > 3 (Plan 01 Phase 4 batching) |
+| ask_user | Captured count; phase budgets require explicit attribution |
 
 Report latency separately from tokens. Use recorded token-usage fields for token totals;
 when absent, report unknown. Source size and tool counts are diagnostics, not measured token savings.
