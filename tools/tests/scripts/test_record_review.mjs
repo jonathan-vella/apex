@@ -19,6 +19,15 @@ const artifact = "agent-output/example/01-requirements.md";
 const output = "agent-output/example/challenge-findings-requirements.json";
 const hash = (value) => createHash("sha256").update(value).digest("hex");
 
+function finalizeDraft(draft) {
+  const contract = fs.readFileSync(ONE_SHOT_REVIEW_CONTRACT, "utf8");
+  const snippet = contract.match(/```javascript\n([\s\S]+?)\n```/)?.[1];
+  assert.ok(snippet, "Reviewer draft finalization must remain executable");
+  return spawnSync(process.execPath, ["--input-type=module", "-e", snippet, JSON.stringify(draft)], {
+    encoding: "utf8",
+  });
+}
+
 function fixture(t, { batch = false, supporting = false, parent = "root" } = {}) {
   const root = path.resolve(`.record-review-test-${randomUUID()}`);
   fs.mkdirSync(root);
@@ -275,6 +284,50 @@ test("one-shot records actual raw findings and execution with absent model metad
     encoding: "utf8",
   });
   assert.equal(checked.status, 0, checked.stdout + checked.stderr);
+});
+
+test("documented reviewer preflight computes draft IDs/counts without changing review semantics", (t) => {
+  const f = fixture(t);
+  const finding = {
+    severity: "must_fix",
+    category: "requirements",
+    claim: "An acceptance criterion is missing",
+    evidence: "Fixture artifact",
+    impact: "Acceptance cannot be measured",
+    artifact_section: "Requirements",
+    traces_to: ["Requirements checklist"],
+    suggested_fix: { artifact_path: artifact, proposed_edit: "Define the acceptance criterion" },
+  };
+  f.doc.findings = [finding];
+  f.doc.overall_assessment = "NEEDS_REVISION";
+  const result = finalizeDraft(f.doc);
+  assert.equal(result.status, 0, result.stderr);
+  const finalized = JSON.parse(result.stdout);
+  assert.deepEqual(finalized, {
+    ...f.doc,
+    must_fix_count: 1,
+    findings: [{ ...finding, id: findingId(finding) }],
+  });
+  assert.equal(Object.hasOwn(f.doc.findings[0], "id"), false);
+});
+
+test("documented reviewer preflight rejects string traces instead of silently coercing findings", (t) => {
+  const f = fixture(t);
+  f.doc.findings = [
+    {
+      severity: "suggestion",
+      category: "requirements",
+      claim: "An acceptance criterion is missing",
+      evidence: "Fixture artifact",
+      impact: "Acceptance cannot be measured",
+      artifact_section: "Requirements",
+      traces_to: "Requirements checklist",
+    },
+  ];
+  const result = finalizeDraft(f.doc);
+  assert.equal(result.status, 1);
+  assert.equal(result.stdout, "");
+  assert.match(result.stderr, /traces_to must be an array/);
 });
 
 test("IaC code directories publish canonical pass evidence and invalidate on changed nested bytes", (t) => {

@@ -42,7 +42,7 @@ it is not a required hop in the automatic path.
      "output_path": "agent-output/example/challenge-findings-requirements.json",
      "overwrite": false,
      "cache_inputs": {},
-     "instructions": "## Inputs\nReview the supplied artifact and captured metadata using the one-shot review contract.\n## Activities\nRead the artifact and applicable Azure checklists independently. No file writes (including scratch), direct session-state reads, delegation, user questions or Azure access. Return missing context to the parent.\n## Outputs\nYour final response must start with { and end with }, containing exactly one JSON findings object. Copy captured metadata unchanged; compute stable finding IDs rather than inventing them. No introduction, Markdown fence, conclusion or success summary."
+     "instructions": "## Inputs\nReview the supplied artifact and captured metadata using the one-shot review contract.\n## Activities\nRead the artifact and applicable Azure checklists independently. No file writes (including scratch), direct session-state reads, delegation, user questions or Azure access. Do not request out-of-bounds file ranges; read short files without a range. Return missing context to the parent.\n## Outputs\nBuild your complete draft with traces_to arrays, not strings. Use the contract's read-only in-memory draft finalization procedure to compute IDs/counts and schema-check your own draft. Your final response must be the successful stdout JSON object verbatim, starting with { and ending with }. Copy captured metadata unchanged. No introduction, Markdown fence, conclusion or success summary."
    }
    ```
 
@@ -107,6 +107,8 @@ not replace Azure/WAF, governance, cost-feasibility or template checks.
 Do not modify artifacts, findings files, decisions or state. Do not delegate,
 ask users, access Azure, change credentials or invent missing evidence.
 Return an explicit execution failure when required inputs are unavailable.
+Read a short reference without `view_range`; do not guess a tail range beyond
+its last line. An avoidable failed read is still an observed execution error.
 
 Return exactly one raw JSON object using the existing findings schema:
 `schema_version: "1.0"`, `challenged_artifact`, `artifact_type`, `review_focus`,
@@ -122,6 +124,58 @@ Each finding carries `id`, `severity` (`must_fix`, `should_fix`, `suggestion`),
 SHA-256 over `category|claim|artifact_section`; counts must match findings.
 Use `APPROVED`, `NEEDS_REVISION` or `BLOCKED` honestly; retain unresolved prior
 findings and verify claimed closure. Never turn an accepted decision into proof.
+
+### Reviewer draft finalization
+
+The independent reviewer, not the parent, owns its draft before its final answer.
+Use these exact field types:
+
+| Field | Required shape |
+| --- | --- |
+| `findings` | Array of finding objects, including an empty array when appropriate |
+| Finding `traces_to` | Array of source-reference strings; never a string |
+| Finding `category`, `claim`, `evidence`, `impact`, `artifact_section` | Nonempty strings |
+| Finding `severity` | `must_fix`, `should_fix` or `suggestion` |
+| Finding `id` | Computed by `findingId` from that finding's exact identity fields |
+| `suggested_fix` for `must_fix` | Object with nonempty `artifact_path` and `proposed_edit` strings |
+| `risk_level` | `low`, `medium` or `high` |
+| `overall_assessment` | `APPROVED`, `NEEDS_REVISION` or `BLOCKED`; never inferred from counts alone |
+| Counts and `pass_number` | Nonnegative integer counts; positive integer pass |
+| `cache_inputs`, optional `supporting_inputs` | Exact copies of the dispatched captured metadata |
+
+Before returning, run the following read-only JavaScript with `node --input-type=module -e`
+from the workspace root, supplying your own complete draft as the JSON argument
+`process.argv[1]`. No scratch file or heredoc is needed. The snippet computes only
+IDs and counts for the reviewer's own draft and checks schema; it does not change
+claims, severities, recommendations, verdicts or metadata.
+
+```javascript
+import { findingId, validateReview } from "./tools/scripts/validate-challenger-findings.mjs";
+const draft = JSON.parse(process.argv[1]);
+for (const entry of draft.batch_results ?? [draft]) {
+  for (const finding of entry.findings) finding.id = findingId(finding);
+  for (const [field, severity] of [
+    ["must_fix_count", "must_fix"],
+    ["should_fix_count", "should_fix"],
+    ["suggestion_count", "suggestion"],
+  ]) {
+    entry[field] = entry.findings.filter((finding) => finding.severity === severity).length;
+  }
+}
+const errors = validateReview(draft);
+if (errors.length) {
+  console.error(JSON.stringify(errors));
+  process.exitCode = 1;
+} else {
+  console.log(JSON.stringify(draft));
+}
+```
+
+Resolve draft-shape mistakes inside the reviewer before its first final answer;
+schema preflight is not freshness approval. Return successful stdout verbatim as
+the entire final response, not inside a code fence or surrounded by commentary.
+The parent must not run this finalization over a returned review to repair it.
+Recording still verifies exact input metadata, IDs/counts, provenance and freshness.
 
 For a separately approved standalone batch, supply explicit `lenses` entries
 with `review_focus` and `pass_number`, and return `batch_results` with complete
