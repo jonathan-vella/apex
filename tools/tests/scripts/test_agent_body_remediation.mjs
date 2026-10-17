@@ -28,6 +28,23 @@ import { cacheInputs, findingId } from "../../scripts/validate-challenger-findin
 const root = fileURLToPath(new URL("../../../", import.meta.url));
 const agentRoot = path.join(root, ".github/agents");
 const read = (name) => readFileSync(path.join(agentRoot, `${name}.agent.md`), "utf8");
+test("Delegated main agents explicitly echo handshake identity in tool-free continuation ACKs", () => {
+  for (const file of readdirSync(agentRoot).filter(
+    (file) => file.endsWith(".agent.md") && file !== "01-orchestrator.agent.md",
+  )) {
+    const body = getBody(readFileSync(path.join(agentRoot, file), "utf8"));
+    const entry = body.match(/## Harness Entry\s+([\s\S]*?)(?=\n## |$)/)?.[1];
+    assert.ok(entry, `${file}: missing Harness Entry`);
+    assert.match(
+      entry,
+      /nonce-only returns\s+`WORKER_READY_ACK <definition-name> <original-nonce>` with same values/,
+      file,
+    );
+    assert.match(entry, /Delegated tool-free readiness: `APEX_WORKER_HANDSHAKE`/, file);
+    assert.match(entry, /Stop; await `WORKER_EXECUTE`/, file);
+  }
+});
+
 test("Terraform preview-only stops at missing backend without soliciting expanded approval", () => {
   const body = getBody(read("07t-terraform-deploy"));
   assert.match(body, /For preview-only requests, do not solicit bootstrap or apply approval/);

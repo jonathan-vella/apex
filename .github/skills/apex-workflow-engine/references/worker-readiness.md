@@ -41,6 +41,10 @@ step and leaf worker before project work. Unknown evidence blocks execution.
 6. Send `write_agent` a nonce-only continuation test. Require a `WORKER_READY_ACK`
    echo of the original nonce and definition **without tools**. A failed continuation
    blocks the worker; never relaunch project work under an inherited model.
+   The exact single-line response is `WORKER_READY_ACK <definition-name> <original-nonce>`,
+   replacing both placeholders with the original handshake values. A bare
+   `WORKER_READY_ACK` is incomplete and blocks readiness. State this output contract in
+   the initial handshake: the nonce-only continuation cannot supply missing instructions.
 7. Only then send the bounded execution envelope to the **same worker ID**, including
    current project inputs, phase, allowed outputs, explicit approvals, deadline,
    parent ID and session log path. Read the completion after notification.

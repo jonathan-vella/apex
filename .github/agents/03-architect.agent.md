@@ -57,8 +57,8 @@ Done when:
 
 ## Harness Entry
 
-Delegated: tool-free `APEX_WORKER_HANDSHAKE` returns `WORKER_READY` + exact name/nonce;
-nonce-only continuation returns `WORKER_READY_ACK`; require `WORKER_EXECUTE` before work.
+Delegated tool-free readiness: `APEX_WORKER_HANDSHAKE` returns `WORKER_READY` + exact name/nonce; nonce-only returns
+`WORKER_READY_ACK <definition-name> <original-nonce>` with same values. Stop; await `WORKER_EXECUTE`.
 [Routing](../skills/apex-workflow-engine/references/worker-readiness.md) before leaf calls; direct use owns `ask_user`.
 Return `USER_INPUT_REQUIRED` forms to the interactive parent; cancel stops.
 
