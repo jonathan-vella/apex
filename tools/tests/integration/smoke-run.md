@@ -51,16 +51,16 @@ Smoke output defaults to ignored baseline storage; use `--out` for an explicit a
 `--no-auto-discovery` requires a path; `--no-auto-export` is its compatibility alias.
 Without a path, discovery is restricted to exact repository identity, never the newest global session.
 
-| Automated signal | Required captured evidence |
-| --- | --- |
-| Format | Native SDK, not historical Local/OTel |
-| Usage | Input/output present for every observed call; authoritative usage counted once |
-| Scope | Root capture closed; no incomplete operations, unattributed usage or unknown actual models |
-| `ask_user` | At most 20 calls across the captured scope |
-| First execution input | At most 45,000 tokens for every attributed worker execution |
-| Resume | Explicitly resumed execution with successful first-tool recall recovery |
-| Reviews | Attributed default-mode Challenger execution requests, at most 2 per step |
-| Errors | No non-benign observed errors |
+| Automated signal      | Required captured evidence                                                                 |
+| --------------------- | ------------------------------------------------------------------------------------------ |
+| Format                | Native SDK, not historical Local/OTel                                                      |
+| Usage                 | Input/output present for every observed call; authoritative usage counted once             |
+| Scope                 | Root capture closed; no incomplete operations, unattributed usage or unknown actual models |
+| `ask_user`            | At most 20 calls across the captured scope                                                 |
+| First execution input | At most 45,000 tokens for every attributed worker execution                                |
+| Resume                | Explicitly resumed execution with successful first-tool recall recovery                    |
+| Reviews               | Attributed default-mode Challenger execution requests, at most 2 per step                  |
+| Errors                | No non-benign observed errors                                                              |
 
 Missing evidence is `UNKNOWN` and non-passing, not zero or a skipped success.
 Cache totals are observed samples, not billing. Historical `/clear` and phase counters
