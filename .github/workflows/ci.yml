@@ -32,6 +32,11 @@ jobs:
       - name: Setup Node
         uses: ./.github/actions/setup-node-repo
 
+      - name: Setup Python for executable tool tests
+        uses: actions/setup-python@v7
+        with:
+          python-version: "3.14"
+
       - name: Install bats
         run: sudo apt-get install -y bats
 

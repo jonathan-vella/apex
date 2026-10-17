@@ -111,6 +111,19 @@ test("Python CI installs diagram dependencies and renderer before running toolin
   }
 });
 
+test("Node CI provides the supported Python interpreter before executable validator tests", () => {
+  const workflow = load(readFileSync(new URL("../../../.github/workflows/ci.yml", import.meta.url), "utf8"));
+  const steps = workflow.jobs.ci.steps;
+  const setup = steps.findIndex((step) => step.uses === "actions/setup-python@v7");
+  const tests = steps.findIndex((step) => step.run === "npm run validate:_node-ci");
+  assert.ok(setup >= 0 && setup < tests);
+  assert.equal(steps[setup].if, undefined);
+  const project = readFileSync(new URL("../../../pyproject.toml", import.meta.url), "utf8");
+  const minimum = project.match(/^requires-python\s*=\s*">=(\d+\.\d+)"/m);
+  assert.ok(minimum, "Expected an explicit minimum Python version");
+  assert.equal(steps[setup].with["python-version"], minimum[1]);
+});
+
 test("Node CI provides a native Terraform CLI before executable validator tests", () => {
   const workflow = load(readFileSync(new URL("../../../.github/workflows/ci.yml", import.meta.url), "utf8"));
   const steps = workflow.jobs.ci.steps;
