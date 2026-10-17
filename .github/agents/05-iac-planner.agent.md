@@ -3,7 +3,7 @@ name: 05-IaC Planner
 description: "Expert Azure IaC planner that creates comprehensive machine-readable implementation plans. Consults Microsoft documentation, evaluates Azure Verified Modules (Bicep or Terraform), designs full infrastructure solutions with architecture diagrams. Routes by decisions.iac_tool."
 user-invocable: true
 disable-model-invocation: false
-agents: ["challenger-review-subagent"]
+agents: ["rubber-duck"]
 tools: [execute, read, agent, edit, search, web, 'azure-mcp/*', 'bicep/*', todo]
 handoffs:
   - label: "▶ Refresh Governance"
@@ -67,8 +67,8 @@ Return `USER_INPUT_REQUIRED` forms to the interactive parent; cancel stops.
 
 <scope_fencing>
 
-Allowed writes: listed Step 4 outputs, Step 4 SKU reconciliation and renderer-owned
-Markdown, `README.md`, `00-handoff.md`, plan review decisions and recall state.
+Allowed writes: Step 4 outputs below, SKU reconciliation/view, README, handoff, recall,
+plan review decisions and recorder-only findings. Never author or edit findings.
 Governance, requirements and architecture are read-only. No IaC or Azure writes.
 `execute` is limited to research, these output checks and authorized state changes.
 Honor `metadata.plan_lock` after gate-3; reopen approval through the owner workflow
@@ -108,7 +108,7 @@ a list of non-blocking decisions, or a milestone report. Track open phases in th
 
 ## Harness Routing
 
-Use #tool:agent for allowlisted reviews only; no self-checks. Report errors; stop for human `10-Challenger`.
+Use #tool:agent for allowlisted one-shot reviews only; no self-checks. Return errors to the interactive parent.
 
 ## Evidence Before Planning
 
@@ -508,7 +508,8 @@ independently verified through the lab contract; missing evidence stops, and no 
 
 #### Subagent invocation
 
-Invoke `challenger-review-subagent` once with:
+Invoke `rubber-duck` once using
+[one-shot review](../skills/apex-azure-defaults/references/one-shot-review.md) with:
 
 - `artifact_path` = `agent-output/{project}/04-implementation-plan.md`
 - `project_name` = `{project}`
@@ -518,12 +519,11 @@ Invoke `challenger-review-subagent` once with:
 - `prior_findings` = `null`
 - `output_path` = `agent-output/{project}/challenge-findings-plan.json`
 - `overwrite` = `false` (set to `true` only when re-running after revisions)
-- `supporting_paths` = the frozen Step 4 inputs listed in the pre-review gate (finalize them before review)
+- `supporting_inputs` = metadata captured with `--supporting-input` for finalized frozen Step 4 inputs
 
-The subagent writes `output_path` and returns ≤15 lines. Do not paste JSON inline; read full findings only when needed.
-For transient worker errors, retry once, then return `blocked`. Resolution or model
-eligibility failure blocks immediately and requires human Challenger routing.
-Do not reach Phase 5 on an unresolved error or replace independent review inline.
+Capture metadata; use `APEX_REVIEW`, `mode: sync`, no overrides or handshake/ACK.
+Record actual JSON through `record-review.mjs`; require strict freshness and never repair findings.
+Failures block Phase 5 and return to the interactive parent; use only the contract's bounded empty-output retry.
 **Checkpoint** (MANDATORY): `apex-recall checkpoint <project> 4 phase_4_challenger --json`
 
 #### Deep-review path (opt-in, when `decisions.review_depth == "deep"`)

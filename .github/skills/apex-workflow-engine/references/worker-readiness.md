@@ -9,6 +9,11 @@ not its model. Model names, effort, picker selection and model-source labels are
 optional diagnostics: missing values or differences never block readiness.
 Missing identity, dispatch linkage, completion or tool-free evidence still blocks execution.
 
+This protocol applies to resumable named workers. Automatic built-in `rubber-duck`
+reviews instead use [one-shot review](../../apex-azure-defaults/references/one-shot-review.md):
+an attributed synchronous call and validated completion, not a handshake/ACK or
+same-worker continuation. This exception does not waive step-worker readiness.
+
 ## Ready-Only Handshake
 
 1. The parent confirms graph prerequisites and the applicable human approval.

@@ -55,7 +55,7 @@ file first.
   `04-governance-constraints.md`, or `04-governance-constraints.json`** —
   frozen after gate-3 per `metadata.plan_lock` in the workflow graph.
   Plan-level `must_fix` findings return to Step 4, not Step 5.
-- Invoke `challenger-review-subagent` with
+- Invoke an independent reviewer with
   `artifact_type = "implementation-plan"` from Step 5 — plan-level reviews
   run at Step 4 only; Step 5 uses `artifact_type = "iac-code"`.
 - Issue more than one `ask_user` call per challenger pass — batch

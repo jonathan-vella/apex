@@ -26,6 +26,35 @@ import { cacheInputs, findingId } from "../../scripts/validate-challenger-findin
 const root = fileURLToPath(new URL("../../../", import.meta.url));
 const agentRoot = path.join(root, ".github/agents");
 const read = (name) => readFileSync(path.join(agentRoot, `${name}.agent.md`), "utf8");
+
+test("automatic review callers use one-shot rubber-duck while manual Challenger stays independent", () => {
+  for (const name of [
+    "02-requirements",
+    "03-architect",
+    "04-design",
+    "04g-governance",
+    "05-iac-planner",
+    "06b-bicep-codegen",
+    "06t-terraform-codegen",
+  ]) {
+    const content = read(name);
+    const frontmatter = parseFrontmatter(content);
+    assert.ok(frontmatter.agents.includes("rubber-duck"), name);
+    assert.ok(!frontmatter.agents.includes("challenger-review-subagent"), name);
+    assert.match(content, /one-shot-review\.md/, name);
+    assert.match(content, /record-review\.mjs/, name);
+    assert.match(content, /mode: sync/, name);
+  }
+  assert.deepEqual(parseFrontmatter(read("10-challenger")).agents, ["challenger-review-subagent"]);
+  const contract = readFileSync(
+    path.join(root, ".github/skills/apex-azure-defaults/references/one-shot-review.md"),
+    "utf8",
+  );
+  assert.match(contract, /APEX_REVIEW/);
+  assert.match(contract, /--reviewer rubber-duck/);
+  assert.match(contract, /--verify-cache/);
+  assert.match(contract, /not a parent-authored reconstruction/i);
+});
 test("Delegated main agents explicitly echo handshake identity in tool-free continuation ACKs", () => {
   for (const file of readdirSync(agentRoot).filter(
     (file) => file.endsWith(".agent.md") && file !== "01-orchestrator.agent.md",

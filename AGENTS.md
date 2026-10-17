@@ -103,8 +103,13 @@ it dispatches allowlisted specialist workers only after human approval and
 [verified readiness](.github/skills/apex-workflow-engine/references/worker-readiness.md).
 Steps return pending user forms to their interactive parent, not directly to the user.
 Directly selected step agents remain supported; leaves cannot ask users or delegate.
-Unavailable reviewers require a human handoff to `10-Challenger`, never a nested
-wrapper fallback. Missing/empty reviewer output permits exactly one identical-input
+Automatic independent reviews use built-in `rubber-duck` through the
+[one-shot contract](.github/skills/apex-azure-defaults/references/one-shot-review.md).
+The parent records its actual attributed JSON output and validates freshness;
+this reviewer does not need the resumable worker handshake/ACK.
+Unavailable reviewers return a blocker to the interactive parent, never a nested
+wrapper fallback. `10-Challenger` remains an optional manual workflow.
+Missing/empty reviewer output permits exactly one identical-input
 retry, then human escalation. Preserve current review evidence and approval gates.
 
 Archived Local prompts are historical; manual entry skills inherit the caller's

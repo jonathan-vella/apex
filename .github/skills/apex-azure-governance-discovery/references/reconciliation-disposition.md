@@ -64,14 +64,15 @@ approved architecture decision (i.e. the fix is contained in
    ownership. A deterministic extraction defect must be corrected in its owning discovery code and regenerated
    from verified policy evidence; do not hand-edit a generated envelope from a suggested replacement alone.
 - Any changed review input invalidates the previous review. Keep Gate-2_5 closed; acceptance is not verified closure.
-   The one-pass cap still applies: request a human handoff to `10-Challenger` and the owning agent to resolve the
+   The one-pass cap still applies: return to the interactive parent and owning agent to resolve the
    review-budget conflict. Do not re-present Proceed against stale evidence, add an automatic pass or reset retries.
 - A `must_fix` required at Step 3.5 cannot be deferred to Planner through a decision note. Reject/Defer/Edit do not
    waive blockers. Custom guidance must satisfy the actual finding; managed identity does not replace anonymous-access controls.
 - Before completion, require current review evidence with no unresolved `must_fix`. Derive the Governance handoff's
    open findings from the Governance review, not copied Architecture status. After closure and approval, resolve the
    Planner destination from the registry: `05-IaC Planner`. While the review allowance is exhausted, the immediate
-   owner is `10-Challenger`. Downstream ownership/cost reconciliation is not evidence of completed remediation.
+   recovery owner is the interactive parent; `10-Challenger` is optional manual recovery.
+   Downstream ownership/cost reconciliation is not evidence of completed remediation.
 
 ## Final handoff checklist
 

@@ -9,7 +9,8 @@ Two modes:
     Hard fail. Wired into `validate:agents` via `validate:_node`.
 
   - `--budget LOGFILE` (post-action check): counts native WORKER_EXECUTE
-    requests per attributed step; historical OTel turn_start markers remain
+    and linked one-shot APEX_REVIEW requests per attributed step;
+    historical OTel turn_start markers remain
     diagnostic compatibility only. Reports whether
     any step exceeded the default-depth ceiling of 2. Informational
     only — exit 0 — unless `--strict` is set.

@@ -57,8 +57,9 @@ Artifact: agent-output/{project}/01-requirements.md
   `{PASS | ⚠️ {N} must-fix / {N} should-fix findings}`.
 
 **Gate 1 must include current Challenger findings.** If required review is missing,
-STOP and request a human handoff to `10-Challenger`. The Orchestrator cannot invoke
-reviewers. Never fabricate an inline review or treat a fallback display as approval.
+STOP and return to the owning Requirements worker for recovery within its existing
+review budget. The Orchestrator cannot invoke reviewers. `10-Challenger` is optional
+manual recovery. Never fabricate an inline review or treat a fallback display as approval.
 
 ### Gate 2: After Architecture
 
@@ -162,15 +163,25 @@ inline or choose a fixed-model fallback.
 | 7 | `08-As-Built` | Observed deployment state |
 
 Present the exact owner, scope and pending human gate. UI handoff metadata is
-advisory, not an SDK execution dependency or permission. An unavailable reviewer
-still requires a human `10-Challenger` selection, not an automatic wrapper call.
+advisory, not an SDK execution dependency or permission. Automatic technical
+handoffs return to the same Orchestrator with artifact paths, recall checkpoints,
+actual validation results, unresolved findings and pending forms. They do not
+require manual agent switching. Human approval remains a separate gate.
+
+For a new or resumed chat, explicitly select `01-Orchestrator` and verify current
+owner selection. An idle cross-chat message may clear host agent selection;
+it is not a supported way to retain or select the owner. Recover with a direct
+human turn in the selected owner chat, not a textual ownership assertion or
+session-database edit.
 
 ### Leaf Worker Calls
 
 Use current parent allowlists and the [execution contract](execution-subagent.md).
 Leaf workers return missing inputs to their parent, without questions, todo
-management, or nested calls. Required reviewer unavailable: human handoff to
-`10-Challenger`, never a nested wrapper. Missing or empty reviewer output allows
+management, or nested calls. Automatic reviews use
+[one-shot rubber-duck](../../apex-azure-defaults/references/one-shot-review.md).
+Required reviewer unavailable: return the error to the interactive parent,
+never a nested wrapper. `10-Challenger` remains optional. Missing or empty reviewer output allows
 exactly one identical-input retry, then human escalation. No prose table grants permissions.
 
 ### Subagent Integration

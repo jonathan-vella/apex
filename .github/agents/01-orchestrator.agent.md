@@ -185,7 +185,8 @@ At gates, use the
   report the mismatch and return to Architect for reconciliation, preserving prior approvals and unrelated decisions.
 - On resume after Governance, inspect the Governance findings, not copied Architecture status. Require no unresolved
   must-fix findings and verify its review with `--verify-cache` before the `05-IaC Planner` handoff.
-  A stale or blocking completed step returns to `04g-Governance` and human `10-Challenger`; preserve the review cap.
+  A stale or blocking completed step returns to `04g-Governance` and the interactive parent;
+  preserve the review cap. `10-Challenger` remains optional manual recovery.
 - At every approved-gate boundary that ALSO records decisions, advance
   via `apex-recall transition` (atomic). Refuse to mix
   `apex-recall decide` + `apex-recall complete-step` + manual
@@ -381,7 +382,8 @@ boot) or via a direct `10-Challenger` invocation by the user.
 
 Hard per-step ceiling: **default = 2**, **deep = 4** passes. Counter:
 `decisions.challenger_invocations_<step>` — increment before each
-Challenger execution. When the ceiling would be exceeded, emit
+independent review execution, including automatic `rubber-duck` and optional manual
+Challenger. A new backend or handoff does not reset it. When the ceiling would be exceeded, emit
 `ask_user` with these labels verbatim:
 **"Accept findings"**, **"Override ceiling"**, **"Abort step"**. Persist
 via

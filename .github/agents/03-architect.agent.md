@@ -3,7 +3,7 @@ name: 03-Architect
 description: Expert Architect providing guidance using Azure Well-Architected Framework principles and Microsoft best practices. Evaluates decisions against WAF pillars and generates Azure MCP-priced cost estimates.
 user-invocable: true
 disable-model-invocation: false
-agents: ["cost-estimate-subagent", "challenger-review-subagent"]
+agents: ["cost-estimate-subagent", "rubber-duck"]
 tools: [execute, read, agent, edit, search, web, 'azure-mcp/*', todo]
 handoffs:
   - label: "▶ Refresh Cost Estimate"
@@ -67,7 +67,8 @@ Return `USER_INPUT_REQUIRED` forms to the interactive parent; cancel stops.
 Allowed writes: the architecture, cost, comparison and chart outputs below,
 `02-waf-research.tmp.md` (including cleanup), `sku-manifest.json` Step 2 mutations,
 its renderer-owned Markdown view, `README.md`, `00-handoff.md`, review decision
-sidecars and recall state. Reviewer findings are worker-owned. Requirements and
+sidecars, recorder-persisted independent findings and recall state. Never author
+or edit reviewer findings. Requirements and
 governance stay read-only; no IaC or Azure resource mutations. Terminal execution
 is restricted to these writes, research and checks, not treated as inherently read-only.
 Use current recall; recover missing or changed evidence after compaction or resume.
@@ -129,9 +130,10 @@ re-running completed discovery.
 
 Use the verified Copilot SDK worker contract; human approval gates still block advancement.
 Skills run inline and cannot select a model. Use #tool:agent only for allowlisted
-workers, subject to runtime eligibility; unknown cost tiers are not proof of eligibility.
+workers with the required runtime capability. Model names, effort and cost-tier labels are diagnostic only.
 No model overrides or fallback. On reviewer resolution failure, report `blocked` and
-the verbatim error, request human selection of `10-Challenger`, then stop.
+the verbatim error to the interactive parent, then stop. `10-Challenger` is optional,
+not a required recovery hop. The one-shot reviewer follows its separate contract below.
 
 ## Evidence Before Assessment
 
@@ -161,16 +163,16 @@ investigate before answering) live in
   governance constraints and approval gates. If a skill makes you pause or diverge, name the
   `SKILL.md` and quote the instruction.
 - **Subagent budget (2)**: `cost-estimate-subagent` (all dollar figures);
-  `challenger-review-subagent` (comprehensive + cost-feasibility passes).
+  `rubber-duck` (independent comprehensive + cost-feasibility reviews).
   Review-depth opt-in: read `decisions.review_depth` via
   `apex-recall show <project> --json` before invoking the challenger;
   default `"default"`, `"deep"` enters the multi-pass path defined in
   `apex-azure-defaults/references/adversarial-review-protocol.md`.
   Spawn no other workers, and do not use a worker to re-check your own output.
-- **Subagent failure**: retry a transient error once; after a second failure,
-  stop with `blocked` and the error. Missing tool/model/eligibility blocks immediately.
-  Never replace independent pricing or review with inline work; human Challenger
-  routing is the only reviewer fallback. Do not present approval on unresolved errors.
+- **Subagent failure**: use only the worker contract's bounded retry; unavailable tools
+  or workers block immediately. Return the actual error to the interactive parent.
+  Never replace independent pricing or review inline. Challenger is optional manual
+  recovery, not an automatic dependency. Unresolved errors block approval.
 
 ## Prerequisites Check (BEFORE Reading Skills)
 
@@ -222,7 +224,7 @@ when needed. Reuse unchanged content still in context; batch independent missing
 5. **Read** the execution-subagent prompt contract
    [.github/skills/apex-workflow-engine/references/execution-subagent.md](../skills/apex-workflow-engine/references/execution-subagent.md)
   — every #tool:agent call (cost-estimate-subagent,
-   challenger-review-subagent) MUST follow the three-H2 contract
+   rubber-duck) MUST follow the three-H2 contract
    (issue #425).
 6. **When AKS is a candidate compute host**, read `.github/skills/apex-azure-kubernetes/SKILL.md` — Day-0 decisions
 7. **When the workload keeps an existing Functions Consumption app or Azure Cache for Redis instance**, read
@@ -463,7 +465,12 @@ trigger.
 
 ### Common invocation template
 
-All `challenger-review-subagent` calls below share these parameters; per-pass
+All `rubber-duck` calls below use
+[one-shot review](../skills/apex-azure-defaults/references/one-shot-review.md):
+capture metadata, invoke `mode: sync` without routing overrides, record the actual
+returned JSON with `record-review.mjs`, then require strict freshness validation.
+No handshake/ACK is used for this reviewer; pricing workers retain their readiness contract.
+The calls share these parameters; per-pass
 blocks list only the overrides:
 
 ```text
@@ -492,13 +499,13 @@ Overrides:
 - `pass_number`   = `1`
 - `output_path`   = `agent-output/{project}/challenge-findings-cost-estimate.json`
 
-The subagent writes the JSON file at `output_path` and returns a compact
-summary (≤15 lines). **Do NOT paste subagent JSON inline.** Read the file
-from disk only if you need full finding details for the Gate presentation.
+The reviewer returns raw JSON; the parent records that exact result at `output_path`
+through the one-shot recorder. Never author or repair reviewer findings. Render a compact
+summary only after recording and validation succeed.
 
 > Note: `cost-estimate-subagent` is **not** invoked for this review — it
 > remains the cost-BREAKDOWN emitter consumed earlier in the workflow.
-> The cost-audit findings come from `challenger-review-subagent` with
+> The cost-audit findings come from `rubber-duck` with
 > `review_focus: cost-feasibility`.
 
 ### Parallel Execution Strategy
@@ -506,7 +513,7 @@ from disk only if you need full finding details for the Gate presentation.
 Before dispatch, follow [review input finalization](../skills/apex-azure-defaults/references/adversarial-review-protocol.md#review-input-finalization).
 Finalize and validate both documents first; do not write either target or shared evidence while reviewers run.
 Approval and review-status changes belong in recall, decision sidecars, README and handoff, not reviewed documents.
-Pass `supporting_paths` with the actual COMPLETE worker JSON and its referenced evidence paths to both reviewers.
+Capture `supporting_inputs` using `--supporting-input` for the actual COMPLETE worker JSON and referenced evidence.
 Use the recorded successful output path even when versioned; never infer success from a conventional filename.
 
 > **Architecture comprehensive review** and **Cost Estimate review** are

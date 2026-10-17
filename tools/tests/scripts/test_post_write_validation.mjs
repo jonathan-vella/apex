@@ -153,7 +153,7 @@ test("review finalization freezes inputs while keeping mutable approval outside 
   const read = (file) => fs.readFileSync(path.join(ROOT, file), "utf8");
   const architect = read(".github/agents/03-architect.agent.md");
   assert.match(architect, /do not write either target or shared evidence while reviewers run/);
-  assert.match(architect, /Pass `supporting_paths`/);
+  assert.match(architect, /Capture `supporting_inputs` using `--supporting-input`/);
   assert.match(architect, /record human approval outside reviewed documents/);
   const reviewer = read(".github/agents/_subagents/challenger-review-subagent.agent.md");
   assert.match(reviewer, /supporting_paths.*Optional array/);
@@ -375,7 +375,7 @@ test("review reuse and deployment routing cannot bypass current evidence", () =>
   const governance = fs.readFileSync(path.join(ROOT, ".github/agents/04g-governance.agent.md"), "utf8");
   assert.match(governance, /existing `cache_inputs` match the current artifact/);
   assert.match(governance, /signature` alone is not review freshness evidence/);
-  assert.match(governance, /TTL expiry, signature drift, or explicit refresh still requires live discovery/);
+  assert.match(governance, /TTL\/signature drift or explicit refresh\s+requires live discovery/);
   assert.match(governance, /including review validity/);
   assert.match(governance, /return to Phase 2\.5/);
   const resume = fs.readFileSync(

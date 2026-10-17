@@ -426,12 +426,17 @@ def sdk_events_to_spans(events: list[dict[str, Any]]) -> list[dict[str, Any]]:
                 )
                 tool["_sdk_incomplete"] = True
                 tool["_sdk_unknown_external_outcome"] = True
+                tools[(agent, call_id)] = tool
                 spans.append(tool)
                 args = data.get("arguments")
                 if name == "write_agent" and isinstance(args, dict):
                     record_execution(event, args.get("message"), args.get("agent_id"), agent, "tool")
             elif tool["name"] != name:
                 raise ValueError(f"external/native tool name conflict: {call_id}")
+            elif name == "task" and json.loads(_attrs(tool).get("gen_ai.tool.call.arguments") or "null") != data.get(
+                "arguments"
+            ):
+                raise ValueError(f"external/native task arguments conflict: {call_id}")
             external[(agent, request_id)] = tool
         else:
             tool = external.get((agent, request_id))
@@ -442,6 +447,54 @@ def sdk_events_to_spans(events: list[dict[str, Any]]) -> list[dict[str, Any]]:
             elif tool.get("_sdk_unknown_external_outcome"):
                 # Transport completion carries no execution-success evidence.
                 tool["endTimeUnixNano"] = str(timestamp(event))
+
+    for (parent, call_id), tool in tools.items():
+        if tool["name"] != "task":
+            continue
+        args = json.loads(_attrs(tool).get("gen_ai.tool.call.arguments") or "null")
+        if not isinstance(args, dict) or args.get("agent_type") != "rubber-duck":
+            continue
+        prompt = args.get("prompt")
+        if not isinstance(prompt, str) or not prompt.startswith("APEX_REVIEW\n"):
+            continue
+        envelope = _one_shot_review_envelope(prompt, args)
+        linked = [
+            worker
+            for worker in workers.values()
+            if worker["_sdk_parent_agent_id"] == parent and worker["_sdk_start_call_id"] == call_id
+        ]
+        if (
+            len(linked) != 1
+            or linked[0]["_jsonl_subagent"] != "rubber-duck"
+            or (parent != "root" and parent not in workers)
+            or int(linked[0]["startTimeUnixNano"]) < int(tool["startTimeUnixNano"])
+        ):
+            raise ValueError(
+                f"review request {envelope['request_id']}: missing reviewer or wrong parent/task attribution"
+            )
+        request_id = envelope["request_id"]
+        if request_id in executions:
+            raise ValueError(f"duplicate or conflicting execution request_id: {request_id}")
+        request = {
+            **tool,
+            "name": "ReviewExecute",
+            "spanId": tool["spanId"] + ":execution",
+            "attributes": [],
+            "_sdk_execution": {
+                **{key: envelope[key] for key in ("request_id", "step", "review_depth")},
+                "project": envelope["project_name"],
+                "phase": "review",
+                "resume": False,
+                "worker_id": linked[0]["_sdk_agent_id"],
+                "parent_id": parent,
+                "protocol": "APEX_REVIEW",
+            },
+        }
+        # The request is a marker, not another tool operation or outcome.
+        for key in ("_sdk_incomplete", "_sdk_unknown_external_outcome", "status"):
+            request.pop(key, None)
+        executions[request_id] = request, envelope, {"tool"}
+        spans.append(request)
 
     for call_id in calls.keys() | usage.keys():
         message = calls.get(call_id)
@@ -478,6 +531,42 @@ def sdk_events_to_spans(events: list[dict[str, Any]]) -> list[dict[str, Any]]:
     metadata["_sdk_duplicate_usage"] = sum(e.get("type") == "session.usage_record" for e in records) - len(usage)
     spans.append(metadata)
     return sorted(spans, key=lambda span: int(span["startTimeUnixNano"]))
+
+
+def _one_shot_review_envelope(prompt: str, arguments: dict[str, Any]) -> dict[str, Any]:
+    """Validate dispatch intent, without treating it as findings or runtime approval."""
+    try:
+        envelope = json.loads(prompt.removeprefix("APEX_REVIEW\n"))
+    except json.JSONDecodeError as exc:
+        raise ValueError("invalid APEX_REVIEW envelope JSON") from exc
+    required = ("request_id", "project_name", "step", "artifact_path", "artifact_type", "output_path")
+    if (
+        arguments.get("mode") != "sync"
+        or any(key in arguments for key in ("model", "reasoning_effort", "context_tier"))
+        or not isinstance(envelope, dict)
+        or not all(isinstance(envelope.get(key), str) and envelope[key].strip() for key in required)
+        or envelope.get("review_depth") not in ("default", "deep")
+        or not isinstance(envelope.get("overwrite"), bool)
+        or not isinstance(envelope.get("cache_inputs"), dict)
+    ):
+        raise ValueError("invalid APEX_REVIEW envelope or task arguments")
+    lenses = envelope.get("lenses") if "lenses" in envelope else [envelope]
+    if (
+        ("lenses" in envelope and any(key in envelope for key in ("review_focus", "pass_number")))
+        or not isinstance(lenses, list)
+        or not lenses
+        or any(
+            not isinstance(lens, dict)
+            or not isinstance(lens.get("review_focus"), str)
+            or not lens["review_focus"].strip()
+            or type(lens.get("pass_number")) is not int
+            or lens["pass_number"] <= 0
+            for lens in lenses
+        )
+        or len({(lens["review_focus"], lens["pass_number"]) for lens in lenses}) != len(lenses)
+    ):
+        raise ValueError("invalid APEX_REVIEW lenses")
+    return envelope
 
 
 def load_spans(path: Path) -> list[dict[str, Any]]:
@@ -575,7 +664,7 @@ def discover_sdk_logs(repository: Path, state_root: Path | None = None) -> list[
 
 
 def sdk_execution_metrics(spans: list[dict[str, Any]]) -> dict[str, Any]:
-    """Measure first execution calls and explicit resume recovery per worker."""
+    """Measure linked execution calls, including one-shot reviews and worker resume recovery."""
     executions = [span for span in spans if "_sdk_execution" in span]
     first_inputs: list[int] = []
     recovery: list[bool | None] = []
@@ -623,7 +712,7 @@ def sdk_execution_metrics(spans: list[dict[str, Any]]) -> dict[str, Any]:
                     command == f"apex-recall show {envelope['project']} --json"
                     and tool.get("status", {}).get("code") == 1
                 )
-        if worker["_jsonl_subagent"] == "challenger-review-subagent":
+        if worker["_jsonl_subagent"] == "challenger-review-subagent" or envelope.get("protocol") == "APEX_REVIEW":
             if envelope.get("review_depth") != "default":
                 raise ValueError("default-mode smoke budget requires explicit default review_depth")
             reviews[str(envelope["step"])] += 1

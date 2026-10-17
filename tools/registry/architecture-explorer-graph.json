@@ -1,6 +1,6 @@
 {
   "$schema": "../../tools/schemas/explorer-graph.schema.json",
-  "generatedAt": "2026-10-17T12:22:28.894Z",
+  "generatedAt": "2026-10-17T16:00:59.491Z",
   "categories": [
     { "id": "agent", "key": "agents", "label": "Agent", "color": "#3b82f6", "shape": "round-rectangle", "count": 14 },
     {
@@ -9,7 +9,7 @@
       "label": "Subagent",
       "color": "#6366f1",
       "shape": "round-diamond",
-      "count": 7
+      "count": 8
     },
     { "id": "skill", "key": "skills", "label": "Skill", "color": "#10b981", "shape": "ellipse", "count": 39 },
     {
@@ -39,8 +39,8 @@
     },
     { "id": "mcp", "key": "mcp_servers", "label": "MCP Server", "color": "#f43f5e", "shape": "barrel", "count": 3 }
   ],
-  "nodeCount": 159,
-  "edgeCount": 627,
+  "nodeCount": 160,
+  "edgeCount": 635,
   "nodes": [
     {
       "id": "agent:01-orchestrator",
@@ -100,7 +100,7 @@
         "disableModelInvocation": false,
         "argumentHint": "Describe the Azure workload or project you want to gather requirements for",
         "context": null,
-        "subagents": ["challenger-review-subagent"],
+        "subagents": ["rubber-duck"],
         "handoffTargets": ["02-Requirements", "10-Challenger", "03-Architect", "01-Orchestrator"],
         "skills": ["apex-azure-defaults", "apex-azure-artifacts"]
       }
@@ -118,7 +118,7 @@
         "disableModelInvocation": false,
         "argumentHint": null,
         "context": null,
-        "subagents": ["cost-estimate-subagent", "challenger-review-subagent"],
+        "subagents": ["cost-estimate-subagent", "rubber-duck"],
         "handoffTargets": ["03-Architect", "04-Design", "04g-Governance", "02-Requirements", "01-Orchestrator"],
         "skills": [
           "apex-azure-defaults",
@@ -142,7 +142,7 @@
         "disableModelInvocation": false,
         "argumentHint": null,
         "context": null,
-        "subagents": ["challenger-review-subagent"],
+        "subagents": ["rubber-duck"],
         "handoffTargets": ["04-Design", "03-Architect", "04g-Governance", "01-Orchestrator"],
         "skills": ["apex-azure-defaults", "apex-python-diagrams", "apex-azure-adr", "apex-azure-artifacts"]
       }
@@ -160,7 +160,7 @@
         "disableModelInvocation": false,
         "argumentHint": "Discover governance constraints for a project",
         "context": null,
-        "subagents": ["challenger-review-subagent"],
+        "subagents": ["rubber-duck"],
         "handoffTargets": ["04g-Governance", "05-IaC Planner", "03-Architect", "01-Orchestrator"],
         "skills": ["apex-azure-defaults", "apex-azure-governance-discovery", "apex-azure-artifacts", "apex-iac-common"]
       }
@@ -178,7 +178,7 @@
         "disableModelInvocation": false,
         "argumentHint": null,
         "context": null,
-        "subagents": ["challenger-review-subagent"],
+        "subagents": ["rubber-duck"],
         "handoffTargets": [
           "04g-Governance",
           "05-IaC Planner",
@@ -213,7 +213,7 @@
         "disableModelInvocation": false,
         "argumentHint": null,
         "context": null,
-        "subagents": ["bicep-validate-subagent", "challenger-review-subagent"],
+        "subagents": ["bicep-validate-subagent", "rubber-duck"],
         "handoffTargets": ["06b-Bicep CodeGen", "07b-Bicep Deploy", "05-IaC Planner", "01-Orchestrator"],
         "skills": [
           "apex-azure-defaults",
@@ -238,7 +238,7 @@
         "disableModelInvocation": false,
         "argumentHint": null,
         "context": null,
-        "subagents": ["terraform-validate-subagent", "challenger-review-subagent"],
+        "subagents": ["terraform-validate-subagent", "rubber-duck"],
         "handoffTargets": ["06t-Terraform CodeGen", "07t-Terraform Deploy", "05-IaC Planner", "01-Orchestrator"],
         "skills": ["apex-azure-defaults", "apex-azure-artifacts", "apex-terraform-patterns", "apex-context-management"]
       }
@@ -335,7 +335,7 @@
       "id": "agent:10-challenger",
       "category": "agent",
       "label": "10-Challenger",
-      "description": "Standalone adversarial review wrapper. Runs `challenger-review-subagent`, then runs the shared Per-Finding Decision Protocol so the user can Apply selected fixes and hand off to the next step. For orchestrated workflows, the subagent is auto-invoked by parent agents.",
+      "description": "Optional manual adversarial review and repair wrapper. Runs challenger-review-subagent and the Per-Finding Decision Protocol for selected fixes. Automatic workflow reviews use built-in rubber-duck independently.",
       "path": ".github/agents/10-challenger.agent.md",
       "links": { "source": "https://github.com/jonathan-vella/apex/blob/main/.github/agents/10-challenger.agent.md" },
       "meta": {
@@ -494,6 +494,17 @@
         "context": null,
         "skills": ["apex-azure-defaults", "apex-iac-common"]
       }
+    },
+    {
+      "id": "subagent:rubber-duck",
+      "category": "subagent",
+      "label": "rubber-duck",
+      "description": "Runtime-provided one-shot reviewer; its source link is the review contract, not an agent definition.",
+      "path": ".github/skills/apex-azure-defaults/references/one-shot-review.md",
+      "links": {
+        "source": "https://github.com/jonathan-vella/apex/blob/main/.github/skills/apex-azure-defaults/references/one-shot-review.md"
+      },
+      "meta": { "builtin": true, "model": null, "invocable": false, "skills": [] }
     },
     {
       "id": "skill:apex-agent-authoring",
@@ -2181,9 +2192,9 @@
       "kind": "delegates"
     },
     {
-      "id": "agent:02-requirements--delegates->subagent:challenger-review-subagent",
+      "id": "agent:02-requirements--delegates->subagent:rubber-duck",
       "source": "agent:02-requirements",
-      "target": "subagent:challenger-review-subagent",
+      "target": "subagent:rubber-duck",
       "kind": "delegates"
     },
     {
@@ -2193,27 +2204,27 @@
       "kind": "delegates"
     },
     {
-      "id": "agent:03-architect--delegates->subagent:challenger-review-subagent",
+      "id": "agent:03-architect--delegates->subagent:rubber-duck",
       "source": "agent:03-architect",
-      "target": "subagent:challenger-review-subagent",
+      "target": "subagent:rubber-duck",
       "kind": "delegates"
     },
     {
-      "id": "agent:04-design--delegates->subagent:challenger-review-subagent",
+      "id": "agent:04-design--delegates->subagent:rubber-duck",
       "source": "agent:04-design",
-      "target": "subagent:challenger-review-subagent",
+      "target": "subagent:rubber-duck",
       "kind": "delegates"
     },
     {
-      "id": "agent:04g-governance--delegates->subagent:challenger-review-subagent",
+      "id": "agent:04g-governance--delegates->subagent:rubber-duck",
       "source": "agent:04g-governance",
-      "target": "subagent:challenger-review-subagent",
+      "target": "subagent:rubber-duck",
       "kind": "delegates"
     },
     {
-      "id": "agent:05-iac-planner--delegates->subagent:challenger-review-subagent",
+      "id": "agent:05-iac-planner--delegates->subagent:rubber-duck",
       "source": "agent:05-iac-planner",
-      "target": "subagent:challenger-review-subagent",
+      "target": "subagent:rubber-duck",
       "kind": "delegates"
     },
     {
@@ -2223,9 +2234,9 @@
       "kind": "delegates"
     },
     {
-      "id": "agent:06b-bicep-codegen--delegates->subagent:challenger-review-subagent",
+      "id": "agent:06b-bicep-codegen--delegates->subagent:rubber-duck",
       "source": "agent:06b-bicep-codegen",
-      "target": "subagent:challenger-review-subagent",
+      "target": "subagent:rubber-duck",
       "kind": "delegates"
     },
     {
@@ -2235,9 +2246,9 @@
       "kind": "delegates"
     },
     {
-      "id": "agent:06t-terraform-codegen--delegates->subagent:challenger-review-subagent",
+      "id": "agent:06t-terraform-codegen--delegates->subagent:rubber-duck",
       "source": "agent:06t-terraform-codegen",
-      "target": "subagent:challenger-review-subagent",
+      "target": "subagent:rubber-duck",
       "kind": "delegates"
     },
     {
@@ -3051,6 +3062,12 @@
       "kind": "applies-to"
     },
     {
+      "id": "instruction:agent-authoring--applies-to->subagent:rubber-duck",
+      "source": "instruction:agent-authoring",
+      "target": "subagent:rubber-duck",
+      "kind": "applies-to"
+    },
+    {
       "id": "instruction:agent-operating-frame--applies-to->agent:01-orchestrator",
       "source": "instruction:agent-operating-frame",
       "target": "agent:01-orchestrator",
@@ -3174,6 +3191,12 @@
       "id": "instruction:agent-operating-frame--applies-to->subagent:terraform-validate-subagent",
       "source": "instruction:agent-operating-frame",
       "target": "subagent:terraform-validate-subagent",
+      "kind": "applies-to"
+    },
+    {
+      "id": "instruction:agent-operating-frame--applies-to->subagent:rubber-duck",
+      "source": "instruction:agent-operating-frame",
+      "target": "subagent:rubber-duck",
       "kind": "applies-to"
     },
     {
@@ -3534,6 +3557,12 @@
       "id": "instruction:context-optimization--applies-to->subagent:terraform-validate-subagent",
       "source": "instruction:context-optimization",
       "target": "subagent:terraform-validate-subagent",
+      "kind": "applies-to"
+    },
+    {
+      "id": "instruction:context-optimization--applies-to->subagent:rubber-duck",
+      "source": "instruction:context-optimization",
+      "target": "subagent:rubber-duck",
       "kind": "applies-to"
     },
     {
@@ -3900,6 +3929,12 @@
       "id": "instruction:docs-trigger--applies-to->subagent:terraform-validate-subagent",
       "source": "instruction:docs-trigger",
       "target": "subagent:terraform-validate-subagent",
+      "kind": "applies-to"
+    },
+    {
+      "id": "instruction:docs-trigger--applies-to->subagent:rubber-duck",
+      "source": "instruction:docs-trigger",
+      "target": "subagent:rubber-duck",
       "kind": "applies-to"
     },
     {
@@ -4413,6 +4448,12 @@
       "kind": "applies-to"
     },
     {
+      "id": "instruction:lesson-collection--applies-to->subagent:rubber-duck",
+      "source": "instruction:lesson-collection",
+      "target": "subagent:rubber-duck",
+      "kind": "applies-to"
+    },
+    {
       "id": "instruction:markdown--applies-to->skill:apex-agent-authoring",
       "source": "instruction:markdown",
       "target": "skill:apex-agent-authoring",
@@ -4770,6 +4811,12 @@
       "id": "instruction:no-interactive-shell--applies-to->subagent:terraform-validate-subagent",
       "source": "instruction:no-interactive-shell",
       "target": "subagent:terraform-validate-subagent",
+      "kind": "applies-to"
+    },
+    {
+      "id": "instruction:no-interactive-shell--applies-to->subagent:rubber-duck",
+      "source": "instruction:no-interactive-shell",
+      "target": "subagent:rubber-duck",
       "kind": "applies-to"
     },
     {
@@ -5139,6 +5186,12 @@
       "kind": "applies-to"
     },
     {
+      "id": "instruction:vendor-prompting--applies-to->subagent:rubber-duck",
+      "source": "instruction:vendor-prompting",
+      "target": "subagent:rubber-duck",
+      "kind": "applies-to"
+    },
+    {
       "id": "workflow:ci--runs->validator:lint-md",
       "source": "workflow:ci",
       "target": "validator:lint-md",
@@ -5333,6 +5386,12 @@
     {
       "id": "subagent:terraform-validate-subagent--uses-mcp->mcp:github",
       "source": "subagent:terraform-validate-subagent",
+      "target": "mcp:github",
+      "kind": "uses-mcp"
+    },
+    {
+      "id": "subagent:rubber-duck--uses-mcp->mcp:github",
+      "source": "subagent:rubber-duck",
       "target": "mcp:github",
       "kind": "uses-mcp"
     },

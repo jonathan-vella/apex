@@ -171,10 +171,10 @@ export function collectAgents(root = REPO_ROOT) {
   });
 }
 
-export function collectSubagents(root = REPO_ROOT) {
+export function collectSubagents(root = REPO_ROOT, agents = collectAgents(root)) {
   const dir = join(root, ".github/agents/_subagents");
   const files = listFiles(dir, (f) => f.endsWith(".agent.md"));
-  return files.map((path) => {
+  const nodes = files.map((path) => {
     const content = readFileSync(path, "utf8");
     const fm = parseFrontmatter(content) || {};
     const name = fm.name || basename(path, ".agent.md");
@@ -192,6 +192,20 @@ export function collectSubagents(root = REPO_ROOT) {
       },
     };
   });
+  if (agents.some((agent) => agent.meta.subagents.includes("rubber-duck"))) {
+    const contract = ".github/skills/apex-azure-defaults/references/one-shot-review.md";
+    nodes.push({
+      id: "subagent:rubber-duck",
+      category: "subagent",
+      label: "rubber-duck",
+      description:
+        "Runtime-provided one-shot reviewer; its source link is the review contract, not an agent definition.",
+      path: contract,
+      links: { source: GITHUB_BASE + contract },
+      meta: { builtin: true, model: null, invocable: false, skills: [] },
+    });
+  }
+  return nodes;
 }
 
 export function collectSkills(root = REPO_ROOT) {
@@ -578,7 +592,7 @@ export async function main(args = process.argv.slice(2)) {
   }
   const outputPath = args.length ? resolve(args[1]) : DEFAULT_OUTPUT;
   const agents = collectAgents();
-  const subagents = collectSubagents();
+  const subagents = collectSubagents(REPO_ROOT, agents);
   const skills = collectSkills();
   const instructions = collectInstructions();
   const prompts = collectPrompts();

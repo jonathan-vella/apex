@@ -4,7 +4,7 @@ description: Researches and captures Azure platform engineering project requirem
 argument-hint: Describe the Azure workload or project you want to gather requirements for
 user-invocable: true
 disable-model-invocation: false
-agents: ["challenger-review-subagent"]
+agents: ["rubber-duck"]
 tools: [execute, read, agent, edit, search, todo]
 handoffs:
   - label: "▶ Refine Requirements"
@@ -58,14 +58,14 @@ Done when:
   answered "no preference" for every applicable class, in which case
   `decisions.sku_preferences_captured = true` records that the elicitation ran.
 - `apex-recall` records checkpoints, `iac_tool`, region, SKU manifest status, and Step 1 completion.
-- `challenge-findings-requirements.json` is produced by `challenger-review-subagent` and every
+- `challenge-findings-requirements.json` records the independent `rubber-duck` review and every
   finding is rendered in chat before the proceed/revise gate.
 
 ## Harness Entry
 
 Delegated `APEX_WORKER_HANDSHAKE`: no tools; return `WORKER_READY <definition-name> <original-nonce>`; nonce-only returns
 `WORKER_READY_ACK <definition-name> <original-nonce>` with same values. Stop; await `WORKER_EXECUTE`.
-[Routing](../skills/apex-workflow-engine/references/worker-readiness.md) before leaf calls; direct use owns `ask_user`.
+[Routing](../skills/apex-workflow-engine/references/worker-readiness.md) before resumable leaf calls; direct use owns `ask_user`.
 Return `USER_INPUT_REQUIRED` forms to the interactive parent; cancel stops.
 
 ## Context Handling
@@ -99,7 +99,7 @@ Produce in `agent-output/{project}/`:
   `source: "user-pin"`, `source_step: "1"`, `last_modified_rev: 1`). An
   empty `services[]` is valid only when Phase 3j recorded an explicit
   "no preference" for every applicable class.
-- `challenge-findings-requirements.json` from `challenger-review-subagent`.
+- `challenge-findings-requirements.json` from the validated one-shot `rubber-duck` result.
 - `challenge-findings-requirements-decisions.json` when accept/defer
   decisions are recorded.
 
@@ -157,7 +157,9 @@ The Copilot SDK uses verified workers; human gates remain explicit before the ne
 owner. Inline skills do not change model or tool scope. Use #tool:agent only for the
 allowlisted worker. Missing worker readiness, tool, input or invocation eligibility means `blocked`,
 not model substitution or a skipped review. On reviewer failure, preserve the error and
-request a human transition to `10-Challenger`; never invoke that main agent as a worker.
+return the failure to the interactive parent; never invoke a main agent as a reviewer fallback.
+Automatic reviews follow [one-shot review](../skills/apex-azure-defaults/references/one-shot-review.md),
+not the resumable-worker handshake. Record only the independently returned findings.
 
 - **Do not invoke** `npm run lint:artifact-templates`, `npm run lint:md`, or
   `markdownlint-cli2` against any `agent-output/**` path. These checks are
@@ -433,7 +435,7 @@ Ask once for any resulting scope decision; do not invent images, credentials or 
 7. Checkpoint `phase_5_artifact`.
 8. **After steps 1-7 pass, chain into Phase 6a in the same turn.** The next tool
   call after the successful `apex-recall checkpoint ... phase_5_artifact` is
-  #tool:agent targeting `challenger-review-subagent` with the inputs in
+  the one-shot review metadata capture and #tool:agent targeting `rubber-duck` with the inputs in
    Phase 6a. Do not emit any user-facing summary, "ready for review"
    note, or final assistant message between Phase 5 and Phase 6a.
 
@@ -453,7 +455,7 @@ This block is a hard stop rule, not a recap.
   invoking it. The very next tool invocation is the subagent call.
 - An incomplete/failed prerequisite also blocks Phase 6. Otherwise defer only for a subagent error
   from the runtime, in which case you follow the fallback rule in
-  Phase 6a (human handoff to `10-Challenger`, then stop). Missing required
+  Phase 6a (return the actual failure to the interactive parent, then stop). Missing required
   tools or runtime eligibility likewise blocks; do not attempt an inline review.
 
 ## Phase 6: Challenger Review and Per-Finding Decision Panel
@@ -462,7 +464,8 @@ This phase is required before Gate 1. Do not collapse it into a single proceed/r
 
 ### 6a. Invoke the challenger
 
-Delegate to `challenger-review-subagent` with:
+Invoke `rubber-duck` once using
+[one-shot review](../skills/apex-azure-defaults/references/one-shot-review.md) with:
 
 - `artifact_path`: `agent-output/{project}/01-requirements.md`
 - `project_name`: `{project}`
@@ -473,18 +476,16 @@ Delegate to `challenger-review-subagent` with:
 - `output_path`: `agent-output/{project}/challenge-findings-requirements.json`
 - `overwrite`: `false`, except when re-running after revisions
 
-Compose the runtime `prompt` string per
-[.github/skills/apex-workflow-engine/references/execution-subagent.md](../skills/apex-workflow-engine/references/execution-subagent.md)
-— the three required H2s are `## Inputs`, `## Activities`,
-`## Outputs`. Do NOT use ad-hoc structures
-(`**Inputs:** / **Review scope:** / **Output format:**`); the template is
-the source of truth (issue #425).
+Use `APEX_REVIEW` plus the JSON envelope, `mode: sync`, no routing overrides,
+and the `## Inputs`, `## Activities`, `## Outputs` instructions inside the envelope.
+Capture metadata first; use `record-review.mjs` to persist the actual returned JSON
+and require strict freshness validation. Do not send readiness or ACK turns to this reviewer.
 
-After the subagent returns, checkpoint `phase_6_challenger`.
+After the recorded result passes validation, checkpoint `phase_6_challenger`.
 
 **Fallback rule (mandatory)**: on a worker resolution error, surface the verbatim
-error and present the existing `10-Challenger` handoff, then stop for the user to
-select it. `send: true` does not authorize automatic invocation. No inline review,
+error to the interactive parent and stop. `10-Challenger` is an optional human
+recovery choice, not a required automatic hop. No inline review,
 fabricated findings or automatic model fallback is allowed. Resume only with current
 review evidence; a returned handoff is not proof of success or human approval.
 

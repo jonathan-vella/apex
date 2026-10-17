@@ -5,6 +5,8 @@ from __future__ import annotations
 import copy
 import importlib.util
 import json
+import subprocess
+import sys
 from datetime import UTC, datetime, timedelta
 from pathlib import Path
 
@@ -349,3 +351,383 @@ def test_worker_received_execution_is_attributed_even_without_a_native_send_tool
     assert report["_computed"]["execution_count"] == 2
     assert report["_computed"]["challenger_per_step"] == {"2": 1}
     assert load("smoke_verify").evaluate(report)[1]
+
+
+@pytest.fixture
+def one_shot(events):
+    def capture(*, batch=False, legacy=False):
+        records = copy.deepcopy(events)
+        if not legacy:
+            leaf_calls = {
+                record["data"]["toolCallId"]
+                for record in records
+                if record["type"] == "tool.execution_start"
+                and record["data"].get("arguments", {}).get("agent_id") == "leaf"
+            }
+            records = [
+                record
+                for record in records
+                if record.get("agentId") != "leaf" and record["data"].get("toolCallId") not in leaf_calls
+            ]
+        envelope = {
+            "request_id": "review-1",
+            "project_name": "sample",
+            "step": "2",
+            "review_depth": "default",
+            "artifact_path": "agent-output/sample/02-architecture-assessment.md",
+            "artifact_type": "architecture",
+            "review_focus": "comprehensive",
+            "pass_number": 1,
+            "output_path": "agent-output/sample/challenge-findings-architecture.json",
+            "overwrite": False,
+            "cache_inputs": {"artifact_sha256": "recorded-metadata"},
+        }
+        if batch:
+            envelope.pop("review_focus")
+            envelope.pop("pass_number")
+            envelope["lenses"] = [
+                {"review_focus": "comprehensive", "pass_number": 1},
+                {"review_focus": "cost-feasibility", "pass_number": 1},
+            ]
+        prompt = "APEX_REVIEW\n" + json.dumps(envelope)
+        additions = [
+            {
+                "type": "tool.execution_start",
+                "agentId": "main",
+                "data": {
+                    "toolCallId": "review-task",
+                    "toolName": "task",
+                    "arguments": {"agent_type": "rubber-duck", "mode": "sync", "prompt": prompt},
+                },
+            },
+            {
+                "type": "subagent.started",
+                "agentId": "reviewer",
+                "data": {"agentName": "rubber-duck", "parentId": "main", "toolCallId": "review-task"},
+            },
+            {"type": "user.message", "agentId": "reviewer", "data": {"content": prompt}},
+            {
+                "type": "assistant.message",
+                "agentId": "reviewer",
+                "data": {"apiCallId": "review-api", "content": '{"findings":[]}'},
+            },
+            {
+                "type": "session.usage_record",
+                "agentId": "reviewer",
+                "data": {
+                    "usage": {
+                        "apiCallId": "review-api",
+                        "inputTokens": 45000,
+                        "outputTokens": 100,
+                        "cacheReadTokens": 0,
+                        "cacheWriteTokens": 0,
+                        "duration": 500,
+                    }
+                },
+            },
+            {"type": "subagent.completed", "agentId": "reviewer", "data": {"toolCallId": "review-task"}},
+            {
+                "type": "tool.execution_complete",
+                "agentId": "main",
+                "data": {"toolCallId": "review-task", "success": True},
+            },
+        ]
+        for index, record in enumerate(additions):
+            record["id"] = f"review-event-{index}"
+        records[-2:-2] = additions
+        for index, record in enumerate(records):
+            record["timestamp"] = (datetime(2026, 10, 16, tzinfo=UTC) + timedelta(seconds=index)).isoformat()
+        return records
+
+    return capture
+
+
+def review_dispatch(records):
+    return next(
+        record
+        for record in records
+        if record["type"] == "tool.execution_start" and record["data"]["toolName"] == "task"
+    )
+
+
+def replace_review_envelope(records, envelope):
+    review_dispatch(records)["data"]["arguments"]["prompt"] = "APEX_REVIEW\n" + json.dumps(envelope)
+
+
+@pytest.mark.parametrize("batch", [False, True])
+@pytest.mark.parametrize("legacy", [False, True])
+def test_one_shot_single_and_batch_are_one_execution_per_dispatch(one_shot, batch, legacy):
+    records = one_shot(batch=batch, legacy=legacy)
+    report = metrics(records)
+    assert report["_computed"]["execution_count"] == (3 if legacy else 2)
+    assert report["_computed"]["challenger_per_step"] == {"2": 2 if legacy else 1}
+    requests = report["native_evidence"]["execution_requests"]
+    assert sum(request.get("protocol") == "APEX_REVIEW" for request in requests) == 1
+    assert report["_computed"]["max_first_execution_input_tokens"] == 45000
+    assert load("smoke_verify").evaluate(report, strict=True)[1]
+
+
+@pytest.mark.parametrize("model", [None, "different-runtime-model", "hydrafusion-max"])
+def test_one_shot_models_remain_diagnostic(one_shot, model):
+    records = one_shot()
+    for record in records:
+        if record.get("agentId") == "reviewer" and model is not None:
+            if record["type"] == "assistant.message":
+                record["data"]["model"] = model
+            elif record["type"] == "session.usage_record":
+                record["data"]["usage"]["model"] = "different-usage-model"
+    assert load("smoke_verify").evaluate(metrics(records), strict=True)[1]
+
+
+@pytest.mark.parametrize(
+    "field,value",
+    [("agentName", "other-reviewer"), ("parentId", "root"), ("toolCallId", "other-task")],
+)
+def test_one_shot_requires_named_reviewer_parent_and_task_link(one_shot, field, value):
+    records = one_shot()
+    start = next(
+        record for record in records if record["type"] == "subagent.started" and record["agentId"] == "reviewer"
+    )
+    start["data"][field] = value
+    with pytest.raises(ValueError, match="reviewer|attribution"):
+        metrics(records)
+
+
+def test_one_shot_without_reviewer_start_cannot_certify_metrics(one_shot):
+    records = [
+        record
+        for record in one_shot()
+        if not (record["type"] == "subagent.started" and record["agentId"] == "reviewer")
+    ]
+    with pytest.raises(ValueError, match="reviewer|attribution"):
+        metrics(records)
+
+
+def test_one_shot_receipts_and_export_repeats_do_not_double_count(one_shot):
+    records = one_shot()
+    receipt = copy.deepcopy(next(record for record in records if record["type"] == "user.message"))
+    receipt["id"] = "repeated-receipt"
+    records += [receipt, copy.deepcopy(review_dispatch(records))]
+    report = metrics(records)
+    assert report["_computed"]["execution_count"] == 2
+    assert report["_computed"]["challenger_per_step"] == {"2": 1}
+    assert report["native_evidence"]["duplicate_events"] == 1
+
+
+def test_one_shot_external_transport_echo_is_not_an_extra_dispatch(one_shot):
+    records = one_shot()
+    request = copy.deepcopy(review_dispatch(records))
+    request.update(id="review-external", type="external_tool.requested")
+    request["data"]["requestId"] = "review-external"
+    completion = copy.deepcopy(request)
+    completion.update(id="review-external-end", type="external_tool.completed", data={"requestId": "review-external"})
+    assert metrics(records + [request, completion])["_computed"]["execution_count"] == 2
+
+
+def test_one_shot_conflicting_transport_echo_is_rejected(one_shot):
+    records = one_shot()
+    request = copy.deepcopy(review_dispatch(records))
+    request.update(id="review-external", type="external_tool.requested")
+    request["data"]["requestId"] = "review-external"
+    request["data"]["arguments"]["prompt"] = "An unrelated prompt."
+    with pytest.raises(ValueError, match="task arguments conflict"):
+        metrics(records + [request])
+
+
+def test_one_shot_external_only_dispatch_counts_but_cannot_certify_success(one_shot):
+    records = one_shot()
+    request = review_dispatch(records)
+    request["type"] = "external_tool.requested"
+    request["data"]["requestId"] = "review-external"
+    completion = next(
+        record
+        for record in records
+        if record["type"] == "tool.execution_complete" and record["data"]["toolCallId"] == "review-task"
+    )
+    completion.update(type="external_tool.completed", data={"requestId": "review-external"})
+    report = metrics(records)
+    assert report["_computed"]["challenger_per_step"] == {"2": 1}
+    assert report["native_evidence"]["external_tool_outcomes_unknown"] == 1
+    assert report["native_evidence"]["incomplete_operations"] == 1
+    assert not load("smoke_verify").evaluate(report, strict=True)[1]
+
+
+@pytest.mark.parametrize("tokens", [45000, 45001, None])
+def test_one_shot_first_execution_threshold_is_measured_not_synthesized(one_shot, tokens):
+    records = one_shot()
+    usage = next(
+        record["data"]["usage"]
+        for record in records
+        if record["type"] == "session.usage_record" and record.get("agentId") == "reviewer"
+    )
+    usage["inputTokens"] = tokens
+    report = metrics(records)
+    assert report["_computed"]["max_first_execution_input_tokens"] == tokens
+    assert load("smoke_verify").evaluate(report, strict=True)[1] is (tokens == 45000)
+
+
+@pytest.mark.parametrize("kind", ["assistant.message", "session.usage_record", "subagent.completed"])
+def test_one_shot_missing_usage_or_capture_evidence_stays_nonpassing(one_shot, kind):
+    records = [record for record in one_shot() if not (record["type"] == kind and record.get("agentId") == "reviewer")]
+    assert not load("smoke_verify").evaluate(metrics(records), strict=True)[1]
+
+
+@pytest.mark.parametrize(
+    "mutation",
+    [
+        {"request_id": ""},
+        {"project_name": None},
+        {"step": 2},
+        {"artifact_path": ""},
+        {"artifact_type": None},
+        {"output_path": ""},
+        {"review_depth": "unknown"},
+        {"overwrite": None},
+        {"cache_inputs": None},
+        {"review_focus": ""},
+        {"pass_number": True},
+        {"lenses": []},
+        {"lenses": [{"review_focus": "comprehensive", "pass_number": 1}]},
+    ],
+)
+def test_one_shot_malformed_envelopes_are_rejected(one_shot, mutation):
+    records = one_shot()
+    envelope = json.loads(review_dispatch(records)["data"]["arguments"]["prompt"].split("\n", 1)[1])
+    envelope.update(mutation)
+    replace_review_envelope(records, envelope)
+    with pytest.raises(ValueError, match="APEX_REVIEW"):
+        metrics(records)
+
+
+def test_one_shot_invalid_json_is_rejected(one_shot):
+    records = one_shot()
+    review_dispatch(records)["data"]["arguments"]["prompt"] = "APEX_REVIEW\n{"
+    with pytest.raises(ValueError, match="APEX_REVIEW"):
+        metrics(records)
+
+
+@pytest.mark.parametrize(
+    "lenses",
+    [
+        None,
+        {},
+        [None],
+        [{"review_focus": "", "pass_number": 1}],
+        [{"review_focus": "comprehensive", "pass_number": 0}],
+        [{"review_focus": "comprehensive", "pass_number": True}],
+        [{"review_focus": "comprehensive", "pass_number": 1}] * 2,
+    ],
+)
+def test_one_shot_invalid_batch_lenses_are_rejected(one_shot, lenses):
+    records = one_shot(batch=True)
+    envelope = json.loads(review_dispatch(records)["data"]["arguments"]["prompt"].split("\n", 1)[1])
+    envelope["lenses"] = lenses
+    replace_review_envelope(records, envelope)
+    with pytest.raises(ValueError, match="APEX_REVIEW"):
+        metrics(records)
+
+
+def test_one_shot_accepts_supporting_inputs_without_exporting_prompt_payloads(one_shot):
+    records = one_shot()
+    envelope = json.loads(review_dispatch(records)["data"]["arguments"]["prompt"].split("\n", 1)[1])
+    envelope["supporting_inputs"] = [{"path": "immutable-evidence.md", "sha256": "recorded-metadata"}]
+    envelope["instructions"] = "Private bounded review instructions."
+    replace_review_envelope(records, envelope)
+    requests = metrics(records)["native_evidence"]["execution_requests"]
+    review = next(request for request in requests if request.get("protocol") == "APEX_REVIEW")
+    assert review["project"] == envelope["project_name"]
+    assert "supporting_inputs" not in review
+    assert "instructions" not in review
+
+
+@pytest.mark.parametrize(
+    "field,value", [("mode", "async"), ("model", None), ("reasoning_effort", "high"), ("context_tier", "default")]
+)
+def test_one_shot_requires_sync_without_overrides(one_shot, field, value):
+    records = one_shot()
+    review_dispatch(records)["data"]["arguments"][field] = value
+    with pytest.raises(ValueError, match="APEX_REVIEW"):
+        metrics(records)
+
+
+@pytest.mark.parametrize("source", ["user", "unrelated-task", "handshake"])
+def test_arbitrary_prompts_and_unrelated_rubber_duck_calls_are_not_reviews(one_shot, source):
+    records = one_shot()
+    dispatch = review_dispatch(records)
+    if source == "user":
+        records.remove(dispatch)
+        records = [
+            record
+            for record in records
+            if not (record["type"] == "tool.execution_complete" and record["data"]["toolCallId"] == "review-task")
+        ]
+    else:
+        dispatch["data"]["arguments"]["prompt"] = (
+            "APEX_WORKER_HANDSHAKE\nnonce" if source == "handshake" else "Explain this function."
+        )
+    report = metrics(records)
+    assert report["_computed"]["execution_count"] == 1
+    assert report["_computed"]["challenger_per_step"] == {}
+    assert report["_computed"]["challenger_max_per_step"] is None
+
+
+def test_one_shot_deep_cannot_certify_default_smoke_budget(one_shot):
+    records = one_shot(batch=True)
+    envelope = json.loads(review_dispatch(records)["data"]["arguments"]["prompt"].split("\n", 1)[1])
+    envelope["review_depth"] = "deep"
+    replace_review_envelope(records, envelope)
+    profiler = load("profile_debug_log")
+    report = profiler.profile(profiler.sdk_events_to_spans(records))
+    assert len(report["native_evidence"]["execution_requests"]) == 2
+    with pytest.raises(ValueError, match="default-mode smoke budget"):
+        metrics(records)
+
+
+def test_one_shot_root_parent_and_no_receipt_are_supported(one_shot):
+    records = one_shot()
+    for record in records:
+        if record["id"].startswith("review-event-"):
+            if record.get("agentId") == "main":
+                record.pop("agentId")
+            if record["type"] == "subagent.started":
+                record["data"].pop("parentId")
+    records = [record for record in records if record["type"] != "user.message"]
+    assert metrics(records)["_computed"]["challenger_per_step"] == {"2": 1}
+
+
+@pytest.mark.parametrize("reuse_request_id", [False, True])
+def test_actual_repeat_dispatches_count_towards_strict_budget(one_shot, tmp_path, reuse_request_id):
+    records = one_shot(legacy=True)
+    repeated = copy.deepcopy([record for record in records if record["id"].startswith("review-event-")])
+    for record in repeated:
+        record["id"] += "-repeat"
+        if record.get("agentId") == "reviewer":
+            record["agentId"] = "reviewer-repeat"
+        if record["data"].get("toolCallId") == "review-task":
+            record["data"]["toolCallId"] = "review-task-repeat"
+        if record["data"].get("apiCallId") == "review-api":
+            record["data"]["apiCallId"] = "review-api-repeat"
+        if "usage" in record["data"]:
+            record["data"]["usage"]["apiCallId"] = "review-api-repeat"
+        if record["type"] == "tool.execution_start" and not reuse_request_id:
+            envelope = json.loads(record["data"]["arguments"]["prompt"].split("\n", 1)[1])
+            envelope["request_id"] = "review-2"
+            record["data"]["arguments"]["prompt"] = "APEX_REVIEW\n" + json.dumps(envelope)
+    records[-2:-2] = repeated
+    for index, record in enumerate(records):
+        record["timestamp"] = (datetime(2026, 10, 16, tzinfo=UTC) + timedelta(seconds=index)).isoformat()
+    if reuse_request_id:
+        with pytest.raises(ValueError, match="duplicate or conflicting execution request_id"):
+            metrics(records)
+    else:
+        assert metrics(records)["_computed"]["challenger_per_step"] == {"2": 3}
+        path = tmp_path / "events.jsonl"
+        path.write_text("\n".join(json.dumps(record) for record in records))
+        assert load("validate_review_ceiling").budget_check(path)[1] == ["step 2: 3 invocations > ceiling 2"]
+        result = subprocess.run(
+            [sys.executable, str(ROOT / "tools/scripts/validate_review_ceiling.py"), "--budget", str(path), "--strict"],
+            capture_output=True,
+            text=True,
+        )
+        assert result.returncode == 1
+        assert "3 invocations > ceiling 2" in result.stderr

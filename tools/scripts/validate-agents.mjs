@@ -60,6 +60,7 @@ const BLOCK_SCALAR_PATTERN = /^description:\s*[>|][-\s]*$/m;
 const DESCRIPTION_MAX_LEN = 350;
 const DESCRIPTION_WARN_LEN = 300;
 const PRODUCTION_AGENTS_DIR = fileURLToPath(new URL("../../.github/agents/", import.meta.url));
+const BUILTIN_REVIEWERS = new Set(["rubber-duck"]);
 const LEAF_WORKER_TOOL_PATTERN =
   /^(?:\*|agent(?:\/|$)|todo(?:\/|$)|vscode$)|runSubagent|askQuestions|ask_user|askUser|manage.?todo/i;
 
@@ -264,7 +265,8 @@ export function validateAgentPermissions(frontmatter, { isSubagent = false, agen
     const known = new Set([...agents.values()].map((agent) => agent.frontmatter?.name));
     if (known.size > 0) {
       for (const name of allowed) {
-        if (name !== "*" && !known.has(name)) issues.push(`unknown allowed agent: ${name}`);
+        if (name !== "*" && !BUILTIN_REVIEWERS.has(name) && !known.has(name))
+          issues.push(`unknown allowed agent: ${name}`);
       }
     }
   }
@@ -332,7 +334,7 @@ function runAgentChecks() {
 
   // Build the set of known subagent names from files under _subagents/.
   // Used by the body-vs-frontmatter declaration check below.
-  const knownSubagents = new Set();
+  const knownSubagents = new Set(BUILTIN_REVIEWERS);
   for (const [, agent] of agents) {
     if (agent.isSubagent && agent.frontmatter?.name) {
       knownSubagents.add(agent.frontmatter.name);
@@ -1704,14 +1706,17 @@ function evaluateSubagentDispatch(
       issues.push({ entry: String(entry), message: "non-string agents[] entry" });
       continue;
     }
-    if (!knownAgentNames.has(entry) && !knownSubagentNames.has(entry)) {
+    if (!knownAgentNames.has(entry) && !knownSubagentNames.has(entry) && !BUILTIN_REVIEWERS.has(entry)) {
       issues.push({ entry, message: `unknown agent or subagent "${entry}"` });
       continue;
     }
-    if (entry === "challenger-review-subagent" && !artifactProducers.has(sourceAgentName)) {
+    if (
+      (entry === "challenger-review-subagent" || BUILTIN_REVIEWERS.has(entry)) &&
+      !artifactProducers.has(sourceAgentName)
+    ) {
       issues.push({
         entry,
-        message: `challenger-review-subagent requires artifact-producing source (got "${sourceAgentName}")`,
+        message: `${entry} requires artifact-producing source (got "${sourceAgentName}")`,
       });
     }
     if (entry === "cost-estimate-subagent" && !COST_ESTIMATE_AUTHORITATIVE_AGENTS.has(sourceAgentName)) {

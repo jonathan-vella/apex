@@ -3,7 +3,7 @@ name: 04-Design
 description: "Step 3 — Design Artifacts. Generates code-based Python architecture diagrams and Architecture Decision Records for approved Azure designs. Optional step before governance and IaC planning."
 user-invocable: true
 disable-model-invocation: false
-agents: ["challenger-review-subagent"]
+agents: ["rubber-duck"]
 tools: [execute, read, agent, edit, search, web, todo]
 handoffs:
   - label: "▶ Generate Diagram"
@@ -54,7 +54,8 @@ ADRs cite their source and WAF trade-offs, and optional review evidence is repor
 
 Allowed writes: requested design outputs below, `00-handoff.md`, project README and
 recall state. Cost Markdown may be written only on explicit request from verified
-Architect pricing. Review findings are worker-owned. No IaC, Azure or upstream edits.
+Architect pricing. Persist independent findings only through `record-review.mjs`;
+never author or edit them. No IaC, Azure or upstream edits.
 Terminal execution is restricted to source inspection, diagram rendering, output checks
 and these authorized state changes. An ADR proposing an architecture change requires
 Architect review and human approval; it does not authorize changing the assessment.
@@ -87,7 +88,8 @@ continue, or a list of non-blocking decisions before the requested scope is rend
 
 Use the verified Copilot SDK worker contract; human approval gates still block advancement.
 Skills run inline and do not select model/tools. Use #tool:agent only for the allowlisted
-worker; request human `10-Challenger` selection for reviewer resolution failures and stop.
+worker; return reviewer resolution failures to the interactive parent and stop.
+`10-Challenger` remains optional manual recovery.
 Spawn it only for an enabled ADR review, never to re-check your own diagrams.
 
 ## Context Awareness
@@ -213,7 +215,8 @@ Never invent dollar figures.
 
 Run review only when ADRs were produced and `decisions.review_depth == "deep"`
 or the user explicitly requested review.
-Invoke `challenger-review-subagent` once per ADR with:
+Invoke `rubber-duck` once per ADR using
+[one-shot review](../skills/apex-azure-defaults/references/one-shot-review.md) with:
 
 - `artifact_path`: path of the current ADR
 - `project_name: {project}`
@@ -224,11 +227,12 @@ Invoke `challenger-review-subagent` once per ADR with:
 - `output_path: agent-output/{project}/challenge-findings-design-adr-<n>.json`
 - `overwrite: false`
 
-Compose prompts with `## Inputs`, `## Activities`, and `## Outputs` per
-[execution-subagent.prompt.md](../skills/apex-workflow-engine/references/execution-subagent.md).
+Use the `APEX_REVIEW` JSON envelope with `## Inputs`, `## Activities`, and `## Outputs`
+instructions, `mode: sync` and no routing overrides. Capture metadata, record the actual
+returned JSON through `record-review.mjs`, and require strict freshness validation.
 Review findings are informational for Step 3, not authority to change architecture.
-Log execution failures through `apex-recall finding` and stop with a human Challenger
-handoff. Missing/empty output permits exactly one identical-input retry; missing
+Log execution failures through `apex-recall finding` and return to the interactive parent.
+Challenger remains optional. Missing/empty output permits exactly one identical-input retry; missing
 capability blocks immediately. Present an actual returned summary in at most 15
 lines; explicitly flag findings with `requires_step: step-2` so the user can
 decide whether to reopen architecture.

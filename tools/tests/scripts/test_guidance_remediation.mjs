@@ -547,14 +547,15 @@ test("SK21: exact AVM interfaces and full anomaly-view IDs control validation", 
 test("SK24: governance confirms current inputs before review and recovers full blocker evidence", () => {
   const disposition = skill("apex-azure-governance-discovery/references/reconciliation-disposition.md");
   assert.match(disposition, /Keep Gate-2_5 closed; acceptance is not verified closure/);
-  assert.match(disposition, /request a human handoff to `10-Challenger`/);
+  assert.match(disposition, /return to the interactive parent and owning agent/);
   assert.match(disposition, /cannot be deferred to Planner/);
   assert.match(disposition, /05-IaC Planner/);
   assert.doesNotMatch(disposition, /Re-present the Phase 3 final/);
   assert.match(disposition, /check:h2-order -- <project> 04-governance-constraints\.md/);
   assert.match(disposition, /wc -l < agent-output\/<project>\/00-handoff\.md/);
   assert.match(disposition, /-lt 60/);
-  assert.match(disposition, /immediate\s+owner is `10-Challenger`/);
+  assert.match(disposition, /recovery owner is the interactive parent/);
+  assert.match(disposition, /`10-Challenger` is optional manual recovery/);
   assert.match(disposition, /Structure: PASS\/FAIL/);
   assert.match(disposition, /Review freshness: CURRENT\/STALE\/UNAVAILABLE/);
   assert.match(disposition, /Blocker closure: VERIFIED\/AWAITING VERIFICATION/);
@@ -660,7 +661,7 @@ test("SK34: the summary maps every unique principle to the canonical union", () 
   }
   assert.match(reference, /No unique principle is dropped/);
   assert.match(reference, /unresolved blocker stop in every mode/);
-  assert.match(reference, /exactly one identical-input retry/);
+  assert.match(reference, /exactly one\s+identical-input retry/);
 });
 
 test("assigned ADR guidance preserves alternative coverage and phase naming", () => {

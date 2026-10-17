@@ -154,6 +154,11 @@ Skills inherit caller model/tools; completion never bypasses approval or indepen
 Legacy Local prompts are retained only in [.archive/pre-cpharness/](.archive/pre-cpharness/).
 Worker identity, dispatch linkage, tool-free same-worker continuation, required
 tools and human approval still require runtime verification.
+Automatic independent reviews use built-in `rubber-duck` through the
+[one-shot review contract](.github/skills/apex-azure-defaults/references/one-shot-review.md),
+without reviewer handshake/ACK turns. The owning step records the actual attributed
+result, validates freshness and returns to the same Orchestrator. `10-Challenger`
+remains optional manual review/repair. Technical handoffs do not approve human gates.
 
 Explicit risk acceptance is supported only for authorized non-production labs, with externally verified authority,
 individual finding selection and separate human gate approval. Kit authoring permission never grants deployment

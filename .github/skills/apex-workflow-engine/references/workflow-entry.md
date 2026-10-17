@@ -70,8 +70,8 @@ Update state only through `apex-recall`; a start command never marks a step done
 - Design remains optional. Review runs only when ADRs were produced and
   `decisions.review_depth == "deep"` or the user explicitly requested review.
   Review findings are informational for Step 3, not authority to change architecture.
-  Log execution failures through `apex-recall finding` and stop with a human Challenger
-  handoff. Missing/empty output permits exactly one identical-input retry; missing
+  Log execution failures through `apex-recall finding` and return them to the interactive
+  parent. Challenger is optional manual recovery. Missing/empty output permits exactly one identical-input retry; missing
   capability blocks immediately. Never treat an execution failure as completed review findings.
 - Governance discovers real effective policy, including inherited assignments;
   do not synthesize policies when authentication or discovery fails. Its SKU

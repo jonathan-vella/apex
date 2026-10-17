@@ -35,6 +35,12 @@ Use a dedicated approved smoke project; never reset an existing project's state.
    Decline never approves; cancellation stops.
 3. Complete Requirements and its required independent review. Checkpoint through
    `apex-recall`, preserve output paths and present Gate 1 separately.
+   Invoke built-in `rubber-duck` using the
+   [one-shot review contract](../../../.github/skills/apex-azure-defaults/references/one-shot-review.md),
+   `mode: sync` and no routing overrides. Do not run a reviewer handshake or ACK.
+   Require linked dispatch/completion, exact recorded findings and strict freshness
+   validation. The technical return stays with the same Orchestrator; Challenger
+   is optional manual recovery. An exhausted allowance remains exhausted.
 4. After explicit Gate 1 approval, verify and dispatch the exact Architect worker.
    Exercise a resumed worker whose first execution tool is
    `apex-recall show <project> --json`. Readiness and ACK turns remain tool-free.
@@ -68,7 +74,7 @@ Without a path, discovery is restricted to exact repository identity, never the 
 | `ask_user`            | At most 20 calls across the captured scope                                     |
 | First execution input | At most 45,000 tokens for every attributed worker execution                    |
 | Resume                | Explicitly resumed execution with successful first-tool recall recovery        |
-| Reviews               | Attributed default-mode Challenger execution requests, at most 2 per step      |
+| Reviews               | Attributed default-mode independent review requests, at most 2 per step        |
 | Errors                | No non-benign observed errors                                                  |
 
 Missing required evidence is `UNKNOWN` and non-passing, not zero or a skipped success.
@@ -77,6 +83,8 @@ Cache totals are observed samples, not billing. Historical `/clear` and phase co
 are unavailable for native logs; do not infer phase boundaries from timestamps.
 Readiness alone never counts as executed review work.
 Received worker execution envelopes and matching send-tool records count once.
+Each actual `APEX_REVIEW` rubber-duck dispatch also counts once, including a
+multi-lens batch. A valid findings record and a telemetry count are separate requirements.
 External-only transport completions do not prove tool success and remain non-passing.
 
 ## Acceptance Boundary

@@ -30,8 +30,29 @@ test("graph CLI generates and validates an explicit output without a site direct
     encoding: "utf8",
   });
   assert.equal(validated.status, 0, validated.stderr);
+  const graph = JSON.parse(fs.readFileSync(output, "utf8"));
+  const reviewer = graph.nodes.find((node) => node.id === "subagent:rubber-duck");
+  assert.equal(reviewer?.meta.builtin, true);
+  assert.equal(reviewer.path, ".github/skills/apex-azure-defaults/references/one-shot-review.md");
+  assert.ok(graph.edges.some((edge) => edge.target === reviewer.id && edge.kind === "delegates"));
   const invalid = spawnSync(process.execPath, [generator.pathname, "--unknown"], { cwd: directory, encoding: "utf8" });
   assert.notEqual(invalid.status, 0);
+});
+
+test("built-in review nodes are discovered only from explicit caller declarations", (context) => {
+  const root = fs.mkdtempSync(path.join(os.tmpdir(), "apex-builtin-review-"));
+  context.after(() => fs.rmSync(root, { recursive: true, force: true }));
+  const file = path.join(root, ".github/agents/reviewer-owner.agent.md");
+  fs.mkdirSync(path.dirname(file), { recursive: true });
+  fs.writeFileSync(file, "---\nname: Owner\nagents: []\n---\n# Owner\n");
+  assert.deepEqual(collectSubagents(root), []);
+  fs.writeFileSync(file, '---\nname: Owner\nagents: ["rubber-duck"]\n---\n# Owner\n');
+  const [reviewer] = collectSubagents(root);
+  assert.equal(reviewer.label, "rubber-duck");
+  assert.equal(reviewer.meta.builtin, true);
+  assert.equal(reviewer.path.endsWith(".agent.md"), false);
+  fs.writeFileSync(file, '---\nname: Owner\nagents: ["general-purpose"]\n---\n# Owner\n');
+  assert.deepEqual(collectSubagents(root), []);
 });
 
 test("agent and skill collectors preserve invocation flags, hints and declared context", (context) => {

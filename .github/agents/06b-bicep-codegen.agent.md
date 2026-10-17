@@ -3,7 +3,7 @@ name: 06b-Bicep CodeGen
 description: Expert Azure Bicep IaC specialist that creates near-production-ready Bicep templates following Azure Verified Modules (AVM) standards. Validates, tests, and ensures code quality.
 user-invocable: true
 disable-model-invocation: false
-agents: ["bicep-validate-subagent", "challenger-review-subagent"]
+agents: ["bicep-validate-subagent", "rubber-duck"]
 tools:
   [execute, read, agent, edit, search, web, 'azure-mcp/*', 'bicep/*', todo]
 handoffs:
@@ -54,7 +54,7 @@ Done when:
 - Security baseline holds for every resource (TLS 1.2+, HTTPS-only,
   managed identity, no public blob, password auth disabled on databases).
 - Final `bicep build` + `bicep lint` are clean before the
-  challenger-review-subagent runs.
+  independent rubber-duck review runs.
 - `05-implementation-reference.md` exists and lists files + validation
   status; project README updated.
 
@@ -94,7 +94,7 @@ Deliver the approved plan scope; raise a better approach in one sentence instead
 widening, narrowing or transforming the task.
 
 - Allowed writes: `infra/bicep/{project}/`, the listed CodeGen outputs, project README,
-  `00-handoff.md`, code-review decisions and recall state. Preserve user edits and
+  `00-handoff.md`, code-review decisions, recorder-persisted findings and recall state. Preserve user edits and
   partial files; use available editing tools, inspect interrupted writes, then validate.
   No Azure resource mutations, upstream plan/governance or SKU manifest edits.
 - Preserve lines with uncertain ownership until ownership is established or the user
@@ -153,8 +153,8 @@ widening, narrowing or transforming the task.
 
 Use the verified Copilot SDK worker contract; human approval gates still block advancement.
 Inline skills do not select model/tools. Use #tool:agent only for allowlisted workers.
-Reviewer resolution failure requires a human transition to `10-Challenger`, not an
-automatic main-agent call. No transition runs the target under the parent's model.
+Reviewer resolution failure returns to the interactive parent, not an automatic
+main-agent call. `10-Challenger` is optional manual recovery.
 
 Shared agent rules (read each SKILL.md once, use `apex-recall show
 <project> --json` for cached lookups, never edit upstream artifacts,
@@ -168,7 +168,7 @@ investigate before answering) live in
   Never deploy (hand off to `07b-Bicep Deploy`); never modify
   architecture (hand back to `05-IaC Planner`).
 - **Subagent budget (2)**: `bicep-validate-subagent` (combined lint
-  and code review); `challenger-review-subagent` (post-validation
+  and code review); `rubber-duck` (post-validation
   adversarial pass only). Spawn no other workers and never use a worker to re-check
   your own output outside these passes.
 - **Schema verification**: validate AVM module availability and
@@ -193,7 +193,7 @@ or changed sections on resume.
 7. Read the execution-subagent prompt contract
    [.github/skills/apex-workflow-engine/references/execution-subagent.md](../skills/apex-workflow-engine/references/execution-subagent.md)
   — every #tool:agent call (bicep-validate-subagent,
-   challenger-review-subagent) MUST follow the three-H2 contract
+   rubber-duck) MUST follow the three-H2 contract
    (issue #425).
 
 ## Do
@@ -470,9 +470,14 @@ Apply the cascade early-exit rules from
 skip pass 2 if pass 1 has 0 `must_fix` AND <2 `should_fix`; skip pass 3
 if pass 2 has 0 `must_fix`.
 
-Invoke challenger subagents with `artifact_type = "iac-code"` (NEVER
+Invoke `rubber-duck` using
+[one-shot review](../skills/apex-azure-defaults/references/one-shot-review.md),
+`mode: sync`, no routing overrides and `artifact_type = "iac-code"` (NEVER
 `"implementation-plan"` — that scope belongs to Step 4),
 rotating `review_focus` per protocol.
+Capture metadata before review; record the actual returned JSON through `record-review.mjs`
+and require strict freshness validation. Validation workers retain their existing readiness
+contract; the one-shot reviewer does not use handshake/ACK turns.
 
 **Plan-rooted findings**: if any returned `must_fix` traces back to the
 plan (e.g. "resource missing", "wrong SKU per architecture",
@@ -485,7 +490,7 @@ For each pass, pass these inputs to the subagent:
 - `output_path` = `agent-output/{project}/challenge-findings-iac-code-pass{N}.json`
 - `overwrite` = `false` (set to `true` only when re-running after revisions)
 
-The subagent writes the JSON file at `output_path` and returns a compact
+The one-shot recorder persists the actual reviewer JSON at `output_path`; return a compact
 summary (≤15 lines). **Do NOT paste subagent JSON inline.** Read the file
 from disk only if you need full finding details for fix triage. Fix any
 `must_fix` items, re-validate, re-run the failing pass.

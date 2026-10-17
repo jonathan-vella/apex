@@ -2,8 +2,11 @@
 
 # Adversarial Review Protocol
 
-Standard protocol for invoking `challenger-review-subagent` across
-all agents. Each agent specifies its own `artifact_path`,
+Standard protocol for independent artifact review across agents.
+Automatic callers use built-in `rubber-duck` through
+[one-shot review](one-shot-review.md). The optional `10-Challenger` manual workflow
+retains its file-output `challenger-review-subagent` contract.
+Each agent specifies its own `artifact_path`,
 `artifact_type`, pass count, and review focus — this reference
 defines the shared mechanics.
 
@@ -66,28 +69,35 @@ comprehensive pass**. No early-exit logic. No complexity-tier routing.
 - `review_focus` = `comprehensive` (or `governance-reconciliation` at Step 3.5)
 - `pass_number` = `1`
 - `prior_findings` = `null`
-- Subagent writes one sidecar JSON file (`challenge-findings-{artifact_type}.json`).
+- The actual independent result is recorded as a sidecar JSON file
+  (`challenge-findings-{artifact_type}.json`). Automatic rubber-duck results are
+  persisted only by `record-review.mjs`, not reconstructed by the parent.
 - Parent agent presents the per-finding decision panel (see
   `## Per-Finding Decision Protocol`) and then the aggregated proceed /
   revise gate.
 
 ### Subagent-discovery fallback (default + deep)
 
-Use the available delegation tool only for the declared `challenger-review-subagent`.
-If the reviewer is unavailable (discovery, permissions, model eligibility, or missing
-delegation capability), **STOP** and request a human handoff to `10-Challenger`.
+For automatic reviews, use only the declared built-in `rubber-duck` through the
+one-shot contract. Missing capability or invalid recorded output blocks the step:
+return the actual error to the interactive parent, which owns recovery.
+`10-Challenger` is optional manual recovery, not a required automatic handoff.
+Do not substitute it silently, fabricate findings or restart a review allowance.
+
+For the optional manual workflow, use the declared `challenger-review-subagent`.
+If that reviewer is unavailable (discovery, permissions or missing delegation
+capability), **STOP** and request human intervention.
 Include the verbatim error, artifact path/type, review lens, pass, prior findings,
 and intended output path. Resume the parent only after current review evidence exists.
 
-`10-Challenger` is a human-selected main agent with `disable-model-invocation: true`,
-not a nested wrapper fallback. Do not invoke it as a subagent, widen caller allowlists,
+`10-Challenger` is not a nested wrapper fallback. Do not invoke it as a fallback subagent, widen caller allowlists,
 enable nested delegation, switch models automatically, or synthesize an inline review.
 Legacy discovery settings are not a security boundary or evidence of runtime support.
 
 For a successful call that produces missing or empty output, follow
 [the diagnostic contract](workflow-gates.md#challenger-empty-output-diagnostic--bounded-retry):
 log the failure, retry exactly once with identical inputs, then STOP and request a human
-handoff after the second failure. Do not reset this budget by changing wrappers or models.
+decision after the second failure. Do not reset this budget by changing wrappers or models.
 
 If `10-Challenger` is already the active owner, request human intervention instead
 of a self-handoff. Report the failure and missing evidence without restarting the
@@ -288,8 +298,14 @@ Even formatting-only changes invalidate exact-byte evidence: never normalize has
 Do not edit upstream artifacts or invalidate unrelated project decisions as part of drift recovery.
 
 Use the existing validator's read-only metadata mode before review:
-`node tools/scripts/validate-challenger-findings.mjs --metadata <artifact_path>`.
-It computes byte hashes and the reviewer's model-policy contract without opening source files in chat.
+`node tools/scripts/validate-challenger-findings.mjs --metadata <artifact_path> --reviewer rubber-duck`.
+It computes byte hashes and the explicit reviewer contract without opening source files in chat.
+For automatic review, use emitted metadata unchanged and record the actual output
+through `record-review.mjs`; strict validation also requires its execution provenance.
+Automatic metadata explicitly carries `reviewer: rubber-duck`, `reviewer_contract`
+and `reviewer_contract_sha`, without a legacy `subagent_sha` or runtime model pin.
+The default metadata mode without `--reviewer` retains the optional manual
+Challenger's historical identity. Never relabel legacy evidence as rubber-duck.
 Use `--finding-ids <draft.json.tmp>` for deterministic finding identities; copy results with editing tools.
 Validate the temporary payload with `--verify-cache <draft.json.tmp>` before publication, and use the
 same flag on a saved file before cache reuse. A mismatch blocks reuse; never refresh hashes on an old review.
@@ -298,7 +314,9 @@ Default scans remain schema-only for historical evidence. Directory artifacts ha
 `node_modules`, `.venv` and `__pycache__`; reject symlinks, special files and empty trees. All remaining files count.
 File artifacts retain the byte-hash contract. A previously different directory hash requires a fresh review.
 
-Subagent output includes a `cache_inputs` block:
+Legacy manual subagent output includes this `cache_inputs` block; automatic review
+uses the validator's explicit rubber-duck metadata and hashes `one-shot-review.md`
+instead of pretending that a built-in reviewer has a local agent definition:
 
 ```json
 {
@@ -329,9 +347,11 @@ fresh invocation:
 | `challenger-review-subagent` model rolled            | Re-invoke             |
 | **All five match** (rare on real REVISE loops)       | Reuse cached findings |
 
-The cache protects against three classes of staleness: prompt drift
-(checklist or protocol or subagent edits), model drift, and downstream
+The cache protects against prompt drift
+(checklist, protocol or reviewer-contract edits), legacy pinned-policy drift, and downstream
 revisions that did not actually touch the challenged artifact.
+Runtime-managed model names, effort and routing-source labels are diagnostic only;
+their absence or change is not cache invalidation.
 
 > **Decisions sidecars are never cached.** Cache only applies to the
 > findings JSON. The `challenge-findings-{type}-decisions.json` sidecar

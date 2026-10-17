@@ -133,9 +133,14 @@ body explicitly points to one. There is one tier — no digest, no minimal.
   Step agents call only authorized leaves; leaves never delegate or ask users.
   The interactive parent owns `ask_user`; delegated steps return `USER_INPUT_REQUIRED`.
   Decline never approves and cancellation stops. Static allowlists are not routing evidence.
-- If a required reviewer is unavailable, STOP and request a human handoff to `10-Challenger`;
-  never invoke a nested wrapper or fabricate an inline review. Missing/empty reviewer output
-  permits exactly one identical-input retry, then a human handoff under the
+- Automatic reviews use built-in `rubber-duck` through
+  [one-shot review](skills/apex-azure-defaults/references/one-shot-review.md).
+  They require attributed synchronous completion and validated recorded findings,
+  not step-worker handshake/ACK. Model selection remains runtime-managed.
+- If a required reviewer is unavailable, STOP and return the actual failure to the
+  interactive parent; never invoke a nested wrapper or fabricate an inline review.
+  `10-Challenger` remains optional manual recovery. Missing/empty reviewer output
+  permits exactly one identical-input retry within the existing budget, then a human decision under the
   [review protocol](skills/apex-azure-defaults/references/adversarial-review-protocol.md#subagent-discovery-fallback-default--deep).
 - Keep essential role, approval, security, output, and stop rules in main agent bodies.
   Authoring `applyTo` matches do not prove runtime attachment. Load required guidance

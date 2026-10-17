@@ -6,6 +6,10 @@ entrypoint. Copy the ordered Inputs, Activities, Outputs sections into the
 invocation of a named, explicitly allowlisted worker. The runtime selects the
 worker model and its agent definition declares tools. Picker selection, model
 names and effort are not readiness gates. This reference grants no permissions.
+Automatic built-in `rubber-duck` reviews use the separate
+[one-shot contract](../../apex-azure-defaults/references/one-shot-review.md),
+including its `APEX_REVIEW` JSON envelope and provenance-aware recorder.
+The handshake below applies to resumable workers, not that one-shot reviewer.
 Before sending execution inputs, follow
 [worker readiness](worker-readiness.md): `--phase initial` verifies the completed
 handshake only; after the nonce-only continuation and exact ACK, `--phase complete`
@@ -112,7 +116,18 @@ File JSON: caller `output_path`, the documented cost JSON shape, plus
 report persistence failure without claiming a file. Manifest writeback remains
 limited to the worker's explicitly authorized price/timestamp fields.
 
+### rubber-duck
+
+Automatic independent reviewer. Follow
+[one-shot review](../../apex-azure-defaults/references/one-shot-review.md).
+Return raw findings JSON; the parent uses `record-review.mjs` to persist the
+actual attributed result atomically and validate freshness. No handshake,
+nonce-only ACK, `WORKER_EXECUTE` or reviewer-authored file is required.
+The parent cannot author, repair or reclassify these findings.
+
 ### challenger-review-subagent
+
+Optional manual Challenger workflow only; automatic reviews use rubber-duck above.
 
 Source: [agent File Write Protocol and Parent-Facing Summary](../../../agents/_subagents/challenger-review-subagent.agent.md).
 File JSON: caller `output_path`, single-lens findings or `batch_results`, plus

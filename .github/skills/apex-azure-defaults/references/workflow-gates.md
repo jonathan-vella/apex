@@ -120,7 +120,7 @@ or repeat a decision already recorded for the current finding.
 
 The separate cost-estimate review is mandatory in default and deep modes,
 regardless of budget utilization. Resolve the budget gate above first, then
-run `challenger-review-subagent` with `artifact_type: cost-estimate`,
+run `rubber-duck` through [one-shot review](one-shot-review.md) with `artifact_type: cost-estimate`,
 `review_focus: cost-feasibility`, and
 `output_path: agent-output/{project}/challenge-findings-cost-estimate.json`.
 It does not replace architecture review or count as an architecture cascade pass.
@@ -226,9 +226,10 @@ Governance — never Planner directly. Enforced by
 
 ## Challenger empty-output diagnostic + bounded retry
 
-Applies to every `challenger-review-subagent` invocation. When the
-subagent returns successfully but the expected `output_path` JSON is
-missing or empty (zero bytes):
+Applies to automatic `rubber-duck` and optional manual `challenger-review-subagent`
+invocations. For a one-shot review, empty returned output is a failure, not
+permission to synthesize findings. For file-mode review, missing or zero-byte
+`output_path` is a failure:
 
 1. **Before any retry**, append a structured failure entry to
    `agent-output/{project}/_meta/challenger-failures.json` with
@@ -237,7 +238,8 @@ missing or empty (zero bytes):
    `last_error_message`.
 2. **Retry exactly once** with identical inputs.
 3. **After the second failure**: STOP, surface the failure log to the
-  user inline and request a human handoff to `10-Challenger`. Do NOT
+  interactive parent and require a human recovery decision. `10-Challenger`
+  remains optional manual recovery. Do NOT
   advance to the Approval Gate. Do NOT invent findings. Do NOT call
   the subagent a third time or invoke `10-Challenger` as a nested wrapper.
   If `10-Challenger` is already active, request human intervention instead of a

@@ -71,9 +71,13 @@ Markdown artifacts follow the
 - Follow the agent's declared subagent budget. Orchestrator delegates approved steps
   only after the [worker-readiness handshake](../skills/apex-workflow-engine/references/worker-readiness.md).
   Delegated steps return user questions to the interactive parent; leaves never delegate.
-- If a required worker is unavailable, stop and request a human handoff; never invoke a
+- Automatic independent reviews use built-in `rubber-duck` through
+  [one-shot review](../skills/apex-azure-defaults/references/one-shot-review.md).
+  The parent records only its actual attributed JSON result. No handshake/ACK
+  applies to this reviewer; resumable step-worker readiness is unchanged.
+- If a required worker is unavailable, stop and return the failure to the interactive parent; never invoke a
   main agent as a nested wrapper or widen the caller's allowlist. Reviewer failures follow the
-  [Challenger-subagent fallback rule](agent-authoring.instructions.md#challenger-subagent-fallback-rule)
+  [review failure rule](agent-authoring.instructions.md#challenger-subagent-fallback-rule)
   and the [review protocol](../skills/apex-azure-defaults/references/adversarial-review-protocol.md#subagent-discovery-fallback-default--deep).
 - Preserve structured output contracts across model families.
 - Active definitions leave model and effort unpinned. The operator must select

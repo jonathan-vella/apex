@@ -520,13 +520,25 @@ test("shared authoring policy and family registry match the implemented contract
   assert.match(authoring, /nonempty `agents` list requires/);
   assert.match(authoring, /`agents: \[\]` does not/);
   assert.match(authoring, /allowlists must not override/);
-  assert.match(authoring, /human handoff\s+to `10-Challenger`/);
+  assert.match(authoring, /`10-Challenger` remains optional manual recovery/);
   assert.doesNotMatch(authoring, /first frontmatter model/);
   const context = read(".github/instructions/context-optimization.instructions.md");
   assert.match(context, /Do not infer runtime cost-tier eligibility/);
   assert.match(context, /Shared skills inherit the caller's model\/tools/);
   assert.doesNotMatch(context, /requires `<context_awareness>`|pool roughly\s+doubles/);
   assert.doesNotMatch(read("tools/scripts/validate-agents.mjs"), /E2E Orchestrator|e2e-orchestrator/);
+});
+
+test("rubber-duck is the only built-in review allowlist exception and never a delegating leaf", () => {
+  const agents = new Map([["target", item({ name: "Generic-Target" })]]);
+  assert.deepEqual(validateAgentPermissions({ agents: ["rubber-duck"], tools: ["agent"] }, { agents }), []);
+  for (const name of ["explore", "general-purpose", "code-review", "Rubber-Duck"]) {
+    assert.ok(validateAgentPermissions({ agents: [name], tools: ["agent"] }, { agents }).length, name);
+  }
+  assert.ok(validateAgentPermissions({ agents: ["rubber-duck"], tools: ["read"] }, { agents }).length);
+  assert.ok(
+    validateAgentPermissions({ agents: ["rubber-duck"], tools: ["agent"] }, { agents, isSubagent: true }).length,
+  );
 });
 
 test("production reviewer policy forbids allowlist overrides and nested main wrappers", () => {
@@ -536,12 +548,17 @@ test("production reviewer policy forbids allowlist overrides and nested main wra
     ".github/skills/apex-agent-authoring/references/runtime-guardrails.md",
   ]) {
     const content = fs.readFileSync(path.join(root, filename), "utf8").replace(/\s+/g, " ");
-    assert.match(content, /reviewer is unavailable, stop and request a human handoff to `10-Challenger`/, filename);
     assert.match(
       content,
-      /Missing or empty reviewer output permits exactly one identical-input retry, then stop and request a human handoff to `10-Challenger`/,
+      /reviewer is unavailable, stop and return the (?:actual )?failure to the interactive parent/,
       filename,
     );
+    assert.match(
+      content,
+      /Missing or empty reviewer output permits exactly one identical-input retry(?: within the existing budget)?, then stop for a human (?:decision|recovery decision)/,
+      filename,
+    );
+    assert.match(content, /`10-Challenger` (?:remains optional manual recovery|is optional)/, filename);
     assert.match(content, /Never invoke a nested main-agent wrapper or fabricate an inline review/, filename);
     assert.match(
       content,
@@ -723,6 +740,7 @@ test("production Orchestrator requires an explicit named allowlist and agent too
     { agents: undefined },
     { agents: [], tools: ["agent"] },
     { agents: [worker], tools: ["agent"] },
+    { agents: ["rubber-duck"], tools: ["agent"] },
     { agents: ["*"], tools: ["agent"] },
     { tools: ["read"] },
   ]) {

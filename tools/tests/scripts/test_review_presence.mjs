@@ -128,12 +128,13 @@ test("unattended production reviews fail closed on unresolved blockers", () => {
   );
 });
 
-test("unavailable reviewers require human handoff without nested wrapper or retry reset", () => {
+test("unavailable reviewers return to the parent without nested wrapper or retry reset", () => {
   const read = (file) => readFileSync(new URL(`../../../${file}`, import.meta.url), "utf8");
   const protocol = read(".github/skills/apex-azure-defaults/references/adversarial-review-protocol.md");
-  assert.match(protocol, /STOP\*\* and request a human handoff to `10-Challenger`/);
-  assert.match(protocol, /disable-model-invocation: true/);
-  assert.match(protocol, /Do not invoke it as a subagent/);
+  assert.match(protocol, /Automatic callers use built-in `rubber-duck`/);
+  assert.match(protocol, /return the actual error to the interactive parent/);
+  assert.match(protocol, /`10-Challenger` is optional manual recovery/);
+  assert.match(protocol, /Do not invoke it as a fallback subagent/);
   assert.match(protocol, /retry exactly once with identical inputs/);
   assert.match(protocol, /Do not reset this budget by changing wrappers or models/);
   assert.match(protocol, /already the active owner, request human intervention instead\s+of a self-handoff/);
@@ -148,7 +149,7 @@ test("unavailable reviewers require human handoff without nested wrapper or retr
   assert.match(gates, /Before any retry/);
   assert.match(gates, /Retry exactly once\*\* with identical inputs/);
   assert.match(gates, /After the second failure\*\*: STOP/);
-  assert.match(gates, /request a human handoff to `10-Challenger`/);
+  assert.match(gates, /require a human recovery decision/);
   assert.match(gates, /Do NOT call\s+the subagent a third time/);
   assert.match(gates, /already active, request human intervention instead of a\s+self-handoff/);
   assert.match(gates, /neither human selection nor a new wrapper renews the retry allowance/);

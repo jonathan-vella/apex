@@ -28,10 +28,14 @@ or deep audits, load `.github/skills/apex-agent-authoring/SKILL.md`.
   `disable-model-invocation: true`. Other main agents are user-invocable and
   model-invocable only through Orchestrator's approved, verified background dispatch.
   Step agents allowlist only their authorized leaves; leaves never delegate.
-- Before any delegated project work, enforce the named-worker identity, linked
+- Before resumable delegated project work, enforce the named-worker identity, linked
   tool-free handshake and same-worker continuation check in
   [`worker-readiness.md`](../skills/apex-workflow-engine/references/worker-readiness.md).
   A frontmatter label, allowlist or catalog entry does not prove worker readiness.
+- Automatic review callers may allowlist built-in `rubber-duck`. Use the
+  [one-shot contract](../skills/apex-azure-defaults/references/one-shot-review.md),
+  not resumable handshake/ACK. Require attributed completion and recorded,
+  schema-valid, fresh findings; no inline self-review or human-gate bypass.
 - Replace deprecated `infer` with `user-invocable` and
   `disable-model-invocation`.
 
@@ -128,9 +132,10 @@ editing tools; shell inspection remains read-only.
 
 ### Challenger-Subagent Fallback Rule
 
-If a required reviewer is unavailable, stop and request a human handoff
-to `10-Challenger`. Missing or empty reviewer output permits exactly one
-identical-input retry, then stop and request a human handoff to `10-Challenger`.
+If a required reviewer is unavailable, stop and return the actual failure to the
+interactive parent. Missing or empty reviewer output permits exactly one
+identical-input retry within the existing budget, then stop for a human decision.
+`10-Challenger` remains optional manual recovery, not an automatic pipeline dependency.
 Never invoke a nested main-agent wrapper or fabricate an inline review; explicit
 caller allowlists must not override this production boundary. Report the runtime
 error when available. Full procedure:
