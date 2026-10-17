@@ -307,7 +307,7 @@ Subagent output includes a `cache_inputs` block:
     "checklists_sha": "<sha256 of adversarial-checklists.md bytes>",
     "protocol_sha": "<sha256 of this file bytes>",
     "subagent_sha": "<sha256 of challenger-review-subagent.agent.md bytes>",
-    "model_policy": "operator-selected-auto-required",
+    "model_policy": "runtime-managed",
     "artifact_hash": "<sha256 of artifact_sha ‖ \"\\n---\\n\" ‖ checklists_sha ‖ \"\\n---\\n\" ‖ protocol_sha ‖ \"\\n---\\n\" ‖ subagent_sha ‖ \"\\n---\\n\" ‖ model_policy>"
   }
 }

@@ -1,4 +1,4 @@
-## CHM-03: verify custom-agent discovery and definition-owned routing
+## CHM-03: verify custom-agent discovery and model-agnostic readiness
 
 Related: [PR #767](https://github.com/jonathan-vella/apex/pull/767).
 GitHub: [#773](https://github.com/jonathan-vella/apex/issues/773).
@@ -7,9 +7,9 @@ Suggested executor: human-assisted runtime validation agent.
 
 ### Objective and inputs
 
-Verify live discovery, model/effort routing, permitted tools, and same-worker continuation in VS Code.
+Verify live discovery, named-worker identity, permitted tools, and same-worker continuation in VS Code.
 Inputs are CHM-02's candidate revision and source results, current `.github/agents/` definitions,
-the model catalog, canonical entry skills, and the current worker-readiness contract.
+canonical entry skills, and the current worker-readiness contract.
 Baseline commit: `ee2712cc341ad0cc19a4b21ba9bf3701ce5aefcd`.
 
 ### Prerequisites and allowed scope
@@ -28,18 +28,19 @@ Issue assignment is not approval to start workers.
 3. For each required delegated definition, follow
    `.github/skills/apex-workflow-engine/references/worker-readiness.md` exactly.
 4. Use tool-free background handshakes with fresh nonces; leave model, effort, and context overrides unset.
-5. Require attributed definition-owned routing, exact effort, parent/call identity, background configuration,
-   zero worker tools, `MODEL_VERIFIED`, and nonce-only same-worker continuation ACK.
+5. Require exact definition and parent/call identity, background configuration,
+   zero worker tools, `HANDSHAKE_VERIFIED`, and nonce-only same-worker continuation ACK.
+   Model names, effort, picker selection and model-source labels are diagnostic only.
 6. Record tool availability/binding metadata without executing project work.
 7. Return a revision-bound matrix covering every required definition; mark unavailable or unknown rows blocking.
 
 ### Acceptance criteria
 
 - [ ] All intended definitions and manual entry skills have explicit discovery observations.
-- [ ] Required workers have attributed model/effort, parent/call identity, and permitted tool metadata.
+- [ ] Required workers have attributed definition/parent/call identity and permitted tool metadata.
 - [ ] Every required readiness and ACK turn is tool-free and bound to the same worker and nonce.
 - [ ] `verify-worker-ready.mjs` evidence is recorded for each required delegated definition.
-- [ ] No parent-model inheritance, caller override, unsupported model, or built-in probe is accepted as proof.
+- [ ] No caller override, built-in probe or model selection is accepted as proof of worker readiness.
 - [ ] No required matrix row is UNKNOWN or BLOCKED when the issue is closed.
 - [ ] No project execution occurred during readiness testing.
 

@@ -143,8 +143,8 @@ Header: `# {Project} — Handoff (Step {N} complete)` with metadata line (`Updat
 
 Only `01-Orchestrator` dispatches main workers after human gate approval,
 current graph preconditions and [verified readiness](worker-readiness.md).
-Active definitions omit model and effort pins. The operator explicitly selects
-Auto in the runtime; omission alone does not select it. Unknown routing, failed
+Active definitions omit model and effort pins; model selection belongs to the
+operator and runtime. Missing worker identity/linkage, failed
 continuation or missing tools blocks execution; never perform specialist work
 inline or choose a fixed-model fallback.
 

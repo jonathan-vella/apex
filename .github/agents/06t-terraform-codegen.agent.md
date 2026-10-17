@@ -135,7 +135,7 @@ widening, narrowing or transforming the task.
 
 <stop_conditions>
 
-- Missing attributed runtime model evidence, tool/input or worker eligibility returns `blocked`; no fixed-model
+- Missing worker readiness, tool/input or worker eligibility returns `blocked`; no fixed-model
   fallback, skipped validation or fabricated findings. Retry transient worker failures
   once, then stop. Independent review cannot be replaced by inline review.
 - Stop generating code until preflight (Phase 1) and governance

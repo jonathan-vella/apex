@@ -64,11 +64,6 @@ TARGETS: dict[str, dict[str, Any]] = {
         "label": "Unattributed usage records",
         "from": "native_evidence.unattributed_usage",
     },
-    "known_models": {
-        "max": 0,
-        "label": "Unknown actual models",
-        "from": "native_evidence.unknown_models",
-    },
     "errors": {
         "max": 0,
         "label": "Non-benign errors",

@@ -109,8 +109,10 @@ retry, then human escalation. Preserve current review evidence and approval gate
 
 Archived Local prompts are historical; manual entry skills inherit the caller's
 model/tools without granting permissions. Active agent definitions omit fixed model and reasoning-effort pins.
-The operator must explicitly select Auto in the runtime; omission does not force Auto.
-Model labels and discovery settings do not prove runtime routing, cost-tier eligibility or API support. Runtime rules:
+The operator and runtime control selection, including Auto and HydraFusion. Model names,
+effort, picker selection and model-source labels are diagnostic only, not readiness gates.
+Worker identity, dispatch linkage, tool-free continuation, required tools and approval remain mandatory.
+Model labels and discovery settings do not prove runtime cost-tier eligibility or API support. Runtime rules:
 [Copilot instructions](.github/copilot-instructions.md#harness-and-runtime-boundaries).
 
 The E2E launch subsystem is retired. Production lesson collection, historical

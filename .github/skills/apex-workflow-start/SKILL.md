@@ -11,11 +11,11 @@ disable-model-invocation: true
 ## Prerequisites
 
 Require an explicit operation; require a project except for `resume`, which may
-discover candidates. Require the correctly selected named owner, its exact
-configured model, and its permitted tools. A skill cannot bind them.
+discover candidates. Require the correctly selected named owner and its
+permitted tools. A skill cannot bind them.
 **STOP** and ask the user to select the owner if any routing evidence is missing.
-The operator selects Auto separately in the runtime; never perform specialist
-work inline or bypass the verified worker handshake.
+Model selection belongs to the operator and runtime, including Auto and HydraFusion;
+it is not a readiness gate. Never perform specialist work inline or bypass the verified worker handshake.
 
 ## Procedure
 
@@ -23,10 +23,10 @@ Read [apex-workflow-engine](../apex-workflow-engine/SKILL.md) and its
 [workflow entry procedure](../apex-workflow-engine/references/workflow-entry.md).
 Resolve the requested operation to its exact owner before consequential work.
 Follow the required inputs, activities, outputs, reviews, and human gates there.
-Return a blocker instead of inheriting an unknown model or widening tools.
+Return a blocker for missing owner identity, readiness or tools; do not widen tools or permissions.
 
-For `resume`, require the selected owner `01-Orchestrator` and its configured
-`MAI-Code-1.1-Flash` model. Follow the [shared resume procedure](../apex-workflow-engine/references/workflow-entry.md#resume).
+For `resume`, require the selected owner `01-Orchestrator`.
+Follow the [shared resume procedure](../apex-workflow-engine/references/workflow-entry.md#resume).
 Use a supplied project without reconfirmation; otherwise discover candidates
 and ask only when ambiguous. Empty recall never authorizes a fresh start.
 Preserve missing-input recovery, reviews, checkpoints and approvals. Present
@@ -38,4 +38,4 @@ Never run specialist work inline or substitute models.
 Git commit and debug-log export remain separate manual skills, not workflow
 operations. Archived Local prompt names are not entry points. Custom-agent
 runtime acceptance must be demonstrated; static checks do not certify discovery,
-model routing or permissions. Do not enable experimental skill context forks.
+worker identity, tool binding or permissions. Do not enable experimental skill context forks.

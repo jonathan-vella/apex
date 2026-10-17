@@ -5,7 +5,7 @@ Apply this boundary before a utility procedure in the VS Code Copilot SDK harnes
 The owning agent and approved scope control execution; a skill/reference does
 not grant tools, change the active model, or select a recipient.
 
-- Require current inputs and explicit scope. Missing tools, attributed runtime model evidence,
+- Require current inputs and explicit scope. Missing tools, required worker readiness,
   source files, or user approvals block the operation. Report the blocker.
 - Preserve the operation's allowed output paths and read-only source boundaries.
   Read-only audits may write their declared reports, not the reviewed sources.
@@ -14,9 +14,9 @@ not grant tools, change the active model, or select a recipient.
   evidence. Frozen upstream files stay read-only.
 - Follow the [workflow entry contract](workflow-entry.md): Orchestrator alone
   dispatches approved main workers after [verified readiness](worker-readiness.md).
-  Direct owner selection remains supported. The operator explicitly selects Auto
-  in the runtime; this is separate from agent frontmatter. Never do specialist
-  work inline or accept an unverified inherited model route as evidence.
+  Direct owner selection remains supported. Model selection belongs to the
+  operator and runtime; model telemetry and picker selection are diagnostics only.
+  Never do specialist work inline or accept unlinked worker identity as evidence.
 - A request for reviewer fan-out is not permission for unnamed default workers.
   Use only explicitly named, available reviewers permitted by the caller's
   allowlist and actual harness. If these are unavailable, stop and report the

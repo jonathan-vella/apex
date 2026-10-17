@@ -576,7 +576,8 @@ test("agent catalog preserves descriptive metadata and operator-selected runtime
   const runtime = fs.readFileSync(path.join(root, ".github/copilot-instructions.md"), "utf8");
   const catalog = JSON.parse(fs.readFileSync(path.join(root, ".github/model-catalog.json"), "utf8"));
   assert.match(authoring, /Active production agents omit both `model` and `reasoning-effort`/);
-  assert.match(runtime, /operator\s+explicitly selects Auto/);
+  assert.match(runtime, /operator and\s+runtime control selection/);
+  assert.match(runtime, /Missing or differing model telemetry is diagnostic only/);
   const agents = getAgents();
   for (const [filename, agent] of agents) {
     const assignments = agent.isSubagent ? catalog.assignments.subagents : catalog.assignments.agents;

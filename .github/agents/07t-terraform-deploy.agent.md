@@ -121,7 +121,7 @@ Return `USER_INPUT_REQUIRED` forms to the interactive parent; cancel stops.
 
 <stop_conditions>
 
-- Missing attributed runtime model evidence, tool/input or worker eligibility returns `blocked`; never substitute a
+- Missing worker readiness, tool/input or worker eligibility returns `blocked`; never substitute a
   model or skip a gate. Retain bounded retries; no inline replacement for missing workers.
 - Stop after `06-deployment-summary.md` is written and the success/failure
   handoff label is rendered. Do not loop back into another deployment without a

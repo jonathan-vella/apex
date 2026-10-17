@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 /**
- * Verify a ready-only Copilot SDK worker against its canonical frontmatter.
- * This is routing evidence only: it never authorizes workflow or Azure actions.
+ * Verify a tool-free Copilot SDK worker's identity and same-worker continuation.
+ * Model telemetry is diagnostic only; readiness never authorizes workflow or Azure actions.
  */
 import { readFileSync, realpathSync } from "node:fs";
 import path from "node:path";
@@ -11,21 +11,9 @@ import { parseFrontmatter } from "./_lib/parse-frontmatter.mjs";
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "../..");
 
-export function verifyWorkerReady({ events, frontmatter, catalog, workerId, parentId, phase = "complete" }) {
+export function verifyWorkerReady({ events, frontmatter, workerId, parentId, phase = "complete" }) {
   const reasons = [];
   if (!["initial", "complete"].includes(phase)) reasons.push("Verification phase must be initial or complete.");
-  const labels =
-    frontmatter?.model === undefined ? [] : Array.isArray(frontmatter.model) ? frontmatter.model : [frontmatter.model];
-  const expectedModels = [];
-  for (const label of labels) {
-    const runtimeId = typeof label === "string" ? catalog.models?.[label]?.runtime_id : undefined;
-    if (typeof runtimeId !== "string" || !runtimeId.trim()) {
-      reasons.push("Every explicit legacy model pin needs an explicit catalog runtime_id.");
-      continue;
-    }
-    expectedModels.push(runtimeId);
-  }
-  const expectedEffort = frontmatter?.["reasoning-effort"];
   if (!workerId || !parentId) reasons.push("Explicit worker and parent identities are required.");
   if (!frontmatter?.name) reasons.push("The exact named worker definition is required.");
 
@@ -39,13 +27,6 @@ export function verifyWorkerReady({ events, frontmatter, catalog, workerId, pare
   }
   if (start?.agentName !== frontmatter?.name) reasons.push("Worker identity does not match the named definition.");
   if (start?.executionMode !== "background") reasons.push("Worker was not started in background mode.");
-  const definitionRouting =
-    start?.taskModelSource === "custom_agent_definition" && start?.modelSelectionSource === "agent_definition_default";
-  const inheritedSessionRouting =
-    !labels.length && start?.taskModelSource === "unset" && start?.modelSelectionSource === "session_inheritance";
-  if (!definitionRouting && !inheritedSessionRouting) {
-    reasons.push("Worker routing source is not a supported definition or unpinned session-inheritance profile.");
-  }
   if ((start?.parentId ?? (parentId === "root" ? "root" : undefined)) !== parentId) {
     reasons.push("Worker parent identity is missing or does not match the requested parent.");
   }
@@ -54,57 +35,12 @@ export function verifyWorkerReady({ events, frontmatter, catalog, workerId, pare
   const configured = configurations.length === 1 ? configurations[0].data : undefined;
   if (configurations.length !== 1) reasons.push("Exactly one attributed worker configuration is required.");
   if (configured?.multiTurn !== true) reasons.push("Multi-turn continuation is not configured.");
-  if (typeof configured?.model !== "string" || !configured.model.trim()) {
-    reasons.push("The actual configured model is missing.");
-  }
-  if (expectedEffort && configured?.reasoningEffort !== expectedEffort) {
-    reasons.push("Configured effort differs from the explicit legacy pin.");
-  }
 
   const completions = attributed.filter((event) => event.type === "subagent.completed");
   const completionEvent =
     completions.length === 1 && completions[0].data?.toolCallId === start?.toolCallId ? completions[0] : undefined;
   const completed = completionEvent?.data;
   if (!completionEvent) reasons.push("Exactly one linked attributed worker completion is required.");
-  if (
-    completed?.modelSelectionSource !== (inheritedSessionRouting ? "session_inheritance" : "agent_definition_default")
-  ) {
-    reasons.push("Completed worker routing source does not match its supported start profile.");
-  }
-  if (typeof completed?.firstDispatchedModel !== "string" || !completed.firstDispatchedModel.trim()) {
-    reasons.push("The actual dispatched model is missing.");
-  }
-  if (
-    typeof configured?.model === "string" &&
-    typeof completed?.firstDispatchedModel === "string" &&
-    configured.model !== completed.firstDispatchedModel
-  ) {
-    reasons.push("Configured and first dispatched models do not agree.");
-  }
-  if (inheritedSessionRouting) {
-    const parentSessionModel =
-      parentId === "root"
-        ? events.find((event) => event.type === "session.start")?.data?.selectedModel
-        : events.find((event) => event.agentId === parentId && event.type === "subagent.configured")?.data?.model;
-    if (
-      typeof parentSessionModel !== "string" ||
-      !parentSessionModel.trim() ||
-      parentSessionModel !== configured?.model ||
-      parentSessionModel !== completed?.firstDispatchedModel
-    ) {
-      reasons.push("Inherited worker model does not match the attributed parent session model.");
-    }
-    if (
-      typeof start?.model !== "string" ||
-      start.model !== configured?.model ||
-      start.model !== completed?.firstDispatchedModel
-    ) {
-      reasons.push("Inherited worker start, configuration, and dispatched model evidence do not agree.");
-    }
-  }
-  if (expectedModels.length && !expectedModels.includes(completed?.firstDispatchedModel)) {
-    reasons.push("Actual dispatched model does not match an explicit legacy model pin.");
-  }
 
   const dispatches = events.filter(
     (event) => event.type === "tool.execution_start" && event.data?.toolCallId === start?.toolCallId,
@@ -186,13 +122,12 @@ export function verifyWorkerReady({ events, frontmatter, catalog, workerId, pare
       [turnStart, response, turnEnd].every(
         (event) => event.data?.turnId === user.data.turnId && event.data?.parentToolCallId === start?.toolCallId,
       ) &&
-      response.data?.model === configured?.model &&
       (!response.data?.toolRequests ||
         (Array.isArray(response.data.toolRequests) && response.data.toolRequests.length === 0)) &&
       events.indexOf(user) < events.indexOf(turnStart) &&
       events.indexOf(turnStart) < events.indexOf(response) &&
       events.indexOf(response) < events.indexOf(turnEnd);
-    if (!linked) reasons.push(`Turn ${index + 1} lacks linked identity, model, response, or completion evidence.`);
+    if (!linked) reasons.push(`Turn ${index + 1} lacks linked identity, response, or completion evidence.`);
   }
   if (
     !completionEvent ||
@@ -270,19 +205,23 @@ export function verifyWorkerReady({ events, frontmatter, catalog, workerId, pare
   }
 
   return {
-    status: reasons.length ? "BLOCKED" : phase === "initial" ? "MODEL_VERIFIED" : "READY_VERIFIED",
+    status: reasons.length ? "BLOCKED" : phase === "initial" ? "HANDSHAKE_VERIFIED" : "READY_VERIFIED",
     phase,
     continuation_verified: phase === "complete" && reasons.length === 0,
     worker_id: workerId,
     parent_id: parentId,
     agent: frontmatter?.name ?? null,
-    expected_models: expectedModels,
-    expected_model: expectedModels.length === 1 ? expectedModels[0] : null,
-    configured_model: configured?.model ?? null,
-    actual_model: completed?.firstDispatchedModel ?? null,
-    configured_effort: configured?.reasoningEffort ?? null,
-    expected_effort: expectedEffort ?? null,
-    operator_auto_selection_verified: false,
+    model_attestation_required: false,
+    model_observations: {
+      start_model: start?.model ?? null,
+      configured_model: configured?.model ?? null,
+      first_dispatched_model: completed?.firstDispatchedModel ?? null,
+      response_models: assistantMessages.map((event) => event.data?.model ?? null),
+      configured_effort: configured?.reasoningEffort ?? null,
+      task_model_source: start?.taskModelSource ?? null,
+      start_selection_source: start?.modelSelectionSource ?? null,
+      completion_selection_source: completed?.modelSelectionSource ?? null,
+    },
     reasons,
     permission_granted_by_this_record: false,
   };
@@ -322,7 +261,8 @@ export function runValidator(argv = process.argv.slice(2), root = ROOT) {
       console.log(
         "Usage: node tools/scripts/verify-worker-ready.mjs --events /absolute/events.jsonl " +
           "--definition .github/agents/02-requirements.agent.md --worker-id ID --parent-id root|ID --phase initial|complete\n" +
-          "Initial: MODEL_VERIFIED, continuation not verified. Complete (default): READY_VERIFIED after the ACK turn. Neither grants approval.",
+          "Initial: HANDSHAKE_VERIFIED, continuation not verified. Complete (default): READY_VERIFIED after the ACK turn.\n" +
+          "Models, effort and picker selection are diagnostic only. Neither phase grants approval.",
       );
       return 0;
     }
@@ -350,7 +290,6 @@ export function runValidator(argv = process.argv.slice(2), root = ROOT) {
     const result = verifyWorkerReady({
       events,
       frontmatter: parseFrontmatter(readFileSync(definition, "utf8")),
-      catalog: JSON.parse(readFileSync(path.join(root, ".github/model-catalog.json"), "utf8")),
       workerId: values["worker-id"],
       parentId: values["parent-id"],
       phase: values.phase,

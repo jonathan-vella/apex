@@ -8,8 +8,9 @@ entry points. A skill inherits the active session's model/tools; it cannot switc
 
 Select `01-Orchestrator` for end-to-end work. It confirms graph prerequisites
 and human approval, then dispatches the exact allowlisted owner through the
-[verified background-worker protocol](worker-readiness.md). Active definitions omit model and effort pins. The operator explicitly selects
-Auto in the runtime; omission alone does not select Auto. Attributed readiness,
+[verified background-worker protocol](worker-readiness.md). Active definitions omit model and effort pins.
+The operator and runtime manage selection, including Auto and HydraFusion; model
+telemetry and picker selection are not readiness gates. Worker identity,
 continuation or tool failures block execution. Do not perform specialist work
 inline or introduce a fixed-model fallback.
 Direct step selection remains supported with that owner's prerequisites and tools.
@@ -114,7 +115,7 @@ dispatch for the graph-selected owner; do not ask the user to choose a step alre
 ## Harness Acceptance
 
 Native custom-agent acceptance remains unverified. Static tests prove source
-contracts and names, not operator Auto selection, discovery, model availability,
+contracts and names, not discovery, worker identity,
 tool enforcement, or runtime handoff behavior. Test SDK fresh/resume/revision on both
-IaC tracks, unavailable owners/models, approval stops, and missing review/input
+IaC tracks, unavailable owners/tools, approval stops, and missing review/input
 recovery manually. Do not claim successful native execution from these files.

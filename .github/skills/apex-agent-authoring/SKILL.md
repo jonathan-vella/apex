@@ -37,7 +37,8 @@ states the applicable rule.
 - Check `.github/model-catalog.json` before changing model metadata or legacy pins.
 - Preserve user changes and existing runtime contracts.
 - Keep active production agent definitions free of model and effort pins; the
-  operator selects Auto separately in the runtime. Preserve catalog metadata and
+  operator and runtime control model selection. Readiness does not attest models,
+  effort or picker selection. Preserve catalog metadata and
   test any intentionally pinned legacy fixture with the existing validators.
 - Distinguish Local prompt adapters from shared Host-compatible skills; neither
   static validation nor a catalog entry proves native model eligibility.

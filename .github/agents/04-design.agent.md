@@ -74,7 +74,7 @@ Return `USER_INPUT_REQUIRED` forms to the interactive parent; cancel stops.
 
 <stop_conditions>
 
-Missing approved inputs, rendering dependencies, required tools or attributed runtime model evidence or worker
+Missing approved inputs, rendering dependencies, required tools, worker readiness or
 eligibility return `blocked`. Never substitute a model or fabricate a review. A failed
 optional ADR review's findings remain informational as below. An execution failure
 is not findings: report it and return to the user, never fabricate a completed review.

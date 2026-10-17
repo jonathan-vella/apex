@@ -140,25 +140,20 @@ chat can resume losslessly.
 Target the GitHub Copilot SDK harness in VS Code only. Own every `ask_user`
 call, including questions returned by non-interactive step workers, review decisions
 and human gates. Never infer approval from worker completion, a default or a decline.
-Select Auto in the supported runtime before production workflow execution; active
-agent definitions intentionally omit model and effort pins, and omission alone
-does not select Auto. Follow [worker readiness](../skills/apex-workflow-engine/references/worker-readiness.md):
+Model selection belongs to the operator and runtime, including Auto and HydraFusion;
+active definitions omit model and effort pins. Follow
+[worker readiness](../skills/apex-workflow-engine/references/worker-readiness.md):
 start the exact named worker with a tool-free `APEX_WORKER_HANDSHAKE` using
 `task`, `mode: background`; verify name/nonce and run `verify-worker-ready.mjs`
-against this session's log with `--phase initial`. Require `MODEL_VERIFIED`
+against this session's log with `--phase initial`. Require `HANDSHAKE_VERIFIED`
 and `continuation_verified: false` before sending the nonce-only continuation.
 After the same worker's exact `WORKER_READY_ACK <definition-name> <original-nonce>`
 and second turn completion, rerun with `--phase complete`; require `READY_VERIFIED`
 and `continuation_verified: true` before sending `WORKER_EXECUTE` to that same worker.
-Initial status never establishes complete readiness. An unpinned worker may use
-the observed `unset` / `session_inheritance` source pair only without per-call
-model, effort or context overrides and with matching configured/dispatched model
-evidence that also matches the parent's observed session model. This verifies the
-worker route, not operator Auto selection; verify Auto separately in the current
-runtime and do not reuse a session started under another model. Leave caller model, effort and context
-overrides unset. Telemetry verifies the observed worker route, not the operator's
-Auto selection unless it explicitly records that selection. Missing/unknown
-evidence, failed continuation or unavailable tools blocks execution; never
+Initial status never establishes complete readiness. Leave caller model, effort
+and context overrides unset. Model names, effort, picker selection and model-source
+labels are diagnostics only; missing or differing model metadata never blocks readiness.
+Missing worker identity/linkage, failed continuation or unavailable tools blocks execution; never
 substitute a fixed model or do specialist work inline.
 For `USER_INPUT_REQUIRED`, validate the request ID, phase and form, call `ask_user`,
 then resume the same worker with the answers; cancellation stops the workflow.
@@ -216,8 +211,8 @@ agent wrapper to recover an unavailable leaf reviewer.
 
 Only Orchestrator may delegate the named main agents in its allowlist, after the
 graph's human gate and the fail-closed readiness handshake. Step agents may call
-only their declared leaf workers; leaves never delegate. Frontmatter owns each
-model and effort. Static allowlists are routing policy, not proven runtime isolation.
+only their declared leaf workers; leaves never delegate. The operator and runtime
+control model and effort. Static allowlists are routing policy, not proven runtime isolation.
 Skills inherit their caller's tools/model and do not change agents.
 
 Write gate state and `00-handoff.md` before advancing. Specialist agents own
@@ -400,8 +395,8 @@ Lint: `npm run validate:review-ceiling`.
 
 | DO | DON'T |
 | --- | --- |
-| Complete project setup once, then verify the Requirements worker | Run without operator-selected Auto |
-| Validate named workers before `WORKER_EXECUTE` | Add a fixed model override or silently accept unknown routing |
+| Complete project setup once, then verify the Requirements worker | Treat setup or model selection as worker readiness |
+| Validate named workers before `WORKER_EXECUTE` | Add per-call model overrides or accept unlinked worker evidence |
 | Mediate `USER_INPUT_REQUIRED` with `ask_user` | Treat decline/cancel as approval |
 | Write `00-handoff.md` and `apex-recall checkpoint` at every gate | Advance on file presence alone |
 | Preserve graph reviews, input hashes and human gates | Re-review unchanged valid evidence or fabricate findings |
@@ -522,14 +517,12 @@ Orchestrator with the project name — no special resume prompt needed.
 ## Model Selection
 
 Active agent frontmatter does not assign model or reasoning effort. The operator
-must explicitly select Auto in the supported runtime; omission does not select it.
+and runtime control selection, including Auto and HydraFusion; no particular picker
+identifier or underlying model is required for readiness.
 Registry model values are optional legacy mirrors, and generated catalog assignments
-remain empty for active agents. Readiness telemetry must establish a nonempty
-configured model and matching first dispatched model from the supported attributed
-SDK source profile. It does not establish Auto selection unless the runtime records
-that choice, and model labels or capability metadata do not prove availability or
-cost-tier eligibility. Unknown routing evidence or unavailable tools block the
-transition; do not substitute a fixed model.
+remain empty for active agents. Model telemetry is diagnostic only, not a readiness
+gate or proof of cost-tier eligibility. Missing worker identity, dispatch linkage,
+continuation or required tools blocks the transition; do not force a fixed model.
 
 ## Boundaries
 

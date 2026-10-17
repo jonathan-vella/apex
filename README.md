@@ -147,12 +147,13 @@ Select `01-Orchestrator`, then use
 [/apex-workflow-start](.github/skills/apex-workflow-start/SKILL.md) for fresh or `resume` operations.
 After human approval, named specialists run through the
 [verified worker protocol](.github/skills/apex-workflow-engine/references/worker-readiness.md).
-Active agents omit model and reasoning-effort pins; the operator explicitly
-selects Auto in the supported runtime, since omission alone does not select it.
+Active agents omit model and reasoning-effort pins; the operator and runtime
+control selection, including Auto and HydraFusion. Readiness is model-agnostic:
+model names, effort, picker selection and model-source labels are diagnostics only.
 Skills inherit caller model/tools; completion never bypasses approval or independent review.
 Legacy Local prompts are retained only in [.archive/pre-cpharness/](.archive/pre-cpharness/).
-Observed worker routing, operator Auto selection, permissions and live workflow
-acceptance require separate runtime verification.
+Worker identity, dispatch linkage, tool-free same-worker continuation, required
+tools and human approval still require runtime verification.
 
 Explicit risk acceptance is supported only for authorized non-production labs, with externally verified authority,
 individual finding selection and separate human gate approval. Kit authoring permission never grants deployment

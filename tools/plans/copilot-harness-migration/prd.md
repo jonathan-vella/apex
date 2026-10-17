@@ -3,7 +3,7 @@
 ### Product outcome
 
 Complete the migration of APEX to the GitHub Copilot SDK harness inside VS Code, preserving specialist-owned
-models, human approval gates, independent reviews, artifact ownership, and reliable recovery.
+work, human approval gates, independent reviews, artifact ownership, and reliable recovery.
 Finish and verify the existing implementation in [PR #767](https://github.com/jonathan-vella/apex/pull/767);
 do not rebuild it from the historical plan.
 
@@ -41,17 +41,17 @@ Out of scope:
 
 ### Functional requirements and traceability
 
-| ID  | Requirement                                                                                               | Historical plan | Verification owner   |
-| --- | --------------------------------------------------------------------------------------------------------- | --------------- | -------------------- |
-| R1  | Archive Local-only entrypoints; retain canonical manual, permission-neutral skills and active references. | Phase 1         | CHM-02, CHM-03       |
-| R2  | Bind required MCP tools in VS Code without duplicate registrations; treat hooks as supplementary.         | Phase 2         | CHM-02, CHM-05       |
-| R3  | Render native typed input and preserve accept, reject, defer, edit, decline, and cancellation semantics.  | Phase 3         | CHM-04               |
-| R4  | Discover intended definitions and verify actual definition-owned model, effort, tools, and continuation.  | Phase 4         | CHM-03, CHM-04       |
-| R5  | Preserve human gates, exact artifact ownership, `apex-recall` recovery, and independent review validity.  | Phases 3-4      | CHM-02, CHM-04       |
-| R6  | Attribute native events correctly, scope capture to the selected workspace, and fail closed on gaps.      | Phase 5         | CHM-06               |
-| R7  | Reconcile validators, registries, source tests, formatting, and baseline failures for the candidate.      | Phase 6         | CHM-01, CHM-02       |
-| R8  | Publish accurate migration guidance and release notes in the separate documentation repository.           | Phase 6         | CHM-07               |
-| R9  | Preserve an auditable recovery package and base release readiness on current evidence, not assertions.    | Cross-cutting   | This package, CHM-08 |
+| ID  | Requirement                                                                                                | Historical plan | Verification owner   |
+| --- | ---------------------------------------------------------------------------------------------------------- | --------------- | -------------------- |
+| R1  | Archive Local-only entrypoints; retain canonical manual, permission-neutral skills and active references.  | Phase 1         | CHM-02, CHM-03       |
+| R2  | Bind required MCP tools in VS Code without duplicate registrations; treat hooks as supplementary.          | Phase 2         | CHM-02, CHM-05       |
+| R3  | Render native typed input and preserve accept, reject, defer, edit, decline, and cancellation semantics.   | Phase 3         | CHM-04               |
+| R4  | Discover intended definitions and verify named-worker identity, dispatch linkage, tools, and continuation. | Phase 4         | CHM-03, CHM-04       |
+| R5  | Preserve human gates, exact artifact ownership, `apex-recall` recovery, and independent review validity.   | Phases 3-4      | CHM-02, CHM-04       |
+| R6  | Attribute native events correctly, scope capture to the selected workspace, and fail closed on gaps.       | Phase 5         | CHM-06               |
+| R7  | Reconcile validators, registries, source tests, formatting, and baseline failures for the candidate.       | Phase 6         | CHM-01, CHM-02       |
+| R8  | Publish accurate migration guidance and release notes in the separate documentation repository.            | Phase 6         | CHM-07               |
+| R9  | Preserve an auditable recovery package and base release readiness on current evidence, not assertions.     | Cross-cutting   | This package, CHM-08 |
 
 ### Current implementation versus acceptance
 
@@ -110,7 +110,8 @@ Telemetry, using the current [smoke contract](../../tests/integration/smoke-run.
 
 - Capture is native SDK and explicitly scoped; the root capture is closed after any later resume.
 - Every observed call has input/output usage; authoritative usage is counted once.
-- Incomplete operations, unknown actual models, unattributed usage, and non-benign errors are non-passing.
+- Incomplete operations, unattributed usage, and non-benign errors are non-passing.
+- Model names, effort, picker selection and model-source labels are diagnostics only, not acceptance gates.
 - At most 20 `ask_user` calls occur in the captured scope.
 - Every attributed worker's first execution input is at most 45,000 tokens.
 - At most two attributed default-mode Challenger execution requests occur per step.
@@ -125,14 +126,14 @@ Delivery:
 
 ### Risks and decisions
 
-| Risk                                                       | Required treatment                                                               |
-| ---------------------------------------------------------- | -------------------------------------------------------------------------------- |
-| Custom definitions unavailable or model routed incorrectly | Stop and retain diagnostic evidence; no fallback.                                |
-| Environment or credentials prevent MCP access              | Return the missing prerequisite; operator resolves it explicitly.                |
-| Historical plan conflicts with current runtime contracts   | Preserve history; follow current instructions and record the difference.         |
-| Existing Eventdesk or link failures obscure regressions    | Compare baseline and candidate without mutating project state.                   |
-| Logs disclose sensitive data                               | Keep raw capture local; publish only approved redacted summaries.                |
-| Planning files not yet pushed                              | Keep GitHub issues self-contained and do not publish nonexistent artifact links. |
+| Risk                                                         | Required treatment                                                               |
+| ------------------------------------------------------------ | -------------------------------------------------------------------------------- |
+| Custom definitions unavailable or worker identity unverified | Stop and retain diagnostic evidence; no fallback.                                |
+| Environment or credentials prevent MCP access                | Return the missing prerequisite; operator resolves it explicitly.                |
+| Historical plan conflicts with current runtime contracts     | Preserve history; follow current instructions and record the difference.         |
+| Existing Eventdesk or link failures obscure regressions      | Compare baseline and candidate without mutating project state.                   |
+| Logs disclose sensitive data                                 | Keep raw capture local; publish only approved redacted summaries.                |
+| Planning files not yet pushed                                | Keep GitHub issues self-contained and do not publish nonexistent artifact links. |
 
 Scheduling is dependency-based, not a promise of dates or cost.
 Live smoke work requires fresh operator scope, budget, project, and cutoff approval.

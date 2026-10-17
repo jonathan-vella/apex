@@ -1,13 +1,13 @@
-<!-- ref:agent-model-policy-v3 -->
+<!-- ref:agent-model-policy-v4 -->
 
 # Agent Model Policy
 
 ## Source Of Truth
 
 Active production agent definitions omit both `model` and `reasoning-effort`.
-The operator explicitly selects Auto in the supported runtime; omission does
-not force Auto. If the runtime selection is unavailable or unknown, stop rather
-than silently pinning a model or effort.
+The operator and runtime control selection, including Auto and HydraFusion.
+Do not impose a particular picker identifier, underlying model or effort as a
+readiness requirement, and do not add per-call model, effort or context overrides.
 
 `tools/registry/agent-registry.json` describes role paths and workflow steps.
 Its optional `model` mirror is retained only for legacy pinned fixtures.
@@ -16,23 +16,14 @@ assignments include only explicit legacy pins and are normally empty for active
 production agents. Run `node tools/scripts/generate-model-catalog.mjs` after
 changing a deliberately pinned fixture.
 
-Static consistency checks and matching route telemetry do not prove that the
-operator selected Auto, actual model availability, or runtime routing. Readiness
-requires attributed telemetry showing a nonempty
-configured model and matching first dispatched model from an explicitly
-recognized SDK source. Recognized inherited/runtime-selected model sources may
-be valid; unknown source values remain blocking until supported by observed
-runtime evidence. Model labels and catalog metadata do not establish cost-tier
-eligibility or API support.
-
-The supplied SDK record establishes `custom_agent_definition` /
-`agent_definition_default` for a historically pinned worker and `unset` /
-`session_inheritance` for an unpinned worker. Accept the inherited profile only
-when the task has no caller routing overrides and the worker's start,
-configured and dispatched models all match the parent's observed session model.
-This verifies the inherited route, not operator Auto selection; verify Auto in
-the current runtime. Stale or mismatched parent session evidence blocks readiness.
-Initial `MODEL_VERIFIED` never proves complete readiness; execution requires
+Readiness is model-agnostic. Model names, effort, picker selection and model-source
+labels are optional diagnostics; missing values, unknown source labels or
+configured/dispatched/response model differences never block readiness.
+This supports runtime-managed selection and multi-model workflows without
+hard-coded routing profiles. Require the exact named worker, linked parent
+dispatch, tool-free completed turns, original nonce and same-worker ACK.
+Missing identity/linkage, tools or approval remains blocking.
+Initial `HANDSHAKE_VERIFIED` never proves complete readiness; execution requires
 complete-phase `READY_VERIFIED` and `continuation_verified: true` under the
 [worker-readiness protocol](../../apex-workflow-engine/references/worker-readiness.md).
 
@@ -46,8 +37,9 @@ is authorized.
 
 Human handoffs select the named owner; an unavailable or unverified transition
 must not be replaced by implicit delegation. Native Local/Host eligibility,
-operator Auto selection and picker resolution remain manual/runtime acceptance
-gates, not conclusions from static catalog checks.
+tool binding and same-worker continuation require runtime acceptance, not
+conclusions from static catalog checks. Picker selection and model attestation
+are not acceptance gates.
 
 ## Reasoning Effort
 

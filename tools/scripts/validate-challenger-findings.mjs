@@ -138,7 +138,7 @@ export function cacheInputs(artifactPath, root = process.cwd()) {
     checklists_sha: hash(read(".github/skills/apex-azure-defaults/references/adversarial-checklists.md")),
     protocol_sha: hash(read(".github/skills/apex-azure-defaults/references/adversarial-review-protocol.md")),
     subagent_sha: hash(worker),
-    model_policy: model ? "legacy-pinned" : "operator-selected-auto-required",
+    model_policy: model ? "legacy-pinned" : "runtime-managed",
   };
   if (model) inputs.model = model;
   return { ...inputs, artifact_hash: hash(Object.values(inputs).join("\n---\n")) };

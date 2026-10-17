@@ -350,8 +350,8 @@ evidence from reviewed and approved workflow completion. List missing gates.
 
 After pseudo-artifacts are saved and required gates are reconciled, stop and
 request manual selection of `08-As-Built` with its exact name and required
-tools. The operator selects Auto separately; verify the observed runtime route
-before execution. Do not invoke it as an unnamed worker or substitute a model:
+tools. Model selection belongs to the operator and runtime and is not an
+acceptance gate. Do not invoke it as an unnamed worker or force a model:
 
 > **Handoff prompt to `08-As-Built`:**
 >

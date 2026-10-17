@@ -296,13 +296,42 @@ test("AB-02 fresh setup has one owner; resume preserves recovery and verified wo
     body,
     /Do not dispatch a step until its graph prerequisites, human gate and worker readiness are verified/,
   );
-  assert.match(body, /MODEL_VERIFIED/);
+  assert.match(body, /HANDSHAKE_VERIFIED/);
   assert.match(body, /WORKER_READY_ACK/);
   assert.match(body, /--phase initial/);
   assert.match(body, /--phase complete/);
   assert.match(body, /READY_VERIFIED/);
   assert.match(body, /Initial status never establishes complete readiness/);
   assert.match(body, /apex-recall transition --complete/);
+});
+
+test("runtime guidance gates identity and continuation, not model selection or telemetry", () => {
+  for (const file of [
+    ".github/copilot-instructions.md",
+    ".github/instructions/agent-authoring.instructions.md",
+    ".github/skills/apex-agent-authoring/references/model-policy.md",
+    ".github/skills/apex-workflow-engine/references/worker-readiness.md",
+    ".github/skills/apex-workflow-start/SKILL.md",
+    "tools/tests/integration/smoke-run.md",
+  ]) {
+    const body = readFileSync(path.join(root, file), "utf8");
+    assert.match(body, /HydraFusion/, file);
+    assert.doesNotMatch(body, /MODEL_VERIFIED|operator explicitly selects Auto|matching configured\/dispatched/, file);
+    assert.doesNotMatch(body, /configured model, and its permitted tools|`MAI-Code-1.1-Flash` model/, file);
+  }
+  for (const file of readdirSync(agentRoot).filter((file) => file.endsWith(".agent.md"))) {
+    const body = readFileSync(path.join(agentRoot, file), "utf8");
+    assert.doesNotMatch(body, /Missing[^.\n]*runtime model evidence|Require `MODEL_VERIFIED`/, file);
+  }
+  const protocol = readFileSync(
+    path.join(root, ".github/skills/apex-workflow-engine/references/worker-readiness.md"),
+    "utf8",
+  );
+  assert.match(protocol, /model_attestation_required: false/);
+  assert.match(protocol, /HANDSHAKE_VERIFIED/);
+  assert.match(protocol, /READY_VERIFIED/);
+  assert.match(protocol, /same worker's exact ACK/);
+  assert.match(protocol, /Missing identity, dispatch linkage, completion or tool-free evidence still blocks/);
 });
 
 test("AB-03 complete prerequisites precede review; compliance none differs from missing", () => {
@@ -770,7 +799,7 @@ test("review metadata is deterministic, read-only and detects source, identity a
   const metadata = run("--metadata", artifact, "--finding-ids", draft);
   assert.equal(metadata.status, 0, metadata.stdout + metadata.stderr);
   assert.deepEqual(JSON.parse(metadata.stdout).cache_inputs, payload.cache_inputs);
-  assert.equal(payload.cache_inputs.model_policy, "operator-selected-auto-required");
+  assert.equal(payload.cache_inputs.model_policy, "runtime-managed");
   assert.equal(Object.hasOwn(payload.cache_inputs, "model"), false);
   const reviewerPath = path.join(directory, sources[0]);
   const reviewerSource = readFileSync(reviewerPath, "utf8");

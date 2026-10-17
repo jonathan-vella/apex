@@ -4,13 +4,13 @@
 This is a reference-only parent-to-worker contract, not an executable slash
 entrypoint. Copy the ordered Inputs, Activities, Outputs sections into the
 invocation of a named, explicitly allowlisted worker. The runtime selects the
-worker model and its agent definition declares tools; the operator must select
-Auto separately. This reference grants no permissions.
+worker model and its agent definition declares tools. Picker selection, model
+names and effort are not readiness gates. This reference grants no permissions.
 Before sending execution inputs, follow
 [worker readiness](worker-readiness.md): `--phase initial` verifies the completed
 handshake only; after the nonce-only continuation and exact ACK, `--phase complete`
 must return `READY_VERIFIED` with `continuation_verified: true`. Initial
-`MODEL_VERIFIED` is not complete readiness.
+`HANDSHAKE_VERIFIED` is not complete readiness.
 Do not invoke an unnamed default worker or infer model eligibility from a label.
 Unavailable named workers or unsupported transitions require a return to the
 parent, not an automatic fallback, context fork, or nested delegation.
@@ -42,7 +42,7 @@ Do not widen the recipient's tool permissions through the invocation text.
 Workers execute only the assigned slice. They do not ask the user questions,
 manage parent todos, dispatch subagents, or edit upstream inputs. Missing or
 stale inputs require a targeted permitted read or return to the parent.
-If the required tool, model, approval, or input is unavailable, stop and return
+If the required tool, worker, approval, or input is unavailable, stop and return
 the named worker's failure shape with the missing evidence; do not replace its
 enum with a generic BLOCKED verdict. The parent owns recovery and user questions.
 

@@ -104,8 +104,9 @@ test("manual maintenance skills retain validation and import approval boundaries
   const modelPolicy = read(new URL("apex-agent-authoring/references/model-policy.md", skillsRoot));
   assert.match(modelPolicy, /Do not load that manual-only skill automatically/);
   assert.match(modelPolicy, /Active production agent definitions omit both `model` and `reasoning-effort`/);
-  assert.match(modelPolicy, /operator explicitly selects Auto/);
-  assert.match(modelPolicy, /do not prove that the\s+operator selected Auto/);
+  assert.match(modelPolicy, /operator and runtime control selection/);
+  assert.match(modelPolicy, /Readiness is model-agnostic/);
+  assert.match(modelPolicy, /Picker selection and model attestation\s+are not acceptance gates/);
   assert.doesNotMatch(modelPolicy, /High: architecture|Medium: structured code generation/);
   const agentsRoot = new URL("../../../.github/agents/", import.meta.url);
   const agentFiles = [

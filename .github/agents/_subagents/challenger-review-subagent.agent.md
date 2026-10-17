@@ -106,8 +106,8 @@ current content and recover missing/changed evidence after compaction or source 
 Snapshot review inputs before analysis with
 `node tools/scripts/validate-challenger-findings.mjs --metadata <artifact_path>`.
 Retain that `cache_inputs` snapshot. The active reviewer is unpinned; the
-`model_policy` value records the operator-selected Auto requirement, not proof
-that Auto was selected or evidence of the actual dispatched model.
+`model_policy: runtime-managed` value records the unpinned definition contract,
+not a required picker selection or evidence of the actual dispatched model.
 When `supporting_paths` is supplied, add one `--supporting-input <path>` per entry to that command and copy the emitted
 `supporting_inputs` array unchanged into the payload; never hash or list them by hand.
 Directory inputs use the deterministic tree hash documented in the review protocol; symlinks block hashing.
@@ -409,7 +409,7 @@ The on-disk JSON has no markdown wrapper:
     "checklists_sha": "<sha256 of adversarial-checklists.md bytes>",
     "protocol_sha": "<sha256 of adversarial-review-protocol.md bytes>",
     "subagent_sha": "<sha256 of challenger-review-subagent.agent.md bytes>",
-    "model_policy": "operator-selected-auto-required",
+    "model_policy": "runtime-managed",
     "artifact_hash": "<sha256 of the concatenated string artifact_sha\\n---\\nchecklists_sha\\n---\\nprotocol_sha\\n---\\nsubagent_sha\\n---\\nmodel_policy>"
   },
   "supporting_inputs": [{ "path": "agent-output/{project}/04-iac-contract.json", "sha256": "<from --metadata>" }]

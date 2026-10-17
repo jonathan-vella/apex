@@ -2,31 +2,29 @@
 
 Manual, non-deploying Steps 1–2 acceptance for the supported SDK harness inside VS Code.
 Static fixtures and built-in worker probes do not certify custom-agent discovery,
-model/effort routing, tools, continuation, human gates or MCP binding.
+worker identity, tools, continuation, human gates or MCP binding.
 Use a dedicated approved smoke project; never reset an existing project's state.
 
 ## Runtime Preconditions
 
-1. Reload the VS Code runtime after definition changes and select
-   `01-Orchestrator` with Auto in a fresh session. A session started under a
-   prior fixed model is not evidence of the new Auto selection.
+1. Reload definitions if required and select `01-Orchestrator`.
+   Model selection belongs to the operator and runtime, including Auto and HydraFusion;
+   model changes do not require a fresh chat or block readiness.
 2. Verify required MCP tools and hooks in that runtime. Do not duplicate live MCP
    registrations, change credentials or substitute models to force a pass.
 3. Use `/apex-workflow-start` with an explicit fresh operation and project.
 4. Before specialist work, follow the
    [tool-free worker protocol](../../../.github/skills/apex-workflow-engine/references/worker-readiness.md).
-   Require matching actual configured/dispatched model evidence, parent linkage
-   and background configuration. Run `--phase initial` for `MODEL_VERIFIED`
+   Require exact worker identity, parent/dispatch linkage, tool-free turns
+   and background configuration. Run `--phase initial` for `HANDSHAKE_VERIFIED`
    (`continuation_verified: false`) before the nonce-only continuation; after the
    exact same-worker ACK and second turn completion, run `--phase complete` for
    `READY_VERIFIED` (`continuation_verified: true`) before `WORKER_EXECUTE`.
-   Unpinned workers may use the observed `unset` / `session_inheritance` source
-   pair only when there are no per-call model/effort/context overrides and worker
-   start/configured/dispatched models match the parent's observed session model.
-   This verifies routing, not Auto selection; verify Auto separately in the
-   current parent runtime. Missing or mismatched evidence blocks; do not probe
-   again or substitute a model automatically.
-5. Stop on unknown routing, unavailable tools, missing approval or an operator deadline.
+   Leave per-call model/effort/context overrides unset. Model names, effort,
+   picker selection and model-source labels are optional diagnostics, not gates;
+   parent, configured, dispatched and response models may differ between turns.
+   Missing identity/linkage or continuation evidence blocks; do not retry automatically.
+5. Stop on missing worker readiness, unavailable tools, missing approval or an operator deadline.
    A readiness result grants no project or deployment permission.
 
 ## Workflow Probe
@@ -62,18 +60,19 @@ Smoke output defaults to ignored baseline storage; use `--out` for an explicit a
 `--no-auto-discovery` requires a path; `--no-auto-export` is its compatibility alias.
 Without a path, discovery is restricted to exact repository identity, never the newest global session.
 
-| Automated signal      | Required captured evidence                                                                 |
-| --------------------- | ------------------------------------------------------------------------------------------ |
-| Format                | Native SDK, not historical Local/OTel                                                      |
-| Usage                 | Input/output present for every observed call; authoritative usage counted once             |
-| Scope                 | Root capture closed; no incomplete operations, unattributed usage or unknown actual models |
-| `ask_user`            | At most 20 calls across the captured scope                                                 |
-| First execution input | At most 45,000 tokens for every attributed worker execution                                |
-| Resume                | Explicitly resumed execution with successful first-tool recall recovery                    |
-| Reviews               | Attributed default-mode Challenger execution requests, at most 2 per step                  |
-| Errors                | No non-benign observed errors                                                              |
+| Automated signal      | Required captured evidence                                                     |
+| --------------------- | ------------------------------------------------------------------------------ |
+| Format                | Native SDK, not historical Local/OTel                                          |
+| Usage                 | Input/output present for every observed call; authoritative usage counted once |
+| Scope                 | Root capture closed; no incomplete operations or unattributed usage            |
+| `ask_user`            | At most 20 calls across the captured scope                                     |
+| First execution input | At most 45,000 tokens for every attributed worker execution                    |
+| Resume                | Explicitly resumed execution with successful first-tool recall recovery        |
+| Reviews               | Attributed default-mode Challenger execution requests, at most 2 per step      |
+| Errors                | No non-benign observed errors                                                  |
 
-Missing evidence is `UNKNOWN` and non-passing, not zero or a skipped success.
+Missing required evidence is `UNKNOWN` and non-passing, not zero or a skipped success.
+Model metadata remains diagnostic only, including absent or changing actual models.
 Cache totals are observed samples, not billing. Historical `/clear` and phase counters
 are unavailable for native logs; do not infer phase boundaries from timestamps.
 Readiness alone never counts as executed review work.
@@ -83,6 +82,6 @@ External-only transport completions do not prove tool success and remain non-pas
 ## Acceptance Boundary
 
 Automated telemetry acceptance is necessary but not sufficient. Record actual custom-agent
-discovery, model/tool binding, continuation, independent review and human-stop observations.
+discovery, worker identity/tool binding, continuation, independent review and human-stop observations.
 It does not certify complete billing, review validity, approval or deployment success.
 Never restamp existing review evidence or mutate another project's state to make a probe pass.

@@ -15,7 +15,7 @@ or deep audits, load `.github/skills/apex-agent-authoring/SKILL.md`.
 - Keep `description` on one line as the repository discovery convention.
 - Keep `description` at or below 350 characters; aim for 300 or fewer.
 - Active production agents omit both `model` and `reasoning-effort`. The
-  operator selects Auto in the runtime separately; omission does not select Auto.
+  operator and runtime control selection, including Auto and HydraFusion.
   Keep optional fixed-model support for isolated fixtures and legacy validation.
 - Prompt models use quoted string form. Registry model values are optional
   legacy mirrors; catalog assignments are generated only for explicit pins.
@@ -28,10 +28,10 @@ or deep audits, load `.github/skills/apex-agent-authoring/SKILL.md`.
   `disable-model-invocation: true`. Other main agents are user-invocable and
   model-invocable only through Orchestrator's approved, verified background dispatch.
   Step agents allowlist only their authorized leaves; leaves never delegate.
-- Before any delegated project work, enforce the tool-free handshake, observed
-  runtime model, and continuation check in
+- Before any delegated project work, enforce the named-worker identity, linked
+  tool-free handshake and same-worker continuation check in
   [`worker-readiness.md`](../skills/apex-workflow-engine/references/worker-readiness.md).
-  A frontmatter label, allowlist or catalog entry does not prove runtime routing.
+  A frontmatter label, allowlist or catalog entry does not prove worker readiness.
 - Replace deprecated `infer` with `user-invocable` and
   `disable-model-invocation`.
 
@@ -58,16 +58,13 @@ Validation details:
 ## Model Policy
 
 Active production agent definitions must not pin a model or reasoning effort.
-Before starting or resuming production work, the operator explicitly selects
-Auto in the supported runtime; omitted frontmatter does not select Auto. If
-Auto is unavailable or the operator's selection is unknown, stop rather than
-silently choosing a fixed model.
-
-Runtime telemetry must establish the selected worker's actual configured and
-dispatched model. A recognized SDK source profile can verify observed routing
-but does not prove that the operator selected Auto. Unknown source values remain
-blocking until supported by runtime evidence. Keep exact labels and unknown
-catalog metadata unchanged for descriptive and pinned-fixture compatibility.
+The operator and runtime control selection, including Auto and HydraFusion.
+Readiness is model-agnostic: model names, effort, picker selection and model-source
+labels are optional diagnostics. Missing metadata, unknown source labels or
+configured/dispatched model differences do not block readiness. Require worker
+identity, parent/dispatch linkage, tool-free turns and exact same-worker continuation.
+Leave caller model, effort and context overrides unset. Keep catalog labels and
+metadata unchanged for descriptive and pinned-fixture compatibility.
 
 ### Reasoning-Effort Policy
 
@@ -156,9 +153,8 @@ Commands and decision shape:
 
 Validate every fallback label and family in order, without adding fallbacks.
 Archive-only prompt fixtures retain their historical model rules. Active SDK
-workers use runtime-selected routing. Readiness may accept known
-inherited/runtime-selected model sources only when attributed telemetry verifies
-the exact dispatch; never infer routing from an unverified picker model. Avoid
+workers use runtime-managed model selection. Readiness verifies the exact named
+worker dispatch and continuation, not model selection. Avoid
 redundant handoff overrides and follow the matching rules:
 
 - [`vendor-prompting.instructions.md`](vendor-prompting.instructions.md)

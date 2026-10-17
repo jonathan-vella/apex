@@ -12,11 +12,11 @@ user-facing artifact MUST read this file before invocation.
 
 ## Model And Harness Contract
 
-Active agent definitions do not pin model or reasoning effort. The operator
-explicitly selects Auto in the supported runtime; omitted frontmatter does not
-select it. Readiness verifies the observed named worker route and matching
-configured/dispatched model, but does not establish the operator's Auto selection
-unless telemetry explicitly records it. Catalog model metadata remains descriptive
+Active agent definitions do not pin model or reasoning effort. The operator and
+runtime control selection, including Auto and HydraFusion. Readiness verifies the
+named worker's identity, linked dispatch, tool-free turns and same-worker ACK.
+Model names, effort, picker selection and model-source labels are diagnostic only,
+not acceptance gates. Catalog model metadata remains descriptive
 and does not establish runtime cost-tier eligibility, model availability, or API
 parameters. Do not infer effort settings or pricing from model names. If the
 active harness cannot invoke the declared worker, STOP and notify the user; never

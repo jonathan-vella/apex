@@ -67,7 +67,7 @@ highest-impact finding and write findings as plain sentences with their evidence
 
 <stop_conditions>
 
-Missing essential tools or attributed runtime model evidence blocks the affected work, not a fixed-model fallback.
+Missing essential tools blocks the affected work; model telemetry is diagnostic only.
 Missing/inaccessible logs block measured profiling only. Continue a requested source-only
 audit with the limitation stated; missing token fields remain unknown, with no fabricated savings.
 Unwanted early stops: a summary announcing the next phase without taking it, an offer to continue,

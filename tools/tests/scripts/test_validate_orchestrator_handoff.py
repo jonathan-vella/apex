@@ -70,7 +70,7 @@ def test_cli_exit_codes(tmp_path):
 @pytest.mark.parametrize(
     "fragment",
     [
-        "MODEL_VERIFIED",
+        "HANDSHAKE_VERIFIED",
         "WORKER_READY_ACK",
         "WORKER_EXECUTE",
         "USER_INPUT_REQUIRED",

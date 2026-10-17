@@ -105,6 +105,27 @@ def test_native_scope_at_required_threshold_passes(events):
     assert report["_computed"]["resume_recall_verified"] is True
 
 
+@pytest.mark.parametrize("model", [None, "hydrafusion-max", "future-runtime-model"])
+@pytest.mark.parametrize("strict", [False, True])
+def test_model_metadata_is_diagnostic_only(events, model, strict):
+    for record in events:
+        if record["type"] == "assistant.message":
+            record["data"].pop("model", None)
+            if model is not None:
+                record["data"]["model"] = model
+        elif record["type"] == "session.usage_record":
+            usage = record["data"]["usage"]
+            usage.pop("model", None)
+            if model is not None:
+                usage["model"] = model
+    report = metrics(events)
+    if model is None:
+        assert report["native_evidence"]["unknown_models"] > 0
+    rows, passed = load("smoke_verify").evaluate(report, strict=strict)
+    assert passed, rows
+    assert all(row["key"] != "known_models" for row in rows)
+
+
 def test_parent_usage_forwarding_and_export_duplicates_are_not_added_twice(events):
     usage = copy.deepcopy(next(record for record in events if record["type"] == "session.usage_record"))
     usage["id"] = "forwarded-usage"

@@ -160,7 +160,7 @@ Per Output Contract:
 
 Stop conditions:
 
-- Missing attributed runtime model evidence, tool/input or worker eligibility returns `blocked`; no fixed-model fallback,
+- Missing worker readiness, tool/input or worker eligibility returns `blocked`; no fixed-model fallback,
   skipped required review or inline substitute. Load review guidance before review and
   decision guidance before the panel; recover missing/changed evidence after compaction.
 - Stop after the final aggregated gate resolves (`Revise` → apply +

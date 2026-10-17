@@ -10,7 +10,7 @@ const NONCE = "ready-nonce-123";
 const CALL = "parent-call";
 const MODEL = "claude-sonnet-5.5";
 
-function sample({ pinned = true } = {}) {
+function sample({ pinned = false } = {}) {
   const frontmatter = { name: DEFINITION };
   if (pinned) {
     frontmatter.model = ["Claude Sonnet 5.5 (copilot)"];
@@ -20,7 +20,6 @@ function sample({ pinned = true } = {}) {
     workerId: "worker",
     parentId: "root",
     frontmatter,
-    catalog: { models: { "Claude Sonnet 5.5 (copilot)": { runtime_id: MODEL } } },
     events: [
       {
         type: "tool.execution_start",
@@ -162,94 +161,97 @@ function currentSdkSample(options) {
   return sample(options);
 }
 
-function inheritedSample({ phase = "initial" } = {}) {
+function runtimeManagedSample({ phase = "initial" } = {}) {
   const input = phase === "initial" ? initialSample() : sample();
-  input.events.unshift({ type: "session.start", data: { selectedModel: "gpt-6-luna" } });
-  delete input.frontmatter.model;
-  delete input.frontmatter["reasoning-effort"];
+  input.events.unshift(
+    { type: "session.start", data: { selectedModel: "auto" } },
+    { type: "session.auto_mode_resolved", data: { chosenModel: "gpt-6.1-sol" } },
+  );
   start(input).data.taskModelSource = "unset";
   start(input).data.modelSelectionSource = "session_inheritance";
-  start(input).data.model = "gpt-6-luna";
-  configured(input).data.model = "gpt-6-luna";
-  configured(input).data.reasoningEffort = undefined;
-  for (const event of input.events) {
-    if (event.type === "assistant.message") event.data.model = "gpt-6-luna";
-  }
+  start(input).data.model = "gpt-6.1-sol";
+  configured(input).data.model = "gpt-6.1-sol";
+  delete configured(input).data.reasoningEffort;
+  assistantMessages(input)[0].data.model = "gpt-6-luna";
   completed(input).data.firstDispatchedModel = "gpt-6-luna";
   completed(input).data.modelSelectionSource = "session_inheritance";
-  return verifyWorkerReady({ ...input, phase });
+  return { ...input, phase };
 }
 
-test("unpinned session-inheritance source verifies initial routing but not operator Auto selection", () => {
-  const result = inheritedSample();
-  assert.equal(result.status, "MODEL_VERIFIED");
+test("captured Auto pilot verifies the initial handshake despite configured/dispatched model differences", () => {
+  const result = verifyWorkerReady(runtimeManagedSample());
+  assert.equal(result.status, "HANDSHAKE_VERIFIED", result.reasons.join("\n"));
   assert.equal(result.phase, "initial");
-  assert.equal(result.configured_model, "gpt-6-luna");
-  assert.equal(result.actual_model, "gpt-6-luna");
-  assert.equal(result.operator_auto_selection_verified, false);
+  assert.equal(result.model_attestation_required, false);
+  assert.equal(result.model_observations.configured_model, "gpt-6.1-sol");
+  assert.equal(result.model_observations.first_dispatched_model, "gpt-6-luna");
+  assert.deepEqual(result.model_observations.response_models, ["gpt-6-luna"]);
   assert.equal(result.continuation_verified, false);
   assert.equal(result.permission_granted_by_this_record, false);
 });
 
-test("unpinned session-inheritance source accepts complete same-worker ACK", () => {
-  const result = inheritedSample({ phase: "complete" });
-  assert.equal(result.status, "READY_VERIFIED");
+test("same-worker ACK verifies complete readiness even when models change between turns", () => {
+  const result = verifyWorkerReady(runtimeManagedSample({ phase: "complete" }));
+  assert.equal(result.status, "READY_VERIFIED", result.reasons.join("\n"));
   assert.equal(result.continuation_verified, true);
-  assert.equal(result.operator_auto_selection_verified, false);
-});
-
-test("unpinned session inheritance blocks when the root session model disagrees", () => {
-  const input = sample();
-  input.events.unshift({ type: "session.start", data: { selectedModel: "gpt-6.1-sol" } });
-  delete input.frontmatter.model;
-  delete input.frontmatter["reasoning-effort"];
-  start(input).data.taskModelSource = "unset";
-  start(input).data.modelSelectionSource = "session_inheritance";
-  start(input).data.model = "gpt-6-luna";
-  configured(input).data.model = "gpt-6-luna";
-  completed(input).data.firstDispatchedModel = "gpt-6-luna";
-  completed(input).data.modelSelectionSource = "session_inheritance";
-  const result = verifyWorkerReady({ ...input, phase: "initial" });
-  assert.equal(result.status, "BLOCKED");
-  assert.ok(result.reasons.includes("Inherited worker model does not match the attributed parent session model."));
-});
-
-test("unpinned session inheritance blocks without attributed parent model evidence", () => {
-  const input = sample();
-  delete input.frontmatter.model;
-  delete input.frontmatter["reasoning-effort"];
-  start(input).data.taskModelSource = "unset";
-  start(input).data.modelSelectionSource = "session_inheritance";
-  start(input).data.model = "gpt-6-luna";
-  configured(input).data.model = "gpt-6-luna";
-  completed(input).data.firstDispatchedModel = "gpt-6-luna";
-  completed(input).data.modelSelectionSource = "session_inheritance";
-  const result = verifyWorkerReady({ ...input, phase: "initial" });
-  assert.equal(result.status, "BLOCKED");
-  assert.ok(result.reasons.includes("Inherited worker model does not match the attributed parent session model."));
+  assert.deepEqual(result.model_observations.response_models, ["gpt-6-luna", MODEL]);
+  assert.equal(result.permission_granted_by_this_record, false);
 });
 
 for (const phase of ["initial", "complete"]) {
-  test(`${phase}: unpinned inheritance rejects mismatched or unknown source attribution`, () => {
-    const input = sample();
-    delete input.frontmatter.model;
-    delete input.frontmatter["reasoning-effort"];
-    start(input).data.taskModelSource = "unset";
-    start(input).data.modelSelectionSource = "session_inheritance";
-    completed(input).data.modelSelectionSource = "agent_definition_default";
-    const result = verifyWorkerReady({ ...input, phase });
-    assert.equal(result.status, "BLOCKED");
-    assert.ok(result.reasons.includes("Completed worker routing source does not match its supported start profile."));
-  });
+  for (const [label, mutate] of [
+    ["HydraFusion selection", (s) => (s.events[0].data.selectedModel = "hydrafusion-max")],
+    ["fixed runtime selection", (s) => (s.events[0].data.selectedModel = "operator-chosen-model")],
+    ["missing picker evidence", (s) => s.events.splice(0, 2)],
+    ["unknown task model source", (s) => (start(s).data.taskModelSource = "future_source")],
+    ["unknown selection sources", (s) => (completed(s).data.modelSelectionSource = "future_source")],
+    ["missing start model", (s) => delete start(s).data.model],
+    ["missing configured model", (s) => delete configured(s).data.model],
+    ["empty configured model", (s) => (configured(s).data.model = "")],
+    ["missing dispatched model", (s) => delete completed(s).data.firstDispatchedModel],
+    ["empty dispatched model", (s) => (completed(s).data.firstDispatchedModel = "")],
+    ["response model differs from completion", (s) => (assistantMessages(s)[0].data.model = "another-model")],
+    [
+      "missing all model metadata",
+      (s) => {
+        for (const event of s.events) {
+          for (const key of [
+            "model",
+            "selectedModel",
+            "chosenModel",
+            "firstDispatchedModel",
+            "reasoningEffort",
+            "taskModelSource",
+            "modelSelectionSource",
+          ])
+            delete event.data[key];
+        }
+      },
+    ],
+    [
+      "legacy pins without runtime catalog attestation",
+      (s) => {
+        s.frontmatter.model = ["unrelated legacy label"];
+        s.frontmatter["reasoning-effort"] = "medium";
+        configured(s).data.reasoningEffort = "high";
+      },
+    ],
+  ]) {
+    test(`${phase}: ${label} is diagnostic only`, () => {
+      const input = runtimeManagedSample({ phase });
+      mutate(input);
+      const result = verifyWorkerReady(input);
+      assert.equal(
+        result.status,
+        phase === "initial" ? "HANDSHAKE_VERIFIED" : "READY_VERIFIED",
+        result.reasons.join("\n"),
+      );
+      assert.equal(result.model_attestation_required, false);
+      assert.equal(result.continuation_verified, phase === "complete");
+      assert.equal(result.permission_granted_by_this_record, false);
+    });
+  }
 }
-
-test("pinned legacy definition still verifies its configured runtime model and effort", () => {
-  const result = verifyWorkerReady(currentSdkSample({ pinned: true }));
-  assert.equal(result.status, "READY_VERIFIED");
-  assert.equal(result.continuation_verified, true);
-  assert.deepEqual(result.expected_models, [MODEL]);
-  assert.equal(result.expected_effort, "high");
-});
 
 for (const [label, mutate] of [
   ["missing linked dispatch", (s) => s.events.splice(0, 1)],
@@ -267,24 +269,11 @@ for (const [label, mutate] of [
   ["wrong parent identity", (s) => (start(s).data.parentId = "other")],
   ["wrong worker definition", (s) => (start(s).data.agentName = "general-purpose")],
   ["synchronous worker", (s) => (start(s).data.executionMode = "sync")],
-  ["unknown task model source", (s) => (start(s).data.taskModelSource = "future_source")],
-  ["pinned worker cannot use session inheritance", (s) => (start(s).data.modelSelectionSource = "session_inheritance")],
-  ["unknown start selection source", (s) => (start(s).data.modelSelectionSource = "future_source")],
-  ["unknown completion selection source", (s) => (completed(s).data.modelSelectionSource = "future_source")],
-  ["missing configured model", (s) => delete configured(s).data.model],
-  ["empty configured model", (s) => (configured(s).data.model = " ")],
-  ["different configured model", (s) => (configured(s).data.model = "other-model")],
-  ["missing dispatched model", (s) => delete completed(s).data.firstDispatchedModel],
-  ["empty dispatched model", (s) => (completed(s).data.firstDispatchedModel = "")],
-  ["configured and dispatched model mismatch", (s) => (completed(s).data.firstDispatchedModel = "other-model")],
   ["missing configuration", (s) => s.events.splice(s.events.indexOf(configured(s)), 1)],
   ["duplicate configuration", (s) => s.events.push(configured(s))],
   ["non-multi-turn worker", (s) => (configured(s).data.multiTurn = false)],
   ["missing completion", (s) => s.events.splice(s.events.indexOf(completed(s)), 1)],
   ["wrong completion call", (s) => (completed(s).data.toolCallId = "other")],
-  ["pinned model mismatch", (s) => (completed(s).data.firstDispatchedModel = "other-model"), true],
-  ["pinned runtime ID missing", (s) => delete s.catalog.models["Claude Sonnet 5.5 (copilot)"].runtime_id, true],
-  ["pinned effort mismatch", (s) => (configured(s).data.reasoningEffort = "medium"), true],
   ["nonzero reported tool count", (s) => (completed(s).data.totalToolCalls = 1)],
   ["unknown reported tool count", (s) => delete completed(s).data.totalToolCalls],
   [
@@ -375,11 +364,7 @@ test("CLI fails closed on malformed, absent, relative or out-of-scope inputs", (
   mkdirSync(path.join(root, ".github"), { recursive: true });
   const input = currentSdkSample();
   const definition = ".github/agents/02-requirements.agent.md";
-  writeFileSync(
-    path.join(root, definition),
-    '---\nname: 02-Requirements\nmodel: ["Claude Sonnet 5.5 (copilot)"]\nreasoning-effort: high\n---\n# 02-Requirements\n',
-  );
-  writeFileSync(path.join(root, ".github/model-catalog.json"), JSON.stringify(input.catalog));
+  writeFileSync(path.join(root, definition), "---\nname: 02-Requirements\n---\n# 02-Requirements\n");
   const log = path.join(root, "events.jsonl");
   const args = ["--events", log, "--definition", definition, "--worker-id", "worker", "--parent-id", "root"];
   writeFileSync(log, input.events.map((event) => JSON.stringify(event)).join("\n"));
@@ -403,13 +388,13 @@ function initialSample() {
   return input;
 }
 
-test("initial routing passes before continuation, but never establishes complete readiness", () => {
+test("initial handshake passes before continuation, but never establishes complete readiness", () => {
   const input = initialSample();
   const result = verifyWorkerReady(input);
-  assert.equal(result.status, "MODEL_VERIFIED", result.reasons.join("\n"));
+  assert.equal(result.status, "HANDSHAKE_VERIFIED", result.reasons.join("\n"));
   assert.equal(result.phase, "initial");
   assert.equal(result.continuation_verified, false);
-  assert.equal(result.operator_auto_selection_verified, false);
+  assert.equal(result.model_attestation_required, false);
   assert.equal(result.permission_granted_by_this_record, false);
   assert.equal(verifyWorkerReady({ ...input, phase: "complete" }).status, "BLOCKED");
   delete input.phase;
@@ -486,7 +471,6 @@ for (const [label, mutate] of [
   ],
   ["continuation tool requests", (s) => (assistantMessages(s)[1].data.toolRequests = [{ name: "view" }])],
   ["continuation interaction mismatch", (s) => (assistantMessages(s)[1].data.interactionId = "other")],
-  ["continuation model mismatch", (s) => (assistantMessages(s)[1].data.model = "other")],
 ]) {
   test(`${label} blocks complete readiness`, () => {
     const input = sample();

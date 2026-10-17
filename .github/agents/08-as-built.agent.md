@@ -148,7 +148,7 @@ raise a better approach in one sentence instead of silently widening, narrowing 
 
 <stop_conditions>
 
-- Missing essential tool, attributed runtime model evidence, input or worker eligibility returns `blocked`; stop
+- Missing essential tool, worker readiness, input or worker eligibility returns `blocked`; stop
   with the error rather than substituting a model, pricing source or successful status.
 - Stop after the requested subset, or every full-suite output in Output Contract,
   is validated and indexed. Do not loop back to regenerate artifacts

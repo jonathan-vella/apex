@@ -155,7 +155,7 @@ Write questions and notes as plain sentences; use the table only for findings.
 
 The Copilot SDK uses verified workers; human gates remain explicit before the next named
 owner. Inline skills do not change model or tool scope. Use #tool:agent only for the
-allowlisted worker. Missing attributed runtime model evidence, tool, input or invocation eligibility means `blocked`,
+allowlisted worker. Missing worker readiness, tool, input or invocation eligibility means `blocked`,
 not model substitution or a skipped review. On reviewer failure, preserve the error and
 request a human transition to `10-Challenger`; never invoke that main agent as a worker.
 

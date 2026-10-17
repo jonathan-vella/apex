@@ -1,18 +1,17 @@
-<!-- ref:worker-readiness-v3 -->
+<!-- ref:worker-readiness-v4 -->
 
 # Copilot SDK Worker Readiness
 
-Active main agents and leaf workers omit model and effort pins. Before production
-workflow execution, the operator explicitly selects Auto in the supported runtime;
-omitted frontmatter does not select Auto. Verify every delegated step and leaf
-worker before project work. SDK telemetry verifies only the observed route unless
-it explicitly records the operator's Auto selection. Unknown evidence blocks execution.
+Active main agents and leaf workers omit model and effort pins. The operator and
+runtime control model selection, including Auto and HydraFusion. Readiness verifies
+the named worker's identity, tool-free handshake and same-worker continuation,
+not its model. Model names, effort, picker selection and model-source labels are
+optional diagnostics: missing values or differences never block readiness.
+Missing identity, dispatch linkage, completion or tool-free evidence still blocks execution.
 
 ## Ready-Only Handshake
 
 1. The parent confirms graph prerequisites and the applicable human approval.
-   The operator selects Auto in the runtime before dispatch; this selection is
-   separate from agent definitions and is not implied by omitted frontmatter.
    Resolve the exact definition name from its active agent file, never from a handoff override.
 2. Start that named worker with `task`, `mode: background`, leaving model, effort
    and context overrides unset. Supply only this handshake, with a fresh nonce
@@ -43,31 +42,19 @@ it explicitly records the operator's Auto selection. Unknown evidence blocks exe
    The root interactive session uses `root`; a nested caller supplies its own worker ID.
    Pass the explicit current log path through the delegation envelope; never choose
    the newest session across unrelated workspaces.
-5. Require `MODEL_VERIFIED` with `phase: initial` and
+5. Require `HANDSHAKE_VERIFIED` with `phase: initial` and
    `continuation_verified: false`: exactly one attributed start, configuration, linked
    parent `task` dispatch, completed first turn and worker completion; exact worker and parent identity;
-   background mode; multi-turn configuration; nonempty configured and dispatched
-   model evidence that agrees; and zero tool events or nested workers. If a
-   definition is deliberately pinned in a legacy fixture, the observed model must
-   also match one of its catalog runtime IDs. Active production definitions have
-   no such expected ID. An explicit effort pin is likewise checked only for a
-   legacy fixture; unpinned runtime effort is not inferred.
-   Supported source pairs are `custom_agent_definition` /
-   `agent_definition_default` for explicitly pinned legacy fixtures, and
-   `unset` / `session_inheritance` for unpinned active definitions when the parent
-   dispatch contains no model, effort or context override and the configured and
-   dispatched worker model matches the parent session's observed model. If those
-   models differ or parent model evidence is absent, stop. This verifies the
-   inherited route only; it does not prove the operator selected Auto. Verify Auto
-   separately in the current parent runtime. Never infer Auto from model names,
-   omission of frontmatter pins, or stale session startup metadata.
-   The verifier requires the exact
-   worker name, one matching parent dispatch in background mode, and no `model`,
-   `reasoning_effort`, or `context_tier` argument keys. Unknown or unobserved
-   sources fail closed. Configured/dispatched agreement proves the observed model
-   route, not operator Auto selection, availability, or permission to act.
+   background mode; multi-turn configuration; and zero tool events or nested workers.
+   The verifier requires one matching parent dispatch with the exact worker name
+   and handshake prompt, and no `model`, `reasoning_effort`, or `context_tier`
+   argument keys. Leaving overrides unset respects the operator's runtime choices;
+   it is not model attestation. Configured, dispatched, parent and response models
+   may differ, including between turns. The verifier returns any available model
+   metadata in `model_observations` with `model_attestation_required: false`;
+   it does not need a model catalog or certify picker selection.
    This first-phase result never certifies continuation or complete readiness.
-   Do not send project work based on `MODEL_VERIFIED`.
+   Do not send project work based on `HANDSHAKE_VERIFIED`.
 6. Send `write_agent` a nonce-only continuation test. The continuation input is
    the original nonce alone. Require exactly
    `WORKER_READY_ACK <exact-definition-name> <original-nonce>` **without tools**.
@@ -89,7 +76,7 @@ it explicitly records the operator's Auto selection. Unknown evidence blocks exe
 
    Require `READY_VERIFIED`, `phase: complete` and `continuation_verified: true`.
    Complete is the CLI/API default; an initial-only capture fails complete verification.
-   Both phases repeat all routing, identity, override and no-tool checks. Complete
+   Both phases repeat all dispatch-linkage, identity, override and no-tool checks. Complete
    additionally requires one successful parent `write_agent` send with `agent_id`
    equal to this worker and `message` equal to the nonce, its linked tool-call
    completion, and the same worker's exact ACK followed by `assistant.turn_end`.

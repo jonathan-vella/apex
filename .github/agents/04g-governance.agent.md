@@ -77,7 +77,7 @@ Return `USER_INPUT_REQUIRED` forms to the interactive parent; cancel stops.
   the derived `sku_allowlist_snapshot` only. No SKU services/revisions, architecture,
   IaC or Azure policy/resource mutations. `execute` is restricted to the approved
   deterministic scripts, these outputs and their checks; it is not inherently read-only.
-- Use #tool:agent for the allowlisted reviewer only; missing eligibility, runtime model evidence or tool blocks
+- Use #tool:agent for the allowlisted reviewer only; missing eligibility, worker readiness or tool blocks
   with the error and a human `10-Challenger` transition, never an automatic main-agent call,
   model substitution or inline review.
 - Preserve the `apex-azure-governance-discovery` deterministic-discovery contract

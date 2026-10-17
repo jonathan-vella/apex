@@ -264,8 +264,8 @@ perform the architecture review.
 
 Preferred path:
 
-1. Stop and request manual selection of `03-Architect` with its configured model
-  to generate (never run the specialist step inline or as a MAI subagent):
+1. Stop and request manual selection of `03-Architect` with its required tools
+  to generate (never run the specialist step inline or as a nested main agent):
    - `agent-output/{project}/02-architecture-assessment.md`
    - `agent-output/{project}/03-des-cost-estimate.md`
 

@@ -1,6 +1,6 @@
 {
   "$schema": "../tools/schemas/model-catalog.schema.json",
-  "description": "Descriptive Copilot Chat model metadata for APEX. Active production agent definitions omit model and reasoning-effort pins; the operator explicitly selects Auto in the supported runtime, since omission alone does not select it. `assignments` is generated from any explicit legacy fixture pins and is empty for active agents. Static catalog checks do not certify operator selection or runtime routing.",
+  "description": "Descriptive Copilot Chat model metadata for APEX. Active production agent definitions omit model and reasoning-effort pins; the operator and runtime control selection, including Auto and HydraFusion. Worker readiness is model-agnostic. `assignments` is generated from any explicit legacy fixture pins and is empty for active agents. Static catalog checks do not certify worker readiness or runtime tool binding.",
   "last_updated": "2026-09-29",
   "models": {
     "GPT-6.1 Sol (copilot)": {
@@ -108,7 +108,7 @@
     }
   },
   "governance": {
-    "source_of_truth": "Active production agent routing is operator-selected at runtime and is not assigned by frontmatter. The operator explicitly selects Auto; omission does not select it. Optional registry and catalog assignments preserve explicit legacy fixture pins. The catalog models block preserves descriptive metadata; generated assignments must match explicit pins (enforced by validate-models.mjs --only=catalog).",
+    "source_of_truth": "The operator and runtime control model selection; active definitions do not assign it. Model names, effort, picker selection and model-source labels are diagnostic only, not readiness gates. Optional registry and catalog assignments preserve explicit legacy fixture pins. The catalog models block preserves descriptive metadata; generated assignments must match explicit pins (enforced by validate-models.mjs --only=catalog).",
     "rules": [
       "Any explicit legacy model pin in agent or subagent frontmatter MUST exist as a key in `models`.",
       "Any explicit legacy model value in the agent registry MUST exist as a key in `models` and match its corresponding frontmatter pin.",

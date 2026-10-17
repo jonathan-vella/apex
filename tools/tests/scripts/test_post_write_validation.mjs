@@ -551,8 +551,9 @@ test("shared harness guidance preserves human selection and does not infer model
     "utf8",
   );
   assert.match(parent, /Active agent definitions do not pin model or reasoning effort/);
-  assert.match(parent, /operator\s+explicitly selects Auto/);
-  assert.match(parent, /does not establish the operator's\s+Auto selection/);
+  assert.match(parent, /operator and\s+runtime control selection/);
+  assert.match(parent, /picker selection and model-source labels are diagnostic only/);
+  assert.match(parent, /not acceptance gates/);
   assert.match(parent, /does not establish runtime cost-tier eligibility/);
   assert.match(parent, /Do not infer effort settings/);
 });

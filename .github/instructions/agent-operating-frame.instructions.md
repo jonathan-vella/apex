@@ -77,11 +77,10 @@ Markdown artifacts follow the
   and the [review protocol](../skills/apex-azure-defaults/references/adversarial-review-protocol.md#subagent-discovery-fallback-default--deep).
 - Preserve structured output contracts across model families.
 - Active definitions leave model and effort unpinned. The operator must select
-  Auto in the runtime separately; omission does not force Auto. Require attributed
-  configured/dispatched model evidence and fail closed on unknown routing sources.
-  Telemetry does not establish the operator's Auto selection unless it explicitly
-  records that choice. If the harness cannot honor required tools or verify routing,
-  stop.
+  the owning agent; the runtime manages models, including Auto and HydraFusion.
+  Model names, effort, picker selection and model-source labels are diagnostics
+  only. Require linked worker identity, tool-free turns and same-worker continuation,
+  not matching models. Missing required tools or readiness evidence blocks execution.
 
 ## Out of scope for this file
 
