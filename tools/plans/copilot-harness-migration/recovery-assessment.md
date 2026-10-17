@@ -52,16 +52,16 @@ No new deployment, re-created E2E launcher, force push, branch-protection bypass
 The staged source candidate was applied to an isolated worktree at `a315279a` with the existing dependency
 installation. No Eventdesk, Nordic Foods or live test-project artifacts were copied into this source-only run.
 
-| Check | Result |
-| --- | --- |
-| `npm run validate:all` in isolated candidate | Exit 0, including external Python suites |
-| Expanded root/library/vendor/workflow Node regression suites | Exit 0 |
-| `npm run test:governance-discovery` | Exit 0 |
-| `npm run test:hooks` | Exit 0; no guard weakened |
-| `npm run format:check` in isolated candidate | Exit 0 |
-| Focused recorder, direct-dispatch and SDK telemetry regressions | Exit 0 |
-| Changed-file ESLint and Ruff | Exit 0 |
-| Full validation in shared workspace | Exit 1; project-artifact/state failures remain |
+| Check                                                           | Result                                         |
+| --------------------------------------------------------------- | ---------------------------------------------- |
+| `npm run validate:all` in isolated candidate                    | Exit 0, including external Python suites       |
+| Expanded root/library/vendor/workflow Node regression suites    | Exit 0                                         |
+| `npm run test:governance-discovery`                             | Exit 0                                         |
+| `npm run test:hooks`                                            | Exit 0; no guard weakened                      |
+| `npm run format:check` in isolated candidate                    | Exit 0                                         |
+| Focused recorder, direct-dispatch and SDK telemetry regressions | Exit 0                                         |
+| Changed-file ESLint and Ruff                                    | Exit 0                                         |
+| Full validation in shared workspace                             | Exit 1; project-artifact/state failures remain |
 
 The expanded freshness fixtures initially failed because their required rendered Markdown companion was absent.
 The fixture now invokes the real renderer before testing freshness; the validator's companion-file check stays intact.
