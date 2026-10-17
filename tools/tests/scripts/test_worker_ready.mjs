@@ -401,7 +401,7 @@ test("initial handshake passes before continuation, but never establishes comple
   assert.equal(verifyWorkerReady(input).status, "BLOCKED");
 });
 
-test("direct WORKER_EXECUTE dispatch passes --phase execute without handshake overhead", () => {
+function directSample() {
   const input = initialSample();
   const envelope = {
     request_id: "exec-1",
@@ -415,11 +415,50 @@ test("direct WORKER_EXECUTE dispatch passes --phase execute without handshake ov
   const prompt = `WORKER_EXECUTE\n${JSON.stringify(envelope)}`;
   dispatch(input).data.arguments.prompt = prompt;
   userMessages(input)[0].data.content = prompt;
+  input.events.push({
+    type: "tool.execution_complete",
+    agentId: "root",
+    data: { toolCallId: CALL, success: true },
+  });
+  return input;
+}
+
+test("direct WORKER_EXECUTE dispatch passes without claiming continuation was tested", () => {
+  const input = directSample();
   const result = verifyWorkerReady({ ...input, phase: "execute" });
   assert.equal(result.status, "EXECUTE_VERIFIED", result.reasons.join("\n"));
   assert.equal(result.phase, "execute");
-  assert.equal(result.continuation_verified, true);
+  assert.equal(result.continuation_verified, false);
 });
+
+for (const [label, mutate] of [
+  ["mismatched receipt", (s) => (userMessages(s)[0].data.content = "unrelated input")],
+  [
+    "missing turn end",
+    (s) =>
+      s.events.splice(
+        s.events.findIndex((e) => e.type === "assistant.turn_end"),
+        1,
+      ),
+  ],
+  ["unlinked response", (s) => (assistantMessages(s)[0].data.parentToolCallId = "other")],
+  ["failed parent task", (s) => (s.events.at(-1).data.success = false)],
+  ["missing parent completion", (s) => s.events.pop()],
+  ["mismatched mode", (s) => (dispatch(s).data.arguments.mode = "sync")],
+  [
+    "misordered completion",
+    (s) => {
+      const completion = s.events.splice(s.events.indexOf(completed(s)), 1)[0];
+      s.events.splice(4, 0, completion);
+    },
+  ],
+]) {
+  test(`direct dispatch blocks ${label}`, () => {
+    const input = directSample();
+    mutate(input);
+    assert.equal(verifyWorkerReady({ ...input, phase: "execute" }).status, "BLOCKED");
+  });
+}
 
 test("observed SDK continuation uses a new parentAgentTaskId and reuses the original dispatch call and turn ID", () => {
   const input = sample();

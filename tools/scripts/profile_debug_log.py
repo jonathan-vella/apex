@@ -55,10 +55,6 @@ from typing import Any
 BENIGN_ERROR_FRAGMENTS = (
     "ENOENT",
     "no such file or directory",
-    "view_range out of bounds",
-    "Search paths do not exist",
-    "Skill not found",
-    "Agent not found",
 )
 
 
@@ -696,8 +692,6 @@ def sdk_execution_metrics(spans: list[dict[str, Any]]) -> dict[str, Any]:
     """Measure linked execution calls, including one-shot reviews and worker resume recovery."""
     executions = [span for span in spans if "_sdk_execution" in span]
     first_inputs: list[int] = []
-    seen_first_workers: set[str] = set()
-    resumed_workers: set[str] = set()
     recovery: list[bool | None] = []
     workers = {span["_sdk_agent_id"]: span for span in spans if span.get("_jsonl_subagent")}
     reviews: Counter[str] = Counter()
@@ -729,14 +723,11 @@ def sdk_execution_metrics(spans: list[dict[str, Any]]) -> dict[str, Any]:
             and int(span["startTimeUnixNano"]) >= start
             and (stop is None or int(span["startTimeUnixNano"]) < stop)
         ]
-        if target not in seen_first_workers:
-            seen_first_workers.add(target)
-            chats = [span for span in window if span.get("name", "").startswith("chat:")]
-            value = _token_count(_attrs(chats[0]).get("gen_ai.usage.input_tokens")) if chats else None
-            if value is not None:
-                first_inputs.append(value)
-        if envelope.get("resume") is True and target not in resumed_workers:
-            resumed_workers.add(target)
+        chats = [span for span in window if span.get("name", "").startswith("chat:")]
+        value = _token_count(_attrs(chats[0]).get("gen_ai.usage.input_tokens")) if chats else None
+        if value is not None:
+            first_inputs.append(value)
+        if envelope.get("resume") is True:
             tool = next((span for span in window if _attrs(span).get("gen_ai.operation.name") == "execute_tool"), None)
             if tool is None:
                 recovery.append(None)
@@ -744,8 +735,7 @@ def sdk_execution_metrics(spans: list[dict[str, Any]]) -> dict[str, Any]:
                 arguments = json.loads(_attrs(tool).get("gen_ai.tool.call.arguments") or "{}")
                 command = arguments.get("command") if isinstance(arguments, dict) else None
                 recovery.append(
-                    isinstance(command, str)
-                    and f"apex-recall show {envelope['project']} --json" in command
+                    command == f"apex-recall show {envelope['project']} --json"
                     and tool.get("status", {}).get("code") == 1
                 )
         if worker["_jsonl_subagent"] == "challenger-review-subagent" or envelope.get("protocol") == "APEX_REVIEW":
@@ -755,7 +745,7 @@ def sdk_execution_metrics(spans: list[dict[str, Any]]) -> dict[str, Any]:
     return {
         "execution_count": len(executions),
         "max_first_execution_input_tokens": max(first_inputs)
-        if first_inputs and len(first_inputs) == len(seen_first_workers)
+        if first_inputs and len(first_inputs) == len(executions)
         else None,
         "resume_recall_verified": all(recovery) if recovery and all(value is not None for value in recovery) else None,
         "challenger_per_step": dict(reviews),

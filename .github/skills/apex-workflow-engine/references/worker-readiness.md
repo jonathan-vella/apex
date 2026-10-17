@@ -15,12 +15,13 @@ Two dispatch modes are supported:
   the named worker directly with `WORKER_EXECUTE` followed by a newline and the JSON
   envelope (`mode: background` for multi-turn workers or `mode: sync` for one-shot).
   Post-dispatch attribution is verified via `verify-worker-ready.mjs --phase execute`
-  (`EXECUTE_VERIFIED`). In Autopilot mode (`APEX_UNATTENDED=1` or explicit user
-  `"run in autopilot"` / `"auto mode"` authorization), `01-Orchestrator` dispatches
-  workers directly, auto-resolves discovery defaults from the project brief, applies
-  `must_fix`/`should_fix` review mitigations, and auto-advances across all authorized
-  gates (including test deployments when Azure test scope is authorized), pausing
-  only on unresolvable hard blockers.
+  (`EXECUTE_VERIFIED`). This checks the actual dispatch, received input, completed
+  worker interaction and successful parent task; it does not prove continuation
+  (`continuation_verified: false`), artifact validity or permission.
+  In Autopilot mode, `01-Orchestrator` continues approved engineering work and
+  technical handoffs using the supplied brief. Proposed defaults are assumptions,
+  not user answers or verified Azure facts. Required review, governance and human
+  approval evidence must still be current before consequential actions.
 - **Diagnostic Ready-Only Handshake (`--phase initial` / `--phase complete`)**: Used
   for standalone routing certification (CHM-03) when explicitly requested without
   project execution.

@@ -83,26 +83,7 @@ function parseReviewJson(content) {
   return candidates[0];
 }
 
-function normalizeReviewDoc(doc, input, root, refreshContractCache = false) {
-  if (refreshContractCache && nonempty(input?.artifact_path)) {
-    const currentCache = cacheInputs(input.artifact_path, root, "rubber-duck");
-    if (
-      input.cache_inputs?.reviewer === "rubber-duck" &&
-      input.cache_inputs?.artifact_sha === currentCache.artifact_sha
-    ) {
-      input.cache_inputs = structuredClone(currentCache);
-    }
-    const entries = Array.isArray(doc.batch_results) ? doc.batch_results : [doc];
-    for (const entry of entries) {
-      if (
-        object(entry) &&
-        entry.cache_inputs?.reviewer === "rubber-duck" &&
-        entry.cache_inputs?.artifact_sha === currentCache.artifact_sha
-      ) {
-        entry.cache_inputs = structuredClone(currentCache);
-      }
-    }
-  }
+function normalizeReviewDoc(doc, input, root) {
   const entries = Array.isArray(doc.batch_results) ? doc.batch_results : [doc];
   for (const entry of entries) {
     if (!object(entry)) continue;
@@ -112,15 +93,6 @@ function normalizeReviewDoc(doc, input, root, refreshContractCache = false) {
       path.resolve(root, entry.challenged_artifact) === path.resolve(root, input.artifact_path)
     ) {
       entry.challenged_artifact = input.artifact_path;
-    }
-    if (
-      object(entry.cache_inputs) &&
-      object(input?.cache_inputs) &&
-      entry.cache_inputs.reviewer === "rubber-duck" &&
-      entry.cache_inputs.artifact_sha === input.cache_inputs.artifact_sha &&
-      entry.cache_inputs.artifact_hash === input.cache_inputs.artifact_hash
-    ) {
-      entry.cache_inputs = structuredClone(input.cache_inputs);
     }
     if (!Array.isArray(entry.findings)) continue;
     for (const finding of entry.findings) {
@@ -149,6 +121,27 @@ function normalizeReviewDoc(doc, input, root, refreshContractCache = false) {
     }
   }
 }
+function resolveReviewer(events, requestId) {
+  const dispatches = events.filter((event) => {
+    if (event.type !== "tool.execution_start" || event.data?.toolName !== "task") return false;
+    const args = event.data.arguments;
+    if (args?.agent_type !== "rubber-duck" || !args.prompt?.startsWith("APEX_REVIEW\n")) return false;
+    const input = JSON.parse(args.prompt.slice("APEX_REVIEW\n".length));
+    return input.request_id === requestId;
+  });
+  requireEvidence(dispatches.length === 1, "Request ID must identify exactly one review dispatch in --events");
+  const dispatch = dispatches[0];
+  const starts = events.filter(
+    (event) =>
+      event.type === "subagent.started" &&
+      event.data?.toolCallId === dispatch.data.toolCallId &&
+      event.data?.agentName === "rubber-duck" &&
+      nonempty(event.agentId),
+  );
+  requireEvidence(starts.length === 1, "Review dispatch must identify exactly one worker");
+  return { workerId: starts[0].agentId, parentId: dispatch.agentId ?? "root" };
+}
+
 function parseEvents(eventsPath) {
   requireEvidence(path.isAbsolute(eventsPath), "--events must be an absolute native events.jsonl path");
   return fs
@@ -324,6 +317,7 @@ export function extractReview(events, workerId, parentId) {
       event.type,
     ),
   );
+  const recoveredReads = new Set();
   for (const event of toolEvents) {
     const turn = turns.find(
       (candidate) =>
@@ -341,12 +335,39 @@ export function extractReview(events, workerId, parentId) {
     const linkedTool = worker.filter((candidate) => candidate.data?.toolCallId === event.data?.toolCallId);
     const toolStart = exactly(linkedTool, external ? "external_tool.requested" : "tool.execution_start");
     const toolFinish = exactly(linkedTool, external ? "external_tool.completed" : "tool.execution_complete");
+    const successful = (finish) =>
+      finish.data?.success === true && !finish.data.error && !finish.data.isError && !finish.data.result?.isError;
+    let recovered = false;
+    if (!external && !successful(toolFinish)) {
+      const readPath = toolStart.data?.arguments?.path;
+      const message = toolFinish.data?.error?.message ?? toolFinish.data?.result?.message;
+      recovered =
+        toolStart.data?.toolName === "view" &&
+        nonempty(readPath) &&
+        message === "view_range out of bounds" &&
+        worker.some(
+          (retry) =>
+            retry.type === "tool.execution_start" &&
+            retry.data?.toolName === "view" &&
+            retry.data?.arguments?.path === readPath &&
+            events.indexOf(retry) > events.indexOf(toolFinish) &&
+            worker.some(
+              (finish) =>
+                finish.type === "tool.execution_complete" &&
+                finish.data?.toolCallId === retry.data.toolCallId &&
+                successful(finish) &&
+                events.indexOf(finish) > events.indexOf(retry) &&
+                events.indexOf(finish) < events.indexOf(response),
+            ),
+        );
+      if (recovered) recoveredReads.add(toolFinish.data.toolCallId);
+    }
     requireEvidence(
       nonempty(event.data?.toolCallId) &&
         events.indexOf(turn.start) < events.indexOf(toolStart) &&
         events.indexOf(toolStart) < events.indexOf(toolFinish) &&
         events.indexOf(toolFinish) < events.indexOf(turn.end) &&
-        (external || typeof toolFinish.data?.success === "boolean"),
+        (successful(toolFinish) || recovered),
       "Worker tool calls must complete successfully",
     );
   }
@@ -368,6 +389,7 @@ export function extractReview(events, workerId, parentId) {
       step: input.step,
       review_depth: input.review_depth,
       project_name: input.project_name,
+      ...(recoveredReads.size ? { recovered_read_calls: [...recoveredReads] } : {}),
     },
   };
 }
@@ -482,13 +504,26 @@ export function recordReview({
   events: eventsPath,
   workerId,
   parentId,
+  requestId,
   output,
   root = process.cwd(),
   refreshContractCache = false,
 }) {
+  requireEvidence(!refreshContractCache, "Review metadata cannot be refreshed after dispatch");
+  requireEvidence(nonempty(eventsPath), "Explicit --events is required; newest-session discovery is not supported");
   root = fs.realpathSync(root);
+  const events = parseEvents(eventsPath);
+  if (requestId !== undefined) {
+    requireEvidence(nonempty(requestId), "Request ID must be nonempty");
+    const resolved = resolveReviewer(events, requestId);
+    requireEvidence(workerId === undefined || workerId === resolved.workerId, "Worker differs from request ID");
+    requireEvidence(parentId === undefined || parentId === resolved.parentId, "Parent differs from request ID");
+    workerId = resolved.workerId;
+    parentId = resolved.parentId;
+  }
+  requireEvidence(nonempty(workerId) && nonempty(parentId), "Supply --request-id or both --worker-id and --parent-id");
   const { input, doc, execution } = extractReview(loadEventsWithFlushWait(eventsPath, workerId), workerId, parentId);
-  normalizeReviewDoc(doc, input, root, refreshContractCache);
+  normalizeReviewDoc(doc, input, root);
   const target = outputPath(root, input.project_name, output);
   requireEvidence(
     outputPath(root, input.project_name, input.output_path) === target,
@@ -530,27 +565,27 @@ export function runRecorder(argv = process.argv.slice(2)) {
         events: { type: "string" },
         "worker-id": { type: "string" },
         "parent-id": { type: "string" },
+        "request-id": { type: "string" },
         output: { type: "string" },
-        "refresh-contract-cache": { type: "boolean" },
         help: { type: "boolean" },
       },
     });
     if (values.help) {
       console.log(
-        "Usage: record-review.mjs --events /absolute/events.jsonl --worker-id ID --parent-id root|ID --output PATH [--refresh-contract-cache]",
+        "Usage: record-review.mjs --events /absolute/events.jsonl --output PATH " +
+          "(--request-id ID | --worker-id ID --parent-id root|ID)",
       );
       return 0;
     }
-    for (const key of ["events", "worker-id", "parent-id", "output"])
-      requireEvidence(nonempty(values[key]), `Missing --${key}`);
+    for (const key of ["events", "output"]) requireEvidence(nonempty(values[key]), `Missing --${key}`);
     console.log(
       JSON.stringify(
         recordReview({
           events: values.events,
           workerId: values["worker-id"],
           parentId: values["parent-id"],
+          requestId: values["request-id"],
           output: values.output,
-          refreshContractCache: values["refresh-contract-cache"] ?? false,
         }),
         null,
         2,

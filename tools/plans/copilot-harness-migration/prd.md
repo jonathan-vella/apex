@@ -4,8 +4,10 @@
 
 Complete the migration of APEX to the GitHub Copilot SDK harness inside VS Code, preserving specialist-owned
 work, human approval gates, independent reviews, artifact ownership, and reliable recovery.
-Finish and verify the existing implementation in [PR #767](https://github.com/jonathan-vella/apex/pull/767);
+Finish and verify the existing implementation in [PR #779](https://github.com/jonathan-vella/apex/pull/779);
 do not rebuild it from the historical plan.
+The earlier all-complete claim is withdrawn; follow the [recovery assessment](recovery-assessment.md).
+No merge into `main` is authorized.
 
 The source is the [recovered plan](../../../.archive/pre-cpharness/migration-plan-2026-10-16.md).
 Recovery provenance and delegation rules are in the [delivery index](README.md).
@@ -15,9 +17,9 @@ Recovery provenance and delegation rules are in the [delivery index](README.md).
 - An operator starts or resumes a project through the canonical manual entry skills in VS Code, in interactive or
   Autopilot (`APEX_UNATTENDED=1` / explicit `"autopilot"` prompt) mode.
 - `01-Orchestrator` dispatches authorized specialists directly with `WORKER_EXECUTE` (`--phase execute`),
-  auto-advancing across all authorized gates in Autopilot mode while pausing at gates in interactive mode.
+  continuing scoped technical work in Autopilot while retaining required human gate evidence.
 - A directly selected step agent remains interactive; a delegated step returns input requests to its parent
-  (or uses project-brief defaults in Autopilot mode).
+  and uses supplied brief answers without inventing user confirmations.
 - A maintainer diagnoses the resulting native SDK session without mixing unrelated projects or double-counting usage.
 - A replacement agent recovers this migration from durable requirements, dependencies, issues, and evidence.
 
@@ -75,15 +77,15 @@ The historical plan is retained verbatim. The following are current constraints,
 
 - Use direct `WORKER_EXECUTE` dispatch (`verify-worker-ready.mjs --phase execute`) as the standard workflow and
   Autopilot execution path; retain the 2-turn tool-free handshake (`--phase initial` / `--phase complete`) only for
-  standalone diagnostic routing probes (completed in CHM-03).
+  standalone diagnostic routing probes. Direct execution does not certify continuation.
 - `01-Orchestrator` dispatches allowlisted main workers; steps call their authorized leaves (`rubber-duck`,
   `cost-estimate-subagent`, validate/preview subagents).
-- In Autopilot mode (`APEX_UNATTENDED=1` or explicit operator `"run in autopilot"` / `"auto mode"` authorization),
-  `01-Orchestrator` auto-resolves mid-step discovery defaults from the brief, auto-applies `must_fix`/`should_fix`
-  review mitigations, and auto-advances across all authorized steps (including test deployments when Azure test
-  scope is authorized), pausing only on unresolvable hard blockers.
+- In Autopilot mode, continue approved engineering and authorized mitigations without repeated prompts.
+  Proposed defaults remain assumptions. Required authority, reviews and governance remain separate;
+  user-confirmed ownership, prices and approvals must never be invented to advance.
 - `record-review.mjs` extracts unambiguous JSON from fenced or prose-wrapped `rubber-duck` responses, normalizes
-  `traces_to` strings, finding IDs, and severity counts, and ignores recovered internal read-tool errors.
+  `traces_to` strings, finding IDs, and severity counts. Range-read recovery requires a successful read of the
+  same file and remains auditable. Missing, stale or conflicting metadata is never repaired after dispatch.
 - Do not add a root `.mcp.json` or duplicate `.vscode/mcp.json` registrations merely to satisfy historical parity
   wording. Verify the installed VS Code projection and change configuration only for a demonstrated gap.
 - File-based `SubagentStop` is not a guaranteed enforcement surface in this runtime.

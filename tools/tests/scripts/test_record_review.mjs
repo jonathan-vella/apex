@@ -622,6 +622,10 @@ test("recorder normalizes finding IDs, counts, string traces_to and recovered re
   const failedRead = f.events.find((event) => event.type === "tool.execution_complete" && event.agentId === "worker-1");
   failedRead.data.success = false;
   failedRead.data.error = { message: "view_range out of bounds", code: "failure" };
+  for (const event of f.events.filter(
+    (event) => event.type === "tool.execution_start" && event.data.toolName === "view",
+  ))
+    event.data.arguments = { path: artifact };
   f.doc.findings = [
     {
       id: "00000000",
@@ -640,6 +644,68 @@ test("recorder normalizes finding IDs, counts, string traces_to and recovered re
   assert.equal(saved.should_fix_count, 1);
   assert.deepEqual(saved.findings[0].traces_to, ["Section 1"]);
   assert.equal(saved.findings[0].id, findingId(saved.findings[0]));
+  assert.deepEqual(saved.review_execution.recovered_read_calls, ["read-0"]);
+});
+
+for (const [label, mutate] of [
+  ["unrecovered read", (f) => addReadTurns(f, 1)],
+  [
+    "failed command",
+    (f) => {
+      addReadTurns(f, 2);
+      f.events.find((e) => e.data?.toolName === "view").data.toolName = "bash";
+    },
+  ],
+  [
+    "different retry path",
+    (f) => {
+      addReadTurns(f, 2);
+      const reads = f.events.filter((e) => e.data?.toolName === "view");
+      reads[0].data.arguments = { path: artifact };
+      reads[1].data.arguments = { path: "other.md" };
+    },
+  ],
+]) {
+  test(`failed operations remain blocking: ${label}`, (t) => {
+    const f = fixture(t);
+    mutate(f);
+    const failed = f.events.find((e) => e.type === "tool.execution_complete" && e.agentId === "worker-1");
+    failed.data.success = false;
+    failed.data.error = { message: "view_range out of bounds" };
+    assert.throws(() => f.record(), /must complete successfully/);
+  });
+}
+
+test("request ID resolves an exact worker in an explicit session without UUID scraping", (t) => {
+  const f = fixture(t);
+  f.flush();
+  recordReview({ ...f.options, workerId: undefined, parentId: undefined, requestId: f.input.request_id });
+  assert.equal(f.persisted().review_execution.worker_id, "worker-1");
+});
+
+test("request lookup rejects ambiguity, wrong identity and missing session instead of choosing newest", (t) => {
+  const f = fixture(t);
+  f.flush();
+  assert.throws(() => recordReview({ ...f.options, events: undefined }), /Explicit --events/);
+  assert.throws(() => recordReview({ ...f.options, requestId: "unknown" }), /exactly one review dispatch/);
+  assert.throws(() => recordReview({ ...f.options, requestId: "request-1", workerId: "other" }), /Worker differs/);
+  assert.throws(() => recordReview({ ...f.options, requestId: "request-1", parentId: "other" }), /Parent differs/);
+  f.events.push(structuredClone(f.events[0]));
+  f.flush();
+  assert.throws(() => recordReview({ ...f.options, requestId: "request-1" }), /exactly one review dispatch/);
+});
+
+test("recording never fills or refreshes missing, stale or conflicting review metadata", (t) => {
+  const f = fixture(t);
+  f.flush();
+  assert.throws(() => recordReview({ ...f.options, refreshContractCache: true }), /cannot be refreshed/);
+  f.input.cache_inputs = {};
+  f.doc.cache_inputs = {};
+  assert.throws(() => f.record(), /Dispatched cache snapshot/);
+  f.input.cache_inputs = cacheInputs(artifact, f.root, "rubber-duck");
+  f.doc.cache_inputs = { ...f.input.cache_inputs, protocol_sha: "incorrect" };
+  assert.throws(() => f.record(), /cache snapshot/);
+  assert.equal(fs.existsSync(path.join(f.root, output)), false);
 });
 
 test("existing outputs require dispatch overwrite:true and successful replacement preserves raw findings", (t) => {

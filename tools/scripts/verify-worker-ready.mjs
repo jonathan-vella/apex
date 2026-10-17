@@ -76,19 +76,76 @@ export function verifyWorkerReady({ events, frontmatter, workerId, parentId, pha
   const assistantMessages = attributed.filter((event) => event.type === "assistant.message");
 
   if (phase === "execute") {
-    const executeEnvelope = parseExecuteInput(args?.prompt) ?? parseExecuteInput(userMessages[0]?.data?.content);
+    const executeEnvelope = parseExecuteInput(args?.prompt);
     if (!executeEnvelope) {
       reasons.push("Direct execute phase requires a valid WORKER_EXECUTE JSON envelope.");
     } else if ((executeEnvelope.parent_id ?? parentId) !== parentId) {
       reasons.push("WORKER_EXECUTE parent_id does not match the requested parent.");
     }
-    if (userMessages.length < 1 || assistantMessages.length < 1) {
-      reasons.push("Direct execute phase requires at least one attributed worker turn.");
+    const received = userMessages[0];
+    if (!received || received.data?.content !== args?.prompt) {
+      reasons.push("Received WORKER_EXECUTE must exactly match the parent dispatch.");
+    }
+    const interaction = received?.data?.interactionId;
+    const turns = attributed.filter(
+      (event) => event.type === "assistant.turn_start" && event.data?.interactionId === interaction,
+    );
+    if (!interaction || !turns.length) reasons.push("Direct execution lacks attributed worker turns.");
+    for (const turn of turns) {
+      const messages = assistantMessages.filter(
+        (event) => event.data?.interactionId === interaction && event.data?.turnId === turn.data.turnId,
+      );
+      const ends = attributed.filter(
+        (event) =>
+          event.type === "assistant.turn_end" &&
+          event.data?.turnId === turn.data.turnId &&
+          events.indexOf(event) > events.indexOf(turn) &&
+          events.indexOf(event) < events.indexOf(completionEvent),
+      );
+      if (
+        turn.data?.parentToolCallId !== start?.toolCallId ||
+        !messages.length ||
+        ends.length !== 1 ||
+        messages.some(
+          (event) =>
+            event.data?.parentToolCallId !== start?.toolCallId ||
+            events.indexOf(event) <= events.indexOf(turn) ||
+            events.indexOf(event) >= events.indexOf(ends[0]),
+        ) ||
+        ends[0]?.data?.parentToolCallId !== start?.toolCallId
+      )
+        reasons.push("Direct execution turn lacks matching response, linkage or completion.");
+    }
+    const taskEnds = events.filter(
+      (event) => event.type === "tool.execution_complete" && event.data?.toolCallId === start?.toolCallId,
+    );
+    if (
+      taskEnds.length !== 1 ||
+      taskEnds[0].data?.success !== true ||
+      (taskEnds[0].agentId ?? "root") !== parentId ||
+      completed?.error ||
+      completed?.success === false ||
+      (args?.mode !== undefined && args.mode !== start?.executionMode) ||
+      (args?.mode === undefined && start?.executionMode !== "sync") ||
+      !dispatch ||
+      !startEvent ||
+      !configurations[0] ||
+      !received ||
+      !completionEvent ||
+      !(
+        events.indexOf(dispatch) < events.indexOf(startEvent) &&
+        events.indexOf(startEvent) < events.indexOf(configurations[0]) &&
+        events.indexOf(configurations[0]) < events.indexOf(received) &&
+        events.indexOf(received) < events.indexOf(turns[0]) &&
+        events.indexOf(dispatch) < events.indexOf(taskEnds[0])
+      )
+    ) {
+      reasons.push("Direct execution requires a successful linked dispatch and ordered worker completion.");
     }
     return {
       status: reasons.length ? "BLOCKED" : "EXECUTE_VERIFIED",
       phase,
-      continuation_verified: reasons.length === 0,
+      continuation_verified: false,
       worker_id: workerId,
       parent_id: parentId,
       agent: frontmatter?.name ?? null,
@@ -294,7 +351,11 @@ function parseExecuteInput(content) {
       parsed &&
       typeof parsed === "object" &&
       !Array.isArray(parsed) &&
-      ["request_id", "project", "step", "phase"].every((key) => typeof parsed[key] === "string" && parsed[key].trim())
+      ["request_id", "project", "step", "phase"].every(
+        (key) => typeof parsed[key] === "string" && parsed[key].trim(),
+      ) &&
+      typeof parsed.resume === "boolean" &&
+      ["default", "deep"].includes(parsed.review_depth)
     ) {
       return parsed;
     }

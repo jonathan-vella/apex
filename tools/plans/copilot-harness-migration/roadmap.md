@@ -61,6 +61,7 @@ A positive recommendation is not merge authorization or deployment permission.
 The critical path is CHM-01, CHM-02, both CHM-03 and CHM-05, CHM-04, CHM-06, CHM-07, then CHM-08.
 CHM-03 and CHM-05 are the only planned parallel prerequisite lane.
 
-With operator Autopilot authorization (`auto_all_authorized` + direct `WORKER_EXECUTE` dispatch +
-resilient review recording), CHM-04 through CHM-08 execute continuously in Autopilot mode without
-expiring UTC cutoffs or manual cross-chat copy-paste rituals, pausing only on unresolvable hard blockers.
+Autopilot can continue scoped engineering and validation without repeated confirmations.
+Follow the [recovery sequence](recovery-assessment.md) before claiming live acceptance.
+Missing authority, policy, review or genuine runtime evidence remains blocking.
+Do not merge either repository into `main`, even when CI passes.

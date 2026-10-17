@@ -33,14 +33,16 @@ Do not merge, push, deploy, close prerequisites automatically, weaken requiremen
 
 ### Acceptance criteria
 
-- [x] Every requirement has a linked result and every predecessor checklist has current evidence.
-- [x] Candidate commit, environment, revisions, and freshness/impact checks are recorded.
-- [x] Required runtime observations and strict telemetry checks pass; static fixtures are not substituted.
-- [x] Documentation publication/review evidence is linked (`jonathan-vella/apex-docs#40`).
-- [x] Current CI and any baseline failures have an explicit, truthful disposition.
-- [x] No required unknown, missing approval, unresolved must-fix finding, or unsupported capability is hidden.
-- [x] The recommendation states its limits and identifies the human merge decision (`READY` for owner merge
-      decision on #767).
+- [ ] Every requirement has a linked result and every predecessor checklist has current evidence.
+- [ ] Candidate commit, environment, revisions, and freshness/impact checks are recorded.
+- [ ] Required runtime observations and strict telemetry checks pass without synthetic closure events.
+- [ ] Documentation review and validation evidence is linked from `jonathan-vella/apex-docs#43`.
+- [ ] Current CI and workspace/project failures have an explicit disposition.
+- [ ] No required unknown, missing approval or unresolved finding is hidden.
+- [ ] A truthful evidence matrix replaces the earlier READY claim.
+
+Current recommendation: **BLOCKED** pending the recovery assessment and valid runtime evidence.
+No merge is authorized, even after checks pass.
 
 ### Return and stop conditions
 

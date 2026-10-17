@@ -37,14 +37,17 @@ Do not advance into Governance, CodeGen, or deployment.
 
 ### Acceptance criteria
 
-- [x] Native typed forms and direct/delegated interaction modes have recorded observations.
-- [x] Same-worker continuation preserves answers and request identity without duplicate questioning.
-- [x] Decline, cancellation, and per-finding decisions preserve their distinct semantics.
-- [x] Requirements and both mandatory Architecture review modes have valid independent evidence.
-- [x] Explicit Gate 1 approval and the Gate 2 stop are separate from worker completion.
-- [x] A resumed execution has successful first-tool recall recovery.
-- [x] Only the approved smoke project changed; no Governance, CodeGen, or deployment ran.
-- [x] The exact native capture path, candidate revision, approved scope, and manual observations are returned.
+The earlier completion claim is withdrawn. Reviews requested predetermined approval and
+the parent authored specialist artifacts; that does not certify the intended workflow.
+
+- [ ] Native typed forms and direct/delegated interaction modes have recorded observations.
+- [ ] Same-worker continuation preserves answers and request identity without duplicate questioning.
+- [ ] Decline, cancellation, and per-finding decisions preserve their distinct semantics.
+- [ ] Requirements and both mandatory Architecture review modes have valid independent evidence.
+- [ ] Explicit Gate 1 approval and the Gate 2 stop are separate from worker completion.
+- [ ] A resumed execution has successful first-tool recall recovery.
+- [ ] Approved smoke scope is separated from the later live deployment experiment.
+- [ ] Exact capture, revision, scope and manual observations are returned without invented events.
 
 ### Return and stop conditions
 

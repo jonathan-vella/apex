@@ -159,10 +159,11 @@ labels are diagnostics only; missing or differing model metadata never blocks re
 Missing worker identity/linkage, failed continuation or unavailable tools blocks execution; never
 substitute a fixed model or do specialist work inline.
 In **Autopilot mode** (`APEX_UNATTENDED=1` or explicit user `"autopilot"` / `"auto mode"`
-request), dispatch workers directly with `WORKER_EXECUTE`, auto-resolve mid-step discovery
-defaults from the brief, auto-apply `must_fix`/`should_fix` review mitigations, and
-auto-advance across all authorized gates (including test deployments when Azure test scope
-is authorized), pausing only on unresolvable hard blockers.
+request), continue approved engineering work and technical handoffs without repeated
+permission prompts. Use supplied answers; label proposed defaults as assumptions, never
+as user-confirmed identity, ownership, budget or compliance facts. Apply authorized
+mitigations through the artifact owner and validate them. Preserve independent review
+verdicts and current human gate evidence; Autopilot is not an approval or policy bypass.
 For interactive `USER_INPUT_REQUIRED`, validate the request ID, phase and form, call `ask_user`,
 then resume the same worker with the answers; cancellation stops the workflow.
 Revalidate graph preconditions and the current human approval immediately before

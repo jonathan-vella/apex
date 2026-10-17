@@ -35,12 +35,15 @@ Issue assignment alone does not authorize authenticated probes.
 ### Acceptance criteria
 
 - [x] Existing configuration validators pass or exact blockers are recorded.
-- [x] Required MCP capabilities are observed in the installed VS Code runtime.
-- [x] Approved benign calls succeed with explicit result evidence; mere tool-name discovery is insufficient.
+- [ ] Required MCP capabilities are observed in the installed VS Code runtime.
+- [ ] Approved benign calls succeed for each required GitHub, ARM pricing and Azure MCP capability.
 - [x] No duplicate registrations or unapproved credential/configuration changes were introduced.
-- [x] Hook tests distinguish supported observations, fixture coverage, and unavailable runtime surfaces.
+- [ ] Hook tests distinguish supported observations, fixture coverage, and unavailable runtime surfaces.
 - [x] Missing `SubagentStop` behavior is not misrepresented as an approval/review enforcement guarantee.
-- [x] CHM-04 receives a verified prerequisite matrix or an explicit blocking result.
+- [ ] CHM-04 receives a verified prerequisite matrix or an explicit blocking result.
+
+Bicep/Pylance calls and static configuration tests do not substitute for the required
+ARM pricing and Azure MCP live operations. The earlier closure is withdrawn.
 
 ### Validation and return
 

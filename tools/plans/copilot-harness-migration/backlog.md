@@ -1,7 +1,9 @@
 ## Backlog: complete the Copilot harness migration
 
 Baseline: `ee2712cc341ad0cc19a4b21ba9bf3701ce5aefcd`, [PR #767](https://github.com/jonathan-vella/apex/pull/767).
-Status is the initial recovery snapshot, not a claim that subsequent issue activity has already happened.
+Current delivery is [PR #779](https://github.com/jonathan-vella/apex/pull/779).
+The earlier all-complete claim is withdrawn: generated files and green fixture tests did not prove live acceptance.
+No merge into `main` is authorized. See the [recovery assessment](recovery-assessment.md).
 See the [PRD](prd.md), [roadmap](roadmap.md), and [delegation rules](README.md).
 
 ### Actionable work
@@ -13,12 +15,12 @@ An agent role is a capability description, not a requirement to create or invoke
 | ------ | ----------------------------------------------------------------------------------------- | -------- | ------------- | --------------------- | --------------------------- |
 | CHM-01 | [Resolve the known CI formatting failure](issues/CHM-01-ci-format.md)                     | P0       | Done (#769)   | None                  | Repository coding agent     |
 | CHM-02 | [Reconcile source acceptance and baseline failures](issues/CHM-02-source-acceptance.md)   | P0       | Done (#771)   | CHM-01                | Validation agent            |
-| CHM-03 | [Verify custom-agent discovery and worker routing](issues/CHM-03-worker-readiness.md)     | P0       | Done (#773)   | CHM-02                | Autopilot runtime agent     |
-| CHM-04 | [Exercise forms, continuation, reviews, and gates](issues/CHM-04-workflow-smoke.md)       | P0       | Done (#772)   | CHM-03, CHM-05        | Autopilot workflow agent    |
-| CHM-05 | [Verify VS Code MCP projection and hook boundaries](issues/CHM-05-mcp-hooks.md)           | P1       | Done (#775)   | CHM-02                | Autopilot environment agent |
-| CHM-06 | [Verify native telemetry and scoped export](issues/CHM-06-observability.md)               | P1       | Done (#768)   | CHM-04                | Telemetry validation agent  |
-| CHM-07 | [Publish the harness cutover documentation](issues/CHM-07-published-docs.md)              | P1       | Done (#774)   | CHM-06                | Documentation coding agent  |
-| CHM-08 | [Assemble release evidence and recommend disposition](issues/CHM-08-release-readiness.md) | P0       | Done (#770)   | CHM-01 through CHM-07 | Release evidence agent      |
+| CHM-03 | [Verify custom-agent discovery and worker routing](issues/CHM-03-worker-readiness.md)     | P0       | Partial       | CHM-02                | Autopilot runtime agent     |
+| CHM-04 | [Exercise forms, continuation, reviews, and gates](issues/CHM-04-workflow-smoke.md)       | P0       | Blocked       | CHM-03, CHM-05        | Autopilot workflow agent    |
+| CHM-05 | [Verify VS Code MCP projection and hook boundaries](issues/CHM-05-mcp-hooks.md)           | P1       | Partial       | CHM-02                | Autopilot environment agent |
+| CHM-06 | [Verify native telemetry and scoped export](issues/CHM-06-observability.md)               | P1       | Blocked       | CHM-04                | Telemetry validation agent  |
+| CHM-07 | [Publish the harness cutover documentation](issues/CHM-07-published-docs.md)              | P1       | In progress   | CHM-06                | Documentation coding agent  |
+| CHM-08 | [Assemble release evidence and recommend disposition](issues/CHM-08-release-readiness.md) | P0       | Blocked       | CHM-01 through CHM-07 | Release evidence agent      |
 
 ### GitHub issue register
 

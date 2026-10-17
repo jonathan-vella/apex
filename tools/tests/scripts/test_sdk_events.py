@@ -107,6 +107,66 @@ def test_native_scope_at_required_threshold_passes(events):
     assert report["_computed"]["resume_recall_verified"] is True
 
 
+@pytest.mark.parametrize(
+    "message",
+    [
+        "Skill not found: required-skill",
+        "Agent not found",
+        "Search paths do not exist: required-input",
+        "view_range out of bounds",
+    ],
+)
+def test_runtime_failures_are_not_globally_reclassified_as_benign(events, message):
+    failure = copy.deepcopy(events[-1])
+    failure.update(
+        id="failed-operation",
+        type="tool.execution_start",
+        data={
+            "toolCallId": "failure-call",
+            "toolName": "view",
+            "arguments": {},
+        },
+    )
+    completion = copy.deepcopy(failure)
+    completion.update(
+        id="failed-completion",
+        type="tool.execution_complete",
+        data={
+            "toolCallId": "failure-call",
+            "success": False,
+            "error": {"message": message},
+        },
+    )
+    assert metrics(events + [failure, completion])["totals"]["error_spans_non_benign"] == 1
+
+
+def test_echoing_a_recall_command_is_not_resume_recovery(events):
+    for event in events:
+        if event["type"] == "tool.execution_start" and event["data"].get("toolName") == "bash":
+            event["data"]["arguments"]["command"] = 'echo "apex-recall show sample --json"'
+    assert metrics(events)["_computed"]["resume_recall_verified"] is False
+
+
+def test_later_same_worker_execution_cannot_hide_oversized_input_or_missing_recovery(events):
+    profiler = load("profile_debug_log")
+    spans = profiler.sdk_events_to_spans(events)
+    request = copy.deepcopy(next(span for span in spans if span.get("_sdk_execution", {}).get("worker_id") == "main"))
+    start = max(int(span["startTimeUnixNano"]) for span in spans) + 1_000_000_000
+    request["startTimeUnixNano"] = str(start)
+    request["_sdk_execution"]["request_id"] = "later-execution"
+    request["_sdk_execution"]["resume"] = True
+    chat = copy.deepcopy(
+        next(span for span in spans if span.get("_sdk_agent_id") == "main" and span["name"].startswith("chat:"))
+    )
+    chat["startTimeUnixNano"] = str(start + 1)
+    for attribute in chat["attributes"]:
+        if attribute["key"] == "gen_ai.usage.input_tokens":
+            attribute["value"] = {"intValue": 45_001}
+    result = profiler.sdk_execution_metrics(spans + [request, chat])
+    assert result["max_first_execution_input_tokens"] == 45_001
+    assert result["resume_recall_verified"] is None
+
+
 @pytest.mark.parametrize("model", [None, "hydrafusion-max", "future-runtime-model"])
 @pytest.mark.parametrize("strict", [False, True])
 def test_model_metadata_is_diagnostic_only(events, model, strict):

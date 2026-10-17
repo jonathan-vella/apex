@@ -68,7 +68,7 @@ it is not a required hop in the automatic path.
    ```bash
    node tools/scripts/record-review.mjs \
      --events /absolute/current-session/events.jsonl \
-     --worker-id REVIEWER_ID --parent-id root \
+     --request-id example-requirements-review-1 \
      --output agent-output/example/challenge-findings-requirements.json
    ```
 
@@ -81,6 +81,16 @@ it is not a required hop in the automatic path.
    or alters verdicts. Refuse existing output unless the dispatch explicitly
    authorizes overwrite. Malformed or ambiguous non-JSON output remains a failed
    review.
+   Resolve the worker from the exact request ID in the explicitly supplied session;
+   do not scrape the newest session or guess a worker UUID. The explicit
+   `--worker-id` / `--parent-id` form remains supported.
+   Capture metadata before dispatch and preserve it unchanged: empty, stale or
+   conflicting hashes block recording. There is no post-dispatch refresh option.
+   A failed range read is recoverable only after a successful read of the same
+   file in that reviewer interaction; its call ID stays in execution provenance.
+   Failed commands, missing inputs and unknown tool outcomes still block.
+   Ask for an independent verdict, never an `APPROVED` verdict or zero findings.
+   Synthetic completion events and manually written review outcomes are not evidence.
 5. Require successful recording and strict current validation:
 
    ```bash

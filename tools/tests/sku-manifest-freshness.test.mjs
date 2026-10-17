@@ -27,6 +27,11 @@ function isoDaysAgo(n) {
 function writeManifest(obj) {
   fs.mkdirSync(PROJECT_DIR, { recursive: true });
   fs.writeFileSync(MANIFEST_PATH, `${JSON.stringify(obj, null, 2)}\n`);
+  const rendered = spawnSync(process.execPath, [path.join(ROOT, "tools/scripts/render-sku-manifest-md.mjs"), PROJECT], {
+    cwd: ROOT,
+    encoding: "utf-8",
+  });
+  assert.equal(rendered.status, 0, rendered.stderr);
 }
 
 function runValidator() {
