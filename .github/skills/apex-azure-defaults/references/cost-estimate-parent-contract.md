@@ -12,14 +12,15 @@ user-facing artifact MUST read this file before invocation.
 
 ## Model And Harness Contract
 
-Agent frontmatter owns assignments; this is a current routing summary, not an override:
-`03-Architect` uses `Claude Sonnet 5.5 (copilot)`, `08-As-Built` uses `Claude Sonnet 5.5 (copilot)`, and
-`cost-estimate-subagent` uses `GPT-6 Luna (copilot)`. Keep the independently required
-cost-feasibility review with `challenger-review-subagent` (`GPT-6 Luna (copilot)`).
-These labels do not establish runtime cost-tier eligibility, model availability,
-or API parameters. Do not infer effort settings or pricing from their names.
-If the active harness cannot invoke the declared worker, STOP and notify the user;
-never substitute models, a nested main-agent wrapper, or parent-authored prices.
+Active agent definitions do not pin model or reasoning effort. The operator and
+runtime control selection, including Auto and HydraFusion. Readiness verifies the
+named worker's identity, linked dispatch, tool-free turns and same-worker ACK.
+Model names, effort, picker selection and model-source labels are diagnostic only,
+not acceptance gates. Catalog model metadata remains descriptive
+and does not establish runtime cost-tier eligibility, model availability, or API
+parameters. Do not infer effort settings or pricing from model names. If the
+active harness cannot invoke the declared worker, STOP and notify the user; never
+substitute a fixed model, a nested main-agent wrapper, or parent-authored prices.
 Local prompt metadata is not an Agent Host routing contract; skills inherit caller
 model/tools and require explicit selection of the owning agent.
 

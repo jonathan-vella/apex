@@ -142,9 +142,23 @@ directly.
 The [skill catalog](.github/skills/README.md) describes procedure ownership and invocation flags.
 For explicit prose cleanup, use [/apex-unslop](.github/skills/apex-unslop/SKILL.md); it is manual-only,
 preserves technical content, and is not part of the automatic workflow.
-Local prompt files are adapters. On Agent Host, select the owning agent and use the shared
-manual entry skill; `apex-host-workflow-start` supports an explicit `resume` operation.
-Skills inherit the caller's model/tools and do not bypass human approval gates.
+The supported target is the GitHub Copilot SDK harness **inside VS Code**.
+Select `01-Orchestrator`, then use
+[/apex-workflow-start](.github/skills/apex-workflow-start/SKILL.md) for fresh or `resume` operations.
+After human approval, named specialists run through the
+[verified worker protocol](.github/skills/apex-workflow-engine/references/worker-readiness.md).
+Active agents omit model and reasoning-effort pins; the operator and runtime
+control selection, including Auto and HydraFusion. Readiness is model-agnostic:
+model names, effort, picker selection and model-source labels are diagnostics only.
+Skills inherit caller model/tools; completion never bypasses approval or independent review.
+Legacy Local prompts are retained only in [.archive/pre-cpharness/](.archive/pre-cpharness/).
+Worker identity, dispatch linkage, tool-free same-worker continuation, required
+tools and human approval still require runtime verification.
+Automatic independent reviews use built-in `rubber-duck` through the
+[one-shot review contract](.github/skills/apex-azure-defaults/references/one-shot-review.md),
+without reviewer handshake/ACK turns. The owning step records the actual attributed
+result, validates freshness and returns to the same Orchestrator. `10-Challenger`
+remains optional manual review/repair. Technical handoffs do not approve human gates.
 
 Explicit risk acceptance is supported only for authorized non-production labs, with externally verified authority,
 individual finding selection and separate human gate approval. Kit authoring permission never grants deployment

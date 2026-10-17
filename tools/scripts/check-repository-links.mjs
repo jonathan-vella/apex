@@ -1,4 +1,5 @@
 import { spawnSync } from "node:child_process";
+import { existsSync } from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 
@@ -24,6 +25,8 @@ export function runLinkChecks(root = process.cwd()) {
   }
   let exitCode = 0;
   for (const file of new Set(selection.stdout.split("\0").filter(Boolean))) {
+    // Cached Git paths include retired files until their deletion is staged.
+    if (!existsSync(path.resolve(root, file))) continue;
     if (file.startsWith(".github/skills/apex-azure-artifacts/templates/") && file.endsWith(".template.md")) {
       continue;
     }

@@ -1,7 +1,6 @@
 <!-- ref:merge-sensei-free-pr-v1 -->
 # Merge Sensei-Free PR
 
-Routing source: [Local adapter](../../../../tools/apex-prompts/utility-prompts/merge-sensei-free-pr.prompt.md).
 Apply the [operational boundary](../../apex-workflow-engine/references/operational-safety.md) before activities.
 It controls owner selection, tool limits, worker permissions, state, and gates.
 
@@ -266,7 +265,7 @@ The PR body must include:
 
 ## Related References
 
-- House prompt conventions: [.github/instructions/prompt.instructions.md](../../../instructions/prompt.instructions.md)
+- House authoring conventions: [Agent authoring standards](../../../instructions/agent-authoring.instructions.md)
 - House shell hygiene: [.github/instructions/no-interactive-shell.instructions.md](../../../instructions/no-interactive-shell.instructions.md)
 - GitHub operations skill:
   [.github/skills/apex-github-operations/SKILL.md](../SKILL.md)

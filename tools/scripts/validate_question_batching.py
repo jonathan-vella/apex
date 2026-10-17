@@ -17,6 +17,7 @@ Exit codes: 0 on pass, 1 on missing-or-paraphrased contract.
 from __future__ import annotations
 
 import argparse
+import json
 import re
 import sys
 from pathlib import Path
@@ -29,12 +30,12 @@ REQUIRED_HEADING = "P0 directive — batch independent questions (Plan 01 Phase 
 # Substring fragments that prove the numbered example is intact. Order
 # does not matter, but all six headers must be present.
 REQUIRED_HEADERS = (
-    '"project_name"',
-    '"industry"',
-    '"company_size"',
-    '"region_pin"',
-    '"compliance"',
-    '"iac_tool"',
+    "project_name",
+    "industry",
+    "company_size",
+    "region_pin",
+    "compliance",
+    "iac_tool",
 )
 
 
@@ -47,24 +48,39 @@ def validate(agent_path: Path) -> list[str]:
 
     if REQUIRED_HEADING not in body:
         failures.append(
-            f"{agent_path}: missing P0 directive heading\n"
-            f"  expected: {REQUIRED_HEADING!r}",
+            f"{agent_path}: missing P0 directive heading\n  expected: {REQUIRED_HEADING!r}",
         )
 
-    # Confirm a single askQuestions call carries all six required
-    # headers — guards against the directive surviving while the
-    # example is mangled into separate calls.
-    match = re.search(r"askQuestions\(\{[^}]*questions:\s*\[(.+?)\]\s*\}\)", body, re.DOTALL)
-    if not match:
+    directive = body.partition(REQUIRED_HEADING)[2]
+    match = re.search(r"```json\n(.*?)\n```", directive, re.DOTALL)
+    if not match or "ask_user" not in directive:
         failures.append(
-            f"{agent_path}: no askQuestions example block found near the P0 directive",
+            f"{agent_path}: no ask_user example block found near the P0 directive",
         )
     else:
-        example = match.group(1)
-        missing = [h for h in REQUIRED_HEADERS if h not in example]
-        if missing:
+        try:
+            example = json.loads(match.group(1))
+            properties = example["requestedSchema"]["properties"]
+            if not isinstance(properties, dict) or not isinstance(example.get("message"), str):
+                raise ValueError("message and requestedSchema.properties are required")
+        except (json.JSONDecodeError, KeyError, TypeError, ValueError) as exc:
+            failures.append(f"{agent_path}: invalid ask_user example: {exc}")
+        else:
+            missing = [key for key in REQUIRED_HEADERS if key not in properties]
+            if missing:
+                failures.append(
+                    f"{agent_path}: ask_user example is missing required properties: {', '.join(missing)}",
+                )
+            invalid = [
+                key
+                for key, field in properties.items()
+                if not isinstance(field, dict) or field.get("type") != "string" or not field.get("title")
+            ]
+            if invalid:
+                failures.append(f"{agent_path}: untyped or untitled fields: {', '.join(invalid)}")
+        if "questions[]" in directive:
             failures.append(
-                f"{agent_path}: askQuestions example is missing required headers: {', '.join(missing)}",
+                f"{agent_path}: retired questions[] contract remains in the batching directive",
             )
 
     return failures

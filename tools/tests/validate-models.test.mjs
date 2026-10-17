@@ -75,7 +75,8 @@ function setupFixture({ models = ["gpt-5.6-sol"], registryModels = models, promp
     path.join(fixtureRoot, "tools/schemas/model-catalog.schema.json"),
   );
   writeFileSync(path.join(fixtureRoot, ".github/model-catalog.json"), JSON.stringify(fixtureCatalog));
-  const frontmatter = { name: "Fixture", model: models, tools: ["read"], agents: [], "user-invocable": true };
+  const frontmatter = { name: "Fixture", tools: ["read"], agents: [], "user-invocable": true };
+  if (models !== null) frontmatter.model = models;
   if (handoff !== undefined) frontmatter.handoffs = [{ agent: "Fixture", model: handoff }];
   writeFileSync(
     path.join(fixtureRoot, ".github/agents/fixture.agent.md"),
@@ -83,7 +84,14 @@ function setupFixture({ models = ["gpt-5.6-sol"], registryModels = models, promp
   );
   writeFileSync(
     path.join(fixtureRoot, "tools/registry/agent-registry.json"),
-    JSON.stringify({ agents: { fixture: { agent: ".github/agents/fixture.agent.md", model: registryModels } } }),
+    JSON.stringify({
+      agents: {
+        fixture: {
+          agent: ".github/agents/fixture.agent.md",
+          ...(registryModels !== null ? { model: registryModels } : {}),
+        },
+      },
+    }),
   );
   const promptPath = path.join(fixtureRoot, ".github/prompts/fixture.prompt.md");
   rmSync(promptPath, { force: true });
@@ -173,6 +181,22 @@ describe("validate-models dispatcher", () => {
     assert.equal(code, 0);
   });
 
+  it("accepts unpinned active definitions and generates no assignments", () => {
+    setupFixture({ models: null, registryModels: null });
+    assert.equal(run(["--only=consistency"]).code, 0);
+    assert.equal(run(["--only=catalog"]).code, 0);
+    const generated = JSON.parse(readFileSync(path.join(fixtureRoot, ".github/model-catalog.json"), "utf8"));
+    assert.deepEqual(generated.assignments.agents, {});
+    assert.deepEqual(generated.assignments.subagents, {});
+  });
+
+  it("rejects a legacy model pin present in only one source", () => {
+    setupFixture({ models: ["gpt-5.6-sol"], registryModels: null });
+    assert.equal(run(["--only=consistency"]).code, 1);
+    setupFixture({ models: null, registryModels: ["gpt-5.6-sol"] });
+    assert.equal(run(["--only=consistency"]).code, 1);
+  });
+
   it("an unknown --only value exits 2", () => {
     const { code } = run(["--only=bogus"]);
     assert.equal(code, 2);
@@ -210,11 +234,9 @@ describe("model CLI negatives", () => {
     assert.equal(run(["--only=consistency"]).code, 1);
   });
 
-  it("allows inherited prompts and qualified handoffs but rejects unknown overrides", () => {
-    setupFixture({ prompt: { agent: "Fixture" }, handoff: "gpt-5.6-luna (copilot)" });
+  it("allows unpinned agents and qualified handoffs but rejects unknown handoff overrides", () => {
+    setupFixture({ handoff: "gpt-5.6-luna (copilot)" });
     assert.equal(run(["--only=catalog"]).code, 0);
-    setupFixture({ prompt: { model: "unlisted" } });
-    assert.equal(run(["--only=catalog"]).code, 1);
     setupFixture({ handoff: "unlisted (copilot)" });
     assert.equal(run(["--only=catalog"]).code, 1);
   });

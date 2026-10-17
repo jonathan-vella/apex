@@ -50,7 +50,7 @@ function gatherReferenceContent() {
   }
 
   // Top-level config files
-  for (const f of [COPILOT_INSTRUCTIONS, "AGENTS.md", "tools/apex-prompts/plan-agenticWorkflowOverhaul.prompt.md"]) {
+  for (const f of [COPILOT_INSTRUCTIONS, "AGENTS.md"]) {
     if (fs.existsSync(f)) corpus.push(fs.readFileSync(f, "utf-8"));
   }
 

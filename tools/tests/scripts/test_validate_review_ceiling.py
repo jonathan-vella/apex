@@ -82,3 +82,18 @@ def test_cli_strict_mode_signals_violation(tmp_path):
         text=True,
     )
     assert r.returncode == 1, f"expected 1, got {r.returncode}: {r.stdout} {r.stderr}"
+
+
+def test_empty_budget_evidence_is_unknown_and_strictly_nonpassing(tmp_path):
+    import json
+
+    log = tmp_path / "empty-budget.json"
+    log.write_text(json.dumps({"resourceSpans": [{"scopeSpans": [{"spans": [{"name": "SessionStart"}]}]}]}))
+    result = subprocess.run(
+        [sys.executable, str(SCRIPT), "--budget", str(log), "--strict"],
+        capture_output=True,
+        text=True,
+    )
+    assert result.returncode == 1
+    assert "UNKNOWN" in result.stdout
+    assert "within ceiling" not in result.stdout

@@ -11,7 +11,7 @@
  *     registry, expanding the `bicep` / `terraform` deploy split into
  *     two virtual entries.
  *   - buildAssignments: derive the model-catalog `assignments` block from
- *     agent/subagent frontmatter (the canonical source of truth).
+ *     explicit legacy agent/subagent frontmatter pins.
  */
 
 import { getAgents } from "./workspace-index.mjs";
@@ -81,9 +81,10 @@ function* expandRegistryEntry(key, entry) {
 }
 
 /**
- * Build the model-catalog `assignments` block from agent/subagent
- * frontmatter (the canonical source of truth). The `models` and
- * `governance` blocks are hand-maintained and not produced here.
+ * Build the model-catalog `assignments` block from explicit agent/subagent
+ * frontmatter pins. Active production definitions omit model pins, so their
+ * generated maps are empty. The `models` and `governance` blocks are
+ * hand-maintained and not produced here.
  *
  * @returns {{generated: boolean, generated_by: string, description: string,
  *            agents: Record<string,string>, subagents: Record<string,string>}}
@@ -104,7 +105,7 @@ export function buildAssignments() {
     generated: true,
     generated_by: "tools/scripts/generate-model-catalog.mjs",
     description:
-      "Auto-generated inventory of agent → model assignments derived from frontmatter (canonical source). Do not edit by hand; run `node tools/scripts/generate-model-catalog.mjs` or let the lefthook pre-commit hook refresh it when frontmatter changes.",
+      "Auto-generated inventory of explicit legacy agent → model pins. Active production definitions are unpinned, so their maps are intentionally empty. Do not edit by hand; run `node tools/scripts/generate-model-catalog.mjs`.",
     agents: main,
     subagents: subs,
   };

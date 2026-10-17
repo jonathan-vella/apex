@@ -1,7 +1,6 @@
 <!-- ref:as-built-from-azure-v1 -->
 # As-Built Documentation from Existing Azure Deployment
 
-Routing source: [Local adapter](../../../../tools/apex-prompts/utility-prompts/as-built-from-azure.prompt.md).
 Apply the [operational boundary](operational-safety.md) before activities.
 It controls owner selection, tool limits, worker permissions, state, and gates.
 
@@ -19,7 +18,7 @@ to produce the full Step 7 documentation suite plus a Python diagram.
 
 # Success criteria
 
-- Phases 1–3 (interactive discovery) ran via `askQuestions` before any file
+- Phases 1–3 (interactive discovery) ran via `ask_user` before any file
   reads or shell commands.
 - Phase 4 produced a complete deployed-resource inventory for every
   in-scope resource group.
@@ -34,7 +33,7 @@ to produce the full Step 7 documentation suite plus a Python diagram.
 - User has Azure CLI authenticated (`az account show` succeeds) with at
   least Reader access to every in-scope resource group.
 - No prior artifacts exist for `{project}` — this prompt creates them.
-- After loading required procedure guidance and verifying routing, `askQuestions`
+- After loading required procedure guidance and verifying routing, `ask_user`
   is the first task action. No discovery reads, searches, or shell commands until
   the Phase 1-2 questions are complete; Phase 3 then verifies access.
 - Use real Azure data wherever available; mark synthesized values clearly
@@ -76,14 +75,14 @@ to produce the full Step 7 documentation suite plus a Python diagram.
 
 ---
 
-## Phase 1: Environment Discovery — CALL `askQuestions` FIRST
+## Phase 1: Environment Discovery — CALL `ask_user` FIRST
 
-After loading required guidance, call `askQuestions` before discovery reads,
+After loading required guidance, call `ask_user` before discovery reads,
 searches, or commands. Complete Phase 1-2 questions before Phase 3 access checks.
 
 ### Round 1: Azure Environment (always ask)
 
-Use `askQuestions` — 4 questions:
+Use `ask_user` — 4 questions:
 
 1. **Workload / Project name** — freeform text (used as `{project}` folder name under `agent-output/`)
 2. **Subscription** — freeform text (name or ID, e.g., `c103c983-d48f-4c1e-b12d-c7be294bb8ff`)
@@ -92,25 +91,25 @@ Use `askQuestions` — 4 questions:
 
 ### Round 2: Deployment Context (always ask)
 
-Use `askQuestions` — 4 questions:
+Use `ask_user` — 4 questions:
 
 1. **Deployment scenario** — options: `Greenfield deployment`, `Migrated from on-premises`,
    `Migrated from another cloud (AWS/GCP)`, `Modernized from legacy Azure setup`, `Unknown / Not sure`
-2. **Environments in scope** — multiSelect: true, options: `Production`, `Staging`, `Development`, `Test`, `DR`
+2. **Environments in scope** — array field with `items.enum`: `Production`, `Staging`, `Development`, `Test`, `DR`
 3. **IaC tool for future adoption** — options: `Bicep` (recommended), `Terraform`, `Neither / Not applicable`
 4. **Who manages this workload?** — freeform text (team name, e.g., "Platform Engineering Team")
 
-## Phase 2: Requirements & NFRs — CALL `askQuestions`
+## Phase 2: Requirements & NFRs — CALL `ask_user`
 
 ### Round 1: Business Requirements (always ask)
 
-Use `askQuestions` — 5 questions:
+Use `ask_user` — 5 questions:
 
 1. **Monthly budget** — options: `< $500`, `$500 - $2,000`, `$2,000 - $10,000`, `$10,000 - $50,000`,
    `$50,000+`, plus freeform
-2. **Regulatory / compliance frameworks** — multiSelect: true, options: `GDPR`, `SOC 2`, `ISO 27001`,
+2. **Regulatory / compliance frameworks** — array field with `items.enum`: `GDPR`, `SOC 2`, `ISO 27001`,
    `HIPAA`, `PCI-DSS`, `NIST 800-53`, `None / Unknown`, plus freeform
-3. **Data sensitivity** — multiSelect: true, options: `Public data`, `Internal only`,
+3. **Data sensitivity** — array field with `items.enum`: `Public data`, `Internal only`,
    `Confidential / PII`, `Highly regulated (financial, health)`, `Classified / government`
 4. **Industry** — options: `Financial services`, `Healthcare`, `Retail / E-commerce`,
    `Government`, `Technology / SaaS`, `Manufacturing`, plus freeform
@@ -118,7 +117,7 @@ Use `askQuestions` — 5 questions:
 
 ### Round 2: Non-Functional Requirements (always ask)
 
-Use `askQuestions` — 6 questions:
+Use `ask_user` — 6 questions:
 
 1. **RTO (Recovery Time Objective)** — options: `< 15 minutes (mission-critical)`,
    `< 1 hour`, `< 4 hours (standard)`, `< 24 hours (relaxed)`,
@@ -138,7 +137,7 @@ Use `askQuestions` — 6 questions:
 
 ### Round 3: Architecture Context (always ask)
 
-Use `askQuestions` — 3 questions:
+Use `ask_user` — 3 questions:
 
 1. **Workload pattern** — options: `N-Tier web application`, `Microservices`,
    `Event-driven / serverless`, `Data analytics / batch processing`,
@@ -350,8 +349,9 @@ evidence from reviewed and approved workflow completion. List missing gates.
 ## Phase 6: Hand Off to 08-As-Built
 
 After pseudo-artifacts are saved and required gates are reconciled, stop and
-request manual selection of `08-As-Built` with its exact configured model and
-tools. Do not invoke it as an unnamed worker or inherit the intake model:
+request manual selection of `08-As-Built` with its exact name and required
+tools. Model selection belongs to the operator and runtime and is not an
+acceptance gate. Do not invoke it as an unnamed worker or force a model:
 
 > **Handoff prompt to `08-As-Built`:**
 >

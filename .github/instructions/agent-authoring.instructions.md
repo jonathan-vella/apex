@@ -14,17 +14,28 @@ or deep audits, load `.github/skills/apex-agent-authoring/SKILL.md`.
 - Use valid YAML between `---` delimiters with spaces, not tabs.
 - Keep `description` on one line as the repository discovery convention.
 - Keep `description` at or below 350 characters; aim for 300 or fewer.
-- Agent models use array form; prompt models use quoted string form.
-- Agent frontmatter is the canonical model assignment. Mirror it in
-  `tools/registry/agent-registry.json`; catalog assignments are generated.
+- Active production agents omit both `model` and `reasoning-effort`. The
+  operator and runtime control selection, including Auto and HydraFusion.
+  Keep optional fixed-model support for isolated fixtures and legacy validation.
+- Prompt models use quoted string form. Registry model values are optional
+  legacy mirrors; catalog assignments are generated only for explicit pins.
 - Use only available tool IDs. Delegation uses `agent`, not
   `agent/runSubagent`.
 - A nonempty `agents` list requires `agent` in `tools`; `agents: []` does not.
   Leaf workers set `user-invocable: false` and `agents: []`, without delegation,
   user-question, or parent-todo tools. Return missing inputs to the parent.
-- Production main agents, including `10-Challenger`, use
-  `disable-model-invocation: true` and require human selection. Explicit caller
-  allowlists must not override this production boundary.
+- `01-Orchestrator` remains a human-selected entry point with
+  `disable-model-invocation: true`. Other main agents are user-invocable and
+  model-invocable only through Orchestrator's approved, verified background dispatch.
+  Step agents allowlist only their authorized leaves; leaves never delegate.
+- Before resumable delegated project work, enforce the named-worker identity, linked
+  tool-free handshake and same-worker continuation check in
+  [`worker-readiness.md`](../skills/apex-workflow-engine/references/worker-readiness.md).
+  A frontmatter label, allowlist or catalog entry does not prove worker readiness.
+- Automatic review callers may allowlist built-in `rubber-duck`. Use the
+  [one-shot contract](../skills/apex-azure-defaults/references/one-shot-review.md),
+  not resumable handshake/ACK. Require attributed completion and recorded,
+  schema-valid, fresh findings; no inline self-review or human-gate bypass.
 - Replace deprecated `infer` with `user-invocable` and
   `disable-model-invocation`.
 
@@ -40,7 +51,8 @@ extended scope tables into the body or an on-demand reference.
 
 - Target an existing agent using its exact frontmatter `name`.
 - Use only `label`, `agent`, `prompt`, `send`, `showContinueOn`, and `model`.
-- Omit `handoffs[].model` when it matches the target agent's own model.
+- Do not set `handoffs[].model` for active production targets; they are unpinned.
+  Retain explicit handoff model values only for isolated legacy fixtures.
 - Every handoff prompt names its input and expected output.
 - Use the workflow DAG rather than adding an inline handoff taxonomy.
 
@@ -49,21 +61,22 @@ Validation details:
 
 ## Model Policy
 
-Model selection is intentional. Do not change model order or assignments without
-explicit approval. Reasoning effort is a per-agent or per-call policy, never a
-model-label suffix.
-
-Preserve exact user-confirmed picker labels, including spaces and `(copilot)`,
-as recorded in the catalog. Unknown release/cost/capability metadata stays unknown.
-Exact catalog matches take precedence over stripping optional handoff qualifiers.
+Active production agent definitions must not pin a model or reasoning effort.
+The operator and runtime control selection, including Auto and HydraFusion.
+Readiness is model-agnostic: model names, effort, picker selection and model-source
+labels are optional diagnostics. Missing metadata, unknown source labels or
+configured/dispatched model differences do not block readiness. Require worker
+identity, parent/dispatch linkage, tool-free turns and exact same-worker continuation.
+Leave caller model, effort and context overrides unset. Keep catalog labels and
+metadata unchanged for descriptive and pinned-fixture compatibility.
 
 ### Reasoning-Effort Policy
 
-Set effort only in frontmatter `reasoning-effort`: `max` for `GPT-6 Luna (copilot)`
-agents and subagents, `high` for `GPT-6.1 Sol (copilot)` agents and for the
-`02-Requirements`, `03-Architect`, `05-IaC Planner`, `10-Challenger` and
-`11-Context Optimizer` agents on `Claude Sonnet 5.5 (copilot)`, `medium` for all
-others. Do not restate effort in the body. Rationale:
+Active production definitions omit `reasoning-effort`; the operator-selected
+runtime controls effort. Do not infer effective effort from role, model label,
+catalog entry, or omitted frontmatter. Report observed effort only when runtime
+telemetry supplies it. Pinned fixture tests may retain effort values for
+legacy validation. Rationale:
 [`apex-agent-authoring/references/model-policy.md`](../skills/apex-agent-authoring/references/model-policy.md).
 
 Repository structure and sourced vendor advice are distinguished in
@@ -78,12 +91,12 @@ Repository structure and sourced vendor advice are distinguished in
 - Prefer relative links and verify they resolve from the agent file.
 - Read only skills needed for the current phase; reuse unchanged content still in context.
 - Keep embedded templates aligned with their canonical source.
-- For Sol, Terra, and Luna main agents, use concise Markdown: Role, Goal,
-  Success criteria, Constraints, Output, and Stop rules. Keep existing H2 anchors
-  and unique workflow contracts. Replace XML wrappers without deleting their content.
-- For Claude Opus 5.5 and Sonnet 5.5 main agents, use the Claude contract: one H1,
-  a nonempty `## Role`, and nonempty `<scope_fencing>`, `<output_contract>` and
-  `<stop_conditions>` blocks. Keep approval gates and workflow contracts in the body.
+- Active main agents use either the APEX Markdown contract (one H1 plus nonempty
+  Role, Goal, Success criteria, Constraints, Output, and Stop rules H2s) or the
+  existing structured contract (one H1, nonempty `## Role`, and nonempty
+  `<scope_fencing>`, `<output_contract>`, and `<stop_conditions>` blocks).
+  Validation is body-structure based, not selected-model based. Preserve approval
+  gates, output ownership, and workflow-specific stop rules.
 - Leaf workers use a role-specific input/activity/output/failure contract, not
   mandatory main-agent sections or personality. Preserve checks and stop rules;
   optional style advice must not override safety or role requirements.
@@ -110,7 +123,7 @@ belongs to the lefthook `artifact-validation` hook and `10-Challenger` review.
 
 Execution subagent prompts use `## Inputs`, `## Activities`, and `## Outputs`,
 including a bounded failure mode. Canonical template:
-[`tools/apex-prompts/utility-prompts/execution-subagent.prompt.md`](../../tools/apex-prompts/utility-prompts/execution-subagent.prompt.md).
+[`execution-subagent.md`](../skills/apex-workflow-engine/references/execution-subagent.md).
 
 ### No-Shell-Writes-to-Agent-Output Rule
 
@@ -119,15 +132,22 @@ editing tools; shell inspection remains read-only.
 
 ### Challenger-Subagent Fallback Rule
 
-If a required reviewer is unavailable, stop and request a human handoff
-to `10-Challenger`. Missing or empty reviewer output permits exactly one
-identical-input retry, then stop and request a human handoff to `10-Challenger`.
+If a required reviewer is unavailable, stop and return the actual failure to the
+interactive parent. Missing or empty reviewer output permits exactly one
+identical-input retry within the existing budget, then stop for a human decision.
+`10-Challenger` remains optional manual recovery, not an automatic pipeline dependency.
 Never invoke a nested main-agent wrapper or fabricate an inline review; explicit
 caller allowlists must not override this production boundary. Report the runtime
 error when available. Full procedure:
 [`apex-agent-authoring/references/runtime-guardrails.md`](../skills/apex-agent-authoring/references/runtime-guardrails.md#challenger-fallback).
 
 ## Decision Logging
+
+Interactive sessions use `ask_user` with `message` and
+`requestedSchema.properties`, one typed field per independent question.
+Use `enum`/`oneOf` for choices and `array`/`items` for multi-select; defaults
+are suggestions, not approvals. Delegated steps return `USER_INPUT_REQUIRED`
+with that form to their interactive parent. Cancel aborts; decline never approves.
 
 Record significant architecture, SKU, deployment, IaC, security, networking, or
 trade-off decisions through `apex-recall`; omit minor implementation choices.
@@ -137,8 +157,10 @@ Commands and decision shape:
 ## Model-Prompt Alignment
 
 Validate every fallback label and family in order, without adding fallbacks.
-Custom-agent prompts inherit the target model; generic Local prompts may inherit
-the picker selection. Avoid redundant handoff overrides and follow the matching rules:
+Archive-only prompt fixtures retain their historical model rules. Active SDK
+workers use runtime-managed model selection. Readiness verifies the exact named
+worker dispatch and continuation, not model selection. Avoid
+redundant handoff overrides and follow the matching rules:
 
 - [`vendor-prompting.instructions.md`](vendor-prompting.instructions.md)
 - [`apex-vendor-prompting/references/family-support.md`](../skills/apex-vendor-prompting/references/family-support.md)

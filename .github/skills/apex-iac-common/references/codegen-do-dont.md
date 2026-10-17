@@ -19,7 +19,7 @@ file first.
 ## DO — applies to both 06b and 06t
 
 - **Run preflight check BEFORE writing any IaC** (Phase 1).
-- Use `askQuestions` to present Phase 1 + 1.5 blockers (batch all open
+- Use `ask_user` to present Phase 1 + 1.5 blockers (batch all open
   decisions into one inline form).
 - Use AVM / AVM-TF modules for **every** resource that has one.
 - Generate the unique-suffix value **once** (in `main.bicep` for Bicep,
@@ -50,15 +50,15 @@ file first.
 - Start coding before the preflight check passes.
 - Silently halt on a blocker without telling the user why.
 - List blockers in chat and wait for a reply — that wastes a round-trip;
-  use `askQuestions` (DO list).
+  use `ask_user` (DO list).
 - **Edit `agent-output/{project}/04-implementation-plan.md`,
   `04-governance-constraints.md`, or `04-governance-constraints.json`** —
   frozen after gate-3 per `metadata.plan_lock` in the workflow graph.
   Plan-level `must_fix` findings return to Step 4, not Step 5.
-- Invoke `challenger-review-subagent` with
+- Invoke an independent reviewer with
   `artifact_type = "implementation-plan"` from Step 5 — plan-level reviews
   run at Step 4 only; Step 5 uses `artifact_type = "iac-code"`.
-- Issue more than one `askQuestions` call per challenger pass — batch
+- Issue more than one `ask_user` call per challenger pass — batch
   every open decision into one inline form (see
   [`codegen-shared-workflow.md`](codegen-shared-workflow.md) →
   Batched User Decisions).
