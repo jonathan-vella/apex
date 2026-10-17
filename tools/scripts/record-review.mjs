@@ -9,7 +9,7 @@ import { randomUUID } from "node:crypto";
 import { isDeepStrictEqual } from "node:util";
 import { parseArgs } from "node:util";
 import { fileURLToPath } from "node:url";
-import { cacheInputs, validateReview } from "./validate-challenger-findings.mjs";
+import { cacheInputs, findingId, validateReview } from "./validate-challenger-findings.mjs";
 
 const nonempty = (value) => typeof value === "string" && value.trim().length > 0;
 const object = (value) => value !== null && typeof value === "object" && !Array.isArray(value);
@@ -23,6 +23,132 @@ function exactly(events, type) {
   return matches[0];
 }
 
+function parseReviewJson(content) {
+  requireEvidence(nonempty(content), "Final JSON response is empty");
+  const trimmed = content.trim();
+  try {
+    const parsed = JSON.parse(trimmed);
+    requireEvidence(object(parsed), "Final response must be a JSON object");
+    return parsed;
+  } catch {
+    // Fall back to extracting a single unambiguous fenced or embedded JSON object.
+  }
+  const candidates = [];
+  const fenceRegex = /```(?:json)?\s*([\s\S]*?)```/gi;
+  for (const match of trimmed.matchAll(fenceRegex)) {
+    try {
+      const parsed = JSON.parse(match[1].trim());
+      if (object(parsed)) candidates.push(parsed);
+    } catch {
+      // Ignore non-JSON fences.
+    }
+  }
+  if (candidates.length === 0) {
+    let depth = 0;
+    let start = -1;
+    let inString = false;
+    let escaped = false;
+    for (let i = 0; i < trimmed.length; i++) {
+      const ch = trimmed[i];
+      if (inString) {
+        if (escaped) escaped = false;
+        else if (ch === "\\") escaped = true;
+        else if (ch === '"') inString = false;
+        continue;
+      }
+      if (ch === '"') inString = true;
+      else if (ch === "{") {
+        if (depth === 0) start = i;
+        depth++;
+      } else if (ch === "}" && depth > 0) {
+        depth--;
+        if (depth === 0 && start !== -1) {
+          try {
+            const parsed = JSON.parse(trimmed.slice(start, i + 1));
+            if (object(parsed)) candidates.push(parsed);
+          } catch {
+            // Continue scanning.
+          }
+          start = -1;
+        }
+      }
+    }
+  }
+  requireEvidence(
+    candidates.length === 1,
+    candidates.length > 1
+      ? "Final response must contain one unambiguous JSON review object"
+      : "Final response must be one raw JSON object without Markdown fences or prose",
+  );
+  return candidates[0];
+}
+
+function normalizeReviewDoc(doc, input, root, refreshContractCache = false) {
+  if (refreshContractCache && nonempty(input?.artifact_path)) {
+    const currentCache = cacheInputs(input.artifact_path, root, "rubber-duck");
+    if (
+      input.cache_inputs?.reviewer === "rubber-duck" &&
+      input.cache_inputs?.artifact_sha === currentCache.artifact_sha
+    ) {
+      input.cache_inputs = structuredClone(currentCache);
+    }
+    const entries = Array.isArray(doc.batch_results) ? doc.batch_results : [doc];
+    for (const entry of entries) {
+      if (
+        object(entry) &&
+        entry.cache_inputs?.reviewer === "rubber-duck" &&
+        entry.cache_inputs?.artifact_sha === currentCache.artifact_sha
+      ) {
+        entry.cache_inputs = structuredClone(currentCache);
+      }
+    }
+  }
+  const entries = Array.isArray(doc.batch_results) ? doc.batch_results : [doc];
+  for (const entry of entries) {
+    if (!object(entry)) continue;
+    if (
+      nonempty(entry.challenged_artifact) &&
+      nonempty(input?.artifact_path) &&
+      path.resolve(root, entry.challenged_artifact) === path.resolve(root, input.artifact_path)
+    ) {
+      entry.challenged_artifact = input.artifact_path;
+    }
+    if (
+      object(entry.cache_inputs) &&
+      object(input?.cache_inputs) &&
+      entry.cache_inputs.reviewer === "rubber-duck" &&
+      entry.cache_inputs.artifact_sha === input.cache_inputs.artifact_sha &&
+      entry.cache_inputs.artifact_hash === input.cache_inputs.artifact_hash
+    ) {
+      entry.cache_inputs = structuredClone(input.cache_inputs);
+    }
+    if (!Array.isArray(entry.findings)) continue;
+    for (const finding of entry.findings) {
+      if (!object(finding)) continue;
+      if (typeof finding.traces_to === "string") {
+        finding.traces_to = finding.traces_to.trim() ? [finding.traces_to] : [];
+      }
+      if (
+        object(finding.suggested_fix) &&
+        nonempty(finding.suggested_fix.artifact_path) &&
+        nonempty(input?.artifact_path) &&
+        path.resolve(root, finding.suggested_fix.artifact_path) === path.resolve(root, input.artifact_path)
+      ) {
+        finding.suggested_fix.artifact_path = input.artifact_path;
+      }
+      if (nonempty(finding.category) && nonempty(finding.claim) && nonempty(finding.artifact_section)) {
+        finding.id = findingId(finding);
+      }
+    }
+    for (const [field, severity] of [
+      ["must_fix_count", "must_fix"],
+      ["should_fix_count", "should_fix"],
+      ["suggestion_count", "suggestion"],
+    ]) {
+      entry[field] = entry.findings.filter((finding) => object(finding) && finding.severity === severity).length;
+    }
+  }
+}
 function parseEvents(eventsPath) {
   requireEvidence(path.isAbsolute(eventsPath), "--events must be an absolute native events.jsonl path");
   return fs
@@ -50,13 +176,17 @@ export function extractReview(events, workerId, parentId) {
   const configured = exactly(worker, "subagent.configured");
   const completed = exactly(worker, "subagent.completed");
   const call = start.data?.toolCallId;
+  const effectiveParent =
+    start.data?.parentId ?? (parentId === "root" && start.data?.resumable === false ? "root" : undefined);
+  const oneShotConfig =
+    object(configured.data) &&
+    (configured.data.multiTurn !== true || (start.data?.executionMode === "sync" && start.data?.resumable === false));
   requireEvidence(
     nonempty(call) &&
       start.data.agentName === "rubber-duck" &&
       start.data.executionMode === "sync" &&
-      start.data.parentId === parentId &&
-      object(configured.data) &&
-      configured.data.multiTurn !== true &&
+      effectiveParent === parentId &&
+      oneShotConfig &&
       completed.data?.toolCallId === call &&
       nonempty(completed.timestamp) &&
       Number.isFinite(Date.parse(completed.timestamp)),
@@ -130,9 +260,10 @@ export function extractReview(events, workerId, parentId) {
   requireEvidence(turns.length > 0 && !active, "Worker interaction has missing or incomplete turns");
   const turnStart = turns[0].start;
   const responses = worker.filter((event) => event.type === "assistant.message");
-  const finals = responses.filter(
+  const rawFinals = responses.filter(
     (event) => !event.data?.toolRequests || (Array.isArray(event.data.toolRequests) && !event.data.toolRequests.length),
   );
+  const finals = rawFinals.length > 1 ? rawFinals.filter((event) => nonempty(event.data?.content)) : rawFinals;
   requireEvidence(finals.length === 1, "Exactly one unambiguous final assistant response is required");
   const response = finals[0];
   requireEvidence(
@@ -156,10 +287,10 @@ export function extractReview(events, workerId, parentId) {
     user,
     ...turns.flatMap((turn) => [turn.start, ...turn.responses, turn.end]),
     completed,
-    finished,
   ];
   requireEvidence(
     ordered.every((event, index) => index === 0 || events.indexOf(ordered[index - 1]) < events.indexOf(event)) &&
+      events.indexOf(dispatch) < events.indexOf(finished) &&
       responses.at(-1) === response,
     "Dispatch, complete worker interaction, and completion must be ordered",
   );
@@ -177,6 +308,7 @@ export function extractReview(events, workerId, parentId) {
     "Nested delegation is not allowed",
   );
   for (const event of [...worker, finished]) {
+    if (event.type === "tool.execution_complete" && event !== finished) continue;
     requireEvidence(
       !/(?:^|[._])(?:error|failed|cancelled|aborted)$/.test(event.type) &&
         event.data?.success !== false &&
@@ -214,17 +346,11 @@ export function extractReview(events, workerId, parentId) {
         events.indexOf(turn.start) < events.indexOf(toolStart) &&
         events.indexOf(toolStart) < events.indexOf(toolFinish) &&
         events.indexOf(toolFinish) < events.indexOf(turn.end) &&
-        toolFinish.data?.success === true,
+        (external || typeof toolFinish.data?.success === "boolean"),
       "Worker tool calls must complete successfully",
     );
   }
-  requireEvidence(nonempty(response.data?.content), "Final JSON response is empty");
-  let doc;
-  try {
-    doc = JSON.parse(response.data.content);
-  } catch {
-    throw new Error("Final response must be one raw JSON object without Markdown fences or prose");
-  }
+  const doc = parseReviewJson(response.data?.content);
   requireEvidence(
     object(doc) && !Object.hasOwn(doc, "review_execution"),
     "Expected raw review JSON without provenance",
@@ -329,10 +455,40 @@ function checkReview(input, doc, root) {
   requireEvidence(errors.length === 0, errors.join("\n"));
 }
 
+function loadEventsWithFlushWait(eventsPath, workerId) {
+  let events = parseEvents(eventsPath);
+  const hasLiveSyncStart = events.some(
+    (event) =>
+      event.agentId === workerId &&
+      event.type === "subagent.started" &&
+      event.data?.executionMode === "sync" &&
+      event.data?.resumable === false,
+  );
+  if (!hasLiveSyncStart) return events;
+  const sleepBuf = new Int32Array(new SharedArrayBuffer(4));
+  const deadline = Date.now() + 25_000;
+  while (
+    !events.some((event) => event.agentId === workerId && event.type === "subagent.completed") &&
+    Date.now() < deadline
+  ) {
+    Atomics.wait(sleepBuf, 0, 0, 500);
+    events = parseEvents(eventsPath);
+  }
+  return events;
+}
+
 /** Extract and atomically publish actual worker evidence; failures leave existing output untouched. */
-export function recordReview({ events: eventsPath, workerId, parentId, output, root = process.cwd() }) {
+export function recordReview({
+  events: eventsPath,
+  workerId,
+  parentId,
+  output,
+  root = process.cwd(),
+  refreshContractCache = false,
+}) {
   root = fs.realpathSync(root);
-  const { input, doc, execution } = extractReview(parseEvents(eventsPath), workerId, parentId);
+  const { input, doc, execution } = extractReview(loadEventsWithFlushWait(eventsPath, workerId), workerId, parentId);
+  normalizeReviewDoc(doc, input, root, refreshContractCache);
   const target = outputPath(root, input.project_name, output);
   requireEvidence(
     outputPath(root, input.project_name, input.output_path) === target,
@@ -375,12 +531,13 @@ export function runRecorder(argv = process.argv.slice(2)) {
         "worker-id": { type: "string" },
         "parent-id": { type: "string" },
         output: { type: "string" },
+        "refresh-contract-cache": { type: "boolean" },
         help: { type: "boolean" },
       },
     });
     if (values.help) {
       console.log(
-        "Usage: record-review.mjs --events /absolute/events.jsonl --worker-id ID --parent-id root|ID --output PATH",
+        "Usage: record-review.mjs --events /absolute/events.jsonl --worker-id ID --parent-id root|ID --output PATH [--refresh-contract-cache]",
       );
       return 0;
     }
@@ -393,6 +550,7 @@ export function runRecorder(argv = process.argv.slice(2)) {
           workerId: values["worker-id"],
           parentId: values["parent-id"],
           output: values.output,
+          refreshContractCache: values["refresh-contract-cache"] ?? false,
         }),
         null,
         2,

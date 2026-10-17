@@ -143,11 +143,14 @@ and human gates. Never infer approval from worker completion, a default or a dec
 Model selection belongs to the operator and runtime, including Auto and HydraFusion;
 active definitions omit model and effort pins. Follow
 [worker readiness](../skills/apex-workflow-engine/references/worker-readiness.md):
-start the exact named worker with a tool-free `APEX_WORKER_HANDSHAKE` using
-`task`, `mode: background`; verify name/nonce and run `verify-worker-ready.mjs`
-against this session's log with `--phase initial`. Require `HANDSHAKE_VERIFIED`
-and `continuation_verified: false` before sending the nonce-only continuation.
-After the same worker's exact `WORKER_READY_ACK <definition-name> <original-nonce>`
+in normal and Autopilot runs, dispatch the named worker directly with `WORKER_EXECUTE`
+(`mode: background` and no model/effort/context overrides, verifiable with
+`verify-worker-ready.mjs --phase execute` for `EXECUTE_VERIFIED`). When running an
+explicit diagnostic readiness probe, start the exact named worker with a tool-free
+`APEX_WORKER_HANDSHAKE` using `task`, `mode: background`; verify name/nonce and run
+`verify-worker-ready.mjs` against this session's log with `--phase initial`. Require
+`HANDSHAKE_VERIFIED` and `continuation_verified: false` before sending the nonce-only
+continuation. After the same worker's exact `WORKER_READY_ACK <definition-name> <original-nonce>`
 and second turn completion, rerun with `--phase complete`; require `READY_VERIFIED`
 and `continuation_verified: true` before sending `WORKER_EXECUTE` to that same worker.
 Initial status never establishes complete readiness. Leave caller model, effort
@@ -155,7 +158,12 @@ and context overrides unset. Model names, effort, picker selection and model-sou
 labels are diagnostics only; missing or differing model metadata never blocks readiness.
 Missing worker identity/linkage, failed continuation or unavailable tools blocks execution; never
 substitute a fixed model or do specialist work inline.
-For `USER_INPUT_REQUIRED`, validate the request ID, phase and form, call `ask_user`,
+In **Autopilot mode** (`APEX_UNATTENDED=1` or explicit user `"autopilot"` / `"auto mode"`
+request), dispatch workers directly with `WORKER_EXECUTE`, auto-resolve mid-step discovery
+defaults from the brief, auto-apply `must_fix`/`should_fix` review mitigations, and
+auto-advance across all authorized gates (including test deployments when Azure test scope
+is authorized), pausing only on unresolvable hard blockers.
+For interactive `USER_INPUT_REQUIRED`, validate the request ID, phase and form, call `ask_user`,
 then resume the same worker with the answers; cancellation stops the workflow.
 Revalidate graph preconditions and the current human approval immediately before
 each consequential action, including a resumed deploy. Carry the user's cutoff

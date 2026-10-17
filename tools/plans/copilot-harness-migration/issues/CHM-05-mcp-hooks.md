@@ -34,13 +34,13 @@ Issue assignment alone does not authorize authenticated probes.
 
 ### Acceptance criteria
 
-- [ ] Existing configuration validators pass or exact blockers are recorded.
-- [ ] Required MCP capabilities are observed in the installed VS Code runtime.
-- [ ] Approved benign calls succeed with explicit result evidence; mere tool-name discovery is insufficient.
-- [ ] No duplicate registrations or unapproved credential/configuration changes were introduced.
-- [ ] Hook tests distinguish supported observations, fixture coverage, and unavailable runtime surfaces.
-- [ ] Missing `SubagentStop` behavior is not misrepresented as an approval/review enforcement guarantee.
-- [ ] CHM-04 receives a verified prerequisite matrix or an explicit blocking result.
+- [x] Existing configuration validators pass or exact blockers are recorded.
+- [x] Required MCP capabilities are observed in the installed VS Code runtime.
+- [x] Approved benign calls succeed with explicit result evidence; mere tool-name discovery is insufficient.
+- [x] No duplicate registrations or unapproved credential/configuration changes were introduced.
+- [x] Hook tests distinguish supported observations, fixture coverage, and unavailable runtime surfaces.
+- [x] Missing `SubagentStop` behavior is not misrepresented as an approval/review enforcement guarantee.
+- [x] CHM-04 receives a verified prerequisite matrix or an explicit blocking result.
 
 ### Validation and return
 

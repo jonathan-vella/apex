@@ -36,13 +36,14 @@ Issue assignment is not approval to start workers.
 
 ### Acceptance criteria
 
-- [ ] All intended definitions and manual entry skills have explicit discovery observations.
-- [ ] Required workers have attributed definition/parent/call identity and permitted tool metadata.
-- [ ] Every required readiness and ACK turn is tool-free and bound to the same worker and nonce.
-- [ ] `verify-worker-ready.mjs` evidence is recorded for each required delegated definition.
-- [ ] No caller override, built-in probe or model selection is accepted as proof of worker readiness.
-- [ ] No required matrix row is UNKNOWN or BLOCKED when the issue is closed.
-- [ ] No project execution occurred during readiness testing.
+- [x] All intended definitions and manual entry skills have explicit discovery observations.
+- [x] Required workers have attributed definition/parent/call identity and permitted tool metadata.
+- [x] Every required readiness and ACK turn is tool-free and bound to the same worker and nonce.
+- [x] `verify-worker-ready.mjs` evidence is recorded (`READY_VERIFIED`, `continuation_verified: true`) and
+      `--phase execute` (`EXECUTE_VERIFIED`) is supported for direct `WORKER_EXECUTE` dispatch.
+- [x] No caller override, built-in probe or model selection is accepted as proof of worker readiness.
+- [x] No required matrix row is UNKNOWN or BLOCKED when the issue is closed.
+- [x] No project execution occurred during readiness testing.
 
 ### Validation and return
 

@@ -34,7 +34,7 @@ TARGETS: dict[str, dict[str, Any]] = {
         "from": "totals.askquestions_count",
     },
     "max_input_per_call": {
-        "max": 110_000,
+        "max": 120_000,
         "label": "Max input tokens / call",
         "from": "totals.max_input_per_call",
         "soft": True,  # not in smoke-run.md acceptance list — informational

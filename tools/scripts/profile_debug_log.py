@@ -55,6 +55,10 @@ from typing import Any
 BENIGN_ERROR_FRAGMENTS = (
     "ENOENT",
     "no such file or directory",
+    "view_range out of bounds",
+    "Search paths do not exist",
+    "Skill not found",
+    "Agent not found",
 )
 
 
@@ -193,7 +197,8 @@ def sdk_events_to_spans(events: list[dict[str, Any]]) -> list[dict[str, Any]]:
             raise ValueError(f"event {event['id']}: timestamp needs a timezone")
         return int(date.timestamp() * 1_000_000_000)
 
-    records.sort(key=timestamp)
+    for event in records:
+        timestamp(event)
     session = next((e["data"] for e in records if e.get("type") == "session.start"), {})
     session_id = identifier(session.get("sessionId"), "session.start sessionId")
     spans: list[dict[str, Any]] = []
@@ -273,6 +278,11 @@ def sdk_events_to_spans(events: list[dict[str, Any]]) -> list[dict[str, Any]]:
         spans.append(request)
 
     worker_starts = {event.get("agentId"): event for event in records if event["type"] == "subagent.started"}
+    worker_by_call = {
+        event["data"].get("toolCallId"): event.get("agentId")
+        for event in records
+        if event["type"] == "subagent.started" and event["data"].get("toolCallId") and event.get("agentId")
+    }
     tools: dict[tuple[str, str], dict[str, Any]] = {}
     workers: dict[str, dict[str, Any]] = {}
     hooks: dict[tuple[str, str], dict[str, Any]] = {}
@@ -294,6 +304,16 @@ def sdk_events_to_spans(events: list[dict[str, Any]]) -> list[dict[str, Any]]:
                 raise ValueError(f"event {event['id']}: execution input has no worker start")
         elif kind == "assistant.message":
             call_id = data.get("apiCallId")
+            tool_reqs = data.get("toolRequests")
+            if (
+                call_id is None
+                and not data.get("model")
+                and not data.get("content")
+                and isinstance(tool_reqs, list)
+                and tool_reqs
+                and all(isinstance(req, dict) and req.get("name") == "read_agent" for req in tool_reqs)
+            ):
+                continue
             if call_id is not None:
                 identifier(call_id, "API call ID")
             calls.setdefault(call_id or f"unattributed:{event['id']}", event)
@@ -332,6 +352,8 @@ def sdk_events_to_spans(events: list[dict[str, Any]]) -> list[dict[str, Any]]:
             message = args.get("message") if isinstance(args, dict) else None
             if data["toolName"] == "write_agent" and isinstance(args, dict):
                 record_execution(event, message, args.get("agent_id"), agent, "tool")
+            elif data["toolName"] == "task" and isinstance(args, dict) and call_id in worker_by_call:
+                record_execution(event, args.get("prompt"), worker_by_call[call_id], agent, "tool")
         elif kind == "tool.execution_complete":
             call_id = identifier(data.get("toolCallId"), "tool completion call ID")
             tool = tools.get((agent, call_id))
@@ -340,7 +362,7 @@ def sdk_events_to_spans(events: list[dict[str, Any]]) -> list[dict[str, Any]]:
                 orphan["_sdk_incomplete"] = True
                 spans.append(orphan)
                 continue
-            tool["endTimeUnixNano"] = str(timestamp(event))
+            tool["endTimeUnixNano"] = str(max(int(tool["startTimeUnixNano"]), timestamp(event)))
             tool["_sdk_incomplete"] = not isinstance(data.get("success"), bool)
             tool["attributes"].append(
                 {
@@ -674,6 +696,8 @@ def sdk_execution_metrics(spans: list[dict[str, Any]]) -> dict[str, Any]:
     """Measure linked execution calls, including one-shot reviews and worker resume recovery."""
     executions = [span for span in spans if "_sdk_execution" in span]
     first_inputs: list[int] = []
+    seen_first_workers: set[str] = set()
+    resumed_workers: set[str] = set()
     recovery: list[bool | None] = []
     workers = {span["_sdk_agent_id"]: span for span in spans if span.get("_jsonl_subagent")}
     reviews: Counter[str] = Counter()
@@ -705,11 +729,14 @@ def sdk_execution_metrics(spans: list[dict[str, Any]]) -> dict[str, Any]:
             and int(span["startTimeUnixNano"]) >= start
             and (stop is None or int(span["startTimeUnixNano"]) < stop)
         ]
-        chats = [span for span in window if span.get("name", "").startswith("chat:")]
-        value = _token_count(_attrs(chats[0]).get("gen_ai.usage.input_tokens")) if chats else None
-        if value is not None:
-            first_inputs.append(value)
-        if envelope.get("resume") is True:
+        if target not in seen_first_workers:
+            seen_first_workers.add(target)
+            chats = [span for span in window if span.get("name", "").startswith("chat:")]
+            value = _token_count(_attrs(chats[0]).get("gen_ai.usage.input_tokens")) if chats else None
+            if value is not None:
+                first_inputs.append(value)
+        if envelope.get("resume") is True and target not in resumed_workers:
+            resumed_workers.add(target)
             tool = next((span for span in window if _attrs(span).get("gen_ai.operation.name") == "execute_tool"), None)
             if tool is None:
                 recovery.append(None)
@@ -717,7 +744,8 @@ def sdk_execution_metrics(spans: list[dict[str, Any]]) -> dict[str, Any]:
                 arguments = json.loads(_attrs(tool).get("gen_ai.tool.call.arguments") or "{}")
                 command = arguments.get("command") if isinstance(arguments, dict) else None
                 recovery.append(
-                    command == f"apex-recall show {envelope['project']} --json"
+                    isinstance(command, str)
+                    and f"apex-recall show {envelope['project']} --json" in command
                     and tool.get("status", {}).get("code") == 1
                 )
         if worker["_jsonl_subagent"] == "challenger-review-subagent" or envelope.get("protocol") == "APEX_REVIEW":
@@ -727,7 +755,7 @@ def sdk_execution_metrics(spans: list[dict[str, Any]]) -> dict[str, Any]:
     return {
         "execution_count": len(executions),
         "max_first_execution_input_tokens": max(first_inputs)
-        if first_inputs and len(first_inputs) == len(executions)
+        if first_inputs and len(first_inputs) == len(seen_first_workers)
         else None,
         "resume_recall_verified": all(recovery) if recovery and all(value is not None for value in recovery) else None,
         "challenger_per_step": dict(reviews),

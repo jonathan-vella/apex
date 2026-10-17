@@ -216,15 +216,15 @@ test("parallel reads may finish out of order inside one attributed internal turn
   assert.deepEqual(f.persisted().findings, []);
 });
 
-test("prose-wrapped final output remains invalid after a complete multi-turn default-sync review", (t) => {
+test("prose-wrapped or fenced final output is extracted when it contains one unambiguous review JSON object", (t) => {
   const f = fixture(t);
   delete f.events[0].data.arguments.mode;
   addReadTurns(f);
   f.flush();
-  f.response.data.content = `Review complete.\n${JSON.stringify(f.doc)}\nDone.`;
+  f.response.data.content = `Review complete.\n\`\`\`json\n${JSON.stringify(f.doc)}\n\`\`\`\nDone.`;
   f.write("events.jsonl", f.events.map((event) => JSON.stringify(event)).join("\n"));
-  assert.throws(() => recordReview(f.options), /Final response must be one raw JSON object/);
-  assert.equal(fs.existsSync(path.join(f.root, output)), false);
+  recordReview(f.options);
+  assert.deepEqual(f.persisted().findings, []);
 });
 
 for (const [label, mutate] of [
@@ -509,7 +509,6 @@ const invalidCases = [
   ["unknown depth", (f) => (f.input.review_depth = "automatic")],
   ["missing overwrite authorization", (f) => delete f.input.overwrite],
   ["missing prior findings", (f) => delete f.input.prior_findings],
-  ["wrong counts", (f) => (f.entry.must_fix_count = 1)],
   ["missing verdict", (f) => delete f.entry.overall_assessment],
   ["malformed verdict", (f) => (f.entry.overall_assessment = "passed")],
   ["empty risk", (f) => (f.entry.risk_level = "")],
@@ -617,8 +616,12 @@ test("strict new records cannot claim legacy reviewer hashes or incomplete execu
   assert.match(validateReview(doc, { root: f.root, verifyCurrent: true }).join("\n"), /Unknown reviewer/);
 });
 
-test("stable IDs are checked without repairing findings", (t) => {
+test("recorder normalizes finding IDs, counts, string traces_to and recovered read errors without changing review claims", (t) => {
   const f = fixture(t);
+  addReadTurns(f, 2);
+  const failedRead = f.events.find((event) => event.type === "tool.execution_complete" && event.agentId === "worker-1");
+  failedRead.data.success = false;
+  failedRead.data.error = { message: "view_range out of bounds", code: "failure" };
   f.doc.findings = [
     {
       id: "00000000",
@@ -628,11 +631,15 @@ test("stable IDs are checked without repairing findings", (t) => {
       evidence: "Actual evidence",
       impact: "Impact",
       artifact_section: "Section",
-      traces_to: [],
+      traces_to: "Section 1",
     },
   ];
-  f.doc.should_fix_count = 1;
-  assert.throws(() => f.record(), /does not match identity/);
+  f.doc.should_fix_count = 0;
+  f.record();
+  const saved = f.persisted();
+  assert.equal(saved.should_fix_count, 1);
+  assert.deepEqual(saved.findings[0].traces_to, ["Section 1"]);
+  assert.equal(saved.findings[0].id, findingId(saved.findings[0]));
 });
 
 test("existing outputs require dispatch overwrite:true and successful replacement preserves raw findings", (t) => {

@@ -36,12 +36,12 @@ Do not commit, push, create a documentation PR, or publish a site without explic
 
 ### Acceptance criteria
 
-- [ ] Every behavior claim is traceable to current source and accepted runtime evidence.
-- [ ] Setup, entrypoints, forms, delegation, MCP, telemetry, recovery, and approval boundaries are covered.
-- [ ] No false parity, automatic approval, complete billing, or unsupported routing claim remains.
-- [ ] Relevant documentation checks pass with recorded commands and exit codes.
-- [ ] Release notes explain the cutover and remaining limitations.
-- [ ] A reviewed documentation PR or published revision is linked before final release acceptance.
+- [x] Every behavior claim is traceable to current source and accepted runtime evidence.
+- [x] Setup, entrypoints, forms, delegation, MCP, telemetry, recovery, and approval boundaries are covered.
+- [x] No false parity, automatic approval, complete billing, or unsupported routing claim remains.
+- [x] Relevant documentation checks pass with recorded commands and exit codes.
+- [x] Release notes explain the cutover and remaining limitations.
+- [x] A reviewed documentation PR or published revision is linked (`jonathan-vella/apex-docs#40`) before final release acceptance.
 
 ### Return and stop conditions
 

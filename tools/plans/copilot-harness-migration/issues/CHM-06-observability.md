@@ -31,15 +31,15 @@ Production parser fixes require a separately scoped issue; keep raw runtime logs
 
 ### Acceptance criteria
 
-- [ ] Native format, exact workspace/session scope, and closed root capture are established.
-- [ ] Every observed call has input/output usage and known actual model; usage is not double-counted.
-- [ ] No incomplete operation, unattributed usage, unknown model, or non-benign error is accepted as passing.
-- [ ] `ask_user` count is at most 20 in the capture.
-- [ ] First execution input is at most 45,000 tokens for every attributed worker execution.
-- [ ] Default-mode Challenger execution requests are attributed and at most two per step.
-- [ ] Explicit resume includes successful first-tool recall recovery.
-- [ ] Profiler, strict smoke, strict budget checks, and relevant regression tests pass with recorded evidence.
-- [ ] Export/redaction scope is verified; raw logs were not posted to GitHub.
+- [x] Native format, exact workspace/session scope, and closed root capture are established.
+- [x] Every observed call has input/output usage and known actual model; usage is not double-counted.
+- [x] No incomplete operation, unattributed usage, unknown model, or non-benign error is accepted as passing.
+- [x] `ask_user` count is at most 20 in the capture.
+- [x] First execution input is at most 45,000 tokens for every attributed worker execution.
+- [x] Default-mode Challenger execution requests are attributed and at most two per step.
+- [x] Explicit resume includes successful first-tool recall recovery.
+- [x] Profiler, strict smoke, strict budget checks, and relevant regression tests pass with recorded evidence.
+- [x] Export/redaction scope is verified; raw logs were not posted to GitHub.
 
 ### Validation and return
 

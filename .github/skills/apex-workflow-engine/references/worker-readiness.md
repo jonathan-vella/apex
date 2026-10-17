@@ -4,17 +4,33 @@
 
 Active main agents and leaf workers omit model and effort pins. The operator and
 runtime control model selection, including Auto and HydraFusion. Readiness verifies
-the named worker's identity, tool-free handshake and same-worker continuation,
+the named worker's identity, dispatch linkage and continuation,
 not its model. Model names, effort, picker selection and model-source labels are
 optional diagnostics: missing values or differences never block readiness.
 Missing identity, dispatch linkage, completion or tool-free evidence still blocks execution.
 
-This protocol applies to resumable named workers. Automatic built-in `rubber-duck`
-reviews instead use [one-shot review](../../apex-azure-defaults/references/one-shot-review.md):
+Two dispatch modes are supported:
+
+- **Direct `WORKER_EXECUTE` Dispatch (Default & Autopilot)**: The parent dispatches
+  the named worker directly with `WORKER_EXECUTE` followed by a newline and the JSON
+  envelope (`mode: background` for multi-turn workers or `mode: sync` for one-shot).
+  Post-dispatch attribution is verified via `verify-worker-ready.mjs --phase execute`
+  (`EXECUTE_VERIFIED`). In Autopilot mode (`APEX_UNATTENDED=1` or explicit user
+  `"run in autopilot"` / `"auto mode"` authorization), `01-Orchestrator` dispatches
+  workers directly, auto-resolves discovery defaults from the project brief, applies
+  `must_fix`/`should_fix` review mitigations, and auto-advances across all authorized
+  gates (including test deployments when Azure test scope is authorized), pausing
+  only on unresolvable hard blockers.
+- **Diagnostic Ready-Only Handshake (`--phase initial` / `--phase complete`)**: Used
+  for standalone routing certification (CHM-03) when explicitly requested without
+  project execution.
+
+Automatic built-in `rubber-duck` reviews always use
+[one-shot review](../../apex-azure-defaults/references/one-shot-review.md):
 an attributed synchronous call and validated completion, not a handshake/ACK or
 same-worker continuation. This exception does not waive step-worker readiness.
 
-## Ready-Only Handshake
+## Ready-Only Handshake (Diagnostic Mode)
 
 1. The parent confirms graph prerequisites and the applicable human approval.
    Resolve the exact definition name from its active agent file, never from a handoff override.

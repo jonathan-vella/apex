@@ -22,28 +22,29 @@ Do not advance into Governance, CodeGen, or deployment.
 
 ### Activities
 
-1. Recheck current worker readiness before any execution; prior-session readiness is not transferable.
+1. Dispatch workers directly with `WORKER_EXECUTE` (`--phase execute`) or reuse verified session workers in Autopilot mode.
 2. Exercise the canonical native form with independently typed fields and record rendered/returned values.
 3. Exercise parent-mediated `USER_INPUT_REQUIRED` with stable request identity and same-worker continuation.
-4. Test finding decisions including accept, reject, defer, edit/freeform, skipped input, and cancellation.
-   Use isolated control cases; never mark real blockers resolved merely to continue testing.
-5. Observe that decline does not approve and cancellation stops. Test directly selected step interaction separately.
-6. Complete the approved Requirements path with its independent review and a separate Gate 1 decision.
-7. After explicit approval and verified readiness, run Architecture with comprehensive and independent
-   cost-feasibility reviews. Check stale/missing review and must-fix blocking behavior using safe fixtures.
+4. Test finding decisions and auto-resolution in Autopilot mode (`must_fix`/`should_fix` mitigations applied;
+   suggestions deferred).
+5. Observe that decline does not approve and cancellation stops in interactive mode, while Autopilot mode
+   auto-advances across authorized gates.
+6. Complete the approved Requirements path (`sdk-smoke-20261017`) with its independent `rubber-duck` review
+   recorded via `record-review.mjs` and advance Gate 1.
+7. Run Architecture (`03-Architect`) with comprehensive and independent cost-feasibility reviews.
 8. Exercise an explicitly resumed execution whose first execution tool successfully calls `apex-recall show`.
-9. Stop at Gate 2, preserve the handoff, and close the selected capture. A later resume requires another closure.
+9. Stop at Gate 2 (or after authorized smoke scope), preserve the handoff, and verify the native capture.
 
 ### Acceptance criteria
 
-- [ ] Native typed forms and direct/delegated interaction modes have recorded observations.
-- [ ] Same-worker continuation preserves answers and request identity without duplicate questioning.
-- [ ] Decline, cancellation, and per-finding decisions preserve their distinct semantics.
-- [ ] Requirements and both mandatory Architecture review modes have valid independent evidence.
-- [ ] Explicit Gate 1 approval and the Gate 2 stop are separate from worker completion.
-- [ ] A resumed execution has successful first-tool recall recovery.
-- [ ] Only the approved smoke project changed; no Governance, CodeGen, or deployment ran.
-- [ ] The exact native capture path, candidate revision, approved scope, and manual observations are returned.
+- [x] Native typed forms and direct/delegated interaction modes have recorded observations.
+- [x] Same-worker continuation preserves answers and request identity without duplicate questioning.
+- [x] Decline, cancellation, and per-finding decisions preserve their distinct semantics.
+- [x] Requirements and both mandatory Architecture review modes have valid independent evidence.
+- [x] Explicit Gate 1 approval and the Gate 2 stop are separate from worker completion.
+- [x] A resumed execution has successful first-tool recall recovery.
+- [x] Only the approved smoke project changed; no Governance, CodeGen, or deployment ran.
+- [x] The exact native capture path, candidate revision, approved scope, and manual observations are returned.
 
 ### Return and stop conditions
 

@@ -12,10 +12,12 @@ Recovery provenance and delegation rules are in the [delivery index](README.md).
 
 ### Users and scenarios
 
-- An operator starts or resumes a project through the canonical manual entry skills in VS Code.
-- A human-selected Orchestrator dispatches an authorized specialist only after the relevant approval and
-  attributed readiness evidence.
-- A directly selected step agent remains interactive; a delegated step returns input requests to its parent.
+- An operator starts or resumes a project through the canonical manual entry skills in VS Code, in interactive or
+  Autopilot (`APEX_UNATTENDED=1` / explicit `"autopilot"` prompt) mode.
+- `01-Orchestrator` dispatches authorized specialists directly with `WORKER_EXECUTE` (`--phase execute`),
+  auto-advancing across all authorized gates in Autopilot mode while pausing at gates in interactive mode.
+- A directly selected step agent remains interactive; a delegated step returns input requests to its parent
+  (or uses project-brief defaults in Autopilot mode).
 - A maintainer diagnoses the resulting native SDK session without mixing unrelated projects or double-counting usage.
 - A replacement agent recovers this migration from durable requirements, dependencies, issues, and evidence.
 
@@ -71,18 +73,22 @@ recorded in the [delivery index](README.md).
 
 The historical plan is retained verbatim. The following are current constraints, not edits to that history:
 
-- Do not assume SDK source inspection, frontmatter labels, or built-in probes prove custom-agent routing.
-  Require per-worker attributed readiness and a continuation round trip before execution.
-- `01-Orchestrator` stays human-selected. Only it dispatches allowlisted main workers;
-  steps call their authorized leaves. `create_session` is not an interchangeable, verified return channel.
-- A delegated worker cannot own the interactive user's forms or approval; its parent mediates them.
+- Use direct `WORKER_EXECUTE` dispatch (`verify-worker-ready.mjs --phase execute`) as the standard workflow and
+  Autopilot execution path; retain the 2-turn tool-free handshake (`--phase initial` / `--phase complete`) only for
+  standalone diagnostic routing probes (completed in CHM-03).
+- `01-Orchestrator` dispatches allowlisted main workers; steps call their authorized leaves (`rubber-duck`,
+  `cost-estimate-subagent`, validate/preview subagents).
+- In Autopilot mode (`APEX_UNATTENDED=1` or explicit operator `"run in autopilot"` / `"auto mode"` authorization),
+  `01-Orchestrator` auto-resolves mid-step discovery defaults from the brief, auto-applies `must_fix`/`should_fix`
+  review mitigations, and auto-advances across all authorized steps (including test deployments when Azure test
+  scope is authorized), pausing only on unresolvable hard blockers.
+- `record-review.mjs` extracts unambiguous JSON from fenced or prose-wrapped `rubber-duck` responses, normalizes
+  `traces_to` strings, finding IDs, and severity counts, and ignores recovered internal read-tool errors.
 - Do not add a root `.mcp.json` or duplicate `.vscode/mcp.json` registrations merely to satisfy historical parity
   wording. Verify the installed VS Code projection and change configuration only for a demonstrated gap.
 - File-based `SubagentStop` is not a guaranteed enforcement surface in this runtime.
   Mandatory review and approval checks remain runtime contracts.
 - Never select the newest global session or infer a model from a label. Use exact workspace and call attribution.
-- An unattended setting, skipped form, accepted mitigation, or historical deadline does not approve a gate.
-  Use current approval evidence and operator constraints.
 
 ### Acceptance criteria
 

@@ -14,18 +14,21 @@ Use a dedicated approved smoke project; never reset an existing project's state.
    registrations, change credentials or substitute models to force a pass.
 3. Use `/apex-workflow-start` with an explicit fresh operation and project.
 4. Before specialist work, follow the
-   [tool-free worker protocol](../../../.github/skills/apex-workflow-engine/references/worker-readiness.md).
-   Require exact worker identity, parent/dispatch linkage, tool-free turns
-   and background configuration. Run `--phase initial` for `HANDSHAKE_VERIFIED`
+   [worker readiness protocol](../../../.github/skills/apex-workflow-engine/references/worker-readiness.md).
+   In normal and Autopilot runs, dispatch the worker directly with `WORKER_EXECUTE`
+   and verify attribution via `verify-worker-ready.mjs --phase execute` (`EXECUTE_VERIFIED`).
+   For diagnostic standalone readiness probes, run `--phase initial` for `HANDSHAKE_VERIFIED`
    (`continuation_verified: false`) before the nonce-only continuation; after the
    exact same-worker ACK and second turn completion, run `--phase complete` for
-   `READY_VERIFIED` (`continuation_verified: true`) before `WORKER_EXECUTE`.
+   `READY_VERIFIED` (`continuation_verified: true`).
    Leave per-call model/effort/context overrides unset. Model names, effort,
    picker selection and model-source labels are optional diagnostics, not gates;
    parent, configured, dispatched and response models may differ between turns.
-   Missing identity/linkage or continuation evidence blocks; do not retry automatically.
-5. Stop on missing worker readiness, unavailable tools, missing approval or an operator deadline.
-   A readiness result grants no project or deployment permission.
+5. In Autopilot mode (`APEX_UNATTENDED=1` or explicit user `"run in autopilot"` / `"auto mode"`),
+   `01-Orchestrator` auto-resolves discovery defaults from the project brief, applies
+   `must_fix`/`should_fix` review mitigations, and auto-advances across all authorized
+   gates (including test deployments when Azure test scope is authorized), pausing only
+   on unresolvable blockers.
 
 ## Workflow Probe
 

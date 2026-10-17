@@ -401,6 +401,26 @@ test("initial handshake passes before continuation, but never establishes comple
   assert.equal(verifyWorkerReady(input).status, "BLOCKED");
 });
 
+test("direct WORKER_EXECUTE dispatch passes --phase execute without handshake overhead", () => {
+  const input = initialSample();
+  const envelope = {
+    request_id: "exec-1",
+    project: "demo",
+    step: "1",
+    phase: "phase_1_discovery",
+    resume: false,
+    review_depth: "default",
+    parent_id: "root",
+  };
+  const prompt = `WORKER_EXECUTE\n${JSON.stringify(envelope)}`;
+  dispatch(input).data.arguments.prompt = prompt;
+  userMessages(input)[0].data.content = prompt;
+  const result = verifyWorkerReady({ ...input, phase: "execute" });
+  assert.equal(result.status, "EXECUTE_VERIFIED", result.reasons.join("\n"));
+  assert.equal(result.phase, "execute");
+  assert.equal(result.continuation_verified, true);
+});
+
 test("observed SDK continuation uses a new parentAgentTaskId and reuses the original dispatch call and turn ID", () => {
   const input = sample();
   assert.notEqual(userMessages(input)[0].data.parentAgentTaskId, userMessages(input)[1].data.parentAgentTaskId);

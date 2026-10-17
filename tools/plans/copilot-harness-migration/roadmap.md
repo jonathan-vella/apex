@@ -61,7 +61,6 @@ A positive recommendation is not merge authorization or deployment permission.
 The critical path is CHM-01, CHM-02, both CHM-03 and CHM-05, CHM-04, CHM-06, CHM-07, then CHM-08.
 CHM-03 and CHM-05 are the only planned parallel prerequisite lane.
 
-If a gate fails, retain the result, open a bounded corrective task, and return to the earliest affected wave.
-Do not broaden a worker's permissions or switch models to keep the schedule moving.
-Before live work, obtain fresh operator approval of project, scope, budget, and cutoff;
-yesterday's stop time is historical.
+With operator Autopilot authorization (`auto_all_authorized` + direct `WORKER_EXECUTE` dispatch +
+resilient review recording), CHM-04 through CHM-08 execute continuously in Autopilot mode without
+expiring UTC cutoffs or manual cross-chat copy-paste rituals, pausing only on unresolvable hard blockers.

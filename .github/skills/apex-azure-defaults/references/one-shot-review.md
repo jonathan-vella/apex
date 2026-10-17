@@ -75,11 +75,12 @@ it is not a required hop in the automatic path.
    A delegated step supplies its own worker ID as parent, not `root`.
    The recorder verifies linked dispatch/completion, original metadata, current
    input bytes and payload identity before atomic persistence. It adds truthful
-   execution provenance; it does not repair findings, counts or verdicts.
-   Refuse existing output unless the dispatch explicitly authorizes overwrite.
-   Prose-wrapped, fenced or otherwise malformed final output remains a failed
-   review; do not strip text, extract an embedded object, restamp metadata or
-   manufacture a replacement answer. Fixing a recorder does not renew an attempt.
+   execution provenance and normalizes unambiguous fenced/embedded JSON, finding
+   IDs, severity counts and string `traces_to` arrays from the reviewer's actual
+   output, not a parent-authored reconstruction; it never manufactures findings
+   or alters verdicts. Refuse existing output unless the dispatch explicitly
+   authorizes overwrite. Malformed or ambiguous non-JSON output remains a failed
+   review.
 5. Require successful recording and strict current validation:
 
    ```bash

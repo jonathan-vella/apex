@@ -33,13 +33,14 @@ Do not merge, push, deploy, close prerequisites automatically, weaken requiremen
 
 ### Acceptance criteria
 
-- [ ] Every requirement has a linked result and every predecessor checklist has current evidence.
-- [ ] Candidate commit, environment, revisions, and freshness/impact checks are recorded.
-- [ ] Required runtime observations and strict telemetry checks pass; static fixtures are not substituted.
-- [ ] Documentation publication/review evidence is linked.
-- [ ] Current CI and any baseline failures have an explicit, truthful disposition.
-- [ ] No required unknown, missing approval, unresolved must-fix finding, or unsupported capability is hidden.
-- [ ] The recommendation states its limits and identifies the human merge decision.
+- [x] Every requirement has a linked result and every predecessor checklist has current evidence.
+- [x] Candidate commit, environment, revisions, and freshness/impact checks are recorded.
+- [x] Required runtime observations and strict telemetry checks pass; static fixtures are not substituted.
+- [x] Documentation publication/review evidence is linked (`jonathan-vella/apex-docs#40`).
+- [x] Current CI and any baseline failures have an explicit, truthful disposition.
+- [x] No required unknown, missing approval, unresolved must-fix finding, or unsupported capability is hidden.
+- [x] The recommendation states its limits and identifies the human merge decision (`READY` for owner merge
+      decision on #767).
 
 ### Return and stop conditions
 

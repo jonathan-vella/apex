@@ -9,16 +9,16 @@ See the [PRD](prd.md), [roadmap](roadmap.md), and [delegation rules](README.md).
 P0 blocks acceptance or release. P1 is required before release but can follow the critical-path preparation.
 An agent role is a capability description, not a requirement to create or invoke a new custom agent.
 
-| ID     | Work packet                                                                               | Priority | Initial state | Depends on            | Agent capability                 |
-| ------ | ----------------------------------------------------------------------------------------- | -------- | ------------- | --------------------- | -------------------------------- |
-| CHM-01 | [Resolve the known CI formatting failure](issues/CHM-01-ci-format.md)                     | P0       | Ready         | None                  | Repository coding agent          |
-| CHM-02 | [Reconcile source acceptance and baseline failures](issues/CHM-02-source-acceptance.md)   | P0       | Blocked       | CHM-01                | Validation agent                 |
-| CHM-03 | [Verify custom-agent discovery and worker routing](issues/CHM-03-worker-readiness.md)     | P0       | Blocked       | CHM-02                | Human-assisted runtime agent     |
-| CHM-04 | [Exercise forms, continuation, reviews, and gates](issues/CHM-04-workflow-smoke.md)       | P0       | Blocked       | CHM-03, CHM-05        | Human-assisted workflow agent    |
-| CHM-05 | [Verify VS Code MCP projection and hook boundaries](issues/CHM-05-mcp-hooks.md)           | P1       | Blocked       | CHM-02                | Human-assisted environment agent |
-| CHM-06 | [Verify native telemetry and scoped export](issues/CHM-06-observability.md)               | P1       | Blocked       | CHM-04                | Telemetry validation agent       |
-| CHM-07 | [Publish the harness cutover documentation](issues/CHM-07-published-docs.md)              | P1       | Blocked       | CHM-06                | Documentation coding agent       |
-| CHM-08 | [Assemble release evidence and recommend disposition](issues/CHM-08-release-readiness.md) | P0       | Blocked       | CHM-01 through CHM-07 | Release evidence agent           |
+| ID     | Work packet                                                                               | Priority | Current state | Depends on            | Agent capability            |
+| ------ | ----------------------------------------------------------------------------------------- | -------- | ------------- | --------------------- | --------------------------- |
+| CHM-01 | [Resolve the known CI formatting failure](issues/CHM-01-ci-format.md)                     | P0       | Done (#769)   | None                  | Repository coding agent     |
+| CHM-02 | [Reconcile source acceptance and baseline failures](issues/CHM-02-source-acceptance.md)   | P0       | Done (#771)   | CHM-01                | Validation agent            |
+| CHM-03 | [Verify custom-agent discovery and worker routing](issues/CHM-03-worker-readiness.md)     | P0       | Done (#773)   | CHM-02                | Autopilot runtime agent     |
+| CHM-04 | [Exercise forms, continuation, reviews, and gates](issues/CHM-04-workflow-smoke.md)       | P0       | Done (#772)   | CHM-03, CHM-05        | Autopilot workflow agent    |
+| CHM-05 | [Verify VS Code MCP projection and hook boundaries](issues/CHM-05-mcp-hooks.md)           | P1       | Done (#775)   | CHM-02                | Autopilot environment agent |
+| CHM-06 | [Verify native telemetry and scoped export](issues/CHM-06-observability.md)               | P1       | Done (#768)   | CHM-04                | Telemetry validation agent  |
+| CHM-07 | [Publish the harness cutover documentation](issues/CHM-07-published-docs.md)              | P1       | Done (#774)   | CHM-06                | Documentation coding agent  |
+| CHM-08 | [Assemble release evidence and recommend disposition](issues/CHM-08-release-readiness.md) | P0       | Done (#770)   | CHM-01 through CHM-07 | Release evidence agent      |
 
 ### GitHub issue register
 

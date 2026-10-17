@@ -13,7 +13,8 @@ const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "../..")
 
 export function verifyWorkerReady({ events, frontmatter, workerId, parentId, phase = "complete" }) {
   const reasons = [];
-  if (!["initial", "complete"].includes(phase)) reasons.push("Verification phase must be initial or complete.");
+  if (!["initial", "complete", "execute"].includes(phase))
+    reasons.push("Verification phase must be initial, complete, or execute.");
   if (!workerId || !parentId) reasons.push("Explicit worker and parent identities are required.");
   if (!frontmatter?.name) reasons.push("The exact named worker definition is required.");
 
@@ -26,7 +27,11 @@ export function verifyWorkerReady({ events, frontmatter, workerId, parentId, pha
     reasons.push("Worker start is missing its call identity.");
   }
   if (start?.agentName !== frontmatter?.name) reasons.push("Worker identity does not match the named definition.");
-  if (start?.executionMode !== "background") reasons.push("Worker was not started in background mode.");
+  if (phase !== "execute" && start?.executionMode !== "background")
+    reasons.push("Worker was not started in background mode.");
+  if (phase === "execute" && !["background", "sync"].includes(start?.executionMode)) {
+    reasons.push("Worker start is missing a valid execution mode.");
+  }
   if ((start?.parentId ?? (parentId === "root" ? "root" : undefined)) !== parentId) {
     reasons.push("Worker parent identity is missing or does not match the requested parent.");
   }
@@ -34,7 +39,7 @@ export function verifyWorkerReady({ events, frontmatter, workerId, parentId, pha
   const configurations = attributed.filter((event) => event.type === "subagent.configured");
   const configured = configurations.length === 1 ? configurations[0].data : undefined;
   if (configurations.length !== 1) reasons.push("Exactly one attributed worker configuration is required.");
-  if (configured?.multiTurn !== true) reasons.push("Multi-turn continuation is not configured.");
+  if (phase !== "execute" && configured?.multiTurn !== true) reasons.push("Multi-turn continuation is not configured.");
 
   const completions = attributed.filter((event) => event.type === "subagent.completed");
   const completionEvent =
@@ -47,6 +52,10 @@ export function verifyWorkerReady({ events, frontmatter, workerId, parentId, pha
   );
   const dispatch = dispatches.length === 1 ? dispatches[0] : undefined;
   const args = dispatch?.data?.arguments;
+  const validDispatchMode =
+    phase === "execute"
+      ? !Object.hasOwn(args ?? {}, "mode") || ["background", "sync"].includes(args?.mode)
+      : args?.mode === "background";
   if (
     !dispatch ||
     dispatch.data?.toolName !== "task" ||
@@ -55,7 +64,7 @@ export function verifyWorkerReady({ events, frontmatter, workerId, parentId, pha
     typeof args !== "object" ||
     Array.isArray(args) ||
     args.agent_type !== frontmatter?.name ||
-    args.mode !== "background" ||
+    !validDispatchMode ||
     ["model", "reasoning_effort", "context_tier"].some((key) => Object.hasOwn(args, key))
   ) {
     reasons.push(
@@ -65,6 +74,40 @@ export function verifyWorkerReady({ events, frontmatter, workerId, parentId, pha
 
   const userMessages = attributed.filter((event) => event.type === "user.message");
   const assistantMessages = attributed.filter((event) => event.type === "assistant.message");
+
+  if (phase === "execute") {
+    const executeEnvelope = parseExecuteInput(args?.prompt) ?? parseExecuteInput(userMessages[0]?.data?.content);
+    if (!executeEnvelope) {
+      reasons.push("Direct execute phase requires a valid WORKER_EXECUTE JSON envelope.");
+    } else if ((executeEnvelope.parent_id ?? parentId) !== parentId) {
+      reasons.push("WORKER_EXECUTE parent_id does not match the requested parent.");
+    }
+    if (userMessages.length < 1 || assistantMessages.length < 1) {
+      reasons.push("Direct execute phase requires at least one attributed worker turn.");
+    }
+    return {
+      status: reasons.length ? "BLOCKED" : "EXECUTE_VERIFIED",
+      phase,
+      continuation_verified: reasons.length === 0,
+      worker_id: workerId,
+      parent_id: parentId,
+      agent: frontmatter?.name ?? null,
+      model_attestation_required: false,
+      model_observations: {
+        start_model: start?.model ?? null,
+        configured_model: configured?.model ?? null,
+        first_dispatched_model: completed?.firstDispatchedModel ?? null,
+        response_models: assistantMessages.map((event) => event.data?.model ?? null),
+        configured_effort: configured?.reasoningEffort ?? null,
+        task_model_source: start?.taskModelSource ?? null,
+        start_selection_source: start?.modelSelectionSource ?? null,
+        completion_selection_source: completed?.modelSelectionSource ?? null,
+      },
+      reasons,
+      permission_granted_by_this_record: false,
+    };
+  }
+
   const expectedTurns = phase === "initial" ? 1 : 2;
   const initialInput = parseHandshakeInput(userMessages[0]?.data?.content);
   if (userMessages.length !== expectedTurns || !initialInput) {
@@ -241,6 +284,24 @@ function parseReadyResponse(content) {
   if (typeof content !== "string") return null;
   const match = content.trim().match(/^WORKER_READY ([^\s]+) ([^\s]+)$/);
   return match ? { definition: match[1], nonce: match[2] } : null;
+}
+
+function parseExecuteInput(content) {
+  if (typeof content !== "string" || !content.startsWith("WORKER_EXECUTE\n")) return null;
+  try {
+    const parsed = JSON.parse(content.slice("WORKER_EXECUTE\n".length));
+    if (
+      parsed &&
+      typeof parsed === "object" &&
+      !Array.isArray(parsed) &&
+      ["request_id", "project", "step", "phase"].every((key) => typeof parsed[key] === "string" && parsed[key].trim())
+    ) {
+      return parsed;
+    }
+  } catch {
+    return null;
+  }
+  return null;
 }
 
 export function runValidator(argv = process.argv.slice(2), root = ROOT) {
