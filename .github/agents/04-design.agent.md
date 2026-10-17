@@ -1,7 +1,5 @@
 ---
 name: 04-Design
-model: ["Claude Sonnet 5.5 (copilot)"]
-reasoning-effort: medium
 description: "Step 3 — Design Artifacts. Generates code-based Python architecture diagrams and Architecture Decision Records for approved Azure designs. Optional step before governance and IaC planning."
 user-invocable: true
 disable-model-invocation: false
@@ -76,7 +74,7 @@ Return `USER_INPUT_REQUIRED` forms to the interactive parent; cancel stops.
 
 <stop_conditions>
 
-Missing approved inputs, rendering dependencies, required tools/models or worker
+Missing approved inputs, rendering dependencies, required tools or attributed runtime model evidence or worker
 eligibility return `blocked`. Never substitute a model or fabricate a review. A failed
 optional ADR review's findings remain informational as below. An execution failure
 is not findings: report it and return to the user, never fabricate a completed review.

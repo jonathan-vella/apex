@@ -1,8 +1,6 @@
 ---
 name: 04g-Governance
 description: "Azure governance discovery agent. Queries Azure Policy assignments via REST API (incl. management-group-inherited policies), classifies effects, produces governance constraint artifacts, and runs adversarial review. Step 3.5: after Architecture, before IaC Planning."
-model: ["Claude Sonnet 5.5 (copilot)"]
-reasoning-effort: medium
 argument-hint: Discover governance constraints for a project
 user-invocable: true
 disable-model-invocation: false
@@ -79,7 +77,7 @@ Return `USER_INPUT_REQUIRED` forms to the interactive parent; cancel stops.
   the derived `sku_allowlist_snapshot` only. No SKU services/revisions, architecture,
   IaC or Azure policy/resource mutations. `execute` is restricted to the approved
   deterministic scripts, these outputs and their checks; it is not inherently read-only.
-- Use #tool:agent for the allowlisted reviewer only; missing eligibility/model/tool blocks
+- Use #tool:agent for the allowlisted reviewer only; missing eligibility, runtime model evidence or tool blocks
   with the error and a human `10-Challenger` transition, never an automatic main-agent call,
   model substitution or inline review.
 - Preserve the `apex-azure-governance-discovery` deterministic-discovery contract

@@ -1,7 +1,5 @@
 ---
 name: 11-Context Optimizer
-model: ["Claude Sonnet 5.5 (copilot)"]
-reasoning-effort: high
 description: "Analyzes Copilot Chat debug logs to audit context-window utilization across agents. Identifies bloated prompts, redundant file reads, missing hand-off points, and wasted tokens. Produces actionable optimization reports. Recommendations only — never edits agents."
 user-invocable: true
 disable-model-invocation: false
@@ -69,7 +67,7 @@ highest-impact finding and write findings as plain sentences with their evidence
 
 <stop_conditions>
 
-Missing essential tools/model blocks the affected work, not a fallback model.
+Missing essential tools or attributed runtime model evidence blocks the affected work, not a fixed-model fallback.
 Missing/inaccessible logs block measured profiling only. Continue a requested source-only
 audit with the limitation stated; missing token fields remain unknown, with no fabricated savings.
 Unwanted early stops: a summary announcing the next phase without taking it, an offer to continue,

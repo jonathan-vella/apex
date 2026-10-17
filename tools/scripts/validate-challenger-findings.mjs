@@ -18,8 +18,8 @@
  *   `must_fix` findings must also carry a `suggested_fix` with at minimum
  *   `artifact_path` and `proposed_edit`.
  * - `cache_inputs` must carry `artifact_sha`, `checklists_sha`,
- *   `protocol_sha`, `subagent_sha`, `model`, `artifact_hash` (all
- *   non-empty strings).
+ *   `protocol_sha`, `subagent_sha`, `model_policy`, `artifact_hash` (all
+ *   non-empty strings). Explicit legacy pins add an optional `model` value.
  *
  * Excludes the decisions sidecar (`challenge-findings-*-decisions.json`)
  * which has its own shape defined in `adversarial-review-protocol.md`
@@ -73,7 +73,7 @@ const REQUIRED_CACHE_FIELDS = [
   "checklists_sha",
   "protocol_sha",
   "subagent_sha",
-  "model",
+  "model_policy",
   "artifact_hash",
 ];
 const VALID_SEVERITY = new Set(["must_fix", "should_fix", "suggestion"]);
@@ -133,14 +133,14 @@ export function cacheInputs(artifactPath, root = process.cwd()) {
   const worker = read(".github/agents/_subagents/challenger-review-subagent.agent.md");
   const models = parseFrontmatter(worker.toString("utf8"))?.model;
   const model = Array.isArray(models) ? models[0] : null;
-  if (typeof model !== "string" || !model) throw new Error("Missing reviewer frontmatter model");
   const inputs = {
     artifact_sha: artifactSha,
     checklists_sha: hash(read(".github/skills/apex-azure-defaults/references/adversarial-checklists.md")),
     protocol_sha: hash(read(".github/skills/apex-azure-defaults/references/adversarial-review-protocol.md")),
     subagent_sha: hash(worker),
-    model,
+    model_policy: model ? "legacy-pinned" : "operator-selected-auto-required",
   };
+  if (model) inputs.model = model;
   return { ...inputs, artifact_hash: hash(Object.values(inputs).join("\n---\n")) };
 }
 
@@ -148,6 +148,9 @@ function verifyCache(file, doc) {
   const expected = cacheInputs(doc.challenged_artifact);
   for (const [field, value] of Object.entries(expected)) {
     if (doc.cache_inputs?.[field] !== value) r.error(`${file}: stale cache_inputs.${field}`);
+  }
+  if (Object.hasOwn(doc.cache_inputs ?? {}, "model") !== Object.hasOwn(expected, "model")) {
+    r.error(`${file}: cache_inputs.model must be present only for an explicitly pinned legacy reviewer`);
   }
   if (doc.supporting_inputs !== undefined) {
     if (!Array.isArray(doc.supporting_inputs) || doc.supporting_inputs.length === 0) {
@@ -293,7 +296,7 @@ export function runValidator(args = process.argv.slice(2)) {
       console.log(
         "Usage: validate-challenger-findings.mjs [--root DIR | --path FILE | FILE ...] [--verify-cache]\n" +
           "Read-only metadata: --metadata ARTIFACT [--supporting-input PATH ...] [--finding-ids DRAFT.json.tmp]\n" +
-          "Metadata hashes file bytes or sorted directory entries using the reviewer frontmatter model.\n" +
+          "Metadata hashes file bytes or sorted directory entries and the reviewer's model-policy contract.\n" +
           "Use --verify-cache for current review gates, not historical schema-only scans.",
       );
       return 0;

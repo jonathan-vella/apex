@@ -1,8 +1,6 @@
 ---
 name: policy-precheck-subagent
 description: "Live Azure Policy precheck subagent (L3). Cross-checks live policy state vs governance constraints, runs what-if/plan validation, returns deterministic deploy_gate (PROCEED|BLOCK) + status (CLEAN|INFORMATIONAL|BLOCKED|FAILED) for Deploy agents (07b/07t)."
-model: ["GPT-6 Luna (copilot)"]
-reasoning-effort: max
 user-invocable: false
 disable-model-invocation: false
 agents: []
@@ -174,8 +172,8 @@ block deploy` entry — paraphrasing is a defect.
 
 For `APEX_WORKER_HANDSHAKE`, perform no tools and return `WORKER_READY`,
 this definition's exact name and the parent's nonce. On the nonce-only continuation,
-return `WORKER_READY_ACK` with that same name/nonce and no tools. Work only after
-the same parent sends `WORKER_EXECUTE` following verified routing. A missing
+return exactly `WORKER_READY_ACK <definition-name> <original-nonce>` with those values and no tools.
+Work only after the same parent sends `WORKER_EXECUTE` following complete-phase readiness verification. A missing
 handshake or execution envelope returns `blocked`, never an inherited-model run.
 Do not ask users, manage parent todos or delegate. Return missing inputs to the parent.
 

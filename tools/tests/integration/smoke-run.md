@@ -13,8 +13,13 @@ Use a dedicated approved smoke project; never reset an existing project's state.
 3. Use `/apex-workflow-start` with an explicit fresh operation and project.
 4. Before specialist work, follow the
    [tool-free worker protocol](../../../.github/skills/apex-workflow-engine/references/worker-readiness.md).
-   Require actual definition-owned model/effort, parent linkage, background configuration,
-   `MODEL_VERIFIED` and the nonce-only continuation ACK before `WORKER_EXECUTE`.
+   Require matching actual configured/dispatched model evidence, parent linkage
+   and background configuration. Run `--phase initial` for `MODEL_VERIFIED`
+   (`continuation_verified: false`) before the nonce-only continuation; after the
+   exact same-worker ACK and second turn completion, run `--phase complete` for
+   `READY_VERIFIED` (`continuation_verified: true`) before `WORKER_EXECUTE`.
+   The old pinned SDK profile does not establish unpinned Auto behavior; absent
+   supported unpinned telemetry is a blocker, not permission to probe or substitute.
 5. Stop on unknown routing, unavailable tools, missing approval or an operator deadline.
    A readiness result grants no project or deployment permission.
 

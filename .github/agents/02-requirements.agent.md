@@ -1,7 +1,5 @@
 ---
 name: 02-Requirements
-model: ["Claude Sonnet 5.5 (copilot)"]
-reasoning-effort: high
 description: Researches and captures Azure platform engineering project requirements
 argument-hint: Describe the Azure workload or project you want to gather requirements for
 user-invocable: true
@@ -157,7 +155,7 @@ Write questions and notes as plain sentences; use the table only for findings.
 
 The Copilot SDK uses verified workers; human gates remain explicit before the next named
 owner. Inline skills do not change model or tool scope. Use #tool:agent only for the
-allowlisted worker. Missing model, tool, input or invocation eligibility means `blocked`,
+allowlisted worker. Missing attributed runtime model evidence, tool, input or invocation eligibility means `blocked`,
 not model substitution or a skipped review. On reviewer failure, preserve the error and
 request a human transition to `10-Challenger`; never invoke that main agent as a worker.
 
@@ -456,7 +454,7 @@ This block is a hard stop rule, not a recap.
 - An incomplete/failed prerequisite also blocks Phase 6. Otherwise defer only for a subagent error
   from the runtime, in which case you follow the fallback rule in
   Phase 6a (human handoff to `10-Challenger`, then stop). Missing required
-  tools or model eligibility likewise blocks; do not attempt an inline review.
+  tools or runtime eligibility likewise blocks; do not attempt an inline review.
 
 ## Phase 6: Challenger Review and Per-Finding Decision Panel
 

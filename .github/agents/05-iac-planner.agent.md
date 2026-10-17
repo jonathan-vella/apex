@@ -1,8 +1,6 @@
 ---
 name: 05-IaC Planner
 description: "Expert Azure IaC planner that creates comprehensive machine-readable implementation plans. Consults Microsoft documentation, evaluates Azure Verified Modules (Bicep or Terraform), designs full infrastructure solutions with architecture diagrams. Routes by decisions.iac_tool."
-model: ["Claude Sonnet 5.5 (copilot)"]
-reasoning-effort: high
 user-invocable: true
 disable-model-invocation: false
 agents: ["challenger-review-subagent"]
@@ -99,7 +97,7 @@ user's own message asks.
 <stop_conditions>
 
 Missing predecessors, stale L0 evidence, unresolved Deny constraints, invalid contracts,
-review failures or missing human approval block completion. Missing tools/models or
+review failures or missing human approval block completion. Missing tools or attributed runtime model evidence or
 worker eligibility return `blocked`; never skip checks or substitute models.
 Only a current explicit [lab risk authorization](../../tools/apex-recall/docs/risk-authorizations.md) may permit
 an unresolved Plan finding for its listed action; preserve NEEDS_REVISION and obtain separate human gate approval.

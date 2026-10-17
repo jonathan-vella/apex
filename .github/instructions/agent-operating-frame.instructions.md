@@ -76,8 +76,12 @@ Markdown artifacts follow the
   [Challenger-subagent fallback rule](agent-authoring.instructions.md#challenger-subagent-fallback-rule)
   and the [review protocol](../skills/apex-azure-defaults/references/adversarial-review-protocol.md#subagent-discovery-fallback-default--deep).
 - Preserve structured output contracts across model families.
-- Model ownership and routing follow [agent-authoring](agent-authoring.instructions.md#model-policy);
-  if the active harness cannot honor required tools or model routing, stop.
+- Active definitions leave model and effort unpinned. The operator must select
+  Auto in the runtime separately; omission does not force Auto. Require attributed
+  configured/dispatched model evidence and fail closed on unknown routing sources.
+  Telemetry does not establish the operator's Auto selection unless it explicitly
+  records that choice. If the harness cannot honor required tools or verify routing,
+  stop.
 
 ## Out of scope for this file
 

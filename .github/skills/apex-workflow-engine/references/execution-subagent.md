@@ -3,8 +3,14 @@
 
 This is a reference-only parent-to-worker contract, not an executable slash
 entrypoint. Copy the ordered Inputs, Activities, Outputs sections into the
-invocation of a named, explicitly allowlisted worker. The worker's own agent
-definition selects its model and tools; this reference grants no permissions.
+invocation of a named, explicitly allowlisted worker. The runtime selects the
+worker model and its agent definition declares tools; the operator must select
+Auto separately. This reference grants no permissions.
+Before sending execution inputs, follow
+[worker readiness](worker-readiness.md): `--phase initial` verifies the completed
+handshake only; after the nonce-only continuation and exact ACK, `--phase complete`
+must return `READY_VERIFIED` with `continuation_verified: true`. Initial
+`MODEL_VERIFIED` is not complete readiness.
 Do not invoke an unnamed default worker or infer model eligibility from a label.
 Unavailable named workers or unsupported transitions require a return to the
 parent, not an automatic fallback, context fork, or nested delegation.

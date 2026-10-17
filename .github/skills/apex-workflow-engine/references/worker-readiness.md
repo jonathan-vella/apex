@@ -1,51 +1,105 @@
-<!-- ref:worker-readiness-v1 -->
+<!-- ref:worker-readiness-v3 -->
 
 # Copilot SDK Worker Readiness
 
-Frontmatter owns model and effort. The SDK can fall back to the parent's model;
-an allowlist or static validator does not prove routing. Verify every delegated
-step and leaf worker before project work. Unknown evidence blocks execution.
+Active main agents and leaf workers omit model and effort pins. Before production
+workflow execution, the operator explicitly selects Auto in the supported runtime;
+omitted frontmatter does not select Auto. Verify every delegated step and leaf
+worker before project work. SDK telemetry verifies only the observed route unless
+it explicitly records the operator's Auto selection. Unknown evidence blocks execution.
 
 ## Ready-Only Handshake
 
 1. The parent confirms graph prerequisites and the applicable human approval.
-   Resolve the exact definition and model from frontmatter, never from a handoff override.
+   The operator selects Auto in the runtime before dispatch; this selection is
+   separate from agent definitions and is not implied by omitted frontmatter.
+   Resolve the exact definition name from its active agent file, never from a handoff override.
 2. Start that named worker with `task`, `mode: background`, leaving model, effort
-   and context overrides unset. Supply only `APEX_WORKER_HANDSHAKE`, the definition
-   name, a fresh nonce, and the parent's identity. Do not supply an execution request yet.
+   and context overrides unset. Supply only this handshake, with a fresh nonce
+   and the parent's exact identity; do not supply an execution request yet:
+
+   ```text
+   APEX_WORKER_HANDSHAKE
+   definition: <exact-definition-name>
+   nonce: <fresh-nonce>
+   parent_id: <parent-id>
+   ```
+
 3. The worker's first turn performs **no tools, file reads/writes, reviews or Azure actions**.
-   Return `WORKER_READY`, the exact definition name and nonce, then stop the turn.
+   Return exactly these three lines with the original values, then stop the turn:
+
+   ```text
+   WORKER_READY
+   name: <exact-definition-name>
+   nonce: <fresh-nonce>
+   ```
 4. After the idle notification, read the result. Verify the name and nonce, then run:
 
    ```bash
    node tools/scripts/verify-worker-ready.mjs \
      --events /absolute/path/to/current-session/events.jsonl \
      --definition .github/agents/02-requirements.agent.md \
-     --worker-id WORKER_ID --parent-id root
+     --worker-id WORKER_ID --parent-id root --phase initial
    ```
 
    The root interactive session uses `root`; a nested caller supplies its own worker ID.
    Pass the explicit current log path through the delegation envelope; never choose
    the newest session across unrelated workspaces.
-5. Require `MODEL_VERIFIED`: attributed start/completion, actual dispatched model
-   matching the catalog `runtime_id`, definition-owned routing, no caller override,
-   exact frontmatter effort, background mode, multi-turn configuration and zero tools.
-   Require a nonempty matching call identity. Observed tools or nested dispatch
-   block readiness even if the completion reports zero tool calls.
-   A catalog ID is an expected identity, not evidence of runtime availability.
-   The verifier accepts the legacy attribution pair `unset` / `agent_definition` and the observed SDK pair
-   `custom_agent_definition` / `agent_definition_default`. The latter also requires one matching parent
-   `task` start record with the exact definition and background mode, and no `model`, `reasoning_effort`,
-   or `context_tier` argument keys. Mixed, unknown, inherited, or overridden attribution remains blocking.
-   Acceptance of labels does not certify the parent's own routing, the ACK, reviews, or execution permission.
-6. Send `write_agent` a nonce-only continuation test. Require a `WORKER_READY_ACK`
-   echo of the original nonce and definition **without tools**. A failed continuation
-   blocks the worker; never relaunch project work under an inherited model.
+5. Require `MODEL_VERIFIED` with `phase: initial` and
+   `continuation_verified: false`: exactly one attributed start, configuration, linked
+   parent `task` dispatch, completed first turn and worker completion; exact worker and parent identity;
+   background mode; multi-turn configuration; nonempty configured and dispatched
+   model evidence that agrees; and zero tool events or nested workers. If a
+   definition is deliberately pinned in a legacy fixture, the observed model must
+   also match one of its catalog runtime IDs. Active production definitions have
+   no such expected ID. An explicit effort pin is likewise checked only for a
+   legacy fixture; unpinned runtime effort is not inferred.
+   The only observed SDK source pair is
+   `custom_agent_definition` / `agent_definition_default`, evidenced for a
+   **historically pinned** definition only. It is supported for pinned compatibility,
+   not as proof of unpinned Auto behavior. With no observed unpinned source profile,
+   active unpinned workers fail closed in both phases pending separately authorized
+   runtime evidence; do not add speculative inherited/Auto source pairs.
+   The verifier requires the exact
+   worker name, one matching parent dispatch in background mode, and no `model`,
+   `reasoning_effort`, or `context_tier` argument keys. Unknown or unobserved
+   sources fail closed. Configured/dispatched agreement proves the observed model
+   route, not operator Auto selection, availability, or permission to act.
+   This first-phase result never certifies continuation or complete readiness.
+   Do not send project work based on `MODEL_VERIFIED`.
+6. Send `write_agent` a nonce-only continuation test. The continuation input is
+   the original nonce alone. Require exactly
+   `WORKER_READY_ACK <exact-definition-name> <original-nonce>` **without tools**.
+   A failed continuation blocks the worker; never relaunch project work under a
+   substituted fixed model.
    The exact single-line response is `WORKER_READY_ACK <definition-name> <original-nonce>`,
    replacing both placeholders with the original handshake values. A bare
-   `WORKER_READY_ACK` is incomplete and blocks readiness. State this output contract in
-   the initial handshake: the nonce-only continuation cannot supply missing instructions.
-7. Only then send the bounded execution envelope to the **same worker ID**, including
+   `WORKER_READY_ACK` is incomplete and blocks readiness. The worker definition must
+   state this output contract: the nonce-only continuation cannot supply missing instructions.
+7. After the second idle notification, run complete verification against the same
+   log and identities:
+
+   ```bash
+   node tools/scripts/verify-worker-ready.mjs \
+     --events /absolute/path/to/current-session/events.jsonl \
+     --definition .github/agents/02-requirements.agent.md \
+     --worker-id WORKER_ID --parent-id root --phase complete
+   ```
+
+   Require `READY_VERIFIED`, `phase: complete` and `continuation_verified: true`.
+   Complete is the CLI/API default; an initial-only capture fails complete verification.
+   Both phases repeat all routing, identity, override and no-tool checks. Complete
+   additionally requires one successful parent `write_agent` send with `agent_id`
+   equal to this worker and `message` equal to the nonce, its linked tool-call
+   completion, and the same worker's exact ACK followed by `assistant.turn_end`.
+   No second `subagent.completed` event is assumed: the observed SDK emits it only
+   for initial dispatch. Continuation messages and turn boundaries retain the
+   **original** dispatch `parentToolCallId`; `parentAgentTaskId` changes between
+   turns and is not a dispatch-call ID. Turn IDs may restart at `"0"`; link user,
+   turn-start and response by interaction ID and turn ID, and completion by ordered
+   attributed turn-end. Parent send completion precedes continuation delivery.
+   Missing, mismatched, ambiguous or incomplete evidence blocks complete readiness.
+8. Only after complete verification send the bounded execution envelope to the **same worker ID**, including
    current project inputs, phase, allowed outputs, explicit approvals, deadline,
    parent ID and session log path. Read the completion after notification.
 
@@ -94,7 +148,7 @@ to invent review findings.
 
 Readiness failure, unavailable tools, missing/empty output, validation errors,
 approval gates and the user's cutoff remain stop conditions. A routing failure
-does not authorize another model, inline specialist work or an automatic retry.
+does not authorize a fixed model, inline specialist work or an automatic retry.
 Preserve the review-specific single identical-input retry rule separately.
 
 File hooks are supplementary. The inspected Agent Host adapter wires SDK

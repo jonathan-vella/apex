@@ -289,7 +289,7 @@ Do not edit upstream artifacts or invalidate unrelated project decisions as part
 
 Use the existing validator's read-only metadata mode before review:
 `node tools/scripts/validate-challenger-findings.mjs --metadata <artifact_path>`.
-It computes byte hashes and the exact frontmatter model without opening source files in chat.
+It computes byte hashes and the reviewer's model-policy contract without opening source files in chat.
 Use `--finding-ids <draft.json.tmp>` for deterministic finding identities; copy results with editing tools.
 Validate the temporary payload with `--verify-cache <draft.json.tmp>` before publication, and use the
 same flag on a saved file before cache reuse. A mismatch blocks reuse; never refresh hashes on an old review.
@@ -307,8 +307,8 @@ Subagent output includes a `cache_inputs` block:
     "checklists_sha": "<sha256 of adversarial-checklists.md bytes>",
     "protocol_sha": "<sha256 of this file bytes>",
     "subagent_sha": "<sha256 of challenger-review-subagent.agent.md bytes>",
-    "model": "<challenger-review-subagent.frontmatter.model[0]>",
-    "artifact_hash": "<sha256 of artifact_sha ‖ \"\\n---\\n\" ‖ checklists_sha ‖ \"\\n---\\n\" ‖ protocol_sha ‖ \"\\n---\\n\" ‖ subagent_sha ‖ \"\\n---\\n\" ‖ model>"
+    "model_policy": "operator-selected-auto-required",
+    "artifact_hash": "<sha256 of artifact_sha ‖ \"\\n---\\n\" ‖ checklists_sha ‖ \"\\n---\\n\" ‖ protocol_sha ‖ \"\\n---\\n\" ‖ subagent_sha ‖ \"\\n---\\n\" ‖ model_policy>"
   }
 }
 ```
@@ -324,6 +324,7 @@ fresh invocation:
 | Artifact bytes changed (the common case)             | Re-invoke             |
 | `adversarial-checklists.md` updated                  | Re-invoke             |
 | This protocol doc updated                            | Re-invoke             |
+| Reviewer model-policy contract changed               | Re-invoke             |
 | `challenger-review-subagent.agent.md` prompt updated | Re-invoke             |
 | `challenger-review-subagent` model rolled            | Re-invoke             |
 | **All five match** (rare on real REVISE loops)       | Reuse cached findings |

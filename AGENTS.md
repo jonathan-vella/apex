@@ -26,7 +26,7 @@ npm run validate:all
 npm run lint:md                          # Markdown linting
 npm run lint:json                        # JSON/JSONC validation
 npm run validate:agents                  # Agent + prompt frontmatter, model alignment
-npm run validate:agent-registry          # Registry shape (file path, model, step)
+npm run validate:agent-registry          # Registry shape (file path, optional legacy model, step)
 npm run validate:iac-security-baseline   # TLS/HTTPS/Entra-only/no-public-blob baseline
 npm run lint:safe-shell                  # No interactive shell prompts in committed snippets
 
@@ -108,8 +108,9 @@ wrapper fallback. Missing/empty reviewer output permits exactly one identical-in
 retry, then human escalation. Preserve current review evidence and approval gates.
 
 Archived Local prompts are historical; manual entry skills inherit the caller's
-model/tools without granting permissions. Model labels and discovery settings do
-not prove runtime routing, cost-tier eligibility or API support. Runtime rules:
+model/tools without granting permissions. Active agent definitions omit fixed model and reasoning-effort pins.
+The operator must explicitly select Auto in the runtime; omission does not force Auto.
+Model labels and discovery settings do not prove runtime routing, cost-tier eligibility or API support. Runtime rules:
 [Copilot instructions](.github/copilot-instructions.md#harness-and-runtime-boundaries).
 
 The E2E launch subsystem is retired. Production lesson collection, historical

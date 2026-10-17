@@ -1,8 +1,6 @@
 ---
 name: 06b-Bicep CodeGen
 description: Expert Azure Bicep IaC specialist that creates near-production-ready Bicep templates following Azure Verified Modules (AVM) standards. Validates, tests, and ensures code quality.
-model: ["Claude Sonnet 5.5 (copilot)"]
-reasoning-effort: medium
 user-invocable: true
 disable-model-invocation: false
 agents: ["bicep-validate-subagent", "challenger-review-subagent"]
@@ -131,7 +129,7 @@ widening, narrowing or transforming the task.
 
 <stop_conditions>
 
-- Missing required model/tool/input or worker eligibility returns `blocked`; never
+- Missing attributed runtime model evidence, tool/input or worker eligibility returns `blocked`; never
   substitute a model, skip validation or fabricate findings. Retry transient worker
   failures once, then stop. Independent review cannot be replaced by inline review.
 - Stop generating code until preflight (Phase 1) and governance compliance

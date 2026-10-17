@@ -1,8 +1,6 @@
 ---
 name: 08-As-Built
 description: "Generates Step 7 as-built documentation suite after successful deployment. Reads all prior artifacts (Steps 1-6) and deployed resource state to produce: design document, operations runbook, cost estimate, compliance matrix, backup/DR plan, resource inventory, and documentation index."
-model: ["Claude Sonnet 5.5 (copilot)"]
-reasoning-effort: medium
 user-invocable: true
 disable-model-invocation: false
 agents: ["cost-estimate-subagent"]
@@ -150,7 +148,7 @@ raise a better approach in one sentence instead of silently widening, narrowing 
 
 <stop_conditions>
 
-- Missing essential tool/model/input or worker eligibility returns `blocked`; stop
+- Missing essential tool, attributed runtime model evidence, input or worker eligibility returns `blocked`; stop
   with the error rather than substituting a model, pricing source or successful status.
 - Stop after the requested subset, or every full-suite output in Output Contract,
   is validated and indexed. Do not loop back to regenerate artifacts
@@ -183,8 +181,8 @@ investigate before answering) live in
   plan, resource inventory, documentation index). Never modify
   deployed infrastructure, change IaC templates, or skip prior
   artifact review.
-- **Subagent budget (1)**: `cost-estimate-subagent`; its frontmatter owns the
-  model assignment. Do not infer runtime cost tier from its capability label.
+- **Subagent budget (1)**: `cost-estimate-subagent`; verify its observed runtime
+  route before execution. Do not infer runtime cost tier from a capability label.
   The JSON-shaped contract is preserved verbatim. Spawn no other workers and never
   use a worker to re-check your own output.
 

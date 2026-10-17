@@ -143,9 +143,10 @@ Header: `# {Project} — Handoff (Step {N} complete)` with metadata line (`Updat
 
 Only `01-Orchestrator` dispatches main workers after human gate approval,
 current graph preconditions and [verified readiness](worker-readiness.md).
-Frontmatter owns model/effort; catalog labels are not routing evidence.
-Unknown routing, failed continuation or missing tools blocks execution;
-never perform specialist work under MAI or choose a fallback model.
+Active definitions omit model and effort pins. The operator explicitly selects
+Auto in the runtime; omission alone does not select it. Unknown routing, failed
+continuation or missing tools blocks execution; never perform specialist work
+inline or choose a fixed-model fallback.
 
 ### Step → Named Worker
 

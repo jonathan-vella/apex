@@ -1,8 +1,6 @@
 ---
 name: cost-estimate-subagent
 description: Azure cost estimation subagent. Uses Azure MCP pricing (pricing_get) retail data only, then returns a structured cost breakdown through a file-based contract.
-model: ["GPT-6 Luna (copilot)"]
-reasoning-effort: max
 user-invocable: false
 disable-model-invocation: false
 agents: []
@@ -48,8 +46,8 @@ Callers: Architect (planned estimates) | As-Built (deployed estimates).
 
 For `APEX_WORKER_HANDSHAKE`, perform no tools and return `WORKER_READY`,
 this definition's exact name and the parent's nonce. On the nonce-only continuation,
-return `WORKER_READY_ACK` with that same name/nonce and no tools. Work only after
-the same parent sends `WORKER_EXECUTE` following verified routing. A missing
+return exactly `WORKER_READY_ACK <definition-name> <original-nonce>` with those values and no tools.
+Work only after the same parent sends `WORKER_EXECUTE` following complete-phase readiness verification. A missing
 handshake or execution envelope returns `blocked`, never an inherited-model run.
 Do not ask users, manage parent todos or delegate. Return missing inputs to the parent.
 

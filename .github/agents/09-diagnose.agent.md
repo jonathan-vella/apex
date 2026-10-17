@@ -1,7 +1,5 @@
 ---
 name: 09-Diagnose
-model: ["Claude Sonnet 5.5 (copilot)"]
-reasoning-effort: medium
 description: Interactive diagnostic agent that guides users through Azure resource health assessment, issue identification, and remediation planning. Scope-first execution with approval for every change, single-resource scope, reports to agent-output/{project}/.
 user-invocable: true
 disable-model-invocation: false
@@ -131,7 +129,7 @@ Match report length to the evidence; no filler sections or redundant summaries.
 
 <stop_conditions>
 
-- Missing essential tools/model or required approval returns `blocked` with the missing
+- Missing essential tools, attributed runtime model evidence or required approval returns `blocked` with the missing
   capability. No automatic fallback model or silent skipped check. Use #tool:ask_user
   for confirmations; an unavailable question tool blocks the interactive workflow.
 - Stop and ask for the target resource when the user has not identified one resource, resource

@@ -128,6 +128,8 @@ body explicitly points to one. There is one tier — no digest, no minimal.
 - `01-Orchestrator` remains human-selected (`disable-model-invocation: true`).
   It alone dispatches allowlisted step agents after human gate approval and
   [verified worker readiness](skills/apex-workflow-engine/references/worker-readiness.md).
+  Initial `MODEL_VERIFIED` permits only the nonce continuation; execution requires
+  complete-phase `READY_VERIFIED` with `continuation_verified: true`.
   Step agents call only authorized leaves; leaves never delegate or ask users.
   The interactive parent owns `ask_user`; delegated steps return `USER_INPUT_REQUIRED`.
   Decline never approves and cancellation stops. Static allowlists are not routing evidence.
@@ -138,9 +140,17 @@ body explicitly points to one. There is one tier — no digest, no minimal.
 - Keep essential role, approval, security, output, and stop rules in main agent bodies.
   Authoring `applyTo` matches do not prove runtime attachment. Load required guidance
   when missing; do not automatically load vendor-authoring guidance during production work.
-- Agent frontmatter owns model assignments. Sol, Terra, and Luna labels do not prove
-  runtime cost-tier eligibility, availability, or API support. Stop on unsupported routing;
-  do not substitute models automatically. Require attributed SDK runtime evidence before worker execution.
+- Active agent definitions omit model and reasoning-effort pins. The operator
+  explicitly selects Auto in the supported runtime; omission does not select it.
+  Observe each worker's actual configured/dispatched model and supported source
+  through attributed SDK telemetry. This does not prove Auto was selected unless
+  telemetry records that choice. Unknown routing sources block execution; do not
+  substitute a fixed model automatically. Model catalog entries remain descriptive
+  metadata and legacy fixture support, not active assignments. Model labels and
+  capability metadata do not prove runtime availability or subagent cost-tier
+  eligibility.
+  The observed historically pinned SDK source pair does not establish unpinned
+  Auto routing; absent observed unpinned source evidence blocks both readiness phases.
 - Use available editing tools for existing files, preserve user work, and validate before
   dependent follow-up edits. No shared procedure requires a particular bulk-edit tool.
 - Explicit lab risk acceptance follows [the authorization contract](../tools/apex-recall/docs/risk-authorizations.md).

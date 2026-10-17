@@ -349,8 +349,9 @@ evidence from reviewed and approved workflow completion. List missing gates.
 ## Phase 6: Hand Off to 08-As-Built
 
 After pseudo-artifacts are saved and required gates are reconciled, stop and
-request manual selection of `08-As-Built` with its exact configured model and
-tools. Do not invoke it as an unnamed worker or inherit the intake model:
+request manual selection of `08-As-Built` with its exact name and required
+tools. The operator selects Auto separately; verify the observed runtime route
+before execution. Do not invoke it as an unnamed worker or substitute a model:
 
 > **Handoff prompt to `08-As-Built`:**
 >

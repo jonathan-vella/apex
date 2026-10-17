@@ -1,8 +1,6 @@
 ---
 name: bicep-whatif-subagent
 description: Bicep deployment preview subagent. Runs az deployment group what-if to preview changes. Analyzes policy violations, resource changes, cost impact. Returns structured summary.
-model: ["GPT-6 Luna (copilot)"]
-reasoning-effort: max
 user-invocable: false
 disable-model-invocation: false
 agents: []
@@ -115,8 +113,8 @@ Before composing the response:
 
 For `APEX_WORKER_HANDSHAKE`, perform no tools and return `WORKER_READY`,
 this definition's exact name and the parent's nonce. On the nonce-only continuation,
-return `WORKER_READY_ACK` with that same name/nonce and no tools. Work only after
-the same parent sends `WORKER_EXECUTE` following verified routing. A missing
+return exactly `WORKER_READY_ACK <definition-name> <original-nonce>` with those values and no tools.
+Work only after the same parent sends `WORKER_EXECUTE` following complete-phase readiness verification. A missing
 handshake or execution envelope returns `blocked`, never an inherited-model run.
 Do not ask users, manage parent todos or delegate. Return missing inputs to the parent.
 

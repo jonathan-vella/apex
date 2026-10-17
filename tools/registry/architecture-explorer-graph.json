@@ -1,6 +1,6 @@
 {
   "$schema": "../../tools/schemas/explorer-graph.schema.json",
-  "generatedAt": "2026-10-16T11:24:38.255Z",
+  "generatedAt": "2026-10-17T12:22:28.894Z",
   "categories": [
     { "id": "agent", "key": "agents", "label": "Agent", "color": "#3b82f6", "shape": "round-rectangle", "count": 14 },
     {
@@ -50,7 +50,7 @@
       "path": ".github/agents/01-orchestrator.agent.md",
       "links": { "source": "https://github.com/jonathan-vella/apex/blob/main/.github/agents/01-orchestrator.agent.md" },
       "meta": {
-        "model": "MAI-Code-1.1-Flash",
+        "model": null,
         "invocable": true,
         "disableModelInvocation": true,
         "argumentHint": "Describe the Azure platform engineering project you want to build end-to-end",
@@ -95,7 +95,7 @@
       "path": ".github/agents/02-requirements.agent.md",
       "links": { "source": "https://github.com/jonathan-vella/apex/blob/main/.github/agents/02-requirements.agent.md" },
       "meta": {
-        "model": "Claude Sonnet 5.5 (copilot)",
+        "model": null,
         "invocable": true,
         "disableModelInvocation": false,
         "argumentHint": "Describe the Azure workload or project you want to gather requirements for",
@@ -113,7 +113,7 @@
       "path": ".github/agents/03-architect.agent.md",
       "links": { "source": "https://github.com/jonathan-vella/apex/blob/main/.github/agents/03-architect.agent.md" },
       "meta": {
-        "model": "Claude Sonnet 5.5 (copilot)",
+        "model": null,
         "invocable": true,
         "disableModelInvocation": false,
         "argumentHint": null,
@@ -137,7 +137,7 @@
       "path": ".github/agents/04-design.agent.md",
       "links": { "source": "https://github.com/jonathan-vella/apex/blob/main/.github/agents/04-design.agent.md" },
       "meta": {
-        "model": "Claude Sonnet 5.5 (copilot)",
+        "model": null,
         "invocable": true,
         "disableModelInvocation": false,
         "argumentHint": null,
@@ -155,7 +155,7 @@
       "path": ".github/agents/04g-governance.agent.md",
       "links": { "source": "https://github.com/jonathan-vella/apex/blob/main/.github/agents/04g-governance.agent.md" },
       "meta": {
-        "model": "Claude Sonnet 5.5 (copilot)",
+        "model": null,
         "invocable": true,
         "disableModelInvocation": false,
         "argumentHint": "Discover governance constraints for a project",
@@ -173,7 +173,7 @@
       "path": ".github/agents/05-iac-planner.agent.md",
       "links": { "source": "https://github.com/jonathan-vella/apex/blob/main/.github/agents/05-iac-planner.agent.md" },
       "meta": {
-        "model": "Claude Sonnet 5.5 (copilot)",
+        "model": null,
         "invocable": true,
         "disableModelInvocation": false,
         "argumentHint": null,
@@ -208,7 +208,7 @@
         "source": "https://github.com/jonathan-vella/apex/blob/main/.github/agents/06b-bicep-codegen.agent.md"
       },
       "meta": {
-        "model": "Claude Sonnet 5.5 (copilot)",
+        "model": null,
         "invocable": true,
         "disableModelInvocation": false,
         "argumentHint": null,
@@ -233,7 +233,7 @@
         "source": "https://github.com/jonathan-vella/apex/blob/main/.github/agents/06t-terraform-codegen.agent.md"
       },
       "meta": {
-        "model": "Claude Sonnet 5.5 (copilot)",
+        "model": null,
         "invocable": true,
         "disableModelInvocation": false,
         "argumentHint": null,
@@ -253,7 +253,7 @@
         "source": "https://github.com/jonathan-vella/apex/blob/main/.github/agents/07b-bicep-deploy.agent.md"
       },
       "meta": {
-        "model": "Claude Sonnet 5.5 (copilot)",
+        "model": null,
         "invocable": true,
         "disableModelInvocation": false,
         "argumentHint": "Deploy the Bicep templates for a specific project",
@@ -273,7 +273,7 @@
         "source": "https://github.com/jonathan-vella/apex/blob/main/.github/agents/07t-terraform-deploy.agent.md"
       },
       "meta": {
-        "model": "Claude Sonnet 5.5 (copilot)",
+        "model": null,
         "invocable": true,
         "disableModelInvocation": false,
         "argumentHint": "Deploy the Terraform configuration for a specific project",
@@ -297,7 +297,7 @@
       "path": ".github/agents/08-as-built.agent.md",
       "links": { "source": "https://github.com/jonathan-vella/apex/blob/main/.github/agents/08-as-built.agent.md" },
       "meta": {
-        "model": "Claude Sonnet 5.5 (copilot)",
+        "model": null,
         "invocable": true,
         "disableModelInvocation": false,
         "argumentHint": null,
@@ -321,7 +321,7 @@
       "path": ".github/agents/09-diagnose.agent.md",
       "links": { "source": "https://github.com/jonathan-vella/apex/blob/main/.github/agents/09-diagnose.agent.md" },
       "meta": {
-        "model": "Claude Sonnet 5.5 (copilot)",
+        "model": null,
         "invocable": true,
         "disableModelInvocation": false,
         "argumentHint": null,
@@ -339,7 +339,7 @@
       "path": ".github/agents/10-challenger.agent.md",
       "links": { "source": "https://github.com/jonathan-vella/apex/blob/main/.github/agents/10-challenger.agent.md" },
       "meta": {
-        "model": "Claude Sonnet 5.5 (copilot)",
+        "model": null,
         "invocable": true,
         "disableModelInvocation": false,
         "argumentHint": "Provide the path to the artifact to challenge (e.g. agent-output/my-project/04-implementation-plan.md)",
@@ -359,7 +359,7 @@
         "source": "https://github.com/jonathan-vella/apex/blob/main/.github/agents/11-context-optimizer.agent.md"
       },
       "meta": {
-        "model": "Claude Sonnet 5.5 (copilot)",
+        "model": null,
         "invocable": true,
         "disableModelInvocation": false,
         "argumentHint": null,
@@ -379,7 +379,7 @@
         "source": "https://github.com/jonathan-vella/apex/blob/main/.github/agents/_subagents/bicep-validate-subagent.agent.md"
       },
       "meta": {
-        "model": "GPT-6 Luna (copilot)",
+        "model": null,
         "invocable": false,
         "disableModelInvocation": false,
         "argumentHint": null,
@@ -397,7 +397,7 @@
         "source": "https://github.com/jonathan-vella/apex/blob/main/.github/agents/_subagents/bicep-whatif-subagent.agent.md"
       },
       "meta": {
-        "model": "GPT-6 Luna (copilot)",
+        "model": null,
         "invocable": false,
         "disableModelInvocation": false,
         "argumentHint": null,
@@ -415,7 +415,7 @@
         "source": "https://github.com/jonathan-vella/apex/blob/main/.github/agents/_subagents/challenger-review-subagent.agent.md"
       },
       "meta": {
-        "model": "GPT-6 Luna (copilot)",
+        "model": null,
         "invocable": false,
         "disableModelInvocation": false,
         "argumentHint": null,
@@ -433,7 +433,7 @@
         "source": "https://github.com/jonathan-vella/apex/blob/main/.github/agents/_subagents/cost-estimate-subagent.agent.md"
       },
       "meta": {
-        "model": "GPT-6 Luna (copilot)",
+        "model": null,
         "invocable": false,
         "disableModelInvocation": false,
         "argumentHint": null,
@@ -451,7 +451,7 @@
         "source": "https://github.com/jonathan-vella/apex/blob/main/.github/agents/_subagents/policy-precheck-subagent.agent.md"
       },
       "meta": {
-        "model": "GPT-6 Luna (copilot)",
+        "model": null,
         "invocable": false,
         "disableModelInvocation": false,
         "argumentHint": null,
@@ -469,7 +469,7 @@
         "source": "https://github.com/jonathan-vella/apex/blob/main/.github/agents/_subagents/terraform-plan-subagent.agent.md"
       },
       "meta": {
-        "model": "GPT-6 Luna (copilot)",
+        "model": null,
         "invocable": false,
         "disableModelInvocation": false,
         "argumentHint": null,
@@ -487,7 +487,7 @@
         "source": "https://github.com/jonathan-vella/apex/blob/main/.github/agents/_subagents/terraform-validate-subagent.agent.md"
       },
       "meta": {
-        "model": "GPT-6 Luna (copilot)",
+        "model": null,
         "invocable": false,
         "disableModelInvocation": false,
         "argumentHint": null,

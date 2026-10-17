@@ -16,9 +16,7 @@ import { fileURLToPath } from "node:url";
 import { test } from "node:test";
 import { getBody, parseFrontmatter } from "../../scripts/_lib/parse-frontmatter.mjs";
 import {
-  classifyModel,
   getAgentBodyStructure,
-  isClaude,
   runVendorPrompting,
   validateProductionAgentBody,
 } from "../../scripts/validate-agents.mjs";
@@ -43,6 +41,69 @@ test("Delegated main agents explicitly echo handshake identity in tool-free cont
     assert.match(entry, /Delegated tool-free readiness: `APEX_WORKER_HANDSHAKE`/, file);
     assert.match(entry, /Stop; await `WORKER_EXECUTE`/, file);
   }
+});
+
+test("active main body contracts remain validated without a pinned model family", () => {
+  const agent = {
+    path: path.join(agentRoot, "fixture.agent.md"),
+    frontmatter: { name: "Fixture" },
+    content: `---
+name: Fixture
+---
+# Fixture
+
+## Role
+Perform the bounded role.
+
+## Goal
+Reach the stated goal.
+
+## Success criteria
+Meet the measurable criteria.
+
+## Constraints
+Keep the workflow boundaries.
+
+## Output
+Return the required output.
+
+## Stop rules
+Stop when a required input is missing.
+`,
+  };
+  assert.deepEqual(validateProductionAgentBody(agent), []);
+  agent.content = agent.content.replace("## Stop rules\nStop when a required input is missing.\n", "");
+  assert.ok(validateProductionAgentBody(agent).some((issue) => issue.includes("Stop rules")));
+});
+
+test("active structured main body contract remains checked without a pinned model family", () => {
+  const agent = {
+    path: path.join(agentRoot, "fixture.agent.md"),
+    frontmatter: { name: "Fixture" },
+    content: `---
+name: Fixture
+---
+# Fixture
+
+## Role
+Perform the bounded role.
+
+<scope_fencing>
+Keep the workflow boundaries.
+</scope_fencing>
+
+<output_contract>
+Return the required output.
+</output_contract>
+
+<stop_conditions>
+Stop when a required input is missing.
+</stop_conditions>
+`,
+  };
+  assert.deepEqual(validateProductionAgentBody(agent), []);
+  agent.content = agent.content.replace("</output_contract>", "");
+  assert.ok(validateProductionAgentBody(agent).some((issue) => issue.includes("<output_contract>")));
 });
 
 test("Terraform preview-only stops at missing backend without soliciting expanded approval", () => {
@@ -173,27 +234,22 @@ for (const name of agentFiles) {
       [frontmatter.name],
     );
     assert.deepEqual(validateProductionAgentBody({ path: path.join(agentRoot, name), content: text, frontmatter }), []);
-    assert.ok(Array.isArray(frontmatter.model), name);
-    if (isClaude(classifyModel(frontmatter.model[0]))) {
-      assert.ok(!name.startsWith("_subagents/"), name);
-      for (const tag of ["scope_fencing", "output_contract", "stop_conditions"]) {
-        assert.match(body, new RegExp(`<${tag}>[\\s\\S]+?</${tag}>`), `${name}: ${tag}`);
-      }
-    } else {
-      assert.doesNotMatch(body, /<\/?(?:context_awareness|output_contract|scope_fencing|stop_conditions)>/, name);
-    }
+    assert.equal(Object.hasOwn(frontmatter, "model"), false, `${name}: model pin`);
+    assert.equal(Object.hasOwn(frontmatter, "reasoning-effort"), false, `${name}: effort pin`);
     if (name.startsWith("_subagents/")) {
       assert.equal(frontmatter["user-invocable"], false, name);
       assert.deepEqual(frontmatter.agents, [], name);
+      assert.match(body, /return exactly `WORKER_READY_ACK <definition-name> <original-nonce>`/);
+      assert.match(body, /following complete-phase readiness verification/);
     } else {
       assert.equal(frontmatter["disable-model-invocation"], name === "01-orchestrator.agent.md", name);
     }
   });
 }
 
-test("AB-01/15 one-H1 normalization supports the model-specific body contract", () => {
+test("AB-01/15 one-H1 normalization retains pinned-fixture vendor validation", () => {
   const original = read("03-architect");
-  const frontmatter = parseFrontmatter(original);
+  const frontmatter = { ...parseFrontmatter(original), model: ["Claude Sonnet 5.5 (copilot)"] };
   const agent = {
     frontmatter,
     content: original,
@@ -203,7 +259,9 @@ test("AB-01/15 one-H1 normalization supports the model-specific body contract", 
   const result = runVendorPrompting({
     agents: new Map([[agent.path, agent]]),
     prompts: new Map(),
-    catalog: { models: Object.fromEntries(frontmatter.model.map((model) => [model, { deprecated: false }])) },
+    catalog: {
+      models: Object.fromEntries(frontmatter.model.map((model) => [model, { deprecated: false }])),
+    },
   });
   const blockers = result.findings.filter((finding) =>
     ["gpt-outcome-contract-001", "gpt-stop-rules-non-empty-001", "claude-output-contract-001"].includes(finding.ruleId),
@@ -223,6 +281,10 @@ test("AB-02 fresh setup has one owner; resume preserves recovery and verified wo
   );
   assert.match(body, /MODEL_VERIFIED/);
   assert.match(body, /WORKER_READY_ACK/);
+  assert.match(body, /--phase initial/);
+  assert.match(body, /--phase complete/);
+  assert.match(body, /READY_VERIFIED/);
+  assert.match(body, /Initial status never establishes complete readiness/);
   assert.match(body, /apex-recall transition --complete/);
 });
 
@@ -691,7 +753,15 @@ test("review metadata is deterministic, read-only and detects source, identity a
   const metadata = run("--metadata", artifact, "--finding-ids", draft);
   assert.equal(metadata.status, 0, metadata.stdout + metadata.stderr);
   assert.deepEqual(JSON.parse(metadata.stdout).cache_inputs, payload.cache_inputs);
-  assert.equal(payload.cache_inputs.model, parseFrontmatter(read("_subagents/challenger-review-subagent")).model[0]);
+  assert.equal(payload.cache_inputs.model_policy, "operator-selected-auto-required");
+  assert.equal(Object.hasOwn(payload.cache_inputs, "model"), false);
+  const reviewerPath = path.join(directory, sources[0]);
+  const reviewerSource = readFileSync(reviewerPath, "utf8");
+  writeFileSync(reviewerPath, reviewerSource.replace(/^---\n/, '---\nmodel: ["Claude Sonnet 5.5 (copilot)"]\n'));
+  const legacyCache = cacheInputs(artifact, directory);
+  assert.equal(legacyCache.model_policy, "legacy-pinned");
+  assert.equal(legacyCache.model, "Claude Sonnet 5.5 (copilot)");
+  writeFileSync(reviewerPath, reviewerSource);
   assert.deepEqual(
     JSON.parse(metadata.stdout).finding_ids,
     payload.findings.map((finding, index) => ({

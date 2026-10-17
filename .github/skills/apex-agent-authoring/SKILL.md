@@ -34,9 +34,11 @@ states the applicable rule.
 - Read the target file and its nearest analogous agent once.
 - Check `.github/skills/apex-workflow-engine/templates/workflow-graph.json` before
   changing workflow topology.
-- Check `.github/model-catalog.json` before changing model labels.
+- Check `.github/model-catalog.json` before changing model metadata or legacy pins.
 - Preserve user changes and existing runtime contracts.
-- Validate every model fallback; preserve exact catalog labels and unknown metadata.
+- Keep active production agent definitions free of model and effort pins; the
+  operator selects Auto separately in the runtime. Preserve catalog metadata and
+  test any intentionally pinned legacy fixture with the existing validators.
 - Distinguish Local prompt adapters from shared Host-compatible skills; neither
   static validation nor a catalog entry proves native model eligibility.
 

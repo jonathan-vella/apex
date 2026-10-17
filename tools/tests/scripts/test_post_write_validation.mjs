@@ -544,16 +544,16 @@ test("shared harness guidance preserves human selection and does not infer model
     assert.match(body, /readiness/, file);
     assert.match(body, /not prove runtime|not routing evidence/, file);
     assert.match(body, /without granting permissions|grant no permissions/, file);
-    assert.match(body, /cost-tier eligibility/, file);
+    assert.match(body, /cost-tier\s+eligibility/, file);
   }
   const parent = fs.readFileSync(
     path.join(ROOT, ".github/skills/apex-azure-defaults/references/cost-estimate-parent-contract.md"),
     "utf8",
   );
-  assert.match(parent, /`03-Architect` uses `Claude Sonnet 5\.5 \(copilot\)`/);
-  assert.match(parent, /`08-As-Built` uses `Claude Sonnet 5\.5 \(copilot\)`/);
-  assert.match(parent, /`cost-estimate-subagent` uses `GPT-6 Luna \(copilot\)`/);
-  assert.match(parent, /cost-feasibility review with `challenger-review-subagent` \(`GPT-6 Luna \(copilot\)`\)/);
+  assert.match(parent, /Active agent definitions do not pin model or reasoning effort/);
+  assert.match(parent, /operator\s+explicitly selects Auto/);
+  assert.match(parent, /does not establish the operator's\s+Auto selection/);
+  assert.match(parent, /does not establish runtime cost-tier eligibility/);
   assert.match(parent, /Do not infer effort settings/);
 });
 

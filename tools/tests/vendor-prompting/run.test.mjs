@@ -543,7 +543,11 @@ test("production reviewer policy forbids allowlist overrides and nested main wra
       filename,
     );
     assert.match(content, /Never invoke a nested main-agent wrapper or fabricate an inline review/, filename);
-    assert.match(content, /caller allowlists must not override this production boundary/, filename);
+    assert.match(
+      content,
+      /(?:caller allowlists must not override this production boundary|step-agent allowlists never authorize another main-agent wrapper)/,
+      filename,
+    );
     assert.doesNotMatch(content, /allowlist can override|only (?:when|if) explicitly allowlisted/, filename);
   }
 });
@@ -566,60 +570,41 @@ test("production handoff and terminology guidance cannot revive retired E2E laun
   }
 });
 
-test("agent catalog and instructions preserve canonical models and human-selected harness boundaries", () => {
+test("agent catalog preserves descriptive metadata and operator-selected runtime policy", () => {
   const root = path.resolve(__dirname, "../../..");
   const authoring = fs.readFileSync(path.join(root, ".github/instructions/agent-authoring.instructions.md"), "utf8");
   const runtime = fs.readFileSync(path.join(root, ".github/copilot-instructions.md"), "utf8");
   const catalog = JSON.parse(fs.readFileSync(path.join(root, ".github/model-catalog.json"), "utf8"));
-  const expectedModels = {
-    "01-orchestrator.agent.md": "MAI-Code-1.1-Flash",
-    "02-requirements.agent.md": "Claude Sonnet 5.5 (copilot)",
-    "03-architect.agent.md": "Claude Sonnet 5.5 (copilot)",
-    "04-design.agent.md": "Claude Sonnet 5.5 (copilot)",
-    "04g-governance.agent.md": "Claude Sonnet 5.5 (copilot)",
-    "05-iac-planner.agent.md": "Claude Sonnet 5.5 (copilot)",
-    "06b-bicep-codegen.agent.md": "Claude Sonnet 5.5 (copilot)",
-    "06t-terraform-codegen.agent.md": "Claude Sonnet 5.5 (copilot)",
-    "07b-bicep-deploy.agent.md": "Claude Sonnet 5.5 (copilot)",
-    "07t-terraform-deploy.agent.md": "Claude Sonnet 5.5 (copilot)",
-    "08-as-built.agent.md": "Claude Sonnet 5.5 (copilot)",
-    "09-diagnose.agent.md": "Claude Sonnet 5.5 (copilot)",
-    "10-challenger.agent.md": "Claude Sonnet 5.5 (copilot)",
-    "11-context-optimizer.agent.md": "Claude Sonnet 5.5 (copilot)",
-    "bicep-validate-subagent.agent.md": "GPT-6 Luna (copilot)",
-    "bicep-whatif-subagent.agent.md": "GPT-6 Luna (copilot)",
-    "challenger-review-subagent.agent.md": "GPT-6 Luna (copilot)",
-    "cost-estimate-subagent.agent.md": "GPT-6 Luna (copilot)",
-    "policy-precheck-subagent.agent.md": "GPT-6 Luna (copilot)",
-    "terraform-plan-subagent.agent.md": "GPT-6 Luna (copilot)",
-    "terraform-validate-subagent.agent.md": "GPT-6 Luna (copilot)",
-  };
-  assert.match(authoring, /Agent frontmatter is the canonical model assignment/);
+  assert.match(authoring, /Active production agents omit both `model` and `reasoning-effort`/);
+  assert.match(runtime, /operator\s+explicitly selects Auto/);
   const agents = getAgents();
-  assert.deepEqual([...agents.keys()].sort(), Object.keys(expectedModels).sort());
   for (const [filename, agent] of agents) {
     const assignments = agent.isSubagent ? catalog.assignments.subagents : catalog.assignments.agents;
-    assert.equal(agent.frontmatter.model[0], expectedModels[filename], filename);
-    assert.equal(assignments[filename], agent.frontmatter.model[0], filename);
-    assert.ok(catalog.models[agent.frontmatter.model[0]], filename);
+    assert.equal(Object.hasOwn(agent.frontmatter, "model"), false, filename);
+    assert.equal(Object.hasOwn(agent.frontmatter, "reasoning-effort"), false, filename);
+    assert.equal(Object.hasOwn(assignments, filename), false, filename);
   }
-  assert.match(runtime, /Local prompt files are adapters, not Agent Host entry points/);
-  assert.match(runtime, /Skills inherit the caller's model\/tools/);
-  assert.match(runtime, /allowlists\s+must not override that boundary/);
+  assert.deepEqual(catalog.assignments.agents, {});
+  assert.deepEqual(catalog.assignments.subagents, {});
+  assert.ok(catalog.models["Claude Sonnet 5.5 (copilot)"]);
+  assert.ok(catalog.models["GPT-6 Luna (copilot)"]);
+  assert.match(runtime, /Archived Local prompts are\s+historical, not entry points/);
+  assert.match(runtime, /Skills inherit caller model\/tools/);
+  assert.match(runtime, /Static allowlists are not routing evidence/);
 });
 
 test("prompt and skill authoring distinguish Local adapters from Host execution", () => {
   const root = path.resolve(__dirname, "../../..");
-  for (const filename of [
-    ".archive/pre-cpharness/prompt.instructions.md",
-    ".github/instructions/agent-skills.instructions.md",
-  ]) {
-    const content = fs.readFileSync(path.join(root, filename), "utf8").replace(/\s+/g, " ");
-    assert.match(content, /Local prompt files are adapters, not Agent Host entry points/, filename);
-    assert.match(content, /explicitly select its owning main agent before consequential work/, filename);
-    assert.match(content, /Skills inherit the caller's model\/tools/, filename);
-    assert.match(content, /Keep needed Local discovery settings/, filename);
-  }
+  const archive = fs.readFileSync(path.join(root, ".archive/pre-cpharness/prompt.instructions.md"), "utf8");
+  assert.match(archive, /Local prompt files are adapters, not Agent Host entry points/);
+  assert.match(archive, /explicitly select its owning main agent before consequential\s+work/);
+  assert.match(archive, /Skills inherit the caller's model\/tools/);
+  assert.match(archive, /Keep needed Local discovery settings/);
+  const active = fs.readFileSync(path.join(root, ".github/instructions/agent-skills.instructions.md"), "utf8");
+  assert.match(active, /Local prompt adapters are archived and excluded from active discovery/);
+  assert.match(active, /Use the\s+shared skill with its owning agent/);
+  assert.match(active, /Skills inherit\s+caller model\/tools/);
+  assert.match(active, /Orchestrator dispatch requires verified worker routing and human approval/);
 });
 
 test("frontmatter validator accepts generic coordinators and explicitly allowlisted human targets", () => {
@@ -690,51 +675,55 @@ test("production frontmatter accepts the current fleet and human handoffs", () =
   assert.equal(runFrontmatterValidation({ agents: productionFleet() }).errors, 0);
 });
 
-test("production main agents require disable-model-invocation true", () => {
+test("only the Orchestrator is non-model-invocable among production main agents", () => {
   for (const [filename, agent] of productionFleet()) {
     if (agent.isSubagent) continue;
-    for (const value of [false, undefined, "true"]) {
+    const expected = agent.frontmatter.name === "01-Orchestrator";
+    for (const value of [expected, !expected, undefined, "true"]) {
       const agents = productionFleet();
       const frontmatter = agents.get(filename).frontmatter;
       if (value === undefined) delete frontmatter["disable-model-invocation"];
       else frontmatter["disable-model-invocation"] = value;
-      assert.ok(
+      assert.equal(
         productionFindings(agents).some(
-          (finding) => finding.file === agent.path && /require disable-model-invocation: true/.test(finding.message),
+          (finding) => finding.file === agent.path && /require disable-model-invocation:/.test(finding.message),
         ),
+        value !== expected,
         `${agent.frontmatter.name}: ${value}`,
       );
     }
   }
 });
 
-test("production callers cannot allowlist any main agent or wildcard, despite generic platform permission", () => {
-  const targets = [...productionFleet().values()].filter((agent) => !agent.isSubagent);
+test("only the Orchestrator can allowlist named main agents; wildcard targets remain forbidden", () => {
+  const targets = [...productionFleet().values()]
+    .filter((agent) => !agent.isSubagent && agent.frontmatter.name !== "01-Orchestrator")
+    .map((agent) => agent.frontmatter.name);
   for (const [filename, caller] of productionFleet()) {
-    for (const target of [...targets.map((agent) => agent.frontmatter.name), "*"]) {
+    for (const target of [...targets, "*"]) {
       const agents = productionFleet();
       const frontmatter = agents.get(filename).frontmatter;
       frontmatter.agents = [target];
       frontmatter.tools = ["agent"];
-      assert.deepEqual(validateAgentPermissions(frontmatter, { agents }), []);
-      assert.ok(
-        productionFindings(agents).some(
-          (finding) =>
-            finding.file === caller.path &&
-            finding.message === `Production agents cannot allowlist main agents or wildcard targets (got: ${target})`,
-        ),
-        `${caller.frontmatter.name} -> ${target}`,
-      );
+      const finding = productionFindings(agents).find((entry) => entry.file === caller.path);
+      if (caller.frontmatter.name === "01-Orchestrator" && target !== "*") {
+        assert.equal(finding, undefined, `${caller.frontmatter.name} -> ${target}`);
+        assert.deepEqual(validateAgentPermissions(frontmatter, { agents }), []);
+      } else {
+        assert.ok(finding, `${caller.frontmatter.name} -> ${target}`);
+      }
     }
   }
 });
 
-test("production Orchestrator requires an explicit empty allowlist and no delegation tools", () => {
+test("production Orchestrator requires an explicit named allowlist and agent tool", () => {
   const worker = [...productionFleet().values()].find((agent) => agent.isSubagent).frontmatter.name;
   for (const override of [
     { agents: undefined },
+    { agents: [], tools: ["agent"] },
     { agents: [worker], tools: ["agent"] },
-    ...["agent", "agent/runSubagent", "functions/runSubagent", "*"].map((tool) => ({ tools: [tool] })),
+    { agents: ["*"], tools: ["agent"] },
+    { tools: ["read"] },
   ]) {
     const agents = productionFleet();
     const main = [...agents.values()].find((agent) => agent.frontmatter.name === "01-Orchestrator");

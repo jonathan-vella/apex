@@ -14,7 +14,8 @@ Require an explicit operation; require a project except for `resume`, which may
 discover candidates. Require the correctly selected named owner, its exact
 configured model, and its permitted tools. A skill cannot bind them.
 **STOP** and ask the user to select the owner if any routing evidence is missing.
-Never perform specialist work under MAI or bypass the verified worker handshake.
+The operator selects Auto separately in the runtime; never perform specialist
+work inline or bypass the verified worker handshake.
 
 ## Procedure
 

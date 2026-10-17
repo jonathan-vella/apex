@@ -1,8 +1,6 @@
 ---
 name: 03-Architect
 description: Expert Architect providing guidance using Azure Well-Architected Framework principles and Microsoft best practices. Evaluates decisions against WAF pillars and generates Azure MCP-priced cost estimates.
-model: ["Claude Sonnet 5.5 (copilot)"]
-reasoning-effort: high
 user-invocable: true
 disable-model-invocation: false
 agents: ["cost-estimate-subagent", "challenger-review-subagent"]

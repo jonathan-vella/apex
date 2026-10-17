@@ -14,9 +14,11 @@ or deep audits, load `.github/skills/apex-agent-authoring/SKILL.md`.
 - Use valid YAML between `---` delimiters with spaces, not tabs.
 - Keep `description` on one line as the repository discovery convention.
 - Keep `description` at or below 350 characters; aim for 300 or fewer.
-- Agent models use array form; prompt models use quoted string form.
-- Agent frontmatter is the canonical model assignment. Mirror it in
-  `tools/registry/agent-registry.json`; catalog assignments are generated.
+- Active production agents omit both `model` and `reasoning-effort`. The
+  operator selects Auto in the runtime separately; omission does not select Auto.
+  Keep optional fixed-model support for isolated fixtures and legacy validation.
+- Prompt models use quoted string form. Registry model values are optional
+  legacy mirrors; catalog assignments are generated only for explicit pins.
 - Use only available tool IDs. Delegation uses `agent`, not
   `agent/runSubagent`.
 - A nonempty `agents` list requires `agent` in `tools`; `agents: []` does not.
@@ -26,8 +28,8 @@ or deep audits, load `.github/skills/apex-agent-authoring/SKILL.md`.
   `disable-model-invocation: true`. Other main agents are user-invocable and
   model-invocable only through Orchestrator's approved, verified background dispatch.
   Step agents allowlist only their authorized leaves; leaves never delegate.
-- Before any delegated project work, enforce the tool-free handshake and actual
-  model/effort check in
+- Before any delegated project work, enforce the tool-free handshake, observed
+  runtime model, and continuation check in
   [`worker-readiness.md`](../skills/apex-workflow-engine/references/worker-readiness.md).
   A frontmatter label, allowlist or catalog entry does not prove runtime routing.
 - Replace deprecated `infer` with `user-invocable` and
@@ -45,7 +47,8 @@ extended scope tables into the body or an on-demand reference.
 
 - Target an existing agent using its exact frontmatter `name`.
 - Use only `label`, `agent`, `prompt`, `send`, `showContinueOn`, and `model`.
-- Omit `handoffs[].model` when it matches the target agent's own model.
+- Do not set `handoffs[].model` for active production targets; they are unpinned.
+  Retain explicit handoff model values only for isolated legacy fixtures.
 - Every handoff prompt names its input and expected output.
 - Use the workflow DAG rather than adding an inline handoff taxonomy.
 
@@ -54,21 +57,25 @@ Validation details:
 
 ## Model Policy
 
-Model selection is intentional. Do not change model order or assignments without
-explicit approval. Reasoning effort is a per-agent or per-call policy, never a
-model-label suffix.
+Active production agent definitions must not pin a model or reasoning effort.
+Before starting or resuming production work, the operator explicitly selects
+Auto in the supported runtime; omitted frontmatter does not select Auto. If
+Auto is unavailable or the operator's selection is unknown, stop rather than
+silently choosing a fixed model.
 
-Preserve exact user-confirmed picker labels, including spaces and `(copilot)`,
-as recorded in the catalog. Unknown release/cost/capability metadata stays unknown.
-Exact catalog matches take precedence over stripping optional handoff qualifiers.
+Runtime telemetry must establish the selected worker's actual configured and
+dispatched model. A recognized SDK source profile can verify observed routing
+but does not prove that the operator selected Auto. Unknown source values remain
+blocking until supported by runtime evidence. Keep exact labels and unknown
+catalog metadata unchanged for descriptive and pinned-fixture compatibility.
 
 ### Reasoning-Effort Policy
 
-Set effort only in frontmatter `reasoning-effort`: `max` for `GPT-6 Luna (copilot)`
-agents and subagents, `high` for `GPT-6.1 Sol (copilot)` agents and for the
-`02-Requirements`, `03-Architect`, `05-IaC Planner`, `10-Challenger` and
-`11-Context Optimizer` agents on `Claude Sonnet 5.5 (copilot)`, `medium` for all
-others. Do not restate effort in the body. Rationale:
+Active production definitions omit `reasoning-effort`; the operator-selected
+runtime controls effort. Do not infer effective effort from role, model label,
+catalog entry, or omitted frontmatter. Report observed effort only when runtime
+telemetry supplies it. Pinned fixture tests may retain effort values for
+legacy validation. Rationale:
 [`apex-agent-authoring/references/model-policy.md`](../skills/apex-agent-authoring/references/model-policy.md).
 
 Repository structure and sourced vendor advice are distinguished in
@@ -83,12 +90,12 @@ Repository structure and sourced vendor advice are distinguished in
 - Prefer relative links and verify they resolve from the agent file.
 - Read only skills needed for the current phase; reuse unchanged content still in context.
 - Keep embedded templates aligned with their canonical source.
-- For Sol, Terra, and Luna main agents, use concise Markdown: Role, Goal,
-  Success criteria, Constraints, Output, and Stop rules. Keep existing H2 anchors
-  and unique workflow contracts. Replace XML wrappers without deleting their content.
-- For Claude Opus 5.5 and Sonnet 5.5 main agents, use the Claude contract: one H1,
-  a nonempty `## Role`, and nonempty `<scope_fencing>`, `<output_contract>` and
-  `<stop_conditions>` blocks. Keep approval gates and workflow contracts in the body.
+- Active main agents use either the APEX Markdown contract (one H1 plus nonempty
+  Role, Goal, Success criteria, Constraints, Output, and Stop rules H2s) or the
+  existing structured contract (one H1, nonempty `## Role`, and nonempty
+  `<scope_fencing>`, `<output_contract>`, and `<stop_conditions>` blocks).
+  Validation is body-structure based, not selected-model based. Preserve approval
+  gates, output ownership, and workflow-specific stop rules.
 - Leaf workers use a role-specific input/activity/output/failure contract, not
   mandatory main-agent sections or personality. Preserve checks and stop rules;
   optional style advice must not override safety or role requirements.
@@ -149,8 +156,10 @@ Commands and decision shape:
 
 Validate every fallback label and family in order, without adding fallbacks.
 Archive-only prompt fixtures retain their historical model rules. Active SDK
-workers use definition-owned routing; never inherit an unverified picker model.
-Avoid redundant handoff overrides and follow the matching rules:
+workers use runtime-selected routing. Readiness may accept known
+inherited/runtime-selected model sources only when attributed telemetry verifies
+the exact dispatch; never infer routing from an unverified picker model. Avoid
+redundant handoff overrides and follow the matching rules:
 
 - [`vendor-prompting.instructions.md`](vendor-prompting.instructions.md)
 - [`apex-vendor-prompting/references/family-support.md`](../skills/apex-vendor-prompting/references/family-support.md)

@@ -1,8 +1,6 @@
 ---
 name: challenger-review-subagent
 description: "Unified adversarial review subagent that challenges Azure infrastructure artifacts. Finds untested assumptions, governance gaps, WAF blind spots, and architectural weaknesses. Returns structured JSON findings. Supports single-pass and multi-pass rotating-lens reviews; batches lenses per invocation."
-model: ["GPT-6 Luna (copilot)"]
-reasoning-effort: max
 disable-model-invocation: false
 user-invocable: false
 agents: []
@@ -107,7 +105,9 @@ current content and recover missing/changed evidence after compaction or source 
 
 Snapshot review inputs before analysis with
 `node tools/scripts/validate-challenger-findings.mjs --metadata <artifact_path>`.
-Retain that `cache_inputs` snapshot; the model comes from frontmatter, not a guessed runtime label.
+Retain that `cache_inputs` snapshot. The active reviewer is unpinned; the
+`model_policy` value records the operator-selected Auto requirement, not proof
+that Auto was selected or evidence of the actual dispatched model.
 When `supporting_paths` is supplied, add one `--supporting-input <path>` per entry to that command and copy the emitted
 `supporting_inputs` array unchanged into the payload; never hash or list them by hand.
 Directory inputs use the deterministic tree hash documented in the review protocol; symlinks block hashing.
@@ -122,8 +122,8 @@ Never hash a path string as if it were artifact bytes.
 
 For `APEX_WORKER_HANDSHAKE`, perform no tools and return `WORKER_READY`,
 this definition's exact name and the parent's nonce. On the nonce-only continuation,
-return `WORKER_READY_ACK` with that same name/nonce and no tools. Work only after
-the same parent sends `WORKER_EXECUTE` following verified routing. A missing
+return exactly `WORKER_READY_ACK <definition-name> <original-nonce>` with those values and no tools.
+Work only after the same parent sends `WORKER_EXECUTE` following complete-phase readiness verification. A missing
 handshake or execution envelope returns `blocked`, never an inherited-model run.
 Do not ask users, manage parent todos or delegate. Return missing inputs to the parent.
 
@@ -409,8 +409,8 @@ The on-disk JSON has no markdown wrapper:
     "checklists_sha": "<sha256 of adversarial-checklists.md bytes>",
     "protocol_sha": "<sha256 of adversarial-review-protocol.md bytes>",
     "subagent_sha": "<sha256 of challenger-review-subagent.agent.md bytes>",
-    "model": "<challenger-review-subagent.frontmatter.model[0]>",
-    "artifact_hash": "<sha256 of the concatenated string artifact_sha\\n---\\nchecklists_sha\\n---\\nprotocol_sha\\n---\\nsubagent_sha\\n---\\nmodel>"
+    "model_policy": "operator-selected-auto-required",
+    "artifact_hash": "<sha256 of the concatenated string artifact_sha\\n---\\nchecklists_sha\\n---\\nprotocol_sha\\n---\\nsubagent_sha\\n---\\nmodel_policy>"
   },
   "supporting_inputs": [{ "path": "agent-output/{project}/04-iac-contract.json", "sha256": "<from --metadata>" }]
 }

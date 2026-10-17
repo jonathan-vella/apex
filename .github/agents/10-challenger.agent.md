@@ -1,8 +1,6 @@
 ---
 name: "10-Challenger"
 description: "Standalone adversarial review wrapper. Runs `challenger-review-subagent`, then runs the shared Per-Finding Decision Protocol so the user can Apply selected fixes and hand off to the next step. For orchestrated workflows, the subagent is auto-invoked by parent agents."
-model: ["Claude Sonnet 5.5 (copilot)"]
-reasoning-effort: high
 argument-hint: "Provide the path to the artifact to challenge (e.g. agent-output/my-project/04-implementation-plan.md)"
 user-invocable: true
 disable-model-invocation: false
@@ -162,7 +160,7 @@ Per Output Contract:
 
 Stop conditions:
 
-- Missing model/tool/input or worker eligibility returns `blocked`; no fallback model,
+- Missing attributed runtime model evidence, tool/input or worker eligibility returns `blocked`; no fixed-model fallback,
   skipped required review or inline substitute. Load review guidance before review and
   decision guidance before the panel; recover missing/changed evidence after compaction.
 - Stop after the final aggregated gate resolves (`Revise` → apply +

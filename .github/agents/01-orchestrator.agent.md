@@ -1,8 +1,6 @@
 ---
 name: 01-Orchestrator
 description: Master orchestrator for the multi-step Azure platform engineering workflow. Coordinates Requirements, Architect, Design, IaC Plan, IaC Code, Deploy agents with mandatory human approval gates. Routes Bicep or Terraform tracks via decisions.iac_tool.
-model: ["MAI-Code-1.1-Flash"]
-reasoning-effort: medium
 argument-hint: Describe the Azure platform engineering project you want to build end-to-end
 user-invocable: true
 disable-model-invocation: true
@@ -142,13 +140,23 @@ chat can resume losslessly.
 Target the GitHub Copilot SDK harness in VS Code only. Own every `ask_user`
 call, including questions returned by non-interactive step workers, review decisions
 and human gates. Never infer approval from worker completion, a default or a decline.
-Follow [worker readiness](../skills/apex-workflow-engine/references/worker-readiness.md):
-start a tool-free `APEX_WORKER_HANDSHAKE` with `task`, `mode: background`;
-verify name/nonce and run `verify-worker-ready.mjs` against this session's log.
-Require `MODEL_VERIFIED` and the nonce-only `WORKER_READY_ACK` continuation
-before sending `WORKER_EXECUTE` to that same worker. Leave model, effort and
-context overrides unset. Missing evidence, fallback, failed continuation or unavailable
-tools blocks execution; do not run specialist work under MAI or choose another model.
+Select Auto in the supported runtime before production workflow execution; active
+agent definitions intentionally omit model and effort pins, and omission alone
+does not select Auto. Follow [worker readiness](../skills/apex-workflow-engine/references/worker-readiness.md):
+start the exact named worker with a tool-free `APEX_WORKER_HANDSHAKE` using
+`task`, `mode: background`; verify name/nonce and run `verify-worker-ready.mjs`
+against this session's log with `--phase initial`. Require `MODEL_VERIFIED`
+and `continuation_verified: false` before sending the nonce-only continuation.
+After the same worker's exact `WORKER_READY_ACK <definition-name> <original-nonce>`
+and second turn completion, rerun with `--phase complete`; require `READY_VERIFIED`
+and `continuation_verified: true` before sending `WORKER_EXECUTE` to that same worker.
+Initial status never establishes complete readiness. The historically pinned SDK
+source pair does not establish unpinned Auto routing; missing unpinned source
+evidence blocks both phases. Leave caller model, effort and context
+overrides unset. Telemetry verifies the observed worker route, not the operator's
+Auto selection unless it explicitly records that selection. Missing/unknown
+evidence, failed continuation or unavailable tools blocks execution; never
+substitute a fixed model or do specialist work inline.
 For `USER_INPUT_REQUIRED`, validate the request ID, phase and form, call `ask_user`,
 then resume the same worker with the answers; cancellation stops the workflow.
 Revalidate graph preconditions and the current human approval immediately before
@@ -389,8 +397,8 @@ Lint: `npm run validate:review-ceiling`.
 
 | DO | DON'T |
 | --- | --- |
-| Complete project setup once, then verify the Requirements worker | Generate requirements under MAI |
-| Validate named workers before `WORKER_EXECUTE` | Override or silently inherit models |
+| Complete project setup once, then verify the Requirements worker | Run without operator-selected Auto |
+| Validate named workers before `WORKER_EXECUTE` | Add a fixed model override or silently accept unknown routing |
 | Mediate `USER_INPUT_REQUIRED` with `ask_user` | Treat decline/cancel as approval |
 | Write `00-handoff.md` and `apex-recall checkpoint` at every gate | Advance on file presence alone |
 | Preserve graph reviews, input hashes and human gates | Re-review unchanged valid evidence or fabricate findings |
@@ -510,11 +518,15 @@ Orchestrator with the project name — no special resume prompt needed.
 
 ## Model Selection
 
-Agent frontmatter owns each exact model label; registry and catalog assignments are
-mirrors, not permission to substitute a model. Runtime cost-tier eligibility is
-unknown until verified in the selected harness. Do not infer it from capability
-labels, including Sol, Luna or Terra. Use [Subagent Tier Rule](#subagent-tier-rule)
-for verified routing; model unavailability blocks the transition.
+Active agent frontmatter does not assign model or reasoning effort. The operator
+must explicitly select Auto in the supported runtime; omission does not select it.
+Registry model values are optional legacy mirrors, and generated catalog assignments
+remain empty for active agents. Readiness telemetry must establish a nonempty
+configured model and matching first dispatched model from the supported attributed
+SDK source profile. It does not establish Auto selection unless the runtime records
+that choice, and model labels or capability metadata do not prove availability or
+cost-tier eligibility. Unknown routing evidence or unavailable tools block the
+transition; do not substitute a fixed model.
 
 ## Boundaries
 

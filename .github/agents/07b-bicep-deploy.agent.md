@@ -1,7 +1,5 @@
 ---
 name: 07b-Bicep Deploy
-model: ["Claude Sonnet 5.5 (copilot)"]
-reasoning-effort: medium
 description: "Executes Azure deployments using generated Bicep templates. Uses azd provision (default; deploy.ps1 retained only for legacy projects without azure.yaml). Performs what-if analysis and manages deployment lifecycle. Step 6 of the agentic workflow."
 argument-hint: Deploy the Bicep templates for a specific project
 user-invocable: true
@@ -117,7 +115,7 @@ Return `USER_INPUT_REQUIRED` forms to the interactive parent; cancel stops.
 
 <stop_conditions>
 
-- Missing model/tool/input or worker eligibility returns `blocked`; never substitute a
+- Missing attributed runtime model evidence, tool/input or worker eligibility returns `blocked`; never substitute a
   model or skip a gate. Retain bounded retries; no inline replacement for missing workers.
 - Stop after `06-deployment-summary.md` is written and the success/failure handoff
   label is rendered. Do not loop back into another deployment without a fresh user

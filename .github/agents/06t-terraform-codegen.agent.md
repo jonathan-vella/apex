@@ -1,8 +1,6 @@
 ---
 name: 06t-Terraform CodeGen
 description: "Expert Azure Terraform IaC specialist that creates near-production-ready Terraform configurations following Azure Verified Modules (AVM-TF) standards. Validates, tests, and ensures code quality."
-model: ["Claude Sonnet 5.5 (copilot)"]
-reasoning-effort: medium
 user-invocable: true
 disable-model-invocation: false
 agents: ["terraform-validate-subagent", "challenger-review-subagent"]
@@ -137,7 +135,7 @@ widening, narrowing or transforming the task.
 
 <stop_conditions>
 
-- Missing required model/tool/input or worker eligibility returns `blocked`; no model
+- Missing attributed runtime model evidence, tool/input or worker eligibility returns `blocked`; no fixed-model
   fallback, skipped validation or fabricated findings. Retry transient worker failures
   once, then stop. Independent review cannot be replaced by inline review.
 - Stop generating code until preflight (Phase 1) and governance
