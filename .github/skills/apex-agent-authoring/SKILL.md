@@ -34,12 +34,9 @@ states the applicable rule.
 - Read the target file and its nearest analogous agent once.
 - Check `.github/skills/apex-workflow-engine/templates/workflow-graph.json` before
   changing workflow topology.
-- Check `.github/model-catalog.json` before changing model metadata or legacy pins.
+- Check `.github/model-catalog.json` before changing model labels.
 - Preserve user changes and existing runtime contracts.
-- Keep active production agent definitions free of model and effort pins; the
-  operator and runtime control model selection. Readiness does not attest models,
-  effort or picker selection. Preserve catalog metadata and
-  test any intentionally pinned legacy fixture with the existing validators.
+- Validate every model fallback; preserve exact catalog labels and unknown metadata.
 - Distinguish Local prompt adapters from shared Host-compatible skills; neither
   static validation nor a catalog entry proves native model eligibility.
 
@@ -145,8 +142,6 @@ Return:
 ## Reference Index
 
 - [Agent fleet assessment](references/assess-agents.md): definition scorecards and a gated remediation plan.
-- [Agent scorecard rubric](references/agent-scorecard-rubric.md): preserved assessment dimensions and scoring.
-- [Agent adversarial checklist](references/agent-adversarial-checklist.md): read-only authoring review lenses.
 - [.github assessment](references/assess-github-folder.md): static authoring-asset inventory and review.
 - [Assessment design history](references/plan-four-layer-agent-assessment.md): reference-only, not executable.
 

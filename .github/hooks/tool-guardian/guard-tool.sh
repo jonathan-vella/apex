@@ -1,11 +1,11 @@
 #!/usr/bin/env bash
 # Tool Guardian Hook
 # Blocks dangerous tool operations (destructive file ops, force pushes, DB drops,
-# etc.) before the Copilot SDK harness executes them.
+# etc.) before the Copilot coding agent executes them.
 # Adapted from: https://github.com/github/awesome-copilot/tree/main/hooks/tool-guardian
 #
 # Environment variables:
-#   GUARD_MODE           - "warn" (log only) or "block" (permission denial) (default: block)
+#   GUARD_MODE           - "warn" (log only) or "block" (exit non-zero on threats) (default: block)
 #   SKIP_TOOL_GUARD      - "true" to disable entirely (default: unset)
 #   TOOL_GUARD_LOG_DIR   - Directory for guard logs (default: logs/copilot/tool-guardian)
 #   TOOL_GUARD_ALLOWLIST - Comma-separated patterns to skip (default: unset)
@@ -34,97 +34,57 @@ TIMESTAMP=$(hook_timestamp)
 # ---------------------------------------------------------------------------
 EXTRACT=$(printf '%s' "$INPUT" | python3 /dev/fd/3 3<<'PY'
 import json
-import re
 import sys
-from pathlib import Path
 
 try:
     data = json.load(sys.stdin)
     if not isinstance(data, dict):
-        raise ValueError("hook input must be an object")
-    name = data.get("toolName") or data.get("tool_name")
-    if not isinstance(name, str) or not name:
-        raise ValueError("hook input must name a tool")
-except (json.JSONDecodeError, ValueError) as exc:
-    print(f"Tool Guardian: invalid hook input: {exc}", file=sys.stderr)
-    sys.stdout.write("__invalid_payload__\x1f\x1f")
-    sys.exit(0)
+        data = {}
+except Exception:
+    data = {}
 
-# The SDK file-hook adapter passes toolName/toolArgs unchanged. Keep the older
-# field aliases readable for stored fixtures, not as a second runtime target.
-ti = data.get("toolArgs", data.get("tool_input", data.get("toolInput")))
+# VS Code sends snake_case (tool_name, tool_input); older clients used camelCase.
+ti = data.get("tool_input", data.get("toolInput"))
+name = data.get("tool_name") or data.get("toolName") or ""
 
+file_path = ""
+if isinstance(ti, dict):
+    file_path = ti.get("filePath") or ti.get("path") or ""
 
-def paths(value):
-    if isinstance(value, dict):
-        for key in ("filePath", "file_path", "path"):
-            if isinstance(value.get(key), str):
-                yield value[key]
-        for edit in value.get("edits", []) if isinstance(value.get("edits"), list) else []:
-            yield from paths(edit)
-
-
-def is_hook_path(value):
-    parts = Path(value).resolve().parts
-    return any(parts[i:i + 2] == (".github", "hooks") for i in range(len(parts) - 1))
-
-
-if name in ("bash", "Bash", "run_in_terminal", "execute/runInTerminal") and isinstance(ti, dict) and isinstance(ti.get("command"), str):
-    ti_str = ti["command"]
-elif isinstance(ti, (dict, list)):
+if isinstance(ti, (dict, list)):
     ti_str = json.dumps(ti, separators=(",", ":"))
 elif ti is None:
     ti_str = ""
 else:
     ti_str = str(ti)
 
-file_paths = list(paths(ti))
-if name == "apply_patch":
-    patch = ti if isinstance(ti, str) else (ti.get("input") or ti.get("patch") or "") if isinstance(ti, dict) else ""
-    if isinstance(patch, str):
-        file_paths.extend(re.findall(r"^\*\*\* (?:Add File|Update File|Delete File|Move to): (.+)$", patch, re.MULTILINE))
-try:
-    file_path = next((p for p in file_paths if is_hook_path(p)), next(iter(file_paths), ""))
-except (OSError, ValueError, RuntimeError) as exc:
-    print(f"Tool Guardian: invalid file path: {exc}", file=sys.stderr)
-    sys.stdout.write("__invalid_payload__\x1f\x1f")
-    sys.exit(0)
-
 # Collapse tabs/newlines so the value survives the line-oriented grep scan, and
 # strip the field separator so it cannot corrupt the delimited handoff.
 for ch in ("\t", "\n", "\r", "\x1f"):
     ti_str = ti_str.replace(ch, " ")
-    name = name.replace(ch, " ")
-    file_path = file_path.replace(ch, " ")
 
 # Use the unit separator (0x1f) between fields: unlike tab/space it is not an
 # IFS-whitespace character, so empty fields (e.g. no filePath) are preserved by
 # the bash `read` below instead of being collapsed.
 sys.stdout.write(name + "\x1f" + file_path + "\x1f" + ti_str)
 PY
-)
+) || true
 
 TOOL_NAME=""
 FILE_PATH=""
 TOOL_INPUT=""
 IFS=$'\x1f' read -r TOOL_NAME FILE_PATH TOOL_INPUT <<< "$EXTRACT"
 
-if [[ "$TOOL_NAME" == "__invalid_payload__" ]]; then
-  echo '{"permissionDecision":"deny","permissionDecisionReason":"Tool Guardian could not parse the hook input; operation not inspected."}'
-  exit 0
-fi
-
 # ---------------------------------------------------------------------------
 # Self-modification protection: block edits to hook scripts
 # ---------------------------------------------------------------------------
 case "$TOOL_NAME" in
-  replace_string_in_file|multi_replace_string_in_file|create_file|editFiles|\
-  Edit|Write|MultiEdit|edit|create|apply_patch)
+  replace_string_in_file|multi_replace_string_in_file|create_file|editFiles)
     if [[ -n "$FILE_PATH" ]]; then
       RESOLVED=$(realpath "$FILE_PATH" 2>/dev/null || echo "$FILE_PATH")
-      if [[ "$RESOLVED" == */.github/hooks || "$RESOLVED" == */.github/hooks/* ]]; then
+      if [[ "$RESOLVED" == *".github/hooks"* ]]; then
         hook_log "$LOG_FILE" "{\"timestamp\":\"$TIMESTAMP\",\"event\":\"self_mod_blocked\",\"tool\":\"$(hook_json_escape "$TOOL_NAME")\",\"file\":\"$(hook_json_escape "$FILE_PATH")\"}"
-        echo '{"permissionDecision":"deny","permissionDecisionReason":"BLOCKED: hook self-modification prevented. Files under .github/hooks/ cannot be edited by agents."}'
+        echo '{"hookSpecificOutput": {"hookEventName": "PreToolUse", "permissionDecision": "deny", "permissionDecisionReason": "BLOCKED: hook self-modification prevented. Files under .github/hooks/ cannot be edited by agents."}}'
         exit 0
       fi
     fi
@@ -153,9 +113,7 @@ fi
 case "$TOOL_NAME" in
   read_file|semantic_search|list_dir|file_search|grep_search|get_errors|\
   list_code_usages|test_search|read_notebook_cell_output|get_changed_files|\
-  fetch_webpage|github_repo|vscode_searchExtensions_internal|\
-  Read|Grep|Glob|WebFetch|WebSearch|view|grep|rg|glob|\
-  list_bash|read_bash|list_agents|read_agent|get_current_session|list_sessions|get_session_context)
+  fetch_webpage|github_repo|vscode_searchExtensions_internal)
     hook_log "$LOG_FILE" "{\"timestamp\":\"$TIMESTAMP\",\"event\":\"guard_passed\",\"mode\":\"$MODE\",\"tool\":\"$(hook_json_escape "$TOOL_NAME")\"}"
     hook_emit_continue
     exit 0
@@ -178,8 +136,8 @@ PATTERNS=(
   "destructive_file_ops:::critical:::rm -rf ~(/?([[:space:]]|$)):::Use targeted 'rm' on specific paths instead of home directory"
   "destructive_file_ops:::critical:::rm -rf \.(/?([[:space:]]|$)):::Use targeted 'rm' on a specific subpath instead of the current directory"
   "destructive_file_ops:::critical:::rm -rf \.\.(/?([[:space:]]|$)):::Never remove parent directories recursively"
-  "destructive_file_ops:::critical:::(^|[;&|[:space:]])(rm|del|unlink)[[:space:]].*\.env([./[:space:]\"']|$):::Use 'mv' to back up .env files before removing"
-  "destructive_file_ops:::critical:::(^|[;&|[:space:]])(rm|del|unlink)[[:space:]].*\.git([/[:space:]\"']|$):::Never delete .git directory — use 'git' commands to manage repo state"
+  "destructive_file_ops:::critical:::(rm|del|unlink).*\.env:::Use 'mv' to back up .env files before removing"
+  "destructive_file_ops:::critical:::(rm|del|unlink).*\.git[^i]:::Never delete .git directory — use 'git' commands to manage repo state"
 
   # Destructive git operations
   "destructive_git_ops:::critical:::git push --force.*(main|master):::Use 'git push --force-with-lease' or push to a feature branch"
@@ -280,11 +238,11 @@ fi
 # ---------------------------------------------------------------------------
 # Output and logging
 # ---------------------------------------------------------------------------
-echo "" >&2
-echo "🛡️  Tool Guardian: $THREAT_COUNT threat(s) detected in '$TOOL_NAME' invocation" >&2
-echo "" >&2
-printf "  %-24s %-10s %-40s %s\n" "CATEGORY" "SEVERITY" "MATCH" "SUGGESTION" >&2
-printf "  %-24s %-10s %-40s %s\n" "--------" "--------" "-----" "----------" >&2
+echo ""
+echo "🛡️  Tool Guardian: $THREAT_COUNT threat(s) detected in '$TOOL_NAME' invocation"
+echo ""
+printf "  %-24s %-10s %-40s %s\n" "CATEGORY" "SEVERITY" "MATCH" "SUGGESTION"
+printf "  %-24s %-10s %-40s %s\n" "--------" "--------" "-----" "----------"
 
 # Build JSON findings array
 FINDINGS_JSON="["
@@ -297,7 +255,7 @@ for threat in "${THREATS[@]}"; do
   if [[ ${#match} -gt 38 ]]; then
     display_match="${match:0:35}..."
   fi
-  printf "  %-24s %-10s %-40s %s\n" "$category" "$severity" "$display_match" "$suggestion" >&2
+  printf "  %-24s %-10s %-40s %s\n" "$category" "$severity" "$display_match" "$suggestion"
 
   if [[ "$FIRST" != "true" ]]; then
     FINDINGS_JSON+=","
@@ -307,17 +265,19 @@ for threat in "${THREATS[@]}"; do
 done
 FINDINGS_JSON+="]"
 
-echo "" >&2
+echo ""
 
 # Write structured log entry
 hook_log "$LOG_FILE" "{\"timestamp\":\"$TIMESTAMP\",\"event\":\"threats_detected\",\"mode\":\"$MODE\",\"tool\":\"$(hook_json_escape "$TOOL_NAME")\",\"threat_count\":$THREAT_COUNT,\"threats\":$FINDINGS_JSON}"
 
 if [[ "$MODE" == "block" ]]; then
-  echo "🚫 Operation blocked: resolve the threats above or adjust TOOL_GUARD_ALLOWLIST." >&2
-  echo "   Set GUARD_MODE=warn to log without blocking." >&2
+  echo "🚫 Operation blocked: resolve the threats above or adjust TOOL_GUARD_ALLOWLIST."
+  echo "   Set GUARD_MODE=warn to log without blocking."
 
-  # The SDK adapter JSON-parses all of stdout and reads top-level permission
-  # fields. Human-readable diagnostics must stay on stderr.
+  # Build a human-readable summary for `permissionDecisionReason` so VS Code
+  # surfaces *why* the call was blocked. Empty `status.message` on PreToolUse
+  # spans is what made hook errors in the May 2026 nordic-foods debug log
+  # unattributable; emitting structured JSON here is the fix.
   REASONS=""
   for threat in "${THREATS[@]}"; do
     IFS=$'\t' read -r category severity match suggestion <<< "$threat"
@@ -328,11 +288,11 @@ if [[ "$MODE" == "block" ]]; then
   done
   REASON_MSG="tool-guardian blocked ${TOOL_NAME} (${THREAT_COUNT} threat(s)): ${REASONS}. Set GUARD_MODE=warn to log without blocking, or add a pattern to TOOL_GUARD_ALLOWLIST."
 
-  printf '{"permissionDecision":"deny","permissionDecisionReason":"%s","threatCount":%d,"threats":%s,"hook":"tool-guardian"}\n' \
+  printf '{"hookSpecificOutput":{"hookEventName":"PreToolUse","permissionDecision":"deny","permissionDecisionReason":"%s","threatCount":%d,"threats":%s,"hook":"tool-guardian"}}\n' \
     "$(hook_json_escape "$REASON_MSG")" "$THREAT_COUNT" "$FINDINGS_JSON"
   exit 0
 else
-  echo "⚠️  Threats logged in warn mode. Set GUARD_MODE=block to prevent dangerous operations." >&2
+  echo "⚠️  Threats logged in warn mode. Set GUARD_MODE=block to prevent dangerous operations."
   # warn mode allows execution — still emit the standard allow response so the
   # hook always returns valid JSON on stdout.
   hook_emit_continue

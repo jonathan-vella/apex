@@ -114,12 +114,12 @@ from `handoffs[]`):
 - **Wildcard handling**: `agents: ["*"]` is legal iff the agent has
   frontmatter `cross_cutting: true` OR appears in
   `CROSS_CUTTING_ALLOWLIST` (initial: `11-Context Optimizer`).
-- Otherwise every entry must match a known top-level agent name, known
-  subagent name or the explicit built-in reviewer `rubber-duck`.
+- Otherwise every entry must match a known top-level agent name OR a
+  known subagent name.
 - Target-name validity is not production invocation permission. Production main
   agents require human selection; explicit caller allowlists must not override
   that boundary or enable a nested `10-Challenger` wrapper.
-- `rubber-duck` and optional manual `challenger-review-subagent` require an artifact-producing source
+- `challenger-review-subagent` requires an artifact-producing source
   (workflow node `produces[]` non-empty, or `handoffs[]` references
   `agent-output/`, or in `CHALLENGER_DISPATCHER_ALLOWLIST`).
 - `cost-estimate-subagent` requires source ∈ {`03-Architect`,

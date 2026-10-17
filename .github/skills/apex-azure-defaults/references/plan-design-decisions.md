@@ -3,7 +3,7 @@
 # Plan Design Decisions Panel
 
 Canonical question set for the IaC Planner's Phase 3.5 batched
-`ask_user` panel. Replaces the previous freeform Phase 1.5
+`askQuestions` panel. Replaces the previous freeform Phase 1.5
 deployment-context prompt and the Phase 3.5 deployment-strategy gate's
 loose tail with a single structured panel. Every answer persists via
 `apex-recall decide --key <id> --value <choice>` so downstream CodeGen
@@ -11,7 +11,7 @@ phases can consume it without re-asking.
 
 ## When the Planner reads this file
 
-- Phase 3.5 (Deployment Strategy Gate): builds one `ask_user` panel
+- Phase 3.5 (Deployment Strategy Gate): builds one `askQuestions` panel
   from the four canonical questions below, prepending any deferred
   rules from `plan-consistency-checks.md` (e.g. `zone_redundancy`).
 
@@ -101,7 +101,7 @@ apex-recall decide <project> \
 ```
 
 If the user picks `custom` (where allowed), follow up with one
-free-text `ask_user` to capture the custom value, then persist as
+free-text `askQuestions` to capture the custom value, then persist as
 `{persistence_key}_custom = "<value>"`.
 
 ## Downstream consumer impact table
@@ -115,7 +115,7 @@ free-text `ask_user` to capture the custom value, then persist as
 
 ## Rules
 
-- The panel is **single-shot**: one `ask_user` call with up to 4
+- The panel is **single-shot**: one `askQuestions` call with up to 4
   questions (plus any deferred plan-consistency questions). Never split
   into multiple turns.
 - Recommended defaults are pre-selected; the user clicks to confirm or
@@ -135,7 +135,7 @@ free-text `ask_user` to capture the custom value, then persist as
 ## Anti-patterns
 
 - Do not present these questions in chat text; always use
-  `ask_user`.
+  `askQuestions`.
 - Do not introduce a fifth question without updating this file
   first — the panel cap is 4 + deferred consistency rules.
 - Do not record the persistence key under a different name (e.g.

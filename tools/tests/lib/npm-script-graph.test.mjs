@@ -49,7 +49,7 @@ describe("_lib/npm-script-graph", () => {
     ]) {
       assert.ok(read(file).length > 0, file);
     }
-    assert.deepEqual(PROMPT_SOURCE_DIRS, []);
+    assert.deepEqual(PROMPT_SOURCE_DIRS, [".github/prompts", "tools/apex-prompts"]);
   });
   it("rejects retired E2E commands while preserving production validation and lessons", () => {
     const { scripts } = JSON.parse(readFileSync(new URL("../../../package.json", import.meta.url), "utf8"));

@@ -142,7 +142,7 @@
     },
     "challenger": {
       "type": "object",
-      "description": "Independent review configuration. wrapper_agent is the optional manual handoffs[] target; review_subagent is the automatic agents[] dispatch entry, including the named built-in rubber-duck. They are not interchangeable.",
+      "description": "Top-level challenger config. wrapper_agent is the legal handoffs[] target (UI button); review_subagent is the legal agents[] dispatch entry. They are NOT interchangeable.",
       "required": ["wrapper_agent", "review_subagent"],
       "additionalProperties": false,
       "properties": {

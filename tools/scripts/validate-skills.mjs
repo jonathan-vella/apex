@@ -261,7 +261,7 @@ function runReferencesValidation() {
 const RETIRED_SKILLS = [
   {
     old: "apex-host-resume-workflow",
-    new: "apex-workflow-start resume [project]",
+    new: "apex-host-workflow-start resume [project]",
     since: "SK-39 Host workflow entry consolidation",
   },
   {

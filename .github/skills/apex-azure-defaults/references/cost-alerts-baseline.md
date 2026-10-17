@@ -155,7 +155,7 @@ deployment then reports `Succeeded` with the cost-monitoring contract
 as one of:
 
 1. A preflight blocker (`cost_monitoring_mode = enforced`) — fail-
-   closed and prompt the human for emails via `ask_user`.
+   closed and prompt the human for emails via `askQuestions`.
 2. An explicit opt-out (`cost_monitoring_mode ∈ {minimal, deferred}`
    recorded in `04-governance-constraints.json` with
    `cost_monitoring_exception` for `deferred`).

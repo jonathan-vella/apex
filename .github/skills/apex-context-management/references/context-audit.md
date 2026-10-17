@@ -1,11 +1,12 @@
 <!-- ref:context-audit-v1 -->
 # Context Window Audit
 
+Routing source: [Local adapter](../../../../tools/apex-prompts/utility-prompts/context-audit.prompt.md).
 Apply the [operational boundary](../../apex-workflow-engine/references/operational-safety.md) before activities.
 It controls owner selection, tool limits, worker permissions, state, and gates.
 
 
-Analyze native Copilot SDK event logs to identify context bloat, redundant file reads, and optimization
+Analyze Copilot Chat debug logs to identify context bloat, redundant file reads, and optimization
 opportunities across agents.
 
 <investigate_before_answering>
@@ -19,9 +20,9 @@ opportunities across agents.
   </investigate_before_answering>
 
 <context>
-- Native sessions live under `~/.copilot/session-state/<session-id>/events.jsonl`.
-- Select only sessions whose native context matches the repository; report incomplete
-  usage/operations explicitly. Historical Local/OTel logs cannot certify SDK acceptance.
+- Copilot Chat debug logging must be enabled in VS Code.
+- Log files live under
+  `~/.vscode-server/data/logs/*/exthost1/GitHub.copilot-chat/`.
 - Read `.github/skills/apex-context-management/SKILL.md` for audit methodology
   (token accounting, hand-off detection, skill-loading heuristics).
 </context>

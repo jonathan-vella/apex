@@ -68,9 +68,9 @@ name to its prefixed local directory and review the diff to retain APEX adaptati
 ### Local And Agent Host
 
 Local `.prompt.md` files are adapters; they are not Host entry points. Agent Host uses
-manual skills such as `apex-workflow-start`, `apex-git-commit`, and
-`apex-debug-log-export`. Select the required owning agent first. For recovery,
-explicitly request the `resume` operation through `apex-workflow-start`.
+manual skills such as `apex-host-workflow-start`, `apex-host-git-commit`, and
+`apex-host-debug-log-export`. Select the required owning agent first. For recovery,
+explicitly request the `resume` operation through `apex-host-workflow-start`.
 Skills inherit the caller's model/tools and never grant permissions or select an agent.
 Source checks do not prove runtime availability, attachment, or model eligibility.
 

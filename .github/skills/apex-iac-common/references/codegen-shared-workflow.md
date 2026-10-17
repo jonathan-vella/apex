@@ -55,7 +55,7 @@ For each resource in `04-iac-contract.json` (with the implementation plan as its
 2. Cross-check planned parameters against the module schema; flag type mismatches
 3. Check region limitations
 4. Save results to `agent-output/{project}/04-preflight-check.md`
-5. If blockers found, use `ask_user` to present them and collect the user's decision
+5. If blockers found, use `askQuestions` to present them and collect the user's decision
    (fix and re-run, or abort and return to Planner)
 
 ### Exact inputs and AVM evidence
@@ -118,7 +118,7 @@ Gate: do not proceed to code generation with unresolved Deny policy violations.
 3. Build compliance map: resource type → IaC property → required value
 4. Merge governance tags with baseline defaults (governance wins)
 5. Validate every planned resource can comply
-6. If any Deny policy is unsatisfiable, use `ask_user` to present the unresolved
+6. If any Deny policy is unsatisfiable, use `askQuestions` to present the unresolved
   policies and return to Planner; chat consent cannot override a mandatory rule or deployment impossibility
 
 Policy Effect Reference: `apex-azure-defaults/references/policy-effect-decision-tree.md`
@@ -256,13 +256,13 @@ owned by the lefthook `artifact-validation` pre-commit hook and the
 ### Batched User Decisions
 
 When a challenger pass surfaces findings that require user input, build a
-**single** `ask_user` invocation with one question per decision —
+**single** `vscode_askQuestions` invocation with one question per decision —
 do NOT issue sequential prompts. Pattern:
 
 1. Group findings into decision buckets (e.g. `must_fix_A`, `must_fix_B`,
    `should_fix_C`, …) and assign each a stable `header` slug for answer
    mapping.
-2. Emit one `ask_user` call with the full list. The user fills the
+2. Emit one `askQuestions` call with the full list. The user fills the
    inline form once.
 3. Persist the answers via `apex-recall decide --key <header> --value <choice>`
    for each non-skipped answer.
@@ -277,7 +277,7 @@ in every mode, including unattended execution.
 
 When Phase 1 preflight finds blockers (AVM schema mismatch, region
 limitation, version pin conflict), surface them via a single
-`ask_user` call:
+`askQuestions` call:
 
 - **header**: `Preflight Blockers Found`
 - **question**: 1-line summary referencing `04-preflight-check.md` for

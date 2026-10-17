@@ -153,7 +153,10 @@ function main() {
   const pins = pinProblems(repoRoot, snapshot);
   for (const message of pins) r.error("pin", message);
   if (!pins.length) r.ok("pin", `Snapshot matches the @azure/mcp@${snapshot.serverVersion} pin`);
-  for (const file of [...markdownFiles(join(repoRoot, ".github"))]) {
+  for (const file of [
+    ...markdownFiles(join(repoRoot, ".github")),
+    ...markdownFiles(join(repoRoot, "tools/apex-prompts")),
+  ]) {
     r.tick();
     const location = relative(repoRoot, file);
     for (const problem of scanText(readFileSync(file, "utf8"), snapshot)) {

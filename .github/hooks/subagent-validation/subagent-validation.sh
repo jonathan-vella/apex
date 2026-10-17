@@ -9,53 +9,36 @@
 # JSON string (injection safety).
 set -euo pipefail
 
-python3 /dev/fd/3 3<<'PY'
+python3 /dev/fd/3 3<<'PY' || echo '{"continue": true}'
 import json
 import re
 import sys
 
 
 def emit_continue():
-    print('{"decision": "allow"}')
+    print('{"continue": true}')
 
 
 def warn(msg):
-    original = output if isinstance(output, str) else json.dumps(output)
-    print(json.dumps({"decision": "allow", "modifiedResponse": original + "\n\n" + msg}))
+    print(json.dumps({"continue": True, "systemMessage": msg}))
 
 
 try:
     data = json.load(sys.stdin)
     if not isinstance(data, dict):
         raise ValueError("not an object")
-except (json.JSONDecodeError, ValueError) as exc:
-    print(f"Subagent advisory could not inspect input: {exc}; parent validation is still required.", file=sys.stderr)
+except (json.JSONDecodeError, ValueError):
     emit_continue()
     sys.exit(0)
 
-name = data.get("agentName") or data.get("agentType") or data.get("subagentName") or ""
-output = data.get("response", data.get("output", "")) or ""
-if not isinstance(name, str) or not isinstance(output, str):
-    warn("Warning: malformed subagent name or response. Verify the worker result.")
-    sys.exit(0)
+name = data.get("subagentName", "") or ""
+output = data.get("output", "") or ""
 length = len(output)
 lower = name.lower()
 
-# Readiness and pending-input turns are not completed review receipts.
-if re.match(r"^(WORKER_READY(?:_ACK)?|USER_INPUT_REQUIRED)(?:\s|$)", output):
-    emit_continue()
-    sys.exit(0)
-
-# Challenger workers persist JSON separately and return a compact file receipt.
-# This advisory checks its shape only; the review validator owns validity.
+# Challenger subagents must emit a structured findings array (checked before the
+# generic length heuristic).
 if "challenger" in lower:
-    if (
-        re.search(r"(?m)^CHALLENGE COMPLETE\s*$", output)
-        and re.search(r"(?m)^file_path:\s+\S+\.json\s*$", output)
-        and re.search(r"(?m)^overall_assessment:\s+(APPROVED|NEEDS_REVISION|BLOCKED)\s*$", output)
-    ):
-        emit_continue()
-        sys.exit(0)
     try:
         parsed = json.loads(output)
         findings = parsed.get("findings", []) if isinstance(parsed, dict) else []
@@ -69,7 +52,7 @@ if "challenger" in lower:
     except (json.JSONDecodeError, ValueError):
         warn(
             f"Warning: challenger subagent '{name}' output is not valid JSON. "
-            "Expected a CHALLENGE COMPLETE file receipt or structured findings."
+            "Expected structured findings."
         )
     sys.exit(0)
 

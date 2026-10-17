@@ -104,15 +104,15 @@ prioritised optimisation reports.
 
 Capabilities cover log parsing, turn-cost profiling, redundancy detection,
 hand-off gap analysis, instruction audit, and structured report generation.
-Prerequisites: Python 3.14, native Copilot SDK event logs scoped to the repository, and
+Prerequisites: Python 3.14, VS Code Copilot Chat debug logs, and
 `.github/agents/*.agent.md` (or equivalent). Full capability matrix,
 portability checklist, and debug-log discovery in
 [`references/audit-setup.md`](references/audit-setup.md).
 
 ### Analysis Methodology
 
-For the complete methodology — native event attribution, usage completeness,
-latency limitations, Steps 1-5 (log parsing → optimisation
+For the complete methodology — log format reference (`ccreq` line parsing,
+request types, latency heuristics), Steps 1-5 (log parsing → optimisation
 recommendations), common optimisation patterns, and baseline comparison
 workflow (Phase 0 + Phase 6) — read
 [`references/analysis-methodology.md`](references/analysis-methodology.md).
@@ -128,8 +128,8 @@ for the full output template.
 
 Operational procedures (load only the requested one):
 
-- [Debug-log export](references/debug-log-export.md), with manual SDK entrypoint
-  [apex-debug-log-export](../apex-debug-log-export/SKILL.md).
+- [Debug-log export](references/debug-log-export.md), with manual Host entrypoint
+  [apex-host-debug-log-export](../apex-host-debug-log-export/SKILL.md).
 - [Context audit](references/context-audit.md).
 
 For definition scorecards, static authoring-asset assessments, and their design history,

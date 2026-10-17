@@ -1,6 +1,7 @@
 <!-- ref:project-wide-review-v1 -->
 # Project-Wide Dependency-Aware Review
 
+Routing source: [Local adapter](../../../../tools/apex-prompts/utility-prompts/project-wide-review.prompt.md).
 Apply the [operational boundary](operational-safety.md) before activities.
 It controls owner selection, tool limits, worker permissions, state, and gates.
 
@@ -28,7 +29,7 @@ This repo is APEX (Azure Agentic Platform Engineering eXperience). It contains:
 - Custom agents and subagents under `.github/agents/`
 - Skills under `.github/skills/`
 - Instructions under `.github/instructions/`
-- Manual entry skills under `.github/skills/`; archived Local prompts are not active inputs
+- Prompts under `.github/prompts/` and `tools/apex-prompts/`
 - IaC under `infra/bicep/` and `infra/terraform/`
 - MCP servers under `tools/mcp-servers/`
 - Validators under `tools/scripts/`
@@ -118,9 +119,9 @@ re-reading every body. This is the "knowledge graph" for this session.
    - `instructions[]` — directory walk of `.github/instructions/`;
      capture `applyTo` glob and any cross-references to other
      instructions, skills, or scripts.
-   - `entrypoints[]` — active manual skills and their named owners;
-     record inheritance, readiness requirements and human gates.
-     Exclude `.archive/pre-cpharness/` from active inventory.
+  - `prompts[]` — both `.github/prompts/` and `tools/apex-prompts/`;
+     capture frontmatter (`agent`, `model`, `description`) and the
+     resolved effective family.
    - `validators[]` — every `tools/scripts/validate-*.mjs` and
      `lint-*.mjs`; for each, capture the file globs it walks and the
      rule IDs it emits (grep for `ruleId:` strings).

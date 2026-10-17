@@ -2,7 +2,7 @@
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "https://github.com/jonathan-vella/apex/schemas/model-catalog.schema.json",
   "title": "APEX Model Catalog",
-  "description": "Shape of .github/model-catalog.json. The hand-maintained `models` block preserves descriptive metadata for known labels. The generated `assignments` block lists only definitions that explicitly carry a legacy model pin; active production agents use operator-selected runtime routing and normally leave both generated maps empty.",
+  "description": "Shape of .github/model-catalog.json. The catalog has two roles: (1) `models` is hand-maintained metadata that authorizes which Copilot Chat model labels APEX agents may use; (2) `assignments` is auto-generated from agent/subagent frontmatter and mirrors the canonical agent → model mapping. Frontmatter remains the single source of truth; the registry mirrors it; the catalog records authorized labels and a generated inventory.",
   "type": "object",
   "required": ["$schema", "description", "models", "governance", "assignments"],
   "additionalProperties": true,
@@ -15,7 +15,7 @@
     },
     "models": {
       "type": "object",
-      "description": "Hand-maintained descriptive metadata keyed by model display name. It does not assign models to active production agents.",
+      "description": "Hand-maintained metadata keyed by model display name. Acts as the authorized-label allow-list.",
       "patternProperties": {
         ".*": {
           "type": "object",
@@ -33,11 +33,6 @@
             }
           ],
           "properties": {
-            "runtime_id": {
-              "type": "string",
-              "minLength": 1,
-              "description": "Descriptive SDK model identifier for diagnostics and legacy metadata. Worker readiness does not compare or require model identifiers."
-            },
             "vendor": {
               "type": "string",
               "description": "Model provider (e.g. Anthropic, OpenAI)."
@@ -97,7 +92,7 @@
     },
     "assignments": {
       "type": "object",
-      "description": "Auto-generated inventory of explicit legacy agent → model pins. Active production assignments are intentionally omitted. Do not edit by hand; regenerate via `node tools/scripts/generate-model-catalog.mjs`.",
+      "description": "Auto-generated inventory of agent → model assignments. Do not edit by hand; regenerate via `node tools/scripts/generate-model-catalog.mjs`.",
       "required": ["generated", "agents", "subagents"],
       "additionalProperties": true,
       "properties": {
@@ -113,14 +108,14 @@
         "description": { "type": "string" },
         "agents": {
           "type": "object",
-          "description": "Map of explicitly pinned agent file basenames to legacy frontmatter labels; empty for unpinned agents.",
+          "description": "Map of agent file basename (e.g. 01-orchestrator.agent.md) to its frontmatter model label.",
           "patternProperties": {
             ".*\\.agent\\.md$": { "type": "string" }
           }
         },
         "subagents": {
           "type": "object",
-          "description": "Map of explicitly pinned subagent file basenames to legacy frontmatter labels; empty for unpinned workers.",
+          "description": "Map of subagent file basename to its frontmatter model label.",
           "patternProperties": {
             ".*\\.agent\\.md$": { "type": "string" }
           }

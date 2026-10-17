@@ -123,15 +123,10 @@ review and approval are current? Does an unresolved blocker stop in every mode?
 ## 13. Adversarial Review
 
 Use independent reviewers under the current graph and explicit caller contracts.
-Only the Orchestrator dispatches approved main-agent workers; never use a
-main-agent wrapper as an automatic reviewer fallback.
+Main agents, including `10-Challenger`, are human-selected, never nested workers.
 Keep both Step 2 architecture and cost-feasibility reviews; deep review is opt-in.
-Automatic reviews use built-in `rubber-duck` through
-[one-shot review](../../apex-azure-defaults/references/one-shot-review.md),
-with recorded independent output and strict freshness checks.
-Unavailable reviewers return a blocker to the interactive parent; `10-Challenger`
-remains optional manual recovery. Missing or empty output permits exactly one
-identical-input retry within the existing budget, then human escalation.
+Unavailable reviewers require a human handoff to `10-Challenger`; missing or empty
+output permits exactly one identical-input retry, then human escalation.
 
 **Test**: Are required reviews current, independent and complete with blockers
 resolved, without automatic main-agent invocation or invented inline findings?

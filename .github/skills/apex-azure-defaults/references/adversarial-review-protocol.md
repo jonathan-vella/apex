@@ -2,11 +2,8 @@
 
 # Adversarial Review Protocol
 
-Standard protocol for independent artifact review across agents.
-Automatic callers use built-in `rubber-duck` through
-[one-shot review](one-shot-review.md). The optional `10-Challenger` manual workflow
-retains its file-output `challenger-review-subagent` contract.
-Each agent specifies its own `artifact_path`,
+Standard protocol for invoking `challenger-review-subagent` across
+all agents. Each agent specifies its own `artifact_path`,
 `artifact_type`, pass count, and review focus — this reference
 defines the shared mechanics.
 
@@ -69,35 +66,28 @@ comprehensive pass**. No early-exit logic. No complexity-tier routing.
 - `review_focus` = `comprehensive` (or `governance-reconciliation` at Step 3.5)
 - `pass_number` = `1`
 - `prior_findings` = `null`
-- The actual independent result is recorded as a sidecar JSON file
-  (`challenge-findings-{artifact_type}.json`). Automatic rubber-duck results are
-  persisted only by `record-review.mjs`, not reconstructed by the parent.
+- Subagent writes one sidecar JSON file (`challenge-findings-{artifact_type}.json`).
 - Parent agent presents the per-finding decision panel (see
   `## Per-Finding Decision Protocol`) and then the aggregated proceed /
   revise gate.
 
 ### Subagent-discovery fallback (default + deep)
 
-For automatic reviews, use only the declared built-in `rubber-duck` through the
-one-shot contract. Missing capability or invalid recorded output blocks the step:
-return the actual error to the interactive parent, which owns recovery.
-`10-Challenger` is optional manual recovery, not a required automatic handoff.
-Do not substitute it silently, fabricate findings or restart a review allowance.
-
-For the optional manual workflow, use the declared `challenger-review-subagent`.
-If that reviewer is unavailable (discovery, permissions or missing delegation
-capability), **STOP** and request human intervention.
+Use the available delegation tool only for the declared `challenger-review-subagent`.
+If the reviewer is unavailable (discovery, permissions, model eligibility, or missing
+delegation capability), **STOP** and request a human handoff to `10-Challenger`.
 Include the verbatim error, artifact path/type, review lens, pass, prior findings,
 and intended output path. Resume the parent only after current review evidence exists.
 
-`10-Challenger` is not a nested wrapper fallback. Do not invoke it as a fallback subagent, widen caller allowlists,
+`10-Challenger` is a human-selected main agent with `disable-model-invocation: true`,
+not a nested wrapper fallback. Do not invoke it as a subagent, widen caller allowlists,
 enable nested delegation, switch models automatically, or synthesize an inline review.
 Legacy discovery settings are not a security boundary or evidence of runtime support.
 
 For a successful call that produces missing or empty output, follow
 [the diagnostic contract](workflow-gates.md#challenger-empty-output-diagnostic--bounded-retry):
 log the failure, retry exactly once with identical inputs, then STOP and request a human
-decision after the second failure. Do not reset this budget by changing wrappers or models.
+handoff after the second failure. Do not reset this budget by changing wrappers or models.
 
 If `10-Challenger` is already the active owner, request human intervention instead
 of a self-handoff. Report the failure and missing evidence without restarting the
@@ -298,14 +288,8 @@ Even formatting-only changes invalidate exact-byte evidence: never normalize has
 Do not edit upstream artifacts or invalidate unrelated project decisions as part of drift recovery.
 
 Use the existing validator's read-only metadata mode before review:
-`node tools/scripts/validate-challenger-findings.mjs --metadata <artifact_path> --reviewer rubber-duck`.
-It computes byte hashes and the explicit reviewer contract without opening source files in chat.
-For automatic review, use emitted metadata unchanged and record the actual output
-through `record-review.mjs`; strict validation also requires its execution provenance.
-Automatic metadata explicitly carries `reviewer: rubber-duck`, `reviewer_contract`
-and `reviewer_contract_sha`, without a legacy `subagent_sha` or runtime model pin.
-The default metadata mode without `--reviewer` retains the optional manual
-Challenger's historical identity. Never relabel legacy evidence as rubber-duck.
+`node tools/scripts/validate-challenger-findings.mjs --metadata <artifact_path>`.
+It computes byte hashes and the exact frontmatter model without opening source files in chat.
 Use `--finding-ids <draft.json.tmp>` for deterministic finding identities; copy results with editing tools.
 Validate the temporary payload with `--verify-cache <draft.json.tmp>` before publication, and use the
 same flag on a saved file before cache reuse. A mismatch blocks reuse; never refresh hashes on an old review.
@@ -314,9 +298,7 @@ Default scans remain schema-only for historical evidence. Directory artifacts ha
 `node_modules`, `.venv` and `__pycache__`; reject symlinks, special files and empty trees. All remaining files count.
 File artifacts retain the byte-hash contract. A previously different directory hash requires a fresh review.
 
-Legacy manual subagent output includes this `cache_inputs` block; automatic review
-uses the validator's explicit rubber-duck metadata and hashes `one-shot-review.md`
-instead of pretending that a built-in reviewer has a local agent definition:
+Subagent output includes a `cache_inputs` block:
 
 ```json
 {
@@ -325,8 +307,8 @@ instead of pretending that a built-in reviewer has a local agent definition:
     "checklists_sha": "<sha256 of adversarial-checklists.md bytes>",
     "protocol_sha": "<sha256 of this file bytes>",
     "subagent_sha": "<sha256 of challenger-review-subagent.agent.md bytes>",
-    "model_policy": "runtime-managed",
-    "artifact_hash": "<sha256 of artifact_sha ‖ \"\\n---\\n\" ‖ checklists_sha ‖ \"\\n---\\n\" ‖ protocol_sha ‖ \"\\n---\\n\" ‖ subagent_sha ‖ \"\\n---\\n\" ‖ model_policy>"
+    "model": "<challenger-review-subagent.frontmatter.model[0]>",
+    "artifact_hash": "<sha256 of artifact_sha ‖ \"\\n---\\n\" ‖ checklists_sha ‖ \"\\n---\\n\" ‖ protocol_sha ‖ \"\\n---\\n\" ‖ subagent_sha ‖ \"\\n---\\n\" ‖ model>"
   }
 }
 ```
@@ -342,16 +324,13 @@ fresh invocation:
 | Artifact bytes changed (the common case)             | Re-invoke             |
 | `adversarial-checklists.md` updated                  | Re-invoke             |
 | This protocol doc updated                            | Re-invoke             |
-| Reviewer model-policy contract changed               | Re-invoke             |
 | `challenger-review-subagent.agent.md` prompt updated | Re-invoke             |
 | `challenger-review-subagent` model rolled            | Re-invoke             |
 | **All five match** (rare on real REVISE loops)       | Reuse cached findings |
 
-The cache protects against prompt drift
-(checklist, protocol or reviewer-contract edits), legacy pinned-policy drift, and downstream
+The cache protects against three classes of staleness: prompt drift
+(checklist or protocol or subagent edits), model drift, and downstream
 revisions that did not actually touch the challenged artifact.
-Runtime-managed model names, effort and routing-source labels are diagnostic only;
-their absence or change is not cache invalidation.
 
 > **Decisions sidecars are never cached.** Cache only applies to the
 > findings JSON. The `challenge-findings-{type}-decisions.json` sidecar
@@ -361,7 +340,7 @@ their absence or change is not cache invalidation.
 
 Replaces the legacy single-binary "Approve / Revise" gate with a per-finding
 interactive flow. After all challenger passes for an artifact complete, the
-parent agent presents one batched `ask_user` call where each in-scope
+parent agent presents one batched `askQuestions` call where each in-scope
 finding (`must_fix` + `should_fix`) is its own question with four action
 options. Decisions are persisted in a sidecar JSON file and via
 `apex-recall finding`. A final aggregated proceed/revise gate follows.
@@ -436,7 +415,7 @@ artifacts that pre-date this protocol work unchanged.
 ### 2d. Unattended mode
 
 If the environment variable `APEX_UNATTENDED=1` is set, the protocol
-**bypasses `ask_user` entirely**:
+**bypasses `askQuestions` entirely**:
 
 - All `must_fix` → `action: "defer"`,
   `note: "auto-deferred (unattended)"`.
@@ -480,43 +459,30 @@ Default cap: **12 questions**. If `must_fix + should_fix > 12`:
 
 The cap is a constant. Agents do not override it.
 
-### 2g. `ask_user` payload shape
+### 2g. `askQuestions` payload shape
 
-Call `ask_user` with `message` and `requestedSchema.properties`. Each finding is
-one string property keyed by `{artifact-type}-pass{N}-{issue_id}` (stable issue ID
-from 2b, not a display index). Keys must be unique across the merged panel.
-Use `title` for the finding title (at most 200 characters), `description` for
-severity, category, description, failure scenario, artifact section and mitigation.
-Use `oneOf` with `const` values `accept`, `reject`, `defer`, `edit` and the four
-fixed display titles: `Accept (apply mitigation)`, `Reject (do not apply)`,
-`Defer (carry to handoff)`, `Edit (custom guidance)`.
-State the recommendation in the description (`accept` for `must_fix`, `defer`
-for `should_fix`); omit defaults so a displayed recommendation is not an answer.
-The field supports freeform input natively; do not send retired `questions[]`,
-`header`, `options`, `recommended` or `allowFreeformInput` payload fields.
+Per finding:
 
-Delegated owners return this form in `USER_INPUT_REQUIRED`; only the interactive
-parent calls `ask_user` and resumes the owner with the matching request ID.
+| Field                | Value                                                                                                                                                                  |
+| -------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `header`             | `{artifact-type}-pass{N}-{idx}` (≤50 chars). Examples: `architecture-pass1-3`, `cost-estimate-pass1-0`. **Hard rule** — must be unique across the merged batched call. |
+| `question`           | `title` (≤200 chars; truncate with `…`).                                                                                                                               |
+| `message`            | Markdown block with severity badge + `category` + `description` + `failure_scenario` + `artifact_section` + `suggested_mitigation`.                                    |
+| `options`            | Four fixed labels (in this order): `Accept (apply mitigation)`, `Reject (do not apply)`, `Defer (carry to handoff)`, `Edit (custom guidance)`.                          |
+| `recommended`        | `Accept` for `must_fix`; `Defer` for `should_fix`.                                                                                                                     |
+| `allowFreeformInput` | `true` (enables Edit + per-finding notes).                                                                                                                             |
 Rejecting a `must_fix` finding records a disagreement only. It does not close the finding or accept the risk; the
 finding stays blocking unless a lab risk authorization covers it.
-
-### 2h. Edit / freeform / declined semantics
+### 2h. Edit / freeText / skipped semantics
 
 Deterministic — no agent-level interpretation:
 
 | User input                                                          | Resulting `action` | Resulting `note`                                    |
 | ------------------------------------------------------------------- | ------------------ | --------------------------------------------------- |
-| Literal `accept`, `reject` or `defer` value or its exact display title | matches selection | Empty string |
-| Non-empty freeform custom mitigation guidance | `accept` | `Edit: <guidance>` |
-| Literal `edit` or its display title | Pending follow-up | Ask one string field for its custom guidance |
-| Non-empty guidance from that follow-up | `accept` | `Edit: <guidance>` |
-| Missing/empty/declined field or empty Edit follow-up | `defer` | `"User skipped or omitted guidance — auto-deferred."` |
-| Cancelled form | No new decisions | Stop the workflow; never advance a gate |
-
-Batch all dependent Edit follow-ups into one form. Ambiguous action-like freeform
-answers require clarification, not inferred acceptance. A declined panel defers
-its findings; it does not approve proceeding. Preserve previously saved decisions
-on cancellation and never mark an unresolved finding closed merely from its disposition.
+| `Edit` selected + non-empty `freeText`                              | `accept`           | `Edit: <freeText>` (custom replacement guidance) |
+| `Edit` selected + empty `freeText`                                  | `defer`            | `"Edit selected without guidance — auto-deferred."` |
+| `Accept` / `Reject` / `Defer` selected (with or without `freeText`) | matches selection  | `<freeText>` if present, else empty string |
+| `skipped: true`                                                     | `defer`            | `"User skipped — auto-deferred."`                   |
 
 ### 2i. Persist decisions (sidecar + apex-recall)
 
@@ -576,13 +542,13 @@ After the per-finding panel completes (or is skipped per 2j / 2d):
    e5f6g7h8 should_fix  Cosmos DB region pair                  defer    —
    ```
 
-2. Present one `ask_user` string property `next_action` with `oneOf` choices:
+2. Present a single `askQuestions` with options:
    - `Revise (apply Accepted findings)` —
-     recommend in its description if any `must_fix` had `action == "accept"`.
-   - `Proceed (handoff next step)` — recommend otherwise only when current
-     readiness permits it; a selection never waives unresolved blocking findings.
+     `recommended: true` if any `must_fix` had `action == "accept"`;
+     otherwise not recommended.
+   - `Proceed (handoff next step)` — recommended otherwise.
    - **Governance only**: also `Refresh governance` (preserved from the
-     existing 04g Phase 3 gate). Decline stays at the gate; cancel stops.
+     existing 04g Phase 3 gate).
 
 ### 2m. Payload example
 
@@ -592,37 +558,37 @@ Two-finding panel for an Architect gate. Source files merged per 2e
 
 ```json
 {
-  "message": "Decide each finding independently; custom guidance is accepted as an Edit, not verified closure.",
-  "requestedSchema": {
-    "properties": {
-      "cost-estimate-pass1-a1b2c3d4": {
-        "type": "string",
-        "title": "Cosmos DB autoscale max RU/s exceeds budget by 38%",
-        "description": "must_fix; cost-feasibility. Configured 4000 RU/s max; budget caps at 2900. Failure: burst autoscale exceeds budget. Section: Cost, Cosmos DB. Mitigation: lower max_throughput to 2900. Recommended: accept.",
-        "oneOf": [
-          { "const": "accept", "title": "Accept (apply mitigation)" },
-          { "const": "reject", "title": "Reject (do not apply)" },
-          { "const": "defer", "title": "Defer (carry to handoff)" },
-          { "const": "edit", "title": "Edit (custom guidance)" }
-        ]
-      },
-      "architecture-pass1-e5f6a7b8": {
-        "type": "string",
-        "title": "Storage account allows public blob access",
-        "description": "must_fix; security-governance. Public blobs violate the baseline. Failure: anonymous disclosure. Section: Storage. Mitigation: disable public blob access. Recommended: accept.",
-        "oneOf": [
-          { "const": "accept", "title": "Accept (apply mitigation)" },
-          { "const": "reject", "title": "Reject (do not apply)" },
-          { "const": "defer", "title": "Defer (carry to handoff)" },
-          { "const": "edit", "title": "Edit (custom guidance)" }
-        ]
-      }
+  "questions": [
+    {
+      "header": "cost-estimate-pass1-0",
+      "question": "Cosmos DB autoscale max RU/s exceeds budget by 38%",
+      "message": "**must_fix** · cost-feasibility\n\n**Description**: Configured 4000 RU/s autoscale max but plan caps at 2900.\n\n**Failure scenario**: Burst traffic triggers autoscale to ceiling, monthly bill overruns committed budget.\n\n**Artifact section**: §4 Cost — Cosmos DB row.\n\n**Suggested mitigation**: Lower max_throughput to 2900 or split workload across two containers.",
+      "options": [
+        { "label": "Accept (apply mitigation)", "recommended": true },
+        { "label": "Reject (do not apply)" },
+        { "label": "Defer (carry to handoff)" },
+        { "label": "Edit (custom guidance)" }
+      ],
+      "allowFreeformInput": true
+    },
+    {
+      "header": "architecture-pass1-2",
+      "question": "Storage account allows public blob access",
+      "message": "**must_fix** · security-governance\n\n**Description**: …",
+      "options": [
+        { "label": "Accept (apply mitigation)", "recommended": true },
+        { "label": "Reject (do not apply)" },
+        { "label": "Defer (carry to handoff)" },
+        { "label": "Edit (custom guidance)" }
+      ],
+      "allowFreeformInput": true
     }
-  }
+  ]
 }
 ```
 
-Resulting sidecar entry for freeform guidance "Lower to 2500":
+Resulting sidecar entry for the first answered question (user picked
+`Accept` with note "Lower to 2500"):
 
 ```json
 {
@@ -633,7 +599,7 @@ Resulting sidecar entry for freeform guidance "Lower to 2500":
   "severity": "must_fix",
   "title": "Cosmos DB autoscale max RU/s exceeds budget by 38%",
   "action": "accept",
-  "note": "Edit: Lower to 2500",
+  "note": "Lower to 2500",
   "decided_at": "2026-05-09T14:32:11Z"
 }
 ```
@@ -641,5 +607,5 @@ Resulting sidecar entry for freeform guidance "Lower to 2500":
 Corresponding `apex-recall` call:
 
 ```bash
-apex-recall finding my-project --add "must_fix|accept|a1b2c3d4|Cosmos DB autoscale max RU/s exceeds budget by 38%|Edit: Lower to 2500" --json
+apex-recall finding my-project --add "must_fix|accept|a1b2c3d4|Cosmos DB autoscale max RU/s exceeds budget by 38%|Lower to 2500" --json
 ```

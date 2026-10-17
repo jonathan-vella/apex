@@ -42,7 +42,7 @@ Skip to Phase 3 (Approval Gate) only if **every** check passes:
 8. **No explicit refresh request** — the user did NOT ask for `refresh`,
    `re-run`, or `rediscover`.
 9. **Review validity** — if constraints require reconciliation review, the completed review's
-   `cache_inputs` match the current artifact, checklist, protocol, subagent, and model-policy contract, and the reviewed
+   `cache_inputs` match the current artifact, checklist, protocol, subagent, and model, and the reviewed
    architecture and governance inputs are unchanged with no unresolved blockers. Use the existing
    Findings Cache procedure; invocation counts and discovery signatures alone do not establish this.
    When the graph permits skipping review because no actionable constraints exist, preserve that exception.

@@ -12,12 +12,10 @@ replay small (per `tmp/plan-input-token-reduction-v3.md` Phase 8).
 
 This phase is required. Explicit supplied answers satisfy the corresponding fields;
 ask only for missing/conflicting choices. Do not reopen a settled service list or
-add optional platform resources without a stated need. Use **batched `ask_user` calls** to gather
-service-class decisions. Use `message` and `requestedSchema.properties`, with one
-stable typed field per decision. Group fields whose choices/default suggestions
-do not depend on a prior answer into one form. Use `enum`/`oneOf` for a
-single choice and `type: "array"` with `items.enum` for multiple choices.
-Only split into separate
+add optional platform resources without a stated need. Use **batched `askQuestions` calls** to gather
+service-class decisions. Group questions whose options / multiSelect /
+recommendations do not depend on a prior answer into a single batched call
+(the `questions[]` array accepts multiple entries). Only split into separate
 calls when a later question's option set or recommendation is computed from
 an earlier answer (see Step 3b's `application_layers` gating below).
 
@@ -29,7 +27,7 @@ Required batching (saves ~10 turns per Phase 3):
   compute_host, relational_db, non_relational_store, storage_needs into a
   single batched call. Conditionally include application_layers in Batch B
   if the workload pattern is N-Tier or microservices (set its
-  array type with `items.enum`); otherwise omit it.
+  `multiSelect: true`); otherwise omit it.
 - **Batch C — Integration + platform** (Steps 3g–3h): messaging_events and
   supporting_services in one batched call. supporting_services pre-checks
   defaults (Monitor, App Insights, Log Analytics) plus Key Vault for a stated secrets/certificates need and ACR when
@@ -45,7 +43,7 @@ Use business-friendly descriptions with Azure service names in parentheses.
 
 ## 3a. NFR profile and tier
 
-Use `ask_user` for:
+Use `askQuestions` for:
 
 - Service tier: cost-optimized, balanced, or enterprise.
 - Availability target with downtime-oriented labels.
@@ -57,15 +55,15 @@ Use `ask_user` for:
 
 ## 3b. Application topology
 
-If the workload pattern is N-Tier or microservices, use `ask_user` for
-application layers as an array field (Presentation/Web, API,
+If the workload pattern is N-Tier or microservices, use `askQuestions` for
+application layers with `multiSelect: true` (Presentation/Web, API,
 Background worker, Batch/Job, Real-time/Events, Other). Skip when the
 pattern is purely static-site or single-binding serverless and there is no
 obvious layering.
 
 ## 3c. Compute host (web and API tier)
 
-Use `ask_user` for the primary compute host. Single-select unless the
+Use `askQuestions` for the primary compute host. Single-select unless the
 user clarifies multiple workloads. Options include business-friendly
 descriptions:
 
@@ -83,7 +81,7 @@ cluster decisions.
 
 ## 3d. Relational data store
 
-Use `ask_user` for the operational relational data store
+Use `askQuestions` for the operational relational data store
 (single-select):
 
 - Azure SQL Database (managed SQL, Microsoft ecosystem default).
@@ -99,7 +97,7 @@ Record the answer with
 
 ## 3e. Non-relational data store
 
-Use `ask_user` for a non-relational data store, if any (single-select):
+Use `askQuestions` for a non-relational data store, if any (single-select):
 
 - Azure Cosmos DB (NoSQL, multi-model).
 - Azure Managed Redis (cache layer; pair with a primary store).
@@ -109,7 +107,7 @@ Use `ask_user` for a non-relational data store, if any (single-select):
 
 ## 3f. Storage and content
 
-Use `ask_user` for storage needs as an array field:
+Use `askQuestions` for storage needs with `multiSelect: true`:
 
 - Blob storage for media or document files.
 - Azure Files (SMB share) for legacy file-share workloads.
@@ -118,7 +116,7 @@ Use `ask_user` for storage needs as an array field:
 
 ## 3g. Messaging and events
 
-Use `ask_user` for messaging/event services as an array field
+Use `askQuestions` for messaging/event services with `multiSelect: true`
 when the workload description mentions async work, integrations, or
 analytics. Otherwise ask once with a clear "None" option:
 
@@ -130,9 +128,8 @@ analytics. Otherwise ask once with a clear "None" option:
 
 ## 3h. Observability and supporting services
 
-Use `ask_user` for required supporting platform services with
-an array field and suggested `default` values. Defaults never approve additions;
-decline preserves missing input and cancellation stops:
+Use `askQuestions` for required supporting platform services with
+`multiSelect: true` and pre-checked recommendations:
 
 - Azure Monitor + Application Insights (recommended).
 - Log Analytics workspace (recommended).
@@ -144,7 +141,7 @@ decline preserves missing input and cancellation stops:
 ## 3i. Confirm Azure services in scope
 
 Summarize the captured service list without reconfirming explicit choices.
-Use `ask_user` only for inferred additions or scope conflicts; resolve dependent
+Use `askQuestions` only for inferred additions or scope conflicts; resolve dependent
 hosting, identity, monitoring and private-access implications together.
 
 ## 3j. SKU and sizing preferences (mandatory for every project)
@@ -154,7 +151,7 @@ ask for every uncovered class, never infer "no preference". The goal is to captu
 preferences** the user already knows so Architect treats them as locked
 user-pins; everything else is left for Architect to evaluate at Step 2.
 
-Use one **batched `ask_user` call (Batch D)** with one question per
+Use one **batched `askQuestions` call (Batch D)** with one question per
 unanswered service class confirmed at 3i. For each such class, present three
 options plus a freeform field:
 

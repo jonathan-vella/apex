@@ -132,7 +132,7 @@ Only when a PR actually exists and the user authorizes GitHub writes:
 ## Stopping Rules
 
 Stop immediately if: auth token fails · unresolved placeholders in params
-(collect via `ask_user` first) · preview/validate errors · destructive
+(collect via `askQuestions` first) · preview/validate errors · destructive
 operations without approval · >10 resource changes (summarize first) ·
 user hasn't approved · deprecation signals detected.
 
@@ -155,7 +155,7 @@ Do not re-confirm. If the user provides a custom response, interpret as instruct
 ## Boundaries
 
 - Always: run preview before apply, require user approval, validate prerequisites
-- Always: use `ask_user` for deployment approval gates
+- Always: use `askQuestions` for deployment approval gates
 - Ask first: non-standard parameters or production deployment; preview remains mandatory
 - Do not: deploy without user approval, modify IaC configurations, skip preview for production
 

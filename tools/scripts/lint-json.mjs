@@ -11,14 +11,14 @@
 
 import fs from "node:fs";
 
-const EXCLUDE_DIRS = ["node_modules", "infra", ".devcontainer", ".vscode", ".archive"];
+const EXCLUDE_DIRS = ["node_modules", "infra", ".devcontainer", ".vscode"];
 
 const files = fs
   .globSync("**/*.json", {
     exclude: (p) => EXCLUDE_DIRS.includes(p.name) && p.isDirectory(),
   })
   // Apply a path-level guard to ensure nested node_modules trees are excluded.
-  .filter((f) => !f.split("/").some((part) => part === "node_modules" || part === ".archive"));
+  .filter((f) => !f.split("/").includes("node_modules"));
 
 let failures = 0;
 

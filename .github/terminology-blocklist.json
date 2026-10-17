@@ -103,7 +103,6 @@
     "package-lock.json",
     "node_modules/",
     ".git/",
-    ".archive/",
     "agent-output/_baselines/",
     "tools/tests/exec-plans/completed/",
     ".github/terminology-blocklist.json"

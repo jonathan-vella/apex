@@ -23,8 +23,8 @@ Discovery does not wire or authorize a call. Read the
 > (see `agent-output/model-eval-scoring.md`).
 
 Extra validation requests still require an authorized caller, suitable phase,
-available tools, and all preview/approval gates. Models and effort are diagnostic
-only; leave caller routing overrides unset.
+available tools, and all preview/approval gates. Unknown model cost-tier
+eligibility is a blocker, not permission to substitute a model.
 
 ## Interactive vs Autonomous Delegation
 
@@ -32,30 +32,19 @@ only; leave caller routing overrides unset.
 > Leaf workers cannot ask user questions, manage todos, or call nested agents.
 > Return missing-input diagnostics to the parent; never fabricate defaults.
 
-`01-Orchestrator` remains human-selected and alone dispatches approved,
-allowlisted main workers after [verified readiness](worker-readiness.md).
-Direct main-agent selection remains supported. Delegated steps return
-`USER_INPUT_REQUIRED` forms to the interactive parent, which owns `ask_user`;
-cancel stops and decline never approves. Steps call only their authorized leaves.
-An allowlist or invocation flag is not runtime routing or approval evidence.
+All production main agents, including `10-Challenger`, are human-selected
+entry points with `disable-model-invocation: true`. The Orchestrator has
+`agents: []` and uses human handoffs only. An allowlist must not override this
+boundary. This applies even when all inputs exist and no questions are needed.
 
-Automatic independent reviews use
-[one-shot rubber-duck](../../apex-azure-defaults/references/one-shot-review.md),
-not the resumable worker handshake. If a required reviewer is unavailable,
-STOP and return its failure to the interactive parent; never nest a main-agent
-wrapper or fabricate inline review. `10-Challenger` remains optional manual recovery.
+If a required reviewer is unavailable, STOP and request a human handoff to
+`10-Challenger`; never nest a main-agent wrapper or fabricate inline review.
 Missing or empty output permits exactly one identical-input retry, then human
 escalation under the [review protocol](../../apex-azure-defaults/references/adversarial-review-protocol.md).
 
-## Output ownership
+## File-Mode Contract for Subagent Output (Phase 1 of Context-Window Optimization)
 
-Automatic `rubber-duck` reviews return raw structured JSON once.
-The parent runs `record-review.mjs` against the exact attributed runtime response,
-which validates and atomically persists it. The parent must not reconstruct or
-repair the independently returned findings. Summaries and downstream handoffs
-use the recorded paths, not repeated full JSON dumps.
-
-The optional manual `challenger-review-subagent` and `cost-estimate-subagent` follow a **file-mode
+`challenger-review-subagent` and `cost-estimate-subagent` follow a **file-mode
 contract**: the subagent writes its full structured output to a parent-supplied
 path on disk and returns only a compact summary (≤15 lines, ≤2 KB) to the
 parent's chat context. This keeps parent agents' context windows small and
@@ -68,12 +57,12 @@ never invents or guesses a path.
 
 | Subagent                     | Caller (step)                 | Canonical `output_path`                                                       |
 | ---------------------------- | ----------------------------- | ----------------------------------------------------------------------------- |
-| `rubber-duck` | Requirements (1)              | `agent-output/{project}/challenge-findings-requirements.json`                 |
-| `rubber-duck` | Architect (2) — architecture  | `agent-output/{project}/challenge-findings-architecture.json` (default); `architecture-pass{N}` stem for deep |
-| `rubber-duck` | Architect (2) — cost          | `agent-output/{project}/challenge-findings-cost-estimate.json`                |
-| `rubber-duck` | Governance (3.5)              | `agent-output/{project}/challenge-findings-governance-constraints-pass1.json` |
-| `rubber-duck` | IaC Planner (4)               | `agent-output/{project}/challenge-findings-plan.json` (default); `plan-pass{N}` stem for deep |
-| `rubber-duck` | Bicep / Terraform CodeGen (5) | `agent-output/{project}/challenge-findings-iac-code-pass{N}.json`             |
+| `challenger-review-subagent` | Requirements (1)              | `agent-output/{project}/challenge-findings-requirements.json`                 |
+| `challenger-review-subagent` | Architect (2) — architecture  | `agent-output/{project}/challenge-findings-architecture.json` (default); `architecture-pass{N}` stem for deep |
+| `challenger-review-subagent` | Architect (2) — cost          | `agent-output/{project}/challenge-findings-cost-estimate.json`                |
+| `challenger-review-subagent` | Governance (3.5)              | `agent-output/{project}/challenge-findings-governance-constraints-pass1.json` |
+| `challenger-review-subagent` | IaC Planner (4)               | `agent-output/{project}/challenge-findings-plan.json` (default); `plan-pass{N}` stem for deep |
+| `challenger-review-subagent` | Bicep / Terraform CodeGen (5) | `agent-output/{project}/challenge-findings-iac-code-pass{N}.json`             |
 | `cost-estimate-subagent`     | Architect (2)                 | `agent-output/{project}/02-cost-estimate.json`                                |
 | `cost-estimate-subagent`     | As-Built (7)                  | `agent-output/{project}/07-ab-cost-estimate.json`                             |
 
@@ -83,8 +72,7 @@ but never treat a legacy filename alone as proof of a current valid review.
 
 ### Atomic write + refuse-on-exists
 
-For file-mode workers, the subagent performs these operations. For automatic
-rubber-duck reviews, the provenance-aware recorder owns the writes:
+The subagent:
 
 1. Writes to `{output_path}.tmp` first.
 2. Renames `{output_path}.tmp` → `{output_path}` only after a successful
@@ -95,8 +83,7 @@ rubber-duck reviews, the provenance-aware recorder owns the writes:
 
 ### Parent responsibilities
 
-After recording and strict freshness validation (or receiving a file-mode
-worker's compact summary), the parent agent MUST:
+After the subagent returns its compact summary, the parent agent MUST:
 
 1. Avoid pasting the full JSON inline in chat. Read `output_path` from disk
    only when full finding details are needed (e.g., Gate presentation, fix

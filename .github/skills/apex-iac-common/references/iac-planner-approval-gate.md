@@ -60,7 +60,7 @@ on the remaining `should_fix` set only:
   Stage 1 created (`artifact_type: "plan"`).
 - **Panel cap** (protocol section 2f): still 12 questions max; if
   `should_fix > 12`, auto-defer the overflow with the standard note.
-- **Single batched `ask_user` call** with one question per
+- **Single batched `askQuestions` call** with one question per
   `should_fix`, four-option payload per protocol section 2g
   (recommended = `Defer` for `should_fix`).
 - After the user replies, apply every Accepted finding's edit with available

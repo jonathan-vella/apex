@@ -11,7 +11,7 @@ grep -n "<replace-with-\|<your-\|<TODO\|PLACEHOLDER" {param-files} 2>/dev/null |
 If any placeholders are found:
 
 1. Do not proceed to preview or plan
-2. Use `ask_user` to collect every missing value in a single form
+2. Use `askQuestions` to collect every missing value in a single form
    (one question per placeholder with clear header and description)
 3. After the user supplies all values, update the param file(s)
 4. Re-run the scan to confirm no placeholders remain

@@ -30,29 +30,8 @@ test("graph CLI generates and validates an explicit output without a site direct
     encoding: "utf8",
   });
   assert.equal(validated.status, 0, validated.stderr);
-  const graph = JSON.parse(fs.readFileSync(output, "utf8"));
-  const reviewer = graph.nodes.find((node) => node.id === "subagent:rubber-duck");
-  assert.equal(reviewer?.meta.builtin, true);
-  assert.equal(reviewer.path, ".github/skills/apex-azure-defaults/references/one-shot-review.md");
-  assert.ok(graph.edges.some((edge) => edge.target === reviewer.id && edge.kind === "delegates"));
   const invalid = spawnSync(process.execPath, [generator.pathname, "--unknown"], { cwd: directory, encoding: "utf8" });
   assert.notEqual(invalid.status, 0);
-});
-
-test("built-in review nodes are discovered only from explicit caller declarations", (context) => {
-  const root = fs.mkdtempSync(path.join(os.tmpdir(), "apex-builtin-review-"));
-  context.after(() => fs.rmSync(root, { recursive: true, force: true }));
-  const file = path.join(root, ".github/agents/reviewer-owner.agent.md");
-  fs.mkdirSync(path.dirname(file), { recursive: true });
-  fs.writeFileSync(file, "---\nname: Owner\nagents: []\n---\n# Owner\n");
-  assert.deepEqual(collectSubagents(root), []);
-  fs.writeFileSync(file, '---\nname: Owner\nagents: ["rubber-duck"]\n---\n# Owner\n');
-  const [reviewer] = collectSubagents(root);
-  assert.equal(reviewer.label, "rubber-duck");
-  assert.equal(reviewer.meta.builtin, true);
-  assert.equal(reviewer.path.endsWith(".agent.md"), false);
-  fs.writeFileSync(file, '---\nname: Owner\nagents: ["general-purpose"]\n---\n# Owner\n');
-  assert.deepEqual(collectSubagents(root), []);
 });
 
 test("agent and skill collectors preserve invocation flags, hints and declared context", (context) => {
@@ -124,20 +103,21 @@ test("explorer schema validates invocation metadata without constraining unrelat
   }
 });
 
-test("retired prompt roots stay undiscovered even when nested files still exist", (context) => {
+test("prompt collection preserves cross-root and nested same-basename identities", (context) => {
   const root = fs.mkdtempSync(path.join(os.tmpdir(), "apex-prompt-"));
   context.after(() => fs.rmSync(root, { recursive: true, force: true }));
   for (const file of [
     ".github/prompts/same.prompt.md",
     "tools/apex-prompts/nested/same.prompt.md",
     "tools/tests/prompts/same.prompt.md",
-    ".archive/pre-cpharness/github-prompts/same.prompt.md",
   ]) {
     fs.mkdirSync(path.dirname(path.join(root, file)), { recursive: true });
     fs.writeFileSync(path.join(root, file), '---\nagent: "01-Orchestrator"\n---\n# Resume\n');
   }
   const nodes = collectPrompts(root);
-  assert.deepEqual(nodes, []);
+  assert.equal(nodes.length, 2);
+  assert.equal(new Set(nodes.map((node) => node.id)).size, 2);
+  assert.ok(nodes.every((node) => node.id.startsWith("prompt:same:")));
   const indexUrl = new URL("../scripts/_lib/workspace-index.mjs", import.meta.url).href;
   const child = spawnSync(
     process.execPath,
@@ -149,12 +129,19 @@ test("retired prompt roots stay undiscovered even when nested files still exist"
     { cwd: root, encoding: "utf8" },
   );
   assert.equal(child.status, 0, child.stderr);
-  assert.deepEqual(JSON.parse(child.stdout), []);
+  assert.deepEqual(JSON.parse(child.stdout).sort(), [
+    ".github/prompts/same.prompt.md",
+    "tools/apex-prompts/nested/same.prompt.md",
+  ]);
 });
 
-test("manual SDK entry skills never become prompt-discovery nodes", () => {
+test("explorer includes native and attachable resume prompts with unique identities", () => {
   const prompts = collectPrompts();
-  assert.deepEqual(prompts, []);
+  assert.ok(prompts.some((prompt) => prompt.path === ".github/prompts/apex-resume-workflow.prompt.md"));
+  assert.ok(
+    prompts.some((prompt) => prompt.path === "tools/apex-prompts/workflow-prompts/00-resume-workflow.prompt.md"),
+  );
+  assert.equal(new Set(prompts.map((prompt) => prompt.id)).size, prompts.length);
 });
 
 test("preserves generatedAt when graph content is unchanged", () => {

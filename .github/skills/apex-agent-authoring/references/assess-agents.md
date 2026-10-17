@@ -1,6 +1,7 @@
 <!-- ref:assess-agents-v1 -->
 # 4-Layer Per-Agent Assessment → Fleet Plan
 
+Routing source: [Local adapter](../../../../tools/apex-prompts/utility-prompts/assess-agents.prompt.md).
 Apply the [operational boundary](../../apex-workflow-engine/references/operational-safety.md) before activities.
 It controls owner selection, tool limits, worker permissions, state, and gates.
 
@@ -83,7 +84,7 @@ rubric. Batch related agents per call to control cost. Require each Explore to r
 ## Phase 2 — L3 runtime
 
 If a profile was supplied, confirm the harness attributed per-subagent wall-time and summarize token
-cost, duplicate reads, latency band, and ask_user batching per the rubric. If no profile was
+cost, duplicate reads, latency band, and askQuestions batching per the rubric. If no profile was
 supplied, mark L3 `na` for every agent and record the capture how-to: run a workflow with debug
 logging, then `npm run profile:debug-log -- <log.json> --json > profile.json` and re-run Phase 0 with
 `--profile=profile.json`.
@@ -132,5 +133,5 @@ and explicitly starts an execution pass.
 - L3 stays `na` unless a debug-log profile is supplied; never fabricate runtime numbers.
   </rules>
 
-[scorecard-rubric]: ../../../../.github/skills/apex-agent-authoring/references/agent-scorecard-rubric.md
-[adversarial-checklist]: ../../../../.github/skills/apex-agent-authoring/references/agent-adversarial-checklist.md
+[scorecard-rubric]: ../../../../tools/apex-prompts/utility-prompts/references/agent-scorecard-rubric.md
+[adversarial-checklist]: ../../../../tools/apex-prompts/utility-prompts/references/agent-adversarial-checklist.md

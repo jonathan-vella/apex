@@ -111,19 +111,6 @@ test("Python CI installs diagram dependencies and renderer before running toolin
   }
 });
 
-test("Node CI provides the supported Python interpreter before executable validator tests", () => {
-  const workflow = load(readFileSync(new URL("../../../.github/workflows/ci.yml", import.meta.url), "utf8"));
-  const steps = workflow.jobs.ci.steps;
-  const setup = steps.findIndex((step) => step.uses === "actions/setup-python@v7");
-  const tests = steps.findIndex((step) => step.run === "npm run validate:_node-ci");
-  assert.ok(setup >= 0 && setup < tests);
-  assert.equal(steps[setup].if, undefined);
-  const project = readFileSync(new URL("../../../pyproject.toml", import.meta.url), "utf8");
-  const minimum = project.match(/^requires-python\s*=\s*">=(\d+\.\d+)"/m);
-  assert.ok(minimum, "Expected an explicit minimum Python version");
-  assert.equal(steps[setup].with["python-version"], minimum[1]);
-});
-
 test("Node CI provides a native Terraform CLI before executable validator tests", () => {
   const workflow = load(readFileSync(new URL("../../../.github/workflows/ci.yml", import.meta.url), "utf8"));
   const steps = workflow.jobs.ci.steps;
@@ -188,7 +175,7 @@ test("artifact hook validates template-only and output changes and propagates ga
   }
 });
 
-test("active registry rejects retired prompts even when their former paths exist", (context) => {
+test("prompt registry validates paths, explicit models and inherited models", (context) => {
   const root = fixture(context);
   mkdirSync(path.join(root, "tools/registry"), { recursive: true });
   mkdirSync(path.join(root, ".github/prompts"), { recursive: true });
@@ -201,16 +188,15 @@ test("active registry rejects retired prompts even when their former paths exist
   const runRegistry = (entry) => {
     writeFileSync(
       path.join(root, "tools/registry/agent-registry.json"),
-      JSON.stringify({ agents: {}, subagents: {}, ...(entry ? { prompts: { example: entry } } : {}) }),
+      JSON.stringify({ agents: {}, subagents: {}, prompts: { example: entry } }),
     );
     return spawnSync(process.execPath, [script], { cwd: root, encoding: "utf8" }).status;
   };
   const inherited = { prompt: ".github/prompts/resume.prompt.md", model: null, invokable: true };
-  assert.equal(runRegistry(null), 0);
-  assert.equal(runRegistry(inherited), 1);
+  assert.equal(runRegistry(inherited), 0);
   assert.equal(
     runRegistry({ prompt: ".github/prompts/explicit.prompt.md", model: "Example Model", invokable: true }),
-    1,
+    0,
   );
   assert.equal(runRegistry({ ...inherited, prompt: ".github/prompts/missing.prompt.md" }), 1);
   assert.equal(runRegistry({ ...inherited, model: "Wrong" }), 1);
@@ -329,7 +315,6 @@ test("link selection checks active Markdown but skips ignored residue and genera
   writeFileSync(path.join(root, ".gitignore"), ".venv/\ntmp/\n");
   for (const file of [
     "README.md",
-    "retired.prompt.md",
     "new guide.md",
     ".github/skills/apex-azure-artifacts/templates/07-backup-dr-plan.template.md",
     ".github/skills/apex-azure-artifacts/templates/ordinary.md",
@@ -341,15 +326,13 @@ test("link selection checks active Markdown but skips ignored residue and genera
     mkdirSync(path.dirname(path.join(root, file)), { recursive: true });
     writeFileSync(path.join(root, file), "# Example\n");
   }
-  assert.equal(spawnSync("git", ["add", "README.md", "retired.prompt.md"], { cwd: root }).status, 0);
-  rmSync(path.join(root, "retired.prompt.md"));
+  assert.equal(spawnSync("git", ["add", "README.md"], { cwd: root }).status, 0);
   const result = run(root, "lint:links");
   assert.equal(result.status, 0);
   assert.match(result.stdout, /README.md/);
   assert.match(result.stdout, /new guide.md/);
   assert.match(result.stdout, /templates\/ordinary\.md/);
   assert.doesNotMatch(result.stdout, /\.template\.md/);
-  assert.doesNotMatch(result.stdout, /retired\.prompt\.md/);
   assert.doesNotMatch(result.stdout, /\.venv|tmp\/run|\.archive|infra\/demo/);
   assert.notEqual(run(root, "lint:links", { LINT_EXIT: "3" }).status, 0);
 });
