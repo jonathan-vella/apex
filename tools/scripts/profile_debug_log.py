@@ -223,7 +223,7 @@ def sdk_events_to_spans(events: list[dict[str, Any]]) -> list[dict[str, Any]]:
             span["endTimeUnixNano"] = str(timestamp(end))
         return span
 
-    executions: dict[str, tuple[dict[str, Any], dict[str, Any], set[str]]] = {}
+    executions: dict[tuple[str, str], tuple[dict[str, Any], dict[str, Any], set[str]]] = {}
 
     def record_execution(
         event: dict[str, Any],
@@ -249,7 +249,8 @@ def sdk_events_to_spans(events: list[dict[str, Any]]) -> list[dict[str, Any]]:
         ):
             raise ValueError(f"event {event['id']}: invalid WORKER_EXECUTE envelope")
         request_id = envelope["request_id"]
-        previous = executions.get(request_id)
+        request_key = ("WORKER_EXECUTE", request_id)
+        previous = executions.get(request_key)
         if previous is not None:
             request, original, sources = previous
             if (
@@ -268,7 +269,7 @@ def sdk_events_to_spans(events: list[dict[str, Any]]) -> list[dict[str, Any]]:
             "worker_id": target,
             "parent_id": parent,
         }
-        executions[request_id] = request, envelope, {source}
+        executions[request_key] = request, envelope, {source}
         spans.append(request)
 
     worker_starts = {event.get("agentId"): event for event in records if event["type"] == "subagent.started"}
@@ -478,7 +479,8 @@ def sdk_events_to_spans(events: list[dict[str, Any]]) -> list[dict[str, Any]]:
                 f"review request {envelope['request_id']}: APEX_REVIEW requires attributed synchronous execution"
             )
         request_id = envelope["request_id"]
-        if request_id in executions:
+        request_key = ("APEX_REVIEW", request_id)
+        if request_key in executions:
             raise ValueError(f"duplicate or conflicting execution request_id: {request_id}")
         request = {
             **tool,
@@ -498,7 +500,7 @@ def sdk_events_to_spans(events: list[dict[str, Any]]) -> list[dict[str, Any]]:
         # The request is a marker, not another tool operation or outcome.
         for key in ("_sdk_incomplete", "_sdk_unknown_external_outcome", "status"):
             request.pop(key, None)
-        executions[request_id] = request, envelope, {"tool"}
+        executions[request_key] = request, envelope, {"tool"}
         spans.append(request)
 
     for call_id in calls.keys() | usage.keys():
@@ -675,13 +677,14 @@ def sdk_execution_metrics(spans: list[dict[str, Any]]) -> dict[str, Any]:
     recovery: list[bool | None] = []
     workers = {span["_sdk_agent_id"]: span for span in spans if span.get("_jsonl_subagent")}
     reviews: Counter[str] = Counter()
-    request_ids: set[str] = set()
+    request_ids: set[tuple[str, str]] = set()
     for request in executions:
         envelope = request["_sdk_execution"]
         request_id = envelope["request_id"]
-        if request_id in request_ids:
+        request_key = (envelope.get("protocol", "WORKER_EXECUTE"), request_id)
+        if request_key in request_ids:
             raise ValueError(f"duplicate execution request_id: {request_id}")
-        request_ids.add(request_id)
+        request_ids.add(request_key)
         start = int(request["startTimeUnixNano"])
         target = envelope["worker_id"]
         worker = workers.get(target)

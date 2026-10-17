@@ -459,6 +459,51 @@ def replace_review_envelope(records, envelope):
     review_dispatch(records)["data"]["arguments"]["prompt"] = "APEX_REVIEW\n" + json.dumps(envelope)
 
 
+def share_parent_request_id(records):
+    parent = next(
+        record["data"]["arguments"]
+        for record in records
+        if record["type"] == "tool.execution_start"
+        and record["data"].get("toolName") == "write_agent"
+        and record["data"]["arguments"].get("agent_id") == "main"
+    )
+    request_id = json.loads(parent["message"].split("\n", 1)[1])["request_id"]
+    envelope = json.loads(review_dispatch(records)["data"]["arguments"]["prompt"].split("\n", 1)[1])
+    envelope["request_id"] = request_id
+    replace_review_envelope(records, envelope)
+    return request_id
+
+
+@pytest.mark.parametrize("legacy", [False, True])
+@pytest.mark.parametrize("batch", [False, True])
+def test_historical_parent_and_review_request_id_reuse_counts_both_protocols(one_shot, tmp_path, legacy, batch):
+    records = one_shot(legacy=legacy, batch=batch)
+    shared_id = share_parent_request_id(records)
+    report = metrics(records)
+    requests = report["native_evidence"]["execution_requests"]
+    assert len([request for request in requests if request["request_id"] == shared_id]) == 2
+    assert report["_computed"]["execution_count"] == (3 if legacy else 2)
+    assert report["_computed"]["challenger_per_step"] == {"2": 2 if legacy else 1}
+    assert report["_computed"]["max_first_execution_input_tokens"] == 45000
+    log = tmp_path / "events.jsonl"
+    log.write_text("\n".join(json.dumps(record) for record in records))
+    assert load("validate_review_ceiling").budget_check(log) == ({"2": 2 if legacy else 1}, [])
+
+
+def test_duplicate_worker_execution_ids_still_fail_without_a_protocol_boundary(events):
+    dispatches = [
+        record["data"]["arguments"]
+        for record in events
+        if record["type"] == "tool.execution_start" and record["data"].get("toolName") == "write_agent"
+    ]
+    first = json.loads(dispatches[0]["message"].split("\n", 1)[1])
+    second = json.loads(dispatches[1]["message"].split("\n", 1)[1])
+    second["request_id"] = first["request_id"]
+    dispatches[1]["message"] = "WORKER_EXECUTE\n" + json.dumps(second)
+    with pytest.raises(ValueError, match="duplicate or conflicting execution request_id"):
+        metrics(events)
+
+
 def test_one_shot_omitted_mode_uses_attributed_synchronous_runtime_evidence(one_shot):
     records = one_shot()
     del review_dispatch(records)["data"]["arguments"]["mode"]
@@ -734,8 +779,13 @@ def test_one_shot_root_parent_and_no_receipt_are_supported(one_shot):
 
 
 @pytest.mark.parametrize("reuse_request_id", [False, True])
-def test_actual_repeat_dispatches_count_towards_strict_budget(one_shot, tmp_path, reuse_request_id):
+@pytest.mark.parametrize("parent_id_collision", [False, True])
+def test_actual_repeat_dispatches_count_towards_strict_budget(
+    one_shot, tmp_path, reuse_request_id, parent_id_collision
+):
     records = one_shot(legacy=True)
+    if parent_id_collision:
+        share_parent_request_id(records)
     repeated = copy.deepcopy([record for record in records if record["id"].startswith("review-event-")])
     for record in repeated:
         record["id"] += "-repeat"

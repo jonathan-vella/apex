@@ -50,8 +50,9 @@ it is not a required hop in the automatic path.
    example. Include the emitted `supporting_inputs` unchanged when present.
    Use the actual owning step, project-scoped review depth and a stable, unique
    request ID for this reviewer dispatch, distinct from the parent `WORKER_EXECUTE`
-   request ID. Copying the parent's ID creates conflicting telemetry, not a shared
-   execution. A new ID never resets the review allowance.
+   request ID. Historical parent/reviewer ID reuse is attributed separately by
+   protocol and linked dispatch: both executions remain counted. Duplicate IDs
+   within either protocol still fail. A new ID never resets the review allowance.
    Supply bounded required context and the exact contract path to the reviewer.
    The prompt requests review work directly: no `APEX_WORKER_HANDSHAKE`,
    nonce-only continuation or `WORKER_EXECUTE` is used for this one-shot call.
