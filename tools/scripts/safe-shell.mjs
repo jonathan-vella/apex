@@ -33,6 +33,8 @@ const SCAN_GLOBS = [
   // Agent + prompt + instruction files
   { dir: ".github/agents", suffix: ".md" },
   { dir: ".github/instructions", suffix: ".md" },
+  { dir: ".github/prompts", suffix: ".md" },
+  { dir: "tools/apex-prompts", suffix: ".md" },
 ];
 // For skills, only the canonical SKILL files (not nested references/).
 const SKILL_FILE_NAMES = new Set(["SKILL.md"]);
@@ -69,14 +71,14 @@ const RULES = [
     id: "read-prompt",
     pattern: /\bread\s+(?:-[a-zA-Z]*p[a-zA-Z]*\s+|--prompt\b)/,
     why: "read -p hangs waiting for stdin in a non-interactive context",
-    fix: "use the ask_user tool to gather user input",
+    fix: "use the vscode_askQuestions tool to gather user input",
   },
   {
     id: "bash-c-interactive",
     // bash -c '... -i ...' wrapping mv/rm/cp/read with -i flag
     pattern: /\bbash\s+-c\s+['"][^'"]*\b(?:mv|rm|cp|read)\b[^'"]*-i[^'"]*['"]/,
     why: "interactive flag inside bash -c '...' still hangs the chat turn",
-    fix: "remove the -i flag; use -f or ask_user instead",
+    fix: "remove the -i flag; use -f or vscode_askQuestions instead",
   },
   {
     id: "grep-no-fallback-in-set-e",

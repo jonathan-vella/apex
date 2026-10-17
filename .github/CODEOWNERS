@@ -7,7 +7,7 @@
 # Agent definitions require additional review
 .github/agents/             @jonathan-vella
 .github/instructions/       @jonathan-vella
-.github/skills/            @jonathan-vella
+tools/apex-prompts/         @jonathan-vella
 
 # Workflow changes require careful review
 .github/workflows/          @jonathan-vella
@@ -33,6 +33,9 @@ scenarios/                  @jonathan-vella
 .gitmodules                                       @jonathan-vella
 .github/skills/sensei/                            @jonathan-vella
 .github/skills/_audits/                           @jonathan-vella
+.github/prompts/sensei/                           @jonathan-vella
+.github/prompts/plan-skillsAuditOptimize.prompt.md @jonathan-vella
+.github/prompts/merge-sensei-free-pr.prompt.md    @jonathan-vella
 tools/scripts/run-sensei-audit.mjs                @jonathan-vella
 tools/scripts/scaffold-trigger-tests.mjs          @jonathan-vella
 tools/scripts/audit-gepa-candidate.mjs            @jonathan-vella

@@ -1,11 +1,13 @@
 ---
 name: 02-Requirements
+model: ["Claude Sonnet 5.5 (copilot)"]
+reasoning-effort: high
 description: Researches and captures Azure platform engineering project requirements
 argument-hint: Describe the Azure workload or project you want to gather requirements for
 user-invocable: true
-disable-model-invocation: false
-agents: ["rubber-duck"]
-tools: [execute, read, agent, edit, search, todo]
+disable-model-invocation: true
+agents: ["challenger-review-subagent"]
+tools: [vscode/askQuestions, execute, read, agent, edit, search, todo]
 handoffs:
   - label: "▶ Refine Requirements"
     agent: 02-Requirements
@@ -58,15 +60,8 @@ Done when:
   answered "no preference" for every applicable class, in which case
   `decisions.sku_preferences_captured = true` records that the elicitation ran.
 - `apex-recall` records checkpoints, `iac_tool`, region, SKU manifest status, and Step 1 completion.
-- `challenge-findings-requirements.json` records the independent `rubber-duck` review and every
+- `challenge-findings-requirements.json` is produced by `challenger-review-subagent` and every
   finding is rendered in chat before the proceed/revise gate.
-
-## Harness Entry
-
-Delegated `APEX_WORKER_HANDSHAKE`: no tools; return `WORKER_READY <definition-name> <original-nonce>`; nonce-only returns
-`WORKER_READY_ACK <definition-name> <original-nonce>` with same values. Stop; await `WORKER_EXECUTE`.
-[Routing](../skills/apex-workflow-engine/references/worker-readiness.md) before resumable leaf calls; direct use owns `ask_user`.
-Return `USER_INPUT_REQUIRED` forms to the interactive parent; cancel stops.
 
 ## Context Handling
 
@@ -99,7 +94,7 @@ Produce in `agent-output/{project}/`:
   `source: "user-pin"`, `source_step: "1"`, `last_modified_rev: 1`). An
   empty `services[]` is valid only when Phase 3j recorded an explicit
   "no preference" for every applicable class.
-- `challenge-findings-requirements.json` from the validated one-shot `rubber-duck` result.
+- `challenge-findings-requirements.json` from `challenger-review-subagent`.
 - `challenge-findings-requirements-decisions.json` when accept/defer
   decisions are recorded.
 
@@ -132,12 +127,12 @@ Write questions and notes as plain sentences; use the table only for findings.
   are a constraint, not an architecture decision**. Phase 3j requires explicit preferences or
   "no preference" for every applicable class; use supplied answers and ask only for uncovered classes.
 - Use `apex-recall` for session state. Do not read or write `00-session-state.json` directly.
-- Use `ask_user` for structured discovery. **Batch independent questions** into a single
-  `ask_user` call via `requestedSchema.properties` — issue separate calls only when a later
+- Use `askQuestions` for structured discovery. **Batch independent questions** into a single
+  `askQuestions` call via the `questions[]` array — issue separate calls only when a later
   question's options depend on a prior answer (cascading inputs). One-at-a-time prompting is
   forbidden when answers don't cascade. See
   [Context Hygiene](../instructions/agent-authoring.instructions.md#context-hygiene-token-efficiency).
-  If #tool:ask_user is unavailable, report `blocked` and stop before generation.
+  If #tool:vscode/askQuestions is unavailable, report `blocked` and stop before generation.
 - Allowed writes are the Step 1 outputs below, `00-handoff.md`, and recall-managed state.
   Findings belong to the reviewer; edit only their decision sidecar. `execute` permits
   approved recall, manifest rendering and output checks, not arbitrary filesystem or Azure writes.
@@ -153,13 +148,11 @@ Write questions and notes as plain sentences; use the table only for findings.
 
 ## Harness Routing
 
-The Copilot SDK uses verified workers; human gates remain explicit before the next named
+Local uses human handoffs; Host requires the user to explicitly select the next named
 owner. Inline skills do not change model or tool scope. Use #tool:agent only for the
-allowlisted worker. Missing worker readiness, tool, input or invocation eligibility means `blocked`,
+allowlisted worker. Missing model, tool, input or invocation eligibility means `blocked`,
 not model substitution or a skipped review. On reviewer failure, preserve the error and
-return the failure to the interactive parent; never invoke a main agent as a reviewer fallback.
-Automatic reviews follow [one-shot review](../skills/apex-azure-defaults/references/one-shot-review.md),
-not the resumable-worker handshake. Record only the independently returned findings.
+request a human transition to `10-Challenger`; never invoke that main agent as a worker.
 
 - **Do not invoke** `npm run lint:artifact-templates`, `npm run lint:md`, or
   `markdownlint-cli2` against any `agent-output/**` path. These checks are
@@ -254,71 +247,65 @@ Step 1 creates `agent-output/{project}/sku-manifest.json` and renders `sku-manif
 
 ### P0 directive — batch independent questions (Plan 01 Phase 4)
 
-Every `ask_user` call **MUST** bundle every independent question
-for the current phase into a single tool call via `requestedSchema.properties`.
-Sequential calls are only permitted when a later question's
+Every `askQuestions` call **MUST** bundle every independent question
+for the current phase into a single tool call via the `questions[]`
+array. Sequential calls are only permitted when a later question's
 wording depends on a prior answer. This is the largest user-wait
-reduction available — the test04 baseline fired 29 ask_user calls
+reduction available — the test04 baseline fired 29 askQuestions calls
 across Step 1 (1,744 s of user-wait); the target is ≤10.
 
 **Numbered example — 6 questions in ONE call**:
 
-```json
-{
-  "message": "Confirm the missing business and technical inputs.",
-  "requestedSchema": {
-    "properties": {
-      "project_name": { "type": "string", "title": "Project folder" },
-      "industry": { "type": "string", "title": "Industry" },
-      "company_size": {
-        "type": "string",
-        "title": "Company size",
-        "enum": ["Startup", "Mid-Market", "Enterprise"]
-      },
-      "region_pin": { "type": "string", "title": "Region constraints" },
-      "compliance": { "type": "string", "title": "Compliance constraints" },
-      "iac_tool": { "type": "string", "title": "IaC tool", "enum": ["Bicep", "Terraform"] }
-    }
-  }
-}
+```jsonc
+askQuestions({
+  questions: [
+    { header: "project_name",  question: "Confirm or change the project folder." },
+    { header: "industry",      question: "Pick the industry that best matches.", options: [...] },
+    { header: "company_size",  question: "Startup / Mid-Market / Enterprise?", options: [...] },
+    { header: "region_pin",    question: "Any region pin (e.g. EU GDPR)?" },
+    { header: "compliance",    question: "Compliance / regulatory constraints?" },
+    { header: "iac_tool",      question: "Bicep or Terraform?", options: ["Bicep", "Terraform"] }
+  ]
+})
 ```
 
-The validator `npm run validate:question-batching` parses this form's typed fields.
+The validator `npm run validate:question-batching` greps this body
+for the P0 directive heading + the numbered example block.
 
-Use `ask_user` for Round 1:
+Use `askQuestions` for Round 1:
 
 - Project name, freeform.
 - Industry, with six common options plus freeform.
 - Company size: Startup, Mid-Market, Enterprise.
 - System type or project description, with common workload options plus freeform.
 
-Use `ask_user` for Round 1b:
+Use `askQuestions` for Round 1b:
 
 - Scenario: greenfield, migration, modernization, or extension.
-- Target environments with an `array`/`items` field; suggest Dev + Production unless supplied.
+- Target environments with `multiSelect: true`; default Dev + Production unless the prompt says otherwise.
 - Brief workload description in one or two sentences.
 
-If migration or modernization is selected, use `ask_user` for Round 2:
+If migration or modernization is selected, use `askQuestions` for Round 2:
 
 - Current platform.
-- Pain points with an `array`/`items` field.
-- Parts to preserve with an `array`/`items` field.
+- Pain points with `multiSelect: true`.
+- Parts to preserve with `multiSelect: true`.
 
 When the initial prompt provides explicit answers, capture them without asking again.
-Use `enum`/`oneOf` for choices, `array`/`items` for multi-select and plain strings for freeform.
-Cancel stops; decline preserves missing inputs and never approves a decision.
+`askQuestions` options must follow the API rule: either no options
+for pure freeform or two or more options; one option with freeform is invalid.
 
 ## Phase 2: Workload Pattern Detection
 
 Infer the workload pattern from the business signals, then ask the user to confirm it rather than
 asking them to classify from scratch.
 
-Use `ask_user` for:
+Use `askQuestions` for:
 
 - Workload pattern confirmation with the inferred pattern recommended and four or five alternatives.
 - Daily users.
 - Monthly budget with options plus freeform.
-- Data sensitivity with an `array`/`items` field.
+- Data sensitivity with `multiSelect: true`.
 - Concurrent users for web/API patterns.
 - Transactions per second for database-heavy, analytics, event-driven, or IoT patterns.
 - IaC tool preference, defaulting to Bicep unless the handoff supplied a value.
@@ -360,7 +347,7 @@ apex-recall decide <project> --key cost_monitoring_exception \
 
 ## Phase 3: Service Recommendations
 
-This phase is required. Read once, then follow the batched-`ask_user`
+This phase is required. Read once, then follow the batched-`askQuestions`
 runbook in
 [`apex-azure-defaults/references/service-class-menu.md`](../skills/apex-azure-defaults/references/service-class-menu.md)
 (Batches A → B → C → 3i confirm → **3j SKU/sizing preferences (mandatory)**).
@@ -387,10 +374,10 @@ ask only for missing or conflicting answers. The canonical security baseline is 
 Distinguish public-facing web applications from APIs and identify private-client access needs.
 Do not offer "private networking only when policy requires". DNS ownership remains pending governance verification.
 
-Use `ask_user` for:
+Use `askQuestions` for:
 
-- Compliance frameworks with an `array`/`items` field.
-- Additional security measures beyond the baseline with an `array`/`items` field, when relevant.
+- Compliance frameworks with `multiSelect: true`.
+- Additional security measures beyond the baseline with `multiSelect: true`, only when relevant.
 - Authentication method.
 - Region, defaulting to `swedencentral` unless service availability requires an exception.
 - Operations and ownership, batched in one call: how operators reach private services, who owns web
@@ -435,7 +422,7 @@ Ask once for any resulting scope decision; do not invent images, credentials or 
 7. Checkpoint `phase_5_artifact`.
 8. **After steps 1-7 pass, chain into Phase 6a in the same turn.** The next tool
   call after the successful `apex-recall checkpoint ... phase_5_artifact` is
-  the one-shot review metadata capture and #tool:agent targeting `rubber-duck` with the inputs in
+  #tool:agent targeting `challenger-review-subagent` with the inputs in
    Phase 6a. Do not emit any user-facing summary, "ready for review"
    note, or final assistant message between Phase 5 and Phase 6a.
 
@@ -455,8 +442,8 @@ This block is a hard stop rule, not a recap.
   invoking it. The very next tool invocation is the subagent call.
 - An incomplete/failed prerequisite also blocks Phase 6. Otherwise defer only for a subagent error
   from the runtime, in which case you follow the fallback rule in
-  Phase 6a (return the actual failure to the interactive parent, then stop). Missing required
-  tools or runtime eligibility likewise blocks; do not attempt an inline review.
+  Phase 6a (human handoff to `10-Challenger`, then stop). Missing required
+  tools or model eligibility likewise blocks; do not attempt an inline review.
 
 ## Phase 6: Challenger Review and Per-Finding Decision Panel
 
@@ -464,8 +451,7 @@ This phase is required before Gate 1. Do not collapse it into a single proceed/r
 
 ### 6a. Invoke the challenger
 
-Invoke `rubber-duck` once using
-[one-shot review](../skills/apex-azure-defaults/references/one-shot-review.md) with:
+Delegate to `challenger-review-subagent` with:
 
 - `artifact_path`: `agent-output/{project}/01-requirements.md`
 - `project_name`: `{project}`
@@ -476,19 +462,18 @@ Invoke `rubber-duck` once using
 - `output_path`: `agent-output/{project}/challenge-findings-requirements.json`
 - `overwrite`: `false`, except when re-running after revisions
 
-Use `APEX_REVIEW` plus the JSON envelope, `mode: sync`, no routing overrides,
-and the `## Inputs`, `## Activities`, `## Outputs` instructions inside the envelope.
-Pass `mode` as a top-level task argument. Copy the contract's read-only and raw-JSON output rules into `instructions`.
-Include its exact field types and reviewer-owned in-memory draft finalization; `traces_to` is an array.
-Give this reviewer its own unique request ID, not the parent `WORKER_EXECUTE` ID; preserve attempt counters.
-Capture metadata first; use `record-review.mjs` to persist the actual returned JSON
-and require strict freshness validation. Do not send readiness or ACK turns to this reviewer.
+Compose the runtime `prompt` string per
+[tools/apex-prompts/utility-prompts/execution-subagent.prompt.md](../../tools/apex-prompts/utility-prompts/execution-subagent.prompt.md)
+— the three required H2s are `## Inputs`, `## Activities`,
+`## Outputs`. Do NOT use ad-hoc structures
+(`**Inputs:** / **Review scope:** / **Output format:**`); the template is
+the source of truth (issue #425).
 
-After the recorded result passes validation, checkpoint `phase_6_challenger`.
+After the subagent returns, checkpoint `phase_6_challenger`.
 
 **Fallback rule (mandatory)**: on a worker resolution error, surface the verbatim
-error to the interactive parent and stop. `10-Challenger` is an optional human
-recovery choice, not a required automatic hop. No inline review,
+error and present the existing `10-Challenger` handoff, then stop for the user to
+select it. `send: true` does not authorize automatic invocation. No inline review,
 fabricated findings or automatic model fallback is allowed. Resume only with current
 review evidence; a returned handoff is not proof of success or human approval.
 
@@ -520,7 +505,7 @@ the protocol mapping or show "Not supplied"; do not invent legacy JSON fields.
 Follow `## Per-Finding Decision Protocol` in
 [`adversarial-review-protocol.md`](../skills/apex-azure-defaults/references/adversarial-review-protocol.md)
 for question shape, option labels, deterministic action mapping,
-batched-`ask_user` rules, and the 12-question cap. Requirements-step
+batched-`askQuestions` rules, and the 12-question cap. Requirements-step
 specifics:
 
 - `header` namespace: `requirements-pass1-{idx}` (unique, ≤50 chars).
@@ -558,12 +543,12 @@ Once accepted changes have current review evidence and no unresolved `must_fix` 
 On `Proceed`, require current review, resolved blockers and human approval, run
 `apex-recall complete-step <project> 1 --json`, mark README complete and hand off to Architecture.
 
-If `APEX_UNATTENDED=1` is set, bypass `ask_user` per the protocol's unattended-mode rules and
+If `APEX_UNATTENDED=1` is set, bypass `askQuestions` per the protocol's unattended-mode rules and
 persist deferred decisions. Stop before completion or handoff while any unresolved `must_fix` remains.
 
 ## Required Information
 
-Collected from explicit supplied answers or `ask_user` across Phases 1–5. Required inputs (must
+Collected from explicit supplied answers or `askQuestions` across Phases 1–5. Required inputs (must
 be provided by the user): `project_name`, `project_description`,
 `system_description`, `budget`. Defaults below are suggested answers, not permission
 to infer unanswered IaC, SKU-preference, security/compliance or region choices.
@@ -609,7 +594,12 @@ Do not narrate routine tool calls.
 
 ## Completion Handoff
 
-Run `apex-recall checkpoint <project> <step> completed --json`; update `00-handoff.md`
-with paths, actual validation results and unresolved findings. Return `STEP_COMPLETE`
-only after required reviews/checks; pending decisions return `USER_INPUT_REQUIRED`.
-Direct use presents the human gate with `ask_user` and stops. Completion is not next-step approval.
+After `apex-recall complete-step` + writing `00-handoff.md`, end the
+final chat message with this line, **verbatim**, on its own final line
+(full contract:
+[`compression-templates.md`](../skills/apex-context-management/references/compression-templates.md#gate-boundary-clear-handoff-contract);
+validator: `npm run validate:orchestrator-handoff`):
+
+```text
+Run `/clear`, then switch the chat agent picker to `01-Orchestrator` and send `resume <project>` to continue Step N+1.
+```

@@ -51,8 +51,9 @@ to them, so they appear here as canonical sources, not as instruction layers.
 | no-hardcoded-counts   | 3          | Descriptive counts, `count-manifest.json` as the source    |
 
 `_subagents/*.agent.md` receive the same set except `agent-operating-frame` and
-`lesson-collection`. Local `.prompt.md` adapters and their prompt-specific
-instruction are archived, outside active discovery.
+`lesson-collection`. `.prompt.md` files receive `agent-authoring`, `vendor-prompting`,
+`prompt`, `no-interactive-shell`, plus `no-hardcoded-counts` under `.github/` or `markdown`
+under `tools/apex-prompts/`.
 `SKILL.md` files receive `agent-skills`, `context-optimization`, `no-interactive-shell`,
 `docs-trigger` and `no-hardcoded-counts`.
 

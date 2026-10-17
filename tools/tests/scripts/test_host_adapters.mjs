@@ -1,4 +1,3 @@
-// Historical Local/Host adapter fixtures; native acceptance lives in active SDK tests.
 import assert from "node:assert/strict";
 import {
   existsSync,
@@ -325,9 +324,9 @@ test("complete synthetic export preserves raw logs, filters, redacts by default 
 });
 
 const hostEntries = [
-  ["apex-debug-log-export", "apex-context-management/references/debug-log-export.md"],
-  ["apex-git-commit", "apex-github-operations/references/git-commit.md"],
-  ["apex-workflow-start", "apex-workflow-engine/references/workflow-entry.md"],
+  ["apex-host-debug-log-export", "apex-context-management/references/debug-log-export.md"],
+  ["apex-host-git-commit", "apex-github-operations/references/git-commit.md"],
+  ["apex-host-workflow-start", "apex-workflow-engine/references/workflow-entry.md"],
 ];
 
 test("recreated mixed-case references stay outside active discovery", () => {
@@ -448,7 +447,7 @@ test("Host resume and workflow-start route to current human-selected owners", ()
   const orchestrator = agents.find((agent) => agent.name === "01-Orchestrator");
   assert.deepEqual(orchestrator.model, ["MAI-Code-1.1-Flash"]);
   assert.deepEqual(orchestrator.agents, []);
-  const resume = source(".github/skills/apex-workflow-start/SKILL.md");
+  const resume = source(".github/skills/apex-host-workflow-start/SKILL.md");
   assert.match(resume, /selected owner `01-Orchestrator`/);
   assert.match(resume, /`MAI-Code-1\.1-Flash`/);
   assert.match(resume, /Never dispatch any step agent under MAI/);
@@ -464,7 +463,7 @@ test("Host resume and workflow-start route to current human-selected owners", ()
   assert.match(entry, /Unsupported operations stop for clarification/);
   assert.match(entry, /Git commit and\s+debug-log export retain their separate manual Host commands/);
   assert.equal(existsSync(new URL(".github/skills/apex-host-resume-workflow/SKILL.md", repository)), false);
-  const local = parseFrontmatter(source(".github/skills/apex-workflow-start/SKILL.md"));
+  const local = parseFrontmatter(source(".github/prompts/apex-resume-workflow.prompt.md"));
   assert.equal(local.agent, orchestrator.name);
   assert.equal(local.model, undefined);
   assert.equal(local.tools, undefined);

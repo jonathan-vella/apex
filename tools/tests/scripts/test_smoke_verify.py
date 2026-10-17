@@ -27,42 +27,6 @@ def test_find_newest_log_returns_path_or_none():
     assert result is None or result.suffix == ".json"
 
 
-def native_log(path: Path) -> Path:
-    path.write_text(
-        json.dumps(
-            {
-                "id": "start",
-                "type": "session.start",
-                "timestamp": "2026-10-16T08:00:00Z",
-                "data": {"sessionId": "sample"},
-            }
-        )
-        + "\n"
-    )
-    return path
-
-
-def test_native_discovery_outside_repository_profiles_in_place(tmp_path, monkeypatch, capsys):
-    mod = _load()
-    log = native_log(tmp_path / "events.jsonl")
-    original = log.read_bytes()
-    monkeypatch.setattr(mod, "find_live_debug_log", lambda: log)
-    output = tmp_path / "metrics.json"
-    assert mod.main(["--out", str(output)]) == 1
-    assert "Selected repository-scoped native log" in capsys.readouterr().out
-    assert json.loads(output.read_text())["native_evidence"]["format"] == "copilot-sdk"
-    assert log.read_bytes() == original
-
-
-def test_smoke_output_cannot_overwrite_source_log(tmp_path, capsys):
-    mod = _load()
-    log = native_log(tmp_path / "events.jsonl")
-    original = log.read_bytes()
-    assert mod.main([str(log), "--out", str(log)]) == 1
-    assert "must not overwrite" in capsys.readouterr().err
-    assert log.read_bytes() == original
-
-
 def test_post_clear_signals_missing_when_no_clear():
     """The min fixture has only one SessionStart → no /clear boundary."""
     mod = _load()
@@ -97,7 +61,9 @@ def test_post_clear_signals_detected_with_two_session_starts(tmp_path):
                                 "name": "chat:gpt-5.6-luna",
                                 "startTimeUnixNano": "3",
                                 "endTimeUnixNano": "4",
-                                "attributes": [{"key": "gen_ai.usage.input_tokens", "value": {"intValue": 90000}}],
+                                "attributes": [
+                                    {"key": "gen_ai.usage.input_tokens", "value": {"intValue": 90000}}
+                                ],
                             },
                             {"name": "Stop", "startTimeUnixNano": "5", "endTimeUnixNano": "6"},
                             {"name": "SessionStart", "startTimeUnixNano": "7", "endTimeUnixNano": "8"},
@@ -105,7 +71,9 @@ def test_post_clear_signals_detected_with_two_session_starts(tmp_path):
                                 "name": "chat:gpt-5.6-luna",
                                 "startTimeUnixNano": "9",
                                 "endTimeUnixNano": "10",
-                                "attributes": [{"key": "gen_ai.usage.input_tokens", "value": {"intValue": 30000}}],
+                                "attributes": [
+                                    {"key": "gen_ai.usage.input_tokens", "value": {"intValue": 30000}}
+                                ],
                             },
                             {
                                 "name": "run_in_terminal",
@@ -144,8 +112,8 @@ def test_post_clear_signals_detected_with_two_session_starts(tmp_path):
     assert "apex-recall show" in result["post_clear_first_tool_signature"]
 
 
-def test_cli_rejects_historical_log_without_native_execution_evidence(tmp_path):
-    """Historical metrics remain readable but cannot certify the SDK cutover."""
+def test_cli_pass_on_synthetic_clean_log(tmp_path):
+    """A log that meets every acceptance target should exit 0."""
     log = {
         "resourceSpans": [
             {
@@ -159,7 +127,9 @@ def test_cli_rejects_historical_log_without_native_execution_evidence(tmp_path):
                                 "name": "chat:gpt-5.6-luna",
                                 "startTimeUnixNano": "5",
                                 "endTimeUnixNano": "6",
-                                "attributes": [{"key": "gen_ai.usage.input_tokens", "value": {"intValue": 50000}}],
+                                "attributes": [
+                                    {"key": "gen_ai.usage.input_tokens", "value": {"intValue": 50000}}
+                                ],
                             },
                             {"name": "Stop", "startTimeUnixNano": "7", "endTimeUnixNano": "8"},
                             {"name": "SessionStart", "startTimeUnixNano": "9", "endTimeUnixNano": "10"},
@@ -167,7 +137,9 @@ def test_cli_rejects_historical_log_without_native_execution_evidence(tmp_path):
                                 "name": "chat:gpt-5.6-luna",
                                 "startTimeUnixNano": "11",
                                 "endTimeUnixNano": "12",
-                                "attributes": [{"key": "gen_ai.usage.input_tokens", "value": {"intValue": 20000}}],
+                                "attributes": [
+                                    {"key": "gen_ai.usage.input_tokens", "value": {"intValue": 20000}}
+                                ],
                             },
                             {
                                 "name": "run_in_terminal",
@@ -196,8 +168,8 @@ def test_cli_rejects_historical_log_without_native_execution_evidence(tmp_path):
         capture_output=True,
         text=True,
     )
-    assert r.returncode == 1, f"expected 1, got {r.returncode}: {r.stdout} {r.stderr}"
-    assert "ACCEPTANCE FAILED" in r.stdout
+    assert r.returncode == 0, f"expected 0, got {r.returncode}: {r.stdout} {r.stderr}"
+    assert "ACCEPTANCE PASSED" in r.stdout
     assert out.is_file()
     saved = json.loads(out.read_text())
     assert "_computed" in saved

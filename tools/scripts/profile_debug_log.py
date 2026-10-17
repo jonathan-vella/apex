@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Profile native VS Code Copilot SDK events or historical OTel/Local exports.
+"""Profile a Copilot Chat OTel debug log.
 
 Extracts headline metrics used by the token-reduction workstream:
 
@@ -9,7 +9,7 @@ Extracts headline metrics used by the token-reduction workstream:
   - tool-call payload sizes (top consumers)
   - duplicate file-read map (read_file path -> count)
   - hard error spans (status.code == 2) with non-benign filter
-  - ask_user count + per-call duration (historical question aliases are readable)
+  - vscode_askQuestions count + per-call duration
   - session wall time, agent wall time (chat span sum), user-wait
     wall time (askQuestions duration sum)
 
@@ -18,7 +18,7 @@ Schema reference: VS Code Copilot Chat exports an OpenTelemetry
 ``chat:<model>``; each tool invocation has ``gen_ai.operation.name ==
 'execute_tool'`` with ``gen_ai.tool.name`` set.
 
-Historical-only informational warning checks (no exit-code impact):
+Two informational warning checks (no exit-code impact):
 
   - ``--max-spans-between-clears N`` flags sessions exceeding ``N``
     chat spans without a SessionStart/Stop boundary (Phase 2a
@@ -44,7 +44,6 @@ import hashlib
 import json
 import sys
 from collections import Counter, defaultdict
-from datetime import datetime
 from pathlib import Path
 from statistics import median
 from typing import Any
@@ -55,10 +54,6 @@ from typing import Any
 BENIGN_ERROR_FRAGMENTS = (
     "ENOENT",
     "no such file or directory",
-    "view_range out of bounds",
-    "Search paths do not exist",
-    "Skill not found",
-    "Agent not found",
 )
 
 
@@ -70,9 +65,6 @@ def _jsonl_record_to_span(rec: dict[str, Any]) -> dict[str, Any]:
     raw_attrs = rec.get("attrs") if isinstance(rec.get("attrs"), dict) else {}
     rtype = str(rec.get("type") or "")
     rname = str(rec.get("name") or "")
-    if rtype == "child_session_ref":
-        rtype = "subagent"
-        rname = rname.removeprefix("runSubagent-")
 
     start_ns: str | None = None
     end_ns: str | None = None
@@ -133,9 +125,12 @@ def _jsonl_record_to_span(rec: dict[str, Any]) -> dict[str, Any]:
         "attributes": attributes,
         "status": status_obj,
     }
-    for canonical, alias in (("traceId", "tid"), ("spanId", "sid"), ("parentSpanId", "pid")):
-        if rec.get(canonical) or rec.get(alias):
-            span[canonical] = str(rec.get(canonical) or rec[alias])
+    if rec.get("tid"):
+        span["traceId"] = str(rec["tid"])
+    if rec.get("sid"):
+        span["spanId"] = str(rec["sid"])
+    if rec.get("pid"):
+        span["parentSpanId"] = str(rec["pid"])
     if start_ns is not None:
         span["startTimeUnixNano"] = start_ns
     if end_ns is not None:
@@ -143,459 +138,6 @@ def _jsonl_record_to_span(rec: dict[str, Any]) -> dict[str, Any]:
     if rtype == "subagent":
         span["_jsonl_subagent"] = str(raw_attrs.get("agentName") or rname or "(unknown)")
     return span
-
-
-def sdk_events_to_spans(events: list[dict[str, Any]]) -> list[dict[str, Any]]:
-    """Normalize native SDK events without adding parent token rollups twice."""
-
-    def identifier(value: Any, label: str) -> str:
-        if not isinstance(value, str) or not value.strip():
-            raise ValueError(f"native {label} requires a nonempty string")
-        return value
-
-    records: list[dict[str, Any]] = []
-    seen_events: dict[str, dict[str, Any]] = {}
-    for event in events:
-        if not isinstance(event, dict) or not isinstance(event.get("data"), dict):
-            raise ValueError("native event requires an object data payload")
-        event_id = event.get("id")
-        if not isinstance(event_id, str) or not event_id:
-            raise ValueError("native event requires an id")
-        identifier(event.get("type"), "event type")
-        if event.get("agentId") is not None:
-            identifier(event["agentId"], "event agentId")
-        if event_id in seen_events:
-            if event != seen_events[event_id]:
-                raise ValueError(f"conflicting native event id: {event_id}")
-            continue
-        seen_events[event_id] = event
-        records.append(event)
-    if not records:
-        raise ValueError("no native events")
-    capture_closed = False
-    for event in records:
-        if not event.get("agentId"):
-            if event["type"] in ("session.end", "session.shutdown"):
-                capture_closed = True
-            elif event["type"] in (
-                "session.start",
-                "session.resume",
-                "user.message",
-                "assistant.turn_start",
-                "assistant.message",
-                "tool.execution_start",
-                "external_tool.requested",
-            ):
-                capture_closed = False
-
-    def timestamp(event: dict[str, Any]) -> int:
-        value = event.get("timestamp")
-        if not isinstance(value, str):
-            raise ValueError(f"event {event['id']}: missing timestamp")
-        date = datetime.fromisoformat(value)
-        if date.tzinfo is None:
-            raise ValueError(f"event {event['id']}: timestamp needs a timezone")
-        return int(date.timestamp() * 1_000_000_000)
-
-    for event in records:
-        timestamp(event)
-    session = next((e["data"] for e in records if e.get("type") == "session.start"), {})
-    session_id = identifier(session.get("sessionId"), "session.start sessionId")
-    spans: list[dict[str, Any]] = []
-
-    def make_span(
-        name: str,
-        event: dict[str, Any],
-        attrs: dict[str, Any] | None = None,
-        end: dict[str, Any] | None = None,
-    ) -> dict[str, Any]:
-        attributes = []
-        for key, value in (attrs or {}).items():
-            if value is None:
-                continue
-            kind = "boolValue" if isinstance(value, bool) else "intValue" if isinstance(value, int) else "stringValue"
-            attributes.append({"key": key, "value": {kind: value if kind != "stringValue" else str(value)}})
-        span = {
-            "name": name,
-            "attributes": attributes,
-            "traceId": session_id,
-            "spanId": event["id"],
-            "startTimeUnixNano": str(timestamp(event)),
-            "_source_format": "copilot-sdk",
-            "_sdk_agent_id": event.get("agentId") or "root",
-        }
-        if end is not None:
-            span["endTimeUnixNano"] = str(timestamp(end))
-        return span
-
-    executions: dict[tuple[str, str], tuple[dict[str, Any], dict[str, Any], set[str]]] = {}
-
-    def record_execution(
-        event: dict[str, Any],
-        message: Any,
-        target: Any,
-        parent: str,
-        source: str,
-    ) -> None:
-        if not isinstance(message, str) or not message.startswith("WORKER_EXECUTE\n"):
-            return
-        envelope = json.loads(message.removeprefix("WORKER_EXECUTE\n"))
-        if (
-            not isinstance(envelope, dict)
-            or not all(
-                isinstance(envelope.get(key), str) and envelope[key]
-                for key in ("request_id", "project", "step", "phase")
-            )
-            or not isinstance(envelope.get("resume"), bool)
-            or envelope.get("review_depth") not in ("default", "deep")
-            or not isinstance(target, str)
-            or not target
-            or envelope.get("parent_id", parent) != parent
-        ):
-            raise ValueError(f"event {event['id']}: invalid WORKER_EXECUTE envelope")
-        request_id = envelope["request_id"]
-        request_key = ("WORKER_EXECUTE", request_id)
-        previous = executions.get(request_key)
-        if previous is not None:
-            request, original, sources = previous
-            if (
-                original != envelope
-                or request["_sdk_execution"]["worker_id"] != target
-                or request["_sdk_execution"]["parent_id"] != parent
-                or source in sources
-            ):
-                raise ValueError(f"duplicate or conflicting execution request_id: {request_id}")
-            sources.add(source)
-            return
-        request = make_span("WorkerExecute", event)
-        request["spanId"] += ":execution"
-        request["_sdk_execution"] = {
-            **{key: envelope[key] for key in ("request_id", "project", "step", "phase", "resume", "review_depth")},
-            "worker_id": target,
-            "parent_id": parent,
-        }
-        executions[request_key] = request, envelope, {source}
-        spans.append(request)
-
-    worker_starts = {event.get("agentId"): event for event in records if event["type"] == "subagent.started"}
-    worker_by_call = {
-        event["data"].get("toolCallId"): event.get("agentId")
-        for event in records
-        if event["type"] == "subagent.started" and event["data"].get("toolCallId") and event.get("agentId")
-    }
-    tools: dict[tuple[str, str], dict[str, Any]] = {}
-    workers: dict[str, dict[str, Any]] = {}
-    hooks: dict[tuple[str, str], dict[str, Any]] = {}
-    calls: dict[str, dict[str, Any]] = {}
-    usage: dict[str, dict[str, Any]] = {}
-    for event in records:
-        data = event["data"]
-        kind = event.get("type")
-        agent = event.get("agentId") or "root"
-        if kind in ("session.start", "session.end", "session.shutdown"):
-            spans.append(make_span("SessionStart" if kind == "session.start" else "Stop", event, end=event))
-        elif kind == "user.message" and agent != "root":
-            start = worker_starts.get(agent)
-            if start is not None:
-                record_execution(
-                    event, data.get("content"), agent, start["data"].get("parentId") or "root", "worker_input"
-                )
-            elif isinstance(data.get("content"), str) and data["content"].startswith("WORKER_EXECUTE\n"):
-                raise ValueError(f"event {event['id']}: execution input has no worker start")
-        elif kind == "assistant.message":
-            call_id = data.get("apiCallId")
-            tool_reqs = data.get("toolRequests")
-            if (
-                call_id is None
-                and not data.get("model")
-                and not data.get("content")
-                and isinstance(tool_reqs, list)
-                and tool_reqs
-                and all(isinstance(req, dict) and req.get("name") == "read_agent" for req in tool_reqs)
-            ):
-                continue
-            if call_id is not None:
-                identifier(call_id, "API call ID")
-            calls.setdefault(call_id or f"unattributed:{event['id']}", event)
-        elif kind == "session.usage_record":
-            record = data.get("usage")
-            if not isinstance(record, dict):
-                raise ValueError(f"event {event['id']}: invalid usage payload")
-            accounting = record.get("accounting") or {}
-            if not isinstance(accounting, dict):
-                raise ValueError(f"event {event['id']}: invalid usage accounting")
-            call_id = record.get("apiCallId") or accounting.get("usageId")
-            identifier(call_id, "usage apiCallId or accounting.usageId")
-            previous = usage.get(call_id)
-            fields = ("model", "inputTokens", "outputTokens", "cacheReadTokens", "cacheWriteTokens")
-            if previous and any(previous["data"]["usage"].get(k) != record.get(k) for k in fields):
-                raise ValueError(f"conflicting authoritative usage for call {call_id}")
-            usage.setdefault(call_id, event)
-        elif kind == "tool.execution_start":
-            call_id = identifier(data.get("toolCallId"), "tool start call ID")
-            identifier(data.get("toolName"), "tool name")
-            if (agent, call_id) in tools:
-                raise ValueError(f"duplicate tool start: {call_id}")
-            tool = make_span(
-                data["toolName"],
-                event,
-                {
-                    "gen_ai.operation.name": "execute_tool",
-                    "gen_ai.tool.name": data["toolName"],
-                    "gen_ai.tool.call.arguments": json.dumps(data.get("arguments"), ensure_ascii=False),
-                },
-            )
-            tool["_sdk_incomplete"] = True
-            tools[(agent, call_id)] = tool
-            spans.append(tool)
-            args = data.get("arguments")
-            message = args.get("message") if isinstance(args, dict) else None
-            if data["toolName"] == "write_agent" and isinstance(args, dict):
-                record_execution(event, message, args.get("agent_id"), agent, "tool")
-            elif data["toolName"] == "task" and isinstance(args, dict) and call_id in worker_by_call:
-                record_execution(event, args.get("prompt"), worker_by_call[call_id], agent, "tool")
-        elif kind == "tool.execution_complete":
-            call_id = identifier(data.get("toolCallId"), "tool completion call ID")
-            tool = tools.get((agent, call_id))
-            if tool is None:
-                orphan = make_span("UnmatchedToolCompletion", event)
-                orphan["_sdk_incomplete"] = True
-                spans.append(orphan)
-                continue
-            tool["endTimeUnixNano"] = str(max(int(tool["startTimeUnixNano"]), timestamp(event)))
-            tool["_sdk_incomplete"] = not isinstance(data.get("success"), bool)
-            tool["attributes"].append(
-                {
-                    "key": "gen_ai.tool.call.result",
-                    "value": {"stringValue": json.dumps(data.get("result"), ensure_ascii=False)},
-                }
-            )
-            tool["status"] = (
-                {"code": 2 if data["success"] is False else 1, "message": str(data.get("error") or "")}
-                if isinstance(data.get("success"), bool)
-                else {"message": "Success evidence unavailable"}
-            )
-        elif kind == "subagent.started":
-            if agent == "root" or not data.get("agentName"):
-                raise ValueError(f"event {event['id']}: worker start needs attributed agent ID/name")
-            if agent in workers:
-                raise ValueError(f"duplicate worker start: {agent}")
-            worker = make_span(data["agentName"], event)
-            worker["_jsonl_subagent"] = data["agentName"]
-            worker["_sdk_parent_agent_id"] = (
-                identifier(data["parentId"], "worker parent ID") if data.get("parentId") is not None else "root"
-            )
-            worker["_sdk_start_call_id"] = identifier(data.get("toolCallId"), "worker start call ID")
-            worker["_sdk_execution_mode"] = data.get("executionMode")
-            worker["_sdk_incomplete"] = True
-            workers[agent] = worker
-            spans.append(worker)
-        elif kind == "subagent.completed":
-            worker = workers.get(agent)
-            if worker is None:
-                orphan = make_span("UnmatchedWorkerCompletion", event)
-                orphan["_sdk_incomplete"] = True
-                spans.append(orphan)
-            else:
-                if data.get("toolCallId") != worker["_sdk_start_call_id"]:
-                    raise ValueError(f"worker completion does not match start call: {agent}")
-                worker["endTimeUnixNano"] = str(timestamp(event))
-                worker["_sdk_incomplete"] = False
-        elif kind == "hook.start":
-            hook_id = identifier(data.get("hookInvocationId"), "hook invocation ID")
-            if (agent, hook_id) in hooks:
-                raise ValueError(f"duplicate hook start: {hook_id}")
-            hook = make_span(f"hook:{data.get('hookType', 'unknown')}", event)
-            hook["_sdk_incomplete"] = True
-            hooks[(agent, hook_id)] = hook
-            spans.append(hook)
-        elif kind == "hook.end":
-            hook_id = identifier(data.get("hookInvocationId"), "hook invocation ID")
-            hook = hooks.get((agent, hook_id))
-            if hook is None:
-                orphan = make_span("UnmatchedHookCompletion", event)
-                orphan["_sdk_incomplete"] = True
-                spans.append(orphan)
-            else:
-                hook["endTimeUnixNano"] = str(timestamp(event))
-                hook["_sdk_incomplete"] = not isinstance(data.get("success"), bool)
-                hook["status"] = (
-                    {"code": 2 if data["success"] is False else 1, "message": str(data.get("error") or "")}
-                    if isinstance(data.get("success"), bool)
-                    else {"message": "Success evidence unavailable"}
-                )
-
-    external: dict[tuple[str, str], dict[str, Any]] = {}
-    for event in records:
-        kind, data = event["type"], event["data"]
-        if kind not in ("external_tool.requested", "external_tool.completed"):
-            continue
-        agent = event.get("agentId") or "root"
-        request_id = identifier(data.get("requestId"), "external tool request ID")
-        if kind == "external_tool.requested":
-            if (agent, request_id) in external:
-                raise ValueError(f"duplicate external tool request: {request_id}")
-            call_id = identifier(data.get("toolCallId"), "external tool call ID")
-            name = identifier(data.get("toolName"), "external tool name")
-            tool = tools.get((agent, call_id))
-            if tool is None:
-                tool = make_span(
-                    name,
-                    event,
-                    {
-                        "gen_ai.operation.name": "execute_tool",
-                        "gen_ai.tool.name": name,
-                        "gen_ai.tool.call.arguments": json.dumps(data.get("arguments"), ensure_ascii=False),
-                    },
-                )
-                tool["_sdk_incomplete"] = True
-                tool["_sdk_unknown_external_outcome"] = True
-                tools[(agent, call_id)] = tool
-                spans.append(tool)
-                args = data.get("arguments")
-                if name == "write_agent" and isinstance(args, dict):
-                    record_execution(event, args.get("message"), args.get("agent_id"), agent, "tool")
-            elif tool["name"] != name:
-                raise ValueError(f"external/native tool name conflict: {call_id}")
-            elif name == "task" and json.loads(_attrs(tool).get("gen_ai.tool.call.arguments") or "null") != data.get(
-                "arguments"
-            ):
-                raise ValueError(f"external/native task arguments conflict: {call_id}")
-            external[(agent, request_id)] = tool
-        else:
-            tool = external.get((agent, request_id))
-            if tool is None:
-                tool = make_span("UnmatchedExternalCompletion", event)
-                tool["_sdk_incomplete"] = True
-                spans.append(tool)
-            elif tool.get("_sdk_unknown_external_outcome"):
-                # Transport completion carries no execution-success evidence.
-                tool["endTimeUnixNano"] = str(timestamp(event))
-
-    for (parent, call_id), tool in tools.items():
-        if tool["name"] != "task":
-            continue
-        args = json.loads(_attrs(tool).get("gen_ai.tool.call.arguments") or "null")
-        if not isinstance(args, dict) or args.get("agent_type") != "rubber-duck":
-            continue
-        prompt = args.get("prompt")
-        if not isinstance(prompt, str) or not prompt.startswith("APEX_REVIEW\n"):
-            continue
-        envelope = _one_shot_review_envelope(prompt, args)
-        linked = [
-            worker
-            for worker in workers.values()
-            if worker["_sdk_parent_agent_id"] == parent and worker["_sdk_start_call_id"] == call_id
-        ]
-        if (
-            len(linked) != 1
-            or linked[0]["_jsonl_subagent"] != "rubber-duck"
-            or (parent != "root" and parent not in workers)
-            or int(linked[0]["startTimeUnixNano"]) < int(tool["startTimeUnixNano"])
-        ):
-            raise ValueError(
-                f"review request {envelope['request_id']}: missing reviewer or wrong parent/task attribution"
-            )
-        if linked[0]["_sdk_execution_mode"] != "sync":
-            raise ValueError(
-                f"review request {envelope['request_id']}: APEX_REVIEW requires attributed synchronous execution"
-            )
-        request_id = envelope["request_id"]
-        request_key = ("APEX_REVIEW", request_id)
-        if request_key in executions:
-            raise ValueError(f"duplicate or conflicting execution request_id: {request_id}")
-        request = {
-            **tool,
-            "name": "ReviewExecute",
-            "spanId": tool["spanId"] + ":execution",
-            "attributes": [],
-            "_sdk_execution": {
-                **{key: envelope[key] for key in ("request_id", "step", "review_depth")},
-                "project": envelope["project_name"],
-                "phase": "review",
-                "resume": False,
-                "worker_id": linked[0]["_sdk_agent_id"],
-                "parent_id": parent,
-                "protocol": "APEX_REVIEW",
-            },
-        }
-        # The request is a marker, not another tool operation or outcome.
-        for key in ("_sdk_incomplete", "_sdk_unknown_external_outcome", "status"):
-            request.pop(key, None)
-        executions[request_key] = request, envelope, {"tool"}
-        spans.append(request)
-
-    for call_id in calls.keys() | usage.keys():
-        message = calls.get(call_id)
-        authoritative = usage.get(call_id)
-        event = message or authoritative
-        assert event is not None
-        record = authoritative["data"]["usage"] if authoritative else {}
-        model = identifier(record.get("model") or event["data"].get("model") or "unknown", "model")
-        chat = make_span(
-            f"chat:{model}",
-            event,
-            {
-                "gen_ai.operation.name": "chat",
-                "gen_ai.request.model": model,
-                "gen_ai.usage.input_tokens": record.get("inputTokens"),
-                "gen_ai.usage.output_tokens": record.get("outputTokens"),
-                "gen_ai.usage.cache_read_tokens": record.get("cacheReadTokens"),
-                "gen_ai.usage.cache_write_tokens": record.get("cacheWriteTokens"),
-            },
-        )
-        chat["spanId"] = f"usage:{call_id}"
-        chat["_sdk_unattributed_usage"] = authoritative is not None and message is None
-        duration = record.get("duration")
-        if authoritative and isinstance(duration, (int, float)) and not isinstance(duration, bool) and duration >= 0:
-            end = timestamp(authoritative)
-            chat["endTimeUnixNano"] = str(end)
-            chat["startTimeUnixNano"] = str(end - int(duration * 1_000_000))
-        spans.append(chat)
-    metadata = make_span("NativeLogMetadata", records[0])
-    metadata["spanId"] += ":metadata"
-    metadata["_sdk_session"] = session
-    metadata["_sdk_capture_closed"] = capture_closed
-    metadata["_sdk_duplicate_events"] = len(events) - len(records)
-    metadata["_sdk_duplicate_usage"] = sum(e.get("type") == "session.usage_record" for e in records) - len(usage)
-    spans.append(metadata)
-    return sorted(spans, key=lambda span: int(span["startTimeUnixNano"]))
-
-
-def _one_shot_review_envelope(prompt: str, arguments: dict[str, Any]) -> dict[str, Any]:
-    """Validate dispatch intent, without treating it as findings or runtime approval."""
-    try:
-        envelope = json.loads(prompt.removeprefix("APEX_REVIEW\n"))
-    except json.JSONDecodeError as exc:
-        raise ValueError("invalid APEX_REVIEW envelope JSON") from exc
-    required = ("request_id", "project_name", "step", "artifact_path", "artifact_type", "output_path")
-    if (
-        ("mode" in arguments and arguments["mode"] != "sync")
-        or any(key in arguments for key in ("model", "reasoning_effort", "context_tier"))
-        or not isinstance(envelope, dict)
-        or not all(isinstance(envelope.get(key), str) and envelope[key].strip() for key in required)
-        or envelope.get("review_depth") not in ("default", "deep")
-        or not isinstance(envelope.get("overwrite"), bool)
-        or not isinstance(envelope.get("cache_inputs"), dict)
-    ):
-        raise ValueError("invalid APEX_REVIEW envelope or task arguments")
-    lenses = envelope.get("lenses") if "lenses" in envelope else [envelope]
-    if (
-        ("lenses" in envelope and any(key in envelope for key in ("review_focus", "pass_number")))
-        or not isinstance(lenses, list)
-        or not lenses
-        or any(
-            not isinstance(lens, dict)
-            or not isinstance(lens.get("review_focus"), str)
-            or not lens["review_focus"].strip()
-            or type(lens.get("pass_number")) is not int
-            or lens["pass_number"] <= 0
-            for lens in lenses
-        )
-        or len({(lens["review_focus"], lens["pass_number"]) for lens in lenses}) != len(lenses)
-    ):
-        raise ValueError("invalid APEX_REVIEW lenses")
-    return envelope
 
 
 def load_spans(path: Path) -> list[dict[str, Any]]:
@@ -615,23 +157,17 @@ def load_spans(path: Path) -> list[dict[str, Any]]:
         lines = [line.strip() for line in stripped.splitlines() if line.strip()]
         if len(lines) <= 1 and path.suffix.lower() != ".jsonl":
             raise ValueError(f"{path}: not valid JSON ({exc.msg})") from exc
-        records: list[dict[str, Any]] = []
+        spans: list[dict[str, Any]] = []
         for idx, line in enumerate(lines, start=1):
             try:
                 rec = json.loads(line)
-                if not isinstance(rec, dict):
-                    raise ValueError("not an event object")
-                records.append(rec)
+                spans.append(_jsonl_record_to_span(rec))
             except (json.JSONDecodeError, ValueError) as line_exc:
                 raise ValueError(f"{path}:{idx}: invalid JSONL record ({line_exc})") from line_exc
-        if not records:
+        if not spans:
             raise ValueError(f"{path}: no spans found") from exc
-        if any("data" in record for record in records):
-            return sdk_events_to_spans(records)
-        return [_jsonl_record_to_span(record) for record in records]
+        return spans
 
-    if isinstance(raw, dict) and "data" in raw:
-        return sdk_events_to_spans([raw])
     if isinstance(raw, dict) and ("ts" in raw or "type" in raw) and "resourceSpans" not in raw:
         return [_jsonl_record_to_span(raw)]
 
@@ -649,118 +185,6 @@ def load_spans(path: Path) -> list[dict[str, Any]]:
     if not spans:
         raise ValueError(f"{path}: no spans found")
     return spans
-
-
-def discover_sdk_logs(repository: Path, state_root: Path | None = None) -> list[Path]:
-    """Discover only logs whose native metadata belongs to this repository."""
-    root = (state_root or Path.home() / ".copilot/session-state").expanduser().resolve()
-    repository = repository.resolve()
-    matches: list[Path] = []
-    for candidate in root.glob("*/events.jsonl"):
-        if candidate.is_symlink() or candidate.parent.is_symlink() or not candidate.resolve().is_relative_to(root):
-            print(f"warning: skipped non-local session log {candidate}", file=sys.stderr)
-            continue
-        try:
-            with candidate.open(encoding="utf-8") as stream:
-                event = json.loads(next(stream))
-                if event.get("type") != "session.start":
-                    raise ValueError("first record is not session.start")
-                context = event.get("data", {}).get("context", {})
-                workspace = context.get("gitRoot") or context.get("cwd")
-                if (
-                    not isinstance(workspace, str)
-                    or not Path(workspace).is_absolute()
-                    or Path(workspace).resolve() != repository
-                ):
-                    continue
-                for line in stream:
-                    if not line.strip():
-                        continue
-                    event = json.loads(line)
-                    if event.get("type") == "session.resume":
-                        context = event.get("data", {}).get("context", {})
-                        workspace = context.get("gitRoot") or context.get("cwd")
-                        if (
-                            not isinstance(workspace, str)
-                            or not Path(workspace).is_absolute()
-                            or Path(workspace).resolve() != repository
-                        ):
-                            raise ValueError("resumed session has unknown or different workspace identity")
-                matches.append(candidate)
-        except (OSError, ValueError, StopIteration, AttributeError) as exc:
-            print(f"warning: cannot identify workspace for {candidate}: {exc}", file=sys.stderr)
-    return sorted(matches, key=lambda file: (file.stat().st_mtime_ns, str(file)))
-
-
-def sdk_execution_metrics(spans: list[dict[str, Any]]) -> dict[str, Any]:
-    """Measure linked execution calls, including one-shot reviews and worker resume recovery."""
-    executions = [span for span in spans if "_sdk_execution" in span]
-    first_inputs: list[int] = []
-    seen_first_workers: set[str] = set()
-    resumed_workers: set[str] = set()
-    recovery: list[bool | None] = []
-    workers = {span["_sdk_agent_id"]: span for span in spans if span.get("_jsonl_subagent")}
-    reviews: Counter[str] = Counter()
-    request_ids: set[tuple[str, str]] = set()
-    for request in executions:
-        envelope = request["_sdk_execution"]
-        request_id = envelope["request_id"]
-        request_key = (envelope.get("protocol", "WORKER_EXECUTE"), request_id)
-        if request_key in request_ids:
-            raise ValueError(f"duplicate execution request_id: {request_id}")
-        request_ids.add(request_key)
-        start = int(request["startTimeUnixNano"])
-        target = envelope["worker_id"]
-        worker = workers.get(target)
-        if worker is None or worker["_sdk_parent_agent_id"] != envelope["parent_id"]:
-            raise ValueError(f"execution request {request_id}: missing worker or wrong parent attribution")
-        stop = min(
-            (
-                int(other["startTimeUnixNano"])
-                for other in executions
-                if other["_sdk_execution"]["worker_id"] == target and int(other["startTimeUnixNano"]) > start
-            ),
-            default=None,
-        )
-        window = [
-            span
-            for span in spans
-            if span.get("_sdk_agent_id") == target
-            and int(span["startTimeUnixNano"]) >= start
-            and (stop is None or int(span["startTimeUnixNano"]) < stop)
-        ]
-        if target not in seen_first_workers:
-            seen_first_workers.add(target)
-            chats = [span for span in window if span.get("name", "").startswith("chat:")]
-            value = _token_count(_attrs(chats[0]).get("gen_ai.usage.input_tokens")) if chats else None
-            if value is not None:
-                first_inputs.append(value)
-        if envelope.get("resume") is True and target not in resumed_workers:
-            resumed_workers.add(target)
-            tool = next((span for span in window if _attrs(span).get("gen_ai.operation.name") == "execute_tool"), None)
-            if tool is None:
-                recovery.append(None)
-            else:
-                arguments = json.loads(_attrs(tool).get("gen_ai.tool.call.arguments") or "{}")
-                command = arguments.get("command") if isinstance(arguments, dict) else None
-                recovery.append(
-                    isinstance(command, str)
-                    and f"apex-recall show {envelope['project']} --json" in command
-                    and tool.get("status", {}).get("code") == 1
-                )
-        if worker["_jsonl_subagent"] == "challenger-review-subagent" or envelope.get("protocol") == "APEX_REVIEW":
-            if envelope.get("review_depth") != "default":
-                raise ValueError("default-mode smoke budget requires explicit default review_depth")
-            reviews[str(envelope["step"])] += 1
-    return {
-        "execution_count": len(executions),
-        "max_first_execution_input_tokens": max(first_inputs)
-        if first_inputs and len(first_inputs) == len(seen_first_workers)
-        else None,
-        "resume_recall_verified": all(recovery) if recovery and all(value is not None for value in recovery) else None,
-        "challenger_per_step": dict(reviews),
-        "challenger_max_per_step": max(reviews.values()) if reviews else None,
-    }
 
 
 def _attrs(span: dict[str, Any]) -> dict[str, Any]:
@@ -989,9 +413,9 @@ def profile(
             tname = attrs.get("gen_ai.tool.name") or name
             tool_calls[tname] += 1
             dur_s = _duration_s(span)
-            if span_bounds_ns is not None and tname not in ("ask_user", "vscode_askQuestions", "task", "runSubagent"):
+            if span_bounds_ns is not None and tname not in ("vscode_askQuestions", "runSubagent"):
                 tool_intervals_ns.append(span_bounds_ns)
-            if dur_s >= 60.0 and tname not in ("ask_user", "vscode_askQuestions", "task", "runSubagent"):
+            if dur_s >= 60.0 and tname not in ("vscode_askQuestions", "runSubagent"):
                 tool_stalls_over_60s += 1
             args_blob = str(attrs.get("gen_ai.tool.call.arguments", ""))
             result_blob = str(attrs.get("gen_ai.tool.call.result", ""))
@@ -1001,19 +425,15 @@ def profile(
                     parsed_args = json.loads(args_blob) if args_blob else {}
                     if isinstance(parsed_args, dict) and parsed_args.get("learn") is True:
                         pricing_learn_calls += 1
-            if tname in ("read_file", "view", "Read"):
+            if tname == "read_file":
                 # Pull filePath out of the JSON arguments to map dupes.
                 try:
                     args_obj = json.loads(args_blob) if args_blob else {}
-                    fpath = (
-                        (args_obj.get("filePath") or args_obj.get("file_path") or args_obj.get("path") or "(unknown)")
-                        if isinstance(args_obj, dict)
-                        else "(unknown)"
-                    )
+                    fpath = args_obj.get("filePath") or "(unknown)"
                 except json.JSONDecodeError, TypeError:
                     fpath = "(unparseable)"
                 read_file_paths[fpath] += 1
-            elif tname in ("ask_user", "vscode_askQuestions"):
+            elif tname == "vscode_askQuestions":
                 ask_durations.append(_duration_s(span))
                 ask_in_phase += 1
             elif tname == "runSubagent":
@@ -1054,28 +474,12 @@ def profile(
     inter_boundary_max = max(inter_boundary_max, chat_since_boundary)
     ask_per_phase_max = max(ask_per_phase_max, ask_in_phase)
 
-    native = [span for span in spans if span.get("_source_format") == "copilot-sdk"]
-    worker_chat_counts = Counter(
-        span["_sdk_agent_id"]
-        for span in native
-        if span.get("name", "").startswith("chat:") and span["_sdk_agent_id"] != "root"
-    )
-    cache_reads = [
-        value
-        for span in spans
-        if (value := _token_count(_attrs(span).get("gen_ai.usage.cache_read_tokens"))) is not None
-    ]
-    cache_writes = [
-        value
-        for span in spans
-        if (value := _token_count(_attrs(span).get("gen_ai.usage.cache_write_tokens"))) is not None
-    ]
-    if not native and inter_boundary_max > max_spans_between_clears:
+    if inter_boundary_max > max_spans_between_clears:
         warnings.append(
             f"inter_boundary_chat_spans={inter_boundary_max} exceeds "
             f"threshold {max_spans_between_clears} (Phase 2a: /clear compliance)",
         )
-    if not native and ask_per_phase_max > max_askquestions_per_phase:
+    if ask_per_phase_max > max_askquestions_per_phase:
         warnings.append(
             f"max_askquestions_per_phase={ask_per_phase_max} exceeds "
             f"threshold {max_askquestions_per_phase} (Phase 4: batching compliance)",
@@ -1101,23 +505,7 @@ def profile(
     )[:10]
     duplicate_reads = [{"path": p, "count": c} for p, c in read_file_paths.most_common(20) if c > 1]
 
-    metadata = next((span for span in native if span.get("name") == "NativeLogMetadata"), {})
-    executions = [span["_sdk_execution"] for span in native if "_sdk_execution" in span]
     return {
-        "native_evidence": {
-            "format": "copilot-sdk" if native else "historical",
-            "session_id": metadata.get("_sdk_session", {}).get("sessionId"),
-            "session_closed": metadata.get("_sdk_capture_closed", False),
-            "worker_count": len({span["_sdk_agent_id"] for span in native if span.get("_jsonl_subagent")}),
-            "max_chat_calls_per_worker": max(worker_chat_counts.values(), default=None),
-            "execution_requests": executions,
-            "incomplete_operations": sum(bool(span.get("_sdk_incomplete")) for span in native),
-            "external_tool_outcomes_unknown": sum(bool(span.get("_sdk_unknown_external_outcome")) for span in native),
-            "unattributed_usage": sum(bool(span.get("_sdk_unattributed_usage")) for span in native),
-            "unknown_models": sum(span.get("name") == "chat:unknown" for span in native),
-            "duplicate_events": metadata.get("_sdk_duplicate_events", 0),
-            "duplicate_usage_records": metadata.get("_sdk_duplicate_usage", 0),
-        },
         "usage_coverage": {
             "input_samples": input_samples,
             "output_samples": output_samples,
@@ -1125,12 +513,6 @@ def profile(
             "complete": total_calls > 0 and input_samples == output_samples == total_calls,
             "duplicate_exported_spans": duplicate_exported_spans,
             "scope": "Observed chat spans only; missing child requests, cache billing and semantic parent rollups are not inferred.",
-        },
-        "observed_cache_tokens": {
-            "read": sum(cache_reads) if cache_reads else None,
-            "write": sum(cache_writes) if cache_writes else None,
-            "read_samples": len(cache_reads),
-            "write_samples": len(cache_writes),
         },
         "totals": {
             "input_tokens": total_input,
@@ -1174,8 +556,8 @@ def profile(
         "errors": error_spans,
         "warnings": warnings,
         "compliance_metrics": {
-            "max_chat_spans_between_clears": None if native else inter_boundary_max,
-            "max_askquestions_in_single_phase": None if native else ask_per_phase_max,
+            "max_chat_spans_between_clears": inter_boundary_max,
+            "max_askquestions_in_single_phase": ask_per_phase_max,
         },
     }
 

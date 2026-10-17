@@ -1,11 +1,13 @@
 ---
 name: 06t-Terraform CodeGen
 description: "Expert Azure Terraform IaC specialist that creates near-production-ready Terraform configurations following Azure Verified Modules (AVM-TF) standards. Validates, tests, and ensures code quality."
+model: ["Claude Sonnet 5.5 (copilot)"]
+reasoning-effort: medium
 user-invocable: true
-disable-model-invocation: false
-agents: ["terraform-validate-subagent", "rubber-duck"]
+disable-model-invocation: true
+agents: ["terraform-validate-subagent", "challenger-review-subagent"]
 tools:
-  [execute, read, agent, edit, search, web, 'azure-mcp/*', todo]
+  [vscode/askQuestions, execute, read, agent, edit, search, web, 'azure-mcp/*', todo]
 handoffs:
   - label: "▶ Run Preflight Check"
     agent: 06t-Terraform CodeGen
@@ -57,16 +59,9 @@ Done when:
   managed identity, no public blob, password auth disabled on
   databases).
 - Final `terraform fmt -check` + `terraform validate` are clean before
-  the independent rubber-duck review runs.
+  the challenger-review-subagent runs.
 - `05-implementation-reference.md` exists and lists files + validation
   status; project README updated.
-
-## Harness Entry
-
-Delegated `APEX_WORKER_HANDSHAKE`: no tools; return `WORKER_READY <definition-name> <original-nonce>`; nonce-only returns
-`WORKER_READY_ACK <definition-name> <original-nonce>` with same values. Stop; await `WORKER_EXECUTE`.
-[Routing](../skills/apex-workflow-engine/references/worker-readiness.md) before leaf calls; direct use owns `ask_user`.
-Return `USER_INPUT_REQUIRED` forms to the interactive parent; cancel stops.
 
 ## Context Awareness
 
@@ -98,7 +93,7 @@ widening, narrowing or transforming the task.
 
 - Allowed writes: `infra/terraform/{project}/` including CodeGen-owned lockfile,
   isolated init scratch, listed CodeGen outputs, project README, `00-handoff.md`,
-  code-review decisions, recorder-persisted findings and recall state. Preserve user edits and partial files;
+  code-review decisions and recall state. Preserve user edits and partial files;
   use available editing tools and validate interrupted-file recovery.
 - Preserve lines with uncertain ownership until ownership is established or the user
   explicitly authorizes the specific edit. Syntax errors, validation failures and
@@ -124,7 +119,7 @@ widening, narrowing or transforming the task.
   to clarify an AVM-TF schema ambiguity, and at most one
   official code-reference lookup through available tools per pattern. Do not pre-fetch.
 - Decision rules instead of absolutes:
-  - When preflight surfaces a blocker → present via `ask_user`, do
+  - When preflight surfaces a blocker → present via `askQuestions`, do
     not chat back-and-forth.
   - When `04-implementation-plan.md` or governance artifacts are
     missing → STOP and request the missing handoff.
@@ -135,7 +130,7 @@ widening, narrowing or transforming the task.
 
 <stop_conditions>
 
-- Missing worker readiness, tool/input or worker eligibility returns `blocked`; no fixed-model
+- Missing required model/tool/input or worker eligibility returns `blocked`; no model
   fallback, skipped validation or fabricated findings. Retry transient worker failures
   once, then stop. Independent review cannot be replaced by inline review.
 - Stop generating code until preflight (Phase 1) and governance
@@ -158,10 +153,10 @@ widening, narrowing or transforming the task.
 
 ## Operating frame
 
-Use the verified Copilot SDK worker contract; human approval gates still block advancement.
+Local uses human handoffs; Host requires explicit selection of the named next owner.
 Inline skills do not select model/tools. Use #tool:agent only for allowlisted workers.
-Reviewer resolution failure returns to the interactive parent, not an automatic
-main-agent call. `10-Challenger` is optional manual recovery.
+Reviewer resolution failure requires a human transition to `10-Challenger`, not an
+automatic main-agent call. No transition runs the target under the parent's model.
 
 Shared agent rules (read each SKILL.md once, use `apex-recall show
 <project> --json` for cached lookups, never edit upstream artifacts,
@@ -175,7 +170,7 @@ investigate before answering) live in
   only. Never deploy (hand off to `07t-Terraform Deploy`); never
   modify architecture (hand back to `05-IaC Planner`).
 - **Subagent budget (2)**: `terraform-validate-subagent` (combined
-  lint + code review); `rubber-duck` (post-validation
+  lint + code review); `challenger-review-subagent` (post-validation
   adversarial pass only). Spawn no other workers and never use a worker to re-check
   your own output outside these passes.
 - **HCP GUARDRAIL**: Never write `terraform { cloud { } }` blocks or
@@ -199,9 +194,9 @@ or changed sections on resume.
 6. Read `.github/skills/apex-context-management/SKILL.md` — runtime
    compression for large plan/governance artifacts (Mode A)
 7. Read the execution-subagent prompt contract
-   [.github/skills/apex-workflow-engine/references/execution-subagent.md](../skills/apex-workflow-engine/references/execution-subagent.md)
+   [tools/apex-prompts/utility-prompts/execution-subagent.prompt.md](../../tools/apex-prompts/utility-prompts/execution-subagent.prompt.md)
   — every #tool:agent call (terraform-validate-subagent,
-   rubber-duck) MUST follow the three-H2 contract
+   challenger-review-subagent) MUST follow the three-H2 contract
    (issue #425).
 
 ## Do
@@ -341,7 +336,7 @@ source; `04-implementation-plan.md` is the prose mirror):
   `terraform init -backend=false -input=false`. Do not infer missing schemas from memory.
 6. Check region limitations
 7. Save to `agent-output/{project}/04-preflight-check.md`
-8. If blockers found, use the `ask_user` tool with a single
+8. If blockers found, use the `askQuestions` tool with a single
    form (header `Preflight Blockers Found`, options **Fix and re-run
    preflight** / **Abort — return to Planner**) per
    [`apex-iac-common/references/codegen-shared-workflow.md`](../skills/apex-iac-common/references/codegen-shared-workflow.md)
@@ -388,7 +383,7 @@ from scratch.**
   exemption or compliant configuration; otherwise return through Planner to Governance.
 
 > **GOVERNANCE GATE** — Never proceed to code generation with unresolved Deny
-> policy violations. Always use the `ask_user` tool for user decisions.
+> policy violations. Always use the `askQuestions` tool for user decisions.
 
 **Policy Effect Reference**: `apex-azure-defaults/references/policy-effect-decision-tree.md`
 
@@ -483,14 +478,9 @@ Apply the cascade early-exit rules from
 skip pass 2 if pass 1 has 0 `must_fix` AND <2 `should_fix`; skip pass 3
 if pass 2 has 0 `must_fix`.
 
-Invoke `rubber-duck` using
-[one-shot review](../skills/apex-azure-defaults/references/one-shot-review.md),
-`mode: sync`, no routing overrides and `artifact_type = "iac-code"` (NEVER
+Invoke challenger subagents with `artifact_type = "iac-code"` (NEVER
 `"implementation-plan"` — that scope belongs to Step 4),
 rotating `review_focus` per protocol.
-Capture metadata before review; record the actual returned JSON through `record-review.mjs`
-and require strict freshness validation. Validation workers retain their existing readiness
-contract; the one-shot reviewer does not use handshake/ACK turns.
 
 **Plan-rooted findings**: if any returned `must_fix` traces back to the
 plan (e.g. "resource missing", "wrong SKU per architecture",
@@ -503,7 +493,7 @@ For each pass, pass these inputs to the subagent:
 - `output_path` = `agent-output/{project}/challenge-findings-iac-code-pass{N}.json`
 - `overwrite` = `false` (set to `true` only when re-running after revisions)
 
-The one-shot recorder persists the actual reviewer JSON at `output_path`; return a compact
+The subagent writes the JSON file at `output_path` and returns a compact
 summary (≤15 lines). **Do NOT paste subagent JSON inline.** Read the file
 from disk only if you need full finding details for fix triage. Fix any
 `must_fix` items, re-validate, re-run the failing pass.
@@ -607,7 +597,12 @@ This keeps the user informed during multi-phase operations.
 
 ## Completion Handoff
 
-Run `apex-recall checkpoint <project> <step> completed --json`; update `00-handoff.md`
-with paths, actual validation results and unresolved findings. Return `STEP_COMPLETE`
-only after required reviews/checks; pending decisions return `USER_INPUT_REQUIRED`.
-Direct use presents the human gate with `ask_user` and stops. Completion is not next-step approval.
+After `apex-recall complete-step` + writing `00-handoff.md`, end the
+final chat message with this line, **verbatim**, on its own final line
+(full contract:
+[`compression-templates.md`](../skills/apex-context-management/references/compression-templates.md#gate-boundary-clear-handoff-contract);
+validator: `npm run validate:orchestrator-handoff`):
+
+```text
+Run `/clear`, then switch the chat agent picker to `01-Orchestrator` and send `resume <project>` to continue Step N+1.
+```

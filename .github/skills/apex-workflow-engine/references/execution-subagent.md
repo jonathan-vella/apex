@@ -3,18 +3,8 @@
 
 This is a reference-only parent-to-worker contract, not an executable slash
 entrypoint. Copy the ordered Inputs, Activities, Outputs sections into the
-invocation of a named, explicitly allowlisted worker. The runtime selects the
-worker model and its agent definition declares tools. Picker selection, model
-names and effort are not readiness gates. This reference grants no permissions.
-Automatic built-in `rubber-duck` reviews use the separate
-[one-shot contract](../../apex-azure-defaults/references/one-shot-review.md),
-including its `APEX_REVIEW` JSON envelope and provenance-aware recorder.
-The handshake below applies to resumable workers, not that one-shot reviewer.
-Before sending execution inputs, follow
-[worker readiness](worker-readiness.md): `--phase initial` verifies the completed
-handshake only; after the nonce-only continuation and exact ACK, `--phase complete`
-must return `READY_VERIFIED` with `continuation_verified: true`. Initial
-`HANDSHAKE_VERIFIED` is not complete readiness.
+invocation of a named, explicitly allowlisted worker. The worker's own agent
+definition selects its model and tools; this reference grants no permissions.
 Do not invoke an unnamed default worker or infer model eligibility from a label.
 Unavailable named workers or unsupported transitions require a return to the
 parent, not an automatic fallback, context fork, or nested delegation.
@@ -46,7 +36,7 @@ Do not widen the recipient's tool permissions through the invocation text.
 Workers execute only the assigned slice. They do not ask the user questions,
 manage parent todos, dispatch subagents, or edit upstream inputs. Missing or
 stale inputs require a targeted permitted read or return to the parent.
-If the required tool, worker, approval, or input is unavailable, stop and return
+If the required tool, model, approval, or input is unavailable, stop and return
 the named worker's failure shape with the missing evidence; do not replace its
 enum with a generic BLOCKED verdict. The parent owns recovery and user questions.
 
@@ -63,7 +53,7 @@ Choose the output mode required by the named worker, not a universal disk format
 
 The named worker's agent definition and its explicitly delegated I/O reference
 are the source authority for output mode, schema, verdict, failure shape and allowed
-writes. Read the linked source before invocation; this reference and entry skills
+writes. Read the linked source before invocation; this reference and Local adapters
 cannot override it. Do not convert a text-only worker to file JSON or a file-output
 worker to an inline-only response. Scratch files and saved plans are not findings JSON.
 The parent persists returned evidence only if its own contract explicitly owns that
@@ -116,18 +106,7 @@ File JSON: caller `output_path`, the documented cost JSON shape, plus
 report persistence failure without claiming a file. Manifest writeback remains
 limited to the worker's explicitly authorized price/timestamp fields.
 
-### rubber-duck
-
-Automatic independent reviewer. Follow
-[one-shot review](../../apex-azure-defaults/references/one-shot-review.md).
-Return raw findings JSON; the parent uses `record-review.mjs` to persist the
-actual attributed result atomically and validate freshness. No handshake,
-nonce-only ACK, `WORKER_EXECUTE` or reviewer-authored file is required.
-The parent cannot author, repair or reclassify these findings.
-
 ### challenger-review-subagent
-
-Optional manual Challenger workflow only; automatic reviews use rubber-duck above.
 
 Source: [agent File Write Protocol and Parent-Facing Summary](../../../agents/_subagents/challenger-review-subagent.agent.md).
 File JSON: caller `output_path`, single-lens findings or `batch_results`, plus

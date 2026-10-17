@@ -2,7 +2,7 @@
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "https://github.com/jonathan-vella/apex/schemas/agent-scorecard.schema.json",
   "title": "APEX Agent Scorecard",
-  "description": "Shape of a single per-agent scorecard emitted by tools/scripts/assess-agents.mjs (one file per agent under scorecards/<agent_id>.json). Captures the four-layer assessment: deterministic dimensions are scored by the harness; judgment dimensions (role_clarity, adversarial) are emitted as `pending` and resolved by .github/skills/apex-agent-authoring/references/assess-agents.md.",
+  "description": "Shape of a single per-agent scorecard emitted by tools/scripts/assess-agents.mjs (one file per agent under scorecards/<agent_id>.json). Captures the four-layer assessment: deterministic dimensions are scored by the harness; judgment dimensions (role_clarity, adversarial) are emitted as `pending` and resolved by tools/apex-prompts/utility-prompts/assess-agents.prompt.md.",
   "type": "object",
   "required": ["schema_version", "agent_id", "path", "is_subagent", "model_family", "metrics", "dimensions", "blocker"],
   "additionalProperties": true,

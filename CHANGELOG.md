@@ -6,26 +6,6 @@ Entries are grouped by conventional-commit type. Breaking changes list the migra
 
 ### Breaking changes
 
-#### Copilot SDK entrypoints replace Local prompt adapters
-
-The target is the GitHub Copilot SDK harness inside VS Code, not a standalone CLI
-or headless deployment service. Local prompt roots and split-harness adapters move to
-`.archive/pre-cpharness/` and are excluded from active discovery.
-
-Migration:
-
-1. Select `01-Orchestrator` and use `/apex-workflow-start` with a fresh or `resume` operation.
-2. Use `/apex-git-commit` and `/apex-debug-log-export` instead of their former prompt adapters.
-3. Main workers require approved background dispatch, actual model/effort evidence and a successful
-   tool-free readiness/continuation handshake. Direct owner selection remains available.
-4. Native forms use `ask_user`; delegated steps return pending forms to their interactive parent.
-   A completed worker or accepted finding never approves a workflow/deployment gate.
-5. Profile repository-scoped native `events.jsonl` files. Legacy logs remain readable but cannot
-   certify SDK acceptance. Export includes raw events only with explicit `--include-raw`.
-
-Custom-agent runtime acceptance, MCP projection and hook binding still require live verification;
-static validation and built-in worker probes do not certify the cutover.
-
 #### Reopening a step marks dependent steps stale and supersedes the Plan approval
 
 `apex-recall start-step <project> <step> --force` on a completed step now sets every dependent step that is `complete`
@@ -90,12 +70,6 @@ Migration: add one row per raw resource (resource type, stack, scope, evidence U
 
 ### Features
 
-- `verify-worker-ready.mjs` fails closed unless a ready-only background worker used its definition's model and effort,
-  performed no tools and has multi-turn configuration. A nonce continuation test and human gates remain separate;
-  neither catalog runtime IDs nor readiness records grant project or deployment permission.
-- Copilot SDK Tool Guardian now inspects `toolArgs`, SDK editor aliases and patch paths, and emits a parseable
-  top-level permission denial. Destructive SQL remains inspected. Subagent output checks recognize SDK response
-  fields and Challenger file receipts; these remain advisory and do not replace review validation or approval gates.
 - `apex-recall review-audit --attempt-input <path>` computes the attempt digest from input files, so the start and the
   outcome records agree and a changed input is rejected. It prints `input_digest` and
   `permission_granted_by_this_record: false`; `authorization: not_granted` remains for existing readers.

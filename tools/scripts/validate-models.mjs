@@ -2,15 +2,15 @@
 /**
  * Model Validators (consolidated)
  *
- * Three read-only validators for descriptive model metadata and optional
- * legacy model pins, selectable via `--only`:
+ * Three read-only validators for the agent ↔ registry ↔ model-catalog
+ * triangle, selectable via `--only`:
  *
  *   --only=catalog      Catalog invariants (.github/model-catalog.json):
- *                       every explicitly pinned label is declared; the
+ *                       every referenced label is declared; the
  *                       `assignments` block matches the generator output;
  *                       deprecated models are absent from active use.
- *   --only=consistency  Explicit legacy `model` pins match across
- *                       frontmatter and registry; both may be absent.
+ *   --only=consistency  Every agent's frontmatter `model` equals the
+ *                       registry `model` for the same agent.
  *   --only=deprecated   No deprecated model label reappears in agent
  *                       definitions, prompt files, or the registry.
  *
@@ -201,9 +201,12 @@ function checkConsistencyEntry(r, key, entry, lookup) {
     return;
   }
 
-  if (yamlModels.length === 0 && regModels.length === 0) return;
-  if (yamlModels.length === 0 || regModels.length === 0) {
-    r.error(`Agent "${key}"`, "legacy model pin must either be absent from both sources or present in both");
+  if (!yamlModels.length) {
+    r.error(`Agent "${key}"`, `frontmatter is missing \`model\` field`);
+    return;
+  }
+  if (!regModels.length) {
+    r.error(`Agent "${key}"`, `registry entry is missing \`model\` field`);
     return;
   }
   if (JSON.stringify(yamlModels) !== JSON.stringify(regModels)) {
@@ -216,7 +219,7 @@ function checkConsistencyEntry(r, key, entry, lookup) {
 
 function runConsistency() {
   const r = new Reporter("Model Consistency Validator");
-  console.log("\n📋 Validating optional legacy model-pin consistency...\n");
+  console.log("\n📋 Validating model consistency (frontmatter ≡ registry)...\n");
 
   if (!fs.existsSync(REGISTRY_PATH)) {
     r.error(`Agent registry not found at ${REGISTRY_PATH}`);
@@ -250,7 +253,7 @@ function runConsistency() {
 
 // ── Mode: deprecated ─────────────────────────────────────────────────────────
 
-const SCAN_GLOBS = [".github/agents", "tools/tests/prompts"];
+const SCAN_GLOBS = [".github/agents", ".github/prompts", "tools/apex-prompts", "tools/tests/prompts"];
 const ALLOWED_FILES = new Set([
   ".github/model-catalog.json",
   "CHANGELOG.md",

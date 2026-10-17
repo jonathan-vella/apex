@@ -25,8 +25,7 @@ file-editing tools.
 
 ## Execution Subagent Prompts
 
-Use `.github/skills/apex-workflow-engine/references/execution-subagent.md`
-after the [verified worker handshake](../../apex-workflow-engine/references/worker-readiness.md):
+Use `tools/apex-prompts/utility-prompts/execution-subagent.prompt.md`:
 
 1. `## Inputs` identifies paths and required state.
 2. `## Activities` lists exact commands or tools.
@@ -34,20 +33,15 @@ after the [verified worker handshake](../../apex-workflow-engine/references/work
 
 ## Challenger Fallback
 
-Automatic review uses [one-shot rubber-duck](../../apex-azure-defaults/references/one-shot-review.md),
-not the resumable worker handshake. Record actual independent output and validate
-freshness before reporting success. The optional manual Challenger workflow
-retains its own worker contract.
-
-1. If a required reviewer is unavailable, stop and return the failure to the interactive parent.
+1. If a required reviewer is unavailable, stop and request a human handoff to
+    `10-Challenger`.
 2. Missing or empty reviewer output permits exactly one identical-input retry,
-    then stop for a human recovery decision. Report the runtime
+    then stop and request a human handoff to `10-Challenger`. Report the runtime
     error when available.
 3. Never invoke a nested main-agent wrapper or fabricate an inline review.
-    Only Orchestrator may dispatch approved, readiness-verified main workers;
-    step-agent allowlists never authorize another main-agent wrapper.
-4. `10-Challenger` is optional, never a required automatic recovery hop.
-    If it is already active, stop and request human intervention
+    Production main agents, including `10-Challenger`, require human selection;
+    explicit caller allowlists must not override this production boundary.
+4. If `10-Challenger` is already active, stop and request human intervention
     rather than a self-handoff. Preserve exhausted retry status across handoffs
     and resumed sessions; human selection does not renew the retry allowance.
 

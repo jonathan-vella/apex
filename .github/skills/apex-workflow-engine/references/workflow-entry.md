@@ -3,20 +3,23 @@
 
 ## Owner Selection
 
-Use the GitHub Copilot SDK harness inside VS Code. Archived Local prompts are not
-entry points. A skill inherits the active session's model/tools; it cannot switch agents.
+Local adapters bind the named agent in prompt frontmatter. Agent Host does not
+load Local prompt files or legacy configured prompt locations. A skill inherits
+the active session's model and tools; it cannot bind or switch an agent.
 
-Select `01-Orchestrator` for end-to-end work. It confirms graph prerequisites
-and human approval, then dispatches the exact allowlisted owner through the
-[verified background-worker protocol](worker-readiness.md). Active definitions omit model and effort pins.
-The operator and runtime manage selection, including Auto and HydraFusion; model
-telemetry and picker selection are not readiness gates. Worker identity,
-continuation or tool failures block execution. Do not perform specialist work
-inline or introduce a fixed-model fallback.
-Direct step selection remains supported with that owner's prerequisites and tools.
-Steps may call only authorized leaves; leaves never delegate or ask the user.
-Delegated steps return `USER_INPUT_REQUIRED` forms for the interactive parent.
-Never enable experimental skill `context: fork` or infer eligibility from labels.
+Before any consequential action, require the user to select the exact named
+owner below and its model from that agent's current frontmatter. If the owner,
+model, or required tools cannot be verified, **STOP** and request manual owner
+selection in a new session. Do not continue under an inherited picker model.
+Do not add tools to compensate for missing access. Prompt tool overrides may
+only narrow the owning agent's permissions.
+
+MAI must not invoke specialist step agents as subagents or perform their work inline.
+The Orchestrator presents a human handoff and stops. Do not enable experimental
+nesting or `context: fork`; do not infer model-tier eligibility or add fallbacks.
+An explicit caller allowlist controls worker invocation, regardless of a
+recipient's model-invocation flag. Workers return missing inputs to the parent
+without user questions, parent todo management, or nested dispatch.
 
 ## Entry Contract
 
@@ -70,8 +73,8 @@ Update state only through `apex-recall`; a start command never marks a step done
 - Design remains optional. Review runs only when ADRs were produced and
   `decisions.review_depth == "deep"` or the user explicitly requested review.
   Review findings are informational for Step 3, not authority to change architecture.
-  Log execution failures through `apex-recall finding` and return them to the interactive
-  parent. Challenger is optional manual recovery. Missing/empty output permits exactly one identical-input retry; missing
+  Log execution failures through `apex-recall finding` and stop with a human Challenger
+  handoff. Missing/empty output permits exactly one identical-input retry; missing
   capability blocks immediately. Never treat an execution failure as completed review findings.
 - Governance discovers real effective policy, including inherited assignments;
   do not synthesize policies when authentication or discovery fails. Its SKU
@@ -109,13 +112,13 @@ Require `01-Orchestrator`, then follow its
 procedure. Use an explicit project without reconfirmation; otherwise discover
 candidates and ask only when ambiguous. Empty recall is not permission to start
 fresh. Reconcile handoff, checkpoints, reviews and approvals before advancing.
-Present recovered status and the applicable human gate. After approval, use verified
-dispatch for the graph-selected owner; do not ask the user to choose a step already determined by the graph.
+Present recovered status and the applicable gate or handoff, then stop. Do not
+ask the user to choose the next step when the graph determines it.
 
 ## Harness Acceptance
 
-Native custom-agent acceptance remains unverified. Static tests prove source
-contracts and names, not discovery, worker identity,
-tool enforcement, or runtime handoff behavior. Test SDK fresh/resume/revision on both
-IaC tracks, unavailable owners/tools, approval stops, and missing review/input
+Native Agent Host support is manual and unverified. Static tests prove source
+contracts and names, not discovery, exact model availability, tool enforcement,
+or runtime handoff behavior. Test Local and Host fresh/resume/revision on both
+IaC tracks, unavailable owners/models, approval stops, and missing review/input
 recovery manually. Do not claim successful native execution from these files.

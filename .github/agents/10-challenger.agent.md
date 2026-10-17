@@ -1,11 +1,14 @@
 ---
 name: "10-Challenger"
-description: "Optional manual adversarial review and repair wrapper. Runs challenger-review-subagent and the Per-Finding Decision Protocol for selected fixes. Automatic workflow reviews use built-in rubber-duck independently."
+description: "Standalone adversarial review wrapper. Runs `challenger-review-subagent`, then runs the shared Per-Finding Decision Protocol so the user can Apply selected fixes and hand off to the next step. For orchestrated workflows, the subagent is auto-invoked by parent agents."
+model: ["Claude Sonnet 5.5 (copilot)"]
+reasoning-effort: high
 argument-hint: "Provide the path to the artifact to challenge (e.g. agent-output/my-project/04-implementation-plan.md)"
 user-invocable: true
-disable-model-invocation: false
+disable-model-invocation: true
 tools:
   [
+    vscode/askQuestions,
     execute,
     read,
     agent,
@@ -54,13 +57,6 @@ Done when:
 - On `Proceed`: hand off to `01-Orchestrator` (or the artifact's
   step-owning agent) with the apply summary.
 
-## Harness Entry
-
-Delegated `APEX_WORKER_HANDSHAKE`: no tools; return `WORKER_READY <definition-name> <original-nonce>`; nonce-only returns
-`WORKER_READY_ACK <definition-name> <original-nonce>` with same values. Stop; await `WORKER_EXECUTE`.
-[Routing](../skills/apex-workflow-engine/references/worker-readiness.md) before leaf calls; direct use owns `ask_user`.
-Return `USER_INPUT_REQUIRED` forms to the interactive parent; cancel stops.
-
 ## Constraints
 
 <scope_fencing>
@@ -84,8 +80,8 @@ Return `USER_INPUT_REQUIRED` forms to the interactive parent; cancel stops.
 - Honor `metadata.plan_lock` and upstream ownership: a frozen artifact requires return
   to its owner to reopen approval, not an accepted-finding workaround. Changes invalidate
   affected review/approval evidence; the caller must resolve required re-review before advancement.
-- Use the verified Copilot SDK worker contract; human approval gates still block advancement.
-  Only Orchestrator may delegate this main agent after readiness verification. Skills run inline
+- Local uses human handoffs; Host requires explicit selection of the named next owner.
+  This main agent is human-selected only, including fallback entry. Skills run inline
   and cannot choose model/tools. Use #tool:agent only for the allowlisted review worker.
 - Use the artifact_type and review_focus lookup tables below.
 - Risk acceptance is separate from review integrity and closure. Preserve every finding, severity, verdict and hash;
@@ -102,7 +98,7 @@ Return `USER_INPUT_REQUIRED` forms to the interactive parent; cancel stops.
   `decisions.challenger_invocations_<step>` before the handoff. The
   orchestrator's per-step ceiling (2 in `default`, 4 in `deep`)
   blocks further invocations and triggers an Accept / Override
-  / Abort `ask_user`. Surface the current invocation count in the chat summary
+  / Abort `askQuestions`. Surface the current invocation count in the chat summary
   (e.g. _"Pass 2 of max 2 (default depth)"_). A requested pass cannot bypass an
   exhausted budget: return to its owner for resolution. Governance retains its
   one-pass cap; do not silently grant a general ceiling override to Step 3.5.
@@ -116,7 +112,7 @@ Return `USER_INPUT_REQUIRED` forms to the interactive parent; cancel stops.
     finding's mitigation requires changes elsewhere, classify as
     `defer` with a note pointing to the owning agent.
   - Honor `APEX_UNATTENDED=1` per protocol section 2d (auto-defer,
-    no apply, no `ask_user`; stop on unresolved `must_fix`).
+    no apply, no `askQuestions`; stop on unresolved `must_fix`).
 - Failure handling:
   - If `challenger-review-subagent` errors, times out, or returns
     malformed/absent JSON (distinct from a clean review with findings),
@@ -160,7 +156,7 @@ Per Output Contract:
 
 Stop conditions:
 
-- Missing worker readiness, tool/input or worker eligibility returns `blocked`; no fixed-model fallback,
+- Missing model/tool/input or worker eligibility returns `blocked`; no fallback model,
   skipped required review or inline substitute. Load review guidance before review and
   decision guidance before the panel; recover missing/changed evidence after compaction.
 - Stop after the final aggregated gate resolves (`Revise` → apply +
@@ -186,7 +182,7 @@ For simple single-pass reviews, invoke with review_focus + pass_number.
 For multi-pass reviews, invoke with batch_lenses array to run remaining lenses in one invocation.
 
 Every #tool:agent invocation prompt MUST follow the three-H2 contract at
-[`.github/skills/apex-workflow-engine/references/execution-subagent.md`](../skills/apex-workflow-engine/references/execution-subagent.md)
+[`tools/apex-prompts/utility-prompts/execution-subagent.prompt.md`](../../tools/apex-prompts/utility-prompts/execution-subagent.prompt.md)
 (`## Inputs` / `## Activities` / `## Outputs`). Issue #425.
 
 You are a delegation wrapper for standalone adversarial reviews.
@@ -317,7 +313,7 @@ accepted disposition nor a lower severity independently proves a prior blocker c
    [.github/skills/apex-azure-defaults/references/adversarial-review-protocol.md](../skills/apex-azure-defaults/references/adversarial-review-protocol.md#per-finding-decision-protocol):
    - Build the panel from in-scope findings (`must_fix` + `should_fix`)
      per protocol sections 2e (merge order), 2f (12-question cap),
-     and 2g (ask_user payload shape).
+     and 2g (askQuestions payload shape).
    - Auto-load existing decisions from
     the resolved `decisions_path` per 2c so a
      repeated run is idempotent.

@@ -153,21 +153,16 @@ test("A10 audits leaf workers and preserves read-only requests across output pha
 test("A10 audit parser emits stdout without modifying its input tree", (context) => {
   const root = mkdtempSync(path.join(tmpdir(), "apex-readonly-audit-"));
   context.after(() => rmSync(root, { recursive: true, force: true }));
-  const logDirectory = path.join(root, "session");
+  const logDirectory = path.join(root, "session", "exthost1", "GitHub.copilot-chat");
   mkdirSync(logDirectory, { recursive: true });
-  const log = path.join(logDirectory, "events.jsonl");
-  const repository = path.resolve(new URL("../../../", import.meta.url).pathname);
-  const body = `${JSON.stringify({
-    id: "start",
-    type: "session.start",
-    timestamp: "2026-10-16T08:00:00Z",
-    data: { sessionId: "session", context: { cwd: repository, gitRoot: repository } },
-  })}\n`;
+  const log = path.join(logDirectory, "GitHub Copilot Chat.log");
+  const body =
+    "2026-02-27 08:03:29.492 [info] ccreq:c5f11ccd.copilotmd | success | claude-opus-4.7 -> claude-opus-4-7 | 6353ms | [panel/editAgent]\n";
   writeFileSync(log, body);
   const before = readdirSync(root, { recursive: true }).sort();
   const source = readAgent("11-context-optimizer.agent.md");
   const snippet = source.split("### Phase 1: Discovery & Log Collection")[1].match(/```bash\n([\s\S]*?)```/)[1];
-  const result = spawnSync("bash", ["-c", snippet.replace("~/.copilot/session-state/", JSON.stringify(root))], {
+  const result = spawnSync("bash", ["-c", snippet.replace("~/.vscode-server/data/logs/", JSON.stringify(root))], {
     cwd: new URL("../../../", import.meta.url),
     env: { ...process.env, PYTHONDONTWRITEBYTECODE: "1" },
     encoding: "utf8",

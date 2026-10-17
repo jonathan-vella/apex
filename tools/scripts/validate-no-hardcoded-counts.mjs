@@ -134,7 +134,6 @@ const ALLOWLIST_PATHS = [
   /no-hardcoded-counts\.instructions\.md$/,
   /node_modules\//,
   /\.git\//,
-  /\.archive\//,
   /site\//,
   /\.venv/,
   /backup\//,

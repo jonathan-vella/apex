@@ -60,8 +60,7 @@ test("active skill metadata preserves reachability and the approved inline visib
     assert.equal(metadata["user-invocable"], !hidden.has(entry.name), entry.name);
     assert.equal(
       metadata["disable-model-invocation"],
-      ["apex-workflow-start", "apex-git-commit", "apex-debug-log-export"].includes(entry.name) ||
-        manualSkills.has(entry.name),
+      entry.name.startsWith("apex-host-") || manualSkills.has(entry.name),
       entry.name,
     );
     assert.equal(Object.hasOwn(metadata, "context"), false, `${entry.name}: production must remain inline`);
@@ -103,21 +102,36 @@ test("manual maintenance skills retain validation and import approval boundaries
   assert.doesNotMatch(authoring, /\| Vendor-specific prompt audit \| `\.\.\/apex-vendor-prompting\/SKILL.md`/);
   const modelPolicy = read(new URL("apex-agent-authoring/references/model-policy.md", skillsRoot));
   assert.match(modelPolicy, /Do not load that manual-only skill automatically/);
-  assert.match(modelPolicy, /Active production agent definitions omit both `model` and `reasoning-effort`/);
-  assert.match(modelPolicy, /operator and runtime control selection/);
-  assert.match(modelPolicy, /Readiness is model-agnostic/);
-  assert.match(modelPolicy, /Picker selection and model attestation\s+are not acceptance gates/);
+  assert.match(modelPolicy, /`GPT-6 Luna \(copilot\)` agents and subagents use `reasoning-effort: max`/);
+  assert.match(modelPolicy, /`GPT-6\.1 Sol \(copilot\)` agents use `reasoning-effort: high`/);
+  assert.match(
+    modelPolicy,
+    /`02-Requirements`, `03-Architect`, `05-IaC Planner`,\s+`10-Challenger` and `11-Context Optimizer` use `reasoning-effort: high`/,
+  );
+  assert.match(modelPolicy, /All other agents and subagents use `reasoning-effort: medium`/);
   assert.doesNotMatch(modelPolicy, /High: architecture|Medium: structured code generation/);
   const agentsRoot = new URL("../../../.github/agents/", import.meta.url);
   const agentFiles = [
     ...readdirSync(agentsRoot).filter((name) => name.endsWith(".agent.md")),
     ...readdirSync(new URL("_subagents/", agentsRoot)).map((name) => `_subagents/${name}`),
   ];
+  const highEffortSonnet = new Set([
+    "02-requirements.agent.md",
+    "03-architect.agent.md",
+    "05-iac-planner.agent.md",
+    "10-challenger.agent.md",
+    "11-context-optimizer.agent.md",
+  ]);
   for (const name of agentFiles) {
     const source = read(new URL(name, agentsRoot));
-    const frontmatter = parseFrontmatter(source);
-    assert.equal(Object.hasOwn(frontmatter, "model"), false, `${name}: active model pin`);
-    assert.equal(Object.hasOwn(frontmatter, "reasoning-effort"), false, `${name}: active effort pin`);
+    const { model, "reasoning-effort": effort } = parseFrontmatter(source);
+    const expectedEffort = model.includes("GPT-6 Luna (copilot)")
+      ? "max"
+      : model.includes("GPT-6.1 Sol (copilot)") || highEffortSonnet.has(name)
+        ? "high"
+        : "medium";
+    assert.equal(effort, expectedEffort, name);
+    assert.doesNotMatch(source, /reasoning effort/i, name);
   }
   const docsTriggers = read(new URL("../../../.github/instructions/docs-trigger.instructions.md", import.meta.url));
   assert.match(docsTriggers, /Required documentation updates do not depend on loading a skill/);
@@ -363,7 +377,7 @@ test("skill CLI excludes history, schemas, vendor snapshots and execution eviden
 
 test("skill CLI rejects retired Host callers and accepts the explicit resume operation", (context) => {
   const fixture = cliFixture(context);
-  fixture.skill("apex-workflow-start");
+  fixture.skill("apex-host-workflow-start");
   const retiredHost = ["apex", "host", "resume", "workflow"].join("-");
   for (const file of [
     ".github/prompts/resume.prompt.md",
@@ -379,8 +393,8 @@ test("skill CLI rejects retired Host callers and accepts the explicit resume ope
     const failed = fixture.run();
     assert.equal(failed.status, 1, failed.output);
     assert.ok(failed.output.includes(file), failed.output);
-    assert.match(failed.output, /apex-workflow-start resume \[project\]/);
-    fixture.write(file, `${original}Use /apex-workflow-start resume demo.\n`);
+    assert.match(failed.output, /apex-host-workflow-start resume \[project\]/);
+    fixture.write(file, `${original}Use /apex-host-workflow-start resume demo.\n`);
     const passed = fixture.run();
     assert.equal(passed.status, 0, passed.output);
   }

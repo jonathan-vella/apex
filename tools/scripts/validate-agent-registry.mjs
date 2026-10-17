@@ -4,15 +4,16 @@
  *
  * Validates tools/registry/agent-registry.json:
  * - All referenced .agent.md files exist
- * - Cross-checks optional legacy registry model pins against agent frontmatter
+ * - Cross-checks registry model strings against the agent YAML frontmatter
  *
  * Skill wiring is no longer carried by the registry — it is discovered at
  * runtime via the orphan-content validator's regex sweep over agent bodies
  * (`Read .github/skills/{name}/SKILL[.digest|.minimal].md`). See
  * tools/scripts/validate-orphaned-content.mjs.
  *
- * Active production definitions omit model pins. Optional legacy pins must
- * agree between the registry and frontmatter; validate-models.mjs enforces this.
+ * Model allow-listing is intentionally NOT performed here. The agent frontmatter
+ * is the canonical source of truth; this validator only confirms registry mirrors it.
+ * For the frontmatter ≡ registry equality check, see validate-models.mjs --only=consistency.
  *
  * @example
  * node tools/scripts/validate-agent-registry.mjs
@@ -91,13 +92,11 @@ for (const [file, agent] of getAgents()) {
 }
 
 function crossCheckModel(registryKey, registryModel, agentFilePath) {
-  if (!agentFilePath) return;
+  if (!registryModel || !agentFilePath) return;
   for (const [file, fm] of agentMap) {
     if (agentFilePath.endsWith(file) || file.endsWith(agentFilePath.replace(/^\.github\/agents\//, ""))) {
       const yamlModel = Array.isArray(fm.model) ? fm.model[0] : fm.model;
-      if (Boolean(yamlModel) !== Boolean(registryModel)) {
-        r.warn(`Agent "${registryKey}"`, "legacy model pin is present in only one of frontmatter and registry");
-      } else if (yamlModel && registryModel) {
+      if (yamlModel) {
         const cleanYaml = yamlModel.replace(/ \(copilot\)$/, "");
         const cleanRegistry = registryModel.replace(/ \(copilot\)$/, "");
         if (cleanYaml !== cleanRegistry) {

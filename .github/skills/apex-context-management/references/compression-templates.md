@@ -76,43 +76,63 @@ Compression is only needed when the As-Built agent loads predecessor artifacts.
 - At the `minimal` tier, prefer reading `decision_log` from `apex-recall show <project> --json`
   over loading full artifact prose for rationale behind prior choices
 
-## SDK Worker Boundary And Recovery Contract
+## Gate-Boundary `/clear` Handoff Contract
 
-The Copilot SDK harness in VS Code gives each worker its own context. Do not
-require the Local `/clear`/agent-picker ritual or claim a token saving merely
-because a worker started. Measure actual native usage at worker boundaries.
+VS Code Copilot Chat owns its own conversation history — no agent API
+can evict prior turns. The only realistic main-agent input-token
+saving comes from a user-driven `/clear` at every Gate boundary,
+resumed via `apex-recall`. This contract is the headline mechanism for
+Plan 01 (token-reduction).
 
-### Durable completion
+### Required end-of-gate line
 
-Before returning `STEP_COMPLETE`, the owning step checkpoints through
-`apex-recall checkpoint <project> <step> <phase> --json` and updates `00-handoff.md`
-with paths, actual validation results and unresolved findings. Required reviews
-and completion checks still apply. `USER_INPUT_REQUIRED` is a pending phase,
-not completion. Worker completion is never human approval.
+When `01-Orchestrator` finishes presenting an **accepted** Gate
+(Requirements / Architecture / Governance / Plan / Code / Deploy), the
+final assistant message **MUST** end with this line, verbatim — no
+paraphrase, no extra punctuation:
 
-The Orchestrator presents the graph's human gate with `ask_user`. Only after
-approval and current preconditions may it record an atomic
-`apex-recall transition --complete` and prepare the next named worker.
-Use [worker readiness](../../apex-workflow-engine/references/worker-readiness.md):
-tool-free handshake, verified model/effort, nonce ACK, then bounded execution.
-No fallback model or inherited picker model may replace the owner.
+```text
+Run `/clear`, then switch the chat agent picker to `01-Orchestrator` and send `resume <project>` to continue Step N+1.
+```
 
-### Recovery
+Substitute the real project name and step number. Place the line as
+the very last line of the message, on its own line, after the gate
+summary and the handoff button.
 
-In a new VS Code SDK session select `01-Orchestrator` and send `resume <project>`:
+> VS Code custom agents activate via the agent picker, not via `@name`
+> chat-participant syntax. See
+> <https://code.visualstudio.com/docs/copilot/customization/custom-agents>.
 
-1. Start with `apex-recall show <project> --json`.
-2. Recover current phase, decisions, review attempts and explicit approvals.
-3. Read `00-handoff.md` for missing paths; refresh unavailable or stale required inputs.
-4. Revalidate affected review hashes and current gate/action readiness.
-5. Reuse a verified live worker only with attributable current evidence;
-   otherwise handshake a new worker before any execution.
+### Required precondition: durable checkpoint
 
-Do not infer completion from artifact numbering, reset state or restamp reviews.
-A session restart, compaction or lost worker never renews review attempts or approvals.
+The orchestrator **MUST** run
+`apex-recall checkpoint <project> <step> <phase> --json` (and any
+remaining `apex-recall decide` / `complete-step` calls) **before**
+emitting the resume line. The user's `/clear` is destructive — any
+state not in `apex-recall` is lost.
 
-### Validation
+### Required resume path
 
-`tools/scripts/validate_orchestrator_handoff.py` checks source contracts.
-`verify-worker-ready.mjs` checks attributed runtime routing evidence; neither
-proves a human gate was approved or that a deployment succeeded.
+In the new chat the user picks `01-Orchestrator` from the agent picker
+and sends `resume <project>`:
+
+1. First tool call: `apex-recall show <project> --json`.
+2. Loads only the compact handoff JSON (~1–2 KB).
+3. Reads `00-handoff.md` only if a gate-specific artifact path is needed.
+4. Skips re-reading completed-step artifacts unless the user explicitly
+   asks to revisit them.
+
+### Validator
+
+`tools/scripts/validate_orchestrator_handoff.py` parses
+`.github/agents/01-orchestrator.agent.md` and asserts the verbatim
+resume line is documented in at least one Gate-acceptance context.
+Wired into `npm run validate:agents` (hard fail).
+
+### Tradeoff
+
+The user clicks `/clear` and pastes the resume line 3–4 times per
+workflow project (once per Gate). Acceptable per the captured user
+decision (Plan 01, May 2026). Smoke-run target: post-`/clear` session
+begins at ≤45 K input tokens on its first call (per Plan 01 Phase 2a
+verification).

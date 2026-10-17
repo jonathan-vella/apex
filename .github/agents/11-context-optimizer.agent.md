@@ -1,10 +1,26 @@
 ---
 name: 11-Context Optimizer
+model: ["Claude Sonnet 5.5 (copilot)"]
+reasoning-effort: high
 description: "Analyzes Copilot Chat debug logs to audit context-window utilization across agents. Identifies bloated prompts, redundant file reads, missing hand-off points, and wasted tokens. Produces actionable optimization reports. Recommendations only — never edits agents."
 user-invocable: true
-disable-model-invocation: false
+disable-model-invocation: true
 agents: []
-tools: [execute, read, edit, search]
+tools:
+  [
+    vscode/askQuestions,
+    execute/runInTerminal,
+    execute/getTerminalOutput,
+    read/readFile,
+    read/problems,
+    read/terminalLastCommand,
+    read/terminalSelection,
+    search/codebase,
+    search/fileSearch,
+    search/listDirectory,
+    search/textSearch,
+    edit,
+  ]
 handoffs:
   - label: "↩ Return to Orchestrator"
     agent: 01-Orchestrator
@@ -27,18 +43,11 @@ Done when:
 - Recommendations preserve recovery, roles, review cadence and approval boundaries.
 - Unknowns are stated.
 
-## Harness Entry
-
-Delegated `APEX_WORKER_HANDSHAKE`: no tools; return `WORKER_READY <definition-name> <original-nonce>`; nonce-only returns
-`WORKER_READY_ACK <definition-name> <original-nonce>` with same values. Stop; await `WORKER_EXECUTE`.
-[Routing](../skills/apex-workflow-engine/references/worker-readiness.md) before leaf calls; direct use owns `ask_user`.
-Return `USER_INPUT_REQUIRED` forms to the interactive parent; cancel stops.
-
 ## Constraints
 
 <scope_fencing>
 
-Use the Audit write scope below in the Copilot SDK harness. Terminal execution is not read-only
+Use the Audit write scope below in both harnesses. Terminal execution is not read-only
 by itself: do not run writing scripts during read-only audits. In report mode, allowed
 writes are the requested report, explicitly authorized baseline/diff outputs and recall
 findings only; use available editing tools for revisions and preserve user work.
@@ -67,7 +76,7 @@ highest-impact finding and write findings as plain sentences with their evidence
 
 <stop_conditions>
 
-Missing essential tools blocks the affected work; model telemetry is diagnostic only.
+Missing essential tools/model blocks the affected work, not a fallback model.
 Missing/inaccessible logs block measured profiling only. Continue a requested source-only
 audit with the limitation stated; missing token fields remain unknown, with no fabricated savings.
 Unwanted early stops: a summary announcing the next phase without taking it, an offer to continue,
@@ -77,7 +86,7 @@ or a milestone report before the requested audit is complete.
 
 ## Harness Routing
 
-Use the Copilot SDK entry contract; human approval gates still block advancement.
+Local uses the human handoff; Host requires explicit selection of the next named owner.
 Skills run inline and cannot change model/tools. No subagent calls or parent-model
 execution of other agents. Refresh missing/changed evidence after compaction or resume.
 
@@ -152,21 +161,21 @@ batch independent reads using available tools and defer phase-specific reference
 > Unknown model limits and runtime cost tiers remain unknown; neither family labels
 > nor a reference's historical figures establish current runtime availability.
 
-### Primary: Native SDK Events
+### Primary: Chat Debug Logs
 
 Location pattern:
-`~/.copilot/session-state/<session-id>/events.jsonl` (verified repository scope).
+`~/.vscode-server/data/logs/*/exthost1/GitHub.copilot-chat/GitHub Copilot Chat.log`
 
 Key signals extracted:
 
 | Signal         | Log Pattern                                          | Indicates                   |
 | -------------- | ---------------------------------------------------- | --------------------------- |
-| Request timing | `session.usage_record`, linked `apiCallId` | Observed duration and model |
+| Request timing | `ccreq:*.copilotmd \| success \| {model} \| {ms}`    | Per-turn latency + model    |
 | Long turns     | Latency > 15000ms                                    | Slow response; cause unknown |
-| Model routing | Worker configured/completed events | Definition routing versus actual dispatch |
-| Request type | Root/worker identity and execution envelope | Attributed work; absent attribution is unknown |
-| Errors | Failed tool, hook and worker events | Failed or incomplete operations |
-| Subagent calls | Worker lifecycle and linked task calls | Delegation attempts, not approval |
+| Model routing  | `{requested} -> {actual}`                            | Model fallback behavior     |
+| Request type   | `[panel/editAgent]`, `[title]`, `[progressMessages]` | Turn purpose classification |
+| Errors         | `[error]` lines                                      | Failed operations           |
+| Subagent calls | `copilotLanguageModelWrapper` entries                | Delegation frequency        |
 
 ### Secondary: Agent Definitions
 
@@ -197,7 +206,7 @@ existing baseline when suitable. Otherwise, with write authorization, create one
 npm run snapshot:baseline -- "ctx-opt-$(date -u +%Y%m%d-%H%M%S)"
 ```
 
-This backs up `.github/agents`, `.github/instructions`,
+This backs up `.github/agents`, `.github/instructions`, `tools/apex-prompts`,
 `.github/skills`, and `AGENTS.md` to `agent-output/_baselines/{label}/`.
 Store the label for Phase 6.
 
@@ -214,16 +223,16 @@ Missing logs do not trigger installation, permission changes or fabricated measu
 
    ```bash
    python3 .github/skills/apex-context-management/scripts/parse-chat-logs.py \
-     --log-dir ~/.copilot/session-state/ --repository .
+     --log-dir ~/.vscode-server/data/logs/
    ```
 
-3. For selected native JSONL logs (historical OTel JSON remains readable),
+3. For exported OTel debug logs (`logs/*.json` / `tmp/agent-debug-log-*.json`),
    run the deeper profiler to extract token totals, per-model splits,
-   ask_user counts, subagent wall-time, duplicate file reads, and
+   askQuestions counts, subagent wall-time, duplicate file reads, and
    compliance warnings:
 
    ```bash
-   npm run profile:debug-log -- ~/.copilot/session-state/<session-id>/events.jsonl --json
+   npm run profile:debug-log -- logs/<session>.json
    ```
 
    Full workflow + thresholds:
@@ -239,13 +248,13 @@ For each session, analyze request patterns:
 
 | Metric                 | What to Calculate                               |
 | ---------------------- | ----------------------------------------------- |
-| Requests per session | Observed API call IDs, deduplicated usage |
+| Requests per session   | Total `ccreq` entries grouped by session        |
 | Avg latency by model   | Mean response time per model                    |
 | Long-tail turns        | Turns > 15s (likely context-heavy)              |
 | Model distribution     | Group by exact model labels observed in the selected logs |
-| Request type breakdown | Root/worker, readiness/execution, unknown |
+| Request type breakdown | editAgent vs title vs progressMessages          |
 | Burst patterns         | Rapid sequential calls (< 2s gap = likely loop) |
-| ask_user | Captured count; phase budgets require explicit attribution |
+| askQuestions per phase | Count from profiler; flag any single phase > 3 (Plan 01 Phase 4 batching) |
 
 Report latency separately from tokens. Use recorded token-usage fields for token totals;
 when absent, report unknown. Source size and tool counts are diagnostics, not measured token savings.

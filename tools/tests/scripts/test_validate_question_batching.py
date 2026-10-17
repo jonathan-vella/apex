@@ -43,7 +43,7 @@ def test_fails_when_example_header_removed(tmp_path):
     p = tmp_path / "broken.md"
     p.write_text(broken)
     failures = mod.validate(p)
-    assert any("missing required properties" in f for f in failures)
+    assert any("missing required headers" in f for f in failures)
 
 
 def test_cli_pass_exits_0():

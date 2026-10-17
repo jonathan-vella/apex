@@ -1,6 +1,6 @@
 ---
 description: "Prevents interactive shell prompts and long-output terminal replays from being injected into chat. Forbids -i flags on mv/rm/cp, read -p, and confirm prompts (incl. inside bash -c '...'). Pipe long output to files. Scoped to chat-context-loaded files; skill references/ and templates/ are exempt because they hold standalone scripts users run locally."
-applyTo: "**/.github/agents/**/*.agent.md, **/.github/skills/**/SKILL.md, **/.github/instructions/**/*.instructions.md, **/AGENTS.md, **/.github/copilot-instructions.md, **/README.md"
+applyTo: "**/.github/agents/**/*.agent.md, **/.github/skills/**/SKILL.md, **/.github/instructions/**/*.instructions.md, **/.github/prompts/**/*.prompt.md, **/tools/apex-prompts/**/*.prompt.md, **/AGENTS.md, **/.github/copilot-instructions.md, **/README.md"
 ---
 
 # MANDATORY: No Interactive Shell, No Long-Output Replay
@@ -20,10 +20,10 @@ shell builtin (including inside `bash -c '...'`).
 | `mv -i src dst`            | `mv -f src dst`                              |
 | `rm -i path`               | `rm -f path` (or skip — let the user delete) |
 | `cp -i src dst`            | `cp -f src dst`                              |
-| `read -p "Continue? " ans` | Use `ask_user` to gather input    |
+| `read -p "Continue? " ans` | Use `vscode_askQuestions` to gather input    |
 | `bash -c 'rm -i x'`        | `rm -f x`                                    |
 
-If the user genuinely needs confirmation, use the `ask_user`
+If the user genuinely needs confirmation, use the `vscode_askQuestions`
 tool — never an interactive shell prompt.
 
 ### Sub-rule 1a — Aliased `rm`/`mv`/`cp` are still interactive
