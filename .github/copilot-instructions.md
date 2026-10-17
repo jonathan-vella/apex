@@ -149,8 +149,11 @@ body explicitly points to one. There is one tier — no digest, no minimal.
   metadata and legacy fixture support, not active assignments. Model labels and
   capability metadata do not prove runtime availability or subagent cost-tier
   eligibility.
-  The observed historically pinned SDK source pair does not establish unpinned
-  Auto routing; absent observed unpinned source evidence blocks both readiness phases.
+  Unpinned workers may use only the observed `unset` / `session_inheritance`
+  source pair, without per-call routing overrides and with matching worker/parent
+  session model evidence. This verifies the worker route, not operator Auto
+  selection; verify Auto separately in the current runtime. Never infer Auto from
+  frontmatter omission, model labels, or stale session data.
 - Use available editing tools for existing files, preserve user work, and validate before
   dependent follow-up edits. No shared procedure requires a particular bulk-edit tool.
 - Explicit lab risk acceptance follows [the authorization contract](../tools/apex-recall/docs/risk-authorizations.md).

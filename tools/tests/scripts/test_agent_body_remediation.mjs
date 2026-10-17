@@ -38,8 +38,25 @@ test("Delegated main agents explicitly echo handshake identity in tool-free cont
       /nonce-only returns\s+`WORKER_READY_ACK <definition-name> <original-nonce>` with same values/,
       file,
     );
-    assert.match(entry, /Delegated tool-free readiness: `APEX_WORKER_HANDSHAKE`/, file);
+    assert.match(
+      entry,
+      /`APEX_WORKER_HANDSHAKE`: no tools; return `WORKER_READY <definition-name> <original-nonce>`/,
+      file,
+    );
     assert.match(entry, /Stop; await `WORKER_EXECUTE`/, file);
+  }
+});
+
+test("Leaf agents return the exact tool-free initial readiness identity", () => {
+  const leafRoot = path.join(agentRoot, "_subagents");
+  for (const file of readdirSync(leafRoot).filter((file) => file.endsWith(".agent.md"))) {
+    const body = getBody(readFileSync(path.join(leafRoot, file), "utf8"));
+    if (!body.includes("APEX_WORKER_HANDSHAKE")) continue;
+    assert.match(
+      body,
+      /return exactly\s+`WORKER_READY <definition-name> <original-nonce>` using this definition's name and parent's nonce/,
+      file,
+    );
   }
 });
 

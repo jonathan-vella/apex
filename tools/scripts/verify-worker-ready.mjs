@@ -39,17 +39,12 @@ export function verifyWorkerReady({ events, frontmatter, catalog, workerId, pare
   }
   if (start?.agentName !== frontmatter?.name) reasons.push("Worker identity does not match the named definition.");
   if (start?.executionMode !== "background") reasons.push("Worker was not started in background mode.");
-  if (
-    start?.taskModelSource !== "custom_agent_definition" ||
-    start?.modelSelectionSource !== "agent_definition_default"
-  ) {
-    reasons.push("Worker routing source is not an explicitly supported custom-agent definition default.");
-  }
-  // The supplied SDK evidence establishes this source pair only for pinned definitions.
-  if (!labels.length) {
-    reasons.push(
-      "No observed SDK source profile establishes routing for unpinned definitions; Auto routing remains unverified.",
-    );
+  const definitionRouting =
+    start?.taskModelSource === "custom_agent_definition" && start?.modelSelectionSource === "agent_definition_default";
+  const inheritedSessionRouting =
+    !labels.length && start?.taskModelSource === "unset" && start?.modelSelectionSource === "session_inheritance";
+  if (!definitionRouting && !inheritedSessionRouting) {
+    reasons.push("Worker routing source is not a supported definition or unpinned session-inheritance profile.");
   }
   if ((start?.parentId ?? (parentId === "root" ? "root" : undefined)) !== parentId) {
     reasons.push("Worker parent identity is missing or does not match the requested parent.");
@@ -71,8 +66,10 @@ export function verifyWorkerReady({ events, frontmatter, catalog, workerId, pare
     completions.length === 1 && completions[0].data?.toolCallId === start?.toolCallId ? completions[0] : undefined;
   const completed = completionEvent?.data;
   if (!completionEvent) reasons.push("Exactly one linked attributed worker completion is required.");
-  if (completed?.modelSelectionSource !== "agent_definition_default") {
-    reasons.push("Completed worker routing source is unknown or not definition-owned.");
+  if (
+    completed?.modelSelectionSource !== (inheritedSessionRouting ? "session_inheritance" : "agent_definition_default")
+  ) {
+    reasons.push("Completed worker routing source does not match its supported start profile.");
   }
   if (typeof completed?.firstDispatchedModel !== "string" || !completed.firstDispatchedModel.trim()) {
     reasons.push("The actual dispatched model is missing.");
@@ -83,6 +80,27 @@ export function verifyWorkerReady({ events, frontmatter, catalog, workerId, pare
     configured.model !== completed.firstDispatchedModel
   ) {
     reasons.push("Configured and first dispatched models do not agree.");
+  }
+  if (inheritedSessionRouting) {
+    const parentSessionModel =
+      parentId === "root"
+        ? events.find((event) => event.type === "session.start")?.data?.selectedModel
+        : events.find((event) => event.agentId === parentId && event.type === "subagent.configured")?.data?.model;
+    if (
+      typeof parentSessionModel !== "string" ||
+      !parentSessionModel.trim() ||
+      parentSessionModel !== configured?.model ||
+      parentSessionModel !== completed?.firstDispatchedModel
+    ) {
+      reasons.push("Inherited worker model does not match the attributed parent session model.");
+    }
+    if (
+      typeof start?.model !== "string" ||
+      start.model !== configured?.model ||
+      start.model !== completed?.firstDispatchedModel
+    ) {
+      reasons.push("Inherited worker start, configuration, and dispatched model evidence do not agree.");
+    }
   }
   if (expectedModels.length && !expectedModels.includes(completed?.firstDispatchedModel)) {
     reasons.push("Actual dispatched model does not match an explicit legacy model pin.");
@@ -282,11 +300,8 @@ function parseHandshakeInput(content) {
 
 function parseReadyResponse(content) {
   if (typeof content !== "string") return null;
-  const lines = content.trim().split(/\r?\n/);
-  if (lines.length !== 3 || lines[0] !== "WORKER_READY") return null;
-  const definition = lines[1].match(/^name: ([^\s]+)$/)?.[1];
-  const nonce = lines[2].match(/^nonce: ([^\s]+)$/)?.[1];
-  return definition && nonce ? { definition, nonce } : null;
+  const match = content.trim().match(/^WORKER_READY ([^\s]+) ([^\s]+)$/);
+  return match ? { definition: match[1], nonce: match[2] } : null;
 }
 
 export function runValidator(argv = process.argv.slice(2), root = ROOT) {

@@ -26,12 +26,10 @@ it explicitly records the operator's Auto selection. Unknown evidence blocks exe
    ```
 
 3. The worker's first turn performs **no tools, file reads/writes, reviews or Azure actions**.
-   Return exactly these three lines with the original values, then stop the turn:
+   Return exactly this single line with the original values, then stop the turn:
 
    ```text
-   WORKER_READY
-   name: <exact-definition-name>
-   nonce: <fresh-nonce>
+   WORKER_READY <exact-definition-name> <fresh-nonce>
    ```
 4. After the idle notification, read the result. Verify the name and nonce, then run:
 
@@ -54,12 +52,15 @@ it explicitly records the operator's Auto selection. Unknown evidence blocks exe
    also match one of its catalog runtime IDs. Active production definitions have
    no such expected ID. An explicit effort pin is likewise checked only for a
    legacy fixture; unpinned runtime effort is not inferred.
-   The only observed SDK source pair is
-   `custom_agent_definition` / `agent_definition_default`, evidenced for a
-   **historically pinned** definition only. It is supported for pinned compatibility,
-   not as proof of unpinned Auto behavior. With no observed unpinned source profile,
-   active unpinned workers fail closed in both phases pending separately authorized
-   runtime evidence; do not add speculative inherited/Auto source pairs.
+   Supported source pairs are `custom_agent_definition` /
+   `agent_definition_default` for explicitly pinned legacy fixtures, and
+   `unset` / `session_inheritance` for unpinned active definitions when the parent
+   dispatch contains no model, effort or context override and the configured and
+   dispatched worker model matches the parent session's observed model. If those
+   models differ or parent model evidence is absent, stop. This verifies the
+   inherited route only; it does not prove the operator selected Auto. Verify Auto
+   separately in the current parent runtime. Never infer Auto from model names,
+   omission of frontmatter pins, or stale session startup metadata.
    The verifier requires the exact
    worker name, one matching parent dispatch in background mode, and no `model`,
    `reasoning_effort`, or `context_tier` argument keys. Unknown or unobserved

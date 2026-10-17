@@ -7,7 +7,9 @@ Use a dedicated approved smoke project; never reset an existing project's state.
 
 ## Runtime Preconditions
 
-1. Reload the VS Code runtime after definition changes and select `01-Orchestrator`.
+1. Reload the VS Code runtime after definition changes and select
+   `01-Orchestrator` with Auto in a fresh session. A session started under a
+   prior fixed model is not evidence of the new Auto selection.
 2. Verify required MCP tools and hooks in that runtime. Do not duplicate live MCP
    registrations, change credentials or substitute models to force a pass.
 3. Use `/apex-workflow-start` with an explicit fresh operation and project.
@@ -18,8 +20,12 @@ Use a dedicated approved smoke project; never reset an existing project's state.
    (`continuation_verified: false`) before the nonce-only continuation; after the
    exact same-worker ACK and second turn completion, run `--phase complete` for
    `READY_VERIFIED` (`continuation_verified: true`) before `WORKER_EXECUTE`.
-   The old pinned SDK profile does not establish unpinned Auto behavior; absent
-   supported unpinned telemetry is a blocker, not permission to probe or substitute.
+   Unpinned workers may use the observed `unset` / `session_inheritance` source
+   pair only when there are no per-call model/effort/context overrides and worker
+   start/configured/dispatched models match the parent's observed session model.
+   This verifies routing, not Auto selection; verify Auto separately in the
+   current parent runtime. Missing or mismatched evidence blocks; do not probe
+   again or substitute a model automatically.
 5. Stop on unknown routing, unavailable tools, missing approval or an operator deadline.
    A readiness result grants no project or deployment permission.
 

@@ -72,7 +72,7 @@ function sample({ pinned = true } = {}) {
         type: "assistant.message",
         agentId: "worker",
         data: {
-          content: `WORKER_READY\nname: ${DEFINITION}\nnonce: ${NONCE}`,
+          content: `WORKER_READY ${DEFINITION} ${NONCE}`,
           parentToolCallId: CALL,
           turnId: "0",
           interactionId: "initial-interaction",
@@ -162,22 +162,84 @@ function currentSdkSample(options) {
   return sample(options);
 }
 
+function inheritedSample({ phase = "initial" } = {}) {
+  const input = phase === "initial" ? initialSample() : sample();
+  input.events.unshift({ type: "session.start", data: { selectedModel: "gpt-6-luna" } });
+  delete input.frontmatter.model;
+  delete input.frontmatter["reasoning-effort"];
+  start(input).data.taskModelSource = "unset";
+  start(input).data.modelSelectionSource = "session_inheritance";
+  start(input).data.model = "gpt-6-luna";
+  configured(input).data.model = "gpt-6-luna";
+  configured(input).data.reasoningEffort = undefined;
+  for (const event of input.events) {
+    if (event.type === "assistant.message") event.data.model = "gpt-6-luna";
+  }
+  completed(input).data.firstDispatchedModel = "gpt-6-luna";
+  completed(input).data.modelSelectionSource = "session_inheritance";
+  return verifyWorkerReady({ ...input, phase });
+}
+
+test("unpinned session-inheritance source verifies initial routing but not operator Auto selection", () => {
+  const result = inheritedSample();
+  assert.equal(result.status, "MODEL_VERIFIED");
+  assert.equal(result.phase, "initial");
+  assert.equal(result.configured_model, "gpt-6-luna");
+  assert.equal(result.actual_model, "gpt-6-luna");
+  assert.equal(result.operator_auto_selection_verified, false);
+  assert.equal(result.continuation_verified, false);
+  assert.equal(result.permission_granted_by_this_record, false);
+});
+
+test("unpinned session-inheritance source accepts complete same-worker ACK", () => {
+  const result = inheritedSample({ phase: "complete" });
+  assert.equal(result.status, "READY_VERIFIED");
+  assert.equal(result.continuation_verified, true);
+  assert.equal(result.operator_auto_selection_verified, false);
+});
+
+test("unpinned session inheritance blocks when the root session model disagrees", () => {
+  const input = sample();
+  input.events.unshift({ type: "session.start", data: { selectedModel: "gpt-6.1-sol" } });
+  delete input.frontmatter.model;
+  delete input.frontmatter["reasoning-effort"];
+  start(input).data.taskModelSource = "unset";
+  start(input).data.modelSelectionSource = "session_inheritance";
+  start(input).data.model = "gpt-6-luna";
+  configured(input).data.model = "gpt-6-luna";
+  completed(input).data.firstDispatchedModel = "gpt-6-luna";
+  completed(input).data.modelSelectionSource = "session_inheritance";
+  const result = verifyWorkerReady({ ...input, phase: "initial" });
+  assert.equal(result.status, "BLOCKED");
+  assert.ok(result.reasons.includes("Inherited worker model does not match the attributed parent session model."));
+});
+
+test("unpinned session inheritance blocks without attributed parent model evidence", () => {
+  const input = sample();
+  delete input.frontmatter.model;
+  delete input.frontmatter["reasoning-effort"];
+  start(input).data.taskModelSource = "unset";
+  start(input).data.modelSelectionSource = "session_inheritance";
+  start(input).data.model = "gpt-6-luna";
+  configured(input).data.model = "gpt-6-luna";
+  completed(input).data.firstDispatchedModel = "gpt-6-luna";
+  completed(input).data.modelSelectionSource = "session_inheritance";
+  const result = verifyWorkerReady({ ...input, phase: "initial" });
+  assert.equal(result.status, "BLOCKED");
+  assert.ok(result.reasons.includes("Inherited worker model does not match the attributed parent session model."));
+});
+
 for (const phase of ["initial", "complete"]) {
-  test(`${phase}: old pinned source profile cannot establish unpinned Auto routing`, () => {
-    const input = phase === "initial" ? initialSample() : sample();
+  test(`${phase}: unpinned inheritance rejects mismatched or unknown source attribution`, () => {
+    const input = sample();
     delete input.frontmatter.model;
     delete input.frontmatter["reasoning-effort"];
+    start(input).data.taskModelSource = "unset";
+    start(input).data.modelSelectionSource = "session_inheritance";
+    completed(input).data.modelSelectionSource = "agent_definition_default";
     const result = verifyWorkerReady({ ...input, phase });
     assert.equal(result.status, "BLOCKED");
-    assert.deepEqual(result.reasons, [
-      "No observed SDK source profile establishes routing for unpinned definitions; Auto routing remains unverified.",
-    ]);
-    assert.equal(result.expected_models.length, 0);
-    assert.equal(result.configured_model, MODEL);
-    assert.equal(result.actual_model, MODEL);
-    assert.equal(result.operator_auto_selection_verified, false);
-    assert.equal(result.continuation_verified, false);
-    assert.equal(result.permission_granted_by_this_record, false);
+    assert.ok(result.reasons.includes("Completed worker routing source does not match its supported start profile."));
   });
 }
 
@@ -206,8 +268,9 @@ for (const [label, mutate] of [
   ["wrong worker definition", (s) => (start(s).data.agentName = "general-purpose")],
   ["synchronous worker", (s) => (start(s).data.executionMode = "sync")],
   ["unknown task model source", (s) => (start(s).data.taskModelSource = "future_source")],
-  ["unknown start selection source", (s) => (start(s).data.modelSelectionSource = "session_inheritance")],
-  ["unknown completion selection source", (s) => (completed(s).data.modelSelectionSource = "session_inheritance")],
+  ["pinned worker cannot use session inheritance", (s) => (start(s).data.modelSelectionSource = "session_inheritance")],
+  ["unknown start selection source", (s) => (start(s).data.modelSelectionSource = "future_source")],
+  ["unknown completion selection source", (s) => (completed(s).data.modelSelectionSource = "future_source")],
   ["missing configured model", (s) => delete configured(s).data.model],
   ["empty configured model", (s) => (configured(s).data.model = " ")],
   ["different configured model", (s) => (configured(s).data.model = "other-model")],
@@ -265,14 +328,8 @@ for (const [label, mutate] of [
   ["missing continuation input", (s) => s.events.splice(s.events.indexOf(userMessages(s)[1]), 1)],
   ["wrong continuation nonce", (s) => (userMessages(s)[1].data.content = "another-nonce")],
   ["initial readiness missing name and nonce", (s) => (assistantMessages(s)[0].data.content = "WORKER_READY")],
-  [
-    "initial readiness wrong name",
-    (s) => (assistantMessages(s)[0].data.content = `WORKER_READY\nname: other\nnonce: ${NONCE}`),
-  ],
-  [
-    "initial readiness wrong nonce",
-    (s) => (assistantMessages(s)[0].data.content = `WORKER_READY\nname: ${DEFINITION}\nnonce: other`),
-  ],
+  ["initial readiness wrong name", (s) => (assistantMessages(s)[0].data.content = `WORKER_READY other ${NONCE}`)],
+  ["initial readiness wrong nonce", (s) => (assistantMessages(s)[0].data.content = `WORKER_READY ${DEFINITION} other`)],
   ["bare ACK", (s) => (assistantMessages(s)[1].data.content = "WORKER_READY_ACK")],
   ["ACK wrong name", (s) => (assistantMessages(s)[1].data.content = `WORKER_READY_ACK other ${NONCE}`)],
   ["ACK wrong nonce", (s) => (assistantMessages(s)[1].data.content = `WORKER_READY_ACK ${DEFINITION} other`)],

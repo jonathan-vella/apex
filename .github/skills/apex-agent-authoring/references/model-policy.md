@@ -26,9 +26,12 @@ runtime evidence. Model labels and catalog metadata do not establish cost-tier
 eligibility or API support.
 
 The supplied SDK record establishes `custom_agent_definition` /
-`agent_definition_default` only for a historically pinned worker. It does not
-establish unpinned Auto behavior. Until an unpinned source pair is observed and
-supported explicitly, both readiness phases block active unpinned workers.
+`agent_definition_default` for a historically pinned worker and `unset` /
+`session_inheritance` for an unpinned worker. Accept the inherited profile only
+when the task has no caller routing overrides and the worker's start,
+configured and dispatched models all match the parent's observed session model.
+This verifies the inherited route, not operator Auto selection; verify Auto in
+the current runtime. Stale or mismatched parent session evidence blocks readiness.
 Initial `MODEL_VERIFIED` never proves complete readiness; execution requires
 complete-phase `READY_VERIFIED` and `continuation_verified: true` under the
 [worker-readiness protocol](../../apex-workflow-engine/references/worker-readiness.md).

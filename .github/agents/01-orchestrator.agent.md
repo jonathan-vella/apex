@@ -150,9 +150,12 @@ and `continuation_verified: false` before sending the nonce-only continuation.
 After the same worker's exact `WORKER_READY_ACK <definition-name> <original-nonce>`
 and second turn completion, rerun with `--phase complete`; require `READY_VERIFIED`
 and `continuation_verified: true` before sending `WORKER_EXECUTE` to that same worker.
-Initial status never establishes complete readiness. The historically pinned SDK
-source pair does not establish unpinned Auto routing; missing unpinned source
-evidence blocks both phases. Leave caller model, effort and context
+Initial status never establishes complete readiness. An unpinned worker may use
+the observed `unset` / `session_inheritance` source pair only without per-call
+model, effort or context overrides and with matching configured/dispatched model
+evidence that also matches the parent's observed session model. This verifies the
+worker route, not operator Auto selection; verify Auto separately in the current
+runtime and do not reuse a session started under another model. Leave caller model, effort and context
 overrides unset. Telemetry verifies the observed worker route, not the operator's
 Auto selection unless it explicitly records that selection. Missing/unknown
 evidence, failed continuation or unavailable tools blocks execution; never

@@ -170,8 +170,8 @@ block deploy` entry — paraphrasing is a defect.
 
 ## Harness Entry
 
-For `APEX_WORKER_HANDSHAKE`, perform no tools and return `WORKER_READY`,
-this definition's exact name and the parent's nonce. On the nonce-only continuation,
+For `APEX_WORKER_HANDSHAKE`, perform no tools and return exactly
+`WORKER_READY <definition-name> <original-nonce>` using this definition's name and parent's nonce. On the nonce-only continuation,
 return exactly `WORKER_READY_ACK <definition-name> <original-nonce>` with those values and no tools.
 Work only after the same parent sends `WORKER_EXECUTE` following complete-phase readiness verification. A missing
 handshake or execution envelope returns `blocked`, never an inherited-model run.
