@@ -12,7 +12,8 @@ Neither PR may be merged, including through admin privileges or auto-merge.
 - Read-only checks confirmed the test web app is running with HTTPS-only, SystemAssigned identity and
   disabled public network access. Storage has disabled shared keys/public blob/public network access and TLS 1.2.
 - Both intended private DNS zones exist. This does not prove private-client connectivity or application health.
-- The test resource group still exists. Its deletion was denied by the tool guard.
+- Automated cleanup was denied by the tool guard. The owner subsequently initiated deletion.
+  A read-only `az group wait --deleted` completed and `az group exists` returned `false`.
 
 ### Invalid acceptance evidence
 
@@ -37,8 +38,8 @@ or convert assumptions into owner approvals to advance.
    Obtain independent, non-leading reviews within the existing allowance before accepting artifacts.
 5. Verify policy precheck, private reachability, application behavior and as-built properties from actual outputs.
    ARM provisioning success alone is not end-to-end workflow success.
-6. Complete the already authorized test-RG cleanup only through a permitted mechanism.
-   If the guard remains blocking, require owner cleanup; do not change the guard or use an alternate bypass.
+6. Preserve the verified owner-initiated cleanup result. Do not weaken the guard or re-create resources
+   to conceal missing earlier acceptance evidence.
 7. Produce a revision-bound evidence matrix. Remain BLOCKED wherever runtime evidence is missing.
 
 ### Autopilot boundary
