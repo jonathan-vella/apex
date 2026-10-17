@@ -42,6 +42,64 @@ function sample() {
   };
 }
 
+function currentSdkSample() {
+  const input = sample();
+  input.events[0].data.taskModelSource = "custom_agent_definition";
+  input.events[2].data.modelSelectionSource = "agent_definition_default";
+  input.events.unshift({
+    type: "tool.execution_start",
+    data: {
+      toolCallId: "call",
+      toolName: "task",
+      arguments: { agent_type: "02-Requirements", mode: "background" },
+    },
+  });
+  return input;
+}
+
+test("current SDK definition defaults require a matching override-free parent dispatch", () => {
+  const result = verifyWorkerReady(currentSdkSample());
+  assert.equal(result.status, "MODEL_VERIFIED");
+  assert.equal(result.permission_granted_by_this_record, false);
+});
+
+for (const [label, mutate] of [
+  ["missing dispatch", (s) => s.events.shift()],
+  ["duplicate dispatch", (s) => s.events.push(s.events[0])],
+  ["wrong dispatch call", (s) => (s.events[0].data.toolCallId = "other")],
+  ["wrong dispatch tool", (s) => (s.events[0].data.toolName = "other")],
+  ["wrong dispatch parent", (s) => (s.events[0].agentId = "other")],
+  ["wrong dispatch definition", (s) => (s.events[0].data.arguments.agent_type = "general-purpose")],
+  ["sync dispatch", (s) => (s.events[0].data.arguments.mode = "sync")],
+  ["missing arguments", (s) => delete s.events[0].data.arguments],
+  ["model override", (s) => (s.events[0].data.arguments.model = "claude-sonnet-5.5")],
+  ["effort override", (s) => (s.events[0].data.arguments.reasoning_effort = "high")],
+  ["context override", (s) => (s.events[0].data.arguments.context_tier = "default")],
+  ["null override", (s) => (s.events[0].data.arguments.model = null)],
+  ["mixed legacy completion", (s) => (s.events[3].data.modelSelectionSource = "agent_definition")],
+  ["mixed legacy start", (s) => (s.events[1].data.taskModelSource = "unset")],
+  ["unknown start source", (s) => (s.events[1].data.taskModelSource = "future_source")],
+  ["inherited completion", (s) => (s.events[3].data.modelSelectionSource = "session_inheritance")],
+  ["actual model fallback", (s) => (s.events[3].data.firstDispatchedModel = "parent-model")],
+  ["wrong effort", (s) => (s.events[2].data.reasoningEffort = "medium")],
+  ["tools", (s) => (s.events[3].data.totalToolCalls = 1)],
+]) {
+  test(`current SDK ${label} blocks readiness`, () => {
+    const input = currentSdkSample();
+    mutate(input);
+    assert.equal(verifyWorkerReady(input).status, "BLOCKED");
+  });
+}
+
+test("current SDK nested dispatch requires its immediate parent identity", () => {
+  const input = currentSdkSample();
+  input.parentId = "step-worker";
+  input.events[1].data.parentId = "step-worker";
+  assert.equal(verifyWorkerReady(input).status, "BLOCKED");
+  input.events[0].agentId = "step-worker";
+  assert.equal(verifyWorkerReady(input).status, "MODEL_VERIFIED");
+});
+
 test("tool-free background readiness verifies routing but grants no action permission", () => {
   const result = verifyWorkerReady(sample());
   assert.equal(result.status, "MODEL_VERIFIED");

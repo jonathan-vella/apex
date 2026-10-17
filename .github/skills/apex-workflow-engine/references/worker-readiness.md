@@ -33,6 +33,11 @@ step and leaf worker before project work. Unknown evidence blocks execution.
    Require a nonempty matching call identity. Observed tools or nested dispatch
    block readiness even if the completion reports zero tool calls.
    A catalog ID is an expected identity, not evidence of runtime availability.
+   The verifier accepts the legacy attribution pair `unset` / `agent_definition` and the observed SDK pair
+   `custom_agent_definition` / `agent_definition_default`. The latter also requires one matching parent
+   `task` start record with the exact definition and background mode, and no `model`, `reasoning_effort`,
+   or `context_tier` argument keys. Mixed, unknown, inherited, or overridden attribution remains blocking.
+   Acceptance of labels does not certify the parent's own routing, the ACK, reviews, or execution permission.
 6. Send `write_agent` a nonce-only continuation test. Require a `WORKER_READY_ACK`
    echo of the original nonce and definition **without tools**. A failed continuation
    blocks the worker; never relaunch project work under an inherited model.

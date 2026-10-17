@@ -29,7 +29,9 @@ export function verifyWorkerReady({ events, frontmatter, catalog, workerId, pare
   }
   if (start?.agentName !== frontmatter?.name) reasons.push("Worker identity does not match the named definition.");
   if (start?.executionMode !== "background") reasons.push("Worker was not started in background mode.");
-  if (start?.taskModelSource !== "unset") reasons.push("Caller model overrides are not permitted.");
+  if (!["unset", "custom_agent_definition"].includes(start?.taskModelSource)) {
+    reasons.push("Caller model overrides or unknown model sources are not permitted.");
+  }
   if ((start?.parentId ?? "root") !== parentId) reasons.push("Worker belongs to a different parent.");
 
   const configured = attributed.filter((event) => event.type === "subagent.configured").at(-1)?.data;
@@ -42,8 +44,33 @@ export function verifyWorkerReady({ events, frontmatter, catalog, workerId, pare
     .at(-1)?.data;
   if (!completed) reasons.push("The ready-only turn has not completed.");
   if (completed?.firstDispatchedModel !== expectedModel) reasons.push("Actual dispatched model differs or is unknown.");
-  if (completed?.modelSelectionSource !== "agent_definition") {
+  const legacyAttribution =
+    start?.taskModelSource === "unset" && completed?.modelSelectionSource === "agent_definition";
+  const currentAttribution =
+    start?.taskModelSource === "custom_agent_definition" &&
+    completed?.modelSelectionSource === "agent_definition_default";
+  if (!legacyAttribution && !currentAttribution) {
     reasons.push("Routing was not attributed to the agent definition.");
+  }
+  if (currentAttribution) {
+    const dispatches = events.filter(
+      (event) => event.type === "tool.execution_start" && event.data?.toolCallId === start?.toolCallId,
+    );
+    const dispatch = dispatches.length === 1 ? dispatches[0] : undefined;
+    const args = dispatch?.data?.arguments;
+    if (
+      !dispatch ||
+      dispatch.data?.toolName !== "task" ||
+      (dispatch.agentId ?? "root") !== parentId ||
+      !args ||
+      typeof args !== "object" ||
+      Array.isArray(args) ||
+      args.agent_type !== frontmatter?.name ||
+      args.mode !== "background" ||
+      ["model", "reasoning_effort", "context_tier"].some((key) => Object.hasOwn(args, key))
+    ) {
+      reasons.push("Current SDK attribution requires one matching override-free parent task dispatch.");
+    }
   }
   if (completed?.totalToolCalls !== 0)
     reasons.push("The ready-only turn performed tools or lacks tool-count evidence.");
