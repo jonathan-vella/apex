@@ -1,12 +1,10 @@
 ---
 name: 09-Diagnose
-model: ["Claude Sonnet 5.5 (copilot)"]
-reasoning-effort: medium
 description: Interactive diagnostic agent that guides users through Azure resource health assessment, issue identification, and remediation planning. Scope-first execution with approval for every change, single-resource scope, reports to agent-output/{project}/.
 user-invocable: true
-disable-model-invocation: true
+disable-model-invocation: false
 agents: []
-tools: [vscode/askQuestions, execute, read, edit, search, "azure-mcp/*", todo]
+tools: [execute, read, edit, search, "azure-mcp/*", todo]
 handoffs:
   - label: "▶ Expand Scope"
     agent: 09-Diagnose
@@ -54,6 +52,13 @@ Done when:
 - Save findings to `agent-output/{project}/08-resource-health-report.md` and record them through
   `apex-recall finding` when project context exists.
 
+## Harness Entry
+
+Delegated `APEX_WORKER_HANDSHAKE`: no tools; return `WORKER_READY <definition-name> <original-nonce>`; nonce-only returns
+`WORKER_READY_ACK <definition-name> <original-nonce>` with same values. Stop; await `WORKER_EXECUTE`.
+[Routing](../skills/apex-workflow-engine/references/worker-readiness.md) before leaf calls; direct use owns `ask_user`.
+Return `USER_INPUT_REQUIRED` forms to the interactive parent; cancel stops.
+
 ## Constraints
 
 <scope_fencing>
@@ -67,7 +72,7 @@ silently widening, narrowing or transforming the task.
   `execute` is not inherently read-only; approval must name the command and scope.
 - Recover current target, symptoms, time window and evidence after resume; prior approval
   does not authorize a changed command, resource or remediation. Preserve user report edits.
-- Local uses human handoffs; Host requires explicit selection of the named next owner.
+- Use the verified Copilot SDK worker contract; human approval gates still block advancement.
   Skills execute inline, do not select model/tools, and never authorize parent-model
   execution of another agent. No subagent calls are permitted.
 - This is a single-resource diagnostic flow by default. Expand scope only when the user selects the
@@ -124,8 +129,8 @@ Match report length to the evidence; no filler sections or redundant summaries.
 
 <stop_conditions>
 
-- Missing essential tools/model or required approval returns `blocked` with the missing
-  capability. No automatic fallback model or silent skipped check. Use #tool:vscode/askQuestions
+- Missing essential tools or required approval returns `blocked` with the missing
+  capability. No automatic fallback model or silent skipped check. Use #tool:ask_user
   for confirmations; an unavailable question tool blocks the interactive workflow.
 - Stop and ask for the target resource when the user has not identified one resource, resource
   group, or resource ID to investigate.

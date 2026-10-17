@@ -44,7 +44,7 @@ Orchestrator protocol for routing the next step:
 4. **Check node status**:
    - `complete` → follow `on_complete` edges → find next node
    - `in_progress` → resume from `sub_step` checkpoint
-   - `pending` → offer the declared human handoff to the owning main agent
+   - `pending` → verify graph prerequisites, human approval and owner readiness before dispatch
    - `skipped` → follow `on_skip` edges
    - failed or blocked → stop and follow the applicable declared recovery or refinement route
 5. **Apply edge and node conditions** — honor optional Design selection and the IaC track;
@@ -75,14 +75,15 @@ Use [Steps](#steps) as the routing protocol. Response fields are documented in
 
 ## Reference Index
 
-Operational Local and Host entrypoints share
+VS Code Copilot SDK entrypoints share
 [workflow-entry.md](references/workflow-entry.md). For parent-to-worker calls,
-read [execution-subagent.md](references/execution-subagent.md).
+read [worker-readiness.md](references/worker-readiness.md), then
+[execution-subagent.md](references/execution-subagent.md).
 Manual Host workflow entry uses
-[apex-host-workflow-start](../apex-host-workflow-start/SKILL.md), including
+[apex-workflow-start](../apex-workflow-start/SKILL.md), including
 `resume [project]`. This skill requires explicit owner selection; it does not bind models/tools.
 
-Other retained Local operations load only their requested procedure:
+Other operations load only their requested procedure:
 [imported IaC](references/review-imported-iac.md),
 [existing Azure as-built](references/as-built-from-azure.md),
 [project review](references/project-wide-review.md).

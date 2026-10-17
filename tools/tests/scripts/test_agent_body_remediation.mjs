@@ -16,9 +16,7 @@ import { fileURLToPath } from "node:url";
 import { test } from "node:test";
 import { getBody, parseFrontmatter } from "../../scripts/_lib/parse-frontmatter.mjs";
 import {
-  classifyModel,
   getAgentBodyStructure,
-  isClaude,
   runVendorPrompting,
   validateProductionAgentBody,
 } from "../../scripts/validate-agents.mjs";
@@ -28,6 +26,132 @@ import { cacheInputs, findingId } from "../../scripts/validate-challenger-findin
 const root = fileURLToPath(new URL("../../../", import.meta.url));
 const agentRoot = path.join(root, ".github/agents");
 const read = (name) => readFileSync(path.join(agentRoot, `${name}.agent.md`), "utf8");
+
+test("automatic review callers use one-shot rubber-duck while manual Challenger stays independent", () => {
+  for (const name of [
+    "02-requirements",
+    "03-architect",
+    "04-design",
+    "04g-governance",
+    "05-iac-planner",
+    "06b-bicep-codegen",
+    "06t-terraform-codegen",
+  ]) {
+    const content = read(name);
+    const frontmatter = parseFrontmatter(content);
+    assert.ok(frontmatter.agents.includes("rubber-duck"), name);
+    assert.ok(!frontmatter.agents.includes("challenger-review-subagent"), name);
+    assert.match(content, /one-shot-review\.md/, name);
+    assert.match(content, /record-review\.mjs/, name);
+    assert.match(content, /mode: sync/, name);
+  }
+  assert.deepEqual(parseFrontmatter(read("10-challenger")).agents, ["challenger-review-subagent"]);
+  const contract = readFileSync(
+    path.join(root, ".github/skills/apex-azure-defaults/references/one-shot-review.md"),
+    "utf8",
+  );
+  assert.match(contract, /APEX_REVIEW/);
+  assert.match(contract, /--reviewer rubber-duck/);
+  assert.match(contract, /--verify-cache/);
+  assert.match(contract, /not a parent-authored reconstruction/i);
+});
+test("Delegated main agents explicitly echo handshake identity in tool-free continuation ACKs", () => {
+  for (const file of readdirSync(agentRoot).filter(
+    (file) => file.endsWith(".agent.md") && file !== "01-orchestrator.agent.md",
+  )) {
+    const body = getBody(readFileSync(path.join(agentRoot, file), "utf8"));
+    const entry = body.match(/## Harness Entry\s+([\s\S]*?)(?=\n## |$)/)?.[1];
+    assert.ok(entry, `${file}: missing Harness Entry`);
+    assert.match(
+      entry,
+      /nonce-only returns\s+`WORKER_READY_ACK <definition-name> <original-nonce>` with same values/,
+      file,
+    );
+    assert.match(
+      entry,
+      /`APEX_WORKER_HANDSHAKE`: no tools; return `WORKER_READY <definition-name> <original-nonce>`/,
+      file,
+    );
+    assert.match(entry, /Stop; await `WORKER_EXECUTE`/, file);
+  }
+});
+
+test("Leaf agents return the exact tool-free initial readiness identity", () => {
+  const leafRoot = path.join(agentRoot, "_subagents");
+  for (const file of readdirSync(leafRoot).filter((file) => file.endsWith(".agent.md"))) {
+    const body = getBody(readFileSync(path.join(leafRoot, file), "utf8"));
+    if (!body.includes("APEX_WORKER_HANDSHAKE")) continue;
+    assert.match(
+      body,
+      /return exactly\s+`WORKER_READY <definition-name> <original-nonce>` using this definition's name and parent's nonce/,
+      file,
+    );
+  }
+});
+
+test("active main body contracts remain validated without a pinned model family", () => {
+  const agent = {
+    path: path.join(agentRoot, "fixture.agent.md"),
+    frontmatter: { name: "Fixture" },
+    content: `---
+name: Fixture
+---
+# Fixture
+
+## Role
+Perform the bounded role.
+
+## Goal
+Reach the stated goal.
+
+## Success criteria
+Meet the measurable criteria.
+
+## Constraints
+Keep the workflow boundaries.
+
+## Output
+Return the required output.
+
+## Stop rules
+Stop when a required input is missing.
+`,
+  };
+  assert.deepEqual(validateProductionAgentBody(agent), []);
+  agent.content = agent.content.replace("## Stop rules\nStop when a required input is missing.\n", "");
+  assert.ok(validateProductionAgentBody(agent).some((issue) => issue.includes("Stop rules")));
+});
+
+test("active structured main body contract remains checked without a pinned model family", () => {
+  const agent = {
+    path: path.join(agentRoot, "fixture.agent.md"),
+    frontmatter: { name: "Fixture" },
+    content: `---
+name: Fixture
+---
+# Fixture
+
+## Role
+Perform the bounded role.
+
+<scope_fencing>
+Keep the workflow boundaries.
+</scope_fencing>
+
+<output_contract>
+Return the required output.
+</output_contract>
+
+<stop_conditions>
+Stop when a required input is missing.
+</stop_conditions>
+`,
+  };
+  assert.deepEqual(validateProductionAgentBody(agent), []);
+  agent.content = agent.content.replace("</output_contract>", "");
+  assert.ok(validateProductionAgentBody(agent).some((issue) => issue.includes("<output_contract>")));
+});
+
 test("Terraform preview-only stops at missing backend without soliciting expanded approval", () => {
   const body = getBody(read("07t-terraform-deploy"));
   assert.match(body, /For preview-only requests, do not solicit bootstrap or apply approval/);
@@ -156,27 +280,22 @@ for (const name of agentFiles) {
       [frontmatter.name],
     );
     assert.deepEqual(validateProductionAgentBody({ path: path.join(agentRoot, name), content: text, frontmatter }), []);
-    assert.ok(Array.isArray(frontmatter.model), name);
-    if (isClaude(classifyModel(frontmatter.model[0]))) {
-      assert.ok(!name.startsWith("_subagents/"), name);
-      for (const tag of ["scope_fencing", "output_contract", "stop_conditions"]) {
-        assert.match(body, new RegExp(`<${tag}>[\\s\\S]+?</${tag}>`), `${name}: ${tag}`);
-      }
-    } else {
-      assert.doesNotMatch(body, /<\/?(?:context_awareness|output_contract|scope_fencing|stop_conditions)>/, name);
-    }
+    assert.equal(Object.hasOwn(frontmatter, "model"), false, `${name}: model pin`);
+    assert.equal(Object.hasOwn(frontmatter, "reasoning-effort"), false, `${name}: effort pin`);
     if (name.startsWith("_subagents/")) {
       assert.equal(frontmatter["user-invocable"], false, name);
       assert.deepEqual(frontmatter.agents, [], name);
+      assert.match(body, /return exactly `WORKER_READY_ACK <definition-name> <original-nonce>`/);
+      assert.match(body, /following complete-phase readiness verification/);
     } else {
-      assert.equal(frontmatter["disable-model-invocation"], true, name);
+      assert.equal(frontmatter["disable-model-invocation"], name === "01-orchestrator.agent.md", name);
     }
   });
 }
 
-test("AB-01/15 one-H1 normalization supports the model-specific body contract", () => {
+test("AB-01/15 one-H1 normalization retains pinned-fixture vendor validation", () => {
   const original = read("03-architect");
-  const frontmatter = parseFrontmatter(original);
+  const frontmatter = { ...parseFrontmatter(original), model: ["Claude Sonnet 5.5 (copilot)"] };
   const agent = {
     frontmatter,
     content: original,
@@ -186,7 +305,9 @@ test("AB-01/15 one-H1 normalization supports the model-specific body contract", 
   const result = runVendorPrompting({
     agents: new Map([[agent.path, agent]]),
     prompts: new Map(),
-    catalog: { models: Object.fromEntries(frontmatter.model.map((model) => [model, { deprecated: false }])) },
+    catalog: {
+      models: Object.fromEntries(frontmatter.model.map((model) => [model, { deprecated: false }])),
+    },
   });
   const blockers = result.findings.filter((finding) =>
     ["gpt-outcome-contract-001", "gpt-stop-rules-non-empty-001", "claude-output-contract-001"].includes(finding.ruleId),
@@ -194,14 +315,52 @@ test("AB-01/15 one-H1 normalization supports the model-specific body contract", 
   assert.deepEqual(blockers, []);
 });
 
-test("AB-02 fresh setup has one owner; resume preserves recovery and mandatory gate breaks", () => {
+test("AB-02 fresh setup has one owner; resume preserves recovery and verified worker boundaries", () => {
   const body = read("01-orchestrator");
   assert.match(section(body, "## Starting a New Project", "## Resuming a Project"), /Use the single ONE-SHOT/);
   assert.match(body, /use an explicitly supplied project without reconfirming it/);
   assert.match(body, /empty \/ "no project found"[\s\S]*?NOT a/);
   assert.doesNotMatch(body, /Gates 2 and 3 recommend|Recommend session break at Gates/);
-  assert.match(body, /Every accepted Gate \(1, 2, 2.5, 3, 4, 5\) ends with a mandatory/);
-  assert.match(body, /orchestrator never auto-invokes/);
+  assert.match(
+    body,
+    /Do not dispatch a step until its graph prerequisites, human gate and worker readiness are verified/,
+  );
+  assert.match(body, /HANDSHAKE_VERIFIED/);
+  assert.match(body, /WORKER_READY_ACK/);
+  assert.match(body, /--phase initial/);
+  assert.match(body, /--phase complete/);
+  assert.match(body, /READY_VERIFIED/);
+  assert.match(body, /Initial status never establishes complete readiness/);
+  assert.match(body, /apex-recall transition --complete/);
+});
+
+test("runtime guidance gates identity and continuation, not model selection or telemetry", () => {
+  for (const file of [
+    ".github/copilot-instructions.md",
+    ".github/instructions/agent-authoring.instructions.md",
+    ".github/skills/apex-agent-authoring/references/model-policy.md",
+    ".github/skills/apex-workflow-engine/references/worker-readiness.md",
+    ".github/skills/apex-workflow-start/SKILL.md",
+    "tools/tests/integration/smoke-run.md",
+  ]) {
+    const body = readFileSync(path.join(root, file), "utf8");
+    assert.match(body, /HydraFusion/, file);
+    assert.doesNotMatch(body, /MODEL_VERIFIED|operator explicitly selects Auto|matching configured\/dispatched/, file);
+    assert.doesNotMatch(body, /configured model, and its permitted tools|`MAI-Code-1.1-Flash` model/, file);
+  }
+  for (const file of readdirSync(agentRoot).filter((file) => file.endsWith(".agent.md"))) {
+    const body = readFileSync(path.join(agentRoot, file), "utf8");
+    assert.doesNotMatch(body, /Missing[^.\n]*runtime model evidence|Require `MODEL_VERIFIED`/, file);
+  }
+  const protocol = readFileSync(
+    path.join(root, ".github/skills/apex-workflow-engine/references/worker-readiness.md"),
+    "utf8",
+  );
+  assert.match(protocol, /model_attestation_required: false/);
+  assert.match(protocol, /HANDSHAKE_VERIFIED/);
+  assert.match(protocol, /READY_VERIFIED/);
+  assert.match(protocol, /same worker's exact ACK/);
+  assert.match(protocol, /Missing identity, dispatch linkage, completion or tool-free evidence still blocks/);
 });
 
 test("AB-03 complete prerequisites precede review; compliance none differs from missing", () => {
@@ -669,7 +828,15 @@ test("review metadata is deterministic, read-only and detects source, identity a
   const metadata = run("--metadata", artifact, "--finding-ids", draft);
   assert.equal(metadata.status, 0, metadata.stdout + metadata.stderr);
   assert.deepEqual(JSON.parse(metadata.stdout).cache_inputs, payload.cache_inputs);
-  assert.equal(payload.cache_inputs.model, parseFrontmatter(read("_subagents/challenger-review-subagent")).model[0]);
+  assert.equal(payload.cache_inputs.model_policy, "runtime-managed");
+  assert.equal(Object.hasOwn(payload.cache_inputs, "model"), false);
+  const reviewerPath = path.join(directory, sources[0]);
+  const reviewerSource = readFileSync(reviewerPath, "utf8");
+  writeFileSync(reviewerPath, reviewerSource.replace(/^---\n/, '---\nmodel: ["Claude Sonnet 5.5 (copilot)"]\n'));
+  const legacyCache = cacheInputs(artifact, directory);
+  assert.equal(legacyCache.model_policy, "legacy-pinned");
+  assert.equal(legacyCache.model, "Claude Sonnet 5.5 (copilot)");
+  writeFileSync(reviewerPath, reviewerSource);
   assert.deepEqual(
     JSON.parse(metadata.stdout).finding_ids,
     payload.findings.map((finding, index) => ({

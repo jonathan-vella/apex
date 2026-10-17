@@ -1,12 +1,10 @@
 ---
 name: 08-As-Built
 description: "Generates Step 7 as-built documentation suite after successful deployment. Reads all prior artifacts (Steps 1-6) and deployed resource state to produce: design document, operations runbook, cost estimate, compliance matrix, backup/DR plan, resource inventory, and documentation index."
-model: ["Claude Sonnet 5.5 (copilot)"]
-reasoning-effort: medium
 user-invocable: true
-disable-model-invocation: true
+disable-model-invocation: false
 agents: ["cost-estimate-subagent"]
-tools: [vscode/askQuestions, execute, read, agent, edit, search, web, 'azure-mcp/*', todo]
+tools: [execute, read, agent, edit, search, web, 'azure-mcp/*', todo]
 handoffs:
   - label: "▶ Generate All Documentation"
     agent: 08-As-Built
@@ -50,6 +48,13 @@ Done when:
   not planned configuration; deltas vs. plan are called out explicitly.
 - Documentation index links every produced artifact and summarises what each
   contains in one line.
+
+## Harness Entry
+
+Delegated `APEX_WORKER_HANDSHAKE`: no tools; return `WORKER_READY <definition-name> <original-nonce>`; nonce-only returns
+`WORKER_READY_ACK <definition-name> <original-nonce>` with same values. Stop; await `WORKER_EXECUTE`.
+[Routing](../skills/apex-workflow-engine/references/worker-readiness.md) before leaf calls; direct use owns `ask_user`.
+Return `USER_INPUT_REQUIRED` forms to the interactive parent; cancel stops.
 
 ## Context Awareness
 
@@ -143,7 +148,7 @@ raise a better approach in one sentence instead of silently widening, narrowing 
 
 <stop_conditions>
 
-- Missing essential tool/model/input or worker eligibility returns `blocked`; stop
+- Missing essential tool, worker readiness, input or worker eligibility returns `blocked`; stop
   with the error rather than substituting a model, pricing source or successful status.
 - Stop after the requested subset, or every full-suite output in Output Contract,
   is validated and indexed. Do not loop back to regenerate artifacts
@@ -162,7 +167,7 @@ raise a better approach in one sentence instead of silently widening, narrowing 
 
 ## Operating frame
 
-Local uses human handoffs; Host requires explicit selection of the named next owner.
+Use the verified Copilot SDK worker contract; human approval gates still block advancement.
 Skills run inline and cannot select model/tools. Use #tool:agent only for the cost
 worker; retain its JSON contract and stop if required runtime eligibility is unavailable.
 
@@ -176,8 +181,8 @@ investigate before answering) live in
   plan, resource inventory, documentation index). Never modify
   deployed infrastructure, change IaC templates, or skip prior
   artifact review.
-- **Subagent budget (1)**: `cost-estimate-subagent`; its frontmatter owns the
-  model assignment. Do not infer runtime cost tier from its capability label.
+- **Subagent budget (1)**: `cost-estimate-subagent`; verify its observed runtime
+  route before execution. Do not infer runtime cost tier from a capability label.
   The JSON-shaped contract is preserved verbatim. Spawn no other workers and never
   use a worker to re-check your own output.
 
@@ -202,7 +207,7 @@ The full Step 7 suite still requires every listed output before completion.
 6. When the deployment includes App Service or Azure Functions, read `.github/skills/apex-azure-reliability/SKILL.md`
    — read-only reliability findings for `07-backup-dr-plan.md` and `07-design-document.md` section 8
 7. Read the execution-subagent prompt contract
-   [tools/apex-prompts/utility-prompts/execution-subagent.prompt.md](../../tools/apex-prompts/utility-prompts/execution-subagent.prompt.md)
+   [.github/skills/apex-workflow-engine/references/execution-subagent.md](../skills/apex-workflow-engine/references/execution-subagent.md)
   — every #tool:agent call (cost-estimate-subagent) MUST follow the
    three-H2 contract (issue #425).
 
@@ -537,12 +542,7 @@ This keeps the user informed during multi-phase operations.
 
 ## Completion Handoff
 
-After `apex-recall complete-step` + writing `00-handoff.md`, end the
-final chat message with this line, **verbatim**, on its own final line
-(full contract:
-[`compression-templates.md`](../skills/apex-context-management/references/compression-templates.md#gate-boundary-clear-handoff-contract);
-validator: `npm run validate:orchestrator-handoff`):
-
-```text
-Run `/clear`, then switch the chat agent picker to `01-Orchestrator` and send `resume <project>` to continue Step N+1.
-```
+Run `apex-recall checkpoint <project> <step> completed --json`; update `00-handoff.md`
+with paths, actual validation results and unresolved findings. Return `STEP_COMPLETE`
+only after required reviews/checks; pending decisions return `USER_INPUT_REQUIRED`.
+Direct use presents the human gate with `ask_user` and stops. Completion is not next-step approval.

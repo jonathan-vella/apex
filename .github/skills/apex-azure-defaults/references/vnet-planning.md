@@ -66,13 +66,13 @@ Top-level decision key. Default: `guided`. Recorded via
 
 | Mode       | Behaviour                                                                                                                                                                                                |
 | ---------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `guided`   | Full two-round askQuestions; mandatory for prod.                                                                                                                                                         |
+| `guided`   | Full two-round ask_user; mandatory for prod.                                                                                                                                                         |
 | `fast`     | Round 1 only; Round 2 auto-confirms the proposed table with a Challenger-tagged informational finding (`subnet plan auto-confirmed in fast mode`).                                                       |
 | `deferred` | Gate writes a placeholder `subnet_plan = []` and a Challenger-tagged informational finding (`VNet planning deferred; sandbox/exploration mode`). **Disallowed when the inferred environment is `prod`** — block with explanation. |
 
-## askQuestions Round 1 (`guided` or `fast`)
+## ask_user Round 1 (`guided` or `fast`)
 
-Single batched `vscode_askQuestions` call. Three questions max
+Single batched `ask_user` call. Three questions max
 (Q3 only fires when Q1 = `use-existing`):
 
 - **Q1 — `vnet_mode`** (options): `create-new` (default), `use-existing`.
@@ -165,14 +165,14 @@ Three outcomes:
   use the exact case-sensitive name and may **only** appear when the
   respective resource is in scope.
 
-## askQuestions Round 2 (table confirmation)
+## ask_user Round 2 (table confirmation)
 
 Present the proposed `subnet_plan` as a markdown table in the
 question text. Columns: `purpose / SKU-derived size / address_prefix /
 delegation / NSG-attached / route-table`.
 
 Then run the **per-row askMe loop** — one
-`vscode_askQuestions` call per subnet row with three options:
+`ask_user` call per subnet row with three options:
 
 - `Apply edit (freeform diff)` — user types replacement values in the
   follow-up freeform field; Architect parses and updates the row.

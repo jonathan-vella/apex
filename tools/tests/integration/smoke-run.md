@@ -1,145 +1,98 @@
-# Smoke-run harness — Plan 01 token-reduction acceptance
+# VS Code Copilot SDK Smoke Acceptance
 
-Minimal manual end-to-end test for Plan 01 Phase 2a / 2b / 2c
-acceptance. A fake project taken through **Steps 1 → 2** of the APEX
-workflow with deliberate `/clear` boundaries between gates. Captures
-the four headline signals that prove the plan landed.
+Manual, non-deploying Steps 1–2 acceptance for the supported SDK harness inside VS Code.
+Static fixtures and built-in worker probes do not certify custom-agent discovery,
+worker identity, tools, continuation, human gates or MCP binding.
+Use a dedicated approved smoke project; never reset an existing project's state.
 
-## What to capture
+## Runtime Preconditions
 
-Per workflow run:
+1. Reload definitions if required and select `01-Orchestrator`.
+   Model selection belongs to the operator and runtime, including Auto and HydraFusion;
+   model changes do not require a fresh chat or block readiness.
+2. Verify required MCP tools and hooks in that runtime. Do not duplicate live MCP
+   registrations, change credentials or substitute models to force a pass.
+3. Use `/apex-workflow-start` with an explicit fresh operation and project.
+4. Before specialist work, follow the
+   [worker readiness protocol](../../../.github/skills/apex-workflow-engine/references/worker-readiness.md).
+   In normal and Autopilot runs, dispatch the worker directly with `WORKER_EXECUTE`
+   and verify attribution via `verify-worker-ready.mjs --phase execute` (`EXECUTE_VERIFIED`).
+   For diagnostic standalone readiness probes, run `--phase initial` for `HANDSHAKE_VERIFIED`
+   (`continuation_verified: false`) before the nonce-only continuation; after the
+   exact same-worker ACK and second turn completion, run `--phase complete` for
+   `READY_VERIFIED` (`continuation_verified: true`).
+   Leave per-call model/effort/context overrides unset. Model names, effort,
+   picker selection and model-source labels are optional diagnostics, not gates;
+   parent, configured, dispatched and response models may differ between turns.
+5. In Autopilot mode (`APEX_UNATTENDED=1` or explicit user `"run in autopilot"` / `"auto mode"`),
+   `01-Orchestrator` auto-resolves discovery defaults from the project brief, applies
+   `must_fix`/`should_fix` review mitigations, and auto-advances across all authorized
+   gates (including test deployments when Azure test scope is authorized), pausing only
+   on unresolvable blockers.
 
-| Signal                        | How to capture                                                                                  | Plan 01 target                      |
-| ----------------------------- | ----------------------------------------------------------------------------------------------- | ----------------------------------- |
-| OTel log                      | Export from VS Code Copilot Chat: cmd palette → "Copilot: Export debug log"                     | Save under `logs/smoke-<date>.json` |
-| `apex-recall` state           | `apex-recall show <project> --json > tmp/smoke-state.json`                                      | Captures resume contract            |
-| askQuestions count            | `npm run profile:debug-log -- logs/smoke-<date>.json --json \| jq '.totals.askquestions_count'` | ≤ 20 (whole log; per-finding gates) |
-| Challenger invocations        | Same profiler output: `.totals.challenger_invocations`                                          | ≤ 2 per step (default depth)        |
-| Inter-`/clear` chat-span max  | `.compliance_metrics.max_chat_spans_between_clears`                                             | ≤ 50                                |
-| Post-`/clear` first input tok | First `chat:*` span's `gen_ai.usage.input_tokens`                                               | ≤ 45 000                            |
+## Workflow Probe
 
-## Steps
+1. Confirm Requirements discovery is one native `ask_user` form with independently typed fields,
+   not a Local question API payload. The interactive parent mediates worker forms.
+2. Exercise an input-required continuation without duplicating already answered questions.
+   Decline never approves; cancellation stops.
+3. Complete Requirements and its required independent review. Checkpoint through
+   `apex-recall`, preserve output paths and present Gate 1 separately.
+   Invoke built-in `rubber-duck` using the
+   [one-shot review contract](../../../.github/skills/apex-azure-defaults/references/one-shot-review.md),
+   `mode: sync` and no routing overrides. Do not run a reviewer handshake or ACK.
+   Require linked dispatch/completion, exact recorded findings and strict freshness
+   validation. The technical return stays with the same Orchestrator; Challenger
+   is optional manual recovery. An exhausted allowance remains exhausted.
+4. After explicit Gate 1 approval, verify and dispatch the exact Architect worker.
+   Exercise a resumed worker whose first execution tool is
+   `apex-recall show <project> --json`. Readiness and ACK turns remain tool-free.
+5. Verify comprehensive architecture and separate cost-feasibility reviews in default mode.
+   Reuse current valid evidence; missing/stale reviews and unresolved blockers cannot approve Gate 2.
+6. Stop at Gate 2 without advancing into Governance, CodeGen or deployment.
+   Persist the handoff; worker completion is not next-step approval.
+7. Close the captured session. Do not infer a closed capture from Local `/clear` markers.
+   A later resume reopens the capture even if its timestamp precedes the appended shutdown.
 
-### 0. Prep
+## Capture And Automated Evidence
 
-1. Fresh chat session — open VS Code Copilot Chat, no prior history.
-2. **Review depth**: no action needed. `decisions.review_depth`
-   defaults to `"default"` when absent (per
-   `01-orchestrator.agent.md` → "Computing `decisions.review_depth`"
-   → _"Default value when absent: `default`."_). The 2-pass ceiling
-   applies automatically.
+Select the exact native session log; scoped export remains an optional separate manual skill.
+No raw conversion or copying is required for profiling:
 
-   _Only if you want the deep (4-pass) path instead_, run **after**
-   the orchestrator initialises the project:
-
-   ```sh
-   apex-recall decide <project> --key review_depth --value deep \
-     --rationale "Multi-pass adversarial review required" --json
-   ```
-
-### 1. Step 1 — Requirements (target Gate 1)
-
-1. Switch the chat agent picker to `01-Orchestrator` and send a tiny
-   project description (e.g. _"smoke-test, a small Node.js web app for
-   an internal HR form, Sweden Central, prod-grade, Bicep"_).
-2. Confirm the project name when prompted.
-3. Orchestrator hands off to `02-Requirements`.
-4. **Watch for the P0 batching directive** (Plan 01 Phase 4):
-   Requirements should fire ONE `askQuestions` call with 6+
-   questions, not 6 separate calls.
-5. Accept Gate 1 when the orchestrator presents it.
-6. **The orchestrator MUST end the message with the verbatim resume
-   line** (Plan 01 Phase 2a):
-
-   ```text
-   Run `/clear`, then switch the chat agent picker to `01-Orchestrator` and send `resume smoke-test` to continue Step 2.
-   ```
-
-   If the line is missing or paraphrased → **smoke run fails**.
-
-### 2. `/clear` and resume
-
-1. Run `/clear` in the chat.
-2. Switch the chat agent picker back to `01-Orchestrator` and send
-   `resume smoke-test`.
-3. **Watch the first turn's input-token count** (visible in the OTel
-   log after export). It MUST be ≤ 45 000 — confirms the `/clear`
-   actually dropped context.
-4. The orchestrator's first tool call MUST be
-   `apex-recall show smoke-test --json`. If it re-reads
-   `01-requirements.md` instead, the resume path is broken.
-
-### 3. Step 2 — Architecture (target Gate 2)
-
-1. Click the **Step 2: Architecture Assessment** handoff.
-2. Let the Architect run (cost-estimate subagent + WAF assessment).
-3. **Challenger pass**: Gate 2 presentation should show
-   `decisions.challenger_invocations_2 = 1`. If a second pass fires
-   without an explicit Override decision → ceiling broken
-   (Plan 01 Phase 2b).
-4. Accept Gate 2.
-5. Verify the same `/clear` resume line is emitted again, this time
-   for Step 3.
-
-### 4. Capture + verify
-
-One-shot verifier — **auto-exports the live debug log** from VS Code
-Copilot Chat's on-disk JSONL, converts to OTel, profiles, runs the
-ceiling budget check, evaluates every acceptance target, and saves
-the result:
-
-```sh
-npm run smoke:verify
+```bash
+npm run profile:debug-log -- ~/.copilot/session-state/SELECTED_SESSION_ID/events.jsonl --json
+npm run smoke:verify -- ~/.copilot/session-state/SELECTED_SESSION_ID/events.jsonl --strict
+npm run validate:review-ceiling -- --budget ~/.copilot/session-state/SELECTED_SESSION_ID/events.jsonl --strict
 ```
 
-That's it — no manual export, no date substitution. The script:
+Smoke output defaults to ignored baseline storage; use `--out` for an explicit alternative.
+`--no-auto-discovery` requires a path; `--no-auto-export` is its compatibility alias.
+Without a path, discovery is restricted to exact repository identity, never the newest global session.
 
-1. Discovers the newest `main.jsonl` under
-   `~/.vscode-server/data/User/workspaceStorage/*/GitHub.copilot-chat/debug-logs/*/`.
-2. Converts JSONL → OTel envelope and writes
-   `logs/smoke-<today>.json`.
-3. Prints a PASS / FAIL / WARN / SKIP row per acceptance target and a
-   final verdict.
-4. Saves the full profiler+computed JSON to
-   `agent-output/_baselines/smoke-<today>.json`.
+| Automated signal      | Required captured evidence                                                     |
+| --------------------- | ------------------------------------------------------------------------------ |
+| Format                | Native SDK, not historical Local/OTel                                          |
+| Usage                 | Input/output present for every observed call; authoritative usage counted once |
+| Scope                 | Root capture closed; no incomplete operations or unattributed usage            |
+| `ask_user`            | At most 20 calls across the captured scope                                     |
+| First execution input | At most 45,000 tokens for every attributed worker execution                    |
+| Resume                | Explicitly resumed execution with successful first-tool recall recovery        |
+| Reviews               | Attributed default-mode independent review requests, at most 2 per step        |
+| Errors                | No non-benign observed errors                                                  |
 
-Exits `0` on all-pass, `1` on any FAIL. WARN-only rows do not fail
-unless `--strict`.
+Missing required evidence is `UNKNOWN` and non-passing, not zero or a skipped success.
+Model metadata remains diagnostic only, including absent or changing actual models.
+Cache totals are observed samples, not billing. Historical `/clear` and phase counters
+are unavailable for native logs; do not infer phase boundaries from timestamps.
+Readiness alone never counts as executed review work.
+Received worker execution envelopes and matching send-tool records count once.
+Each actual `APEX_REVIEW` rubber-duck dispatch also counts once, including a
+multi-lens batch. A valid findings record and a telemetry count are separate requirements.
+External-only transport completions do not prove tool success and remain non-passing.
 
-Variants:
+## Acceptance Boundary
 
-```sh
-npm run smoke:verify -- logs/older-export.json   # use a specific log
-npm run smoke:verify -- --no-auto-export         # require explicit path
-npm run smoke:verify -- --strict                 # WARN counts as FAIL
-```
-
-For ad-hoc spot checks, the underlying tools still work standalone:
-
-```sh
-npm run profile:debug-log -- logs/smoke-<date>.json
-npm run validate:review-ceiling -- --budget logs/smoke-<date>.json
-```
-
-## Acceptance criteria
-
-A smoke run is **green** when ALL of these are true:
-
-- [ ] askQuestions count ≤ 20 across the whole log (per-finding gates
-      may legitimately fire multiple prompts per challenger pass)
-- [ ] Challenger invocations ≤ 2 per step
-- [ ] Inter-`/clear` chat-span max ≤ 50
-- [ ] Post-`/clear` first chat-call input tokens ≤ 45 000
-- [ ] Verbatim `/clear` resume line emitted at every accepted gate
-- [ ] Orchestrator's first post-`/clear` tool call is
-      `apex-recall show <project> --json` (not artifact reads)
-
-## When this harness is used
-
-- **Phase 2a acceptance**: must pass before merging Phase 2a to `main`.
-- **Phase 2b acceptance**: must pass before merging Phase 2b to `main`.
-- **Phase 4 acceptance**: askQuestions count is the headline check.
-- **Phase 3 A/B pilot**: re-run on `test/challenger-sonnet` branch
-  and compare findings to a baseline run on `main` — quality rubric
-  is in `/memories/repo/codegen-model-mix-2026.md`.
-- **Quarterly regression**: re-run to catch silent drift.
+Automated telemetry acceptance is necessary but not sufficient. Record actual custom-agent
+discovery, worker identity/tool binding, continuation, independent review and human-stop observations.
+It does not certify complete billing, review validity, approval or deployment success.
+Never restamp existing review evidence or mutate another project's state to make a probe pass.

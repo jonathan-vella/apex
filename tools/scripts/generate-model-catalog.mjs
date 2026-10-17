@@ -3,7 +3,8 @@
  * Model Catalog Assignment Generator
  *
  * Rebuilds the `assignments` block of `.github/model-catalog.json` from
- * agent and subagent frontmatter (the canonical source of truth). The
+ * explicit legacy model pins in agent and subagent frontmatter. Active
+ * production definitions omit these pins. The
  * `models` and `governance` blocks are hand-maintained metadata and are
  * preserved verbatim. Only `assignments` is rewritten.
  *
@@ -18,8 +19,8 @@
  *     "generated": true,
  *     "generated_by": "tools/scripts/generate-model-catalog.mjs",
  *     "description": "...",
- *     "agents": { "<file>.agent.md": "<model label>", ... },
- *     "subagents": { "<file>.agent.md": "<model label>", ... }
+ *     "agents": { "<pinned-file>.agent.md": "<model label>", ... },
+ *     "subagents": { "<pinned-file>.agent.md": "<model label>", ... }
  *   }
  *
  * @example

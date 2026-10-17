@@ -1,8 +1,6 @@
 ---
 name: bicep-validate-subagent
 description: "Bicep validation subagent. Runs lint (bicep lint + build) first, then code review (AVM standards, naming, security baseline, governance). Returns PASS/FAIL + APPROVED/NEEDS_REVISION/FAILED verdict."
-model: ["GPT-6 Luna (copilot)"]
-reasoning-effort: max
 user-invocable: false
 disable-model-invocation: false
 agents: []
@@ -149,6 +147,15 @@ Before composing findings:
    is a defect — copy the offending text inside backticks.
 5. Missing required files, skills or unresolved compiled properties fail the affected
   check; name the missing evidence in Detailed Findings, never silently skip it.
+
+## Harness Entry
+
+For `APEX_WORKER_HANDSHAKE`, perform no tools and return exactly
+`WORKER_READY <definition-name> <original-nonce>` using this definition's name and parent's nonce. On the nonce-only continuation,
+return exactly `WORKER_READY_ACK <definition-name> <original-nonce>` with those values and no tools.
+Work only after the same parent sends `WORKER_EXECUTE` following complete-phase readiness verification. A missing
+handshake or execution envelope returns `blocked`, never an inherited-model run.
+Do not ask users, manage parent todos or delegate. Return missing inputs to the parent.
 
 ## Inputs
 

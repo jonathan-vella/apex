@@ -17,9 +17,10 @@
  *   `claim`, `evidence`, `impact`, `artifact_section`, `traces_to`.
  *   `must_fix` findings must also carry a `suggested_fix` with at minimum
  *   `artifact_path` and `proposed_edit`.
- * - `cache_inputs` must carry `artifact_sha`, `checklists_sha`,
- *   `protocol_sha`, `subagent_sha`, `model`, `artifact_hash` (all
- *   non-empty strings).
+ * - `cache_inputs` carries artifact/checklist/protocol hashes, `model_policy`
+ *   and `artifact_hash`. Legacy reviews use `subagent_sha`; explicit
+ *   rubber-duck reviews use `reviewer_contract` / `reviewer_contract_sha`
+ *   and require execution provenance at strict current validation.
  *
  * Excludes the decisions sidecar (`challenge-findings-*-decisions.json`)
  * which has its own shape defined in `adversarial-review-protocol.md`
@@ -68,14 +69,14 @@ const REQUIRED_FINDING_FIELDS = [
   "artifact_section",
   "traces_to",
 ];
-const REQUIRED_CACHE_FIELDS = [
-  "artifact_sha",
-  "checklists_sha",
-  "protocol_sha",
-  "subagent_sha",
-  "model",
-  "artifact_hash",
-];
+const REQUIRED_CACHE_FIELDS = ["artifact_sha", "checklists_sha", "protocol_sha", "model_policy", "artifact_hash"];
+export const ONE_SHOT_REVIEW_CONTRACT = ".github/skills/apex-azure-defaults/references/one-shot-review.md";
+
+function reviewerMode(reviewer) {
+  if (reviewer === undefined || reviewer === "challenger-review-subagent") return "legacy";
+  if (reviewer === "rubber-duck") return reviewer;
+  throw new Error(`Unknown reviewer: ${JSON.stringify(reviewer)}`);
+}
 const VALID_SEVERITY = new Set(["must_fix", "should_fix", "suggestion"]);
 const MUTABLE_INPUT_NAMES = new Set([
   "sku-manifest.json",
@@ -110,7 +111,8 @@ export function findingId(finding) {
     .slice(0, 8);
 }
 
-export function cacheInputs(artifactPath, root = process.cwd()) {
+export function cacheInputs(artifactPath, root = process.cwd(), reviewer) {
+  const mode = reviewerMode(reviewer);
   const read = (relative) => fs.readFileSync(path.resolve(root, relative));
   const hash = (bytes) => createHash("sha256").update(bytes).digest("hex");
   const artifact = path.resolve(root, artifactPath);
@@ -130,24 +132,51 @@ export function cacheInputs(artifactPath, root = process.cwd()) {
   visit(artifact);
   if (!entries.length) throw new Error("Review artifact directory contains no files");
   const artifactSha = fs.lstatSync(artifact).isDirectory() ? hash(JSON.stringify(entries)) : entries[0][1];
-  const worker = read(".github/agents/_subagents/challenger-review-subagent.agent.md");
-  const models = parseFrontmatter(worker.toString("utf8"))?.model;
+  const worker = read(
+    mode === "legacy" ? ".github/agents/_subagents/challenger-review-subagent.agent.md" : ONE_SHOT_REVIEW_CONTRACT,
+  );
+  const models = mode === "legacy" ? parseFrontmatter(worker.toString("utf8"))?.model : undefined;
   const model = Array.isArray(models) ? models[0] : null;
-  if (typeof model !== "string" || !model) throw new Error("Missing reviewer frontmatter model");
   const inputs = {
     artifact_sha: artifactSha,
     checklists_sha: hash(read(".github/skills/apex-azure-defaults/references/adversarial-checklists.md")),
     protocol_sha: hash(read(".github/skills/apex-azure-defaults/references/adversarial-review-protocol.md")),
-    subagent_sha: hash(worker),
-    model,
+    ...(mode === "legacy"
+      ? { subagent_sha: hash(worker) }
+      : {
+          reviewer: "rubber-duck",
+          reviewer_contract: ONE_SHOT_REVIEW_CONTRACT,
+          reviewer_contract_sha: hash(worker),
+        }),
+    model_policy: model ? "legacy-pinned" : "runtime-managed",
   };
+  if (model) inputs.model = model;
   return { ...inputs, artifact_hash: hash(Object.values(inputs).join("\n---\n")) };
 }
 
-function verifyCache(file, doc) {
-  const expected = cacheInputs(doc.challenged_artifact);
+function verifyCache(file, doc, root = process.cwd(), execution = doc.review_execution) {
+  const expected = cacheInputs(doc.challenged_artifact, root, doc.cache_inputs?.reviewer);
   for (const [field, value] of Object.entries(expected)) {
     if (doc.cache_inputs?.[field] !== value) r.error(`${file}: stale cache_inputs.${field}`);
+  }
+  if (Object.hasOwn(doc.cache_inputs ?? {}, "model") !== Object.hasOwn(expected, "model")) {
+    r.error(`${file}: cache_inputs.model must be present only for an explicitly pinned legacy reviewer`);
+  }
+  if (doc.cache_inputs?.reviewer === "rubber-duck") {
+    if (Object.hasOwn(doc.cache_inputs, "subagent_sha")) {
+      r.error(`${file}: rubber-duck cache must not claim a legacy subagent_sha`);
+    }
+    if (
+      execution?.reviewer !== "rubber-duck" ||
+      !["worker_id", "parent_id", "tool_call_id", "completed_at", "request_id", "step", "project_name"].every((key) =>
+        isNonEmptyString(execution?.[key]),
+      ) ||
+      !["default", "deep"].includes(execution?.review_depth) ||
+      execution.worker_id === execution.parent_id ||
+      !Number.isFinite(Date.parse(execution.completed_at))
+    ) {
+      r.error(`${file}: rubber-duck requires matching review_execution provenance`);
+    }
   }
   if (doc.supporting_inputs !== undefined) {
     if (!Array.isArray(doc.supporting_inputs) || doc.supporting_inputs.length === 0) {
@@ -159,12 +188,13 @@ function verifyCache(file, doc) {
           if (!input || typeof input.path !== "string" || !/^[a-f0-9]{64}$/.test(input.sha256 || "")) {
             throw new Error("invalid supporting input record");
           }
-          const resolved = path.resolve(input.path);
+          const resolved = path.resolve(root, input.path);
           if (seen.has(resolved)) throw new Error("duplicate supporting input");
           seen.add(resolved);
           const mutable = mutableInputProblem(input.path);
           if (mutable) throw new Error(mutable);
-          if (cacheInputs(input.path).artifact_sha !== input.sha256) throw new Error("supporting bytes changed");
+          if (cacheInputs(input.path, root, doc.cache_inputs?.reviewer).artifact_sha !== input.sha256)
+            throw new Error("supporting bytes changed");
         } catch (error) {
           r.error(`${file}: invalid supporting input: ${error.message}`);
         }
@@ -262,12 +292,45 @@ function validateFindings(file, doc) {
     }
   }
   if (doc.cache_inputs && typeof doc.cache_inputs === "object") {
-    for (const f of REQUIRED_CACHE_FIELDS) {
+    const mode = reviewerMode(doc.cache_inputs.reviewer);
+    if (mode === "rubber-duck") {
+      if (!["APPROVED", "NEEDS_REVISION", "BLOCKED"].includes(doc.overall_assessment)) {
+        r.error(`${file}: rubber-duck requires a valid overall_assessment`);
+      }
+      if (!["low", "medium", "high"].includes(doc.risk_level)) {
+        r.error(`${file}: rubber-duck requires a valid risk_level`);
+      }
+    }
+    const fields = [
+      ...REQUIRED_CACHE_FIELDS,
+      ...(mode === "legacy" ? ["subagent_sha"] : ["reviewer_contract", "reviewer_contract_sha"]),
+    ];
+    for (const f of fields) {
       if (!isNonEmptyString(doc.cache_inputs[f])) {
         r.error(`${file}: cache_inputs.${f} missing or empty`);
       }
     }
   }
+}
+
+/** Validate a parsed review without rewriting its findings, counts, or verdict. */
+export function validateReview(doc, { root = process.cwd(), verifyCurrent = false } = {}) {
+  const previous = r;
+  const errors = [];
+  r = { error: (message) => errors.push(message) };
+  try {
+    validateFindings("review", doc);
+    if (verifyCurrent) {
+      const entries = Array.isArray(doc.batch_results) ? doc.batch_results : [doc];
+      if (entries.length === 0) throw new Error("Empty batch cannot prove a current review");
+      for (const entry of entries) verifyCache("review", entry, root, doc.review_execution ?? entry.review_execution);
+    }
+  } catch (error) {
+    errors.push(`Invalid findings payload: ${error.message}`);
+  } finally {
+    r = previous;
+  }
+  return errors;
 }
 
 export function runValidator(args = process.argv.slice(2)) {
@@ -282,6 +345,7 @@ export function runValidator(args = process.argv.slice(2)) {
         root: { type: "string" },
         path: { type: "string", multiple: true },
         metadata: { type: "string" },
+        reviewer: { type: "string" },
         "finding-ids": { type: "string" },
         "verify-cache": { type: "boolean" },
         "supporting-input": { type: "string", multiple: true },
@@ -292,8 +356,8 @@ export function runValidator(args = process.argv.slice(2)) {
     if (values.help) {
       console.log(
         "Usage: validate-challenger-findings.mjs [--root DIR | --path FILE | FILE ...] [--verify-cache]\n" +
-          "Read-only metadata: --metadata ARTIFACT [--supporting-input PATH ...] [--finding-ids DRAFT.json.tmp]\n" +
-          "Metadata hashes file bytes or sorted directory entries using the reviewer frontmatter model.\n" +
+          "Read-only metadata: --metadata ARTIFACT [--reviewer rubber-duck] [--supporting-input PATH ...] [--finding-ids DRAFT.json.tmp]\n" +
+          "Metadata hashes file bytes or sorted directory entries and the reviewer's model-policy contract.\n" +
           "Use --verify-cache for current review gates, not historical schema-only scans.",
       );
       return 0;
@@ -303,7 +367,10 @@ export function runValidator(args = process.argv.slice(2)) {
         throw new Error("Metadata output cannot be combined with validation inputs");
       }
       const metadata = {};
-      if (values.metadata !== undefined) metadata.cache_inputs = cacheInputs(values.metadata);
+      if (values.reviewer !== undefined && values.metadata === undefined)
+        throw new Error("--reviewer requires --metadata");
+      if (values.metadata !== undefined)
+        metadata.cache_inputs = cacheInputs(values.metadata, process.cwd(), values.reviewer);
       if (values["supporting-input"]) {
         if (values.metadata === undefined) throw new Error("--supporting-input requires --metadata");
         for (const input of values["supporting-input"]) {
@@ -312,7 +379,7 @@ export function runValidator(args = process.argv.slice(2)) {
         }
         metadata.supporting_inputs = [...new Set(values["supporting-input"])].map((input) => ({
           path: input,
-          sha256: cacheInputs(input).artifact_sha,
+          sha256: cacheInputs(input, process.cwd(), values.reviewer).artifact_sha,
         }));
       }
       if (values["finding-ids"] !== undefined) {
@@ -324,6 +391,7 @@ export function runValidator(args = process.argv.slice(2)) {
       console.log(JSON.stringify(metadata, null, 2));
       return 0;
     }
+    if (values.reviewer !== undefined) throw new Error("--reviewer requires --metadata");
     if (values["supporting-input"]) throw new Error("--supporting-input requires --metadata");
     verifyCurrent = values["verify-cache"] ?? false;
     const requested = [...(values.path ?? []), ...positionals];
@@ -374,12 +442,7 @@ export function runValidator(args = process.argv.slice(2)) {
       continue;
     }
     try {
-      validateFindings(file, doc);
-      if (verifyCurrent) {
-        const entries = Array.isArray(doc.batch_results) ? doc.batch_results : [doc];
-        if (entries.length === 0) throw new Error("Empty batch cannot prove a current review");
-        for (const entry of entries) verifyCache(file, entry);
-      }
+      for (const error of validateReview(doc, { verifyCurrent })) r.error(`${file}: ${error}`);
     } catch (error) {
       r.error(`${file}: invalid findings payload (${error.message})`);
     }

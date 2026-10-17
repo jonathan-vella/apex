@@ -68,21 +68,30 @@ Markdown artifacts follow the
 
 ## Subagent budget — agent-specific
 
-- Follow the agent's declared subagent budget; the orchestrator uses handoff buttons only.
-- If a required worker is unavailable, stop and request a human handoff; never invoke a
+- Follow the agent's declared subagent budget. Orchestrator delegates approved steps
+  only after the [worker-readiness handshake](../skills/apex-workflow-engine/references/worker-readiness.md).
+  Delegated steps return user questions to the interactive parent; leaves never delegate.
+- Automatic independent reviews use built-in `rubber-duck` through
+  [one-shot review](../skills/apex-azure-defaults/references/one-shot-review.md).
+  The parent records only its actual attributed JSON result. No handshake/ACK
+  applies to this reviewer; resumable step-worker readiness is unchanged.
+- If a required worker is unavailable, stop and return the failure to the interactive parent; never invoke a
   main agent as a nested wrapper or widen the caller's allowlist. Reviewer failures follow the
-  [Challenger-subagent fallback rule](agent-authoring.instructions.md#challenger-subagent-fallback-rule)
+  [review failure rule](agent-authoring.instructions.md#challenger-subagent-fallback-rule)
   and the [review protocol](../skills/apex-azure-defaults/references/adversarial-review-protocol.md#subagent-discovery-fallback-default--deep).
 - Preserve structured output contracts across model families.
-- Model ownership and routing follow [agent-authoring](agent-authoring.instructions.md#model-policy);
-  if the active harness cannot honor required tools or model routing, stop.
+- Active definitions leave model and effort unpinned. The operator must select
+  the owning agent; the runtime manages models, including Auto and HydraFusion.
+  Model names, effort, picker selection and model-source labels are diagnostics
+  only. Require linked worker identity, tool-free turns and same-worker continuation,
+  not matching models. Missing required tools or readiness evidence blocks execution.
 
 ## Out of scope for this file
 
 - Per-agent role boundaries — kept in each agent's own
   `## Operating frame` or `## Constraints`.
-- The verbatim `## Completion Handoff` contract — owned by
-  [`compression-templates.md`](../skills/apex-context-management/references/compression-templates.md#gate-boundary-clear-handoff-contract)
-  and grep-locked by `tools/scripts/validate_orchestrator_handoff.py`.
-- Mid-step `/clear` between challenger passes — owned by the
-  orchestrator's Session Break Protocol.
+- The `## Completion Handoff` contract preserves checkpoints, output paths,
+  actual results, unresolved findings and separate human gates; enforced by
+  `tools/scripts/validate_orchestrator_handoff.py`.
+- Worker-boundary checkpoints between Challenger passes preserve findings,
+  review hashes, invocation counters and exhausted retries; a new context resets none.

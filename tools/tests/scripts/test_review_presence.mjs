@@ -10,24 +10,21 @@ import { loadValidator } from "../../scripts/_lib/ajv-validator.mjs";
 const script = fileURLToPath(new URL("../../scripts/validate-challenger-presence.mjs", import.meta.url));
 
 test("native resume delegates recovery and routing without extra mode questions", () => {
-  const native = readFileSync(
-    new URL("../../../.github/prompts/apex-resume-workflow.prompt.md", import.meta.url),
-    "utf8",
-  );
-  assert.match(native, /01-orchestrator.agent.md#resuming-a-project/);
+  const native = readFileSync(new URL("../../../.github/skills/apex-workflow-start/SKILL.md", import.meta.url), "utf8");
+  assert.match(native, /apex-workflow-engine\/references\/workflow-entry.md#resume/);
   assert.doesNotMatch(native, /next-step-mode|current_step.status|\|\| cat|Graph Node →/);
-  const attached = readFileSync(
-    new URL("../../apex-prompts/workflow-prompts/00-resume-workflow.prompt.md", import.meta.url),
+  const entry = readFileSync(
+    new URL("../../../.github/skills/apex-workflow-engine/references/workflow-entry.md", import.meta.url),
     "utf8",
   );
-  assert.equal(native.split("[resume]:")[0].trim(), attached.split("[resume]:")[0].trim());
-  assert.match(attached, /\.\.\/\.\.\/\.\.\/\.github\/agents\/01-orchestrator.agent.md#resuming-a-project/);
+  assert.match(entry, /01-orchestrator.agent.md#resuming-a-project/);
+  assert.match(entry, /After approval, use verified\s+dispatch/);
   const paths = readFileSync(new URL("../../scripts/_lib/paths.mjs", import.meta.url), "utf8");
-  assert.match(paths, /PROMPT_SOURCE_DIRS = \["\.github\/prompts"/);
+  assert.match(paths, /PROMPT_SOURCE_DIRS = \[\]/);
   const agent = readFileSync(new URL("../../../.github/agents/01-orchestrator.agent.md", import.meta.url), "utf8");
   assert.match(agent, /use an explicitly supplied project without reconfirming it/);
   assert.match(agent, /Do not require a session-state file before attempting recovery/);
-  assert.match(agent, /applicable approval gate or exact handoff/);
+  assert.match(agent, /applicable approval gate/);
 });
 
 test("decision presentation maps canonical fields and persists schema-valid Edit and empty notes", () => {
@@ -131,12 +128,13 @@ test("unattended production reviews fail closed on unresolved blockers", () => {
   );
 });
 
-test("unavailable reviewers require human handoff without nested wrapper or retry reset", () => {
+test("unavailable reviewers return to the parent without nested wrapper or retry reset", () => {
   const read = (file) => readFileSync(new URL(`../../../${file}`, import.meta.url), "utf8");
   const protocol = read(".github/skills/apex-azure-defaults/references/adversarial-review-protocol.md");
-  assert.match(protocol, /STOP\*\* and request a human handoff to `10-Challenger`/);
-  assert.match(protocol, /disable-model-invocation: true/);
-  assert.match(protocol, /Do not invoke it as a subagent/);
+  assert.match(protocol, /Automatic callers use built-in `rubber-duck`/);
+  assert.match(protocol, /return the actual error to the interactive parent/);
+  assert.match(protocol, /`10-Challenger` is optional manual recovery/);
+  assert.match(protocol, /Do not invoke it as a fallback subagent/);
   assert.match(protocol, /retry exactly once with identical inputs/);
   assert.match(protocol, /Do not reset this budget by changing wrappers or models/);
   assert.match(protocol, /already the active owner, request human intervention instead\s+of a self-handoff/);
@@ -151,7 +149,7 @@ test("unavailable reviewers require human handoff without nested wrapper or retr
   assert.match(gates, /Before any retry/);
   assert.match(gates, /Retry exactly once\*\* with identical inputs/);
   assert.match(gates, /After the second failure\*\*: STOP/);
-  assert.match(gates, /request a human handoff to `10-Challenger`/);
+  assert.match(gates, /require a human recovery decision/);
   assert.match(gates, /Do NOT call\s+the subagent a third time/);
   assert.match(gates, /already active, request human intervention instead of a\s+self-handoff/);
   assert.match(gates, /neither human selection nor a new wrapper renews the retry allowance/);
@@ -205,10 +203,10 @@ test("Architect batches independent finding questions without combining decision
     ".github/skills/apex-azure-defaults/references/workflow-gates.md",
   ]) {
     const body = read(file);
-    assert.match(body, /one batched `vscode_askQuestions` panel with a separate question per/);
+    assert.match(body, /one batched `ask_user` panel with a separate question per/);
     assert.match(body, /canonical action options/);
     assert.match(body, /panel cap/);
-    assert.doesNotMatch(body, /One `vscode_askQuestions` call per finding|5 findings → 5 sequential/);
+    assert.doesNotMatch(body, /One `ask_user` call per finding|5 findings → 5 sequential/);
   }
   const protocol = read(".github/skills/apex-azure-defaults/references/adversarial-review-protocol.md");
   assert.match(protocol, /^## Per-Finding Decision Protocol$/m);
@@ -257,12 +255,10 @@ test("orchestrator reuses valid reviews without bypassing plan or resume gates",
   assert.match(body, /review_depth == "deep"/);
   assert.match(body, /cost-feasibility review at Step 2/);
   assert.match(body, /session\.steps/);
-  assert.match(body, /Only after the\s+human gate is approved/);
-  assert.ok(
-    body.includes(
-      "Run `/clear`, then switch the chat agent picker to `01-Orchestrator` and send `resume <project>` to continue Step N+1.",
-    ),
-  );
+  assert.match(body, /require explicit human approval\. Readiness is not approval/);
+  assert.match(body, /graph prerequisites, human gate and worker readiness are verified/);
+  assert.match(body, /apex-recall checkpoint/);
+  assert.doesNotMatch(body, /Run `\/clear`, then switch the chat agent picker/);
 });
 
 test("workflow graph and agent handoffs preserve review and validation floors", () => {

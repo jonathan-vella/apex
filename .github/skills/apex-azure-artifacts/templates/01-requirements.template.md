@@ -333,7 +333,8 @@ Table of recommended controls based on workload pattern and compliance requireme
 
 ---
 
-_Requirements captured using [plan-requirements.prompt.md](../../.github/prompts/plan-requirements.prompt.md) template_
+_Requirements captured by [02-Requirements](../../../agents/02-requirements.agent.md)
+using the [workflow entry contract](../../apex-workflow-engine/references/workflow-entry.md)._
 
 ---
 

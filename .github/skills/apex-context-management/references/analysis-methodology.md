@@ -9,34 +9,27 @@ common optimization patterns, and baseline comparison automation.
 
 ## Log Format Reference
 
-### Request Completion Lines (`ccreq`)
+### Native JSONL Events
 
-The primary signal. Each completed LLM request produces a line like:
+The primary source is `~/.copilot/session-state/<session-id>/events.jsonl`.
+Every record has `type`, `timestamp`, `data` and optional worker identity.
+The shared `tools/scripts/profile_debug_log.py` normalizes these records:
 
-```text
-2026-02-27 08:03:29.492 [info] ccreq:c5f11ccd.copilotmd | success | claude-opus-4.7 -> claude-opus-4-7 | 6353ms | [panel/editAgent]
-```
-
-Fields:
-
-| Position | Field        | Example                              | Meaning                     |
-| -------- | ------------ | ------------------------------------ | --------------------------- |
-| 1        | Timestamp    | `2026-02-27 08:03:29.492`            | When the response completed |
-| 2        | Level        | `[info]`                             | Log level                   |
-| 3        | Request ID   | `ccreq:c5f11ccd.copilotmd`           | Unique request identifier   |
-| 4        | Status       | `success`                            | success / error / cancelled |
-| 5        | Model        | `claude-opus-4.7 -> claude-opus-4-7` | Requested -> actual model   |
-| 6        | Latency      | `6353ms`                             | Total response time         |
-| 7        | Request type | `[panel/editAgent]`                  | What triggered the request  |
+| Event | Evidence |
+| --- | --- |
+| `session.start` | Session and exact repository identity |
+| `assistant.message` | API call ID and model; not a usage total |
+| `session.usage_record` | Authoritative usage joined by API call ID |
+| `tool.execution_start` / completion | Tool call identity, worker and success |
+| Worker configured/completed | Actual model/effort, parent and completion linkage |
+| Hook start/end | Hook identity and outcome; not proof every expected hook was bound |
 
 ### Request Types
 
-| Type                            | Meaning                                                 |
-| ------------------------------- | ------------------------------------------------------- |
-| `[panel/editAgent]`             | Main agent turn (user prompt or tool-call continuation) |
-| `[title]`                       | Auto-generated conversation title                       |
-| `[progressMessages]`            | Status/progress indicator generation                    |
-| `[copilotLanguageModelWrapper]` | Subagent or extension LLM call                          |
+Use root/worker identity and explicit `WORKER_EXECUTE` attribution to distinguish
+readiness from executed work. Missing attribution remains unknown; timestamps alone
+cannot identify workflow steps, human approval or review attempts.
+Historical Local/OTel readers remain available but cannot certify SDK acceptance.
 
 ### Latency And Token Evidence
 
@@ -55,10 +48,11 @@ Run the log parser to extract structured data to stdout (no export file):
 
 ```bash
 python3 .github/skills/apex-context-management/scripts/parse-chat-logs.py \
-  --log-dir ~/.vscode-server/data/logs/
+  --log-dir ~/.copilot/session-state/ --repository .
 ```
 
-The parser produces JSON with per-session request arrays.
+The parser produces per-session normalized metrics. Duplicate authoritative usage
+is counted once; conflicting records fail. Missing usage is not zero or complete billing.
 
 ### Step 2: Profile Turn Costs
 
@@ -81,7 +75,7 @@ handoffs or delegation. These estimates are not observed token usage:
 
 | Component              | Approximate Token Cost           |
 | ---------------------- | -------------------------------- |
-| System prompt overhead | ~2,000 tokens (VS Code baseline) |
+| System prompt overhead | Unknown until observed in the active SDK harness |
 | Tools (per tool)       | ~50-100 tokens each              |
 | Handoff definitions    | ~30-50 tokens each               |
 | Agent body text        | ~1 token per 4 characters        |
@@ -188,7 +182,7 @@ claims remain unavailable, not that the audit must create one.
 
 1. **Phase 0** (optional, authorized): Runs `npm run snapshot:baseline -- ctx-opt-{timestamp}`
   before changes. Copies `.github/agents`, `.github/instructions`,
-   `.github/prompts`, `.github/skills`, and `AGENTS.md` to
+   `.github/skills`, and `AGENTS.md` to
    `agent-output/_baselines/{label}/` with a `manifest.json`.
 2. **Phases 1-5**: Normal analysis and recommendation workflow.
 3. **Phase 6** (optional, authorized): After a human or separate execution agent applies changes, runs

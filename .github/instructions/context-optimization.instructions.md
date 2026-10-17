@@ -118,8 +118,8 @@ Load the skills required by the current phase; defer optional references.
 Runtime compression tiers apply to artifacts, not alternate skill digests.
 Compaction must not prevent loading missing required guidance for a later phase.
 
-Local prompt files and configured discovery locations are not Agent Host routing
-contracts. Shared skills inherit the caller's model/tools; select the owning agent
+Archived Local prompt files are not SDK routing contracts.
+Shared skills inherit the caller's model/tools; select the owning agent
 before consequential work. Keep essential runtime rules reachable from agent bodies:
 authoring `applyTo` matches alone do not prove runtime attachment. Preview hooks
 are complementary checks, not the sole approval or security gate.

@@ -1,14 +1,12 @@
 ---
 name: 04g-Governance
 description: "Azure governance discovery agent. Queries Azure Policy assignments via REST API (incl. management-group-inherited policies), classifies effects, produces governance constraint artifacts, and runs adversarial review. Step 3.5: after Architecture, before IaC Planning."
-model: ["Claude Sonnet 5.5 (copilot)"]
-reasoning-effort: medium
 argument-hint: Discover governance constraints for a project
 user-invocable: true
-disable-model-invocation: true
-agents: ["challenger-review-subagent"]
+disable-model-invocation: false
+agents: ["rubber-duck"]
 tools:
-  [vscode/askQuestions, execute, read, agent, edit, search, web, todo]
+  [execute, read, agent, edit, search, web, todo]
 handoffs:
   - label: "▶ Refresh Governance"
     agent: 04g-Governance
@@ -60,6 +58,13 @@ Done when:
 - Session state at completion shows `steps.3_5.status: complete` with
   `decisions` reflecting any waivers or allowed-location overrides.
 
+## Harness Entry
+
+Delegated `APEX_WORKER_HANDSHAKE`: no tools; return `WORKER_READY <definition-name> <original-nonce>`; nonce-only returns
+`WORKER_READY_ACK <definition-name> <original-nonce>` with same values. Stop; await `WORKER_EXECUTE`.
+[Routing](../skills/apex-workflow-engine/references/worker-readiness.md) before leaf calls; direct use owns `ask_user`.
+Return `USER_INPUT_REQUIRED` forms to the interactive parent; cancel stops.
+
 ## Constraints
 
 <scope_fencing>
@@ -68,13 +73,12 @@ Done when:
   governance constraints and approval gates. If a skill makes you pause or diverge, name the
   `SKILL.md` and quote the instruction.
 - Allowed writes: governance JSON/Markdown/preview, discovery caches and scratch,
-  governance decision sidecar, project README, `00-handoff.md`, recall state, and
+  governance decision sidecar, recorder-persisted independent findings, project README, `00-handoff.md`, recall state, and
   the derived `sku_allowlist_snapshot` only. No SKU services/revisions, architecture,
   IaC or Azure policy/resource mutations. `execute` is restricted to the approved
   deterministic scripts, these outputs and their checks; it is not inherently read-only.
-- Local uses human handoffs; Host requires explicit selection of the next named owner.
-  Use #tool:agent for the allowlisted reviewer only; missing eligibility/model/tool blocks
-  with the error and a human `10-Challenger` transition, never an automatic main-agent call,
+- Use #tool:agent for the allowlisted one-shot reviewer only; missing capability or validated output blocks
+  with the error returned to the interactive parent, never an automatic main-agent call,
   model substitution or inline review.
 - Preserve the `apex-azure-governance-discovery` deterministic-discovery contract
   verbatim. Run `discover.py` (live) or `render_cached_governance.py`
@@ -157,7 +161,7 @@ Reuse current content; recover missing/changed evidence after compaction or resu
    (`discovery_status`, `policies` array, `azurePropertyPath`, `bicepPropertyPath`)
    that Step 4/5 agents and review subagents consume.
 10. Execution-subagent prompt contract (three required H2s; issue #425):
-    [tools/apex-prompts/utility-prompts/execution-subagent.prompt.md](../../tools/apex-prompts/utility-prompts/execution-subagent.prompt.md)
+    [.github/skills/apex-workflow-engine/references/execution-subagent.md](../skills/apex-workflow-engine/references/execution-subagent.md)
 
 ## Prerequisites
 
@@ -408,11 +412,11 @@ the challenger entirely, but resolve Phase 2.7 before Phase 3. The `step-3_5` no
 `workflow-graph.json` declares this skip_condition.
 
 **Signature-match skip** (Phase 8 challenger guard): reuse a completed review only when
-its existing `cache_inputs` match the current artifact, checklist, protocol, subagent, and model
+its existing `cache_inputs` match the current artifact, checklist, protocol and explicit reviewer contract
 per the canonical Findings Cache procedure, and the reviewed architecture and governance inputs
 are unchanged. Missing/stale evidence or unresolved blockers prohibits approval.
-If the single pass was already consumed, STOP and request a human handoff to
-`10-Challenger` and the owning agent to resolve the review-budget conflict. Do not
+If the single pass was already consumed, STOP and return to the interactive parent
+and owning agent to resolve the review-budget conflict. `10-Challenger` is optional. Do not
 silently waive the cap, erase its audit, restart a budget, or treat stale review as valid.
 An invocation count or `decisions.discovery_signature` alone is not review freshness evidence:
 Phase 1 updates that signature before review. Do not add a new cache key.
@@ -420,11 +424,12 @@ Phase 1 updates that signature before review. Do not add a new cache key.
 Record valid review reuse via `apex-recall finding`; do not extend the fixed
 review-audit schema or mistake the discovery signature for review evidence.
 
-**Performance note**: Reuse fresh discovery when revising artifact prose alone.
-TTL expiry, signature drift, or explicit refresh still requires live discovery;
-changed review inputs invalidate the review cache even when discovery is reusable.
+**Discovery reuse**: Prose-only revision may reuse fresh discovery. TTL/signature drift or explicit refresh
+requires live discovery. Changed review inputs invalidate review cache even when discovery is reusable.
 
-1. Delegate to `challenger-review-subagent` via #tool:agent with `overwrite: false`:
+1. Invoke `rubber-duck` via #tool:agent with `overwrite: false` following
+   [one-shot review](../skills/apex-azure-defaults/references/one-shot-review.md):
+   capture metadata; use `mode: sync`, no routing overrides and no handshake/ACK.
    - `artifact_path` = `agent-output/{project}/04-governance-constraints.md`
    - `project_name` = `{project}`
    - `artifact_type` = `governance-constraints`
@@ -432,16 +437,14 @@ changed review inputs invalidate the review cache even when discovery is reusabl
    - `pass_number` = `1`
    - `prior_findings` = `null`
    - `output_path` = `agent-output/{project}/challenge-findings-governance-constraints-pass1.json`
-2. The subagent writes the JSON file at `output_path` and returns a compact
-   summary (≤15 lines). **Do NOT paste subagent JSON inline.** Read the file
-   from disk only if you need full finding details for the Gate 2.5 summary.
-    Missing/empty output permits exactly one identical-input retry, then a human
-    `10-Challenger` handoff. Missing capability blocks immediately; other execution
-    failures report the error without inventing a retry or a clean review.
+2. Record the exact returned JSON at `output_path` through `record-review.mjs`
+   and require strict freshness validation before reporting completion. Never invent or repair findings.
+   Render Gate 2.5 after validation. Missing/empty output permits one identical-input retry, then return to the parent.
+   Missing capability or other failures block without invented retries; `10-Challenger` remains optional.
 3. **Findings are recorded, not auto-routed.** Phase 2.5 ends with the
    challenger JSON on disk and the summary in chat. All disposition
    (Accept / Reject / Defer / Edit, incl. `requires_step == "step-2"`) happens
-   via the Per-Finding Decision Protocol `askQuestions` panel in Phase 3 — see
+   via the Per-Finding Decision Protocol `ask_user` panel in Phase 3 — see
    [`reconciliation-disposition.md`](../skills/apex-azure-governance-discovery/references/reconciliation-disposition.md).
    **Never** auto-call `apex-recall decide`, emit a return_edge to
    `03-Architect`, or self-edit a Phase 2.5 artifact.
@@ -461,12 +464,12 @@ validate against governance intent, not pre-approved settings (a crafted
 Also read
 [`inline-resolution-gate.md`](../skills/apex-azure-governance-discovery/references/inline-resolution-gate.md)
 before running this phase — it carries the jq defaults query, the single
-`vscode_askQuestions` call, artifact updates using available editing tools, the three
+`ask_user` call, artifact updates using available editing tools, the three
 `apex-recall decide` calls, `Unknown — block` handling, and the
 `phase_2_7_resolution` checkpoint.
 
 > **Signature + TTL short-circuit** (Phase 4 contract): before issuing
-> `vscode_askQuestions`, run the same three-condition check from
+> `ask_user`, run the same three-condition check from
 > Phase 0.4 — (a) `governance_gate_status.resolved_confirmations`
 > contains all three required topics, (b)
 > the confirmation snapshot's signature (captured before discovery) matches the
@@ -505,7 +508,7 @@ Then run the **Per-Finding Decision Protocol** from
   (single-source — Phase 2.5 caps challenger at max 1 pass).
 - **Sidecar**:
   `agent-output/{project}/challenge-findings-governance-constraints-decisions.json`.
-- **Mandatory `askQuestions` panel**: every `must_fix` and `should_fix`
+- **Mandatory `ask_user` panel**: every `must_fix` and `should_fix`
   finding (no exceptions for `requires_step == "step-2"`) is presented
   as a question with the four fixed options `Accept (apply mitigation)`,
   `Reject (do not apply)`, `Defer (carry to handoff)`, `Edit (custom
@@ -524,7 +527,7 @@ Then run the **Per-Finding Decision Protocol** from
   preserving user work on the governance artifacts;
   `Reject` / `Defer` findings produce no artifact change. Any reviewed-input
   change invalidates prior review: block completion and return to the owner and
-  human `10-Challenger` under the existing one-pass ceiling. A decision sidecar
+  interactive parent under the existing one-pass ceiling. A decision sidecar
   is not replacement review evidence; do not silently waive safety or the cap.
 - **On Refresh governance**: go directly to Phase 1 with `--refresh`.
 - **On Proceed**: require no unresolved blocking findings, current evidence and
@@ -540,7 +543,8 @@ Update `agent-output/{project}/README.md` — mark Step 3_5 complete.
 Before any completion or blocked handoff, read the required
 [final handoff checklist](../skills/apex-azure-governance-discovery/references/reconciliation-disposition.md#final-handoff-checklist).
 Verify the explicit Governance path, handoff below 60 lines and `--verify-cache`; report each actual command outcome.
-After corrections, an exhausted allowance goes to `10-Challenger`, not the later `05-IaC Planner` destination.
+After corrections, an exhausted allowance returns to the interactive parent,
+not the later `05-IaC Planner` destination. Challenger is optional manual recovery.
 
 ## Empty Result Recovery
 
@@ -573,14 +577,14 @@ when a phase starts or a finding changes the plan: what finished, what is next, 
   Phase 0.4 and Phase 2.7 use the same validity rule, not a same-chat requirement.
 - **Always**: Present every Phase 2.5 challenger `must_fix` and
   `should_fix` finding to the user via the Per-Finding Decision
-  Protocol `askQuestions` panel in Phase 3 — including findings tagged
+  Protocol `ask_user` panel in Phase 3 — including findings tagged
   `requires_step == "step-2"`. Reconciliation routing only fires on
   user-`Accept`ed findings during Phase 3 Revise handling.
 - **Needs approval** (other in-scope work proceeds without asking): Manual policy overrides;
   choice between baseline and live discovery (Phase 0.45); unresolved confirmations in Phase 2.7.
 - **Never**: Auto-route, auto-escalate, or auto-edit any artifact in
   response to Phase 2.5 challenger findings before the user has
-  answered the Per-Finding Decision Protocol `askQuestions` panel.
+  answered the Per-Finding Decision Protocol `ask_user` panel.
   Phase 2.5 ends with findings recorded on disk; all disposition is
   user-driven in Phase 3. Auto-defer is forbidden outside
   `APEX_UNATTENDED=1`.
@@ -615,12 +619,7 @@ contract.
 
 ## Completion Handoff
 
-After `apex-recall complete-step` + writing `00-handoff.md`, end the
-final chat message with this line, **verbatim**, on its own final line
-(full contract:
-[`compression-templates.md`](../skills/apex-context-management/references/compression-templates.md#gate-boundary-clear-handoff-contract);
-validator: `npm run validate:orchestrator-handoff`):
-
-```text
-Run `/clear`, then switch the chat agent picker to `01-Orchestrator` and send `resume <project>` to continue Step N+1.
-```
+Run `apex-recall checkpoint <project> <step> completed --json`; update `00-handoff.md`
+with paths, actual validation results and unresolved findings. Return `STEP_COMPLETE`
+only after required reviews/checks; pending decisions return `USER_INPUT_REQUIRED`.
+Direct use presents the human gate with `ask_user` and stops. Completion is not next-step approval.

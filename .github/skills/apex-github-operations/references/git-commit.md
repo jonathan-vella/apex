@@ -179,7 +179,7 @@ Detect any open PR for this branch:
 gh pr list --head "$BRANCH" --state open --json number,url,title
 ```
 
-Call `vscode/askQuestions` with one question:
+Call `ask_user` with one question:
 
 - header: `pr-action`
 - question: `What do you want to do with a pull request?`

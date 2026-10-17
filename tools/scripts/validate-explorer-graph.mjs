@@ -29,8 +29,6 @@ const SOURCE_DIRS = [
   ".github/agents/_subagents",
   ".github/skills",
   ".github/instructions",
-  ".github/prompts",
-  "tools/apex-prompts",
   ".github/workflows",
 ];
 const SOURCE_FILES = [".vscode/mcp.json", "tools/registry/agent-registry.json", "package.json"];

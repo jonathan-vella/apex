@@ -457,7 +457,7 @@
   ],
   "challenger": {
     "wrapper_agent": "10-Challenger",
-    "review_subagent": "challenger-review-subagent"
+    "review_subagent": "rubber-duck"
   },
   "orchestrator_targets": ["01-Orchestrator"],
   "ui_pseudo_targets": ["agent"],

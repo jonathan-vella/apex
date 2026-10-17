@@ -2,7 +2,7 @@
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "https://github.com/jonathan-vella/apex/schemas/agent-registry.schema.json",
   "title": "APEX Agent Registry",
-  "description": "Shape of tools/registry/agent-registry.json. Maps agent role keys to {agent path, model, step, invokable}. Skills are wired by the agent body's `Read .github/skills/{name}/...` line (discovered at runtime via the orphan-content validator regex), not by an entry in this registry.",
+  "description": "Shape of tools/registry/agent-registry.json. Maps agent role keys to {agent path, optional legacy model, step, invokable}. Active agents use operator-selected runtime routing. Skills are wired by the agent body's `Read .github/skills/{name}/...` line (discovered at runtime via the orphan-content validator regex), not by an entry in this registry.",
   "type": "object",
   "required": ["$schema", "description", "agents"],
   "additionalProperties": true,
@@ -27,7 +27,7 @@
   "$defs": {
     "agentEntry": {
       "type": "object",
-      "required": ["agent", "model"],
+      "required": ["agent"],
       "additionalProperties": false,
       "properties": {
         "agent": {
@@ -38,7 +38,7 @@
         "model": {
           "type": "string",
           "minLength": 1,
-          "description": "Model name. Must equal the `model` field in the agent's YAML frontmatter (validated by validate-models.mjs --only=consistency). Catalog entry is documentation only and is not enforced."
+          "description": "Optional legacy fixed-model mirror for pinned test fixtures. Active production agents omit model pins and rely on operator-selected runtime routing."
         },
         "invokable": {
           "type": "boolean",

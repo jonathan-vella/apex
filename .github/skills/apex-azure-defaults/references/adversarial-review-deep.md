@@ -1,7 +1,7 @@
 <!-- ref:adversarial-review-deep-v1 -->
 ---
 name: Adversarial Review — Deep Cascade
-description: Opt-in multi-pass deep-review cascade for the challenger-review-subagent
+description: Opt-in multi-pass independent-review cascade
 ---
 
 # Opt-in: Deep adversarial review
@@ -49,7 +49,16 @@ when deep review is already active. `opt_in_matrix` MAY be partial — a
 missing tier means "no recommended multi-pass shape; run the standard
 deep-review cascade above".
 
-## Batch invocation (deep review on complex projects)
+## Automatic pass persistence
+
+Automatic graph reviews use one synchronous rubber-duck call per required lens,
+each recorded to its canonical `challenge-findings-*-pass{N}.json`.
+Preserve early exits, prior findings and the existing invocation ceiling.
+Architecture's separate cost review still counts independently.
+Do not replace these per-pass files with a combined batch file: current completion
+gates resolve individual pass paths.
+
+## Manual batch invocation (optional Challenger workflow)
 
 When `decisions.review_depth == "deep"` AND `decisions.complexity ==
 "complex"` AND pass 1 returns ≥ 1 `must_fix` (guaranteeing all three
@@ -60,7 +69,7 @@ passes), **batch passes 2 + 3** into a single subagent call:
    - `prior_findings`: compact string from pass 1
 2. The subagent runs lenses internally in sequence (pass 3 sees pass 2 findings)
 3. Returns `{ "batch_results": [{pass2_json}, {pass3_json}] }`
-4. Parent writes each result to its own `challenge-findings-*-pass{N}.json` file
+4. Use the manual leaf's file-output protocol for each pass's canonical file.
 5. Extract both `compact_for_parent` strings for the approval gate summary
 
 **When NOT to batch**: for `standard` projects, continue with sequential
@@ -69,9 +78,10 @@ batching.
 
 ## Subagent invocation template (deep review)
 
-For each pass, invoke `challenger-review-subagent` through the available
-delegation capability. If unavailable, stop and request a human handoff to
-`10-Challenger` under the parent protocol; never use a nested wrapper fallback.
+For each automatic pass, invoke built-in `rubber-duck` using the one-shot
+contract. If unavailable, return the failure to the interactive parent under
+the parent protocol; never use a nested wrapper fallback. The optional
+manual `10-Challenger` retains its legacy worker and `batch_lenses` contract.
 Keep the same per-pass inputs:
 
 - `artifact_path` = `agent-output/{project}/{artifact-filename}`

@@ -7,7 +7,7 @@ Pre- and post-deployment checks shared across Bicep and Terraform deploy agents.
 ## Pre-Deployment
 
 - [ ] Azure CLI authenticated (`az account get-access-token` succeeds)
-- [ ] No unresolved `<replace-with-*>` placeholders in param files (collected via `askQuestions`)
+- [ ] No unresolved `<replace-with-*>` placeholders in param files (collected via `ask_user`)
 - [ ] IaC validation passes (bicep build / terraform validate)
 - [ ] Preview completed and reviewed (what-if / plan)
 - [ ] No unapproved destructive operations (Delete / Destroy / Replace)
