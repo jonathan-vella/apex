@@ -24,7 +24,8 @@ it is not a required hop in the automatic path.
    Supply each immutable supporting path with `--supporting-input`. Do not freeze
    mutable manifests, README, handoff, decisions or recall state as supporting inputs.
 3. Invoke `task` with `agent_type: rubber-duck`, `mode: sync`, and model,
-   reasoning-effort and context overrides absent. Use the exact prompt format
+   reasoning-effort and context overrides absent. Pass `mode` as a top-level task
+   argument, not inside the JSON prompt. Use the exact prompt format
    `APEX_REVIEW` followed by a newline and one JSON object:
 
    ```json
@@ -41,17 +42,25 @@ it is not a required hop in the automatic path.
      "output_path": "agent-output/example/challenge-findings-requirements.json",
      "overwrite": false,
      "cache_inputs": {},
-     "instructions": "## Inputs\nReview the supplied artifact and metadata using this one-shot review contract.\n## Activities\nIndependently read the artifact and applicable Azure checklists. Do not edit files, delegate, ask users or access Azure.\n## Outputs\nReturn exactly one raw JSON findings payload conforming to this contract; no Markdown fence or prose."
+     "instructions": "## Inputs\nReview the supplied artifact and captured metadata using the one-shot review contract.\n## Activities\nRead the artifact and applicable Azure checklists independently. No file writes (including scratch), direct session-state reads, delegation, user questions or Azure access. Return missing context to the parent.\n## Outputs\nYour final response must start with { and end with }, containing exactly one JSON findings object. Copy captured metadata unchanged; compute stable finding IDs rather than inventing them. No introduction, Markdown fence, conclusion or success summary."
    }
    ```
 
    Replace `cache_inputs` with the actual captured metadata, never the empty
    example. Include the emitted `supporting_inputs` unchanged when present.
-   Use the actual owning step, project-scoped review depth and a stable request ID
-   for this attempt; a new ID never resets the review allowance.
+   Use the actual owning step, project-scoped review depth and a stable, unique
+   request ID for this reviewer dispatch, distinct from the parent `WORKER_EXECUTE`
+   request ID. Copying the parent's ID creates conflicting telemetry, not a shared
+   execution. A new ID never resets the review allowance.
    Supply bounded required context and the exact contract path to the reviewer.
    The prompt requests review work directly: no `APEX_WORKER_HANDSHAKE`,
    nonce-only continuation or `WORKER_EXECUTE` is used for this one-shot call.
+   An omitted task `mode` is accepted only when the linked native worker start
+   explicitly proves `executionMode: sync`. An explicit background/null mode,
+   contradictory runtime mode or missing runtime proof blocks recording.
+   One-shot means one dispatch and one input, not one internal assistant turn:
+   completed tool-reading turns may precede the sole final JSON response within
+   the same attributed interaction. No parent continuation is authorized.
 4. On completion, record the independently returned payload from the exact
    native session log, not a parent-authored reconstruction:
 
@@ -67,6 +76,9 @@ it is not a required hop in the automatic path.
    input bytes and payload identity before atomic persistence. It adds truthful
    execution provenance; it does not repair findings, counts or verdicts.
    Refuse existing output unless the dispatch explicitly authorizes overwrite.
+   Prose-wrapped, fenced or otherwise malformed final output remains a failed
+   review; do not strip text, extract an embedded object, restamp metadata or
+   manufacture a replacement answer. Fixing a recorder does not renew an attempt.
 5. Require successful recording and strict current validation:
 
    ```bash

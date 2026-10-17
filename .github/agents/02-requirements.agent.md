@@ -478,6 +478,8 @@ Invoke `rubber-duck` once using
 
 Use `APEX_REVIEW` plus the JSON envelope, `mode: sync`, no routing overrides,
 and the `## Inputs`, `## Activities`, `## Outputs` instructions inside the envelope.
+Pass `mode` as a top-level task argument. Copy the contract's read-only and raw-JSON output rules into `instructions`.
+Give this reviewer its own unique request ID, not the parent `WORKER_EXECUTE` ID; preserve attempt counters.
 Capture metadata first; use `record-review.mjs` to persist the actual returned JSON
 and require strict freshness validation. Do not send readiness or ACK turns to this reviewer.
 

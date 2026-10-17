@@ -403,7 +403,12 @@ def one_shot(events):
             {
                 "type": "subagent.started",
                 "agentId": "reviewer",
-                "data": {"agentName": "rubber-duck", "parentId": "main", "toolCallId": "review-task"},
+                "data": {
+                    "agentName": "rubber-duck",
+                    "parentId": "main",
+                    "toolCallId": "review-task",
+                    "executionMode": "sync",
+                },
             },
             {"type": "user.message", "agentId": "reviewer", "data": {"content": prompt}},
             {
@@ -452,6 +457,39 @@ def review_dispatch(records):
 
 def replace_review_envelope(records, envelope):
     review_dispatch(records)["data"]["arguments"]["prompt"] = "APEX_REVIEW\n" + json.dumps(envelope)
+
+
+def test_one_shot_omitted_mode_uses_attributed_synchronous_runtime_evidence(one_shot):
+    records = one_shot()
+    del review_dispatch(records)["data"]["arguments"]["mode"]
+    report = metrics(records)
+    assert report["_computed"]["challenger_per_step"] == {"2": 1}
+
+
+@pytest.mark.parametrize("mode", ["sync", None])
+@pytest.mark.parametrize("runtime_mode", ["background", None])
+def test_one_shot_missing_or_conflicting_runtime_mode_fails_closed(one_shot, mode, runtime_mode):
+    records = one_shot()
+    args = review_dispatch(records)["data"]["arguments"]
+    if mode is None:
+        del args["mode"]
+    start = next(
+        record for record in records if record["type"] == "subagent.started" and record["agentId"] == "reviewer"
+    )
+    if runtime_mode is None:
+        del start["data"]["executionMode"]
+    else:
+        start["data"]["executionMode"] = runtime_mode
+    with pytest.raises(ValueError, match="APEX_REVIEW requires attributed synchronous execution"):
+        metrics(records)
+
+
+@pytest.mark.parametrize("mode", ["background", None, "unknown"])
+def test_one_shot_explicit_non_sync_argument_cannot_use_runtime_default(one_shot, mode):
+    records = one_shot()
+    review_dispatch(records)["data"]["arguments"]["mode"] = mode
+    with pytest.raises(ValueError, match="APEX_REVIEW"):
+        metrics(records)
 
 
 @pytest.mark.parametrize("batch", [False, True])

@@ -117,13 +117,14 @@ function fixture(t, { batch = false, supporting = false, parent = "root" } = {})
     input,
     doc,
     events,
+    response: events[5],
     write,
     entry: batch ? doc.batch_results[0] : doc,
     options: { root, events: path.join(root, "events.jsonl"), workerId: "worker-1", parentId: parent, output },
     flush() {
       events[0].data.arguments.prompt = `APEX_REVIEW\n${JSON.stringify(input)}`;
       events.find((event) => event.type === "user.message").data.content = events[0].data.arguments.prompt;
-      events.find((event) => event.type === "assistant.message").data.content = JSON.stringify(doc);
+      this.response.data.content = JSON.stringify(doc);
       write("events.jsonl", events.map((event) => JSON.stringify(event)).join("\n"));
     },
     record() {
@@ -135,6 +136,109 @@ function fixture(t, { batch = false, supporting = false, parent = "root" } = {})
     },
   };
   return state;
+}
+
+function addReadTurns(f, count = 7) {
+  const response = f.events.find((event) => event.type === "assistant.message");
+  const attribution = response.data;
+  const reads = [];
+  for (let index = 0; index < count; index++) {
+    const data = { ...attribution, turnId: String(index) };
+    delete data.content;
+    delete data.toolRequests;
+    const call = `read-${index}`;
+    const tool = { turnId: data.turnId, parentToolCallId: data.parentToolCallId, toolCallId: call };
+    reads.push(
+      { type: "assistant.turn_start", agentId: "worker-1", data: { ...data } },
+      {
+        type: "assistant.message",
+        agentId: "worker-1",
+        data: { ...data, content: "Reading review inputs", toolRequests: [{ name: "view", toolCallId: call }] },
+      },
+      { type: "tool.execution_start", agentId: "worker-1", data: { ...tool, toolName: "view" } },
+      {
+        type: "tool.execution_complete",
+        agentId: "worker-1",
+        data: { ...tool, interactionId: data.interactionId, success: true },
+      },
+      {
+        type: "assistant.turn_end",
+        agentId: "worker-1",
+        data: { turnId: data.turnId, parentToolCallId: data.parentToolCallId },
+      },
+    );
+  }
+  for (const event of f.events.filter((event) => event.type.startsWith("assistant."))) {
+    event.data.turnId = String(count);
+  }
+  f.events.splice(4, 0, ...reads);
+}
+
+test("omitted task mode is accepted only with attributed synchronous runtime execution", (t) => {
+  const f = fixture(t);
+  delete f.events[0].data.arguments.mode;
+  f.record();
+  assert.equal(f.persisted().review_execution.worker_id, "worker-1");
+});
+
+test("one synchronous review may contain eight linked internal tool turns", (t) => {
+  const f = fixture(t, { parent: "requirements-worker" });
+  delete f.events[0].data.arguments.mode;
+  addReadTurns(f);
+  f.record();
+  assert.equal(f.events.filter((event) => event.type === "assistant.turn_start").length, 8);
+  assert.deepEqual(f.persisted().findings, []);
+});
+
+test("parallel reads may finish out of order inside one attributed internal turn", (t) => {
+  const f = fixture(t);
+  addReadTurns(f);
+  const request = f.events[5];
+  request.data.toolRequests.push({ name: "view", toolCallId: "parallel-read" });
+  f.events.splice(7, 0, {
+    ...structuredClone(f.events[6]),
+    data: { ...f.events[6].data, toolCallId: "parallel-read" },
+  });
+  f.events.splice(8, 0, {
+    ...structuredClone(f.events[8]),
+    data: { ...f.events[8].data, toolCallId: "parallel-read" },
+  });
+  f.record();
+  assert.deepEqual(f.persisted().findings, []);
+});
+
+test("prose-wrapped final output remains invalid after a complete multi-turn default-sync review", (t) => {
+  const f = fixture(t);
+  delete f.events[0].data.arguments.mode;
+  addReadTurns(f);
+  f.flush();
+  f.response.data.content = `Review complete.\n${JSON.stringify(f.doc)}\nDone.`;
+  f.write("events.jsonl", f.events.map((event) => JSON.stringify(event)).join("\n"));
+  assert.throws(() => recordReview(f.options), /Final response must be one raw JSON object/);
+  assert.equal(fs.existsSync(path.join(f.root, output)), false);
+});
+
+for (const [label, mutate] of [
+  ["overlapping turns", (events) => events.splice(8, 1)],
+  ["duplicate turn identity", (events) => (events[9].data.turnId = "0")],
+  ["wrong intermediate interaction", (events) => (events[5].data.interactionId = "other")],
+  ["wrong intermediate dispatch linkage", (events) => (events[8].data.parentToolCallId = "other")],
+  ["tool crosses turn boundary", (events) => ([events[7], events[8]] = [events[8], events[7]])],
+  ["wrong tool turn identity", (events) => (events[6].data.turnId = "7")],
+  ["wrong tool dispatch linkage", (events) => (events[6].data.parentToolCallId = "other")],
+  ["wrong tool completion interaction", (events) => (events[7].data.interactionId = "other")],
+  ["extra user continuation", (events) => events.splice(9, 0, structuredClone(events[3]))],
+  ["missing final turn end", (events) => events.splice(-3, 1)],
+]) {
+  test(`multi-turn review fails closed: ${label}`, (t) => {
+    const f = fixture(t);
+    addReadTurns(f);
+    f.input.overwrite = true;
+    f.write(output, "Original bytes\n");
+    mutate(f.events);
+    assert.throws(() => f.record());
+    assert.equal(fs.readFileSync(path.join(f.root, output), "utf8"), "Original bytes\n");
+  });
 }
 
 test("one-shot records actual raw findings and execution with absent model metadata", (t) => {
@@ -320,6 +424,9 @@ const invalidCases = [
   ["missing explicit parent", (f) => delete f.events[1].data.parentId],
   ["wrong start agent", (f) => (f.events[1].data.agentName = "general-purpose")],
   ["background call", (f) => (f.events[0].data.arguments.mode = "background")],
+  ["null task mode", (f) => (f.events[0].data.arguments.mode = null)],
+  ["background runtime", (f) => (f.events[1].data.executionMode = "background")],
+  ["unknown runtime mode", (f) => delete f.events[1].data.executionMode],
   ["wrong dispatched agent", (f) => (f.events[0].data.arguments.agent_type = "task")],
   ["wrong dispatch parent", (f) => (f.events[0].agentId = "other")],
   ["wrong tool", (f) => (f.events[0].data.toolName = "other")],

@@ -363,6 +363,7 @@ def sdk_events_to_spans(events: list[dict[str, Any]]) -> list[dict[str, Any]]:
                 identifier(data["parentId"], "worker parent ID") if data.get("parentId") is not None else "root"
             )
             worker["_sdk_start_call_id"] = identifier(data.get("toolCallId"), "worker start call ID")
+            worker["_sdk_execution_mode"] = data.get("executionMode")
             worker["_sdk_incomplete"] = True
             workers[agent] = worker
             spans.append(worker)
@@ -472,6 +473,10 @@ def sdk_events_to_spans(events: list[dict[str, Any]]) -> list[dict[str, Any]]:
             raise ValueError(
                 f"review request {envelope['request_id']}: missing reviewer or wrong parent/task attribution"
             )
+        if linked[0]["_sdk_execution_mode"] != "sync":
+            raise ValueError(
+                f"review request {envelope['request_id']}: APEX_REVIEW requires attributed synchronous execution"
+            )
         request_id = envelope["request_id"]
         if request_id in executions:
             raise ValueError(f"duplicate or conflicting execution request_id: {request_id}")
@@ -541,7 +546,7 @@ def _one_shot_review_envelope(prompt: str, arguments: dict[str, Any]) -> dict[st
         raise ValueError("invalid APEX_REVIEW envelope JSON") from exc
     required = ("request_id", "project_name", "step", "artifact_path", "artifact_type", "output_path")
     if (
-        arguments.get("mode") != "sync"
+        ("mode" in arguments and arguments["mode"] != "sync")
         or any(key in arguments for key in ("model", "reasoning_effort", "context_tier"))
         or not isinstance(envelope, dict)
         or not all(isinstance(envelope.get(key), str) and envelope[key].strip() for key in required)

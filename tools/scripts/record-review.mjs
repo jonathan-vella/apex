@@ -40,7 +40,7 @@ function parseEvents(eventsPath) {
     });
 }
 
-function extract(events, workerId, parentId) {
+export function extractReview(events, workerId, parentId) {
   requireEvidence(
     nonempty(workerId) && nonempty(parentId) && workerId !== parentId && workerId !== "root",
     "Exact distinct worker and parent identities are required",
@@ -75,7 +75,7 @@ function extract(events, workerId, parentId) {
       (dispatch.agentId ?? "root") === parentId &&
       object(args) &&
       args.agent_type === "rubber-duck" &&
-      args.mode === "sync" &&
+      (!Object.hasOwn(args, "mode") || args.mode === "sync") &&
       !["model", "reasoning_effort", "context_tier"].some((key) => Object.hasOwn(args, key)) &&
       (finished.agentId ?? "root") === parentId &&
       finished.data.success === true,
@@ -92,8 +92,43 @@ function extract(events, workerId, parentId) {
     "Review request_id, step and review_depth must be explicit",
   );
   const user = exactly(worker, "user.message");
-  const turnStart = exactly(worker, "assistant.turn_start");
-  const turnEnd = exactly(worker, "assistant.turn_end");
+  const turns = [];
+  const turnIds = new Set();
+  let active;
+  for (const event of worker) {
+    const data = event.data ?? {};
+    if (event.type === "assistant.turn_start") {
+      requireEvidence(
+        !active &&
+          nonempty(data.turnId) &&
+          !turnIds.has(data.turnId) &&
+          data.interactionId === user.data?.interactionId &&
+          data.parentToolCallId === call,
+        "Worker turns require unique linked identities without overlap",
+      );
+      turnIds.add(data.turnId);
+      active = { start: event, responses: [] };
+      turns.push(active);
+    } else if (["assistant.message", "assistant.turn_end"].includes(event.type)) {
+      requireEvidence(
+        active &&
+          data.turnId === active.start.data.turnId &&
+          data.parentToolCallId === call &&
+          (event.type === "assistant.message"
+            ? data.interactionId === user.data?.interactionId
+            : data.interactionId === undefined || data.interactionId === user.data?.interactionId),
+        "Worker interaction lacks exact linked identity or final response",
+      );
+      if (event.type === "assistant.message") active.responses.push(event);
+      else {
+        requireEvidence(active.responses.length > 0, "Completed worker turn lacks an assistant response");
+        active.end = event;
+        active = undefined;
+      }
+    }
+  }
+  requireEvidence(turns.length > 0 && !active, "Worker interaction has missing or incomplete turns");
+  const turnStart = turns[0].start;
   const responses = worker.filter((event) => event.type === "assistant.message");
   const finals = responses.filter(
     (event) => !event.data?.toolRequests || (Array.isArray(event.data.toolRequests) && !event.data.toolRequests.length),
@@ -106,13 +141,7 @@ function extract(events, workerId, parentId) {
       nonempty(user.data.parentAgentTaskId) &&
       nonempty(user.data.interactionId) &&
       nonempty(user.data.turnId) &&
-      [turnStart, ...responses].every((event) => event.data?.interactionId === user.data.interactionId) &&
-      [turnStart, ...responses, turnEnd].every(
-        (event) =>
-          event.data?.turnId === user.data.turnId &&
-          event.data?.parentToolCallId === call &&
-          (event.data?.interactionId === undefined || event.data.interactionId === user.data.interactionId),
-      ) &&
+      turnStart.data.turnId === user.data.turnId &&
       responses.every(
         (event) =>
           event.data.toolRequests === undefined ||
@@ -120,7 +149,15 @@ function extract(events, workerId, parentId) {
       ),
     "Worker interaction lacks exact linked identity or final response",
   );
-  const ordered = [dispatch, start, configured, user, turnStart, ...responses, turnEnd, completed, finished];
+  const ordered = [
+    dispatch,
+    start,
+    configured,
+    user,
+    ...turns.flatMap((turn) => [turn.start, ...turn.responses, turn.end]),
+    completed,
+    finished,
+  ];
   requireEvidence(
     ordered.every((event, index) => index === 0 || events.indexOf(ordered[index - 1]) < events.indexOf(event)) &&
       responses.at(-1) === response,
@@ -156,9 +193,17 @@ function extract(events, workerId, parentId) {
     ),
   );
   for (const event of toolEvents) {
+    const turn = turns.find(
+      (candidate) =>
+        events.indexOf(candidate.start) < events.indexOf(event) &&
+        events.indexOf(event) < events.indexOf(candidate.end),
+    );
     requireEvidence(
-      events.indexOf(turnStart) < events.indexOf(event) && events.indexOf(event) < events.indexOf(turnEnd),
-      "Worker tool activity must be contained in the completed interaction",
+      turn &&
+        (event.data?.turnId === undefined || event.data.turnId === turn.start.data.turnId) &&
+        (event.data?.interactionId === undefined || event.data.interactionId === user.data.interactionId) &&
+        (event.data?.parentToolCallId === undefined || event.data.parentToolCallId === call),
+      "Worker tool activity must be linked to its completed turn",
     );
     const external = event.type.startsWith("external_tool.");
     const linkedTool = worker.filter((candidate) => candidate.data?.toolCallId === event.data?.toolCallId);
@@ -166,13 +211,20 @@ function extract(events, workerId, parentId) {
     const toolFinish = exactly(linkedTool, external ? "external_tool.completed" : "tool.execution_complete");
     requireEvidence(
       nonempty(event.data?.toolCallId) &&
+        events.indexOf(turn.start) < events.indexOf(toolStart) &&
         events.indexOf(toolStart) < events.indexOf(toolFinish) &&
+        events.indexOf(toolFinish) < events.indexOf(turn.end) &&
         toolFinish.data?.success === true,
       "Worker tool calls must complete successfully",
     );
   }
   requireEvidence(nonempty(response.data?.content), "Final JSON response is empty");
-  const doc = JSON.parse(response.data.content);
+  let doc;
+  try {
+    doc = JSON.parse(response.data.content);
+  } catch {
+    throw new Error("Final response must be one raw JSON object without Markdown fences or prose");
+  }
   requireEvidence(
     object(doc) && !Object.hasOwn(doc, "review_execution"),
     "Expected raw review JSON without provenance",
@@ -280,7 +332,7 @@ function checkReview(input, doc, root) {
 /** Extract and atomically publish actual worker evidence; failures leave existing output untouched. */
 export function recordReview({ events: eventsPath, workerId, parentId, output, root = process.cwd() }) {
   root = fs.realpathSync(root);
-  const { input, doc, execution } = extract(parseEvents(eventsPath), workerId, parentId);
+  const { input, doc, execution } = extractReview(parseEvents(eventsPath), workerId, parentId);
   const target = outputPath(root, input.project_name, output);
   requireEvidence(
     outputPath(root, input.project_name, input.output_path) === target,
