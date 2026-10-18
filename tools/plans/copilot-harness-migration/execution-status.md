@@ -123,11 +123,14 @@ See [agent-body readiness](agent-body-readiness.md) for the per-agent audit, rea
 This does not certify a new roster retirement, altered production review receipt or Azure E2E.
 
 Subsequent owner-reported fresh-session transcripts on 2026-10-18 verify native question rendering for
-Requirements, Architect, Design and Governance, plus role-specific missing-input failures for Bicep what-if,
+all current user-facing main agents, plus role-specific missing-input failures for Bicep what-if,
 Terraform plan and cost estimate without obsolete handshake demands.
 The earlier live-session mismatch is retained as history, but no longer an unresolved result for that
 tested fresh-session missing-input path. See the body-readiness report for provenance and limits:
 these observations are not successful previews/pricing, tool isolation, consequential approval or Azure E2E.
+The later observations include Orchestrator, Planner, Diagnose, Challenger, both CodeGen/Deploy tracks,
+As-Built and Context Optimizer. Paired snippets are attributed by the requested test order.
+All answers were synthetic and do not authorize real operations or establish normal-workflow completeness.
 
 An additional bounded review fix disables implicit model invocation in both deploy entries,
 Diagnose and manual Challenger; structural/negative tests no longer force those roles model-invocable.
