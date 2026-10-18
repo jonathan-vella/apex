@@ -88,10 +88,36 @@ rules remain. Historical UI/telemetry fixtures are not restored into active runt
 The last results contradict the current on-disk bodies, which contain no such prerequisite.
 Cached/attached runtime guidance or definition loading is unresolved; the exact cause is not asserted.
 Do not restore the removed protocol or prompt around it to manufacture a pass.
-A fresh Copilot session/reload must repeat those probes against the pushed revision.
+A fresh Copilot session/reload was requested to repeat those probes against the pushed revision.
+The owner's subsequent results are recorded below; they supersede the unresolved status for those
+specific missing-input probes without deleting the earlier observations or asserting their cause.
 
-Direct picker question rendering, cancellation/restart, tool restriction enforcement and full Azure behavior
-have not been certified by delegated missing-input probes. Actual Azure scope/budget remain absent.
+### Owner-reported fresh-session retest
+
+The owner supplied the following native tool/result transcripts in this conversation on 2026-10-18
+while following the fresh Copilot/direct-picker instructions. These are user-reported observations,
+not a newly collected raw capture, independently inspected UI session or pinned SDK-version attestation.
+The supplied snippets do not independently establish that no other tool calls occurred.
+
+| Probe                     | Supplied result                                                                                | Bounded conclusion                                           |
+| ------------------------- | ---------------------------------------------------------------------------------------------- | ------------------------------------------------------------ |
+| Requirements, 16:23 UTC   | Native Ask User project-name form; answer `test`                                               | Direct questioning PASS                                      |
+| Architect, 16:24 UTC      | Native Ask User WAF-pillar choices; answer Security                                            | Direct questioning PASS                                      |
+| Design, 16:26 UTC         | Native Ask User artifact choices; answer Both                                                  | Direct questioning PASS                                      |
+| Governance, 16:27 UTC     | Native Ask User fictional target-label form; answer `test`                                     | Direct questioning PASS                                      |
+| Bicep what-if, 16:30 UTC  | WHAT-IF ANALYSIS RESULT / FAIL; four missing inputs; explicitly no preview ran                 | Missing-input contract PASS; no obsolete handshake requested |
+| Terraform plan, 16:33 UTC | TERRAFORM PLAN RESULT / FAIL; missing module/subscription; no plan or file created             | Missing-input contract PASS; no obsolete handshake requested |
+| Cost estimate, 16:34 UTC  | COST ESTIMATE FAILED / not_written; missing input mode/project/region/path; totals unavailable | Missing-input contract PASS; no obsolete handshake requested |
+
+Bicep's zero change counts are explicitly placeholders, not an empty-diff observation;
+its four reported violations identify missing inputs, not actual Azure Policy denials.
+Terraform's zero counts and destructive `None` mean not evaluated, not a safe plan.
+Cost's displayed USD is not a queried price or owner-approved currency/budget; no totals were calculated.
+These results resolve the earlier missing-input behavior mismatch in the tested fresh-session path.
+
+Other mains' direct question rendering, cancellation/restart recovery, tool restriction enforcement,
+successful compiler/preview/pricing execution and full Azure behavior remain unverified by these probes.
+Actual Azure scope/budget remain absent.
 No cloud actions, authority exceptions, review resets or historical evidence repairs are part of this task.
 
 ### Validation results
@@ -120,4 +146,5 @@ forms, nonexistent targets and regex-like names. This repairs the caller, not re
 This is a comprehensive source-body migration with bounded actual runtime observations,
 not an unconditional claim that every agent is fully exercised in the installed client.
 Source/test/docs/PR validation is recorded with the actual delivered revision.
-Any remaining stale-runtime, direct-question or permission gaps stay visible until observed.
+The seven owner-reported retests pass within the scope above; remaining interaction/permission/domain
+execution gaps stay visible until separately observed.
