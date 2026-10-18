@@ -61,6 +61,13 @@ const DESCRIPTION_MAX_LEN = 350;
 const DESCRIPTION_WARN_LEN = 300;
 const PRODUCTION_AGENTS_DIR = fileURLToPath(new URL("../../.github/agents/", import.meta.url));
 const BUILTIN_REVIEWERS = new Set(["rubber-duck"]);
+const MANUAL_ENTRY_AGENTS = new Set([
+  "01-Orchestrator",
+  "07b-Bicep Deploy",
+  "07t-Terraform Deploy",
+  "09-Diagnose",
+  "10-Challenger",
+]);
 const LEAF_WORKER_TOOL_PATTERN =
   /^(?:\*|agent(?:\/|$)|todo(?:\/|$)|vscode$)|runSubagent|askQuestions|ask_user|askUser|manage.?todo/i;
 
@@ -102,10 +109,11 @@ function validateProductionAgentPolicy(agent, agents) {
       }
     }
   }
-  if (kind === "main" && frontmatter["disable-model-invocation"] !== orchestrator) {
-    issues.push(
-      `Production ${orchestrator ? "Orchestrator" : "step agents"} require disable-model-invocation: ${orchestrator}`,
-    );
+  const invocationDisabled = frontmatter["disable-model-invocation"];
+  if (kind === "main" && MANUAL_ENTRY_AGENTS.has(frontmatter.name) && invocationDisabled !== true) {
+    issues.push(`Production manual-entry agents require disable-model-invocation: true (${frontmatter.name})`);
+  } else if (kind === "main" && invocationDisabled !== undefined && typeof invocationDisabled !== "boolean") {
+    issues.push("Production main agents require disable-model-invocation: a boolean when specified");
   }
   if (orchestrator) {
     if (!Array.isArray(allowed) || allowed.length === 0) {

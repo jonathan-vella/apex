@@ -98,6 +98,8 @@ Rotating multi-pass reviews are an explicit opt-in via
 AI-generated creative decisions — not tool output (what-if/plan previews).
 
 The supported runtime is the GitHub Copilot SDK harness inside VS Code.
+Deploy, Diagnose and manual Challenger entries disable implicit model invocation.
+Invocation metadata does not isolate credentials or establish human approval.
 `01-Orchestrator` is human-selected with `disable-model-invocation: true`;
 it dispatches allowlisted specialist workers only after human approval and
 [verified readiness](.github/skills/apex-workflow-engine/references/worker-readiness.md).

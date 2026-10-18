@@ -1,6 +1,6 @@
 {
   "$schema": "../../tools/schemas/explorer-graph.schema.json",
-  "generatedAt": "2026-10-18T10:52:33.143Z",
+  "generatedAt": "2026-10-18T11:17:47.783Z",
   "categories": [
     { "id": "agent", "key": "agents", "label": "Agent", "color": "#3b82f6", "shape": "round-rectangle", "count": 14 },
     {
@@ -255,7 +255,7 @@
       "meta": {
         "model": null,
         "invocable": true,
-        "disableModelInvocation": false,
+        "disableModelInvocation": true,
         "argumentHint": "Deploy the Bicep templates for a specific project",
         "context": null,
         "subagents": ["bicep-whatif-subagent", "bicep-validate-subagent", "policy-precheck-subagent"],
@@ -275,7 +275,7 @@
       "meta": {
         "model": null,
         "invocable": true,
-        "disableModelInvocation": false,
+        "disableModelInvocation": true,
         "argumentHint": "Deploy the Terraform configuration for a specific project",
         "context": null,
         "subagents": ["terraform-plan-subagent", "terraform-validate-subagent", "policy-precheck-subagent"],
@@ -323,7 +323,7 @@
       "meta": {
         "model": null,
         "invocable": true,
-        "disableModelInvocation": false,
+        "disableModelInvocation": true,
         "argumentHint": null,
         "context": null,
         "subagents": [],
@@ -341,7 +341,7 @@
       "meta": {
         "model": null,
         "invocable": true,
-        "disableModelInvocation": false,
+        "disableModelInvocation": true,
         "argumentHint": "Provide the path to the artifact to challenge (e.g. agent-output/my-project/04-implementation-plan.md)",
         "context": null,
         "subagents": ["challenger-review-subagent"],

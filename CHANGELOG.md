@@ -101,6 +101,9 @@ Migration: add one row per raw resource (resource type, stack, scope, evidence U
 
 ### Features
 
+- Deploy, Diagnose and manual Challenger entries disable implicit model invocation.
+  Structural validation preserves this policy without forcing every other role to
+  enable implicit invocation. This is not a claim of independent credential isolation.
 - `verify-worker-ready.mjs` checks attributed worker identity and dispatch linkage without model/effort attestation.
   Direct execution uses `--phase execute`; diagnostic ready-only mode checks tool-free turns and nonce continuation.
   Actual artifact validity and human gates remain separate;

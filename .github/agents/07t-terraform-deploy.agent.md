@@ -3,7 +3,7 @@ name: 07t-Terraform Deploy
 description: Executes Azure deployments using generated Terraform configurations. Runs bootstrap and deploy scripts, performs terraform plan preview, manages phase-aware deployment lifecycle. Step 6 of the agentic workflow.
 argument-hint: Deploy the Terraform configuration for a specific project
 user-invocable: true
-disable-model-invocation: false
+disable-model-invocation: true
 agents: ["terraform-plan-subagent", "terraform-validate-subagent", "policy-precheck-subagent"]
 tools:
   [execute, read, agent, edit, search, 'azure-mcp/*', todo]

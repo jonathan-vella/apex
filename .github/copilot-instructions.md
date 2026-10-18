@@ -126,6 +126,8 @@ body explicitly points to one. There is one tier — no digest, no minimal.
 - Target the GitHub Copilot SDK harness inside VS Code. Archived Local prompts are
   historical, not entry points. Skills inherit caller model/tools and grant no permissions.
 - `01-Orchestrator` remains human-selected (`disable-model-invocation: true`).
+  Deploy, Diagnose and manual Challenger entries also disable implicit invocation;
+  this metadata is not proof of credential isolation or consequential authorization.
   It alone dispatches allowlisted step agents after human gate approval and
   [verified worker readiness](skills/apex-workflow-engine/references/worker-readiness.md).
   Routine approved work uses direct `WORKER_EXECUTE` dispatch and `--phase execute`

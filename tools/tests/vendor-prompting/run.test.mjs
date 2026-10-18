@@ -693,11 +693,18 @@ test("production frontmatter accepts the current fleet and human handoffs", () =
   assert.equal(runFrontmatterValidation({ agents: productionFleet() }).errors, 0);
 });
 
-test("only the Orchestrator is non-model-invocable among production main agents", () => {
+test("manual-entry roles disable implicit invocation without forcing other roles to enable it", () => {
+  const manualEntries = new Set([
+    "01-Orchestrator",
+    "07b-Bicep Deploy",
+    "07t-Terraform Deploy",
+    "09-Diagnose",
+    "10-Challenger",
+  ]);
   for (const [filename, agent] of productionFleet()) {
     if (agent.isSubagent) continue;
-    const expected = agent.frontmatter.name === "01-Orchestrator";
-    for (const value of [expected, !expected, undefined, "true"]) {
+    const manual = manualEntries.has(agent.frontmatter.name);
+    for (const value of [true, false, undefined, "true"]) {
       const agents = productionFleet();
       const frontmatter = agents.get(filename).frontmatter;
       if (value === undefined) delete frontmatter["disable-model-invocation"];
@@ -706,7 +713,7 @@ test("only the Orchestrator is non-model-invocable among production main agents"
         productionFindings(agents).some(
           (finding) => finding.file === agent.path && /require disable-model-invocation:/.test(finding.message),
         ),
-        value !== expected,
+        manual ? value !== true : value !== undefined && typeof value !== "boolean",
         `${agent.frontmatter.name}: ${value}`,
       );
     }

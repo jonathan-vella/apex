@@ -3,7 +3,7 @@ name: 07b-Bicep Deploy
 description: "Executes Azure deployments using generated Bicep templates. Uses azd provision (default; deploy.ps1 retained only for legacy projects without azure.yaml). Performs what-if analysis and manages deployment lifecycle. Step 6 of the agentic workflow."
 argument-hint: Deploy the Bicep templates for a specific project
 user-invocable: true
-disable-model-invocation: false
+disable-model-invocation: true
 agents: ["bicep-whatif-subagent", "bicep-validate-subagent", "policy-precheck-subagent"]
 tools:
   [execute, read, agent, edit, search, 'azure-mcp/*', todo]

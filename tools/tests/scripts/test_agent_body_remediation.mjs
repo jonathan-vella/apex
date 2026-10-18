@@ -288,7 +288,14 @@ for (const name of agentFiles) {
       assert.match(body, /return exactly `WORKER_READY_ACK <definition-name> <original-nonce>`/);
       assert.match(body, /following complete-phase readiness verification/);
     } else {
-      assert.equal(frontmatter["disable-model-invocation"], name === "01-orchestrator.agent.md", name);
+      const manualEntries = [
+        "01-orchestrator.agent.md",
+        "07b-bicep-deploy.agent.md",
+        "07t-terraform-deploy.agent.md",
+        "09-diagnose.agent.md",
+        "10-challenger.agent.md",
+      ];
+      assert.equal(frontmatter["disable-model-invocation"], manualEntries.includes(name), name);
     }
   });
 }

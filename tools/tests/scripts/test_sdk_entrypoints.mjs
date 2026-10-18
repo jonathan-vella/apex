@@ -56,7 +56,8 @@ test("only Orchestrator dispatches main agents; steps dispatch leaves only", () 
     assert.notEqual(target, orchestrator.name);
   }
   for (const agent of mains.filter((agent) => agent !== orchestrator)) {
-    assert.equal(agent["disable-model-invocation"], false, agent.name);
+    const manualEntries = new Set(["07b-Bicep Deploy", "07t-Terraform Deploy", "09-Diagnose", "10-Challenger"]);
+    assert.equal(agent["disable-model-invocation"], manualEntries.has(agent.name), agent.name);
     assert.equal(agent["user-invocable"], true, agent.name);
     for (const target of agent.agents ?? []) assert.ok(!names.has(target), `${agent.name}: ${target}`);
   }

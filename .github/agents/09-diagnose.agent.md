@@ -2,7 +2,7 @@
 name: 09-Diagnose
 description: Interactive diagnostic agent that guides users through Azure resource health assessment, issue identification, and remediation planning. Scope-first execution with approval for every change, single-resource scope, reports to agent-output/{project}/.
 user-invocable: true
-disable-model-invocation: false
+disable-model-invocation: true
 agents: []
 tools: [execute, read, edit, search, "azure-mcp/*", todo]
 handoffs:
@@ -80,6 +80,9 @@ silently widening, narrowing or transforming the task.
 - Read skills and templates only after Phase 1 resource confirmation; premature loading can bias
   the diagnostic path before the target is known.
 - **Approval policy** (the single source for this agent's gates):
+  - Direct interactive use requires the actual native question tool. If it is unavailable,
+    return the missing-input form/blocker rather than running a side-effecting command.
+    Autopilot-generated answers do not establish independent owner approval.
   - Needs the user once: the diagnostic target or discovery scope. Reuse it while unchanged.
   - Without asking, inside that scope: read-only Azure queries (Resource Graph, `az ... show`/`list`,
     `az monitor metrics list`, diagnostic-settings reads, KQL log queries), skill and template reads

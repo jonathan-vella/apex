@@ -25,8 +25,10 @@ or deep audits, load `.github/skills/apex-agent-authoring/SKILL.md`.
   Leaf workers set `user-invocable: false` and `agents: []`, without delegation,
   user-question, or parent-todo tools. Return missing inputs to the parent.
 - `01-Orchestrator` remains a human-selected entry point with
-  `disable-model-invocation: true`. Other main agents are user-invocable and
-  model-invocable only through Orchestrator's approved, verified background dispatch.
+  `disable-model-invocation: true`. Deploy, Diagnose and optional manual Challenger
+  entries also disable implicit model invocation. This source setting alone does
+  not prove native restriction enforcement or isolate shared write credentials.
+  Other main agents remain user-invocable; only Orchestrator allowlists main workers.
   Step agents allowlist only their authorized leaves; leaves never delegate.
 - Routine approved delegated project work uses direct `WORKER_EXECUTE` dispatch
   and `--phase execute` attribution (`EXECUTE_VERIFIED`) under

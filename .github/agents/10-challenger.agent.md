@@ -3,7 +3,7 @@ name: "10-Challenger"
 description: "Optional manual adversarial review and repair wrapper. Runs challenger-review-subagent and the Per-Finding Decision Protocol for selected fixes. Automatic workflow reviews use built-in rubber-duck independently."
 argument-hint: "Provide the path to the artifact to challenge (e.g. agent-output/my-project/04-implementation-plan.md)"
 user-invocable: true
-disable-model-invocation: false
+disable-model-invocation: true
 tools:
   [
     execute,

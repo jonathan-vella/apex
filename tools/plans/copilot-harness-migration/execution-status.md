@@ -115,6 +115,12 @@ Known unchanged external-link failures remain disclosed. No site publication occ
 
 ### Current disposition
 
+An additional bounded review fix disables implicit model invocation in both deploy entries,
+Diagnose and manual Challenger; structural/negative tests no longer force those roles model-invocable.
+Diagnose explicitly returns a blocker when its actual question tool is unavailable.
+These source settings do not establish runtime enforcement, independent approval or credential separation.
+Consequential authority review findings remain unresolved pending those observations.
+
 **BLOCKED for full migration/E2E acceptance.** Delivered: hook retirement/caller closure,
 native lifecycle observations, local synthetic independent review/repair, actual source-contract fixes
 and corresponding documentation. Not delivered: broad lead/role/leaf/review/state replacement,
