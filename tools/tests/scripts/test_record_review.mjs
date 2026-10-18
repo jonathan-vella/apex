@@ -19,15 +19,6 @@ const artifact = "agent-output/example/01-requirements.md";
 const output = "agent-output/example/challenge-findings-requirements.json";
 const hash = (value) => createHash("sha256").update(value).digest("hex");
 
-function finalizeDraft(draft) {
-  const contract = fs.readFileSync(ONE_SHOT_REVIEW_CONTRACT, "utf8");
-  const snippet = contract.match(/```javascript\n([\s\S]+?)\n```/)?.[1];
-  assert.ok(snippet, "Reviewer draft finalization must remain executable");
-  return spawnSync(process.execPath, ["--input-type=module", "-e", snippet, JSON.stringify(draft)], {
-    encoding: "utf8",
-  });
-}
-
 function fixture(t, { batch = false, supporting = false, parent = "root" } = {}) {
   const root = path.resolve(`.record-review-test-${randomUUID()}`);
   fs.mkdirSync(root);
@@ -286,13 +277,13 @@ test("one-shot records actual raw findings and execution with absent model metad
   assert.equal(checked.status, 0, checked.stdout + checked.stderr);
 });
 
-test("documented reviewer preflight computes draft IDs/counts without changing review semantics", (t) => {
+test("direct reviewer JSON needs no executable draft and retains literal text during normalization", (t) => {
   const f = fixture(t);
   const finding = {
     severity: "must_fix",
     category: "requirements",
     claim: "An acceptance criterion is missing",
-    evidence: "Fixture artifact",
+    evidence: "Literal request text contains \"$(not-a-command)\", `labels`, and 'quotes'",
     impact: "Acceptance cannot be measured",
     artifact_section: "Requirements",
     traces_to: ["Requirements checklist"],
@@ -300,18 +291,24 @@ test("documented reviewer preflight computes draft IDs/counts without changing r
   };
   f.doc.findings = [finding];
   f.doc.overall_assessment = "NEEDS_REVISION";
-  const result = finalizeDraft(f.doc);
-  assert.equal(result.status, 0, result.stderr);
-  const finalized = JSON.parse(result.stdout);
-  assert.deepEqual(finalized, {
+  for (const key of ["must_fix_count", "should_fix_count", "suggestion_count"]) delete f.doc[key];
+  const result = f.record();
+  assert.deepEqual(f.persisted(), {
     ...f.doc,
     must_fix_count: 1,
+    should_fix_count: 0,
+    suggestion_count: 0,
     findings: [{ ...finding, id: findingId(finding) }],
+    review_execution: result.review_execution,
   });
   assert.equal(Object.hasOwn(f.doc.findings[0], "id"), false);
+  assert.equal(
+    f.events.some((event) => event.agentId === "worker-1" && event.type === "tool.execution_start"),
+    false,
+  );
 });
 
-test("documented reviewer preflight rejects string traces instead of silently coercing findings", (t) => {
+test("direct reviewer JSON with malformed substantive fields still fails recording", (t) => {
   const f = fixture(t);
   f.doc.findings = [
     {
@@ -321,13 +318,42 @@ test("documented reviewer preflight rejects string traces instead of silently co
       evidence: "Fixture artifact",
       impact: "Acceptance cannot be measured",
       artifact_section: "Requirements",
-      traces_to: "Requirements checklist",
+      traces_to: { unexpected: "Requirements checklist" },
     },
   ];
-  const result = finalizeDraft(f.doc);
-  assert.equal(result.status, 1);
-  assert.equal(result.stdout, "");
-  assert.match(result.stderr, /traces_to must be an array/);
+  assert.throws(() => f.record(), /traces_to must be an array/);
+  assert.equal(fs.existsSync(path.join(f.root, output)), false);
+});
+
+test("automatic review guidance requests direct JSON rather than shell serialization", () => {
+  const contract = fs.readFileSync(ONE_SHOT_REVIEW_CONTRACT, "utf8");
+  const example = JSON.parse(contract.match(/```json\n([\s\S]+?)\n\s*```/)[1]);
+  assert.match(example.instructions, /No shell commands, code execution/);
+  assert.match(example.instructions, /Omit finding IDs and severity counts/);
+  assert.doesNotMatch(contract, /node --input-type=module -e|```javascript|successful stdout/);
+  for (const agent of ["02-requirements", "03-architect", "04-design", "04g-governance", "05-iac-planner"]) {
+    const body = fs.readFileSync(`.github/agents/${agent}.agent.md`, "utf8");
+    assert.match(body, /without shell\/code execution/, agent);
+    assert.doesNotMatch(body, /in-memory.*finalization|schema\/finalization/, agent);
+  }
+  const checklist = fs.readFileSync(".github/skills/apex-azure-defaults/references/adversarial-checklists.md", "utf8");
+  assert.match(checklist, /actual workflow stage/);
+  assert.match(checklist, /Azure Budget is notification-based, not a hard spending cap/);
+});
+
+test("a blocked reviewer command stays invalid even after a successful command and valid JSON", (t) => {
+  const f = fixture(t);
+  addReadTurns(f, 2);
+  for (const event of f.events.filter(
+    (event) => event.type === "tool.execution_start" && event.agentId === "worker-1",
+  )) {
+    event.data.toolName = "bash";
+  }
+  const blocked = f.events.find((event) => event.type === "tool.execution_complete" && event.agentId === "worker-1");
+  blocked.data.success = false;
+  blocked.data.error = { message: "Command blocked by execution safety check", code: "failure" };
+  assert.throws(() => f.record(), /Worker tool calls must complete successfully/);
+  assert.equal(fs.existsSync(path.join(f.root, output)), false);
 });
 
 test("IaC code directories publish canonical pass evidence and invalidate on changed nested bytes", (t) => {

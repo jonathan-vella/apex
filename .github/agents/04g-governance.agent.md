@@ -202,7 +202,7 @@ An exhausted one-pass allowance blocks a new review; changed filenames/sessions 
 Load [one-shot review](../skills/apex-azure-defaults/references/one-shot-review.md) and the
 [review protocol](../skills/apex-azure-defaults/references/adversarial-review-protocol.md).
 Invoke native `rubber-duck` using `APEX_REVIEW`, captured metadata, bounded
-Inputs/Activities/Outputs, its read-only/schema/finalization rules and a unique request ID:
+Inputs/Activities/Outputs, direct raw-JSON rules without shell/code execution and a unique request ID:
 
 - `artifact_path=agent-output/{project}/04-governance-constraints.md`,
   `artifact_type=governance-constraints`, `review_focus=governance-reconciliation`, pass 1.

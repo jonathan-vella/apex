@@ -142,7 +142,7 @@ For each ADR, use native `rubber-duck` with
   project and unique request ID, `prior_findings=null`, `overwrite=false`.
 - Output `challenge-findings-design-adr-<n>.json`.
 - Capture metadata first. Use `APEX_REVIEW` with bounded Inputs/Activities/Outputs,
-  read-only reviewer instructions and its schema/in-memory-finalization rules.
+  read-only reviewer instructions and its direct raw-JSON rules without shell/code execution.
 - Use the actual synchronous native task interface without routing overrides.
   Record the actual attributed JSON with `record-review.mjs`, then require strict `--verify-cache`.
 

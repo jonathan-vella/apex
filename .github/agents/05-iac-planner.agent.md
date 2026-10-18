@@ -213,7 +213,7 @@ Load [one-shot review](../skills/apex-azure-defaults/references/one-shot-review.
 Finalize and validate plan/contracts before capturing metadata and complete immutable supporting inputs.
 Do not freeze mutable manifest/recall/README/decisions as review inputs.
 Invoke native `rubber-duck` with `APEX_REVIEW`, bounded Inputs/Activities/Outputs,
-read-only/schema/finalization instructions and a unique request ID:
+read-only direct raw-JSON instructions without shell/code execution and a unique request ID:
 
 - `artifact_path=agent-output/{project}/04-implementation-plan.md`,
   `artifact_type=implementation-plan`, `review_focus=comprehensive`, pass 1.

@@ -143,6 +143,15 @@ Requirements run or a repaired historical review. See the
 [Requirements repair evidence](agent-body-readiness.md#requirements-discovery-ux-regression-and-repair-candidate).
 Existing project answers, state and findings remain untouched.
 
+The next owner-supplied resume transcript confirms automatic parent/sibling review dispatch.
+Its explicitly referenced native session log shows a reviewer command blocked by the execution
+safety check. The reviewer returned JSON, but the recorder correctly rejected the failed interaction;
+no valid sidecar, approval or step completion resulted. This is now an observed recording failure,
+not unavailable reviewer capability. The source follow-up removes unnecessary shell-based JSON
+finalization and clarifies discovery-stage review scope. Failed-operation and provenance checks remain
+unchanged; no existing project attempt is retried, repaired or restamped by this source work.
+See [retry evidence](agent-body-readiness.md#requirements-retry-reviewer-dispatched-recording-rejected).
+
 An additional bounded review fix disables implicit model invocation in both deploy entries,
 Diagnose and manual Challenger; structural/negative tests no longer force those roles model-invocable.
 Diagnose explicitly returns a blocker when its actual question tool is unavailable.

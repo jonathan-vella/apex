@@ -189,7 +189,7 @@ Default: independent native `rubber-duck` tasks, parallel when supported:
   `challenge-findings-cost-estimate.json`, regardless of budget utilization.
 
 Use `APEX_REVIEW`, unique request IDs, captured metadata, initial `prior_findings=null`,
-`overwrite=false` and the reviewer's raw-JSON/schema/finalization contract.
+`overwrite=false` and the reviewer's direct raw-JSON contract without shell/code execution.
 Record only actual attributed results with `record-review.mjs`; require strict `--verify-cache`.
 Never ask for APPROVED/no findings or author/repair the reviewer's result.
 Missing/empty output permits one identical-input retry within existing limits; unavailable capability

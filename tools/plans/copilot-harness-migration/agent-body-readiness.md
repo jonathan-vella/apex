@@ -231,3 +231,41 @@ documentation freshness and regenerated Explorer checks passed.
 Protected untracked projects were excluded, not repaired or waived. Subsequent evidence prose does
 not change the tested implementation. Documentation companion `8946267447e667fd52c5d759b03a9135a1b7b077`
 is pushed on `jonathan-vella/apex-docs#43`, with build/content/link and editorial tests passing.
+
+### Requirements retry: reviewer dispatched, recording rejected
+
+The owner's next transcript reports answer reuse and Greenfield reconciliation without new questions.
+It shows the delegated Requirements worker returning `REVIEW_REQUIRED` and the interactive parent
+invoking native `rubber-duck`. This confirms sibling dispatch for that retry, not fresh guided-intake
+quality or a completed review. The project worker reconciled its own artifacts during that run;
+this separate source repair did not modify project artifacts, state, attempt accounting or findings.
+
+Unlike the earlier unavailable-review claim, the supplied retry explicitly identifies its native
+session log. Targeted read-only inspection confirms the root dispatch at 19:05:36 UTC and a
+reviewer shell safety block at 19:06:41 UTC on 2026-10-18. The reviewer later returned findings JSON,
+but read-only `extractReview` reproduces `Worker tool calls must complete successfully`.
+No review sidecar or gate approval resulted. The recorder correctly rejected the failed interaction.
+
+The current review guidance required code-based draft finalization with complete findings text
+inside a command even though the recorder already derives IDs/counts. The reviewer put freeform
+findings into shell code, then attempted a scratch heredoc despite the no-write contract.
+The repair removes this unnecessary executable-draft step across automatic callers.
+Reviewers return substantive JSON directly; the unchanged recorder supplies only deterministic
+normalization and retains all schema, failed-operation, metadata, freshness and attribution checks.
+No safety exception, generic failed-command recovery or historical hash refresh is introduced.
+
+Returned recommendations also crossed stage boundaries: known caller/runtime unknowns became
+new pre-Architecture demands, arbitrary operational targets were proposed, and a budget target
+was confused with automatic enforcement. Requirements checklists now distinguish actual Step 1
+defects from documented later-stage work and prohibit invented approved targets or permissions.
+This guidance does not delete or reclassify any historical findings.
+
+Focused direct-JSON/recorder/agent tests passed (109); tooling aggregate passed (851, with 2 skipped).
+A bounded native synthetic reviewer probe returned independent findings without executable draft
+finalization. Its JSON was fenced rather than raw; existing unambiguous-fence normalization covers
+that format. The probe had no production metadata or recording and establishes neither a project
+receipt nor a new review allowance. Production retry authorization and integrated recording remain open.
+
+The staged implementation also passes full source-only `npm run validate:all`: 53 Node validation
+entries, no failures, plus external Python suites. The supplied project/session artifacts were not
+copied, edited or waived. This engineering validation does not make the failed production review valid.

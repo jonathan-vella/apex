@@ -238,7 +238,8 @@ Invoke native `rubber-duck` with its `APEX_REVIEW` envelope and bounded
   A missing log/capture or recorder failure is an evidence-recording blocker, not proof that
   `rubber-duck` was unavailable. Preserve the actual invocation/result and report the exact stage.
 
-The reviewer owns its verdict, schema and in-memory draft finalization, including `traces_to` arrays.
+The reviewer returns substantive JSON with `traces_to` arrays directly, without shell/code execution.
+The existing recorder derives IDs/counts; the reviewer alone owns claims, severity and verdict.
 Do not request APPROVED/zero findings, author repairs to returned findings or replace review inline.
 Actual missing capability at both worker and parent, or malformed evidence, blocks with its exact reason.
 Do not claim “reviewer unavailable” solely because the delegated worker cannot nest tasks.

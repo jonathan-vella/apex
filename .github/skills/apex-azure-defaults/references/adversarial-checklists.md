@@ -28,7 +28,10 @@ When challenging artifacts, be skeptical about:
 
 ## Per-Category Checklists
 
-For **every** artifact, ask:
+Apply the following questions at the artifact's actual workflow stage. Requirements capture intent,
+constraints and measurable outcomes; Architecture selects designs, Governance discovers policy,
+and Planning/CodeGen resolve implementation details. Do not demand a later stage's deliverables
+as Requirements prerequisites when the dependency and consuming stage are honestly recorded.
 
 ### Governance & Compliance
 
@@ -95,6 +98,14 @@ For **every** artifact, ask:
 - [ ] Are discovery-level unknowns honestly recorded for the consuming Architecture/Governance/Planner gate?
       Missing monitoring contacts, exact API runtimes, principal IDs or deployment tag bindings alone are
       not Step 1 blockers when scope/security intent is clear. Never invent values or waive later checks.
+- [ ] Does each finding identify a present requirements defect rather than merely a later design task?
+      Do not turn a documented later-stage dependency into a new prerequisite to start Architecture.
+      Missing ORM/connection-pool choices, alert thresholds/runbooks or live policy discovery are not
+      defects solely because Step 1 has not designed or executed them.
+- [ ] Are suggested values clearly proposals, not invented user requirements? Do not introduce arbitrary
+      latency/retention/alert targets, key-based authentication exceptions or automated shutdown/deletion
+      as approved fixes. An Azure Budget is notification-based, not a hard spending cap; enforcement
+      automation is a separate design and consequential authorization, never implied by a budget target.
 
 ### Governance-Constraints-Specific (`artifact_type` = `governance-constraints`)
 

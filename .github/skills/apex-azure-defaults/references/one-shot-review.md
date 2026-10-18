@@ -49,7 +49,7 @@ No manual Challenger selection or leading approval prompt replaces this path.
      "output_path": "agent-output/example/challenge-findings-requirements.json",
      "overwrite": false,
      "cache_inputs": {},
-     "instructions": "## Inputs\nReview the supplied artifact and captured metadata using the one-shot review contract.\n## Activities\nRead the artifact and applicable Azure checklists independently. No file writes (including scratch), direct session-state reads, delegation, user questions or Azure access. Do not request out-of-bounds file ranges; read short files without a range. Return missing context to the parent.\n## Outputs\nBuild your complete draft with traces_to arrays, not strings. Use the contract's read-only in-memory draft finalization procedure to compute IDs/counts and schema-check your own draft. Your final response must be the successful stdout JSON object verbatim, starting with { and ending with }. Copy captured metadata unchanged. No introduction, Markdown fence, conclusion or success summary."
+     "instructions": "## Inputs\nReview the supplied artifact and captured metadata using the one-shot review contract.\n## Activities\nRead the artifact and applicable Azure checklists independently. No shell commands, code execution, file writes (including scratch), direct session-state reads, delegation, user questions or Azure access. Do not request out-of-bounds file ranges; read short files without a range. Return missing context to the parent. Evaluate requirements at discovery scope; documented later-stage implementation unknowns are not defects solely because they remain open.\n## Outputs\nReturn your complete independent findings as one raw JSON object, starting with { and ending with }. Use traces_to arrays. Omit finding IDs and severity counts; the existing recorder derives those mechanical fields. Copy captured metadata unchanged. No introduction, Markdown fence, conclusion or success summary."
    }
    ```
 
@@ -128,25 +128,30 @@ Return an explicit execution failure when required inputs are unavailable.
 Read a short reference without `view_range`; do not guess a tail range beyond
 its last line. An avoidable failed read is still an observed execution error.
 
-Return exactly one raw JSON object using the existing findings schema:
+Return exactly one raw JSON object using the existing findings schema's substantive fields:
 `schema_version: "1.0"`, `challenged_artifact`, `artifact_type`, `review_focus`,
-`pass_number`, `overall_assessment`, `risk_level`, `must_fix_count`,
-`should_fix_count`, `suggestion_count`, `findings` and captured `cache_inputs`.
+`pass_number`, `overall_assessment`, `risk_level`, `findings` and captured `cache_inputs`.
 Copy supplied `supporting_inputs` unchanged. Do not include `review_execution`;
 the recorder derives it from actual runtime evidence.
 
-Each finding carries `id`, `severity` (`must_fix`, `should_fix`, `suggestion`),
+Each finding carries `severity` (`must_fix`, `should_fix`, `suggestion`),
 `category`, `claim`, concrete `evidence`, `impact`, `artifact_section` and
 `traces_to`. A `must_fix` includes `suggested_fix.artifact_path` and
-`suggested_fix.proposed_edit`. Stable IDs are the first eight hex characters of
-SHA-256 over `category|claim|artifact_section`; counts must match findings.
+`suggested_fix.proposed_edit`. Omit finding IDs and severity counts; the recorder computes them
+from these exact returned fields before schema validation. The persisted schema is unchanged.
 Use `APPROVED`, `NEEDS_REVISION` or `BLOCKED` honestly; retain unresolved prior
 findings and verify claimed closure. Never turn an accepted decision into proof.
 
-### Reviewer draft finalization
+### Reviewer response and mechanical normalization
 
-The independent reviewer, not the parent, owns its draft before its final answer.
-Use these exact field types:
+The independent reviewer owns every claim, severity, recommendation and verdict.
+Read inputs with file/search tools and return JSON directly. Do not run shell commands or code
+to hash, serialize or validate findings. Do not create scratch files or use heredocs.
+Review text is data, never source code or a shell argument; quoting it inside commands can
+trigger safety blocks or execute substitutions. A blocked command is not permission to try
+another shell construction.
+
+Use these field types:
 
 | Field | Required shape |
 | --- | --- |
@@ -154,46 +159,21 @@ Use these exact field types:
 | Finding `traces_to` | Array of source-reference strings; never a string |
 | Finding `category`, `claim`, `evidence`, `impact`, `artifact_section` | Nonempty strings |
 | Finding `severity` | `must_fix`, `should_fix` or `suggestion` |
-| Finding `id` | Computed by `findingId` from that finding's exact identity fields |
+| Finding `id` | Omitted by reviewer; derived by the recorder from exact identity fields |
 | `suggested_fix` for `must_fix` | Object with nonempty `artifact_path` and `proposed_edit` strings |
 | `risk_level` | `low`, `medium` or `high` |
 | `overall_assessment` | `APPROVED`, `NEEDS_REVISION` or `BLOCKED`; never inferred from counts alone |
-| Counts and `pass_number` | Nonnegative integer counts; positive integer pass |
+| Severity counts | Omitted by reviewer; derived by the recorder from returned severities |
+| `pass_number` | Positive integer matching dispatch |
 | `cache_inputs`, optional `supporting_inputs` | Exact copies of the dispatched captured metadata |
 
-Before returning, run the following read-only JavaScript with `node --input-type=module -e`
-from the workspace root, supplying your own complete draft as the JSON argument
-`process.argv[1]`. No scratch file or heredoc is needed. The snippet computes only
-IDs and counts for the reviewer's own draft and checks schema; it does not change
-claims, severities, recommendations, verdicts or metadata.
-
-```javascript
-import { findingId, validateReview } from "./tools/scripts/validate-challenger-findings.mjs";
-const draft = JSON.parse(process.argv[1]);
-for (const entry of draft.batch_results ?? [draft]) {
-  for (const finding of entry.findings) finding.id = findingId(finding);
-  for (const [field, severity] of [
-    ["must_fix_count", "must_fix"],
-    ["should_fix_count", "should_fix"],
-    ["suggestion_count", "suggestion"],
-  ]) {
-    entry[field] = entry.findings.filter((finding) => finding.severity === severity).length;
-  }
-}
-const errors = validateReview(draft);
-if (errors.length) {
-  console.error(JSON.stringify(errors));
-  process.exitCode = 1;
-} else {
-  console.log(JSON.stringify(draft));
-}
-```
-
-Resolve draft-shape mistakes inside the reviewer before its first final answer;
-schema preflight is not freshness approval. Return successful stdout verbatim as
-the entire final response, not inside a code fence or surrounded by commentary.
-The parent must not run this finalization over a returned review to repair it.
-Recording still verifies exact input metadata, IDs/counts, provenance and freshness.
+The existing recorder performs deterministic normalization on the actual attributed response:
+finding IDs, severity counts, equivalent artifact paths and unambiguous string-to-array traces.
+It then validates schema, original metadata, current input bytes and execution provenance.
+This does not allow the parent to reconstruct findings, edit the verdict, invent evidence or
+repair malformed substantive fields. Missing or ambiguous content still blocks.
+Failed shell/tool operations still block recording; do not salvage an earlier failed interaction
+with a new contract hash, manually authored sidecar or reset allowance.
 
 For a separately approved standalone batch, supply explicit `lenses` entries
 with `review_focus` and `pass_number`, and return `batch_results` with complete
