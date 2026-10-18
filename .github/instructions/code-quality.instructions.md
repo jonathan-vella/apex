@@ -1,6 +1,6 @@
 ---
 description: "Code quality guidelines: commenting best practices (WHY not WHAT) and review priorities with security checks"
-applyTo: ".github/**/*.{js,mjs,cjs,ts,tsx,jsx,py,ps1,sh,bicep,tf}, tools/scripts/**/*.{js,mjs,cjs,ts,py,sh}, infra/**/*.{bicep,tf}, tools/mcp-servers/**/*.{py,ts,js,mjs}"
+applyTo: ".github/**/*.{js,mjs,cjs,ts,tsx,jsx,py,ps1,sh,bicep,tf}, tools/scripts/**/*.{js,mjs,cjs,ts,py,ps1,psm1,sh}, infra/**/*.{bicep,tf}, tools/mcp-servers/**/*.{py,ts,js,mjs}"
 ---
 
 # Code Quality Instructions

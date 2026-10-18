@@ -49,12 +49,12 @@ fixtures to test legacy validation.
 
 ## Prompt Style
 
-- Active main agents use the APEX Markdown contract (one H1 plus nonempty Role,
-  Goal, Success criteria, Constraints, Output, and Stop rules H2s) or the
-  existing structured contract (one H1, nonempty `## Role`, and nonempty
-  `<scope_fencing>`, `<output_contract>` and `<stop_conditions>` blocks).
-  `validateProductionAgentBody` enforces either structure independently of
-  runtime model selection. Keep approval and workflow contracts explicit.
+- Active main agents use the APEX Markdown contract: one H1 matching the name and
+  nonempty Role, Constraints, Output and Stop rules H2s (including recognized aliases).
+  `validateProductionAgentBody` enforces these independently of runtime model selection;
+  Goal and Success criteria remain useful authoring guidance, not additional enforced sections.
+  Legacy XML examples do not satisfy the active production contract.
+  Keep approval and workflow contracts explicit.
 - Leaf workers: role-specific inputs, activities, outputs, and bounded failure/
   return behavior. No mandatory personality or main-agent section boilerplate.
 - The Orchestrator retains a concise routing structure and human-selected entry.

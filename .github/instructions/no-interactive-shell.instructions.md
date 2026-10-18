@@ -17,24 +17,24 @@ shell builtin (including inside `bash -c '...'`).
 
 | Forbidden                  | Use instead                                  |
 | -------------------------- | -------------------------------------------- |
-| `mv -i src dst`            | `mv -f src dst`                              |
-| `rm -i path`               | `rm -f path` (or skip — let the user delete) |
-| `cp -i src dst`            | `cp -f src dst`                              |
+| `mv -i src dst`            | Verify authorized targets; use a noninteractive move |
+| `rm -i path`               | Verify the exact authorized path, or leave deletion to the user |
+| `cp -i src dst`            | Verify overwrite authorization before a noninteractive copy |
 | `read -p "Continue? " ans` | Use `ask_user` to gather input    |
-| `bash -c 'rm -i x'`        | `rm -f x`                                    |
+| `bash -c 'rm -i x'`        | Verify authorization; do not hide a prompt in a shell wrapper |
 
 If the user genuinely needs confirmation, use the `ask_user`
 tool — never an interactive shell prompt.
 
 ### Sub-rule 1a — Aliased `rm`/`mv`/`cp` are still interactive
 
-A plain `rm path` can still prompt if the user's shell aliases it to
-`rm -i` (common in dotfiles, e.g. `alias rm='rm -iv'`). Passing `-f`
-always wins over an aliased `-i`, so prefer `-f` over relying on the
-absence of a flag, or bypass the alias with `command rm -f path`.
-If a background terminal reports no output for an extended period
-right after an `rm`/`mv`/`cp` call with no explicit `-f`, assume an
-interactive prompt is waiting and send `y`; do not poll it repeatedly.
+A plain command can still prompt through a shell alias. Bypass aliases with
+`command` only after verifying the operation, exact targets and any overwrite/deletion
+authorization. Noninteractive flags do not grant permission.
+If a command becomes silent, inspect its actual output and status; silence or elapsed
+time alone never authorizes confirmation. Respond only to a visible, expected prompt
+for the already authorized operation and targets. Otherwise stop and return the blocker
+to the interactive parent; do not blindly send input or retry with force flags.
 
 ## Rule 2 — Pipe long output to a file
 
@@ -94,6 +94,23 @@ The `safe-shell` linter (`tools/scripts/safe-shell.mjs`) enforces this via the
 `command-portability` check, which inspects only the offending fence: an optional-tool
 invocation needs a `command -v <tool>` guard in the same fenced block; separate stdlib
 examples elsewhere do not make it compliant.
+
+## Additional lint checks and scope
+
+Inside shell fences using `set -e`, handle an expected no-match `grep` result explicitly.
+Do not mask genuine errors with a blanket `|| true`; use a conditional when exit status
+matters. Piping alone is not protection under `pipefail`.
+`grep-no-fallback-in-set-e` is a heuristic, not a shell control-flow proof.
+
+Use single-quoted inline `node -e` code or a script file when code contains `!`:
+interactive Bash history expansion can reinterpret double-quoted arguments.
+`node-e-double-quoted-bang` conservatively checks that form, not all shell quoting.
+
+`safe-shell` checks active agent files, instruction files, canonical skill entry files,
+root `AGENTS.md`/`README.md` and Copilot instructions. It excludes reference/template
+prose and executed shell scripts. The instructions documenting forbidden syntax are
+exempt from syntax checks; tests separately guard against blind-confirmation guidance.
+Output budgets and live authorization remain runtime responsibilities, not lint guarantees.
 
 ## Why
 

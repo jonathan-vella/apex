@@ -170,8 +170,8 @@ function Get-ResourceTypes {
     $rule = $Defn.properties.policyRule
     if (-not $rule) { return $types }
     $ruleJson = $rule | ConvertTo-Json -Depth 20 -Compress
-    $matches = [regex]::Matches($ruleJson, '"type"\s*:\s*"(Microsoft\.\w+/\w+(?:/\w+)?)"')
-    foreach ($m in $matches) {
+    $typeMatches = [regex]::Matches($ruleJson, '"type"\s*:\s*"(Microsoft\.\w+/\w+(?:/\w+)?)"')
+    foreach ($m in $typeMatches) {
         $t = $m.Groups[1].Value
         if ($types -notcontains $t) { $types += $t }
     }

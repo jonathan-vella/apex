@@ -36,8 +36,9 @@ Copy-paste headings from the template files. Do not paraphrase. Full templates l
 | project README                       | —                                  | `PROJECT-README.template.md` (H2 set byte-exact incl. emoji) |
 | sku-manifest                         | —                                  | `sku-manifest.template.md` + [`sku-manifest.instructions.md`](sku-manifest.instructions.md) (rendered from `sku-manifest.json`; schema-driven, not H2-sync-enforced) |
 
-H2 fixes are human-run (`npm run fix:artifact-h2`); agents do **not** invoke validation or
-fix scripts against `agent-output/**`.
+H2 fixes are human-run: preview with `npm run fix:artifacts -- <artifact-path>`,
+then apply reviewed changes with `npm run fix:artifacts -- <artifact-path> --apply`.
+Agents do **not** invoke validation or fix scripts against `agent-output/**`.
 
 ## Revision Workflow (Targeted Edits Over Full Rewrites)
 
@@ -58,3 +59,7 @@ their structure changes substantially.
   **Fix**: Use EXACT heading text. `## Outputs` ≠ `## Outputs (Expected)`.
 - `contains extra H2 headings: ## Cost Summary`
   **Fix**: Remove, change to H3, or move after `## References`.
+- Missing template styling or structural elements:
+  **Fix**: Compare with the owning full template and follow the actual validator diagnostic.
+  Template requirements are broader than the validator's checks; a passing H2 check
+  does not certify every badge, diagram, TOC or formatting detail.

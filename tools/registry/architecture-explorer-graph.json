@@ -1,6 +1,6 @@
 {
   "$schema": "../../tools/schemas/explorer-graph.schema.json",
-  "generatedAt": "2026-10-18T18:48:17.491Z",
+  "generatedAt": "2026-10-18T20:09:50.581Z",
   "categories": [
     { "id": "agent", "key": "agents", "label": "Agent", "color": "#3b82f6", "shape": "round-rectangle", "count": 14 },
     {
@@ -27,7 +27,7 @@
       "label": "Validator",
       "color": "#8b5cf6",
       "shape": "hexagon",
-      "count": 62
+      "count": 64
     },
     {
       "id": "workflow",
@@ -39,8 +39,8 @@
     },
     { "id": "mcp", "key": "mcp_servers", "label": "MCP Server", "color": "#f43f5e", "shape": "barrel", "count": 3 }
   ],
-  "nodeCount": 159,
-  "edgeCount": 566,
+  "nodeCount": 161,
+  "edgeCount": 569,
   "nodes": [
     {
       "id": "agent:01-orchestrator",
@@ -1081,7 +1081,7 @@
       "links": {
         "source": "https://github.com/jonathan-vella/apex/blob/main/.github/instructions/agent-skills.instructions.md"
       },
-      "meta": { "applyTo": "**/.github/skills/**/SKILL.md, **/.claude/skills/**/SKILL.md" }
+      "meta": { "applyTo": "**/.github/skills/**/SKILL.md" }
     },
     {
       "id": "instruction:azure-artifacts",
@@ -1115,7 +1115,7 @@
         "source": "https://github.com/jonathan-vella/apex/blob/main/.github/instructions/code-quality.instructions.md"
       },
       "meta": {
-        "applyTo": ".github/**/*.{js,mjs,cjs,ts,tsx,jsx,py,ps1,sh,bicep,tf}, tools/scripts/**/*.{js,mjs,cjs,ts,py,sh}, infra/**/*.{bicep,tf}, tools/mcp-servers/**/*.{py,ts,js,mjs}"
+        "applyTo": ".github/**/*.{js,mjs,cjs,ts,tsx,jsx,py,ps1,sh,bicep,tf}, tools/scripts/**/*.{js,mjs,cjs,ts,py,ps1,psm1,sh}, infra/**/*.{bicep,tf}, tools/mcp-servers/**/*.{py,ts,js,mjs}"
       }
     },
     {
@@ -1140,7 +1140,9 @@
       "links": {
         "source": "https://github.com/jonathan-vella/apex/blob/main/.github/instructions/docs-trigger.instructions.md"
       },
-      "meta": { "applyTo": "**/*.agent.md, **/.github/skills/**/SKILL.md, **/tools/scripts/*.mjs" }
+      "meta": {
+        "applyTo": "**/*.agent.md, **/*.instructions.md, **/.github/skills/**/SKILL.md, tools/scripts/**/*.{mjs,sh,ps1,psm1}, tools/powershell/*.psd1, infra/**/*.{bicep,tf}, .devcontainer/**, .vscode/*.{json,jsonc}, .github/copilot/*.json, .github/workflows/*.{yml,yaml}, package.json, package-lock.json, requirements.txt, pyproject.toml, lefthook.yml, .markdownlint-cli2.jsonc"
+      }
     },
     {
       "id": "instruction:github-actions",
@@ -1271,7 +1273,7 @@
       "id": "instruction:no-heredoc",
       "category": "instruction",
       "label": "no-heredoc",
-      "description": "Prevents terminal heredoc file corruption in VS Code Copilot by enforcing use of file editing tools instead of shell redirections",
+      "description": "Requires editing tools for agent-authored source and artifacts; separates terminal transport risks from ordinary shell syntax.",
       "path": ".github/instructions/no-heredoc.instructions.md",
       "links": {
         "source": "https://github.com/jonathan-vella/apex/blob/main/.github/instructions/no-heredoc.instructions.md"
@@ -1896,6 +1898,24 @@
       "path": "package.json",
       "links": { "source": "https://github.com/jonathan-vella/apex/blob/main/package.json" },
       "meta": { "command": "cd tools/apex-recall && python3 -m ruff check src/" }
+    },
+    {
+      "id": "validator:lint-powershell",
+      "category": "validator",
+      "label": "lint:powershell",
+      "description": "pwsh -NoLogo -NoProfile -NonInteractive -File tools/scripts/check-powershell.ps1",
+      "path": "package.json",
+      "links": { "source": "https://github.com/jonathan-vella/apex/blob/main/package.json" },
+      "meta": { "command": "pwsh -NoLogo -NoProfile -NonInteractive -File tools/scripts/check-powershell.ps1" }
+    },
+    {
+      "id": "validator:test-powershell",
+      "category": "validator",
+      "label": "test:powershell",
+      "description": "node --test tools/tests/powershell-analysis.test.mjs",
+      "path": "package.json",
+      "links": { "source": "https://github.com/jonathan-vella/apex/blob/main/package.json" },
+      "meta": { "command": "node --test tools/tests/powershell-analysis.test.mjs" }
     },
     {
       "id": "validator:lint-terraform-fmt",
@@ -3782,6 +3802,12 @@
       "kind": "applies-to"
     },
     {
+      "id": "instruction:docs-trigger--applies-to->instruction:instructions",
+      "source": "instruction:docs-trigger",
+      "target": "instruction:instructions",
+      "kind": "applies-to"
+    },
+    {
       "id": "instruction:instructions--applies-to->instruction:agent-authoring",
       "source": "instruction:instructions",
       "target": "instruction:agent-authoring",
@@ -4800,6 +4826,18 @@
       "source": "instruction:vendor-prompting",
       "target": "subagent:rubber-duck",
       "kind": "applies-to"
+    },
+    {
+      "id": "workflow:ci--runs->validator:lint-powershell",
+      "source": "workflow:ci",
+      "target": "validator:lint-powershell",
+      "kind": "runs"
+    },
+    {
+      "id": "workflow:ci--runs->validator:test-powershell",
+      "source": "workflow:ci",
+      "target": "validator:test-powershell",
+      "kind": "runs"
     },
     {
       "id": "workflow:ci--runs->validator:lint-md",

@@ -60,7 +60,9 @@ inside the module. Coverage requirements: `references/iac-security-baseline.md`.
 
 ## Cost Monitoring and Repeatability
 
-Every deployment includes a budget module (`references/iac-cost-monitoring.md`).
+Every deployment includes budget resources (`references/iac-cost-monitoring.md`).
+Module layout is a composition choice; approved raw-resource exceptions follow the
+canonical cost-monitoring procedure, not a mandatory `modules/budget.bicep` filename.
 Zero hardcoded project-specific values: `projectName` has no default and tag values
 reference parameters (dynamic tag rule in `references/iac-policy-compliance.md`).
 
@@ -74,7 +76,7 @@ reference parameters (dynamic tag rule in `references/iac-policy-compliance.md`)
 | Resource ID for scope  | Use `existing` + names          |
 | S1 for zone redundancy | Use P1v3+                       |
 | Raw Bicep (no AVM)     | Use AVM modules or get approval |
-| No budget module       | Include `modules/budget.bicep`  |
+| No budget resources    | Follow the canonical cost-monitoring procedure |
 
 ## Validation
 

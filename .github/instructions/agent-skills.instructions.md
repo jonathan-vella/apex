@@ -1,6 +1,6 @@
 ---
 description: "Guidelines for creating high-quality Agent Skills for GitHub Copilot"
-applyTo: "**/.github/skills/**/SKILL.md, **/.claude/skills/**/SKILL.md"
+applyTo: "**/.github/skills/**/SKILL.md"
 ---
 
 # Agent Skills File Guidelines
@@ -118,6 +118,9 @@ wiring form. Use the canonical `SKILL.md` pattern for explicit wiring.
 - [ ] No hardcoded credentials or secrets
 
 ## Per-Step File Re-Read Budget (HARD LIMIT)
+
+When authoring workflow skills, preserve this execution contract and its freshness exceptions.
+This placement supports skill-authoring validation; `applyTo` alone does not attach it to a running worker.
 
 Agents driving a workflow step (`.github/agents/0*-*.agent.md`) MUST treat
 predecessor artifacts as session-cached while their content is unchanged and

@@ -97,34 +97,22 @@ Rotating multi-pass reviews are an explicit opt-in via
 01-Orchestrator) or via direct `10-Challenger` invocation. Reviews target
 AI-generated creative decisions — not tool output (what-if/plan previews).
 
-The supported runtime is the GitHub Copilot SDK harness inside VS Code.
-Deploy, Diagnose and manual Challenger entries disable implicit model invocation.
-Invocation metadata does not isolate credentials or establish human approval.
-`01-Orchestrator` is human-selected with `disable-model-invocation: true`;
-it dispatches allowlisted specialist workers only after human approval and
-[native task lifecycle](.github/skills/apex-workflow-engine/references/worker-readiness.md).
-Steps return pending user forms to their interactive parent, not directly to the user.
-Directly selected main agents use native `ask_user`; Requirements, Architect, Design and Governance
-retain interactive questions. Delegated mains return forms to the parent; leaves cannot ask users or delegate.
-Automatic independent reviews use built-in `rubber-duck` through the
-[one-shot contract](.github/skills/apex-azure-defaults/references/one-shot-review.md).
-The parent records its actual attributed JSON output and validates freshness;
-this reviewer retains its actual-result recording/freshness contract.
-Unavailable reviewers return a blocker to the interactive parent, never a nested
-wrapper fallback. `10-Challenger` remains an optional manual workflow.
-Missing/empty reviewer output permits exactly one identical-input
-retry, then human escalation. Preserve current review evidence and approval gates.
-
-Archived Local prompts are historical; manual entry skills inherit the caller's
-model/tools without granting permissions. Active agent definitions omit fixed model and reasoning-effort pins.
-The operator and runtime control selection, including Auto and HydraFusion. Model names,
-effort, picker selection and model-source labels are diagnostic only, not readiness gates.
-Routine dispatch uses native bounded tasks and actual results, not custom readiness/execution envelopes
-or per-worker raw-log checks. Same-task continuation is used only when supported.
-Active agents have no UI handoffs; `00-handoff.md` remains a recovery artifact.
-Required domain checks, actual tools and separate consequential approval remain mandatory.
-Model labels and discovery settings do not prove runtime cost-tier eligibility or API support. Runtime rules:
+The sole supported runtime is the GitHub Copilot SDK harness inside VS Code.
+Canonical runtime rules:
 [Copilot instructions](.github/copilot-instructions.md#harness-and-runtime-boundaries).
+This entry-point safety summary does not replace them:
+
+- `01-Orchestrator` is human-selected (`disable-model-invocation: true`); native tasks
+  do not waive domain prerequisites or separate consequential approval.
+- Direct main agents own `ask_user`; delegated mains return forms to the interactive parent.
+  Leaves cannot ask users or delegate. Cancel stops; decline never approves.
+- Independent reviews require actual attributed results and current evidence. Missing capability
+  blocks; missing/empty output allows one identical-input retry within existing accounting,
+  then human escalation. No self-review, nested wrapper or invented approval.
+- Skills inherit caller model/tools without granting permissions. Active definitions omit model pins;
+  model telemetry is not a readiness gate and does not prove runtime cost-tier eligibility.
+- Native task results, essential agent-body constraints and separate human approvals remain required.
+  Historical prompts are not active entry points; repository runtime hooks remain retired.
 
 The E2E launch subsystem is retired. Production lesson collection, historical
 lesson/schema compatibility, and existing evidence remain supported; historical

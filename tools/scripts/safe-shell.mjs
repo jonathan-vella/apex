@@ -3,7 +3,7 @@
  * safe-shell.mjs
  *
  * Documentation-aid linter that catches forbidden interactive-shell
- * patterns committed to agent, prompt, instruction, skill, AGENTS.md,
+ * patterns committed to active agent, instruction, skill, AGENTS.md,
  * and README files. The primary control is
  * `.github/instructions/no-interactive-shell.instructions.md`; this
  * script enforces the same rules in committed snippets so they don't
@@ -24,15 +24,11 @@ import { fileURLToPath } from "node:url";
 
 const ROOT = path.resolve(new URL("../..", import.meta.url).pathname);
 
-// Files to scan. We mirror the applyTo glob from
-// .github/instructions/no-interactive-shell.instructions.md so the linter
-// stays in sync with the instruction file. Notably, skill `references/`
-// folders are excluded — they hold longer-form templates (often standalone
-// deploy scripts) that are not part of the auto-loaded chat context.
+// Explicit active-authoring scan domain; this is not runtime attachment
+// detection or a general-purpose shell-script linter.
 const SCAN_GLOBS = [
-  // Agent + prompt + instruction files
-  { dir: ".github/agents", suffix: ".md" },
-  { dir: ".github/instructions", suffix: ".md" },
+  { dir: ".github/agents", suffix: ".agent.md" },
+  { dir: ".github/instructions", suffix: ".instructions.md" },
 ];
 // For skills, only the canonical SKILL files (not nested references/).
 const SKILL_FILE_NAMES = new Set(["SKILL.md"]);
@@ -51,19 +47,19 @@ const RULES = [
     id: "mv-interactive",
     pattern: /\bmv\s+(?:-[a-zA-Z]*i[a-zA-Z]*\b|--interactive\b)/,
     why: "mv -i prompts for confirmation, which hangs the chat turn",
-    fix: "use mv -f or use the file tool to move via create_file/replace_string_in_file",
+    fix: "verify exact targets and overwrite authorization, then use a noninteractive move or editing tool",
   },
   {
     id: "rm-interactive",
     pattern: /\brm\s+(?:-[a-zA-Z]*i[a-zA-Z]*\b|--interactive\b)/,
     why: "rm -i prompts for confirmation, which hangs the chat turn",
-    fix: "use rm -f (or skip the rm and let the user clean up)",
+    fix: "verify exact path and deletion authorization, or leave cleanup to the user",
   },
   {
     id: "cp-interactive",
     pattern: /\bcp\s+(?:-[a-zA-Z]*i[a-zA-Z]*\b|--interactive\b)/,
     why: "cp -i prompts for confirmation, which hangs the chat turn",
-    fix: "use cp -f or use the file tool to copy via create_file",
+    fix: "verify exact targets and overwrite authorization, then use a noninteractive copy or editing tool",
   },
   {
     id: "read-prompt",
@@ -76,7 +72,7 @@ const RULES = [
     // bash -c '... -i ...' wrapping mv/rm/cp/read with -i flag
     pattern: /\bbash\s+-c\s+['"][^'"]*\b(?:mv|rm|cp|read)\b[^'"]*-i[^'"]*['"]/,
     why: "interactive flag inside bash -c '...' still hangs the chat turn",
-    fix: "remove the -i flag; use -f or ask_user instead",
+    fix: "verify authorization and use a noninteractive operation; never infer consent from silence",
   },
   {
     id: "grep-no-fallback-in-set-e",
@@ -86,7 +82,7 @@ const RULES = [
     // skips `grep ... | head`, `grep ... || true`, `grep ... || echo …`.
     pattern: /\bgrep\s+-[a-zA-Z]+\s+[^|]+$/,
     why: "grep returns exit 1 on no-match; under `set -e` this aborts the entire batch",
-    fix: 'append `|| true`, `|| echo "<fallback>"`, or pipe to another command',
+    fix: "handle an expected no-match with an explicit conditional; do not suppress genuine errors",
     context: "set-e",
   },
   {
@@ -95,8 +91,8 @@ const RULES = [
     // expansion (`bash: !fs.existsSync: event not found`) and stalls the
     // persistent terminal session for ~300s waiting for prompt recovery.
     pattern: /\bnode\s+(?:--input-type=\S+\s+)?-(?:e|-eval)\s+"[^"]*![a-zA-Z_$!(]/,
-    why: 'double-quoted `node -e "... !x ..."` triggers Bash history expansion and hangs the terminal session',
-    fix: "prefer a committed script in `tools/scripts/*.mjs`, or pass single-quoted `node -e '...'` after `set +H`",
+    why: 'double-quoted `node -e "... !x ..."` can trigger history expansion in interactive Bash',
+    fix: "prefer a committed script in `tools/scripts/*.mjs`, or single-quote inline code",
   },
 ];
 
@@ -125,9 +121,8 @@ function matchesBareTool(line, tool) {
   return re.test(stripped);
 }
 
-// Heredoc / tee writes to agent-output/** are runtime-corrupting in the
-// VS Code Copilot chat surface (heredocs frequently lose escape handling
-// and tee buffers stale state). Rule id: agent-output-no-heredoc
+// Heredoc / tee writes to agent-output/** bypass the editing-tool policy.
+// Rule id: agent-output-no-heredoc
 // (issue #425, Wave 2b). Detection is per-fence: any line in the fence
 // that contains BOTH a heredoc/tee write AND a target matching
 // agent-output/** is flagged.
@@ -208,18 +203,18 @@ function* walkSkillFiles(dir) {
   }
 }
 
-function collectFiles() {
+function collectFiles(root = ROOT) {
   const files = new Set();
   for (const { dir, suffix } of SCAN_GLOBS) {
-    const abs = path.join(ROOT, dir);
+    const abs = path.join(root, dir);
     for (const f of walkScanDir(abs, suffix)) files.add(f);
   }
   // Skill canonical files only.
-  for (const f of walkSkillFiles(path.join(ROOT, ".github/skills"))) {
+  for (const f of walkSkillFiles(path.join(root, ".github/skills"))) {
     files.add(f);
   }
   for (const rel of SCAN_ROOT_FILES) {
-    const abs = path.join(ROOT, rel);
+    const abs = path.join(root, rel);
     if (fs.existsSync(abs)) files.add(abs);
   }
   return [...files].sort();
@@ -286,10 +281,9 @@ function lintFile(absPath) {
     if (inFence) {
       const SHELL_FENCES = new Set(["", "bash", "sh", "zsh", "shell", "console"]);
       if (!SHELL_FENCES.has(fenceLang)) return;
-      // Detect `set -e`, `set -euo pipefail`, `set +H && set -e`, etc.
-      // Match any `set` with a `-` flag bundle containing `e`.
-      if (/\bset\s+[-+][a-zA-Z]*e[a-zA-Z]*\b/.test(toScan)) {
-        setESeen = true;
+      // Track explicit errexit toggles in order, including `set +e`.
+      for (const match of toScan.matchAll(/\bset\s+([-+])[a-zA-Z]*e[a-zA-Z]*\b/g)) {
+        setESeen = match[1] === "-";
       }
       // Buffer for fence-scoped checks.
       fenceBuffer.push({ line: idx + 1, text: line, scan: toScan });
@@ -357,9 +351,7 @@ function portabilityFindings(fenceBuffer) {
 /**
  * Fence-scoped check for the agent-output-no-heredoc rule (#425, Wave 2b).
  *
- * Heredocs and tee writes to `agent-output/**` are runtime-corrupting in
- * the chat surface. Agents must use the file-editing tool (create_file
- * / replace_string_in_file / multi_replace_string_in_file) instead.
+ * Agents must use an available file-editing tool for artifact content.
  *
  * Detection is fence-scoped (multi-line heredocs are common). We flag a
  * line when either:
@@ -396,7 +388,7 @@ function agentOutputHeredocFindings(fenceBuffer) {
         rule: "agent-output-no-heredoc",
         line: hd.line,
         snippet: hd.text.trim().slice(0, 160),
-        why: "heredoc writes to agent-output/** are runtime-corrupting in chat surfaces",
+        why: "heredoc writes to agent-output/** bypass the editing-tool policy",
         fix: "use the file-editing tool (create_file / replace_string_in_file) instead",
       });
     }
@@ -440,7 +432,7 @@ function main() {
 
 // Export internals for fixture-based unit tests; only invoke main() when
 // this file is the process entrypoint (`node tools/scripts/safe-shell.mjs`).
-export { RULES, lintFile };
+export { RULES, lintFile, collectFiles };
 
 const invokedAsScript =
   process.argv[1] && path.resolve(process.argv[1]) === path.resolve(fileURLToPath(import.meta.url));

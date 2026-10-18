@@ -6,6 +6,20 @@ Entries are grouped by conventional-commit type. Breaking changes list the migra
 
 ### Breaking changes
 
+#### Instruction audit remediation and Copilot-only discovery
+
+Remove Local-only customization-location settings from workspace and devcontainer configuration.
+Copilot discovers APEX's conventional `.github/` locations; the VS Code validator now rejects
+these ineffective legacy location settings instead of requiring them.
+The redundant `fix:artifact-h2` npm alias is removed; use
+`npm run fix:artifacts -- <artifact-path>` to preview, then add `--apply` for reviewed changes.
+
+Instruction contracts now require observed terminal prompts and existing authorization rather than
+confirmation inferred from silence. Governance guidance uses the producer's `required_value` key and
+conditional property mappings. Markdown/artifact enforcement, CI jobs, documentation triggers and
+model-neutral authoring ownership are documented against their actual local contracts.
+Historical project evidence and independent approval/review requirements remain unchanged.
+
 #### Copilot SDK entrypoints replace Local prompt adapters
 
 The target is the GitHub Copilot SDK harness inside VS Code, not a standalone CLI
@@ -110,6 +124,9 @@ Migration: add one row per raw resource (resource type, stack, scope, evidence U
 
 ### Features
 
+- PowerShell tooling adds `npm run setup:powershell`, `lint:powershell` and `test:powershell`.
+  PSScriptAnalyzer 1.24.0 installs in current-user scope; parsing and selected-rule diagnostics fail closed.
+  Maintained scripts and negative fixtures are checked through CI and existing Git hooks, not runtime hooks.
 - Deploy, Diagnose and manual Challenger entries disable implicit model invocation.
   Structural validation preserves this policy without forcing every other role to
   enable implicit invocation. This is not a claim of independent credential isolation.

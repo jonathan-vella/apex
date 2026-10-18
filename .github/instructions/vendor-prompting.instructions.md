@@ -14,23 +14,28 @@ The machine-readable rule registry is
 [rules.json](../skills/apex-vendor-prompting/rules.json). Validator:
 `npm run lint:vendor-prompting`.
 
-## Hard rules (errors)
+## Applicability and hard rules
 
 These enforce the repository contract; not every violation is a platform parsing failure:
 
 - **`frontmatter-model-style-001`** — `.agent.md` uses array form for `model:`;
   `.prompt.md` uses string form when explicit. Labels must be exact catalog keys
-  (see [agent-authoring](agent-authoring.instructions.md#model-policy)); validate every fallback.
+  (see [model policy](../skills/apex-agent-authoring/references/model-policy.md)); validate every fallback.
+
+Active agents omit model/effort pins. Explicit-label checks are conditional, not an active
+assignment requirement. Family-specific advice below applies only when the validator
+resolves that family; it must not select or infer the runtime model. Cross-vendor structural,
+deprecation and custom-agent prompt model-source checks remain relevant without pins.
+Detailed vendor advice is on demand; family labels are not evidence of platform support.
 
 ## Vendor rules
 
 ### Anthropic Claude Opus 5.5 and Sonnet 5.5 (`claude-opus-5.5`, `claude-sonnet-5.5`)
 
-Claude main agents use the APEX Claude contract enforced by `validateProductionAgentBody`:
-one H1 matching `name`, a nonempty `## Role`, and nonempty `<scope_fencing>`,
-`<output_contract>` and `<stop_conditions>` blocks. Opus-sourced reviewer rules below
-apply to Sonnet bodies as an APEX convention; `claude-reasoning-extraction-001` is
-validator-enforced on Opus only.
+These are family-gated/legacy checks, not the active main-agent body specification.
+`validateProductionAgentBody` requires model-neutral Markdown contracts independently
+of model selection; see the canonical model policy. Do not restore legacy XML blocks
+merely to satisfy advice for a family the active definition does not pin.
 
 - **`legacy-003`** — Body > 350 lines requires `<context_awareness>`.
 - **`legacy-004`** — Research agents include `<investigate_before_answering>`.
@@ -54,14 +59,13 @@ validator-enforced on Opus only.
 
 ### GPT-6 Sol/Luna and GPT-5.6 Terra
 
-The Markdown outcome contract mirrors the GPT-5.6 suggested prompt structure and is
-extended to GPT-6 as an APEX convention. Vendor autonomy advice does not remove APEX
-approval gates, the security baseline or governance constraints.
+The outcome structure is an APEX authoring convention, not evidence that a model is
+available. Vendor autonomy advice does not remove approval gates, security or governance.
 
 - **`gpt-outcome-contract-001`** — Nonempty outcome sections: Role, Goal,
   Success criteria, Constraints, Output, and Stop rules. Production agent normalization
-  requires exactly one H1 matching the frontmatter `name`, followed by H2 contract sections
-  (`## Role`, `## Goal`, `## Success criteria`, `## Constraints`, `## Output`, `## Stop rules`).
+  requires exactly one H1 matching the frontmatter `name`, with nonempty Role,
+  Constraints, Output and Stop rules H2s. Goal and Success criteria remain useful guidance.
   The generic outcome check accepts H1/H2 aliases; it does not waive production normalization.
   Production leaf workers require nonempty H2 Role, Inputs, and Output sections plus a
   bounded failure/return rule, not the full main-agent skeleton. Personality is optional.

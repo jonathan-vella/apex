@@ -20,13 +20,11 @@ use JSONC format:
 
 ## Key Ordering
 
-For configuration files, follow a logical grouping:
-
-- **`package.json`**: `name`, `version`, `description`, `private`, `scripts`,
-  `devDependencies`, `repository`, `keywords`, `author`, `license`
-- **`mcp.json`**: group servers by type (HTTP first, then stdio)
-- **`devcontainer.json`**: `name`, `image`, `features`, lifecycle commands,
-  `containerEnv`, `customizations`, `mounts`, `remoteUser`
+Preserve the existing order and insert keys beside their logical neighbors.
+Group package metadata, scripts and dependencies separately; keep container build,
+lifecycle, environment and customization settings together. Group MCP servers by
+transport type. The current manifest is authoritative; do not reorder an entire file
+to satisfy a stale exhaustive key list.
 
 ## Governance Constraint Files
 

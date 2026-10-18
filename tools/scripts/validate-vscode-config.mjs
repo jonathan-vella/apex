@@ -2,7 +2,7 @@
 /**
  * VS Code Configuration Validator
  *
- * Validates that VS Code 1.109 orchestration settings are correctly configured:
+ * Validates repository editor configuration, not native runtime attachment:
  * 1. Required settings exist in devcontainer.json
  * 2. Extensions.json includes all required extensions
  * 3. Devcontainer.json extension drift is explicitly allowlisted
@@ -17,12 +17,11 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 const REPO_ROOT = resolve(__dirname, "../..");
 
-// Required VS Code 1.109 settings
-const REQUIRED_SETTINGS = [
-  "chat.customAgentInSubagent.enabled",
+const REQUIRED_SETTINGS = ["chat.customAgentInSubagent.enabled", "chat.useAgentSkills"];
+const RETIRED_LOCATION_SETTINGS = [
   "chat.agentFilesLocations",
   "chat.agentSkillsLocations",
-  "chat.useAgentSkills",
+  "chat.instructionsFilesLocations",
 ];
 
 // Required extensions for full orchestration support
@@ -68,6 +67,11 @@ function checkRequiredExtensionsInList(sourceName, extensions) {
 import { parseJsonc } from "./_lib/parse-jsonc.mjs";
 
 function validateRetiredHooks(settings, sourceName) {
+  for (const setting of RETIRED_LOCATION_SETTINGS) {
+    if (Object.hasOwn(settings, setting)) {
+      errors.push(`❌ ${sourceName}: remove Local-only ${setting}; Copilot uses conventional or SDK discovery roots`);
+    }
+  }
   const customHooks = settings["chat.useCustomAgentHooks"];
   if (customHooks !== undefined && typeof customHooks !== "boolean") {
     errors.push(`❌ ${sourceName}: chat.useCustomAgentHooks must be a boolean`);
@@ -138,22 +142,7 @@ function validateDevcontainer() {
 
     // Check if subagent setting is true
     if (settings["chat.customAgentInSubagent.enabled"] !== true) {
-      errors.push("❌ chat.customAgentInSubagent.enabled must be true for Orchestrator");
-    }
-
-    // Check agent paths
-    const agentPaths = settings["chat.agentFilesLocations"] || {};
-    if (!agentPaths[".github/agents"]) {
-      warnings.push("⚠️  .github/agents not in chat.agentFilesLocations");
-    }
-    if (!agentPaths[".github/agents/_subagents"]) {
-      warnings.push("⚠️  .github/agents/_subagents not in chat.agentFilesLocations");
-    }
-
-    // Check skills path
-    const skillPaths = settings["chat.agentSkillsLocations"] || {};
-    if (!skillPaths[".github/skills"]) {
-      warnings.push("⚠️  .github/skills not in chat.agentSkillsLocations");
+      errors.push("❌ Editor setting chat.customAgentInSubagent.enabled must be true; this is not SDK attestation");
     }
 
     checkRequiredExtensionsInList("devcontainer.json", extensions);

@@ -68,8 +68,10 @@ to the Code Generator and validation subagents:
 1. Code Generators (Phase 1.5) read `04-governance-constraints.json`
    and build a compliance map before writing any code
 2. Review subagents verify every Deny policy constraint is satisfied
-3. Both require `bicepPropertyPath`, `azurePropertyPath`, and
-   `requiredValue` fields in the JSON for programmatic verification
+3. Use `required_value` and applicable property paths for programmatic verification.
+   `azurePropertyPath` and `bicepPropertyPath` are conditional mapping aids, not
+   universally required schema fields; `terraformPropertyPath` is reserved for planning.
+   Missing mappings or values require policy/plan reconciliation, never guessed compliance.
 
 See `.github/instructions/references/iac-policy-compliance.md` for the
 full enforcement mandate.

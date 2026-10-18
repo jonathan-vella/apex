@@ -15,7 +15,7 @@ applyTo: "**/*.sh"
 | Cleanup      | `trap cleanup EXIT` for temp files/resources                   |
 | Constants    | `readonly SCRIPT_NAME="$(basename "$0")"`                      |
 | Temp files   | `mktemp` — never hardcode temp paths                           |
-| JSON/YAML    | Use `jq`/`yq`, not `grep`/`awk` — fail fast if missing         |
+| JSON/YAML    | Use `jq`/existing `js-yaml` tooling, not text-processing hacks |
 | Conditionals | `[[ ]]` in Bash; `[ ]` only for POSIX portability              |
 
 ## Script Structure
@@ -29,9 +29,12 @@ applyTo: "**/*.sh"
 
 ## Working with Structured Data
 
-- Prefer `jq` for JSON, `yq` for YAML over text-processing hacks
+- Prefer `jq` for JSON. For YAML, use a committed Node.js helper with the existing
+  `js-yaml` dependency; `yq` is not provisioned or required by APEX.
+- Reuse `parseFrontmatter` for Markdown frontmatter and `js-yaml` for full YAML documents.
+  Run `npm ci` to provision the lockfile-pinned Node tooling before using it.
 - Validate required fields; treat parser errors as fatal
-- Quote filters; use `--raw-output` for plain strings
+- Quote `jq` filters; use `--raw-output` for plain strings
 - Document parser dependencies at script top; fail fast if absent
 
 ## Argument Parsing

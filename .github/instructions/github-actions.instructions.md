@@ -45,7 +45,9 @@ For general GitHub Actions best practices, rely on
 
 | Workflow                        | Purpose                                          | Trigger                     |
 | ------------------------------- | ------------------------------------------------ | --------------------------- |
-| `ci.yml`                        | Required PR check: lint + all Node.js validators + gitleaks history scan | PR + push to main/feature   |
+| `ci.yml`                        | Independent repository, external-tool and secret-scan jobs | PR + push to main/feature + manual |
+| `branch-enforcement.yml` | Contributor branch naming and change-scope checks | PR to main |
+| `validate-devcontainer-base.yml` | Validate the devcontainer base and compare verdicts | Relevant same-repository PR changes + manual |
 | `consumer-template-checks.yml` | Validate inactive consumer workflows | Template changes + manual |
 | `upstream-skill-drift.yml` | Keep one issue with upstream azure-skills drift | Weekly schedule + manual |
 | `dependency-security.yml` | Dependency review and npm/pip audit gates | Dependency or workflow changes + weekly + manual |
@@ -53,6 +55,11 @@ For general GitHub Actions best practices, rely on
 Documentation build, link checks and Pages publishing belong to `jonathan-vella/apex-docs`.
 Governance, IaC and weekly maintenance sources live under `.github/consumer-workflows/`;
 their operational jobs run only in eligible consumer repositories, not APEX or the accelerator.
+
+Job names, not workflow-file names, identify check runs. There is no aggregate success job
+in `ci.yml`; repository rulesets/branch protection must separately select the required
+checks. Local YAML inspection does not verify those live settings. Do not add path filters
+that can leave a required check pending, or treat skipped dependencies as aggregate success.
 
 ## Validation Scripts
 

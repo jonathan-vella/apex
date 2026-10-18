@@ -29,7 +29,7 @@ with AI agents.
 | 1    | Mounted directories            | Ensure uv, gh config, and Terraform cache directories are writable |
 | 2    | npm and workspace dependencies | Ensure npm 12.1.0, then `npm ci` from `package-lock.json`       |
 | 3    | Python and apex-recall         | One `uv pip install` for requirements and editable recall; import and CLI verification |
-| 4    | PowerShell Az modules          | Synchronous `Install-Module`, then verify each required module exists |
+| 4    | PowerShell analysis and Az modules | `npm run setup:powershell` for the pinned analyzer, then synchronous Az module install/verification |
 | 5    | Build tools and Terraform      | Check gitleaks, uv, and Terraform versions                     |
 | 6    | Azure CLI and Bicep            | Stable extension auto-install, disable CLI auto-upgrade, check Bicep with fallback install |
 | 7    | MCP defaults and tool versions | Add missing defaults via JSONC edits; run tool-version validation |
@@ -37,6 +37,13 @@ with AI agents.
 Required setup errors stop the script with a nonzero exit. PowerShell installs Accounts, Resources,
 Storage, Network, KeyVault, and Websites modules without bypassing publisher checks; missing modules
 or installation errors fail setup. Setup does not change global Git settings or credentials.
+
+PowerShell analysis uses the exact PSScriptAnalyzer version in
+[`requirements.psd1`](../tools/powershell/requirements.psd1), installed from PSGallery in `CurrentUser` scope.
+It does not change repository trust or require root. Run `npm run setup:powershell` to provision it manually,
+then `npm run lint:powershell` and `npm run test:powershell`. Missing PowerShell or the pinned analyzer fails closed.
+The checker only parses/analyzes maintained sources; it never executes Azure or Kubernetes collection scripts.
+Installation requires HTTPS access to PowerShell Gallery; analysis is offline once the module is installed.
 
 ### Build-Time Tools (installed via `Dockerfile`)
 

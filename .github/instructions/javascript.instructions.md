@@ -64,3 +64,13 @@ Extend the shared parser only with focused tests; reuse existing dependencies.
 - `package.json` is tooling-only: no runtime `dependencies`.
 - Prefer Node built-ins and existing dev dependencies (for example `js-yaml`, `ajv`,
   `jsonc-parser`); add a new one only when nothing present covers the need.
+
+## Testing
+
+- Use the built-in `node:test` runner and `node:assert/strict`; do not add a second framework.
+- Put regression tests under `tools/tests/`: feature suites use `*.test.mjs`,
+  executable-tool contracts use `tools/tests/scripts/test_*.mjs`.
+- Run related files together with `node --test <test-path> ...`, then the applicable
+  package script/integration suite. Ensure new suites are reachable from CI.
+- Exercise valid, invalid and missing-input paths. Assert outputs and nonzero failures,
+  not only implementation strings; isolate fixtures and clean up owned temporary files.

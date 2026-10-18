@@ -100,15 +100,29 @@ test("VS Code validation still fails for invalid structural settings", (context)
   }
   config.customizations.vscode.settings["chat.customAgentInSubagent.enabled"] = false;
   assert.equal(check().status, 1);
-  delete config.customizations.vscode.settings["chat.agentFilesLocations"];
+  delete config.customizations.vscode.settings["chat.useAgentSkills"];
   assert.equal(check().status, 1);
   config.customizations.vscode.settings["chat.customAgentInSubagent.enabled"] = true;
-  config.customizations.vscode.settings["chat.agentFilesLocations"] = settings["chat.agentFilesLocations"];
+  config.customizations.vscode.settings["chat.useAgentSkills"] = settings["chat.useAgentSkills"];
   assert.equal(check().status, 0);
   for (const invalid of ["{broken", "[]", "null"]) {
     fs.writeFileSync(path.join(root, ".vscode/settings.json"), invalid);
     const result = spawnSync(process.execPath, [validator], { encoding: "utf8" });
     assert.equal(result.status, 1, result.stdout + result.stderr);
+  }
+});
+
+test("Copilot-only validation rejects ineffective Local discovery settings in either editor source", (context) => {
+  const { config, settings, check } = vscodeFixture(context);
+  for (const source of [settings, config.customizations.vscode.settings]) {
+    for (const key of ["chat.agentFilesLocations", "chat.agentSkillsLocations", "chat.instructionsFilesLocations"]) {
+      source[key] = { ".github/example": true };
+      const result = check();
+      assert.equal(result.status, 1, result.stdout + result.stderr);
+      assert.match(result.stdout, /remove Local-only/);
+      delete source[key];
+      assert.equal(check().status, 0);
+    }
   }
 });
 

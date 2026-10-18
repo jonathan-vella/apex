@@ -1,7 +1,6 @@
 # CI Workflow
-# Single required status check for all PRs to main
-# Consolidates: lint, agent-validation, policy-compliance-check
-# Runs markdown linting + all Node.js validators + handoff validation
+# Independent checks for repository validation, external tools and secret scanning.
+# Required merge checks are configured in GitHub rulesets/branch protection, not here.
 
 name: ci
 
@@ -31,6 +30,15 @@ jobs:
 
       - name: Setup Node
         uses: ./.github/actions/setup-node-repo
+
+      - name: Install pinned PowerShell analyzer (current user)
+        run: npm run setup:powershell
+
+      - name: Analyze maintained PowerShell scripts
+        run: npm run lint:powershell
+
+      - name: Test PowerShell analysis contract
+        run: npm run test:powershell
 
       - name: Setup Python for executable tool tests
         uses: actions/setup-python@v7
