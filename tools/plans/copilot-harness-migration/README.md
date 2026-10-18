@@ -22,6 +22,7 @@ tenant/subscription, resource boundary, budget and permitted actions; cleanup is
 - [Execution contract](execution-contract.md): Autopilot scope, human decisions, validation and rollback.
 - [PR review register](review-register.md): feedback disposition without pretending planned fixes are delivered.
 - [Execution status](execution-status.md): actual authorization, capability evidence and blockers.
+- [Agent-body readiness](agent-body-readiness.md): per-agent native body audit, direct questions and runtime probe limits.
 
 ### Intentional runtime hook retirement
 

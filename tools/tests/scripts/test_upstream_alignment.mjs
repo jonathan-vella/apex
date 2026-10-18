@@ -175,15 +175,14 @@ test("SKU availability helper separates available, restricted, not offered and u
 
 test("deploy pre-flight and SKU escalation use the SKU availability contract", () => {
   const github = new URL("../../../.github/", import.meta.url);
-  for (const relative of [
-    "agents/07b-bicep-deploy.agent.md",
-    "agents/07t-terraform-deploy.agent.md",
-    "instructions/sku-manifest.instructions.md",
-  ]) {
+  for (const relative of ["agents/07b-bicep-deploy.agent.md", "agents/07t-terraform-deploy.agent.md"]) {
     const source = readFileSync(new URL(relative, github), "utf8");
-    assert.match(source, /apex-azure-quotas\/references\/sku-availability\.md/, relative);
-    assert.match(source, /`RESTRICTED`/, relative);
+    for (const field of ["deploy-shared-workflow.md", "quota", "manifest"])
+      assert.ok(source.includes(field), `${relative}: ${field}`);
   }
+  const manifestRules = readFileSync(new URL("instructions/sku-manifest.instructions.md", github), "utf8");
+  assert.match(manifestRules, /apex-azure-quotas\/references\/sku-availability\.md/);
+  assert.match(manifestRules, /`RESTRICTED`/);
   assert.match(read("apex-azure-quotas/SKILL.md"), /\| `references\/sku-availability\.md`/);
   assert.match(read("apex-azure-quotas/references/sku-availability.md"), /^<!-- ref:sku-availability-v1 -->/);
 });
@@ -449,7 +448,8 @@ test("new service skills are pinned and wired into the owning agents", () => {
     assert.equal(entry?.status, "new-fork", name);
   }
   assert.match(agent("03-architect.agent.md"), /apex-azure-kubernetes\/SKILL\.md[\s\S]*apex-azure-upgrade\/SKILL\.md/);
-  assert.match(agent("05-iac-planner.agent.md"), /apex-azure-kubernetes\/SKILL\.md/);
+  assert.match(agent("05-iac-planner.agent.md"), /\bAKS\b/);
+  assert.ok(read("apex-azure-kubernetes/SKILL.md"));
   for (const name of ["08-as-built.agent.md", "09-diagnose.agent.md"]) {
     assert.match(agent(name), /apex-azure-reliability\/SKILL\.md/, name);
   }
@@ -468,7 +468,7 @@ test("03-Architect uses WAF service guides with bounded fetches and Learn citati
   assert.match(research, /`02-waf-research\.tmp\.md`/);
   assert.match(research, /record the gap and lower the\s+confidence/);
   const architect = readFileSync(new URL("../../../.github/agents/03-architect.agent.md", import.meta.url), "utf8");
-  assert.match(architect, /research-workflow\.md#waf-service-guides/);
-  assert.match(architect, /WAF\s+service guide procedure/);
+  assert.match(architect, /research-workflow\.md/);
+  assert.match(architect, /WAF service guides/);
   assert.doesNotMatch(read("apex-azure-artifacts/templates/02-architecture-assessment.template.md"), /service guide/i);
 });

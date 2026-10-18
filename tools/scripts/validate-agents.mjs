@@ -78,12 +78,15 @@ function productionAgentKind(agent) {
   return null;
 }
 
-function validateProductionAgentPolicy(agent, agents) {
+export function validateProductionAgentPolicy(agent, agents = new Map()) {
   const kind = productionAgentKind(agent);
   if (!kind) return [];
 
   const issues = [];
   const frontmatter = agent.frontmatter ?? {};
+  if ("handoffs" in frontmatter) {
+    issues.push("Active production agents must omit UI handoffs; native tasks and human gates control routing");
+  }
   if ("model" in frontmatter)
     issues.push("Active production agents must omit model pins; select Auto in the runtime separately");
   if ("reasoning-effort" in frontmatter) {
@@ -110,6 +113,12 @@ function validateProductionAgentPolicy(agent, agents) {
     }
   }
   const invocationDisabled = frontmatter["disable-model-invocation"];
+  if (kind === "main") {
+    if (frontmatter["user-invocable"] !== true) issues.push("Production main agents require user-invocable: true");
+    if (!Array.isArray(tools) || !tools.includes("ask_user")) {
+      issues.push("Production main agents require the native ask_user tool for direct interaction");
+    }
+  }
   if (kind === "main" && MANUAL_ENTRY_AGENTS.has(frontmatter.name) && invocationDisabled !== true) {
     issues.push(`Production manual-entry agents require disable-model-invocation: true (${frontmatter.name})`);
   } else if (kind === "main" && invocationDisabled !== undefined && typeof invocationDisabled !== "boolean") {
@@ -120,7 +129,7 @@ function validateProductionAgentPolicy(agent, agents) {
       issues.push("Production Orchestrator requires an explicit named main-agent allowlist");
     }
     if (!Array.isArray(tools) || !tools.includes("agent")) {
-      issues.push("Production Orchestrator requires the agent tool for verified background dispatch");
+      issues.push("Production Orchestrator requires the agent tool for native task dispatch");
     }
   }
   if (kind === "worker") {
@@ -587,12 +596,13 @@ function runModelAlignment() {
     }
   }
 
-  // Check 3: Large production agents missing context_awareness
+  // Historical pinned prompts retain vendor-specific guidance; active agents inherit the runtime model.
   console.log("  Check 3: Large-agent context_awareness");
   {
     const agents = getAgents();
 
     for (const [_filename, agent] of agents) {
+      if (productionAgentKind(agent)) continue;
       if (agent.isSubagent) continue;
 
       const bodyLines = countBodyLines(agent.content);
@@ -639,6 +649,7 @@ function runModelAlignment() {
     const agents = getAgents();
 
     for (const [filename, agent] of agents) {
+      if (productionAgentKind(agent)) continue;
       const matchesKnown = INVESTIGATE_AGENTS.some((prefix) => filename.startsWith(prefix));
       if (!matchesKnown) continue;
 
@@ -967,22 +978,24 @@ export function validateProductionAgentBody(agent) {
   if (titles.length !== 1 || titles[0].nested || titles[0].title !== agent.frontmatter?.name) {
     issues.push("Production body requires exactly one H1 matching the frontmatter name");
   }
-  const families = modelFamilies(agent.frontmatter?.model);
-  if (kind === "main" && hasMixedBodyContractFamilies(agent.frontmatter?.model)) {
-    issues.push("Production main agent model fallbacks must not mix Claude and non-Claude body contracts");
-  }
-  const hasStructuredContractMarkup = CLAUDE_CONTRACT_BLOCKS.some((tag) => getBody(agent.content).includes(`<${tag}>`));
-  const structuredMain =
-    kind === "main" &&
-    ((families.length > 0 && families.every((family) => isClaude(family))) ||
-      (families.length === 0 && hasStructuredContractMarkup));
-  const contracts = structuredMain
-    ? { Role: BODY_CONTRACT_SECTIONS.Role }
-    : kind === "main"
-      ? BODY_CONTRACT_SECTIONS
+  const body = getBody(agent.content);
+  const retired = body.match(
+    /\b(?:APEX_WORKER_HANDSHAKE|WORKER_READY(?:_ACK)?|WORKER_EXECUTE|HANDSHAKE_VERIFIED|READY_VERIFIED)\b|verify-worker-ready\.mjs/g,
+  );
+  if (retired)
+    issues.push(`Production body contains retired worker preflight contracts: ${[...new Set(retired)].join(", ")}`);
+  const contracts =
+    kind === "main"
+      ? {
+          Role: BODY_CONTRACT_SECTIONS.Role,
+          Constraints: ["constraints", "scope", "scope and constraints"],
+          Output: BODY_CONTRACT_SECTIONS.Output,
+          "Stop rules": ["stop rules", "stop conditions"],
+        }
       : {
           Role: BODY_CONTRACT_SECTIONS.Role,
           Inputs: ["inputs", "input contract"],
+          Constraints: ["constraints", "scope", "operating posture"],
           Output: BODY_CONTRACT_SECTIONS.Output,
         };
   for (const [name, aliases] of Object.entries(contracts)) {
@@ -991,7 +1004,9 @@ export function validateProductionAgentBody(agent) {
       issues.push(`Production body requires nonempty H2 ${name} sections`);
     }
   }
-  if (structuredMain) issues.push(...claudeContractBlockIssues(agent.content));
+  if (kind === "worker" && !/\b(stop|fail(?:ure|ed)?|return.*parent|blocked)\b/i.test(structure.prose)) {
+    issues.push("Production leaf body requires a bounded failure/return rule");
+  }
   return issues;
 }
 

@@ -143,10 +143,10 @@ Header: `# {Project} — Handoff (Step {N} complete)` with metadata line (`Updat
 ## Step Delegation
 
 Only `01-Orchestrator` dispatches main workers after human gate approval,
-current graph preconditions and [verified readiness](worker-readiness.md).
+current graph preconditions and the [native task lifecycle](worker-readiness.md).
 Active definitions omit model and effort pins; model selection belongs to the
-operator and runtime. Missing worker identity/linkage, failed
-continuation or missing tools blocks execution; never perform specialist work
+operator and runtime. Missing required native results/tools blocks the affected execution;
+continuation is used only when supported. Never perform specialist work
 inline or choose a fixed-model fallback.
 
 ### Step → Named Worker
@@ -162,8 +162,8 @@ inline or choose a fixed-model fallback.
 | 6 | `07b-Bicep Deploy` / `07t-Terraform Deploy` | Separate final apply approval |
 | 7 | `08-As-Built` | Observed deployment state |
 
-Present the exact owner, scope and pending human gate. UI handoff metadata is
-advisory, not an SDK execution dependency or permission. Automatic technical
+Present the exact owner, scope and pending human gate. Active APEX agents omit UI
+handoff metadata; it is not an SDK execution dependency or permission. Automatic technical
 handoffs return to the same Orchestrator with artifact paths, recall checkpoints,
 actual validation results, unresolved findings and pending forms. They do not
 require manual agent switching. Human approval remains a separate gate.

@@ -5,6 +5,7 @@ user-invocable: false
 disable-model-invocation: false
 agents: []
 tools: [execute, read, edit, search, "azure-mcp/pricing"]
+
 ---
 
 # cost-estimate-subagent
@@ -36,20 +37,17 @@ Callers: Architect (planned estimates) | As-Built (deployed estimates).
 - No questions, todos, delegation or automatic model fallback. Missing essential
   tools/model/inputs return FAILED with `unresolved_items[]`; if persistence is
   impossible, name that in the compact summary and do not claim the file was written.
-- Local and Host callers supply the same explicit inputs. Inline skills cannot
-  select a model. The Luna-parent to Terra-reviewer eligibility question belongs
-  to callers/manual acceptance; this leaf never invokes a reviewer or changes models.
+- The VS Code Copilot caller supplies explicit inputs. Skills do not select a model;
+  this leaf never invokes a reviewer or changes routing. Runtime model metadata is diagnostic only.
 - Return exactly `COMPLETE` or `FAILED`; `PARTIAL` is not valid.
 - Never invent a price or choose an ambiguous meter silently.
 
-## Harness Entry
+## Native execution
 
-For `APEX_WORKER_HANDSHAKE`, perform no tools and return exactly
-`WORKER_READY <definition-name> <original-nonce>` using this definition's name and parent's nonce. On the nonce-only continuation,
-return exactly `WORKER_READY_ACK <definition-name> <original-nonce>` with those values and no tools.
-Work only after the same parent sends `WORKER_EXECUTE` following complete-phase readiness verification. A missing
-handshake or execution envelope returns `blocked`, never an inherited-model run.
-Do not ask users, manage parent todos or delegate. Return missing inputs to the parent.
+The native task prompt supplies the bounded assignment and exact allowed outputs.
+Return missing required inputs to the parent in this role's failure shape; do not ask users,
+manage parent todos or delegate. Use actual task results, not a readiness declaration.
+No role/tool metadata, task success or Autopilot answer grants operation permission.
 
 ## Inputs
 

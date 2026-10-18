@@ -1,6 +1,6 @@
 ---
 name: apex-workflow-start
-description: "Start or resume an APEX workflow in the VS Code Copilot SDK harness. Use /apex-workflow-start with an explicit operation; resume can discover the project. Requires the owning agent and verified worker routing, not an inherited model."
+description: "Start or resume APEX work in VS Code Copilot. Select the interactive Orchestrator or domain owner, recover current project evidence, collect missing decisions and use native tasks without UI handoff or readiness rituals."
 argument-hint: "operation project (resume [project] to recover)"
 user-invocable: true
 disable-model-invocation: true
@@ -10,34 +10,27 @@ disable-model-invocation: true
 
 ## Prerequisites
 
-Require an explicit operation; require a project except for `resume`, which may
-discover candidates. Require the correctly selected named owner and its
-permitted tools. A skill cannot bind them.
-**STOP** and ask the user to select the owner if any routing evidence is missing.
-Model selection belongs to the operator and runtime, including Auto and HydraFusion;
-it is not a readiness gate. Preserve the named owner's scope and approved dispatch evidence.
-Routine work uses direct `WORKER_EXECUTE` with `--phase execute` (`EXECUTE_VERIFIED`).
-Only an explicitly requested diagnostic probe requires the tool-free handshake and continuation ACK.
+Use the Copilot session target inside VS Code. A skill inherits actual caller tools/model;
+it cannot change the selected role, grant permission or establish human approval.
+Use the Orchestrator for end-to-end coordination or directly select the requested domain owner.
+Direct Requirements, Architect, Design and Governance ask missing material questions through native `ask_user`.
+Delegated tasks return the form to their interactive parent.
 
 ## Procedure
 
-Read [apex-workflow-engine](../apex-workflow-engine/SKILL.md) and its
-[workflow entry procedure](../apex-workflow-engine/references/workflow-entry.md).
-Resolve the requested operation to its exact owner before consequential work.
-Follow the required inputs, activities, outputs, reviews, and human gates there.
-Return a blocker for missing owner identity, readiness or tools; do not widen tools or permissions.
+Resolve the requested operation and project. Supplied explicit values need no repeated confirmation;
+ambiguous operation/project requires a native question. No guessed new project on an empty recall result.
+Read [workflow entry](../apex-workflow-engine/references/workflow-entry.md) and
+[workflow engine](../apex-workflow-engine/SKILL.md) only for relevant domain prerequisites.
+Recover `apex-recall show <project> --json`, existing summary/artifacts and real review/approval evidence.
+Never read/write state JSON directly or infer completion from numbered files.
 
-For `resume`, require the selected owner `01-Orchestrator`.
-Follow the [shared resume procedure](../apex-workflow-engine/references/workflow-entry.md#resume).
-Use a supplied project without reconfirmation; otherwise discover candidates
-and ask only when ambiguous. Empty recall never authorizes a fresh start.
-Preserve missing-input recovery, reviews, checkpoints and approvals. Present
-recovered status and the applicable human gate. After approval, Orchestrator
-may dispatch only the exact approved owner through the direct-execution path in
-[worker readiness](../apex-workflow-engine/references/worker-readiness.md).
-Never run specialist work inline or substitute models.
+Use [native task lifecycle](../apex-workflow-engine/references/worker-readiness.md)
+for authorized delegation and actual results. No handoff-button, handshake or log-path prerequisite.
+Missing tool/input/approval returns a precise blocker; do not widen scope or substitute model/owner.
+Decline/cancellation never approve; Autopilot form answers are not independent human authorization.
+For resume preserve findings, checkpoints, current source evidence and actual invocation allowances.
 
-Git commit and debug-log export remain separate manual skills, not workflow
-operations. Archived Local prompt names are not entry points. Custom-agent
-runtime acceptance must be demonstrated; static checks do not certify discovery,
-worker identity, tool binding or permissions. Do not enable experimental skill context forks.
+Git commit and debug-log export remain their separate manual skills.
+Archived Local prompts are history, not active entry points. Do not enable experimental skill forks
+or restore retired runtime hooks. Static checks do not certify actual native tool enforcement.

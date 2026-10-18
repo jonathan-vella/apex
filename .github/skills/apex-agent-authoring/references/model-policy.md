@@ -20,12 +20,10 @@ Readiness is model-agnostic. Model names, effort, picker selection and model-sou
 labels are optional diagnostics; missing values, unknown source labels or
 configured/dispatched/response model differences never block readiness.
 This supports runtime-managed selection and multi-model workflows without
-hard-coded routing profiles. Require the exact named worker, linked parent
-dispatch, tool-free completed turns, original nonce and same-worker ACK.
-Missing identity/linkage, tools or approval remains blocking.
-Initial `HANDSHAKE_VERIFIED` never proves complete readiness; execution requires
-complete-phase `READY_VERIFIED` and `continuation_verified: true` under the
-[worker-readiness protocol](../../apex-workflow-engine/references/worker-readiness.md).
+hard-coded routing profiles. Use the actual native task result and returned handle,
+not tool-free turns, nonce exchanges or mandatory log replay.
+Required tool/input/approval failures remain blockers under the
+[native task lifecycle](../../apex-workflow-engine/references/worker-readiness.md).
 
 ## Catalog Metadata
 
@@ -35,8 +33,8 @@ inventing public release dates, capabilities, prices, or cost tiers. Capability
 descriptors are not runtime subagent cost tiers. No automatic fixed-model fallback
 is authorized.
 
-Human handoffs select the named owner; an unavailable or unverified transition
-must not be replaced by implicit delegation. Native Local/Host eligibility,
+Explicit user selection or native tasks select the named owner; an unavailable required transition
+must not be replaced by implicit permission expansion. Native Copilot routing,
 tool binding and same-worker continuation require runtime acceptance, not
 conclusions from static catalog checks. Picker selection and model attestation
 are not acceptance gates.

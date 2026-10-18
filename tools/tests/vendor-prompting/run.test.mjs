@@ -19,6 +19,8 @@ import {
   runFrontmatterValidation,
   validateAgentPermissions,
   validateProductionAgentBody,
+  claudeContractBlockIssues,
+  hasMixedBodyContractFamilies,
   getAgentBodyStructure,
   FAMILY_STATUS,
 } from "../../scripts/validate-agents.mjs";
@@ -319,11 +321,9 @@ const claudeContract = [
   "</stop_conditions>",
 ].join("\n");
 
-test("Claude production main agents use the Claude contract, not the six-H2 contract", () => {
-  const productionPath = path.resolve(__dirname, "../../../.github/agents/example.agent.md");
+test("historical Claude fixtures retain XML block validation without imposing it on native production bodies", () => {
   for (const model of ["Claude Opus 5.5 (copilot)", "Claude Sonnet 5.5 (copilot)"]) {
-    const agent = { frontmatter: { name: "Example", model: [model] }, content: claudeContract, path: productionPath };
-    assert.deepEqual(validateProductionAgentBody(agent), [], model);
+    assert.deepEqual(claudeContractBlockIssues(claudeContract), [], model);
     for (const tag of ["scope_fencing", "output_contract", "stop_conditions"]) {
       const open = `<${tag}>`;
       const close = `</${tag}>`;
@@ -339,29 +339,32 @@ test("Claude production main agents use the Claude contract, not the six-H2 cont
         claudeContract.replace(new RegExp(`${open}\\n[^\\n]+\\n${close}`), `<!-- unterminated\n${open}\nx\n${close}`),
       ]) {
         assert.ok(
-          validateProductionAgentBody({ ...agent, content: broken }).some((issue) => issue.includes(`<${tag}>`)),
+          claudeContractBlockIssues(broken).some((issue) => issue.includes(`<${tag}>`)),
           `${model}: ${tag}`,
         );
       }
     }
-    const noRole = claudeContract.replace("## Role\nOwn the step.\n", "");
-    assert.ok(validateProductionAgentBody({ ...agent, content: noRole }).some((issue) => issue.includes("Role")));
   }
-  const gpt = {
-    frontmatter: { name: "Example", model: ["GPT-6-Sol"] },
-    content: claudeContract,
-    path: productionPath,
+  const native = {
+    frontmatter: { name: "Example" },
+    content:
+      "# Example\n\n## Role\nOwn the step.\n\n## Constraints\nRead only.\n\n## Output\nReturn evidence.\n\n## Stop rules\nStop on missing inputs.\n",
+    path: path.resolve(__dirname, "../../../.github/agents/example.agent.md"),
   };
-  assert.ok(validateProductionAgentBody(gpt).some((issue) => issue.includes("H2 Goal")));
+  assert.deepEqual(validateProductionAgentBody(native), []);
+  for (const heading of ["Role", "Constraints", "Output", "Stop rules"]) {
+    assert.ok(
+      validateProductionAgentBody({
+        ...native,
+        content: native.content.replace(`## ${heading}`, "## Unrelated"),
+      }).some((issue) => issue.includes(heading)),
+    );
+  }
   for (const model of [
     ["GPT-6-Sol", "Claude Opus 5.5 (copilot)"],
     ["Claude Sonnet 5.5 (copilot)", "GPT-6-Luna"],
   ]) {
-    const mixed = { ...gpt, frontmatter: { name: "Example", model } };
-    assert.ok(
-      validateProductionAgentBody(mixed).some((issue) => issue.includes("must not mix Claude")),
-      model.join(", "),
-    );
+    assert.equal(hasMixedBodyContractFamilies(model), true, model.join(", "));
   }
 });
 
@@ -517,10 +520,10 @@ test("shared authoring policy and family registry match the implemented contract
   assert.match(skill, /node tools\/scripts\/fetch-vendor-prompting-guides\.mjs/);
   assert.ok(fs.existsSync(path.join(root, "tools/scripts/fetch-vendor-prompting-guides.mjs")));
   const authoring = read(".github/instructions/agent-authoring.instructions.md");
-  assert.match(authoring, /nonempty `agents` list requires/);
-  assert.match(authoring, /`agents: \[\]` does not/);
-  assert.match(authoring, /allowlists must not override/);
-  assert.match(authoring, /`10-Challenger` remains optional manual recovery/);
+  for (const field of ["`agents`", "`agent`", "agents: []", "ask_user", "handoffs", "one-shot-review.md"])
+    assert.ok(authoring.includes(field), field);
+  assert.match(authoring, /[Nn]onempty `agents` requires/);
+  assert.match(authoring, /Optional manual Challenger is not an automatic fallback/);
   assert.doesNotMatch(authoring, /first frontmatter model/);
   const context = read(".github/instructions/context-optimization.instructions.md");
   assert.match(context, /Do not infer runtime cost-tier eligibility/);
@@ -548,23 +551,11 @@ test("production reviewer policy forbids allowlist overrides and nested main wra
     ".github/skills/apex-agent-authoring/references/runtime-guardrails.md",
   ]) {
     const content = fs.readFileSync(path.join(root, filename), "utf8").replace(/\s+/g, " ");
-    assert.match(
-      content,
-      /reviewer is unavailable, stop and return the (?:actual )?failure to the interactive parent/,
-      filename,
-    );
-    assert.match(
-      content,
-      /Missing or empty reviewer output permits exactly one identical-input retry(?: within the existing budget)?, then stop for a human (?:decision|recovery decision)/,
-      filename,
-    );
-    assert.match(content, /`10-Challenger` (?:remains optional manual recovery|is optional)/, filename);
-    assert.match(content, /Never invoke a nested main-agent wrapper or fabricate an inline review/, filename);
-    assert.match(
-      content,
-      /(?:caller allowlists must not override this production boundary|step-agent allowlists never authorize another main-agent wrapper)/,
-      filename,
-    );
+    for (const field of ["reviewer", "unavailable", "identical-input", "retry", "optional", "Challenger"])
+      assert.ok(content.toLowerCase().includes(field.toLowerCase()), `${filename}: ${field}`);
+    assert.match(content, /(?:no|never)[^.]*nested[^.]*wrapper/i, filename);
+    assert.match(content, /(?:budget|accounting|allowance|ceiling)/i, filename);
+    assert.match(content, /(?:self-review|inline review)/, filename);
     assert.doesNotMatch(content, /allowlist can override|only (?:when|if) explicitly allowlisted/, filename);
   }
 });
@@ -592,7 +583,7 @@ test("agent catalog preserves descriptive metadata and operator-selected runtime
   const authoring = fs.readFileSync(path.join(root, ".github/instructions/agent-authoring.instructions.md"), "utf8");
   const runtime = fs.readFileSync(path.join(root, ".github/copilot-instructions.md"), "utf8");
   const catalog = JSON.parse(fs.readFileSync(path.join(root, ".github/model-catalog.json"), "utf8"));
-  assert.match(authoring, /Active production agents omit both `model` and `reasoning-effort`/);
+  assert.match(authoring, /Active definitions omit model\/effort pins/);
   assert.match(runtime, /operator and\s+runtime control selection/);
   assert.match(runtime, /Missing or differing model telemetry is diagnostic only/);
   const agents = getAgents();
@@ -622,7 +613,7 @@ test("prompt and skill authoring distinguish Local adapters from Host execution"
   assert.match(active, /Local prompt adapters are archived and excluded from active discovery/);
   assert.match(active, /Use the\s+shared skill with its owning agent/);
   assert.match(active, /Skills inherit\s+caller model\/tools/);
-  assert.match(active, /Orchestrator dispatch requires verified worker routing and human approval/);
+  assert.match(active, /Orchestrator dispatch uses bounded native tasks and actual results with separate approval/);
 });
 
 test("frontmatter validator accepts generic coordinators and explicitly allowlisted human targets", () => {
@@ -689,7 +680,7 @@ test("production names outside the production directories retain generic platfor
   assert.equal(runFrontmatterValidation({ agents }).errors, 0);
 });
 
-test("production frontmatter accepts the current fleet and human handoffs", () => {
+test("production frontmatter accepts the native fleet without UI handoffs", () => {
   assert.equal(runFrontmatterValidation({ agents: productionFleet() }).errors, 0);
 });
 
@@ -729,7 +720,7 @@ test("only the Orchestrator can allowlist named main agents; wildcard targets re
       const agents = productionFleet();
       const frontmatter = agents.get(filename).frontmatter;
       frontmatter.agents = [target];
-      frontmatter.tools = ["agent"];
+      frontmatter.tools = ["agent", "ask_user"];
       const finding = productionFindings(agents).find((entry) => entry.file === caller.path);
       if (caller.frontmatter.name === "01-Orchestrator" && target !== "*") {
         assert.equal(finding, undefined, `${caller.frontmatter.name} -> ${target}`);

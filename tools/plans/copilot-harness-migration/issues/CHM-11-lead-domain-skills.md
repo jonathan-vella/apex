@@ -6,6 +6,11 @@ Status: proposed implementation after plan/pilot approval.
 
 ### Objective and inputs
 
+Current source slice: every main/leaf body has been audited and migrated to bounded native execution,
+with explicit direct `ask_user`, delegated input forms, no active UI handoffs and no custom readiness ritual.
+See [agent-body readiness](../agent-body-readiness.md) for actual test/runtime evidence.
+This is not yet roster retirement or a change to domain review/approval requirements.
+
 Replace forced numbered conversational ownership with an optional short lead, on-demand domain workflows and
 bounded native workers where independent context matters. Use the accepted pilot and CHM-09 asset map.
 Preserve valuable outputs and domain constraints, not the existing roster by default.

@@ -2,10 +2,10 @@
 
 # Automatic One-Shot Review
 
-Automatic independent reviews use the built-in `rubber-duck` reviewer. This
-contract replaces the resumable-worker handshake for this reviewer only.
-Step workers, pricing and validation workers retain their existing readiness
-contracts. `10-Challenger` remains an optional manual review/repair workflow;
+Automatic independent reviews use the built-in `rubber-duck` reviewer.
+This reviewer-specific result receipt/freshness contract is distinct from ordinary
+native task execution; no worker type requires a readiness handshake.
+`10-Challenger` remains an optional manual review/repair workflow;
 it is not a required hop in the automatic path.
 
 ## Parent procedure
@@ -49,8 +49,8 @@ it is not a required hop in the automatic path.
    Replace `cache_inputs` with the actual captured metadata, never the empty
    example. Include the emitted `supporting_inputs` unchanged when present.
    Use the actual owning step, project-scoped review depth and a stable, unique
-   request ID for this reviewer dispatch, distinct from the parent `WORKER_EXECUTE`
-   request ID. Historical parent/reviewer ID reuse is attributed separately by
+   request ID for this reviewer dispatch, distinct from any parent task request ID.
+   Historical parent/reviewer ID reuse is attributed separately by
    protocol and linked dispatch: both executions remain counted. Duplicate IDs
    within either protocol still fail. A new ID never resets the review allowance.
    Supply bounded required context and the exact contract path to the reviewer.

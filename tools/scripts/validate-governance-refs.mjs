@@ -69,12 +69,13 @@ check("DON'T list warns against skipping governance mapping", fileOrSharedRef("S
 // 2. bicep-validate-subagent has Governance Compliance section
 console.log("\n📄 bicep-validate-subagent.agent.md");
 const reviewPath = ".github/agents/_subagents/bicep-validate-subagent.agent.md";
-check("Has Governance Compliance section", fileContains(reviewPath, "### 7. Governance Compliance"));
+check("Has governance/L2 review responsibility", fileContains(reviewPath, /Governance(?:\/L2| Compliance)/));
 check(
   "Checks required tag keys, values, and casing against governance constraints",
-  fileContains(reviewPath, "Required tag keys, values, and casing satisfy governance constraints"),
+  fileContains(reviewPath, /tag keys, values(?:,)? and casing/i) &&
+    fileContains(reviewPath, /(?:effective policy|governance constraints)/i),
 );
-check("Checks Deny policies are satisfied", fileContains(reviewPath, "Deny polic"));
+check("Checks Deny policy/effect satisfaction", fileContains(reviewPath, /Deny (?:polic|effects)/));
 check("Checks publicNetworkAccess", fileContains(reviewPath, "publicNetworkAccess"));
 check("Checks SKU restrictions", fileContains(reviewPath, "SKU restriction"));
 
@@ -115,7 +116,10 @@ console.log("\n📄 05-iac-planner.agent.md (Terraform property mapping)");
 const iacPlannerPath = ".github/agents/05-iac-planner.agent.md";
 check(
   "Uses azurePropertyPath (not bicepPropertyPath) for property mapping",
-  fileContains(iacPlannerPath, "azurePropertyPath") && fileContains(iacPlannerPath, "always use `azurePropertyPath`"),
+  fileContains(
+    iacPlannerPath,
+    /Terraform uses `azurePropertyPath`, not `bicepPropertyPath`|always use `azurePropertyPath`/,
+  ),
 );
 check(
   "Governance constraints are a prerequisite",
@@ -127,14 +131,17 @@ check("References 04-governance-constraints.json", fileContains(iacPlannerPath, 
 console.log("\n📄 06t-terraform-codegen.agent.md");
 const tfCodeGenPath = ".github/agents/06t-terraform-codegen.agent.md";
 check("Has Phase 1.5: Governance Compliance Mapping", fileContains(tfCodeGenPath, "Phase 1.5"));
-check("Phase 1.5 is a HARD GATE", fileContains(tfCodeGenPath, "HARD GATE"));
+check(
+  "Unsatisfied governance matrix blocks generation",
+  fileContains(tfCodeGenPath, /Missing matrix.*blocks generation/),
+);
 check("References 04-governance-constraints.json", fileContains(tfCodeGenPath, "04-governance-constraints.json"));
 check("Uses azurePropertyPath for policy translation", fileContains(tfCodeGenPath, "azurePropertyPath"));
 
 // 8. Terraform review subagent has governance compliance section
 console.log("\n📄 terraform-validate-subagent.agent.md");
 const tfReviewPath = ".github/agents/_subagents/terraform-validate-subagent.agent.md";
-check("Has Governance Compliance section", fileContains(tfReviewPath, "### 7. Governance Compliance"));
+check("Has governance/L2 review responsibility", fileContains(tfReviewPath, /Governance(?:\/L2| Compliance)/));
 check(
   "References azurePropertyPath for Terraform attribute translation",
   fileContains(tfReviewPath, "azurePropertyPath"),

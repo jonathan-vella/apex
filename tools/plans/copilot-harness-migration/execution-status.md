@@ -115,6 +115,13 @@ Known unchanged external-link failures remain disclosed. No site publication occ
 
 ### Current disposition
 
+The later owner instruction explicitly authorizes a complete agent-body audit/migration independently
+of missing Azure scope. Every main/leaf definition has now been revised in source, with no UI `handoffs`,
+worker-ready turn or custom execution envelope. Direct questioning is preserved through explicit
+`ask_user` in all main definitions, while delegated main questions return to the parent.
+See [agent-body readiness](agent-body-readiness.md) for the per-agent audit, real probes and test limitations.
+This does not certify a new roster retirement, altered production review receipt or Azure E2E.
+
 An additional bounded review fix disables implicit model invocation in both deploy entries,
 Diagnose and manual Challenger; structural/negative tests no longer force those roles model-invocable.
 Diagnose explicitly returns a blocker when its actual question tool is unavailable.

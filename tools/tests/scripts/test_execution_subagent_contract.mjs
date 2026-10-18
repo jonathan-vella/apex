@@ -15,6 +15,8 @@ import test from "node:test";
 import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
+import { getAgentBodyStructure } from "../../scripts/validate-agents.mjs";
+import { parseFrontmatter } from "../../scripts/_lib/parse-frontmatter.mjs";
 
 const HERE = path.dirname(fileURLToPath(import.meta.url));
 const ROOT = path.resolve(HERE, "../../..");
@@ -26,49 +28,49 @@ const WORKER_CONTRACTS = [
     name: "bicep-validate-subagent",
     mode: "Text summary",
     fields: ["BICEP VALIDATION RESULT", "Verdict: {APPROVED|NEEDS_REVISION|FAILED}"],
-    scope: /No source, artifact, findings-file/,
+    preserved: ["source", "parameters", "artifacts", "findings", "recall"],
   },
   {
     name: "bicep-whatif-subagent",
     mode: "Text summary",
     fields: ["WHAT-IF ANALYSIS RESULT", "Status: [PASS|FAIL|WARNING]"],
-    scope: /never source, parameters,\s*findings artifacts/,
+    preserved: ["source", "parameters", "findings"],
   },
   {
     name: "terraform-validate-subagent",
     mode: "Text summary",
     fields: ["TERRAFORM VALIDATION RESULT", "Verdict: {APPROVED|NEEDS_REVISION|FAILED}"],
-    scope: /No lockfile, source, artifact, findings-file/,
+    preserved: ["source", "tfvars", "lockfile", "artifact", "findings", "recall"],
   },
   {
     name: "terraform-plan-subagent",
     mode: "Text summary",
     fields: ["TERRAFORM PLAN RESULT", "Status: [PASS|WARNING|FAIL]", "Plan File: {path/to/tfplan}"],
-    scope: /saved `tfplan`,\s*not source, tfvars, lockfile, findings artifacts/,
+    preserved: ["source", "tfvars", "lockfile", "findings"],
   },
   {
     name: "policy-precheck-subagent",
     mode: "File JSON",
     fields: ["POLICY PRECHECK RESULT", "Deploy gate: [PROCEED|BLOCK]", "Status: [CLEAN|INFORMATIONAL|BLOCKED|FAILED]"],
-    scope: /Allowed writes: caller `output_path`/,
+    preserved: ["output_path"],
   },
   {
     name: "cost-estimate-subagent",
     mode: "File JSON",
     fields: ["COST ESTIMATE {COMPLETE | FAILED}", "file_path"],
-    scope: /Allowed filesystem writes: caller `output_path`/,
+    preserved: ["output_path"],
   },
   {
     name: "challenger-review-subagent",
     mode: "File JSON",
-    fields: ["CHALLENGE COMPLETE", "overall_assessment: {APPROVED | NEEDS_REVISION | BLOCKED}", "batch_results"],
-    scope: /Allowed writes: caller `output_path` and its `\.tmp` sibling only/,
+    fields: ["CHALLENGE COMPLETE", "overall_assessment", "batch_results"],
+    preserved: ["output_path"],
   },
 ];
 
 const REQUIRED_H2S = ["## Inputs", "## Activities", "## Outputs"];
 
-for (const { name, mode, fields, scope } of WORKER_CONTRACTS) {
+for (const { name, mode, fields, preserved } of WORKER_CONTRACTS) {
   test(`${name} output mode stays bound to its current source contract`, () => {
     const section = contractBody.split(`### ${name}\n`)[1]?.split(/\n### /)[0];
     assert.ok(section, `missing named worker contract: ${name}`);
@@ -78,18 +80,29 @@ for (const { name, mode, fields, scope } of WORKER_CONTRACTS) {
     assert.equal(sourcePath, path.join(ROOT, `.github/agents/_subagents/${name}.agent.md`));
     const source = fs.readFileSync(sourcePath, "utf8");
     assert.ok(section.includes(`${mode}:`), `wrong output mode for ${name}`);
-    assert.match(source, scope, `worker write scope changed: ${name}`);
+    const frontmatter = parseFrontmatter(source);
+    assert.equal(frontmatter["user-invocable"], false);
+    assert.deepEqual(frontmatter.agents, []);
+    const constraints = getAgentBodyStructure(source).headings.find((heading) =>
+      ["constraints", "scope", "operating posture"].includes(heading.title.toLowerCase()),
+    );
+    assert.ok(constraints?.content, `worker write scope missing: ${name}`);
+    for (const field of preserved) assert.ok(source.includes(field), `${name}: ${field}`);
     for (const field of fields) {
       assert.ok(source.includes(field), `field no longer matches worker: ${name}: ${field}`);
       assert.ok(section.includes(field), `reference omits worker field: ${name}: ${field}`);
     }
+    if (name === "challenger-review-subagent") {
+      for (const body of [source, section])
+        assert.match(body, /overall_assessment:\s*\{APPROVED\s*\|\s*NEEDS_REVISION\s*\|\s*BLOCKED\}/);
+    }
     if (mode === "Text summary") {
-      assert.match(source, /Return results in this exact text shape/);
+      assert.match(source, /```text\n/);
       assert.match(section, /no findings-file writes/i);
       assert.doesNotMatch(section, /File JSON:|deployment-preview-v1|06-bicep-whatif\.json/);
     } else {
       assert.match(section, /caller `output_path`/);
-      assert.match(source, /(?:Emit JSON|Write this shape|\*\*On disk\*\*)/);
+      assert.match(source, /(?:Emit JSON|Write this shape|Single-lens JSON required fields|\*\*On disk\*\*)/);
       assert.match(section, /persistence/);
     }
   });
@@ -162,9 +175,9 @@ test("preflight plan and module substitutions require a Planner handoff, not Cod
   assert.doesNotMatch(fixOption, /agent revises the plan\s+inputs or substitutes an alternative module/);
 });
 
-test("authoring instructions reference the active execution contract", () => {
+test("authoring instructions link native lifecycle guidance without requiring a historical call heading", () => {
   const auth = path.join(ROOT, ".github/instructions/agent-authoring.instructions.md");
   const body = fs.readFileSync(auth, "utf8");
-  assert.match(body, /Execution-subagent invocation contract/, "missing H3 in agent-authoring");
-  assert.match(body, /apex-workflow-engine\/references\/execution-subagent\.md/, "missing active contract link");
+  assert.match(body, /apex-workflow-engine\/references\/worker-readiness\.md/, "missing native lifecycle link");
+  assert.ok(fs.existsSync(CONTRACT));
 });

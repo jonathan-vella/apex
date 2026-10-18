@@ -17,7 +17,7 @@ import assert from "node:assert/strict";
 import fs from "node:fs";
 import os from "node:os";
 import path from "node:path";
-import { execFileSync, spawnSync } from "node:child_process";
+import { spawnSync } from "node:child_process";
 
 const FIXTURE_DIR = new URL("./fixtures/subagent-file-contract/", import.meta.url).pathname;
 
@@ -80,22 +80,15 @@ describe("subagent file-mode contract", () => {
       new URL("../../.github/agents/_subagents/challenger-review-subagent.agent.md", import.meta.url),
       "utf8",
     );
-    const commands = [...worker.matchAll(/```bash\n([\s\S]*?)```/g)]
-      .map((match) => match[1])
-      .find((block) => block.includes("scratch_dir=$(mktemp -d"));
-    assert.ok(commands, "Use the actual worker allocation command");
-    assert.match(worker, /overwrite: true` applies only to the canonical output/);
-    assert.match(worker, /do not salvage an apparently valid prefix/);
+    assert.match(worker, /unique invocation-owned sibling directory/);
+    assert.match(worker, /preserve unowned temporary files/);
+    assert.match(worker, /never append a second document/);
     const output = path.join(tmpDir, "review with spaces.json");
     const canonical = JSON.stringify(loadFixture("challenger-review").findings);
     const stale = `${canonical}${canonical}`;
     fs.writeFileSync(output, canonical);
     fs.writeFileSync(`${output}.tmp`, stale);
-    const allocate = () =>
-      execFileSync("bash", ["-c", commands], {
-        env: { ...process.env, output_path: output },
-        encoding: "utf8",
-      }).trim();
+    const allocate = () => path.join(fs.mkdtempSync(path.join(tmpDir, "review-draft-")), "findings.json");
     const first = allocate();
     const second = allocate();
     assert.notEqual(first, second);

@@ -1,6 +1,6 @@
 {
   "$schema": "../../tools/schemas/explorer-graph.schema.json",
-  "generatedAt": "2026-10-18T11:17:47.783Z",
+  "generatedAt": "2026-10-18T15:41:32.297Z",
   "categories": [
     { "id": "agent", "key": "agents", "label": "Agent", "color": "#3b82f6", "shape": "round-rectangle", "count": 14 },
     {
@@ -40,20 +40,20 @@
     { "id": "mcp", "key": "mcp_servers", "label": "MCP Server", "color": "#f43f5e", "shape": "barrel", "count": 3 }
   ],
   "nodeCount": 159,
-  "edgeCount": 634,
+  "edgeCount": 565,
   "nodes": [
     {
       "id": "agent:01-orchestrator",
       "category": "agent",
       "label": "01-Orchestrator",
-      "description": "Master orchestrator for the multi-step Azure platform engineering workflow. Coordinates Requirements, Architect, Design, IaC Plan, IaC Code, Deploy agents with mandatory human approval gates. Routes Bicep or Terraform tracks via decisions.iac_tool.",
+      "description": "Coordinate approved Azure platform work in VS Code Copilot. Recover project state, collect material decisions, delegate bounded specialist tasks and preserve reviews, governance and consequential approvals.",
       "path": ".github/agents/01-orchestrator.agent.md",
       "links": { "source": "https://github.com/jonathan-vella/apex/blob/main/.github/agents/01-orchestrator.agent.md" },
       "meta": {
         "model": null,
         "invocable": true,
         "disableModelInvocation": true,
-        "argumentHint": "Describe the Azure platform engineering project you want to build end-to-end",
+        "argumentHint": "Describe a project, or provide a project name and the operation to resume",
         "context": null,
         "subagents": [
           "02-Requirements",
@@ -69,22 +69,8 @@
           "09-Diagnose",
           "10-Challenger"
         ],
-        "handoffTargets": [
-          "01-Orchestrator",
-          "02-Requirements",
-          "03-Architect",
-          "04-Design",
-          "04g-Governance",
-          "05-IaC Planner",
-          "06b-Bicep CodeGen",
-          "07b-Bicep Deploy",
-          "06t-Terraform CodeGen",
-          "07t-Terraform Deploy",
-          "08-As-Built",
-          "09-Diagnose",
-          "10-Challenger"
-        ],
-        "skills": ["apex-workflow-engine", "apex-golden-principles", "apex-azure-artifacts", "apex-azure-defaults"]
+        "handoffTargets": [],
+        "skills": ["apex-workflow-engine", "apex-azure-artifacts"]
       }
     },
     {
@@ -101,7 +87,7 @@
         "argumentHint": "Describe the Azure workload or project you want to gather requirements for",
         "context": null,
         "subagents": ["rubber-duck"],
-        "handoffTargets": ["02-Requirements", "10-Challenger", "03-Architect", "01-Orchestrator"],
+        "handoffTargets": [],
         "skills": ["apex-azure-defaults", "apex-azure-artifacts"]
       }
     },
@@ -119,13 +105,14 @@
         "argumentHint": null,
         "context": null,
         "subagents": ["cost-estimate-subagent", "rubber-duck"],
-        "handoffTargets": ["03-Architect", "04-Design", "04g-Governance", "02-Requirements", "01-Orchestrator"],
+        "handoffTargets": [],
         "skills": [
           "apex-azure-defaults",
           "apex-azure-artifacts",
-          "apex-context-management",
           "apex-azure-kubernetes",
-          "apex-azure-upgrade"
+          "apex-azure-upgrade",
+          "apex-context-management",
+          "apex-python-diagrams"
         ]
       }
     },
@@ -143,7 +130,7 @@
         "argumentHint": null,
         "context": null,
         "subagents": ["rubber-duck"],
-        "handoffTargets": ["04-Design", "03-Architect", "04g-Governance", "01-Orchestrator"],
+        "handoffTargets": [],
         "skills": ["apex-azure-defaults", "apex-python-diagrams", "apex-azure-adr", "apex-azure-artifacts"]
       }
     },
@@ -161,8 +148,8 @@
         "argumentHint": "Discover governance constraints for a project",
         "context": null,
         "subagents": ["rubber-duck"],
-        "handoffTargets": ["04g-Governance", "05-IaC Planner", "03-Architect", "01-Orchestrator"],
-        "skills": ["apex-azure-defaults", "apex-azure-governance-discovery", "apex-azure-artifacts", "apex-iac-common"]
+        "handoffTargets": [],
+        "skills": ["apex-azure-defaults", "apex-azure-governance-discovery", "apex-iac-common", "apex-azure-artifacts"]
       }
     },
     {
@@ -179,22 +166,13 @@
         "argumentHint": null,
         "context": null,
         "subagents": ["rubber-duck"],
-        "handoffTargets": [
-          "04g-Governance",
-          "05-IaC Planner",
-          "06b-Bicep CodeGen",
-          "06t-Terraform CodeGen",
-          "03-Architect",
-          "01-Orchestrator"
-        ],
+        "handoffTargets": [],
         "skills": [
           "apex-azure-defaults",
           "apex-azure-artifacts",
-          "apex-python-diagrams",
           "apex-azure-bicep-patterns",
           "apex-terraform-patterns",
-          "apex-azure-kubernetes",
-          "apex-context-management"
+          "apex-python-diagrams"
         ]
       }
     },
@@ -214,11 +192,11 @@
         "argumentHint": null,
         "context": null,
         "subagents": ["bicep-validate-subagent", "rubber-duck"],
-        "handoffTargets": ["06b-Bicep CodeGen", "07b-Bicep Deploy", "05-IaC Planner", "01-Orchestrator"],
+        "handoffTargets": [],
         "skills": [
           "apex-azure-defaults",
-          "apex-azure-artifacts",
           "apex-azure-bicep-patterns",
+          "apex-azure-artifacts",
           "apex-context-management"
         ]
       }
@@ -239,8 +217,8 @@
         "argumentHint": null,
         "context": null,
         "subagents": ["terraform-validate-subagent", "rubber-duck"],
-        "handoffTargets": ["06t-Terraform CodeGen", "07t-Terraform Deploy", "05-IaC Planner", "01-Orchestrator"],
-        "skills": ["apex-azure-defaults", "apex-azure-artifacts", "apex-terraform-patterns", "apex-context-management"]
+        "handoffTargets": [],
+        "skills": ["apex-azure-defaults", "apex-terraform-patterns", "apex-azure-artifacts", "apex-context-management"]
       }
     },
     {
@@ -259,15 +237,15 @@
         "argumentHint": "Deploy the Bicep templates for a specific project",
         "context": null,
         "subagents": ["bicep-whatif-subagent", "bicep-validate-subagent", "policy-precheck-subagent"],
-        "handoffTargets": ["07b-Bicep Deploy", "08-As-Built", "06b-Bicep CodeGen", "03-Architect", "01-Orchestrator"],
-        "skills": ["apex-azure-defaults", "apex-azure-artifacts", "apex-iac-common"]
+        "handoffTargets": [],
+        "skills": ["apex-azure-defaults", "apex-iac-common", "apex-azure-artifacts"]
       }
     },
     {
       "id": "agent:07t-terraform-deploy",
       "category": "agent",
       "label": "07t-Terraform Deploy",
-      "description": "Executes Azure deployments using generated Terraform configurations. Runs bootstrap and deploy scripts, performs terraform plan preview, manages phase-aware deployment lifecycle. Step 6 of the agentic workflow.",
+      "description": "Execute the approved Terraform deployment phase in VS Code Copilot. Verify backend, current saved plan, live policy and separate operation approval, then document actual outcomes. No source repair or implicit apply.",
       "path": ".github/agents/07t-terraform-deploy.agent.md",
       "links": {
         "source": "https://github.com/jonathan-vella/apex/blob/main/.github/agents/07t-terraform-deploy.agent.md"
@@ -276,24 +254,18 @@
         "model": null,
         "invocable": true,
         "disableModelInvocation": true,
-        "argumentHint": "Deploy the Terraform configuration for a specific project",
+        "argumentHint": "Project, environment, target scope and preview-only or deployment operation",
         "context": null,
         "subagents": ["terraform-plan-subagent", "terraform-validate-subagent", "policy-precheck-subagent"],
-        "handoffTargets": [
-          "07t-Terraform Deploy",
-          "08-As-Built",
-          "06t-Terraform CodeGen",
-          "03-Architect",
-          "01-Orchestrator"
-        ],
-        "skills": ["apex-azure-defaults", "apex-azure-artifacts", "apex-iac-common"]
+        "handoffTargets": [],
+        "skills": ["apex-azure-defaults", "apex-azure-artifacts"]
       }
     },
     {
       "id": "agent:08-as-built",
       "category": "agent",
       "label": "08-As-Built",
-      "description": "Generates Step 7 as-built documentation suite after successful deployment. Reads all prior artifacts (Steps 1-6) and deployed resource state to produce: design document, operations runbook, cost estimate, compliance matrix, backup/DR plan, resource inventory, and documentation index.",
+      "description": "Generate evidence-led as-built documentation, deployed SKU drift and cost estimates in VS Code Copilot. Query actual state; preserve planned decisions and report gaps without repairing infrastructure.",
       "path": ".github/agents/08-as-built.agent.md",
       "links": { "source": "https://github.com/jonathan-vella/apex/blob/main/.github/agents/08-as-built.agent.md" },
       "meta": {
@@ -303,21 +275,15 @@
         "argumentHint": null,
         "context": null,
         "subagents": ["cost-estimate-subagent"],
-        "handoffTargets": ["08-As-Built", "01-Orchestrator"],
-        "skills": [
-          "apex-azure-defaults",
-          "apex-azure-artifacts",
-          "apex-python-diagrams",
-          "apex-context-management",
-          "apex-azure-reliability"
-        ]
+        "handoffTargets": [],
+        "skills": ["apex-azure-artifacts", "apex-azure-defaults", "apex-python-diagrams", "apex-azure-reliability"]
       }
     },
     {
       "id": "agent:09-diagnose",
       "category": "agent",
       "label": "09-Diagnose",
-      "description": "Interactive diagnostic agent that guides users through Azure resource health assessment, issue identification, and remediation planning. Scope-first execution with approval for every change, single-resource scope, reports to agent-output/{project}/.",
+      "description": "Interactive scoped Azure diagnostics in VS Code Copilot. Confirm the target, inspect health/logs, explain evidence and propose separately approved remediation. No implicit changes or broad resource scans.",
       "path": ".github/agents/09-diagnose.agent.md",
       "links": { "source": "https://github.com/jonathan-vella/apex/blob/main/.github/agents/09-diagnose.agent.md" },
       "meta": {
@@ -327,7 +293,7 @@
         "argumentHint": null,
         "context": null,
         "subagents": [],
-        "handoffTargets": ["09-Diagnose", "08-As-Built", "03-Architect", "01-Orchestrator"],
+        "handoffTargets": [],
         "skills": ["apex-azure-defaults", "apex-azure-diagnostics", "apex-azure-reliability"]
       }
     },
@@ -335,17 +301,17 @@
       "id": "agent:10-challenger",
       "category": "agent",
       "label": "10-Challenger",
-      "description": "Optional manual adversarial review and repair wrapper. Runs challenger-review-subagent and the Per-Finding Decision Protocol for selected fixes. Automatic workflow reviews use built-in rubber-duck independently.",
+      "description": "Optional interactive adversarial review and accepted-fix workflow. Delegates independent findings, preserves freshness and review accounting, and never substitutes for automatic review or human approval.",
       "path": ".github/agents/10-challenger.agent.md",
       "links": { "source": "https://github.com/jonathan-vella/apex/blob/main/.github/agents/10-challenger.agent.md" },
       "meta": {
         "model": null,
         "invocable": true,
         "disableModelInvocation": true,
-        "argumentHint": "Provide the path to the artifact to challenge (e.g. agent-output/my-project/04-implementation-plan.md)",
+        "argumentHint": "Artifact path, review scope and whether edits are authorized",
         "context": null,
         "subagents": ["challenger-review-subagent"],
-        "handoffTargets": ["01-Orchestrator"],
+        "handoffTargets": [],
         "skills": []
       }
     },
@@ -353,7 +319,7 @@
       "id": "agent:11-context-optimizer",
       "category": "agent",
       "label": "11-Context Optimizer",
-      "description": "Analyzes Copilot Chat debug logs to audit context-window utilization across agents. Identifies bloated prompts, redundant file reads, missing hand-off points, and wasted tokens. Produces actionable optimization reports. Recommendations only — never edits agents.",
+      "description": "Audit scoped Copilot context/usage evidence or agent source and recommend improvements. Measured telemetry is distinct from source-size estimates. Recommendations only; never edits agents, skills or instructions.",
       "path": ".github/agents/11-context-optimizer.agent.md",
       "links": {
         "source": "https://github.com/jonathan-vella/apex/blob/main/.github/agents/11-context-optimizer.agent.md"
@@ -365,8 +331,8 @@
         "argumentHint": null,
         "context": null,
         "subagents": [],
-        "handoffTargets": ["01-Orchestrator"],
-        "skills": ["apex-golden-principles", "apex-context-management"]
+        "handoffTargets": [],
+        "skills": ["apex-context-management"]
       }
     },
     {
@@ -384,7 +350,7 @@
         "disableModelInvocation": false,
         "argumentHint": null,
         "context": null,
-        "skills": ["apex-azure-defaults", "apex-iac-common"]
+        "skills": ["apex-azure-defaults"]
       }
     },
     {
@@ -409,7 +375,7 @@
       "id": "subagent:challenger-review-subagent",
       "category": "subagent",
       "label": "challenger-review-subagent",
-      "description": "Unified adversarial review subagent that challenges Azure infrastructure artifacts. Finds untested assumptions, governance gaps, WAF blind spots, and architectural weaknesses. Returns structured JSON findings. Supports single-pass and multi-pass rotating-lens reviews; batches lenses per invocation.",
+      "description": "Independent file-output adversarial reviewer for the optional manual Challenger workflow. Review bounded Azure artifacts/lenses, preserve actual findings and freshness, and return a compact result. Never edits the challenged artifact.",
       "path": ".github/agents/_subagents/challenger-review-subagent.agent.md",
       "links": {
         "source": "https://github.com/jonathan-vella/apex/blob/main/.github/agents/_subagents/challenger-review-subagent.agent.md"
@@ -420,7 +386,7 @@
         "disableModelInvocation": false,
         "argumentHint": null,
         "context": null,
-        "skills": ["apex-golden-principles", "apex-azure-defaults"]
+        "skills": ["apex-azure-defaults"]
       }
     },
     {
@@ -492,7 +458,7 @@
         "disableModelInvocation": false,
         "argumentHint": null,
         "context": null,
-        "skills": ["apex-azure-defaults", "apex-iac-common"]
+        "skills": ["apex-azure-defaults"]
       }
     },
     {
@@ -1071,7 +1037,7 @@
       "id": "skill:apex-workflow-start",
       "category": "skill",
       "label": "apex-workflow-start",
-      "description": "Start or resume an APEX workflow in the VS Code Copilot SDK harness. Use /apex-workflow-start with an explicit operation; resume can discover the project. Requires the owning agent and verified worker routing, not an inherited model.",
+      "description": "Start or resume APEX work in VS Code Copilot. Select the interactive Orchestrator or domain owner, recover current project evidence, collect missing decisions and use native tasks without UI handoff or readiness rituals.",
       "path": ".github/skills/apex-workflow-start/SKILL.md",
       "links": {
         "source": "https://github.com/jonathan-vella/apex/blob/main/.github/skills/apex-workflow-start/SKILL.md"
@@ -1087,7 +1053,7 @@
       "id": "instruction:agent-authoring",
       "category": "instruction",
       "label": "agent-authoring",
-      "description": "Enforceable structural and runtime rules for Copilot agent and prompt files",
+      "description": "Native Copilot agent authoring: valid metadata, direct/delegated interaction, bounded worker outputs and preserved domain/approval contracts.",
       "path": ".github/instructions/agent-authoring.instructions.md",
       "links": {
         "source": "https://github.com/jonathan-vella/apex/blob/main/.github/instructions/agent-authoring.instructions.md"
@@ -1098,7 +1064,7 @@
       "id": "instruction:agent-operating-frame",
       "category": "instruction",
       "label": "agent-operating-frame",
-      "description": "Shared operating frame for main step agents — read SKILL.md once, use apex-recall for cached lookups, never edit upstream artifacts. Pairs with the agent's Operating frame, Constraints H2 or <scope_fencing> block.",
+      "description": "Shared main-agent authoring guidance: native interaction, scoped domain inputs, actual validation and durable recovery.",
       "path": ".github/instructions/agent-operating-frame.instructions.md",
       "links": {
         "source": "https://github.com/jonathan-vella/apex/blob/main/.github/instructions/agent-operating-frame.instructions.md"
@@ -2291,327 +2257,15 @@
       "kind": "delegates"
     },
     {
-      "id": "agent:01-orchestrator--hands-off->agent:02-requirements",
-      "source": "agent:01-orchestrator",
-      "target": "agent:02-requirements",
-      "kind": "hands-off"
-    },
-    {
-      "id": "agent:01-orchestrator--hands-off->agent:03-architect",
-      "source": "agent:01-orchestrator",
-      "target": "agent:03-architect",
-      "kind": "hands-off"
-    },
-    {
-      "id": "agent:01-orchestrator--hands-off->agent:04-design",
-      "source": "agent:01-orchestrator",
-      "target": "agent:04-design",
-      "kind": "hands-off"
-    },
-    {
-      "id": "agent:01-orchestrator--hands-off->agent:04g-governance",
-      "source": "agent:01-orchestrator",
-      "target": "agent:04g-governance",
-      "kind": "hands-off"
-    },
-    {
-      "id": "agent:01-orchestrator--hands-off->agent:05-iac-planner",
-      "source": "agent:01-orchestrator",
-      "target": "agent:05-iac-planner",
-      "kind": "hands-off"
-    },
-    {
-      "id": "agent:01-orchestrator--hands-off->agent:06b-bicep-codegen",
-      "source": "agent:01-orchestrator",
-      "target": "agent:06b-bicep-codegen",
-      "kind": "hands-off"
-    },
-    {
-      "id": "agent:01-orchestrator--hands-off->agent:07b-bicep-deploy",
-      "source": "agent:01-orchestrator",
-      "target": "agent:07b-bicep-deploy",
-      "kind": "hands-off"
-    },
-    {
-      "id": "agent:01-orchestrator--hands-off->agent:06t-terraform-codegen",
-      "source": "agent:01-orchestrator",
-      "target": "agent:06t-terraform-codegen",
-      "kind": "hands-off"
-    },
-    {
-      "id": "agent:01-orchestrator--hands-off->agent:07t-terraform-deploy",
-      "source": "agent:01-orchestrator",
-      "target": "agent:07t-terraform-deploy",
-      "kind": "hands-off"
-    },
-    {
-      "id": "agent:01-orchestrator--hands-off->agent:08-as-built",
-      "source": "agent:01-orchestrator",
-      "target": "agent:08-as-built",
-      "kind": "hands-off"
-    },
-    {
-      "id": "agent:01-orchestrator--hands-off->agent:09-diagnose",
-      "source": "agent:01-orchestrator",
-      "target": "agent:09-diagnose",
-      "kind": "hands-off"
-    },
-    {
-      "id": "agent:01-orchestrator--hands-off->agent:10-challenger",
-      "source": "agent:01-orchestrator",
-      "target": "agent:10-challenger",
-      "kind": "hands-off"
-    },
-    {
-      "id": "agent:02-requirements--hands-off->agent:10-challenger",
-      "source": "agent:02-requirements",
-      "target": "agent:10-challenger",
-      "kind": "hands-off"
-    },
-    {
-      "id": "agent:02-requirements--hands-off->agent:03-architect",
-      "source": "agent:02-requirements",
-      "target": "agent:03-architect",
-      "kind": "hands-off"
-    },
-    {
-      "id": "agent:02-requirements--hands-off->agent:01-orchestrator",
-      "source": "agent:02-requirements",
-      "target": "agent:01-orchestrator",
-      "kind": "hands-off"
-    },
-    {
-      "id": "agent:03-architect--hands-off->agent:04-design",
-      "source": "agent:03-architect",
-      "target": "agent:04-design",
-      "kind": "hands-off"
-    },
-    {
-      "id": "agent:03-architect--hands-off->agent:04g-governance",
-      "source": "agent:03-architect",
-      "target": "agent:04g-governance",
-      "kind": "hands-off"
-    },
-    {
-      "id": "agent:03-architect--hands-off->agent:02-requirements",
-      "source": "agent:03-architect",
-      "target": "agent:02-requirements",
-      "kind": "hands-off"
-    },
-    {
-      "id": "agent:03-architect--hands-off->agent:01-orchestrator",
-      "source": "agent:03-architect",
-      "target": "agent:01-orchestrator",
-      "kind": "hands-off"
-    },
-    {
-      "id": "agent:04-design--hands-off->agent:03-architect",
-      "source": "agent:04-design",
-      "target": "agent:03-architect",
-      "kind": "hands-off"
-    },
-    {
-      "id": "agent:04-design--hands-off->agent:04g-governance",
-      "source": "agent:04-design",
-      "target": "agent:04g-governance",
-      "kind": "hands-off"
-    },
-    {
-      "id": "agent:04-design--hands-off->agent:01-orchestrator",
-      "source": "agent:04-design",
-      "target": "agent:01-orchestrator",
-      "kind": "hands-off"
-    },
-    {
-      "id": "agent:04g-governance--hands-off->agent:05-iac-planner",
-      "source": "agent:04g-governance",
-      "target": "agent:05-iac-planner",
-      "kind": "hands-off"
-    },
-    {
-      "id": "agent:04g-governance--hands-off->agent:03-architect",
-      "source": "agent:04g-governance",
-      "target": "agent:03-architect",
-      "kind": "hands-off"
-    },
-    {
-      "id": "agent:04g-governance--hands-off->agent:01-orchestrator",
-      "source": "agent:04g-governance",
-      "target": "agent:01-orchestrator",
-      "kind": "hands-off"
-    },
-    {
-      "id": "agent:05-iac-planner--hands-off->agent:04g-governance",
-      "source": "agent:05-iac-planner",
-      "target": "agent:04g-governance",
-      "kind": "hands-off"
-    },
-    {
-      "id": "agent:05-iac-planner--hands-off->agent:06b-bicep-codegen",
-      "source": "agent:05-iac-planner",
-      "target": "agent:06b-bicep-codegen",
-      "kind": "hands-off"
-    },
-    {
-      "id": "agent:05-iac-planner--hands-off->agent:06t-terraform-codegen",
-      "source": "agent:05-iac-planner",
-      "target": "agent:06t-terraform-codegen",
-      "kind": "hands-off"
-    },
-    {
-      "id": "agent:05-iac-planner--hands-off->agent:03-architect",
-      "source": "agent:05-iac-planner",
-      "target": "agent:03-architect",
-      "kind": "hands-off"
-    },
-    {
-      "id": "agent:05-iac-planner--hands-off->agent:01-orchestrator",
-      "source": "agent:05-iac-planner",
-      "target": "agent:01-orchestrator",
-      "kind": "hands-off"
-    },
-    {
-      "id": "agent:06b-bicep-codegen--hands-off->agent:07b-bicep-deploy",
-      "source": "agent:06b-bicep-codegen",
-      "target": "agent:07b-bicep-deploy",
-      "kind": "hands-off"
-    },
-    {
-      "id": "agent:06b-bicep-codegen--hands-off->agent:05-iac-planner",
-      "source": "agent:06b-bicep-codegen",
-      "target": "agent:05-iac-planner",
-      "kind": "hands-off"
-    },
-    {
-      "id": "agent:06b-bicep-codegen--hands-off->agent:01-orchestrator",
-      "source": "agent:06b-bicep-codegen",
-      "target": "agent:01-orchestrator",
-      "kind": "hands-off"
-    },
-    {
-      "id": "agent:06t-terraform-codegen--hands-off->agent:07t-terraform-deploy",
-      "source": "agent:06t-terraform-codegen",
-      "target": "agent:07t-terraform-deploy",
-      "kind": "hands-off"
-    },
-    {
-      "id": "agent:06t-terraform-codegen--hands-off->agent:05-iac-planner",
-      "source": "agent:06t-terraform-codegen",
-      "target": "agent:05-iac-planner",
-      "kind": "hands-off"
-    },
-    {
-      "id": "agent:06t-terraform-codegen--hands-off->agent:01-orchestrator",
-      "source": "agent:06t-terraform-codegen",
-      "target": "agent:01-orchestrator",
-      "kind": "hands-off"
-    },
-    {
-      "id": "agent:07b-bicep-deploy--hands-off->agent:08-as-built",
-      "source": "agent:07b-bicep-deploy",
-      "target": "agent:08-as-built",
-      "kind": "hands-off"
-    },
-    {
-      "id": "agent:07b-bicep-deploy--hands-off->agent:06b-bicep-codegen",
-      "source": "agent:07b-bicep-deploy",
-      "target": "agent:06b-bicep-codegen",
-      "kind": "hands-off"
-    },
-    {
-      "id": "agent:07b-bicep-deploy--hands-off->agent:03-architect",
-      "source": "agent:07b-bicep-deploy",
-      "target": "agent:03-architect",
-      "kind": "hands-off"
-    },
-    {
-      "id": "agent:07b-bicep-deploy--hands-off->agent:01-orchestrator",
-      "source": "agent:07b-bicep-deploy",
-      "target": "agent:01-orchestrator",
-      "kind": "hands-off"
-    },
-    {
-      "id": "agent:07t-terraform-deploy--hands-off->agent:08-as-built",
-      "source": "agent:07t-terraform-deploy",
-      "target": "agent:08-as-built",
-      "kind": "hands-off"
-    },
-    {
-      "id": "agent:07t-terraform-deploy--hands-off->agent:06t-terraform-codegen",
-      "source": "agent:07t-terraform-deploy",
-      "target": "agent:06t-terraform-codegen",
-      "kind": "hands-off"
-    },
-    {
-      "id": "agent:07t-terraform-deploy--hands-off->agent:03-architect",
-      "source": "agent:07t-terraform-deploy",
-      "target": "agent:03-architect",
-      "kind": "hands-off"
-    },
-    {
-      "id": "agent:07t-terraform-deploy--hands-off->agent:01-orchestrator",
-      "source": "agent:07t-terraform-deploy",
-      "target": "agent:01-orchestrator",
-      "kind": "hands-off"
-    },
-    {
-      "id": "agent:08-as-built--hands-off->agent:01-orchestrator",
-      "source": "agent:08-as-built",
-      "target": "agent:01-orchestrator",
-      "kind": "hands-off"
-    },
-    {
-      "id": "agent:09-diagnose--hands-off->agent:08-as-built",
-      "source": "agent:09-diagnose",
-      "target": "agent:08-as-built",
-      "kind": "hands-off"
-    },
-    {
-      "id": "agent:09-diagnose--hands-off->agent:03-architect",
-      "source": "agent:09-diagnose",
-      "target": "agent:03-architect",
-      "kind": "hands-off"
-    },
-    {
-      "id": "agent:09-diagnose--hands-off->agent:01-orchestrator",
-      "source": "agent:09-diagnose",
-      "target": "agent:01-orchestrator",
-      "kind": "hands-off"
-    },
-    {
-      "id": "agent:10-challenger--hands-off->agent:01-orchestrator",
-      "source": "agent:10-challenger",
-      "target": "agent:01-orchestrator",
-      "kind": "hands-off"
-    },
-    {
-      "id": "agent:11-context-optimizer--hands-off->agent:01-orchestrator",
-      "source": "agent:11-context-optimizer",
-      "target": "agent:01-orchestrator",
-      "kind": "hands-off"
-    },
-    {
       "id": "agent:01-orchestrator--uses-skill->skill:apex-workflow-engine",
       "source": "agent:01-orchestrator",
       "target": "skill:apex-workflow-engine",
       "kind": "uses-skill"
     },
     {
-      "id": "agent:01-orchestrator--uses-skill->skill:apex-golden-principles",
-      "source": "agent:01-orchestrator",
-      "target": "skill:apex-golden-principles",
-      "kind": "uses-skill"
-    },
-    {
       "id": "agent:01-orchestrator--uses-skill->skill:apex-azure-artifacts",
       "source": "agent:01-orchestrator",
       "target": "skill:apex-azure-artifacts",
-      "kind": "uses-skill"
-    },
-    {
-      "id": "agent:01-orchestrator--uses-skill->skill:apex-azure-defaults",
-      "source": "agent:01-orchestrator",
-      "target": "skill:apex-azure-defaults",
       "kind": "uses-skill"
     },
     {
@@ -2639,12 +2293,6 @@
       "kind": "uses-skill"
     },
     {
-      "id": "agent:03-architect--uses-skill->skill:apex-context-management",
-      "source": "agent:03-architect",
-      "target": "skill:apex-context-management",
-      "kind": "uses-skill"
-    },
-    {
       "id": "agent:03-architect--uses-skill->skill:apex-azure-kubernetes",
       "source": "agent:03-architect",
       "target": "skill:apex-azure-kubernetes",
@@ -2654,6 +2302,18 @@
       "id": "agent:03-architect--uses-skill->skill:apex-azure-upgrade",
       "source": "agent:03-architect",
       "target": "skill:apex-azure-upgrade",
+      "kind": "uses-skill"
+    },
+    {
+      "id": "agent:03-architect--uses-skill->skill:apex-context-management",
+      "source": "agent:03-architect",
+      "target": "skill:apex-context-management",
+      "kind": "uses-skill"
+    },
+    {
+      "id": "agent:03-architect--uses-skill->skill:apex-python-diagrams",
+      "source": "agent:03-architect",
+      "target": "skill:apex-python-diagrams",
       "kind": "uses-skill"
     },
     {
@@ -2693,15 +2353,15 @@
       "kind": "uses-skill"
     },
     {
-      "id": "agent:04g-governance--uses-skill->skill:apex-azure-artifacts",
-      "source": "agent:04g-governance",
-      "target": "skill:apex-azure-artifacts",
-      "kind": "uses-skill"
-    },
-    {
       "id": "agent:04g-governance--uses-skill->skill:apex-iac-common",
       "source": "agent:04g-governance",
       "target": "skill:apex-iac-common",
+      "kind": "uses-skill"
+    },
+    {
+      "id": "agent:04g-governance--uses-skill->skill:apex-azure-artifacts",
+      "source": "agent:04g-governance",
+      "target": "skill:apex-azure-artifacts",
       "kind": "uses-skill"
     },
     {
@@ -2717,12 +2377,6 @@
       "kind": "uses-skill"
     },
     {
-      "id": "agent:05-iac-planner--uses-skill->skill:apex-python-diagrams",
-      "source": "agent:05-iac-planner",
-      "target": "skill:apex-python-diagrams",
-      "kind": "uses-skill"
-    },
-    {
       "id": "agent:05-iac-planner--uses-skill->skill:apex-azure-bicep-patterns",
       "source": "agent:05-iac-planner",
       "target": "skill:apex-azure-bicep-patterns",
@@ -2735,15 +2389,9 @@
       "kind": "uses-skill"
     },
     {
-      "id": "agent:05-iac-planner--uses-skill->skill:apex-azure-kubernetes",
+      "id": "agent:05-iac-planner--uses-skill->skill:apex-python-diagrams",
       "source": "agent:05-iac-planner",
-      "target": "skill:apex-azure-kubernetes",
-      "kind": "uses-skill"
-    },
-    {
-      "id": "agent:05-iac-planner--uses-skill->skill:apex-context-management",
-      "source": "agent:05-iac-planner",
-      "target": "skill:apex-context-management",
+      "target": "skill:apex-python-diagrams",
       "kind": "uses-skill"
     },
     {
@@ -2753,15 +2401,15 @@
       "kind": "uses-skill"
     },
     {
-      "id": "agent:06b-bicep-codegen--uses-skill->skill:apex-azure-artifacts",
-      "source": "agent:06b-bicep-codegen",
-      "target": "skill:apex-azure-artifacts",
-      "kind": "uses-skill"
-    },
-    {
       "id": "agent:06b-bicep-codegen--uses-skill->skill:apex-azure-bicep-patterns",
       "source": "agent:06b-bicep-codegen",
       "target": "skill:apex-azure-bicep-patterns",
+      "kind": "uses-skill"
+    },
+    {
+      "id": "agent:06b-bicep-codegen--uses-skill->skill:apex-azure-artifacts",
+      "source": "agent:06b-bicep-codegen",
+      "target": "skill:apex-azure-artifacts",
       "kind": "uses-skill"
     },
     {
@@ -2777,15 +2425,15 @@
       "kind": "uses-skill"
     },
     {
-      "id": "agent:06t-terraform-codegen--uses-skill->skill:apex-azure-artifacts",
-      "source": "agent:06t-terraform-codegen",
-      "target": "skill:apex-azure-artifacts",
-      "kind": "uses-skill"
-    },
-    {
       "id": "agent:06t-terraform-codegen--uses-skill->skill:apex-terraform-patterns",
       "source": "agent:06t-terraform-codegen",
       "target": "skill:apex-terraform-patterns",
+      "kind": "uses-skill"
+    },
+    {
+      "id": "agent:06t-terraform-codegen--uses-skill->skill:apex-azure-artifacts",
+      "source": "agent:06t-terraform-codegen",
+      "target": "skill:apex-azure-artifacts",
       "kind": "uses-skill"
     },
     {
@@ -2801,15 +2449,15 @@
       "kind": "uses-skill"
     },
     {
-      "id": "agent:07b-bicep-deploy--uses-skill->skill:apex-azure-artifacts",
-      "source": "agent:07b-bicep-deploy",
-      "target": "skill:apex-azure-artifacts",
-      "kind": "uses-skill"
-    },
-    {
       "id": "agent:07b-bicep-deploy--uses-skill->skill:apex-iac-common",
       "source": "agent:07b-bicep-deploy",
       "target": "skill:apex-iac-common",
+      "kind": "uses-skill"
+    },
+    {
+      "id": "agent:07b-bicep-deploy--uses-skill->skill:apex-azure-artifacts",
+      "source": "agent:07b-bicep-deploy",
+      "target": "skill:apex-azure-artifacts",
       "kind": "uses-skill"
     },
     {
@@ -2825,9 +2473,9 @@
       "kind": "uses-skill"
     },
     {
-      "id": "agent:07t-terraform-deploy--uses-skill->skill:apex-iac-common",
-      "source": "agent:07t-terraform-deploy",
-      "target": "skill:apex-iac-common",
+      "id": "agent:08-as-built--uses-skill->skill:apex-azure-artifacts",
+      "source": "agent:08-as-built",
+      "target": "skill:apex-azure-artifacts",
       "kind": "uses-skill"
     },
     {
@@ -2837,21 +2485,9 @@
       "kind": "uses-skill"
     },
     {
-      "id": "agent:08-as-built--uses-skill->skill:apex-azure-artifacts",
-      "source": "agent:08-as-built",
-      "target": "skill:apex-azure-artifacts",
-      "kind": "uses-skill"
-    },
-    {
       "id": "agent:08-as-built--uses-skill->skill:apex-python-diagrams",
       "source": "agent:08-as-built",
       "target": "skill:apex-python-diagrams",
-      "kind": "uses-skill"
-    },
-    {
-      "id": "agent:08-as-built--uses-skill->skill:apex-context-management",
-      "source": "agent:08-as-built",
-      "target": "skill:apex-context-management",
       "kind": "uses-skill"
     },
     {
@@ -2879,12 +2515,6 @@
       "kind": "uses-skill"
     },
     {
-      "id": "agent:11-context-optimizer--uses-skill->skill:apex-golden-principles",
-      "source": "agent:11-context-optimizer",
-      "target": "skill:apex-golden-principles",
-      "kind": "uses-skill"
-    },
-    {
       "id": "agent:11-context-optimizer--uses-skill->skill:apex-context-management",
       "source": "agent:11-context-optimizer",
       "target": "skill:apex-context-management",
@@ -2897,18 +2527,6 @@
       "kind": "uses-skill"
     },
     {
-      "id": "subagent:bicep-validate-subagent--uses-skill->skill:apex-iac-common",
-      "source": "subagent:bicep-validate-subagent",
-      "target": "skill:apex-iac-common",
-      "kind": "uses-skill"
-    },
-    {
-      "id": "subagent:challenger-review-subagent--uses-skill->skill:apex-golden-principles",
-      "source": "subagent:challenger-review-subagent",
-      "target": "skill:apex-golden-principles",
-      "kind": "uses-skill"
-    },
-    {
       "id": "subagent:challenger-review-subagent--uses-skill->skill:apex-azure-defaults",
       "source": "subagent:challenger-review-subagent",
       "target": "skill:apex-azure-defaults",
@@ -2918,12 +2536,6 @@
       "id": "subagent:terraform-validate-subagent--uses-skill->skill:apex-azure-defaults",
       "source": "subagent:terraform-validate-subagent",
       "target": "skill:apex-azure-defaults",
-      "kind": "uses-skill"
-    },
-    {
-      "id": "subagent:terraform-validate-subagent--uses-skill->skill:apex-iac-common",
-      "source": "subagent:terraform-validate-subagent",
-      "target": "skill:apex-iac-common",
       "kind": "uses-skill"
     },
     {
@@ -5255,21 +4867,9 @@
       "kind": "uses-mcp"
     },
     {
-      "id": "agent:06b-bicep-codegen--uses-mcp->mcp:github",
-      "source": "agent:06b-bicep-codegen",
-      "target": "mcp:github",
-      "kind": "uses-mcp"
-    },
-    {
       "id": "agent:06b-bicep-codegen--uses-mcp->mcp:azure-mcp",
       "source": "agent:06b-bicep-codegen",
       "target": "mcp:azure-mcp",
-      "kind": "uses-mcp"
-    },
-    {
-      "id": "agent:06t-terraform-codegen--uses-mcp->mcp:github",
-      "source": "agent:06t-terraform-codegen",
-      "target": "mcp:github",
       "kind": "uses-mcp"
     },
     {
@@ -5279,21 +4879,9 @@
       "kind": "uses-mcp"
     },
     {
-      "id": "agent:07b-bicep-deploy--uses-mcp->mcp:github",
-      "source": "agent:07b-bicep-deploy",
-      "target": "mcp:github",
-      "kind": "uses-mcp"
-    },
-    {
       "id": "agent:07b-bicep-deploy--uses-mcp->mcp:azure-mcp",
       "source": "agent:07b-bicep-deploy",
       "target": "mcp:azure-mcp",
-      "kind": "uses-mcp"
-    },
-    {
-      "id": "agent:07t-terraform-deploy--uses-mcp->mcp:github",
-      "source": "agent:07t-terraform-deploy",
-      "target": "mcp:github",
       "kind": "uses-mcp"
     },
     {
@@ -5303,21 +4891,9 @@
       "kind": "uses-mcp"
     },
     {
-      "id": "agent:08-as-built--uses-mcp->mcp:github",
-      "source": "agent:08-as-built",
-      "target": "mcp:github",
-      "kind": "uses-mcp"
-    },
-    {
       "id": "agent:08-as-built--uses-mcp->mcp:azure-mcp",
       "source": "agent:08-as-built",
       "target": "mcp:azure-mcp",
-      "kind": "uses-mcp"
-    },
-    {
-      "id": "agent:09-diagnose--uses-mcp->mcp:github",
-      "source": "agent:09-diagnose",
-      "target": "mcp:github",
       "kind": "uses-mcp"
     },
     {
@@ -5327,26 +4903,8 @@
       "kind": "uses-mcp"
     },
     {
-      "id": "agent:10-challenger--uses-mcp->mcp:github",
-      "source": "agent:10-challenger",
-      "target": "mcp:github",
-      "kind": "uses-mcp"
-    },
-    {
       "id": "agent:11-context-optimizer--uses-mcp->mcp:github",
       "source": "agent:11-context-optimizer",
-      "target": "mcp:github",
-      "kind": "uses-mcp"
-    },
-    {
-      "id": "subagent:bicep-validate-subagent--uses-mcp->mcp:github",
-      "source": "subagent:bicep-validate-subagent",
-      "target": "mcp:github",
-      "kind": "uses-mcp"
-    },
-    {
-      "id": "subagent:challenger-review-subagent--uses-mcp->mcp:github",
-      "source": "subagent:challenger-review-subagent",
       "target": "mcp:github",
       "kind": "uses-mcp"
     },
@@ -5365,12 +4923,6 @@
     {
       "id": "subagent:policy-precheck-subagent--uses-mcp->mcp:github",
       "source": "subagent:policy-precheck-subagent",
-      "target": "mcp:github",
-      "kind": "uses-mcp"
-    },
-    {
-      "id": "subagent:terraform-validate-subagent--uses-mcp->mcp:github",
-      "source": "subagent:terraform-validate-subagent",
       "target": "mcp:github",
       "kind": "uses-mcp"
     },

@@ -5,6 +5,7 @@ user-invocable: false
 disable-model-invocation: false
 agents: []
 tools: [execute, read, edit, search]
+
 ---
 
 # policy-precheck-subagent
@@ -17,8 +18,8 @@ queries live policy state via `az policy state list`, cross-checks against
 a structured CLEAN|INFORMATIONAL|BLOCKED|FAILED status and PROCEED|BLOCK gate so Deploy agents (07b/07t)
 can route via `apex-iac-common/references/governance-drift-routing.md` before
 `az deployment ... create` or `terraform apply`.
-The parent's invocation outranks skill guidance; report any conflict in the result
-with the `SKILL.md` path and a quote of the instruction.
+The parent defines task scope, not authority to waive policy/security or result validity.
+Report conflicting skill guidance with its `SKILL.md` path and the exact requirement.
 
 ## Input Contract
 The parent agent passes **artifact paths plus the explicit input fields
@@ -48,10 +49,9 @@ query scratch only. Use editing tools for result JSON, validate its shape before
 and preserve source/user work. `execute` is not read-only: no IaC, parameters, lockfile,
 governance, recall, remote state or Azure resource mutations. Normal plan lock lifecycle
 is allowed, not force-unlock or migration. No questions, todos, delegation or model fallback.
-Missing required tool/model/input returns `deploy_gate=BLOCK`, `status=FAILED`, with
+Missing required tool/input returns `deploy_gate=BLOCK`, `status=FAILED`, with
 `reason` naming the blocker; if output cannot be written, report that in the existing
-text block without claiming a file. Local/Host callers supply the same explicit contract;
-inline skills cannot select models or widen permissions.
+text block without claiming a file. This is a VS Code Copilot worker; skill text cannot widen permissions.
 
 This subagent does not:
 
@@ -61,7 +61,7 @@ This subagent does not:
 - Re-run governance discovery — it consumes
   `04-governance-constraints.json` only.
 - Refresh the L0 envelope — it reports stale or missing evidence and lets the parent
-  invoke `▶ Refresh Governance`.
+  request the Governance owner through the parent.
 - Retry a transient API failure (timeout, throttling, HTTP 429/5xx) more than once:
   it retries exactly once with identical inputs, then bubbles up `FAILED` instead of looping.
 
@@ -106,9 +106,7 @@ Policies that will block deploy:
     matrix_row_present={true|false}
 
 Drift routing (per apex-iac-common/references/governance-drift-routing.md):
-  {recommended next agent and handoff label, e.g.
-   "▶ Refresh Governance" / "↩ Return to Step 4" / "↩ Fix Deployment Issues" /
-   "Proceed (no handoff) — INFORMATIONAL drift"}
+  {recommended owner/action, not a UI handoff label}
 
 Recommendation: {specific next action}
 ```
@@ -168,14 +166,12 @@ block deploy` entry — paraphrasing is a defect.
    `{subscription_id}+{resource_group}+{target_scope}`; never reuse
    across deploy invocations.
 
-## Harness Entry
+## Native execution
 
-For `APEX_WORKER_HANDSHAKE`, perform no tools and return exactly
-`WORKER_READY <definition-name> <original-nonce>` using this definition's name and parent's nonce. On the nonce-only continuation,
-return exactly `WORKER_READY_ACK <definition-name> <original-nonce>` with those values and no tools.
-Work only after the same parent sends `WORKER_EXECUTE` following complete-phase readiness verification. A missing
-handshake or execution envelope returns `blocked`, never an inherited-model run.
-Do not ask users, manage parent todos or delegate. Return missing inputs to the parent.
+The native task prompt supplies the bounded assignment and exact allowed outputs.
+Return missing required inputs to the parent in this role's failure shape; do not ask users,
+manage parent todos or delegate. Use actual task results, not a readiness declaration.
+No role/tool metadata, task success or Autopilot answer grants operation permission.
 
 ## Inputs
 
@@ -253,52 +249,3 @@ exactly — that file is the canonical I/O spec. Summary:
 - Stop rules: emit one `POLICY PRECHECK RESULT` block plus one JSON
   document at `output_path`, then stop. Do not ask follow-up
   questions, do not invoke other subagents, do not apply.
-
-### Historical v1 Example (Do Not Emit)
-
-The retained example documents legacy DRIFT input/output only. Emit the v2 contract
-above for current calls; do not copy its deprecated status or omit `Deploy gate`.
-Input fragment (parent passes):
-
-```yaml
-project: nordic-foods
-iac_tool: bicep
-template_path: infra/bicep/nordic-foods/main.bicep
-parameter_file: infra/bicep/nordic-foods/main.bicepparam
-target_scope: resourceGroup
-resource_group: rg-nordic-foods-dev
-subscription_id: 00000000-0000-0000-0000-000000000000
-location: swedencentral
-constraints_path: agent-output/nordic-foods/04-governance-constraints.json
-output_path: agent-output/nordic-foods/06-policy-precheck.json
-```
-
-Resulting block (abridged):
-
-```text
-POLICY PRECHECK RESULT
-Status: DRIFT
-Project: nordic-foods
-IaC Tool: bicep
-Target Scope: resourceGroup
-Output JSON: agent-output/nordic-foods/06-policy-precheck.json
-
-Envelope (L0):
-  Status: FRESH
-  Age (days): 1.2
-  TTL (days): 7
-
-Live cross-check:
-  Live policies missing from constraints: 1
-  Live policies newer than envelope: 0
-
-What-if validation:
-  Creates: 12  Updates: 3  Destroys: 0  Replaces: 0
-  Policy violations in what-if: 0
-
-Drift routing:
-  ▶ Refresh Governance (live policy not in constraints — Phase 0.45 refresh required)
-
-Verdict: DRIFT
-Recommendation: Traverse ▶ Refresh Governance to 04g-Governance; do not deploy.
-```

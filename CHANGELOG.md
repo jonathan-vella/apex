@@ -16,10 +16,9 @@ Migration:
 
 1. Select `01-Orchestrator` and use `/apex-workflow-start` with a fresh or `resume` operation.
 2. Use `/apex-git-commit` and `/apex-debug-log-export` instead of their former prompt adapters.
-3. Main workers use approved direct `WORKER_EXECUTE` dispatch and `--phase execute`
-   attribution (`EXECUTE_VERIFIED`). Tool-free handshake/continuation is diagnostic-only.
-   Model/effort labels are diagnostics, not attestation or eligibility proof.
-   Direct owner selection remains available.
+3. Main workers use actual native bounded task prompts/results, not custom execution envelopes,
+   readiness nonce turns or mandatory raw-log verification. Model/effort labels remain diagnostics.
+   Direct owner selection remains available, with native questioning in every interactive main.
 4. Native forms use `ask_user`; delegated steps return pending forms to their interactive parent.
    A completed worker or accepted finding never approves a workflow/deployment gate.
 5. Profile repository-scoped native `events.jsonl` files. Legacy logs remain readable but cannot
@@ -27,6 +26,16 @@ Migration:
 
 Custom-agent runtime acceptance and MCP projection still require live verification;
 static validation and built-in worker probes do not certify the cutover.
+
+#### Native agent bodies and interaction
+
+All active main and leaf bodies are audited and condensed around native interaction, bounded work,
+actual output contracts and current domain evidence. Active `handoffs` metadata is removed after the
+owner observed no controls with Probe Source selected in Copilot. This is not a blanket claim about
+all VS Code versions. `00-handoff.md` remains a durable recovery artifact, not a UI transition.
+Direct Requirements, Architect, Design and Governance retain native `ask_user`.
+Delegated mains return input forms to the parent; leaves return role-specific failures.
+No source tool list or successful task proves credential isolation or genuine human approval.
 
 #### Repository agent runtime hooks are retired
 
@@ -104,9 +113,8 @@ Migration: add one row per raw resource (resource type, stack, scope, evidence U
 - Deploy, Diagnose and manual Challenger entries disable implicit model invocation.
   Structural validation preserves this policy without forcing every other role to
   enable implicit invocation. This is not a claim of independent credential isolation.
-- `verify-worker-ready.mjs` checks attributed worker identity and dispatch linkage without model/effort attestation.
-  Direct execution uses `--phase execute`; diagnostic ready-only mode checks tool-free turns and nonce continuation.
-  Actual artifact validity and human gates remain separate;
+- `verify-worker-ready.mjs` remains a historical diagnostic reader, not an active agent-body runtime gate.
+  Actual artifact validity, reviewer result provenance and human gates remain separate;
   neither catalog runtime IDs nor readiness records grant project or deployment permission.
 - Earlier migration candidates included Tool Guardian and advisory subagent checks.
   These runtime hooks are now retired by owner instruction; their earlier behavior is not active protection.

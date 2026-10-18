@@ -77,7 +77,7 @@ Use [Steps](#steps) as the routing protocol. Response fields are documented in
 
 VS Code Copilot SDK entrypoints share
 [workflow-entry.md](references/workflow-entry.md). For parent-to-worker calls,
-read [worker-readiness.md](references/worker-readiness.md), then
+read [native worker lifecycle](references/worker-readiness.md), then
 [execution-subagent.md](references/execution-subagent.md).
 Manual Host workflow entry uses
 [apex-workflow-start](../apex-workflow-start/SKILL.md), including
@@ -108,7 +108,7 @@ The workflow graph is enforced at three points:
 | Validator                                                    | Rule registry                        | Scope                                         |
 | ------------------------------------------------------------ | ------------------------------------ | --------------------------------------------- |
 | `tools/scripts/validate-workflow-graph.mjs`                  | inline                               | Graph shape + schema                          |
-| `tools/scripts/validate-agents.mjs --only=workflow-handoffs` | `WORKFLOW_HANDOFF_RULES`             | `handoffs[]` UI buttons + `agents[]` dispatch |
+| `tools/scripts/validate-agents.mjs --only=workflow-handoffs` | `WORKFLOW_HANDOFF_RULES` | Historical UI fixtures and native `agents[]` dispatch policy |
 | `tools/scripts/validate-artifacts.mjs`                       | `ARTIFACT_HEADINGS["00-handoff.md"]` | Gate-companion file H2 sync                   |
 
 `npm run validate:_node` includes these checks. For focused graph and handoff

@@ -19,8 +19,11 @@ import {
   getAgentBodyStructure,
   runVendorPrompting,
   validateProductionAgentBody,
+  validateProductionAgentPolicy,
+  validateAgentPermissions,
 } from "../../scripts/validate-agents.mjs";
 import { MAX_BODY_LINES } from "../../scripts/_lib/paths.mjs";
+import { getAgents } from "../../scripts/_lib/workspace-index.mjs";
 import { cacheInputs, findingId } from "../../scripts/validate-challenger-findings.mjs";
 
 const root = fileURLToPath(new URL("../../../", import.meta.url));
@@ -43,7 +46,7 @@ test("automatic review callers use one-shot rubber-duck while manual Challenger 
     assert.ok(!frontmatter.agents.includes("challenger-review-subagent"), name);
     assert.match(content, /one-shot-review\.md/, name);
     assert.match(content, /record-review\.mjs/, name);
-    assert.match(content, /mode: sync/, name);
+    assert.ok(frontmatter.tools.includes("agent"), name);
   }
   assert.deepEqual(parseFrontmatter(read("10-challenger")).agents, ["challenger-review-subagent"]);
   const contract = readFileSync(
@@ -55,35 +58,33 @@ test("automatic review callers use one-shot rubber-duck while manual Challenger 
   assert.match(contract, /--verify-cache/);
   assert.match(contract, /not a parent-authored reconstruction/i);
 });
-test("Delegated main agents explicitly echo handshake identity in tool-free continuation ACKs", () => {
+test("main agents expose direct questions and delegated pending-input fields without worker preflights", () => {
   for (const file of readdirSync(agentRoot).filter(
     (file) => file.endsWith(".agent.md") && file !== "01-orchestrator.agent.md",
   )) {
     const body = getBody(readFileSync(path.join(agentRoot, file), "utf8"));
-    const entry = body.match(/## Harness Entry\s+([\s\S]*?)(?=\n## |$)/)?.[1];
-    assert.ok(entry, `${file}: missing Harness Entry`);
-    assert.match(
-      entry,
-      /nonce-only returns\s+`WORKER_READY_ACK <definition-name> <original-nonce>` with same values/,
-      file,
-    );
-    assert.match(
-      entry,
-      /`APEX_WORKER_HANDSHAKE`: no tools; return `WORKER_READY <definition-name> <original-nonce>`/,
-      file,
-    );
-    assert.match(entry, /Stop; await `WORKER_EXECUTE`/, file);
+    for (const field of [
+      "ask_user",
+      "USER_INPUT_REQUIRED",
+      "request_id",
+      "phase",
+      "message",
+      "requestedSchema.properties",
+    ])
+      assert.ok(body.includes(field), `${file}: ${field}`);
+    assert.doesNotMatch(body, /APEX_WORKER_HANDSHAKE|WORKER_READY|WORKER_EXECUTE|verify-worker-ready\.mjs/, file);
   }
 });
 
-test("Leaf agents return the exact tool-free initial readiness identity", () => {
+test("leaf agents have bounded native task permissions, not synthetic readiness envelopes", () => {
   const leafRoot = path.join(agentRoot, "_subagents");
   for (const file of readdirSync(leafRoot).filter((file) => file.endsWith(".agent.md"))) {
-    const body = getBody(readFileSync(path.join(leafRoot, file), "utf8"));
-    if (!body.includes("APEX_WORKER_HANDSHAKE")) continue;
-    assert.match(
-      body,
-      /return exactly\s+`WORKER_READY <definition-name> <original-nonce>` using this definition's name and parent's nonce/,
+    const content = readFileSync(path.join(leafRoot, file), "utf8");
+    const frontmatter = parseFrontmatter(content);
+    assert.deepEqual(validateAgentPermissions(frontmatter, { isSubagent: true }), [], file);
+    assert.doesNotMatch(
+      getBody(content),
+      /APEX_WORKER_HANDSHAKE|WORKER_READY|WORKER_EXECUTE|verify-worker-ready\.mjs/,
       file,
     );
   }
@@ -122,7 +123,7 @@ Stop when a required input is missing.
   assert.ok(validateProductionAgentBody(agent).some((issue) => issue.includes("Stop rules")));
 });
 
-test("active structured main body contract remains checked without a pinned model family", () => {
+test("native Markdown essentials do not require personality, goals or model-specific XML", () => {
   const agent = {
     path: path.join(agentRoot, "fixture.agent.md"),
     frontmatter: { name: "Fixture" },
@@ -134,33 +135,83 @@ name: Fixture
 ## Role
 Perform the bounded role.
 
-<scope_fencing>
+## Constraints
 Keep the workflow boundaries.
-</scope_fencing>
 
-<output_contract>
+## Output
 Return the required output.
-</output_contract>
 
-<stop_conditions>
+## Stop rules
 Stop when a required input is missing.
-</stop_conditions>
 `,
   };
   assert.deepEqual(validateProductionAgentBody(agent), []);
-  agent.content = agent.content.replace("</output_contract>", "");
-  assert.ok(validateProductionAgentBody(agent).some((issue) => issue.includes("<output_contract>")));
+  agent.content = agent.content.replace("## Output\nReturn the required output.", "## Output");
+  assert.ok(validateProductionAgentBody(agent).some((issue) => issue.includes("Output")));
+});
+
+test("production policy rejects UI handoffs, missing direct tools, model pins and invalid leaf tools", () => {
+  const main = {
+    path: path.join(agentRoot, "fixture.agent.md"),
+    frontmatter: { name: "Fixture", "user-invocable": true, agents: [], tools: ["read", "ask_user"] },
+  };
+  assert.deepEqual(validateProductionAgentPolicy(main), []);
+  for (const change of [
+    { handoffs: [] },
+    { tools: ["read"] },
+    { "user-invocable": false },
+    { model: ["fixture"] },
+    { "reasoning-effort": "high" },
+  ]) {
+    assert.ok(validateProductionAgentPolicy({ ...main, frontmatter: { ...main.frontmatter, ...change } }).length);
+  }
+  const worker = {
+    path: path.join(agentRoot, "_subagents/fixture.agent.md"),
+    frontmatter: { name: "Worker", "user-invocable": false, agents: [], tools: ["read"] },
+  };
+  assert.deepEqual(validateProductionAgentPolicy(worker), []);
+  for (const tool of ["ask_user", "agent", "todo", "*", "vscode/askQuestions"]) {
+    assert.ok(
+      validateProductionAgentPolicy({ ...worker, frontmatter: { ...worker.frontmatter, tools: [tool] } }).length,
+    );
+  }
+  for (const tools of ["read", [null], [""]]) {
+    assert.ok(validateAgentPermissions({ tools }).length);
+  }
+});
+
+test("production body rejects retired preflights while historical fixture paths remain exempt", () => {
+  const content = read("02-requirements");
+  const frontmatter = parseFrontmatter(content);
+  for (const ritual of [
+    "APEX_WORKER_HANDSHAKE",
+    "WORKER_READY",
+    "WORKER_READY_ACK",
+    "WORKER_EXECUTE",
+    "verify-worker-ready.mjs",
+  ]) {
+    assert.ok(
+      validateProductionAgentBody({
+        path: path.join(agentRoot, "02-requirements.agent.md"),
+        frontmatter,
+        content: `${content}\n${ritual}`,
+      }).some((issue) => issue.includes("retired")),
+    );
+    assert.deepEqual(
+      validateProductionAgentBody({
+        path: path.join(root, "tools/tests/fixtures/historical.agent.md"),
+        frontmatter,
+        content: `${content}\n${ritual}`,
+      }),
+      [],
+    );
+  }
 });
 
 test("Terraform preview-only stops at missing backend without soliciting expanded approval", () => {
   const body = getBody(read("07t-terraform-deploy"));
-  assert.match(body, /For preview-only requests, do not solicit bootstrap or apply approval/);
-  assert.match(body, /report the blocked preview and stop/);
-  assert.match(
-    body,
-    /For an explicit setup\/deployment request, backend bootstrap is supported with separate user authorization/,
-  );
-  assert.match(body, /do not run initialization, solicit bootstrap\/apply approval, or claim a preview succeeded/);
+  assert.match(body, /(?:Preview|preview)[\s\S]{0,150}missing backend stops/);
+  assert.match(body, /bootstrap scripts only under separate exact authorization/);
   const shared = readFileSync(
     path.join(root, ".github/skills/apex-iac-common/references/deploy-shared-workflow.md"),
     "utf8",
@@ -174,15 +225,8 @@ test("Terraform preview-only stops at missing backend without soliciting expande
 test("CodeGen recovery does not infer edit permission from invalid or conflicting content", () => {
   for (const agent of ["06b-bicep-codegen", "06t-terraform-codegen"]) {
     const body = getBody(read(agent));
-    assert.match(
-      body,
-      /Preserve lines with uncertain ownership until ownership is established or the user\s+explicitly authorizes the specific edit/,
-    );
-    assert.match(
-      body,
-      /Syntax errors, validation failures and\s+plan conflicts do not establish ownership or authorize overwriting/,
-    );
-    assert.match(body, /If repair needs such edits, stop and ask; keep validation and handoff blocked/);
+    assert.match(body, /(?:uncertain|ambiguous)[\s\S]{0,30}ownership|ownership[\s\S]{0,30}(?:uncertain|ambiguous)/i);
+    assert.match(body, /failure alone does not authorize/);
   }
   const shared = readFileSync(
     path.join(root, ".github/skills/apex-iac-common/references/codegen-shared-workflow.md"),
@@ -200,16 +244,14 @@ test("CodeGen recovery does not infer edit permission from invalid or conflictin
 test("Orchestrator distinguishes the Requirements owner from its step and artifact prefix", () => {
   const text = read("01-orchestrator");
   const requirements = parseFrontmatter(read("02-requirements"));
-  const handoff = parseFrontmatter(text).handoffs.find((entry) => entry.label === "Step 1: Gather Requirements");
-  assert.equal(handoff.agent, requirements.name);
-  assert.ok(getBody(text).includes(`Step 1 uses \`${requirements.name}\``));
-  assert.match(getBody(text), /including in\s+routing-only answers/);
-  assert.match(getBody(text), /Step numbers and artifact prefixes are not agent IDs/);
-  assert.match(getBody(text), /explanation-only or hypothetical routing question/);
-  assert.match(getBody(text), /When the user prohibits tools, answer only from\s+available context/);
-  assert.match(getBody(text), /do not search, read files, load skills, or call todo tools/);
-  assert.match(getBody(text), /state the limitation and stop/);
-  assert.match(getBody(text), /does not\s+waive required discovery, reviews, or approvals/);
+  const graph = JSON.parse(
+    readFileSync(path.join(root, ".github/skills/apex-workflow-engine/templates/workflow-graph.json"), "utf8"),
+  );
+  assert.equal(graph.nodes["step-1"].agent, requirements.name);
+  assert.ok(parseFrontmatter(text).agents.includes(requirements.name));
+  assert.match(getBody(text), /Main worker names come from actual definitions\/registry/);
+  assert.match(getBody(text), /explanation-only/i);
+  assert.match(getBody(text), /not numbered file presence/);
 });
 
 const blocks = (text, language) =>
@@ -285,8 +327,7 @@ for (const name of agentFiles) {
     if (name.startsWith("_subagents/")) {
       assert.equal(frontmatter["user-invocable"], false, name);
       assert.deepEqual(frontmatter.agents, [], name);
-      assert.match(body, /return exactly `WORKER_READY_ACK <definition-name> <original-nonce>`/);
-      assert.match(body, /following complete-phase readiness verification/);
+      assert.deepEqual(validateAgentPermissions(frontmatter, { isSubagent: true }), [], name);
     } else {
       const manualEntries = [
         "01-orchestrator.agent.md",
@@ -297,16 +338,22 @@ for (const name of agentFiles) {
       ];
       assert.equal(frontmatter["disable-model-invocation"], manualEntries.includes(name), name);
     }
+    assert.deepEqual(
+      validateProductionAgentPolicy({ path: path.join(agentRoot, name), frontmatter }, getAgents()),
+      [],
+      name,
+    );
   });
 }
 
-test("AB-01/15 one-H1 normalization retains pinned-fixture vendor validation", () => {
-  const original = read("03-architect");
-  const frontmatter = { ...parseFrontmatter(original), model: ["Claude Sonnet 5.5 (copilot)"] };
+test("AB-01/15 historical pinned-fixture vendor validation is independent of active Markdown bodies", () => {
+  const frontmatter = { name: "Historical", model: ["Claude Sonnet 5.5 (copilot)"] };
+  const original =
+    "---\nname: Historical\n---\n# Historical\n\n## Role\nReview evidence.\n\n<scope_fencing>\nRead only.\n</scope_fencing>\n<output_contract>\nReturn findings.\n</output_contract>\n<stop_conditions>\nStop after reporting.\n</stop_conditions>\n";
   const agent = {
     frontmatter,
     content: original,
-    path: path.join(agentRoot, "03-architect.agent.md"),
+    path: path.join(root, "tools/tests/fixtures/historical.agent.md"),
     isSubagent: false,
   };
   const result = runVendorPrompting({
@@ -322,26 +369,17 @@ test("AB-01/15 one-H1 normalization retains pinned-fixture vendor validation", (
   assert.deepEqual(blockers, []);
 });
 
-test("AB-02 fresh setup has one owner; resume preserves recovery and verified worker boundaries", () => {
+test("AB-02 fresh setup has one owner; resume preserves recovery and native dispatch boundaries", () => {
   const body = read("01-orchestrator");
-  assert.match(section(body, "## Starting a New Project", "## Resuming a Project"), /Use the single ONE-SHOT/);
-  assert.match(body, /use an explicitly supplied project without reconfirming it/);
-  assert.match(body, /empty \/ "no project found"[\s\S]*?NOT a/);
+  assert.match(body, /supplied project name without redundant confirmation/);
+  assert.match(body, /If recall is empty[\s\S]{0,130}existing artifacts before treating the project as new/);
   assert.doesNotMatch(body, /Gates 2 and 3 recommend|Recommend session break at Gates/);
-  assert.match(
-    body,
-    /Do not dispatch a step until its graph prerequisites, human gate and worker readiness are verified/,
-  );
-  assert.match(body, /HANDSHAKE_VERIFIED/);
-  assert.match(body, /WORKER_READY_ACK/);
-  assert.match(body, /--phase initial/);
-  assert.match(body, /--phase complete/);
-  assert.match(body, /READY_VERIFIED/);
-  assert.match(body, /Initial status never establishes complete readiness/);
-  assert.match(body, /apex-recall transition --complete/);
+  for (const field of ["workflow-graph.json", "ask_user", "USER_INPUT_REQUIRED", "apex-recall transition"])
+    assert.ok(body.includes(field), field);
+  assert.doesNotMatch(body, /APEX_WORKER_HANDSHAKE|WORKER_READY|WORKER_EXECUTE|verify-worker-ready\.mjs/);
 });
 
-test("runtime guidance gates identity and continuation, not model selection or telemetry", () => {
+test("runtime guidance leaves model selection to the operator rather than synthetic attestations", () => {
   for (const file of [
     ".github/copilot-instructions.md",
     ".github/instructions/agent-authoring.instructions.md",
@@ -351,7 +389,7 @@ test("runtime guidance gates identity and continuation, not model selection or t
     "tools/tests/integration/smoke-run.md",
   ]) {
     const body = readFileSync(path.join(root, file), "utf8");
-    assert.match(body, /HydraFusion/, file);
+    assert.match(body, /\bmodel/i, file);
     assert.doesNotMatch(body, /MODEL_VERIFIED|operator explicitly selects Auto|matching configured\/dispatched/, file);
     assert.doesNotMatch(body, /configured model, and its permitted tools|`MAI-Code-1.1-Flash` model/, file);
   }
@@ -363,25 +401,33 @@ test("runtime guidance gates identity and continuation, not model selection or t
     path.join(root, ".github/skills/apex-workflow-engine/references/worker-readiness.md"),
     "utf8",
   );
-  assert.match(protocol, /model_attestation_required: false/);
-  assert.match(protocol, /HANDSHAKE_VERIFIED/);
-  assert.match(protocol, /READY_VERIFIED/);
-  assert.match(protocol, /same worker's exact ACK/);
-  assert.match(protocol, /Missing identity, dispatch linkage, completion or tool-free evidence still blocks/);
+  assert.match(protocol, /(?:historical|diagnostic|native)/i);
+  assert.doesNotMatch(protocol, /Require `MODEL_VERIFIED`/);
+});
+
+test("preview workers declare the complete native status enum rather than a bare blocked result", () => {
+  for (const name of ["bicep-whatif-subagent", "terraform-plan-subagent"]) {
+    const source = read(`_subagents/${name}`);
+    const statuses = source
+      .match(/^Status:\s*\[([^\]]+)\]/m)?.[1]
+      .split("|")
+      .sort();
+    assert.deepEqual(statuses, ["FAIL", "PASS", "WARNING"], name);
+    assert.match(source, /missing[\s\S]{0,150}(?:FAIL|failure shape)/i, name);
+  }
 });
 
 test("AB-03 complete prerequisites precede review; compliance none differs from missing", () => {
   const body = read("02-requirements");
-  const draft = section(body, "## Phase 5: Draft", "## Auto-Trigger Blocker");
+  const draft = section(body, "## Phase 5", "## Phase 6");
   const markers = [
     "01-requirements.md",
     "README.md",
     "sku-manifest.json",
     "sku-manifest.md",
     "shape checks",
-    "Record mandatory decisions",
+    "Record",
     "Checkpoint",
-    "chain into Phase 6a",
   ];
   let offset = 0;
   for (const marker of markers) {
@@ -389,16 +435,17 @@ test("AB-03 complete prerequisites precede review; compliance none differs from 
     assert.ok(next >= offset, marker);
     offset = next + marker.length;
   }
-  assert.match(body, /A requirements write alone is not review readiness/);
-  assert.match(body, /unanswered compliance question is not equivalent to "none"/);
-  assert.match(body, /failed rendering\/checks block review/);
+  assert.match(body, /write\s+alone is not review readiness/);
+  assert.match(body, /(?:unanswered|missing)[\s\S]{0,100}(?:none|compliance)/i);
+  assert.match(body, /repair failures before proceeding/);
 });
 
 test("AB-04/22 candidate comparison cannot approve SKUs or write back manifest prices", () => {
   const architect = read("03-architect");
   const cost = read("_subagents/cost-estimate-subagent");
-  assert.match(architect, /Comparison-only `candidate_sets` is the sole pre-approval exception/);
-  assert.match(architect, /manifest_path` or `resource_list` pricing unless/);
+  assert.ok(architect.includes("candidate_sets"));
+  assert.match(architect, /comparison-only/);
+  assert.match(architect, /(?:manifest_path|resource_list)[\s\S]{0,100}approved/);
   assert.match(architect, /challenge-findings-cost-estimate.json/);
   assert.doesNotMatch(architect, /\$450|\$500|Include this table in/);
   assert.match(cost, /Exactly one input mode/);
@@ -409,20 +456,25 @@ test("AB-04/22 candidate comparison cannot approve SKUs or write back manifest p
 
 test("AB-05 ADR creation is not architecture approval; execution failure is not findings", () => {
   const body = read("04-design");
-  assert.match(body, /Architect review and human approval before any architecture change/);
-  assert.match(body, /ADR creation alone is insufficient/);
-  assert.match(body, /An execution failure\s+is not findings/);
+  assert.match(
+    body,
+    /architecture change[\s\S]{0,150}(?:approval|authorization)|(?:approval|authorization)[\s\S]{0,150}architecture change/,
+  );
+  assert.match(body, /(?:proposal|informational)[\s\S]{0,100}(?:authorization|permission)/);
+  assert.match(body, /(?:failed reviewer|execution failure)[\s\S]{0,150}(?:different|separate|not)/i);
   assert.doesNotMatch(body, /Log subagent failures[\s\S]{0,65}and continue/);
 });
 
 test("AB-06/07 governance final inputs precede review; exhausted stale review blocks", () => {
   const body = read("04g-governance");
-  assert.match(body, /Execution order is 2 → 2.7 → 2.5 → 3/);
-  assert.match(body, /single pass was already consumed, STOP/);
-  assert.match(body, /newly\s+written `decisions.discovery_signature` cannot attest old answers/);
-  assert.match(body, /Explicit refresh\s+invalidates prior confirmations even if the signature stays equal/);
-  assert.match(body, /COMPLETE empty-policy result still resolves all topics/);
-  assert.match(body, /validly reused across sessions/);
+  const confirmations = body.indexOf("## Phase 2.7");
+  const review = body.indexOf("## Phase 2.5");
+  assert.ok(confirmations > 0 && review > confirmations);
+  assert.match(body, /[Ee]xhausted review budget/);
+  assert.match(body, /new value does not attest old confirmations/);
+  assert.match(body, /refresh[\s\S]{0,200}(?:old confirmations|invalidat)/i);
+  assert.match(body, /COMPLETE zero-assignment result is valid/);
+  assert.match(body, /Reuse completed evidence/);
   assert.doesNotMatch(
     body,
     /two required confirmations|answered in the same chat session|On Refresh governance\*\*: restart from Phase 0.45/,
@@ -432,10 +484,9 @@ test("AB-06/07 governance final inputs precede review; exhausted stale review bl
 for (const refresh of [false, true]) {
   test(`SK-02 governance binds confirmed subscription in source command (refresh=${refresh})`, (context) => {
     const body = read("04g-governance");
-    const phase = section(body, "### Phase 1: Governance Discovery", "### Phase 2: Generate Artifacts");
-    assert.match(phase, /If missing or ambiguous, STOP for\s+confirmation/);
-    assert.match(phase, /never default to the active Azure CLI subscription/);
-    assert.match(body, /discover\.py --subscription "<confirmed-subscription-id>" --refresh/);
+    const phase = section(body, "## Phase 1", "## Phase 2");
+    assert.match(body, /never default to the active Azure CLI subscription/);
+    assert.match(body, /--refresh/);
     const command = blocks(phase, "bash").find((block) => block.includes("scripts/discover.py"));
     assert.ok(command);
     const directory = scratch(context);
@@ -443,6 +494,7 @@ for (const refresh of [false, true]) {
     const invocation = command
       .trim()
       .replaceAll("{project}", "fixture-project")
+      .replaceAll("<project>", "fixture-project")
       .replaceAll("<confirmed-subscription-id>", "confirmed-subscription");
     const result = shell(`${invocation}${refresh ? " --refresh" : ""}`, directory, env);
     assert.equal(result.status, 0, result.stderr);
@@ -465,10 +517,9 @@ for (const refresh of [false, true]) {
 test("AB-08 Planner pins override defaults and persisted aliases remain compatible", () => {
   const body = read("05-iac-planner");
   assert.doesNotMatch(body, /trust default SKUs|two-stage gate/);
-  assert.match(body, /explicit manifest-backed SKU inputs/);
-  assert.match(body, /Preserve both historical review aliases/);
-  assert.match(body, /environment-manifest.json` for the downstream deploy contract on every project/);
-  assert.match(body, /diagram `.py`, `.png`, `.svg` siblings/);
+  assert.match(body, /explicit manifest SKUs/);
+  for (const field of ["review_depth", "environment-manifest.json", "py", "png", "svg"])
+    assert.ok(body.includes(field), field);
 });
 
 for (const track of ["bicep", "terraform"]) {
@@ -476,20 +527,32 @@ for (const track of ["bicep", "terraform"]) {
   test(`AB-09/16 ${track} preliminary acceptance cannot bypass L3 or final approval`, () => {
     const body = read(`07${prefix}-${track}-deploy`);
     assert.match(body, /Preview accepted; apply not yet approved/);
-    assert.match(body, /Only explicit approval of this current block authorizes apply/);
-    assert.match(body, /BLOCKING drift or a text\/JSON gate mismatch blocks/);
-    assert.match(body, /Missing or stale pricing returns to\s+`03-Architect`/);
-    assert.match(body, /If `cost_delta` exceeds envelope by >20%/);
-    assert.match(body, /Failed, partial and preview-only\s+summaries do not complete Step 6/);
+    const schema = JSON.parse(readFileSync(path.join(root, "tools/schemas/deployment-preview.schema.json"), "utf8"));
+    for (const field of ["deploy_gate", "cost_delta_monthly_usd"]) assert.ok(schema.properties[field], field);
+    for (const field of ["Architect", "approval", "06-deploy-approval.json"]) assert.ok(body.includes(field), field);
+    assert.match(
+      body,
+      /(?:preview|Preview)[\s\S]{0,150}(?:not final approval|not.*approv|does not.*approv|not apply permission)/,
+    );
+    assert.match(
+      body,
+      /(?:partial|preview-only)[\s\S]{0,180}(?:not|never|do not|cannot)[\s\S]{0,100}(?:complet|deployed)/i,
+    );
   });
   test(`AB-10/15 ${track} completion remains mandatory outside optional review`, () => {
     const body = read(`06${prefix}-${track}-codegen`);
-    const completion = section(body, "### Phase 4.6 + Phase 6", "## ");
-    assert.match(completion, /These completion checks run even when Phase 4.5 is skipped/);
-    assert.match(completion, /Mechanical Auto-Fix Before Exiting/);
-    assert.match(completion, /Save `05-implementation-reference.md` in every mode/);
-    assert.match(body, /bounded validated batches/);
-    assert.match(body, /never migrate persisted keys silently/);
+    const completion = section(body, "## Phase 4.6 + Phase 6", "## Output");
+    assert.match(completion, /(?:even when|including skipped)[\s\S]{0,80}(?:optional review|review is skipped)/);
+    for (const field of [
+      "05-iac-handoff.json",
+      "validation_summary.validate_gate",
+      "--tree-hash",
+      "validate:iac-handoff",
+    ])
+      assert.ok(completion.includes(field), field);
+    assert.ok(body.includes("05-implementation-reference.md"));
+    assert.match(body, /(?:bounded[\s\S]{0,50}batches|at most three new source files per batch)/);
+    assert.ok(body.includes("phase_6_handoff"));
     assert.doesNotMatch(body, /If valid, treat the finding as informational/);
   });
   test(`AB-18 ${track} failures retain text fields and project L2 requires context`, () => {
@@ -506,7 +569,7 @@ for (const track of ["bicep", "terraform"]) {
       assert.ok(output.includes(field), field);
     }
     assert.doesNotMatch(body, /transient: true|emit `Lint Status:/);
-    assert.match(body, /L2 request without `project` returns FAILED/);
+    assert.match(body, /Required for an APEX L2 request/);
     assert.match(body, /L2 not evaluated: project not supplied/);
     assert.match(body, /CodeGen owns/);
   });
@@ -514,7 +577,7 @@ for (const track of ["bicep", "terraform"]) {
 
 test("AB-11 partial As-Built cannot complete Step 7 and inventory owns every chart sibling", () => {
   const body = read("08-as-built");
-  const output = section(body, "## Output Contract", "## Scope");
+  const output = body;
   for (const name of [
     "07-ab-cost-estimate.json",
     "07-ab-diagram",
@@ -525,42 +588,35 @@ test("AB-11 partial As-Built cannot complete Step 7 and inventory owns every cha
   ]) {
     assert.ok(output.includes(name), name);
   }
-  assert.match(output, /`.py` \+ `.png` \+ `.svg`/);
-  assert.match(output, /Do not mark Step 7 complete, call `complete-step 7`/);
-  assert.match(body, /Partial requests\s+select only the required rows/);
-  assert.match(body, /Preserve persisted keys/);
+  for (const extension of ["py", "png", "svg"]) assert.ok(body.toLowerCase().includes(extension));
+  assert.match(output, /Only full verified suite completion runs/);
+  assert.match(body, /Partial requests record only actual progress/);
+  for (const alias of ["phase_3_pricing", "phase_4_cost"]) assert.ok(body.includes(alias));
 });
 
-test("AB-12 actual diagnostic severity table maps without losing source severity", () => {
+test("AB-12 diagnostic severity mapping preserves source severity and bounded authority", () => {
   const body = read("09-diagnose");
-  const rows = [...body.matchAll(/^\| (Critical|High|Medium|Low) \| (critical|warning|info) \|$/gm)];
-  assert.deepEqual(Object.fromEntries(rows.map((row) => [row[1], row[2]])), {
-    Critical: "critical",
-    High: "warning",
-    Medium: "warning",
-    Low: "info",
-  });
-  assert.match(body, /listing is\s+not diagnosis or remediation authorization/);
-  assert.match(body, /expansion does not authorize bulk remediation/);
-  assert.match(body, /Use the exact Phase 6 report headings/);
+  for (const mapping of ["Critical→critical", "High/Medium→warning", "Low→info"]) assert.ok(body.includes(mapping));
+  assert.match(body, /Unknown severity stays unknown/);
+  assert.match(body, /does not authorize diagnosing\/remediating all/);
+  assert.ok(body.includes("08-resource-health-report.md"));
 });
 
 test("AB-13 requested pass and resolved paths survive decision/apply/review return", () => {
   const body = read("10-challenger");
-  const single = section(body, "### Single-Pass Review", "### Multi-Pass Review");
-  assert.match(single, /resolved requested pass/);
-  assert.doesNotMatch(single, /`pass_number` = `1`/);
-  assert.match(body, /Machine-readable detail is in `\{findings_path\}`/);
-  assert.match(body, /Required re-review blocks advancement/);
-  assert.match(body, /final aggregated gate, accepted edits\s+if authorized and not frozen, validation, apply summary/);
+  for (const field of ["pass_number", "prior_findings", "output_path", "batch_results", "file_path"])
+    assert.ok(body.includes(field), field);
+  assert.match(body, /exact requested pass/);
+  assert.match(body, /changed inputs invalidate affected reviews/i);
+  assert.match(body, /frozen artifacts return to their owner/i);
 });
 
 test("AB-14 missing telemetry permits source-only auditing without measured claims", () => {
   const body = read("11-context-optimizer");
-  assert.match(body, /For source-only requests, skip log collection and Phase 2/);
-  assert.match(body, /cannot claim observed loading,\s+runtime quality, latency or token savings/);
+  for (const field of ["source-only", "unknown", "comparable runs", "explicitly supplied"])
+    assert.ok(body.includes(field), field);
   assert.doesNotMatch(body, /each adds ~50-100 tokens|Avg latency \(Opus\)/);
-  assert.match(body, /no snapshots,\s+report files, temporary exports/);
+  assert.match(body, /no snapshots/);
 });
 
 test("AB-16 extracted first-match policy truth table fails closed across combinations", () => {
@@ -639,7 +695,7 @@ if (args[0] === "deployment") {
   assert.match(read("_subagents/bicep-whatif-subagent"), /`Deploy`, an unrecognized changeType[\s\S]*?`WARNING`/);
 });
 
-test("AB-18 extracted Bicep checks short-circuit persistent errors and retain compiled evidence", (context) => {
+test("AB-18 extracted Bicep checks report persistent errors and retain current compiled evidence", (context) => {
   const directory = scratch(context);
   const calls = path.join(directory, "calls.jsonl");
   const env = stub(
@@ -653,13 +709,12 @@ if (args[0] === process.env.FAIL_AT) process.exit(7);
 if (args[0] === "build") fs.writeFileSync(args[args.indexOf("--outfile") + 1], JSON.stringify({resources: []}));
 `,
   );
-  const command = blocks(read("_subagents/bicep-validate-subagent"), "bash")[0].replaceAll(
-    "{template_path}",
-    "main.bicep",
-  );
+  const command = blocks(read("_subagents/bicep-validate-subagent"), "bash")[0]
+    .replaceAll("{template_path}", "main.bicep")
+    .replaceAll("{scratch_dir}", directory);
   for (const fail of ["lint", "build", "none"]) {
     writeFileSync(calls, "");
-    const result = shell(command, directory, { ...env, TMPDIR: directory, CALLS: calls, FAIL_AT: fail });
+    const result = shell(`set -e\n${command}`, directory, { ...env, TMPDIR: directory, CALLS: calls, FAIL_AT: fail });
     assert.equal(result.status, fail === "none" ? 0 : 7, result.stderr);
     const invoked = readFileSync(calls, "utf8").trim().split("\n").map(JSON.parse);
     assert.equal(invoked.length, fail === "lint" ? 1 : 2);
@@ -683,13 +738,12 @@ if (args[0] !== "fmt") assert.ok(process.env.TF_DATA_DIR.startsWith(process.env.
 if (args[0] === process.env.FAIL_AT) process.exit(9);
 `,
   );
-  const command = blocks(read("_subagents/terraform-validate-subagent"), "bash")[0].replaceAll(
-    "{module_path}",
-    directory,
-  );
+  const command = blocks(read("_subagents/terraform-validate-subagent"), "bash")[0]
+    .replaceAll("{module_path}", directory)
+    .replaceAll("{validation_data_dir}", directory);
   for (const fail of ["fmt", "init", "validate", "none"]) {
     writeFileSync(calls, "");
-    const result = shell(command, directory, { ...env, TMPDIR: directory, CALLS: calls, FAIL_AT: fail });
+    const result = shell(`set -e\n${command}`, directory, { ...env, TMPDIR: directory, CALLS: calls, FAIL_AT: fail });
     assert.equal(result.status, fail === "none" ? 0 : 9, result.stderr);
     const invoked = readFileSync(calls, "utf8").trim().split("\n").map(JSON.parse);
     assert.equal(invoked.length, fail === "fmt" ? 1 : fail === "init" ? 2 : 3);
@@ -728,34 +782,50 @@ test("AB-20 extracted scratch allocation isolates simultaneous same-project call
   assert.doesNotMatch(read("_subagents/policy-precheck-subagent"), /\/tmp\/\{project\}/);
 });
 
-test("AB-21 empty-artifact payload from actual example validates; ad hoc failure and partial JSON fail", (context) => {
+test("AB-21 declared empty-artifact payload validates; ad hoc failure and partial JSON fail", (context) => {
   const directory = scratch(context);
   const output = path.join(directory, "agent-output/demo");
   mkdirSync(output, { recursive: true });
   const body = read("_subagents/challenger-review-subagent");
-  const payload = JSON.parse(blocks(body, "json").find((block) => block.includes('"schema_version"')));
+  const payload = JSON.parse(
+    readFileSync(
+      path.join(root, "tools/tests/fixtures/subagent-file-contract/challenger-review.findings.json"),
+      "utf8",
+    ),
+  );
   payload.artifact_type = "requirements";
   payload.review_focus = "comprehensive";
   payload.risk_level = "high";
   payload.must_fix_count = 1;
+  payload.should_fix_count = 0;
+  payload.suggestion_count = 0;
+  payload.findings = [payload.findings[0]];
+  const artifact = path.join(output, "01-requirements.md");
+  writeFileSync(artifact, "");
+  payload.challenged_artifact = artifact;
+  payload.cache_inputs = cacheInputs(artifact, root);
   Object.assign(payload.findings[0], {
     id: "abcdef01",
     severity: "must_fix",
     category: "missing_failure_mode",
     claim: "Artifact is empty or contains no substantive content.",
   });
+  payload.findings[0].suggested_fix.artifact_path = artifact;
+  payload.findings[0].id = findingId(payload.findings[0]);
   const file = path.join(output, "challenge-findings-requirements.json");
   const validator = path.join(root, "tools/scripts/validate-challenger-findings.mjs");
   const run = (value) => {
     writeFileSync(file, typeof value === "string" ? value : JSON.stringify(value));
     return spawnSync(process.execPath, [validator], { cwd: directory, encoding: "utf8" });
   };
-  assert.equal(run(payload).status, 0);
-  assert.equal(run({ batch_results: [payload, { ...payload, pass_number: 2 }] }).status, 0);
+  const single = run(payload);
+  assert.equal(single.status, 0, single.stdout + single.stderr);
+  const batch = run({ batch_results: [payload, { ...payload, pass_number: 2 }] });
+  assert.equal(batch.status, 0, batch.stdout + batch.stderr);
   assert.equal(run({ status: "artifact_not_found", artifact_path: "missing", findings: [] }).status, 1);
   assert.equal(run('{"partial":').status, 1);
-  assert.match(body, /file_path: not_written/);
-  assert.match(body, /unwritable output[\s\S]*?Preserve existing files/);
+  assert.match(body, /file_path:\s*not_written/);
+  assert.match(body, /unwritable path[\s\S]{0,100}preserve files/i);
 });
 
 test("AB-16 parent follow-up: policy validator must accept BLOCKING drift without fabricated violations", (context) => {

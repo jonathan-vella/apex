@@ -33,15 +33,15 @@ only; leave caller routing overrides unset.
 > Return missing-input diagnostics to the parent; never fabricate defaults.
 
 `01-Orchestrator` remains human-selected and alone dispatches approved,
-allowlisted main workers after [verified readiness](worker-readiness.md).
-Direct main-agent selection remains supported. Delegated steps return
+allowlisted main workers through the [native task lifecycle](worker-readiness.md).
+Direct main-agent selection retains native questions. Delegated steps return
 `USER_INPUT_REQUIRED` forms to the interactive parent, which owns `ask_user`;
 cancel stops and decline never approves. Steps call only their authorized leaves.
 An allowlist or invocation flag is not runtime routing or approval evidence.
 
 Automatic independent reviews use
 [one-shot rubber-duck](../../apex-azure-defaults/references/one-shot-review.md),
-not the resumable worker handshake. If a required reviewer is unavailable,
+with its own actual-result receipt/freshness contract. If a required reviewer is unavailable,
 STOP and return its failure to the interactive parent; never nest a main-agent
 wrapper or fabricate inline review. `10-Challenger` remains optional manual recovery.
 Missing or empty output permits exactly one identical-input retry, then human

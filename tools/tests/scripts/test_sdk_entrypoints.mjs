@@ -23,9 +23,9 @@ for (const [entry, reference] of [
     }
     assert.ok(content.includes(`../${reference}`));
     assert.ok(existsSync(new URL(`.github/skills/${reference}`, root)));
-    assert.match(content, /\*\*STOP\*\*/);
-    assert.match(content, /(?:cannot|does not) bind/);
-    assert.match(content, /(?:widen tools|widening tools)/);
+    assert.match(content, /(?:cannot change|does not bind)/);
+    assert.match(content, /(?:widen tools|widening tools|grant permission)/);
+    assert.match(content, /(?:STOP|blocker)/);
   });
 }
 
@@ -48,6 +48,13 @@ test("only Orchestrator dispatches main agents; steps dispatch leaves only", () 
     .map((file) => parseFrontmatter(read(`.github/agents/${file}`)));
   const names = new Set(mains.map((agent) => agent.name));
   const orchestrator = mains.find((agent) => agent.name === "01-Orchestrator");
+  for (const agent of mains) {
+    assert.equal(agent["user-invocable"], true, agent.name);
+    assert.ok(agent.tools.includes("ask_user"), `${agent.name}: native direct questioning`);
+    for (const key of ["handoffs", "model", "reasoning-effort"]) {
+      assert.equal(Object.hasOwn(agent, key), false, `${agent.name}: ${key}`);
+    }
+  }
   assert.equal(orchestrator["disable-model-invocation"], true);
   assert.ok(orchestrator.agents.length > 0);
   assert.ok(orchestrator.tools.includes("agent"));
@@ -60,6 +67,24 @@ test("only Orchestrator dispatches main agents; steps dispatch leaves only", () 
     assert.equal(agent["disable-model-invocation"], manualEntries.has(agent.name), agent.name);
     assert.equal(agent["user-invocable"], true, agent.name);
     for (const target of agent.agents ?? []) assert.ok(!names.has(target), `${agent.name}: ${target}`);
+  }
+});
+
+test("graph runtime metadata is descriptive while domain owners remain actual main definitions", () => {
+  const graph = JSON.parse(read(".github/skills/apex-workflow-engine/templates/workflow-graph.json"));
+  for (const key of ["harness", "delegation", "interaction", "handoffs", "permissions"]) {
+    assert.equal(typeof graph.metadata.runtime_contract[key], "string", key);
+    assert.ok(graph.metadata.runtime_contract[key].trim(), key);
+  }
+  const names = new Set(
+    readdirSync(new URL(".github/agents/", root))
+      .filter((file) => file.endsWith(".agent.md"))
+      .map((file) => parseFrontmatter(read(`.github/agents/${file}`)).name),
+  );
+  for (const node of Object.values(graph.nodes).filter((node) => node.type === "agent-step")) {
+    assert.ok(names.has(node.agent), `${node.id}: ${node.agent}`);
+    assert.ok(Array.isArray(node.requires), `${node.id}: domain prerequisites`);
+    assert.ok(Array.isArray(node.produces), `${node.id}: domain outputs`);
   }
 });
 

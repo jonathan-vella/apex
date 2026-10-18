@@ -5,6 +5,7 @@ import path from "node:path";
 import { spawnSync } from "node:child_process";
 import { fileURLToPath } from "node:url";
 import { test } from "node:test";
+import { cacheInputs, findingId } from "../../scripts/validate-challenger-findings.mjs";
 
 const root = fileURLToPath(new URL("../../../", import.meta.url));
 
@@ -133,13 +134,26 @@ test("AB-21 parent challenger CLI validates explicit files and preserves scan se
   const directory = scratch(context);
   const validator = path.join(root, "tools/scripts/validate-challenger-findings.mjs");
   const run = (...args) => spawnSync(process.execPath, [validator, ...args], { cwd: directory, encoding: "utf8" });
-  const body = readFileSync(path.join(root, ".github/agents/_subagents/challenger-review-subagent.agent.md"), "utf8");
-  const payload = JSON.parse(body.match(/```json\n(\{[\s\S]*?)\n```/)[1]);
+  const payload = JSON.parse(
+    readFileSync(
+      path.join(root, "tools/tests/fixtures/subagent-file-contract/challenger-review.findings.json"),
+      "utf8",
+    ),
+  );
+  const artifact = path.join(directory, "requirements.md");
+  writeFileSync(artifact, "");
+  payload.challenged_artifact = artifact;
+  payload.cache_inputs = cacheInputs(artifact, root);
   payload.artifact_type = "requirements";
   payload.review_focus = "comprehensive";
   payload.risk_level = "high";
   payload.must_fix_count = 1;
+  payload.should_fix_count = 0;
+  payload.suggestion_count = 0;
+  payload.findings = [payload.findings[0]];
   payload.findings[0].severity = "must_fix";
+  payload.findings[0].suggested_fix.artifact_path = artifact;
+  payload.findings[0].id = findingId(payload.findings[0]);
   const temporary = path.join(directory, "findings with spaces.json.tmp");
   const output = path.join(directory, "agent-output/demo");
   const canonical = path.join(output, "challenge-findings-demo.json");

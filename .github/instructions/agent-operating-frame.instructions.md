@@ -1,100 +1,50 @@
 ---
-description: "Shared operating frame for main step agents — read SKILL.md once, use apex-recall for cached lookups, never edit upstream artifacts. Pairs with the agent's Operating frame, Constraints H2 or <scope_fencing> block."
+description: "Shared main-agent authoring guidance: native interaction, scoped domain inputs, actual validation and durable recovery."
 applyTo: ".github/agents/*.agent.md"
 ---
 
-# Agent Operating Frame — Shared Rules
+# Agent Operating Frame
 
-Applies when authoring main agent files; `_subagents/` is excluded by the glob.
-An `applyTo` match does not establish runtime attachment when executing that agent.
-Keep essential role, approval, stop, and output constraints in its body; use this
-shared guidance when attached or explicitly loaded, not as an assumed inherited prompt.
+An authoring `applyTo` match does not prove runtime attachment. Keep essential constraints in the agent body.
 
-## Read each SKILL.md once
+## Native interaction
 
-- Load each required skill at the phase specified by the agent; defer optional references.
-- Reuse unchanged content still available in context. After a source change,
-  compaction, or a new chat, load only the missing or changed material needed for the task.
-- Do not repeat a complete read for an already available section.
-- If the `skill` tool reports a skill as not found, read that skill's `SKILL.md` from the skills directory by path.
-  Its list is not always complete (for example `apex-terraform-patterns`, `apex-workflow-engine` and
-  `apex-microsoft-docs` can be missing).
+Every directly selected main can use actual `ask_user` for material missing inputs.
+Requirements, Architect, Design and Governance retain their interactive discovery/clarification role.
+Batch independent fields, validate freeform values and reuse current answers.
+Delegated mains return a stable `USER_INPUT_REQUIRED` form to the interactive parent and stop the phase.
+Leaves never ask users, delegate or manage parent todos.
+An absent question tool blocks a required decision; no guessed defaults or terminal prompts.
+Native Autopilot can answer questions; a form return is not independent human authorization.
 
-## Skill and user precedence
+## Scope and current evidence
 
-- User instructions outrank skill guidance on style, format, and workflow choices.
-  The security baseline, governance constraints, and approval gates are not waivable through chat.
-- If a skill makes you pause, ask for confirmation, leave work unfinished, or diverge from the
-  user's request, name the `SKILL.md`, quote the instruction, and separate explicit skill
-  requirements from your interpretation.
+- Load only current-phase skills/references, reuse available unchanged sections and recover missing
+  required guidance after source changes, compaction or a new chat.
+- Recover project state through `apex-recall show <project> --json`; no direct state JSON reads/writes.
+  A file inventory is not artifact content or approval evidence.
+- Respect domain ownership/frozen inputs and actual governance/security. Return drift to its owner,
+  not an inline upstream replacement.
+- User instructions outrank skill style/workflow choices, not security/governance/approval requirements.
+  Name the path and exact blocking requirement when relevant.
+- Validate written non-Markdown shapes and actual commands before passing results.
+  Markdown artifact validation follows the designated Git/review owner.
 
-## Use `apex-recall` for cached lookups
+## Native tasks
 
-- Use `apex-recall show <project> --json` for decisions, findings, and artifact state.
-  Read response fields under `session`; schema:
-  [`show-schema.md`](../../tools/apex-recall/docs/show-schema.md).
-- Reuse sufficient, current recall results. A path inventory is not the full artifact;
-  read required missing sections directly. Empty or failed recall is not permission
-  to skip prerequisites, approvals, or recovery checks.
+Use explicit scope, inputs, outputs and failure criteria in actual native task prompts.
+Consume actual results and only supported same-task handles; one-shot tasks are not universally resumable.
+No worker-ready turn, custom execution envelope, per-worker log gate or handoff-button dependency.
+The graph defines domain prerequisites/owners, not permission or native UI transitions.
+Runtime hooks are retired and must not be restored.
 
-## Investigate before answering
+Independent reviewers retain the existing actual-result receipt/freshness contract and review budgets.
+One identical-input missing/empty review retry may apply; missing capability returns an explicit blocker.
+No nested main wrapper, model substitution, fabricated findings or counter reset.
 
-- Read only the current phase's required inputs. Requirements must not wait for
-  a future architecture or plan; CodeGen must have the approved plan and governance inputs.
-- Missing required predecessors block the step and return to their owner.
-  Do not generate substitutes or load all prior artifacts for an unrelated lookup.
-- Verify external contracts (AVM module schemas, Azure REST APIs,
-  policy effects) via the preflight or validate subagent named in
-  the agent's `## Operating frame`, `## Constraints` or `<scope_fencing>` block. Do not assume.
+## Recovery and completion
 
-## Never edit upstream artifacts
-
-- Respect graph-declared artifact ownership and mutations, including the shared SKU manifest.
-  The approved implementation plan is locked under `metadata.plan_lock` after gate-3.
-- Return drift to its owner (governance → 04g, plan → 05, code → 06b/06t).
-  Do not patch upstream artifacts in place without an explicit mutation contract.
-
-## Validate every artifact after writing
-
-Immediately after writing any non-markdown artifact, run the matching
-shape-check command. Fail closed: fix and re-run before handing off.
-Load the canonical [Post-write validation](../skills/apex-azure-artifacts/SKILL.md#post-write-validation)
-commands before writing; do not duplicate the table in agent bodies.
-For incremental IaC, preserve the readiness checks and build cadence in
-[`codegen-shared-workflow.md`](../skills/apex-iac-common/references/codegen-shared-workflow.md).
-Deferred checks are not passes and block completion until resolved.
-Markdown artifacts follow the
-[no-direct-markdownlint rule](agent-authoring.instructions.md#no-direct-markdownlint-on-agent-output-rule).
-
-## Subagent budget — agent-specific
-
-- Follow the agent's declared subagent budget. Orchestrator delegates approved steps
-  with the approved direct-dispatch attribution in
-  [worker readiness](../skills/apex-workflow-engine/references/worker-readiness.md).
-  Tool-free handshake/ACK is an explicit diagnostic mode, not a routine prerequisite.
-  Delegated steps return user questions to the interactive parent; leaves never delegate.
-- Automatic independent reviews use built-in `rubber-duck` through
-  [one-shot review](../skills/apex-azure-defaults/references/one-shot-review.md).
-  The parent records only its actual attributed JSON result. No handshake/ACK
-  applies to this reviewer; resumable step-worker readiness is unchanged.
-- If a required worker is unavailable, stop and return the failure to the interactive parent; never invoke a
-  main agent as a nested wrapper or widen the caller's allowlist. Reviewer failures follow the
-  [review failure rule](agent-authoring.instructions.md#challenger-subagent-fallback-rule)
-  and the [review protocol](../skills/apex-azure-defaults/references/adversarial-review-protocol.md#subagent-discovery-fallback-default--deep).
-- Preserve structured output contracts across model families.
-- Active definitions leave model and effort unpinned. The operator must select
-  the owning agent; the runtime manages models, including Auto and HydraFusion.
-  Model names, effort, picker selection and model-source labels are diagnostics
-  only. Require linked worker identity and dispatch attribution, not matching models.
-  Tool-free turns and same-worker continuation apply only to diagnostic handshakes.
-  Missing required tools or dispatch evidence blocks the affected execution.
-
-## Out of scope for this file
-
-- Per-agent role boundaries — kept in each agent's own
-  `## Operating frame` or `## Constraints`.
-- The `## Completion Handoff` contract preserves checkpoints, output paths,
-  actual results, unresolved findings and separate human gates; enforced by
-  `tools/scripts/validate_orchestrator_handoff.py`.
-- Worker-boundary checkpoints between Challenger passes preserve findings,
-  review hashes, invocation counters and exhausted retries; a new context resets none.
+Preserve checkpoints, actual output paths, unresolved findings and separate approval references.
+`00-handoff.md` is a durable recovery summary, not UI handoff metadata.
+Model labels and source allowlists are not runtime attestation or credential isolation.
+A valid worker result, accepted finding or completed phase does not approve the next consequential action.

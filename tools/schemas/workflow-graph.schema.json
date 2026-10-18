@@ -142,7 +142,7 @@
     },
     "challenger": {
       "type": "object",
-      "description": "Independent review configuration. wrapper_agent is the optional manual handoffs[] target; review_subagent is the automatic agents[] dispatch entry, including the named built-in rubber-duck. They are not interchangeable.",
+      "description": "Independent review configuration. wrapper_agent identifies the optional explicitly selected manual owner; review_subagent identifies the automatic native reviewer. Historical UI handoff fixtures do not define active routing.",
       "required": ["wrapper_agent", "review_subagent"],
       "additionalProperties": false,
       "properties": {

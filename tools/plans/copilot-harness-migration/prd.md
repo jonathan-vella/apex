@@ -52,6 +52,9 @@ historical-evidence restamping and site publication remain unauthorized.
 The existing numbered role roster, per-worker readiness handshake, raw-log replay and duplicate review
 paths are not target requirements. Their retirement depends on pilot results, caller closure and owner
 approval; it must not remove Azure security, live governance, review integrity or historical compatibility.
+The owner subsequently requested full body modernization and direct questioning independently of cloud scope.
+That source slice preserves current role names while removing active UI handoff/readiness dependencies;
+it does not claim roster consolidation, runtime permission enforcement or completed Azure E2E.
 
 ### Autopilot operating model
 

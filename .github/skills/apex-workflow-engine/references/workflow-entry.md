@@ -8,13 +8,14 @@ entry points. A skill inherits the active session's model/tools; it cannot switc
 
 Select `01-Orchestrator` for end-to-end work. It confirms graph prerequisites
 and human approval, then dispatches the exact allowlisted owner through the
-[verified background-worker protocol](worker-readiness.md). Active definitions omit model and effort pins.
+[native worker lifecycle](worker-readiness.md). Active definitions omit model and effort pins.
 The operator and runtime manage selection, including Auto and HydraFusion; model
-telemetry and picker selection are not readiness gates. Worker identity,
-continuation or tool failures block execution. Do not perform specialist work
+telemetry and picker selection are not readiness gates. Actual required task/tool failures
+block the affected execution. Continuation is used only when the tool supports it. Do not perform specialist work
 inline or introduce a fixed-model fallback.
 Direct step selection remains supported with that owner's prerequisites and tools.
-Steps may call only authorized leaves; leaves never delegate or ask the user.
+Direct Requirements, Architect, Design and Governance use native `ask_user` for real missing questions;
+delegated mode returns the form to its interactive parent. Autopilot answers do not prove human approval.
 Delegated steps return `USER_INPUT_REQUIRED` forms for the interactive parent.
 Never enable experimental skill `context: fork` or infer eligibility from labels.
 
@@ -105,7 +106,7 @@ review. A blocked worker uses the [execution contract](execution-subagent.md).
 ## Resume
 
 Require `01-Orchestrator`, then follow its
-[Resuming a Project](../../../agents/01-orchestrator.agent.md#resuming-a-project)
+[Recovery and lessons](../../../agents/01-orchestrator.agent.md#recovery-and-lessons)
 procedure. Use an explicit project without reconfirmation; otherwise discover
 candidates and ask only when ambiguous. Empty recall is not permission to start
 fresh. Reconcile handoff, checkpoints, reviews and approvals before advancing.

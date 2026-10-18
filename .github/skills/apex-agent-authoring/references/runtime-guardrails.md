@@ -26,7 +26,7 @@ file-editing tools.
 ## Execution Subagent Prompts
 
 Use `.github/skills/apex-workflow-engine/references/execution-subagent.md`
-after the [verified worker handshake](../../apex-workflow-engine/references/worker-readiness.md):
+with the [native worker lifecycle](../../apex-workflow-engine/references/worker-readiness.md):
 
 1. `## Inputs` identifies paths and required state.
 2. `## Activities` lists exact commands or tools.
@@ -44,7 +44,7 @@ retains its own worker contract.
     then stop for a human recovery decision. Report the runtime
     error when available.
 3. Never invoke a nested main-agent wrapper or fabricate an inline review.
-    Only Orchestrator may dispatch approved, readiness-verified main workers;
+    Only Orchestrator may dispatch authorized named main workers;
     step-agent allowlists never authorize another main-agent wrapper.
 4. `10-Challenger` is optional, never a required automatic recovery hop.
     If it is already active, stop and request human intervention

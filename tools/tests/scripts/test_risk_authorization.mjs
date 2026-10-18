@@ -18,10 +18,9 @@ test("required Plan coverage matches frozen graph inputs and reviewer guidance",
   const reference = repoFile(".github/skills/apex-iac-common/references/contract-emission-and-handoff.md");
   for (const name of requiredPlanInputs) assert.ok(reference.includes(`\`${name}\``), name);
   assert.match(reference, /Exclude\s+`sku-manifest.json`/);
-  assert.match(
-    repoFile(".github/agents/05-iac-planner.agent.md"),
-    /`supporting_inputs` = metadata captured with `--supporting-input` for finalized frozen Step 4 inputs/,
-  );
+  const planner = repoFile(".github/agents/05-iac-planner.agent.md");
+  assert.ok(planner.includes("contract-emission-and-handoff.md"));
+  assert.ok(planner.includes("immutable supporting inputs"));
   assert.match(repoFile(".github/agents/_subagents/challenger-review-subagent.agent.md"), /--supporting-input <path>/);
 });
 

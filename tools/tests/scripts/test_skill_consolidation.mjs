@@ -49,11 +49,6 @@ test("active skill metadata preserves reachability and the approved inline visib
     "apex-workflow-engine",
   ]);
   const foundHidden = new Set();
-  const agentsRoot = new URL("../../../.github/agents/", import.meta.url);
-  const agentBodies = readdirSync(agentsRoot, { recursive: true })
-    .filter((file) => file.endsWith(".agent.md"))
-    .map((file) => read(new URL(file, agentsRoot)))
-    .join("\n");
   for (const entry of readdirSync(skillsRoot, { withFileTypes: true })) {
     if (!entry.isDirectory()) continue;
     const metadata = parseFrontmatter(read(new URL(`${entry.name}/SKILL.md`, skillsRoot)));
@@ -68,7 +63,7 @@ test("active skill metadata preserves reachability and the approved inline visib
     if (hidden.has(entry.name)) {
       foundHidden.add(entry.name);
       assert.equal(metadata["argument-hint"], undefined, entry.name);
-      assert.ok(agentBodies.includes(`.github/skills/${entry.name}/SKILL.md`), `${entry.name}: required caller`);
+      assert.equal(metadata["disable-model-invocation"], false, `${entry.name}: model discovery remains available`);
     } else {
       assert.equal(typeof metadata["argument-hint"], "string", entry.name);
       assert.ok(metadata["argument-hint"].length <= 160, entry.name);

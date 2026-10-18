@@ -93,9 +93,9 @@ not completion. Worker completion is never human approval.
 The Orchestrator presents the graph's human gate with `ask_user`. Only after
 approval and current preconditions may it record an atomic
 `apex-recall transition --complete` and prepare the next named worker.
-Use [worker readiness](../../apex-workflow-engine/references/worker-readiness.md):
-tool-free handshake, verified model/effort, nonce ACK, then bounded execution.
-No fallback model or inherited picker model may replace the owner.
+Use the [native worker lifecycle](../../apex-workflow-engine/references/worker-readiness.md):
+bounded task inputs and actual outputs, with same-task continuation only when supported.
+No nonce exchange, model attestation or per-worker log gate is required.
 
 ### Recovery
 
@@ -106,7 +106,7 @@ In a new VS Code SDK session select `01-Orchestrator` and send `resume <project>
 3. Read `00-handoff.md` for missing paths; refresh unavailable or stale required inputs.
 4. Revalidate affected review hashes and current gate/action readiness.
 5. Reuse a verified live worker only with attributable current evidence;
-   otherwise handshake a new worker before any execution.
+   otherwise provide a new bounded native task with recovered inputs.
 
 Do not infer completion from artifact numbering, reset state or restamp reviews.
 A session restart, compaction or lost worker never renews review attempts or approvals.
@@ -114,5 +114,5 @@ A session restart, compaction or lost worker never renews review attempts or app
 ### Validation
 
 `tools/scripts/validate_orchestrator_handoff.py` checks source contracts.
-`verify-worker-ready.mjs` checks attributed runtime routing evidence; neither
-proves a human gate was approved or that a deployment succeeded.
+The historical `verify-worker-ready.mjs` reader is diagnostic compatibility only;
+neither source contracts nor diagnostic logs prove approval or deployment success.

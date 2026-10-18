@@ -128,20 +128,17 @@ body explicitly points to one. There is one tier — no digest, no minimal.
 - `01-Orchestrator` remains human-selected (`disable-model-invocation: true`).
   Deploy, Diagnose and manual Challenger entries also disable implicit invocation;
   this metadata is not proof of credential isolation or consequential authorization.
-  It alone dispatches allowlisted step agents after human gate approval and
-  [verified worker readiness](skills/apex-workflow-engine/references/worker-readiness.md).
-  Routine approved work uses direct `WORKER_EXECUTE` dispatch and `--phase execute`
-  attribution (`EXECUTE_VERIFIED`); it does not require diagnostic handshake/ACK.
-  Only an explicitly requested diagnostic handshake uses `HANDSHAKE_VERIFIED`
-  followed by complete-phase `READY_VERIFIED` with `continuation_verified: true`.
-  Neither result grants approval, proves artifact validity or attests the selected model.
+  It dispatches authorized named workers through the
+  [native task lifecycle](skills/apex-workflow-engine/references/worker-readiness.md).
+  No custom readiness/execution envelope, nonce or per-worker raw-log verification is required.
   Step agents call only authorized leaves; leaves never delegate or ask users.
-  The interactive parent owns `ask_user`; delegated steps return `USER_INPUT_REQUIRED`.
+  Every directly selected main owns native `ask_user`; Requirements, Architect, Design and Governance
+  remain interactive. Delegated steps return `USER_INPUT_REQUIRED` to their interactive parent.
   Decline never approves and cancellation stops. Static allowlists are not routing evidence.
 - Automatic reviews use built-in `rubber-duck` through
   [one-shot review](skills/apex-azure-defaults/references/one-shot-review.md).
-  They require attributed synchronous completion and validated recorded findings,
-  not step-worker handshake/ACK. Model selection remains runtime-managed.
+  They require actual synchronous results and validated recorded findings.
+  Model selection remains runtime-managed.
 - If a required reviewer is unavailable, STOP and return the actual failure to the
   interactive parent; never invoke a nested wrapper or fabricate an inline review.
   `10-Challenger` remains optional manual recovery. Missing/empty reviewer output
@@ -154,12 +151,14 @@ body explicitly points to one. There is one tier — no digest, no minimal.
   runtime control selection, including Auto and HydraFusion; no picker identifier,
   underlying model, effort or model-source label is a readiness requirement.
   Missing or differing model telemetry is diagnostic only. Verify named-worker
-  identity and parent/dispatch linkage without per-call model, effort or context overrides.
-  Tool-free turns and same-worker continuation are required only for diagnostic handshake probes.
-  Missing identity/linkage,
-  required tools or approval still blocks execution. Catalog entries remain
+  actual task results without per-call model, effort or context overrides.
+  Continue the same task only when its native handle supports it; one-shot tasks need new bounded input.
+  Missing required tools or approval still blocks the affected execution. Catalog entries remain
   descriptive metadata and legacy fixture support, not active assignments or
   proof of runtime cost-tier eligibility.
+- Active agents have no UI handoff metadata: the owner observed no controls in the tested Copilot client.
+  Tool restrictions were not established by that probe; role metadata is not credential isolation.
+  Native Autopilot can auto-answer questions, so a form/task result is not real owner authorization.
 - Use available editing tools for existing files, preserve user work, and validate before
   dependent follow-up edits. No shared procedure requires a particular bulk-edit tool.
 - Explicit lab risk acceptance follows [the authorization contract](../tools/apex-recall/docs/risk-authorizations.md).

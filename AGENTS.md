@@ -102,13 +102,14 @@ Deploy, Diagnose and manual Challenger entries disable implicit model invocation
 Invocation metadata does not isolate credentials or establish human approval.
 `01-Orchestrator` is human-selected with `disable-model-invocation: true`;
 it dispatches allowlisted specialist workers only after human approval and
-[verified readiness](.github/skills/apex-workflow-engine/references/worker-readiness.md).
+[native task lifecycle](.github/skills/apex-workflow-engine/references/worker-readiness.md).
 Steps return pending user forms to their interactive parent, not directly to the user.
-Directly selected step agents remain supported; leaves cannot ask users or delegate.
+Directly selected main agents use native `ask_user`; Requirements, Architect, Design and Governance
+retain interactive questions. Delegated mains return forms to the parent; leaves cannot ask users or delegate.
 Automatic independent reviews use built-in `rubber-duck` through the
 [one-shot contract](.github/skills/apex-azure-defaults/references/one-shot-review.md).
 The parent records its actual attributed JSON output and validates freshness;
-this reviewer does not need the resumable worker handshake/ACK.
+this reviewer retains its actual-result recording/freshness contract.
 Unavailable reviewers return a blocker to the interactive parent, never a nested
 wrapper fallback. `10-Challenger` remains an optional manual workflow.
 Missing/empty reviewer output permits exactly one identical-input
@@ -118,10 +119,10 @@ Archived Local prompts are historical; manual entry skills inherit the caller's
 model/tools without granting permissions. Active agent definitions omit fixed model and reasoning-effort pins.
 The operator and runtime control selection, including Auto and HydraFusion. Model names,
 effort, picker selection and model-source labels are diagnostic only, not readiness gates.
-Routine approved dispatch uses `WORKER_EXECUTE` and `--phase execute` attribution
-(`EXECUTE_VERIFIED`). Tool-free same-worker continuation is required only for
-explicit diagnostic handshake probes; direct execution does not certify continuation.
-Worker identity, dispatch linkage, required tools and separate approval remain mandatory.
+Routine dispatch uses native bounded tasks and actual results, not custom readiness/execution envelopes
+or per-worker raw-log checks. Same-task continuation is used only when supported.
+Active agents have no UI handoffs; `00-handoff.md` remains a recovery artifact.
+Required domain checks, actual tools and separate consequential approval remain mandatory.
 Model labels and discovery settings do not prove runtime cost-tier eligibility or API support. Runtime rules:
 [Copilot instructions](.github/copilot-instructions.md#harness-and-runtime-boundaries).
 

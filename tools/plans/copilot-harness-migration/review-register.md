@@ -53,6 +53,12 @@ Autopilot authorization limits and unresolved runtime acceptance. Site publicati
 
 ### Ongoing review loop
 
+The later full-body slice adds native `ask_user` and direct/delegated interaction to every main,
+including Diagnose, and removes active UI handoffs/custom worker readiness throughout the fleet.
+Source tests and full source-only validation pass; actual missing-input probes for the core interactive
+roles pass. Current-session what-if/plan/cost probes still differ from source and require fresh-session
+confirmation; no credential-isolation or full runtime-readiness claim follows from source validation.
+
 After each approved packet: fetch current comments/checks, classify relevant feedback, fix within scope,
 run focused tests, push the feature branch and reply with the actual evidence.
 Resolve only actually addressed threads; retain deferred/blocked work visibly.

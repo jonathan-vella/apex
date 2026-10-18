@@ -82,7 +82,7 @@ and not adopted; production policy tests prohibit it. Adoption conditions are in
 Local prompt adapters are archived and excluded from active discovery. Use the
 shared skill with its owning agent in the VS Code SDK harness. Skills inherit
 caller model/tools; they do not select models, grant permissions or approve gates.
-Orchestrator dispatch requires verified worker routing and human approval;
+Orchestrator dispatch uses bounded native tasks and actual results with separate approval;
 authoring checks do not certify runtime discovery, attachment or tool binding.
 
 ## Wiring a Skill to an Agent

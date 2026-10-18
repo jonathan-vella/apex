@@ -1,17 +1,8 @@
 #!/usr/bin/env python3
-"""Plan 01 Phase 4: question-batching contract guard.
+"""Validate native question batching and any supplied JSON form examples.
 
-Pre-action lint that asserts 02-requirements.agent.md retains the
-P0 batching directive and the numbered 6-question example. Removing
-or paraphrasing them is the most common path back to the N-times-per-
-phase askQuestions anti-pattern.
-
-Wired into:
-
-    npm run validate:question-batching   (standalone)
-    npm run validate:_node               (aggregate)
-
-Exit codes: 0 on pass, 1 on missing-or-paraphrased contract.
+Examples are optional; field names and section titles are role-specific.
+Exit codes: 0 on pass, 1 on invalid or missing question contracts.
 """
 
 from __future__ import annotations
@@ -25,18 +16,36 @@ from pathlib import Path
 REPO_ROOT = Path(__file__).resolve().parents[2]
 DEFAULT_AGENT = REPO_ROOT / ".github" / "agents" / "02-requirements.agent.md"
 
-REQUIRED_HEADING = "P0 directive — batch independent questions (Plan 01 Phase 4)"
+FIELD_TYPES = {"string", "number", "integer", "boolean", "array", "object"}
+FORM_FIELDS = {"type", "title", "description", "enum", "items"}
 
-# Substring fragments that prove the numbered example is intact. Order
-# does not matter, but all six headers must be present.
-REQUIRED_HEADERS = (
-    "project_name",
-    "industry",
-    "company_size",
-    "region_pin",
-    "compliance",
-    "iac_tool",
-)
+
+def _validate_example(example: object) -> None:
+    if not isinstance(example, dict):
+        raise ValueError("form must be an object")
+    if "questions" in example:
+        raise ValueError("retired questions array; use requestedSchema.properties")
+    message = example.get("message")
+    schema = example.get("requestedSchema")
+    if not isinstance(message, str) or not message.strip() or not isinstance(schema, dict):
+        raise ValueError("message and requestedSchema are required")
+    if set(schema) != {"properties"}:
+        raise ValueError("native requestedSchema supports only properties; validate additional constraints separately")
+    properties = schema.get("properties")
+    if not isinstance(properties, dict) or not properties:
+        raise ValueError("requestedSchema.properties must contain questions")
+    for name, field in properties.items():
+        if not isinstance(field, dict) or field.get("type") not in FIELD_TYPES:
+            raise ValueError(f"question {name!r} requires a supported JSON Schema type")
+        unsupported = set(field) - FORM_FIELDS
+        if unsupported:
+            raise ValueError(f"question {name!r} has unsupported native form fields: {', '.join(sorted(unsupported))}")
+        if not isinstance(field.get("title"), str) or not field["title"].strip():
+            raise ValueError(f"question {name!r} requires a title")
+        if field["type"] == "array" and not isinstance(field.get("items"), dict):
+            raise ValueError(f"array question {name!r} requires items")
+        if isinstance(field.get("items"), dict) and set(field["items"]) - {"type", "enum"}:
+            raise ValueError(f"array question {name!r} items supports only type and enum")
 
 
 def validate(agent_path: Path) -> list[str]:
@@ -46,42 +55,27 @@ def validate(agent_path: Path) -> list[str]:
     except OSError as exc:
         return [f"unable to read {agent_path}: {exc}"]
 
-    if REQUIRED_HEADING not in body:
-        failures.append(
-            f"{agent_path}: missing P0 directive heading\n  expected: {REQUIRED_HEADING!r}",
-        )
+    for fragment in ("ask_user", "message"):
+        if fragment not in body:
+            failures.append(f"{agent_path}: missing native question field {fragment!r}")
+    if not re.search(r"\bbatch(?:ing)?\b[\s\S]{0,100}\bindependent\b", body, re.IGNORECASE):
+        failures.append(f"{agent_path}: missing independent-question batching rule")
+    if re.search(r"\baskQuestions\b|questions\[\]", body):
+        failures.append(f"{agent_path}: retired question tool or questions[] form")
 
-    directive = body.partition(REQUIRED_HEADING)[2]
-    match = re.search(r"```json\n(.*?)\n```", directive, re.DOTALL)
-    if not match or "ask_user" not in directive:
-        failures.append(
-            f"{agent_path}: no ask_user example block found near the P0 directive",
-        )
-    else:
+    valid_example = False
+    for match in re.finditer(r"```json[ \t]*\n(.*?)\n```", body, re.DOTALL):
+        source = match.group(1)
+        if not any(field in source for field in ("requestedSchema", '"message"', '"questions"')):
+            continue
         try:
-            example = json.loads(match.group(1))
-            properties = example["requestedSchema"]["properties"]
-            if not isinstance(properties, dict) or not isinstance(example.get("message"), str):
-                raise ValueError("message and requestedSchema.properties are required")
-        except (json.JSONDecodeError, KeyError, TypeError, ValueError) as exc:
+            _validate_example(json.loads(source))
+        except (json.JSONDecodeError, ValueError) as exc:
             failures.append(f"{agent_path}: invalid ask_user example: {exc}")
         else:
-            missing = [key for key in REQUIRED_HEADERS if key not in properties]
-            if missing:
-                failures.append(
-                    f"{agent_path}: ask_user example is missing required properties: {', '.join(missing)}",
-                )
-            invalid = [
-                key
-                for key, field in properties.items()
-                if not isinstance(field, dict) or field.get("type") != "string" or not field.get("title")
-            ]
-            if invalid:
-                failures.append(f"{agent_path}: untyped or untitled fields: {', '.join(invalid)}")
-        if "questions[]" in directive:
-            failures.append(
-                f"{agent_path}: retired questions[] contract remains in the batching directive",
-            )
+            valid_example = True
+    if "requestedSchema.properties" not in body and not valid_example:
+        failures.append(f"{agent_path}: missing native question field 'requestedSchema.properties'")
 
     return failures
 
@@ -103,9 +97,8 @@ def main(argv: list[str] | None = None) -> int:
         for msg in failures:
             print(f"  - {msg}", file=sys.stderr)
         print(
-            "\nFix: restore the 'P0 directive — batch independent questions' "
-            "subsection at the top of Phase 1, with the 6-question numbered "
-            "example. See plan 01 §Phase 4.",
+            "\nFix: batch independent native ask_user fields using message and requestedSchema.properties; "
+            "any JSON example must contain nonempty typed, titled questions.",
             file=sys.stderr,
         )
         return 1
