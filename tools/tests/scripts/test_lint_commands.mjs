@@ -12,6 +12,39 @@ import { expandScript } from "../../scripts/_lib/npm-script-graph.mjs";
 
 const { scripts } = JSON.parse(readFileSync(new URL("../../../package.json", import.meta.url), "utf8"));
 
+test("legacy handoff reference CLI accepts native agents with no UI transitions", (context) => {
+  const root = fixture(context);
+  writeFileSync(path.join(root, "source.agent.md"), "---\nname: Source\n---\n# Source\n");
+  const script = fileURLToPath(new URL("../../scripts/validate-handoff-references.sh", import.meta.url));
+  const result = spawnSync("bash", [script, root], { encoding: "utf8" });
+  assert.equal(result.status, 0, result.stdout + result.stderr);
+  assert.match(result.stdout, /All handoff references are valid/);
+});
+
+test("legacy handoff reference CLI retains missing-target and empty-directory failures", (context) => {
+  const root = fixture(context);
+  const script = fileURLToPath(new URL("../../scripts/validate-handoff-references.sh", import.meta.url));
+  const run = () => spawnSync("bash", [script, root], { encoding: "utf8" });
+  assert.equal(run().status, 2);
+  writeFileSync(
+    path.join(root, "source.agent.md"),
+    "---\nname: Source\nhandoffs:\n  - agent: MissingTarget\n---\n# Source\n",
+  );
+  const result = run();
+  assert.equal(result.status, 1, result.stdout + result.stderr);
+  assert.match(result.stdout, /Invalid handoff reference: MissingTarget/);
+  writeFileSync(path.join(root, "target.agent.md"), "---\nname: MissingTarget\n---\n# Target\n");
+  assert.equal(run().status, 0);
+});
+
+test("legacy handoff target names are matched literally rather than as regular expressions", (context) => {
+  const root = fixture(context);
+  const script = fileURLToPath(new URL("../../scripts/validate-handoff-references.sh", import.meta.url));
+  writeFileSync(path.join(root, "source.agent.md"), "---\nname: Source\nhandoffs:\n  - agent: .*\n---\n# Source\n");
+  const result = spawnSync("bash", [script, root], { encoding: "utf8" });
+  assert.equal(result.status, 1, result.stdout + result.stderr);
+});
+
 test("npm lockfiles retain portable registry URLs rather than environment-specific feed addresses", () => {
   for (const file of ["package-lock.json"]) {
     const lock = JSON.parse(readFileSync(new URL(`../../../${file}`, import.meta.url), "utf8"));

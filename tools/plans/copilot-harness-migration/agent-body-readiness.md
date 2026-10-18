@@ -112,6 +112,11 @@ No cloud actions, authority exceptions, review resets or historical evidence rep
 
 ### Completion boundary
 
+Remote CI exposed a separate legacy shell caller that exited on grep's no-match result after all UI
+handoffs were removed. The caller now accepts an empty reference set while still failing unknown literal
+targets, empty agent inventories and read errors. Regression fixtures cover no UI refs, both legacy list
+forms, nonexistent targets and regex-like names. This repairs the caller, not restores UI metadata.
+
 This is a comprehensive source-body migration with bounded actual runtime observations,
 not an unconditional claim that every agent is fully exercised in the installed client.
 Source/test/docs/PR validation is recorded with the actual delivered revision.
