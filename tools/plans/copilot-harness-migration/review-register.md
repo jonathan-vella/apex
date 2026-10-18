@@ -20,6 +20,19 @@ Do not implement a suggested field/payload change solely because a reviewer name
 verify the actual Copilot adapter contract, preserve useful outcomes and test the failure case.
 Do not treat a native invocation flag as proof the parent lacks write credentials.
 
+### Additional feedback on the planning revision
+
+- [Repeated advisory-token finding](https://github.com/jonathan-vella/apex/pull/779#discussion_r4306599684):
+  CHM-05 and CHM-13 retain ownership. Test the real adapter contract and keep warning text out of trusted verdicts.
+- [Diagnostic invocation and approval channel](https://github.com/jonathan-vella/apex/pull/779#discussion_r4306599689):
+  CHM-10 and CHM-11 cover consequential diagnostic/remediation authority and actual parent-mediated input.
+  Include related design/as-built/manual-review entry points in the bounded role audit.
+  Do not assume restoring a suggested tool name or invocation flag alone proves a genuine approval boundary.
+
+Both remain unresolved because the owner authorized planning, not these production source fixes.
+Later duplicate findings about the same unchanged mechanism retain these packet owners and blocked disposition;
+do not repeatedly rewrite the plan or claim an implementation fix to silence an automated review.
+
 ### Documentation companion
 
 [jonathan-vella/apex-docs#43](https://github.com/jonathan-vella/apex-docs/pull/43)

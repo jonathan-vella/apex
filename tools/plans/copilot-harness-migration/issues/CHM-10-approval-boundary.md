@@ -14,7 +14,7 @@ Agent visibility, an environment flag, form result or reviewer verdict is not cr
 ### Allowed changes and expected behavior
 
 Isolated no-op action/approval fixtures and the bounded adapter needed to demonstrate the selected boundary.
-Read deploy roles, `risk_gate.py`, risk schemas/evaluator and trust-contract docs.
+Read deploy/diagnostic roles, `risk_gate.py`, risk schemas/evaluator and trust-contract docs.
 No real credentials, Azure operations, production approval-policy change or protection bypass.
 Routine implementation/testing runs autonomously after approval; actual authority choices stay human.
 
@@ -34,6 +34,7 @@ Invocation flags are tested as behavior metadata, not the only enforcement mecha
 - [ ] An independent approval permits only the exact harmless scoped action.
 - [ ] Autopilot cannot mint an equivalent approval or invoke an unrestricted parallel action path.
 - [ ] Both deploy tracks have the same consequential outcome, with track-specific constraints preserved.
+- [ ] Diagnostic/remediation side effects and their parent-mediated approval channel obey the same boundary.
 - [ ] No lab exception or reviewer result becomes ordinary deployment authority.
 
 Return contract, real no-op approval/denial evidence, tests and any weaker-assurance limitation.

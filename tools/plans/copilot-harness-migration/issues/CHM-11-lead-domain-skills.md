@@ -35,6 +35,7 @@ denied action, unexpected output and scope escape against synthetic fixtures.
 - [ ] Each changed role responsibility has a usable skill/tool/parent replacement or explicit justified agent.
 - [ ] Required content, security and review outcomes survive without the numbered chain.
 - [ ] Shared/startup/root dispatch guidance conflicts from PR #779 are actually fixed and tested.
+- [ ] Diagnostic/design/as-built/manual-review invocation and input-channel feedback has actual behavior coverage.
 - [ ] Model labels and instruction globs are not treated as execution/attachment proof.
 - [ ] Slice callers and tests stay consistent; unrelated roles/project history are untouched.
 
