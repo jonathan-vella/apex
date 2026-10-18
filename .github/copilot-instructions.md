@@ -128,8 +128,11 @@ body explicitly points to one. There is one tier — no digest, no minimal.
 - `01-Orchestrator` remains human-selected (`disable-model-invocation: true`).
   It alone dispatches allowlisted step agents after human gate approval and
   [verified worker readiness](skills/apex-workflow-engine/references/worker-readiness.md).
-  Initial `HANDSHAKE_VERIFIED` permits only the nonce continuation; execution requires
-  complete-phase `READY_VERIFIED` with `continuation_verified: true`.
+  Routine approved work uses direct `WORKER_EXECUTE` dispatch and `--phase execute`
+  attribution (`EXECUTE_VERIFIED`); it does not require diagnostic handshake/ACK.
+  Only an explicitly requested diagnostic handshake uses `HANDSHAKE_VERIFIED`
+  followed by complete-phase `READY_VERIFIED` with `continuation_verified: true`.
+  Neither result grants approval, proves artifact validity or attests the selected model.
   Step agents call only authorized leaves; leaves never delegate or ask users.
   The interactive parent owns `ask_user`; delegated steps return `USER_INPUT_REQUIRED`.
   Decline never approves and cancellation stops. Static allowlists are not routing evidence.
@@ -149,8 +152,9 @@ body explicitly points to one. There is one tier — no digest, no minimal.
   runtime control selection, including Auto and HydraFusion; no picker identifier,
   underlying model, effort or model-source label is a readiness requirement.
   Missing or differing model telemetry is diagnostic only. Verify named-worker
-  identity, parent/dispatch linkage, tool-free turns and same-worker continuation
-  without per-call model, effort or context overrides. Missing identity/linkage,
+  identity and parent/dispatch linkage without per-call model, effort or context overrides.
+  Tool-free turns and same-worker continuation are required only for diagnostic handshake probes.
+  Missing identity/linkage,
   required tools or approval still blocks execution. Catalog entries remain
   descriptive metadata and legacy fixture support, not active assignments or
   proof of runtime cost-tier eligibility.

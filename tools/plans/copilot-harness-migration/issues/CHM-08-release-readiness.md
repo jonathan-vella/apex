@@ -1,9 +1,9 @@
 ## CHM-08: assemble owner readiness handoff
 
 GitHub: [#770](https://github.com/jonathan-vella/apex/issues/770).
-Requirements: R1 through R12. Priority: P0.
-Depends on: CHM-07, CHM-17 and all applicable open predecessor packets in the current backlog.
-Status: BLOCKED; owner plan approval and runtime/implementation evidence are outstanding.
+Requirements: R1 through R13. Priority: P0.
+Depends on: CHM-07, CHM-17, CHM-18 and applicable open predecessor packets in the current backlog.
+Status: execution authorized; BLOCKED until required runtime/implementation/Azure evidence exists.
 
 ### Objective and inputs
 
@@ -18,7 +18,7 @@ Read candidate/evidence/issue/PR state; write a compact readiness report and upd
 Do not merge, enable auto-merge, close issues automatically, deploy, rewrite findings, restamp evidence or
 repair production projects to obtain a green matrix.
 
-1. Reconcile R1-R12 and every applicable packet with its actual tested revision and input scope.
+1. Reconcile R1-R13 and every applicable packet with its actual tested revision and input scope.
 2. Verify native VS Code Copilot E2E, consequential no-op approval boundary and current source checks.
 3. Verify historical compatibility, active caller cleanup and required Azure-domain outcomes.
 4. Verify actual docs build/review on its feature head; publication remains a separate forbidden action here.

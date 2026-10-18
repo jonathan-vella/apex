@@ -69,7 +69,9 @@ Markdown artifacts follow the
 ## Subagent budget — agent-specific
 
 - Follow the agent's declared subagent budget. Orchestrator delegates approved steps
-  only after the [worker-readiness handshake](../skills/apex-workflow-engine/references/worker-readiness.md).
+  with the approved direct-dispatch attribution in
+  [worker readiness](../skills/apex-workflow-engine/references/worker-readiness.md).
+  Tool-free handshake/ACK is an explicit diagnostic mode, not a routine prerequisite.
   Delegated steps return user questions to the interactive parent; leaves never delegate.
 - Automatic independent reviews use built-in `rubber-duck` through
   [one-shot review](../skills/apex-azure-defaults/references/one-shot-review.md).
@@ -83,8 +85,9 @@ Markdown artifacts follow the
 - Active definitions leave model and effort unpinned. The operator must select
   the owning agent; the runtime manages models, including Auto and HydraFusion.
   Model names, effort, picker selection and model-source labels are diagnostics
-  only. Require linked worker identity, tool-free turns and same-worker continuation,
-  not matching models. Missing required tools or readiness evidence blocks execution.
+  only. Require linked worker identity and dispatch attribution, not matching models.
+  Tool-free turns and same-worker continuation apply only to diagnostic handshakes.
+  Missing required tools or dispatch evidence blocks the affected execution.
 
 ## Out of scope for this file
 

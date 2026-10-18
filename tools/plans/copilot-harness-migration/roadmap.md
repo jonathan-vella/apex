@@ -1,7 +1,8 @@
 ## Roadmap: VS Code Copilot-only delivery
 
-**Current gate: OWNER PLAN APPROVAL PENDING.**
-This revision authorizes planning/issue/PR alignment only, not a pilot or implementation.
+**Current gate: OWNER PLAN APPROVED; EXECUTION AUTHORIZED.**
+The 2026-10-18 10:18 UTC owner message authorizes implementation, delegated engineering progression
+and real-Azure E2E through CHM-18 after exact scope and deployment controls are established.
 Both feature PRs remain open and unmerged; auto-merge is prohibited.
 Use the [PRD](prd.md), [backlog](backlog.md) and [execution contract](execution-contract.md).
 
@@ -13,17 +14,20 @@ Use the [PRD](prd.md), [backlog](backlog.md) and [execution contract](execution-
 - Update APEX #779, `jonathan-vella/apex-docs#43`, relevant issues and the review register.
 - Keep the recovery assessment, withdrawn evidence and archived plan intact.
 
-Exit: **owner approves the revised plan**. A planning commit, issue state or green CI is not that approval.
+Exit: passed by the actual owner message. A planning commit, issue state or green CI alone is not approval.
 
 ### Wave 1: establish the smallest runtime proof
 
 1. CHM-09 selects asset dispositions and closes material pilot gaps.
-2. CHM-03 verifies native VS Code Copilot discovery/lifecycle and CHM-05 verifies relevant MCP/hooks.
+2. CHM-03 verifies native VS Code Copilot discovery/lifecycle; CHM-05 verifies MCP and closes deleted-hook callers.
    These may proceed in parallel with disjoint fixtures.
 3. CHM-10 proves the independently approved no-op execution boundary.
 4. CHM-04 exercises a representative no-cloud lead/skill/reviewer workflow.
 
-Exit: genuine target-runtime evidence for positive/negative cases; owner accepts the pilot before fleet changes.
+Exit: genuine target-runtime evidence for all required positive/negative cases before fleet changes.
+The owner delegated progression on those criteria; failed or unavailable required evidence remains blocking.
+Missing deleted-hook delivery is not blocking. A missing consequential approval control blocks only that
+action; independent structural fixes and hook caller retirement proceed without claiming a full pilot pass.
 Do not probe every legacy worker with a handshake or start the old Azure workflow to certify this architecture.
 
 ### Wave 2: simplify in bounded engineering slices
@@ -50,20 +54,29 @@ Exit: accepted replacements preserve Azure outcomes and historical evidence; no 
 Exit: final-candidate behavior is evidenced, not inferred from earlier pilot or fixture passes.
 Missing required behavior is BLOCKED; missing optional telemetry is explicitly UNKNOWN.
 
-### Wave 4: align documentation and hand off
+### Wave 4: exercise scoped real-Azure E2E
 
-- CHM-07 may prepare proposal documentation throughout, but final acceptance follows CHM-17.
+- CHM-18 records the exact approved tenant/subscription, non-production resource boundary, budget and actions.
+- Reuse the accepted approval/credential boundary, governance, security validation and exact preview/plan.
+- Deploy only within that scope; verify application/authentication, DNS/private reachability and operations.
+- Preserve resource/evidence state; deletion needs separate explicit authorization.
+
+Exit: genuine E2E evidence, or an exact scope/permission/behavior blocker. Provisioning success is insufficient.
+
+### Wave 5: align documentation and hand off
+
+- CHM-07 prepares documentation throughout; final acceptance includes CHM-17 and CHM-18 outcomes.
 - Run the actual `apex-docs` content/link/build checks and address its PR feedback.
 - CHM-08 assembles requirements, issue state, source/runtime evidence, review dispositions and both PR heads.
 
-Exit: READY_FOR_OWNER_REVIEW or BLOCKED, with precise remaining decisions.
-No merge, publishing or Azure deployment follows automatically.
+Exit: READY_FOR_OWNER_REVIEW or BLOCKED, with precise remaining decisions and actual resource state.
+No merge, publishing or cleanup follows automatically.
 
 ### Optional later work
 
 Measured model-tier/performance comparisons, generic skill-pack rationalization, stronger externally enforced
-audit integration and a real-Azure E2E are separate owner-scoped work, not hidden prerequisites.
-Real-Azure E2E needs explicit subscription, budget, write/cleanup authority and functional/private-connectivity tests.
+audit integration remain separately scoped work, not hidden prerequisites.
+CHM-18 is the authorized real-Azure extension; target/budget and cleanup authority are not inferred.
 The retired E2E launcher is not recreated by this plan.
 
 ### Replanning and failure rules

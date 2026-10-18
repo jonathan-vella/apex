@@ -8,6 +8,7 @@ import test from "node:test";
 import { load, dump } from "js-yaml";
 import { parseJsonc } from "../../scripts/_lib/parse-jsonc.mjs";
 import { artifactTrigger } from "../../scripts/check-publication-scope.mjs";
+import { expandScript } from "../../scripts/_lib/npm-script-graph.mjs";
 
 const { scripts } = JSON.parse(readFileSync(new URL("../../../package.json", import.meta.url), "utf8"));
 
@@ -95,6 +96,32 @@ test("product CI retains coverage while migrated docs automation stays retired",
   ]) {
     assert.equal(scripts[name], undefined);
   }
+});
+
+test("hook retirement removes obsolete callers while retaining Git hooks and validation coverage", () => {
+  assert.equal(scripts["validate:hooks"], undefined);
+  assert.equal(scripts["test:hooks"], undefined);
+  assert.equal(scripts["test:git-hooks"], "bash tools/tests/test-git-hooks.sh");
+  assert.equal(existsSync(new URL("../../scripts/validate-hooks.mjs", import.meta.url)), false);
+  const runner = readFileSync(new URL("../test-git-hooks.sh", import.meta.url), "utf8");
+  assert.match(runner, /bats "\$SCRIPT_DIR\/bats\/lefthook-config\.bats"/);
+  const ci = load(readFileSync(new URL("../../../.github/workflows/ci.yml", import.meta.url), "utf8"));
+  const steps = ci.jobs.ci.steps;
+  assert.ok(steps.some((step) => step.run === "npm run test:git-hooks" && !step.if));
+  assert.ok(steps.some((step) => step.run === "npm run validate:_node-ci" && !step.if));
+  assert.doesNotMatch(JSON.stringify(ci), /npm run (?:validate:hooks|test:hooks)\b/);
+  for (const suite of ["validate:_node", "validate:_node-ci"]) {
+    const leaves = expandScript(scripts, suite);
+    assert.ok(!leaves.includes("validate:hooks"), suite);
+    for (const retained of ["validate:vscode", "lint:json", "test:tool-contracts", "lint:safe-shell"]) {
+      assert.ok(leaves.includes(retained), `${suite}: ${retained}`);
+    }
+  }
+  const gitHooks = load(readFileSync(new URL("../../../lefthook.yml", import.meta.url), "utf8"));
+  assert.match(gitHooks["pre-commit"].commands["secrets-baseline"].run, /gitleaks protect/);
+  assert.match(gitHooks["pre-commit"].commands["iac-security-baseline"].run, /validate:iac-security-baseline/);
+  assert.ok(gitHooks["pre-push"].commands);
+  assert.ok(ci.jobs["secret-scan"].steps.some((step) => step.run === "gitleaks git --redact --no-banner ."));
 });
 
 test("Python CI installs diagram dependencies and renderer before running tooling tests", () => {

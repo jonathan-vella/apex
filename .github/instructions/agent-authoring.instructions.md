@@ -28,9 +28,10 @@ or deep audits, load `.github/skills/apex-agent-authoring/SKILL.md`.
   `disable-model-invocation: true`. Other main agents are user-invocable and
   model-invocable only through Orchestrator's approved, verified background dispatch.
   Step agents allowlist only their authorized leaves; leaves never delegate.
-- Before resumable delegated project work, enforce the named-worker identity, linked
-  tool-free handshake and same-worker continuation check in
+- Routine approved delegated project work uses direct `WORKER_EXECUTE` dispatch
+  and `--phase execute` attribution (`EXECUTE_VERIFIED`) under
   [`worker-readiness.md`](../skills/apex-workflow-engine/references/worker-readiness.md).
+  Tool-free handshake and same-worker continuation are diagnostic-only, not routine prerequisites.
   A frontmatter label, allowlist or catalog entry does not prove worker readiness.
 - Automatic review callers may allowlist built-in `rubber-duck`. Use the
   [one-shot contract](../skills/apex-azure-defaults/references/one-shot-review.md),
@@ -66,7 +67,8 @@ The operator and runtime control selection, including Auto and HydraFusion.
 Readiness is model-agnostic: model names, effort, picker selection and model-source
 labels are optional diagnostics. Missing metadata, unknown source labels or
 configured/dispatched model differences do not block readiness. Require worker
-identity, parent/dispatch linkage, tool-free turns and exact same-worker continuation.
+identity and parent/dispatch linkage. Diagnostic handshakes additionally require
+tool-free turns and exact same-worker continuation.
 Leave caller model, effort and context overrides unset. Keep catalog labels and
 metadata unchanged for descriptive and pinned-fixture compatibility.
 

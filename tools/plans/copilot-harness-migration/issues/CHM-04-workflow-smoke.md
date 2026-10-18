@@ -2,12 +2,12 @@
 
 GitHub: [#772](https://github.com/jonathan-vella/apex/issues/772).
 Requirements: R3, R4, R5, R10, R11. Priority: P0. Depends on: CHM-03, CHM-05, CHM-10.
-Status: BLOCKED pending owner plan approval and prerequisite evidence.
+Status: owner execution approval recorded; BLOCKED until prerequisite evidence passes.
 
 ### Objective and inputs
 
 Prove the simpler lead/skill/reviewer architecture before changing the fleet.
-Use CHM-03 native capabilities, CHM-05 relevant tool/hook results, CHM-10 no-op approval boundary,
+Use CHM-03 native capabilities, CHM-05 relevant MCP/caller-cleanup results, CHM-10 no-op approval boundary,
 fixed synthetic Azure-like requirements/plan inputs and a finite expected-output rubric.
 The old Steps 1-2/handshake smoke contract is historical input, not the target acceptance standard.
 
@@ -36,7 +36,7 @@ Use existing parser/state tests only for code actually changed; a source fixture
 - [ ] Bounded native review/input/recovery paths work; all required negative cases are visible.
 - [ ] Autopilot cannot self-authorize the consequential no-op action.
 - [ ] Real result/capture scope and candidate inputs are recorded without fabricated events.
-- [ ] Owner accepts the pilot before CHM-11 through CHM-16 implementation begins.
+- [ ] Pilot criteria actually pass before CHM-11 through CHM-16 begin; progression is owner-delegated.
 
 Return exact fixture revisions, outputs, observations, tests, gaps and proposed architecture corrections.
 Remove only named fixtures after evidence preservation; preserve historical production contracts.

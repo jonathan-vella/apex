@@ -1,8 +1,8 @@
 ## CHM-07: align proposed and verified documentation
 
 GitHub: [#774](https://github.com/jonathan-vella/apex/issues/774).
-Requirements: R8, R9. Priority: P1. Depends on: CHM-17 for final acceptance.
-Preparation is authorized now; implementation/pilot claims and site publication are not.
+Requirements: R8, R9. Priority: P1. Depends on: CHM-17 and CHM-18 for final acceptance.
+Implementation is authorized; unverified pilot/deployment claims and site publication are not.
 Companion: [jonathan-vella/apex-docs#43](https://github.com/jonathan-vella/apex-docs/pull/43), issue #40 there.
 
 ### Objective and inputs

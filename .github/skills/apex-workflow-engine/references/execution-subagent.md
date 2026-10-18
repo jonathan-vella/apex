@@ -9,12 +9,14 @@ names and effort are not readiness gates. This reference grants no permissions.
 Automatic built-in `rubber-duck` reviews use the separate
 [one-shot contract](../../apex-azure-defaults/references/one-shot-review.md),
 including its `APEX_REVIEW` JSON envelope and provenance-aware recorder.
-The handshake below applies to resumable workers, not that one-shot reviewer.
-Before sending execution inputs, follow
-[worker readiness](worker-readiness.md): `--phase initial` verifies the completed
-handshake only; after the nonce-only continuation and exact ACK, `--phase complete`
-must return `READY_VERIFIED` with `continuation_verified: true`. Initial
-`HANDSHAKE_VERIFIED` is not complete readiness.
+Routine approved work follows the direct `WORKER_EXECUTE` path in
+[worker readiness](worker-readiness.md): verify actual dispatch with `--phase execute`
+(`EXECUTE_VERIFIED`), without a prior handshake. This does not prove continuation,
+artifact validity or approval.
+An explicitly requested diagnostic-only probe uses `--phase initial` for
+`HANDSHAKE_VERIFIED`, then nonce-only continuation/ACK and `--phase complete`
+for `READY_VERIFIED` with `continuation_verified: true`. Initial diagnostic
+handshake evidence alone never authorizes project work.
 Do not invoke an unnamed default worker or infer model eligibility from a label.
 Unavailable named workers or unsupported transitions require a return to the
 parent, not an automatic fallback, context fork, or nested delegation.

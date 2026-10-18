@@ -15,7 +15,9 @@ discover candidates. Require the correctly selected named owner and its
 permitted tools. A skill cannot bind them.
 **STOP** and ask the user to select the owner if any routing evidence is missing.
 Model selection belongs to the operator and runtime, including Auto and HydraFusion;
-it is not a readiness gate. Never perform specialist work inline or bypass the verified worker handshake.
+it is not a readiness gate. Preserve the named owner's scope and approved dispatch evidence.
+Routine work uses direct `WORKER_EXECUTE` with `--phase execute` (`EXECUTE_VERIFIED`).
+Only an explicitly requested diagnostic probe requires the tool-free handshake and continuation ACK.
 
 ## Procedure
 
@@ -31,7 +33,7 @@ Use a supplied project without reconfirmation; otherwise discover candidates
 and ask only when ambiguous. Empty recall never authorizes a fresh start.
 Preserve missing-input recovery, reviews, checkpoints and approvals. Present
 recovered status and the applicable human gate. After approval, Orchestrator
-may dispatch only the exact approved owner through
+may dispatch only the exact approved owner through the direct-execution path in
 [worker readiness](../apex-workflow-engine/references/worker-readiness.md).
 Never run specialist work inline or substitute models.
 

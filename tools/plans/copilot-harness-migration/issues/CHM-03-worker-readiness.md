@@ -2,7 +2,7 @@
 
 GitHub: [#773](https://github.com/jonathan-vella/apex/issues/773).
 Requirements: R1, R3, R4. Priority: P0. Depends on: CHM-09 and owner plan approval.
-Status: proposed replacement scope; earlier partial readiness is not acceptance.
+Status: execution authorized; native lifecycle observations are partial, not full discovery/attachment acceptance.
 The filename is retained for link compatibility, not to require the old handshake mechanism.
 
 ### Objective and inputs

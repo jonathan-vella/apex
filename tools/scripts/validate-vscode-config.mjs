@@ -6,6 +6,7 @@
  * 1. Required settings exist in devcontainer.json
  * 2. Extensions.json includes all required extensions
  * 3. Devcontainer.json extension drift is explicitly allowlisted
+ * 4. Retired APEX agent hooks are not enabled in workspace or container settings
  */
 
 import { readFileSync, existsSync } from "node:fs";
@@ -66,6 +67,44 @@ function checkRequiredExtensionsInList(sourceName, extensions) {
  */
 import { parseJsonc } from "./_lib/parse-jsonc.mjs";
 
+function validateRetiredHooks(settings, sourceName) {
+  const customHooks = settings["chat.useCustomAgentHooks"];
+  if (customHooks !== undefined && typeof customHooks !== "boolean") {
+    errors.push(`❌ ${sourceName}: chat.useCustomAgentHooks must be a boolean`);
+  } else if (customHooks === true) {
+    errors.push(`❌ ${sourceName}: retired APEX custom agent hooks must not be enabled`);
+  }
+
+  const locations = settings["chat.hookFilesLocations"];
+  if (locations === undefined) return;
+  if (!locations || typeof locations !== "object" || Array.isArray(locations)) {
+    errors.push(`❌ ${sourceName}: chat.hookFilesLocations must be an object`);
+    return;
+  }
+
+  for (const [location, enabled] of Object.entries(locations)) {
+    if (typeof enabled !== "boolean") {
+      errors.push(`❌ ${sourceName}: hook location ${location} must have a boolean value`);
+    } else if (enabled && /^\.github\/hooks(?:\/|$)/.test(location.replaceAll("\\", "/").replace(/^\.\//, ""))) {
+      errors.push(`❌ ${sourceName}: retired APEX hook location must not be enabled: ${location}`);
+    }
+  }
+}
+
+function validateWorkspaceHooks() {
+  const settingsPath = resolve(REPO_ROOT, ".vscode/settings.json");
+  try {
+    const settings = parseJsonc(readFileSync(settingsPath, "utf-8"));
+    if (!settings || typeof settings !== "object" || Array.isArray(settings)) {
+      errors.push("❌ .vscode/settings.json must contain a settings object");
+      return;
+    }
+    validateRetiredHooks(settings, ".vscode/settings.json");
+  } catch (e) {
+    errors.push(`❌ Failed to parse .vscode/settings.json: ${e.message}`);
+  }
+}
+
 /**
  * Check devcontainer.json for required settings
  */
@@ -85,6 +124,8 @@ function validateDevcontainer() {
 
     const settings = config?.customizations?.vscode?.settings || {};
     const extensions = config?.customizations?.vscode?.extensions || [];
+
+    validateRetiredHooks(settings, "devcontainer.json");
 
     // Check required settings
     for (const setting of REQUIRED_SETTINGS) {
@@ -221,6 +262,7 @@ console.log(`${"=".repeat(50)}\n`);
 
 const devcontainerExts = validateDevcontainer();
 const extensionsJsonExts = validateExtensions();
+validateWorkspaceHooks();
 crossCheckExtensions(devcontainerExts, extensionsJsonExts);
 
 // Summary

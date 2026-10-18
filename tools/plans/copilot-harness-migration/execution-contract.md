@@ -1,7 +1,8 @@
 ## Migration execution contract
 
-**Current authorization:** planning, issue/PR synchronization and proposal documentation only.
-Owner approval of the revised plan is required before pilot or migration implementation.
+**Current authorization:** owner-approved implementation and real-Azure E2E, recorded from the
+2026-10-18 10:18 UTC owner message in [execution status](execution-status.md).
+Progression between engineering packets is delegated when their documented criteria actually pass.
 This is an engineering delivery contract, not a replacement for live Azure workflow rules.
 
 ### Runtime and scope
@@ -11,6 +12,9 @@ This is an engineering delivery contract, not a replacement for live Azure workf
 - Ordinary migration engineering uses the interactive parent and bounded native engineering/test workers.
 - Skills provide domain knowledge, not permissions or independent model/runtime guarantees.
 - Keep existing user work, untracked project artifacts, historical findings and review provenance intact.
+- Preserve the owner's intentional runtime hook deletions. Remove stale registrations/callers and obsolete
+  tests; never restore/reconstruct hooks or introduce a replacement guardian framework.
+  Unrelated Git Lefthook/CI security checks remain. Missing hook compatibility cannot block the migration.
 
 ### Autopilot work after approval
 
@@ -36,10 +40,14 @@ external credential changes or consequential approval. Batch independent decisio
 Decline and cancellation never approve; freeform form input must be validated.
 Native Autopilot can answer questions automatically, so an `ask_user` return is not independent signoff.
 CHM-10 must prove the chosen approval/execution boundary with harmless operations.
+If the required consequential boundary is unavailable, block that action and report the precise limitation;
+continue independent engineering without claiming either equivalent native protection or full pilot acceptance.
 Frontmatter, hooks, review output, issue assignment and this file do not grant deployment authority.
 
-No merge into `main`, auto-merge, protection bypass, force-push, credential switching, Azure write/delete,
-historical-evidence rewrite or automatic issue closure is authorized.
+No merge into `main`, auto-merge, protection bypass, force-push, credential switching, unscoped Azure writes,
+deletion, historical-evidence rewrite or automatic issue closure is authorized.
+CHM-18 permits deployment only after tenant/subscription, resource boundary, budget, actions and controls
+are explicitly established. An active subscription or an Autopilot answer cannot supply missing owner scope.
 Keep PRs updated and open. A comment is resolved only after its actual fix/no-change decision is evidenced;
 planned implementation feedback stays unresolved and linked to the owning packet.
 
@@ -70,4 +78,5 @@ Return changed paths, commits, positive/negative results, evidence, review-threa
 Preserve atomic state writers, conflict checks and historical readers where required.
 If a mutation committed but indexing failed, reindex explicitly; do not repeat the mutation.
 Rollback only the packet's changes through a reviewed revert; do not reset shared work or silently restore backups.
-Code rollback cannot undo cloud side effects. Future real-Azure E2E needs separate deployment/cleanup authority.
+Code rollback cannot undo cloud side effects. Deployment authority is now granted within established scope;
+cleanup authority remains a separate explicit decision.

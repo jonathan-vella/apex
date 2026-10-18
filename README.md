@@ -160,6 +160,14 @@ without reviewer handshake/ACK turns. The owning step records the actual attribu
 result, validates freshness and returns to the same Orchestrator. `10-Challenger`
 remains optional manual review/repair. Technical handoffs do not approve human gates.
 
+APEX's former tool-guardian and subagent-validation runtime hooks are retired.
+There are no active `.github/hooks/` registrations or replacement runtime guards.
+This removes their tool-interception and automatic post-subagent validation behavior;
+native Copilot permissions and human approvals are not equivalent security enforcement.
+Lefthook Git pre-commit/pre-push checks and CI validation remain separate and unchanged.
+Run `npm run test:git-hooks` for Lefthook configuration tests; `npm run validate:vscode`
+also rejects enabled retired hook settings. The former `test:hooks` and `validate:hooks` commands are removed.
+
 Explicit risk acceptance is supported only for authorized non-production labs, with externally verified authority,
 individual finding selection and separate human gate approval. Kit authoring permission never grants deployment
 permission; original review verdicts and unresolved findings remain intact. Maintainer and CLI contract:

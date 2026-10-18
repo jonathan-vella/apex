@@ -69,7 +69,10 @@ passes), **batch passes 2 + 3** into a single subagent call:
    - `prior_findings`: compact string from pass 1
 2. The subagent runs lenses internally in sequence (pass 3 sees pass 2 findings)
 3. Returns `{ "batch_results": [{pass2_json}, {pass3_json}] }`
-4. Use the manual leaf's file-output protocol for each pass's canonical file.
+4. The manual leaf writes one consolidated `batch_results` object to its single
+   `output_path` and returns that one `file_path`. Do not assume it created the
+   automatic per-pass canonical files; validate the consolidated payload through
+   the manual caller's contract.
 5. Extract both `compact_for_parent` strings for the approval gate summary
 
 **When NOT to batch**: for `standard` projects, continue with sequential
@@ -91,8 +94,9 @@ Keep the same per-pass inputs:
 - `pass_number` = `1` / `2` / `3`
 - `prior_findings` = `null` for pass 1; compact string for 2-3
 
-Write each result to
+Automatic calls record each result to
 `agent-output/{project}/challenge-findings-{artifact_type}-pass{N}.json`.
+Manual batch calls instead retain the single consolidated output described above.
 
 Default-flow rules (single-pass `comprehensive` invocation, mandatory-floor
 gates, subagent-discovery fallback, severity guardrails, per-finding

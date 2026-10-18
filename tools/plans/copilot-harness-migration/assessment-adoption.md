@@ -11,6 +11,9 @@ Repository guidance was already attached to the research session. No clean-room 
 pilot was demonstrated. Discovery/tool contracts, official documentation, inspected source and historical
 claims were distinguished. File inventory completeness did not mean every bundled reference was read.
 Uninspected assets remain explicit evidence gaps; they are not approved for deletion.
+The subsequent owner instruction explicitly authorizes runtime-hook retirement and caller cleanup,
+superseding earlier recommendations to investigate/retain those particular mechanisms.
+It does not remove unrelated Git hooks, security checks or domain requirements.
 
 Use current official VS Code documentation and actual installed tool contracts as the runtime baseline:
 
@@ -65,7 +68,8 @@ An existing caller establishes migration cost, not architectural necessity.
 
 ### Decisions reserved for the owner
 
-Approve this plan; choose genuine consequential approval/credential separation; decide generic-app product scope;
+Plan approval is now recorded in [execution status](execution-status.md).
+Remaining decisions: genuine consequential approval/credential separation; generic-app product scope;
 approve replacement of current separate architecture cost review; identify any externally required audit controls.
-No current production gate changes in this planning pass.
+No production gate is waived by owner approval or the research itself.
 No token, cost or latency savings are claimed; runtime compatibility and E2E remain unverified.

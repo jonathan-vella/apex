@@ -100,11 +100,6 @@
           "~/.copilot/instructions": false,
           "~/.claude/rules": false
         },
-        "chat.hookFilesLocations": {
-          ".github/hooks/tool-guardian": true,
-          ".github/hooks/subagent-validation": true
-        },
-        "chat.useCustomAgentHooks": true,
         "chat.useAgentSkills": true,
         "github.copilot.chat.agentDebugLog.fileLogging.enabled": true,
         "editor.formatOnSave": true,

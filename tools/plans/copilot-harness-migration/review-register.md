@@ -2,19 +2,20 @@
 
 Observed on 2026-10-18 for [APEX #779](https://github.com/jonathan-vella/apex/pull/779).
 This register schedules actual feedback; a plan or issue link is not a delivered fix.
-The owner selected planning first and approval before implementation, so implementation threads remain open.
+The owner approved implementation on 2026-10-18 at 10:18 UTC.
+Threads remain open until actual tested fixes are delivered; approval is not evidence of a fix.
 
-| Feedback                                                                                                                    | Owning packet  | Required verification                                                 | Disposition now                                  |
-| --------------------------------------------------------------------------------------------------------------------------- | -------------- | --------------------------------------------------------------------- | ------------------------------------------------ |
-| [Shared direct-dispatch/handshake conflict](https://github.com/jonathan-vella/apex/pull/779#discussion_r4304423555)         | CHM-11, CHM-15 | Consistent live entry/global/role guidance and behavior tests         | Deferred until implementation approval           |
-| [Startup skill handshake conflict](https://github.com/jonathan-vella/apex/pull/779#discussion_r4304423593)                  | CHM-11         | Accepted entry path does not require diagnostic ceremony              | Deferred until implementation approval           |
-| [Root continuation requirement](https://github.com/jonathan-vella/apex/pull/779#discussion_r4304423620)                     | CHM-11, CHM-15 | Native lifecycle/one-shot/continuation tests                          | Deferred until implementation approval           |
-| [Manual review batch vs automatic per-pass outputs](https://github.com/jonathan-vella/apex/pull/779#discussion_r4304423630) | CHM-13         | Actual output contract and historical reader tests                    | Deferred until implementation approval           |
-| [Changelog dispatch guidance](https://github.com/jonathan-vella/apex/pull/779#discussion_r4304423653)                       | CHM-16         | Current migration advice matches delivered behavior                   | Deferred until implementation approval           |
-| [Unsupported model attestation claim](https://github.com/jonathan-vella/apex/pull/779#discussion_r4304423676)               | CHM-16         | No model-label proof claim; historical facts preserved                | Deferred until implementation approval           |
-| Advisory warning may inject verdict tokens into worker response                                                             | CHM-05, CHM-13 | Missing verdict stays invalid; advisory does not manufacture approval | Blocking implementation feedback; no fix claimed |
-| Terraform deploy agent implicit invocation/authority                                                                        | CHM-10, CHM-11 | Real permission/credential boundary, not only a visibility flag       | Blocking implementation feedback; no fix claimed |
-| Bicep deploy agent implicit invocation/authority                                                                            | CHM-10, CHM-11 | Same boundary with track-specific negative tests                      | Blocking implementation feedback; no fix claimed |
+| Feedback                                                                                                                    | Owning packet  | Required verification                                             | Disposition now                                       |
+| --------------------------------------------------------------------------------------------------------------------------- | -------------- | ----------------------------------------------------------------- | ----------------------------------------------------- |
+| [Shared direct-dispatch/handshake conflict](https://github.com/jonathan-vella/apex/pull/779#discussion_r4304423555)         | CHM-11, CHM-15 | Consistent entry/global/role guidance and existing contract tests | Implemented; integration checks pass                  |
+| [Startup skill handshake conflict](https://github.com/jonathan-vella/apex/pull/779#discussion_r4304423593)                  | CHM-11         | Direct dispatch no longer requires diagnostic handshake           | Implemented; integration checks pass                  |
+| [Root continuation requirement](https://github.com/jonathan-vella/apex/pull/779#discussion_r4304423620)                     | CHM-11, CHM-15 | Native lifecycle/one-shot/continuation tests                      | Implemented; integration checks pass                  |
+| [Manual review batch vs automatic per-pass outputs](https://github.com/jonathan-vella/apex/pull/779#discussion_r4304423630) | CHM-13         | Preserve actual single-file manual batch output                   | Implemented; review contract checks pass              |
+| [Changelog dispatch guidance](https://github.com/jonathan-vella/apex/pull/779#discussion_r4304423653)                       | CHM-16         | Guidance matches direct dispatch without model attestation        | Implemented; integration checks pass                  |
+| [Unsupported model attestation claim](https://github.com/jonathan-vella/apex/pull/779#discussion_r4304423676)               | CHM-16         | No model-label proof claim                                        | Implemented; integration checks pass                  |
+| Advisory warning may inject verdict tokens into worker response                                                             | CHM-05, CHM-13 | Remove mutating advisory and active callers                       | Retired by owner decision; config/negative tests pass |
+| Terraform deploy agent implicit invocation/authority                                                                        | CHM-10, CHM-11 | Real permission/credential boundary, not only a visibility flag   | Blocking implementation feedback; no fix claimed      |
+| Bicep deploy agent implicit invocation/authority                                                                            | CHM-10, CHM-11 | Same boundary with track-specific negative tests                  | Blocking implementation feedback; no fix claimed      |
 
 Do not implement a suggested field/payload change solely because a reviewer named it:
 verify the actual Copilot adapter contract, preserve useful outcomes and test the failure case.
@@ -29,9 +30,19 @@ Do not treat a native invocation flag as proof the parent lacks write credential
   Include related design/as-built/manual-review entry points in the bounded role audit.
   Do not assume restoring a suggested tool name or invocation flag alone proves a genuine approval boundary.
 
-Both remain unresolved because the owner authorized planning, not these production source fixes.
+Both remain unresolved until actual source fixes and negative tests are delivered.
 Later duplicate findings about the same unchanged mechanism retain these packet owners and blocked disposition;
 do not repeatedly rewrite the plan or claim an implementation fix to silence an automated review.
+
+### Execution updates
+
+The owner intentionally deleted repository runtime hooks. The advisory-result contamination fix is now
+retirement plus caller cleanup, not the earlier proposed warning patch. No retired hook is restored.
+Root/authoring/startup shared guidance now distinguishes direct `WORKER_EXECUTE` attribution from
+diagnostic handshake/ACK. Model labels remain diagnostics. Manual deep batch guidance now preserves
+its actual consolidated output instead of promising nonexistent per-pass files.
+Resolve the corresponding threads only after the integrated checks and pushed revision are evidenced.
+Deploy/diagnostic authority and full architecture simplification are not certified by these bounded fixes.
 
 ### Documentation companion
 

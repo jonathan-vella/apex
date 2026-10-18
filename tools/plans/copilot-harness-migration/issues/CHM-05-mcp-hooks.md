@@ -1,43 +1,46 @@
-## CHM-05: verify projected tools and supplementary hooks
+## CHM-05: verify MCP projection and retire deleted runtime hooks
 
 GitHub: [#775](https://github.com/jonathan-vella/apex/issues/775).
-Requirements: R2, R11. Priority: P0. Depends on: CHM-09 and owner plan approval.
-Status: re-scoped; earlier configuration passes are not live capability acceptance.
+Requirements: R2, R11. Priority: P0. Depends on: CHM-09.
+Status: implementation authorized; owner intentionally retired repository agent runtime hooks.
+The historical filename remains for link compatibility, not a requirement to provide hooks.
 
 ### Objective and inputs
 
-Determine which MCP tools and hook events the actual VS Code Copilot adapter exposes for the pilot/target.
-Read `.vscode/mcp.json`, settings, `.devcontainer/configure-mcp.mjs`, hook manifests/scripts and actual tool contracts.
-SDK/CLI hook docs apply through official VS Code linkage; event delivery still requires installed-version evidence.
+Confirm required VS Code Copilot MCP projection and complete caller cleanup for the owner's hook deletions.
+Use current tool contracts, `.vscode/mcp.json`, workspace/devcontainer settings and actual surviving tests.
+Do not restore deleted scripts/manifests or build a replacement guardian.
 
-### Allowed scope and behavior
+### Allowed scope
 
-Configuration inspection and harmless isolated hook/tool fixtures only.
-Do not add root `.mcp.json`, duplicate registrations, change credentials/restart shared services or call Azure.
-Tool projection may be recorded without an authenticated operation; mark an untested operation unverified.
-Add live read-only cloud probes later only with explicit target/scope permission.
-After plan approval, bounded permitted inspection/fixtures run autonomously.
+Retired `.github/hooks/` files, their registrations, hook-only validators/tests/commands,
+startup/CI references and truthful documentation.
+Keep Git Lefthook checks, secret/dependency scanning, IaC security/governance and unrelated tooling.
+No credentials, shared-service restart, Azure operation or protection change.
 
-### Validation
+### Activities and validation
 
-Run `npm run lint:mcp-config`, `npm run validate:vscode` and `npm run test:hooks`.
-Observe relevant harmless pre/post/stop events on the selected runtime, including deny, crash and timeout.
-Distinguish configured, unit-tested, observed and unavailable surfaces.
-Inspect advisory response handling: a missing verdict must not gain an approval token from warning text.
-Verify actual supported output fields before choosing a warning fix; do not assume `systemMessage` support.
+1. Preserve the exact intended runtime hook deletions and remove dangling registrations.
+2. Retire runtime-only validator/Bats assertions; retain Git-hook tests under `test:git-hooks`.
+3. Verify invalid/malformed configuration and enabled retired registrations still fail structural tests.
+4. Observe required MCP tool projection without assuming authenticated operation success.
+5. Disclose lost regex command/self-modification and advisory-result checks; native permissions are not
+   claimed equivalent. Missing deleted-hook delivery is not a migration blocker.
 
-### Acceptance and negative cases
+Run `npm run lint:mcp-config`, `npm run validate:vscode`, `npm run test:git-hooks`
+and focused devcontainer/lint/validator-runner tests.
+Negative cases include stale registrations, malformed settings, broken npm caller and missing tool.
+No destructive operation or hook-bypass demonstration is needed.
 
-- [ ] Required pilot/target tools have actual projection evidence and operation-level limitations.
-- [ ] No duplicate registration or unapproved configuration/credential change exists.
-- [ ] Hook delivery/deny/error/timeout outcomes are observed or explicitly blocking for a required capability.
-- [ ] Regex guards, fail-open timeout and advisory SubagentStop are not represented as approval security boundaries.
-- [ ] Missing/failed verdict remains invalid after any advisory handling.
+### Acceptance and evidence
 
-Negative cases: missing server/tool, denied scratch write, malformed payload, hook failure/timeout,
-missing verdict and unavailable stop event. No destructive commands are necessary.
-Any demonstrated source fix needs a precise changed-path slice and targeted hook tests before dependent work.
+- [x] Deleted runtime hooks remain absent with no active registration/caller.
+- [x] Surviving Git hooks and unrelated security/build checks still run.
+- [ ] Relevant projection is observed; authenticated operations not exercised stay explicitly unverified.
+- [x] Advisory approval-token injection is removed by retiring the mutating hook, not by restoring its patch.
+- [x] Source, tests, CI, settings and documentation agree; native-equivalence claims are absent.
 
-Return candidate/environment, capability matrix, commands/exit codes and genuine observations.
-Rollback only introduced fixture/config changes, never shared user work.
-Stop on authentication, authority or unapproved runtime changes. No cloud writes, merge or auto-merge.
+Return actual paths, commands/exit codes, projected capabilities, limitations and review-thread evidence.
+A rollback must not restore owner-deleted hooks without new authorization.
+Required consequential permission failures block that action, not independent engineering.
+No merge, auto-merge, cloud write/delete, credential switch or project-state repair.

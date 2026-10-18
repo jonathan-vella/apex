@@ -5,9 +5,11 @@ and [jonathan-vella/apex-docs#43](https://github.com/jonathan-vella/apex-docs/pu
 The supported target is **Copilot inside VS Code only**, not Local, standalone CLI or cloud-agent execution.
 The existing framework may be simplified or retired; preserving its roster/protocols is not the objective.
 
-**OWNER PLAN APPROVAL PENDING.** The owner authorized this planning/issue/PR alignment and asked to approve
-the revised plan before pilot or migration implementation. Neither repository may merge into `main` or enable
-auto-merge. This package changes no production agent, permission, review gate, project state or Azure resource.
+**OWNER PLAN APPROVED; EXECUTION AUTHORIZED.** The owner approved implementation and Azure E2E in the
+2026-10-18 10:18 UTC message, with delegated progression after evidenced acceptance criteria.
+See [execution status](execution-status.md) for the authorization, actual results and outstanding scope.
+Neither repository may merge into `main` or enable auto-merge. Azure writes still require an explicit
+tenant/subscription, resource boundary, budget and permitted actions; cleanup is not authorized.
 
 ### Start here
 
@@ -19,6 +21,15 @@ auto-merge. This package changes no production agent, permission, review gate, p
 - [Assessment adoption](assessment-adoption.md): research findings, proposed dispositions and evidence gaps.
 - [Execution contract](execution-contract.md): Autopilot scope, human decisions, validation and rollback.
 - [PR review register](review-register.md): feedback disposition without pretending planned fixes are delivered.
+- [Execution status](execution-status.md): actual authorization, capability evidence and blockers.
+
+### Intentional runtime hook retirement
+
+The owner intentionally removed repository agent runtime hooks on 2026-10-18.
+Do not restore Tool Guardian or advisory SubagentStop, complete superseded hook patches, or introduce
+a replacement framework. CHM-05 removes dangling registrations/callers/tests; Git Lefthook, CI security,
+Azure governance and actual native tool permissions remain separate and must be preserved.
+Missing retired-hook compatibility is not a migration prerequisite.
 
 ### Recovery provenance
 
@@ -85,5 +96,5 @@ Opening an issue, writing a document, or running a static fixture does not compl
 New defects become bounded follow-up issues; do not turn this migration into unrelated project-state repair.
 
 The delivery files' presence does not imply publication to `apex-docs`, merge approval, deployment permission,
-or authorization to execute the backlog. The current owner decision is plan review before implementation.
+or authority beyond the owner's explicitly approved execution scope.
 GitHub issue bodies are self-contained so assignment does not depend on unpublished planning-file links.

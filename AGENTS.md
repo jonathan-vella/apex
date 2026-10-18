@@ -116,7 +116,10 @@ Archived Local prompts are historical; manual entry skills inherit the caller's
 model/tools without granting permissions. Active agent definitions omit fixed model and reasoning-effort pins.
 The operator and runtime control selection, including Auto and HydraFusion. Model names,
 effort, picker selection and model-source labels are diagnostic only, not readiness gates.
-Worker identity, dispatch linkage, tool-free continuation, required tools and approval remain mandatory.
+Routine approved dispatch uses `WORKER_EXECUTE` and `--phase execute` attribution
+(`EXECUTE_VERIFIED`). Tool-free same-worker continuation is required only for
+explicit diagnostic handshake probes; direct execution does not certify continuation.
+Worker identity, dispatch linkage, required tools and separate approval remain mandatory.
 Model labels and discovery settings do not prove runtime cost-tier eligibility or API support. Runtime rules:
 [Copilot instructions](.github/copilot-instructions.md#harness-and-runtime-boundaries).
 

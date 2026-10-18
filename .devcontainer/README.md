@@ -279,8 +279,13 @@ Runs on every container start without installing or upgrading dependencies:
 
 | Check | Method |
 | --- | --- |
-| Hook permissions | Restore executable bits on mounted shell hooks |
 | azd authentication | Read-only status check |
+
+APEX agent runtime hooks are retired: container and workspace settings no longer register `.github/hooks/`.
+No replacement tool-guardian or automatic post-subagent validator is installed.
+Lefthook Git hooks, gitleaks and CI checks remain independent; they do not replace runtime tool interception.
+Use `npm run test:git-hooks` for the retained Lefthook configuration tests and
+`npm run validate:vscode` to check configuration, including retired hook registrations.
 
 ### When to Rebuild vs. Restart
 

@@ -161,6 +161,7 @@ approval gates and the user's cutoff remain stop conditions. A routing failure
 does not authorize a fixed model, inline specialist work or an automatic retry.
 Preserve the review-specific single identical-input retry rule separately.
 
-File hooks are supplementary. The inspected Agent Host adapter wires SDK
-PreToolUse/PostToolUse but not file-based SubagentStop; do not rely on an advisory
-hook to validate review evidence, enforce approvals or authorize continuation.
+Repository agent runtime hooks have been intentionally retired. Do not restore
+them to satisfy readiness, review or approval checks. Native permission behavior
+must be observed separately; no equivalent guardian protection is claimed.
+Deterministic result validation and genuine approval remain distinct requirements.

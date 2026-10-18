@@ -55,11 +55,8 @@ jobs:
       - name: Run Node.js validators (CI-safe)
         run: npm run validate:_node-ci
 
-      - name: Validate hooks
-        run: npm run validate:hooks
-
-      - name: Run hook tests
-        run: npm run test:hooks
+      - name: Run Git hook tests
+        run: npm run test:git-hooks
 
       - name: Re-render SKU manifest MD and check for drift
         run: |

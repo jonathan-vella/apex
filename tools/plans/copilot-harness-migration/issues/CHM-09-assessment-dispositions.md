@@ -2,7 +2,7 @@
 
 GitHub: [#780](https://github.com/jonathan-vella/apex/issues/780).
 Requirements: R9, R10, R12. Priority: P0. Depends on: owner plan approval.
-Status: proposed packet; not authorized to implement by issue creation.
+Status: owner execution approval recorded on 2026-10-18 at 10:18 UTC; issue creation alone grants no authority.
 Delivery is APEX #779; product runtime is Copilot inside VS Code only.
 
 ### Objective and inputs
@@ -31,7 +31,7 @@ If the owner-held ledger is unavailable, rediscover only selected scope and mark
 
 ### Acceptance and evidence
 
-- [ ] Owner has explicitly approved the revised PRD before pilot or implementation execution.
+- [x] Owner explicitly approved the revised PRD and implementation in the 2026-10-18 10:18 UTC message.
 - [ ] Pilot scope has no material unexamined dependency.
 - [ ] Each selected asset has reason, disposition, caller impact, confidence and explicit evidence gap.
 - [ ] Every remaining gap has a named downstream packet; no unbounded re-audit blocks unrelated work.
