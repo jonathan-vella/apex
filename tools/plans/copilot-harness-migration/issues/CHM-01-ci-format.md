@@ -1,5 +1,9 @@
 ## CHM-01: resolve the migration CI formatting failure
 
+**Historical completed packet:** GitHub #769 remains CLOSED.
+Retain the original scope and evidence below; this is not fresh validation of the replanned candidate.
+CHM-17 owns final source acceptance. Do not reopen this issue or replay its fix to advance the new plan.
+
 Related: [PR #767](https://github.com/jonathan-vella/apex/pull/767).
 GitHub: [#769](https://github.com/jonathan-vella/apex/issues/769).
 Requirements: R7. Priority: P0. Depends on: none.

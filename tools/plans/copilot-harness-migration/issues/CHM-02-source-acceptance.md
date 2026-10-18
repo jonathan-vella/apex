@@ -1,5 +1,9 @@
 ## CHM-02: reconcile source acceptance and baseline failures
 
+**Historical completed packet:** GitHub #771 remains CLOSED.
+Retain the original scope and evidence below; the 2026-10-18 PRD supersedes its future routing assumptions.
+CHM-17 owns fresh source acceptance after simplification. A historical pass does not certify the new candidate.
+
 Related: [PR #767](https://github.com/jonathan-vella/apex/pull/767).
 GitHub: [#771](https://github.com/jonathan-vella/apex/issues/771).
 Requirements: R1, R2, R5, R7. Priority: P0. Depends on: CHM-01 (#769).

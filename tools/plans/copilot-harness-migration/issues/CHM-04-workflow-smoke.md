@@ -1,57 +1,44 @@
-## CHM-04: exercise native forms, continuation, reviews, and human gates
+## CHM-04: prove the representative no-cloud pilot
 
-Related: [PR #767](https://github.com/jonathan-vella/apex/pull/767).
 GitHub: [#772](https://github.com/jonathan-vella/apex/issues/772).
-Requirements: R3, R4, R5. Priority: P0. Depends on: CHM-03 (#773), CHM-05 (#775).
-Suggested executor: human-assisted workflow validation agent.
+Requirements: R3, R4, R5, R10, R11. Priority: P0. Depends on: CHM-03, CHM-05, CHM-10.
+Status: BLOCKED pending owner plan approval and prerequisite evidence.
 
 ### Objective and inputs
 
-Execute the current non-deploying Steps 1-2 smoke procedure in
-`tools/tests/integration/smoke-run.md`, collecting actual runtime observations and a native session capture.
-Use verified routing from CHM-03, verified environment prerequisites from CHM-05, current graph/review rules,
-and a recorded candidate revision. Historical baseline: `ee2712cc341ad0cc19a4b21ba9bf3701ce5aefcd`.
+Prove the simpler lead/skill/reviewer architecture before changing the fleet.
+Use CHM-03 native capabilities, CHM-05 relevant tool/hook results, CHM-10 no-op approval boundary,
+fixed synthetic Azure-like requirements/plan inputs and a finite expected-output rubric.
+The old Steps 1-2/handshake smoke contract is historical input, not the target acceptance standard.
 
-### Prerequisites and allowed writes
+### Allowed scope and expected behavior
 
-Obtain fresh operator approval for a dedicated smoke project, Azure read scope if needed, costs/budget,
-and a cutoff. The operator selects `01-Orchestrator`; only that interactive parent dispatches main workers.
-Allow only that approved project's artifacts, `apex-recall` state, and caller-approved evidence storage.
-Do not use or reset Eventdesk, Nordic Foods, or another existing project's state.
-Do not advance into Governance, CodeGen, or deployment.
+Only isolated synthetic fixtures, a short optional lead, one on-demand domain skill, bounded independent
+review and deterministic local validation. No Azure reads/writes, project-state mutation or real credentials.
+The interactive parent owns material questions. A delegated task may return a small missing-input request.
+Routine editing/testing/repair continues in native Autopilot; no compulsory WORKER_READY/log replay.
 
-### Activities
+### Validation and negative cases
 
-1. Dispatch workers directly with `WORKER_EXECUTE` (`--phase execute`) or reuse verified session workers in Autopilot mode.
-2. Exercise the canonical native form with independently typed fields and record rendered/returned values.
-3. Exercise parent-mediated `USER_INPUT_REQUIRED` with stable request identity and same-worker continuation.
-4. Test finding decisions and auto-resolution in Autopilot mode (`must_fix`/`should_fix` mitigations applied;
-   suggestions deferred).
-5. Observe that decline does not approve and cancellation stops in interactive mode, while Autopilot mode
-   auto-advances across authorized gates.
-6. Complete the approved Requirements path (`sdk-smoke-20261017`) with its independent `rubber-duck` review
-   recorded via `record-review.mjs` and advance Gate 1.
-7. Run Architecture (`03-Architect`) with comprehensive and independent cost-feasibility reviews.
-8. Exercise an explicitly resumed execution whose first execution tool successfully calls `apex-recall show`.
-9. Stop at Gate 2 (or after authorized smoke scope), preserve the handoff, and verify the native capture.
+1. Run the finite task and test actual output shape, required content and allowed-path constraints.
+2. Verify independent review can return blockers; never request APPROVED or zero findings.
+3. Exercise missing input, malformed output, missing reviewer, stale input and accepted-but-unfixed finding.
+4. Exercise bounded repair/retest, native continuation or explicit one-shot replacement, compaction and restart.
+5. Test decline/cancel/no-answer and the independently approved no-op action from CHM-10.
+6. Confirm no real project artifacts, write credentials or cloud actions were used.
 
-### Acceptance criteria
+Use native observations and deterministic fixture assertions.
+Use existing parser/state tests only for code actually changed; a source fixture pass is not pilot acceptance.
 
-The earlier completion claim is withdrawn. Reviews requested predetermined approval and
-the parent authored specialist artifacts; that does not certify the intended workflow.
+### Acceptance and evidence
 
-- [ ] Native typed forms and direct/delegated interaction modes have recorded observations.
-- [ ] Same-worker continuation preserves answers and request identity without duplicate questioning.
-- [ ] Decline, cancellation, and per-finding decisions preserve their distinct semantics.
-- [ ] Requirements and both mandatory Architecture review modes have valid independent evidence.
-- [ ] Explicit Gate 1 approval and the Gate 2 stop are separate from worker completion.
-- [ ] A resumed execution has successful first-tool recall recovery.
-- [ ] Approved smoke scope is separated from the later live deployment experiment.
-- [ ] Exact capture, revision, scope and manual observations are returned without invented events.
+- [ ] The task meets its rubric without the numbered agent chain.
+- [ ] Bounded native review/input/recovery paths work; all required negative cases are visible.
+- [ ] Autopilot cannot self-authorize the consequential no-op action.
+- [ ] Real result/capture scope and candidate inputs are recorded without fabricated events.
+- [ ] Owner accepts the pilot before CHM-11 through CHM-16 implementation begins.
 
-### Return and stop conditions
-
-Return a redacted observation matrix, approved artifact paths, native capture path for CHM-06,
-and unresolved findings. Preserve existing review verdicts and attempt accounting.
-Stop on missing approval, readiness failure, unavailable required reviewers/tools, unresolved blockers,
-or the operator cutoff. Never fabricate findings or treat this issue as approval to cross a gate.
+Return exact fixture revisions, outputs, observations, tests, gaps and proposed architecture corrections.
+Remove only named fixtures after evidence preservation; preserve historical production contracts.
+Stop on missing authority/capability, unresolved blocking findings or bounded recovery exhaustion.
+No deployment, merge, auto-merge, credential switching or automatic issue closure.

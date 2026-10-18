@@ -1,55 +1,46 @@
-## CHM-03: verify custom-agent discovery and model-agnostic readiness
+## CHM-03: verify native VS Code Copilot capabilities
 
-Related: [PR #767](https://github.com/jonathan-vella/apex/pull/767).
 GitHub: [#773](https://github.com/jonathan-vella/apex/issues/773).
-Requirements: R1, R4. Priority: P0. Depends on: CHM-02 (#771).
-Suggested executor: human-assisted runtime validation agent.
+Requirements: R1, R3, R4. Priority: P0. Depends on: CHM-09 and owner plan approval.
+Status: proposed replacement scope; earlier partial readiness is not acceptance.
+The filename is retained for link compatibility, not to require the old handshake mechanism.
 
 ### Objective and inputs
 
-Verify live discovery, named-worker identity, permitted tools, and same-worker continuation in VS Code.
-Inputs are CHM-02's candidate revision and source results, current `.github/agents/` definitions,
-canonical entry skills, and the current worker-readiness contract.
-Baseline commit: `ee2712cc341ad0cc19a4b21ba9bf3701ce5aefcd`.
+Establish the actual Copilot session target, discovery, context attachment, native task lifecycle and
+interaction behavior before choosing replacements. Use the current source revision, installed runtime/tool
+contracts and official VS Code documentation, not Local/CLI assumptions or model labels.
+Research did not establish a clean room, exact active SDK version or delegated instruction attachment.
 
-### Prerequisites and allowed scope
+### Allowed changes and execution
 
-The operator explicitly selects the top-level runtime, approves the tool-free handshake scope and budget,
-and supplies the exact current session log path. Reload definitions when required.
-Read definitions and record redacted readiness evidence in a caller-approved location.
-No worker execution envelope, Azure action, credential change, or production artifact write is authorized.
-Issue assignment is not approval to start workers.
+Use an owner-scoped neutral temporary folder outside source and production projects.
+Allow harmless scratch agents/skills/instructions and reads/writes inside that fixture only.
+No APEX project initialization, Azure calls, credentials, shared configuration changes or migration edits.
+After plan approval, run routine fixture work in native Autopilot without repetitive confirmations.
+Record unavailable metadata as UNKNOWN; no attestation framework or legacy-fleet handshake campaign.
 
-### Activities
+### Activities and validation
 
-1. Inventory all intended manual entry skills, main definitions, and leaf definitions from current sources.
-   Identify allowed parent/worker relationships; do not hard-code an inventory count.
-2. Observe actual discovery and invocation eligibility, including human-selected-only Orchestrator behavior.
-3. For each required delegated definition, follow
-   `.github/skills/apex-workflow-engine/references/worker-readiness.md` exactly.
-4. Use tool-free background handshakes with fresh nonces; leave model, effort, and context overrides unset.
-5. Require exact definition and parent/call identity, background configuration,
-   zero worker tools, `HANDSHAKE_VERIFIED`, and nonce-only same-worker continuation ACK.
-   Model names, effort, picker selection and model-source labels are diagnostic only.
-6. Record tool availability/binding metadata without executing project work.
-7. Return a revision-bound matrix covering every required definition; mark unavailable or unknown rows blocking.
+1. Record observable VS Code client/server, Copilot extension/SDK identifiers and actual session target.
+2. Test agent/skill discovery and instruction attachment with distinct harmless markers; test parent and worker separately.
+3. Exercise sync result and actual task handle; continue a same-task worker only when supported.
+4. Test one-shot noncontinuation explicitly, returning a precise blocker or fresh bounded task as appropriate.
+5. Observe harmless Autopilot question auto-answer, interactive freeform/decline/cancel behavior and denied tool/write.
+6. Record real native results and limited redacted evidence; do not append events or infer permissions from YAML.
 
-### Acceptance criteria
+Use native tools and fixture assertions, not `verify-worker-ready` without required arguments.
+Historical parser regressions, if affected, use `node --test tools/tests/scripts/test_worker_ready.mjs`
+and `python3 -m pytest tools/tests/scripts/test_sdk_events.py -q`; these do not substitute for runtime probes.
 
-The blanket completion claim is withdrawn. Earlier Requirements readiness and Architect
-dispatch observations are partial coverage, not evidence for every required definition.
+### Acceptance and completion evidence
 
-- [ ] All intended definitions and manual entry skills have explicit discovery observations.
-- [ ] Required workers have attributed definition/parent/call identity and permitted tool metadata.
-- [ ] Diagnostic continuation evidence is distinct from direct-dispatch evidence.
-- [ ] The required worker matrix is complete at the tested revision.
-- [ ] Model labels and allowlists are not used as runtime proof.
-- [ ] No required matrix row is UNKNOWN or BLOCKED when the issue is closed.
+- [ ] Copilot inside VS Code is observed; required capabilities and exact unknowns are recorded.
+- [ ] Parent/worker attachment and actual lifecycle/continuation outcomes are distinguished.
+- [ ] Missing tool, denied write, invalid/freeform answer, decline and cancellation have negative-case evidence.
+- [ ] Autopilot mode is not inferred from an environment flag or prompt.
+- [ ] No source, production project, Azure resource or shared runtime configuration was changed.
 
-### Validation and return
-
-Use `npm run verify:worker-ready --` with the explicit current native log, exact definition,
-worker ID, and parent ID required by the current contract.
-Return the readiness matrix, redacted evidence paths, environment and candidate revision, and any blocker.
-If runtime discovery, attribution, routing, or continuation fails, stop; do not relaunch project work
-under a substitute model. Findings requiring source changes become separately scoped tasks.
+Return revision, fixture scope, commands/results, native observations, blockers and cleanup of named fixtures.
+Retain historical readers; no production rollback needed. Stop on permissions, unsupported target or conflicting work.
+No merge, auto-merge, deployment, credential switching or automatic issue closure.

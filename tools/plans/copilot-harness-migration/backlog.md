@@ -1,74 +1,65 @@
-## Backlog: complete the Copilot harness migration
+## Backlog: VS Code Copilot-only migration
 
-Baseline: `ee2712cc341ad0cc19a4b21ba9bf3701ce5aefcd`, [PR #767](https://github.com/jonathan-vella/apex/pull/767).
-Current delivery is [PR #779](https://github.com/jonathan-vella/apex/pull/779).
-The earlier all-complete claim is withdrawn: generated files and green fixture tests did not prove live acceptance.
-No merge into `main` is authorized. See the [recovery assessment](recovery-assessment.md).
-See the [PRD](prd.md), [roadmap](roadmap.md), and [delegation rules](README.md).
+**Status: OWNER PLAN APPROVAL PENDING.** Planning/issue/PR updates are authorized; implementation is not.
+Delivery: [APEX #779](https://github.com/jonathan-vella/apex/pull/779) and
+[jonathan-vella/apex-docs#43](https://github.com/jonathan-vella/apex-docs/pull/43).
+The [PRD](prd.md), [roadmap](roadmap.md), [assessment adoption](assessment-adoption.md) and
+[execution contract](execution-contract.md) govern this proposed delivery, not current production execution.
 
-### Actionable work
+### Historical work: retain completion, do not reuse as candidate acceptance
 
-P0 blocks acceptance or release. P1 is required before release but can follow the critical-path preparation.
-An agent role is a capability description, not a requirement to create or invoke a new custom agent.
+| Packet                                                                 | Existing issue                                            | Disposition                                               |
+| ---------------------------------------------------------------------- | --------------------------------------------------------- | --------------------------------------------------------- |
+| [CHM-01: original CI formatting](issues/CHM-01-ci-format.md)           | [#769](https://github.com/jonathan-vella/apex/issues/769) | CLOSED historical; preserve result                        |
+| [CHM-02: original source baseline](issues/CHM-02-source-acceptance.md) | [#771](https://github.com/jonathan-vella/apex/issues/771) | CLOSED historical; CHM-17 owns fresh candidate acceptance |
 
-| ID     | Work packet                                                                               | Priority | Current state | Depends on            | Agent capability            |
-| ------ | ----------------------------------------------------------------------------------------- | -------- | ------------- | --------------------- | --------------------------- |
-| CHM-01 | [Resolve the known CI formatting failure](issues/CHM-01-ci-format.md)                     | P0       | Done (#769)   | None                  | Repository coding agent     |
-| CHM-02 | [Reconcile source acceptance and baseline failures](issues/CHM-02-source-acceptance.md)   | P0       | Done (#771)   | CHM-01                | Validation agent            |
-| CHM-03 | [Verify custom-agent discovery and worker routing](issues/CHM-03-worker-readiness.md)     | P0       | Partial       | CHM-02                | Autopilot runtime agent     |
-| CHM-04 | [Exercise forms, continuation, reviews, and gates](issues/CHM-04-workflow-smoke.md)       | P0       | Blocked       | CHM-03, CHM-05        | Autopilot workflow agent    |
-| CHM-05 | [Verify VS Code MCP projection and hook boundaries](issues/CHM-05-mcp-hooks.md)           | P1       | Partial       | CHM-02                | Autopilot environment agent |
-| CHM-06 | [Verify native telemetry and scoped export](issues/CHM-06-observability.md)               | P1       | Blocked       | CHM-04                | Telemetry validation agent  |
-| CHM-07 | [Publish the harness cutover documentation](issues/CHM-07-published-docs.md)              | P1       | In progress   | CHM-06                | Documentation coding agent  |
-| CHM-08 | [Assemble release evidence and recommend disposition](issues/CHM-08-release-readiness.md) | P0       | Blocked       | CHM-01 through CHM-07 | Release evidence agent      |
+### Essential compatibility and pilot
 
-### GitHub issue register
+| Packet                                                                      | Existing issue                                            | Dependencies           | State                         |
+| --------------------------------------------------------------------------- | --------------------------------------------------------- | ---------------------- | ----------------------------- |
+| [CHM-09: assessment dispositions](issues/CHM-09-assessment-dispositions.md) | [#780](https://github.com/jonathan-vella/apex/issues/780) | Owner plan approval    | Planned                       |
+| [CHM-03: native runtime capabilities](issues/CHM-03-worker-readiness.md)    | [#773](https://github.com/jonathan-vella/apex/issues/773) | CHM-09                 | Re-scoped; runtime unverified |
+| [CHM-05: MCP and hooks](issues/CHM-05-mcp-hooks.md)                         | [#775](https://github.com/jonathan-vella/apex/issues/775) | CHM-09                 | Re-scoped; live gaps          |
+| [CHM-10: genuine approval boundary](issues/CHM-10-approval-boundary.md)     | [#781](https://github.com/jonathan-vella/apex/issues/781) | CHM-03, CHM-05         | Planned                       |
+| [CHM-04: representative no-cloud pilot](issues/CHM-04-workflow-smoke.md)    | [#772](https://github.com/jonathan-vella/apex/issues/772) | CHM-03, CHM-05, CHM-10 | Blocked                       |
 
-Each issue body is self-contained and includes its scope, inputs, acceptance criteria, and stop rules.
-Dependencies are also registered as native GitHub blocking relationships, not just prose references.
+### Simplification and retirement
 
-| Packet | GitHub issue                                              |
-| ------ | --------------------------------------------------------- |
-| CHM-01 | [#769](https://github.com/jonathan-vella/apex/issues/769) |
-| CHM-02 | [#771](https://github.com/jonathan-vella/apex/issues/771) |
-| CHM-03 | [#773](https://github.com/jonathan-vella/apex/issues/773) |
-| CHM-04 | [#772](https://github.com/jonathan-vella/apex/issues/772) |
-| CHM-05 | [#775](https://github.com/jonathan-vella/apex/issues/775) |
-| CHM-06 | [#768](https://github.com/jonathan-vella/apex/issues/768) |
-| CHM-07 | [#774](https://github.com/jonathan-vella/apex/issues/774) |
-| CHM-08 | [#770](https://github.com/jonathan-vella/apex/issues/770) |
+All rows also require owner acceptance of CHM-04's pilot. A declared role is not a requirement to create an agent.
 
-### Already implemented: verify, do not reimplement
+| Packet                                                                              | Existing issue                                            | Dependencies                           | State   |
+| ----------------------------------------------------------------------------------- | --------------------------------------------------------- | -------------------------------------- | ------- |
+| [CHM-15: instruction/validator authority](issues/CHM-15-instructions-validators.md) | [#786](https://github.com/jonathan-vella/apex/issues/786) | CHM-04                                 | Planned |
+| [CHM-11: lead and domain skills](issues/CHM-11-lead-domain-skills.md)               | [#782](https://github.com/jonathan-vella/apex/issues/782) | CHM-15                                 | Planned |
+| [CHM-12: deterministic adapters](issues/CHM-12-deterministic-adapters.md)           | [#783](https://github.com/jonathan-vella/apex/issues/783) | CHM-11                                 | Planned |
+| [CHM-13: independent review path](issues/CHM-13-review-consolidation.md)            | [#784](https://github.com/jonathan-vella/apex/issues/784) | CHM-15                                 | Planned |
+| [CHM-14: durable project state](issues/CHM-14-durable-state.md)                     | [#785](https://github.com/jonathan-vella/apex/issues/785) | CHM-13                                 | Planned |
+| [CHM-16: caller-complete retirement](issues/CHM-16-retirement-callers.md)           | [#787](https://github.com/jonathan-vella/apex/issues/787) | CHM-11, CHM-12, CHM-13, CHM-14, CHM-15 | Planned |
 
-- The feature branch and migration commit exist.
-- Local prompt roots are archived and canonical entry skills exist.
-- Main/leaf routing definitions, native interaction guidance, and fail-closed readiness tooling exist.
-- Native SDK event parsing, smoke verification, export, and regression fixtures exist.
+### Evidence, E2E and cross-repository delivery
 
-These are source-presence observations, not closed acceptance tasks.
-CHM-02 checks contracts and regressions; CHM-03 through CHM-06 supply missing live evidence.
-Do not reopen the historical plan as a fresh implementation checklist.
+| Packet                                                                | Existing issue                                            | Dependencies                                   | State                                |
+| --------------------------------------------------------------------- | --------------------------------------------------------- | ---------------------------------------------- | ------------------------------------ |
+| [CHM-06: evidence and optional usage](issues/CHM-06-observability.md) | [#768](https://github.com/jonathan-vella/apex/issues/768) | CHM-16                                         | Re-scoped; old strict PASS withdrawn |
+| [CHM-17: final VS Code E2E](issues/CHM-17-vscode-e2e.md)              | [#788](https://github.com/jonathan-vella/apex/issues/788) | CHM-05, CHM-06, CHM-16                         | Planned                              |
+| [CHM-07: documentation alignment](issues/CHM-07-published-docs.md)    | [#774](https://github.com/jonathan-vella/apex/issues/774) | CHM-17 for final acceptance; preparation now   | Proposal updates only                |
+| [CHM-08: owner readiness handoff](issues/CHM-08-release-readiness.md) | [#770](https://github.com/jonathan-vella/apex/issues/770) | CHM-07, CHM-17 and all applicable predecessors | Blocked                              |
 
-### Dependency and concurrency rules
+### Execution and synchronization
 
-- CHM-01 is immediately actionable; it does not authorize other migration changes.
-- CHM-02 establishes a revision-bound source baseline before live work.
-- CHM-03 and CHM-05 may proceed independently after CHM-02 with disjoint evidence outputs.
-- CHM-04 requires both verified routing and verified MCP prerequisites.
-- CHM-06 consumes the approved workflow capture; it does not invent a replacement fixture.
-- CHM-07 may gather documentation inventory earlier, but final acceptance requires verified runtime evidence.
-- CHM-08 waits for the complete predecessor evidence set; it cannot close or merge its own prerequisites.
-- A code change after evidence collection requires impact assessment and affected checks to be repeated.
+- The packet dependency graph above replaces the old CHM-01-to-CHM-08 preservation-only sequence.
+- Native GitHub blocking relationships must match this table; remove superseded blockers, not issue history.
+- GitHub issue bodies are self-contained mirrors of these packets. Update both when scope changes.
+- Most work runs autonomously after approval, including feature-branch updates and review-fix iterations.
+- Serialize writers to shared agents, instructions, schemas and registries; use disjoint parallel test/docs lanes.
+- Fresh behavior defects stay in the owning packet when in scope; unrelated defects get a bounded follow-up.
+- Do not close an issue merely because a PR is opened or a new plan is saved.
+- CHM-08 owns the final revision-bound matrix; all required unknowns and review threads remain visible.
 
-### Definition of done for every issue
+### Completion standard
 
-1. Scope and prerequisites are satisfied at a recorded candidate revision.
-2. Every acceptance checkbox has a command result or explicit observed evidence.
-3. Commands include exit codes; failed or unavailable checks remain visible.
-4. Changes stay within the allowed slice and preserve unrelated user work.
-5. Raw logs and credentials are not posted to GitHub.
-6. The agent returns outputs, evidence, blockers, and the next human gate.
-7. The owner reviews the evidence before issue closure. Assignment is not approval.
-
-Unrelated pre-existing failures require baseline evidence and a separate scoped follow-up or a recorded owner
-disposition. They must not be silently converted to a passing migration result.
+Each packet returns objective, actual input revisions, changed paths, commands/exit codes, positive and negative
+results, evidence references, caller/docs closure, rollback considerations and remaining human decisions.
+No synthetic telemetry, inferred owner consent, reset counters, restamped history, credential switching,
+Azure changes, auto-merge or merge into `main`.
+Optional performance and real-Azure E2E work require separate scope; they do not silently expand this backlog.

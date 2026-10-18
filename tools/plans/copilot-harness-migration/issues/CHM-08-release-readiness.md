@@ -1,52 +1,40 @@
-## CHM-08: assemble migration release evidence and recommend disposition
+## CHM-08: assemble owner readiness handoff
 
-Related: [PR #767](https://github.com/jonathan-vella/apex/pull/767).
 GitHub: [#770](https://github.com/jonathan-vella/apex/issues/770).
-Requirements: R1 through R9. Priority: P0.
-Depends on: CHM-01 (#769), CHM-02 (#771), CHM-03 (#773), CHM-04 (#772),
-CHM-05 (#775), CHM-06 (#768), and CHM-07 (#774).
-Suggested executor: release evidence agent; the human owner retains every merge/approval decision.
+Requirements: R1 through R12. Priority: P0.
+Depends on: CHM-07, CHM-17 and all applicable open predecessor packets in the current backlog.
+Status: BLOCKED; owner plan approval and runtime/implementation evidence are outstanding.
 
 ### Objective and inputs
 
-Produce a revision-bound READY or BLOCKED recommendation for the existing migration PR.
-Use all predecessor evidence, current PR checks, the PRD requirement map, runtime observations,
-redacted telemetry results, and the actual `apex-docs` PR or published revision.
-Historical baseline: `ee2712cc341ad0cc19a4b21ba9bf3701ce5aefcd`.
+Return a truthful requirement-to-packet-to-evidence matrix for APEX #779 and `jonathan-vella/apex-docs#43`.
+Use the final source/docs heads, actual remote checks, relevant reviewed input hashes, runtime observations,
+negative tests, retirement caller closure and unresolved review-thread dispositions.
+CHM-01/#769 and CHM-02/#771 are historical evidence, not final-candidate passes.
 
-### Allowed scope
+### Allowed scope and activities
 
-Read source, evidence, issue state, and remote checks. Write a release evidence report to an approved path.
-An explicitly authorized PR summary update may link evidence; approval must be provided separately.
-Do not merge, push, deploy, close prerequisites automatically, weaken requirements, or change project state.
+Read candidate/evidence/issue/PR state; write a compact readiness report and update the existing PR summary.
+Do not merge, enable auto-merge, close issues automatically, deploy, rewrite findings, restamp evidence or
+repair production projects to obtain a green matrix.
 
-### Activities
+1. Reconcile R1-R12 and every applicable packet with its actual tested revision and input scope.
+2. Verify native VS Code Copilot E2E, consequential no-op approval boundary and current source checks.
+3. Verify historical compatibility, active caller cleanup and required Azure-domain outcomes.
+4. Verify actual docs build/review on its feature head; publication remains a separate forbidden action here.
+5. Invalidate only affected evidence after changes and request targeted reruns.
+6. Record unresolved findings, review threads, baseline failures, unknowns and required owner decisions.
 
-1. Reconcile the exact candidate revision against every predecessor's tested revision and relevant input hashes.
-2. Build a requirement-to-issue-to-evidence matrix for R1 through R9.
-3. Confirm source checks, live discovery/routing, MCP/hooks, forms/continuation/gates, native telemetry,
-   and published documentation are all evidenced.
-4. Check current CI status and baseline-failure dispositions; do not equate unrelated baseline failures with success.
-5. Invalidate affected evidence after source or runtime changes and request targeted reruns.
-6. Record remaining blockers, risk-owner decisions, and the next explicit human action.
-7. Return READY only if all required acceptance is current and complete; otherwise return BLOCKED.
+### Acceptance and negative cases
 
-### Acceptance criteria
+- [ ] Every required outcome has current evidence; optional unknowns are explicitly separated.
+- [ ] No source fixture, old capture, model label or self-authored form substitutes for runtime/owner evidence.
+- [ ] Both PR heads/checks and review dispositions are current.
+- [ ] Closed historical work is not reopened or credited as a fresh candidate run.
+- [ ] No retired active caller, missing approval or unresolved must-fix is hidden.
+- [ ] The recommendation is READY_FOR_OWNER_REVIEW or BLOCKED, with reasons and next action.
 
-- [ ] Every requirement has a linked result and every predecessor checklist has current evidence.
-- [ ] Candidate commit, environment, revisions, and freshness/impact checks are recorded.
-- [ ] Required runtime observations and strict telemetry checks pass without synthetic closure events.
-- [ ] Documentation review and validation evidence is linked from `jonathan-vella/apex-docs#43`.
-- [ ] Current CI and workspace/project failures have an explicit disposition.
-- [ ] No required unknown, missing approval or unresolved finding is hidden.
-- [ ] A truthful evidence matrix replaces the earlier READY claim.
-
-Current recommendation: **BLOCKED** pending the recovery assessment and valid runtime evidence.
-No merge is authorized, even after checks pass.
-
-### Return and stop conditions
-
-Return a compact evidence matrix, exact revision, READY or BLOCKED, remaining blockers,
-and a proposed PR summary for owner review.
-READY is a recommendation, not merge approval or deployment authorization.
-If a required predecessor is incomplete, keep the release blocked rather than closing it by inference.
+Test stale candidate/evidence, missing predecessor, unresolved review, docs/core drift and false green source-only
+claims. Required missing/failed evidence returns BLOCKED.
+Return the matrix, exact heads/checks, blockers and owner handoff.
+This packet has no automatic merge, publishing, deployment or cleanup path, even when all checks pass.

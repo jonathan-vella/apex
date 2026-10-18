@@ -1,67 +1,74 @@
-## Roadmap: evidence-led Copilot harness acceptance
+## Roadmap: VS Code Copilot-only delivery
 
-Use the [backlog](backlog.md) for issue packets and the [PRD](prd.md) for requirements.
-This roadmap orders work; it does not authorize runtime actions, set a deadline, or promise autonomous completion.
+**Current gate: OWNER PLAN APPROVAL PENDING.**
+This revision authorizes planning/issue/PR alignment only, not a pilot or implementation.
+Both feature PRs remain open and unmerged; auto-merge is prohibited.
+Use the [PRD](prd.md), [backlog](backlog.md) and [execution contract](execution-contract.md).
 
-### Wave 0: recover and preserve
+### Wave 0: align and approve the plan
 
-- Preserve the exact historical plan and its provenance.
-- Record the existing implementation revision and known acceptance gaps.
-- Save the PRD, backlog, roadmap, and self-contained issue packets.
-- Publish linked GitHub issues without claiming the local planning files are already committed or pushed.
+- Preserve CHM-01/#769 and CHM-02/#771 as closed historical work.
+- Reframe the existing open issues rather than create a competing migration backlog.
+- Register the bounded simplification packets and their dependencies.
+- Update APEX #779, `jonathan-vella/apex-docs#43`, relevant issues and the review register.
+- Keep the recovery assessment, withdrawn evidence and archived plan intact.
 
-Exit: durable recovery package and a verified issue register exist.
+Exit: **owner approves the revised plan**. A planning commit, issue state or green CI is not that approval.
 
-### Wave 1: establish source readiness
+### Wave 1: establish the smallest runtime proof
 
-1. CHM-01 fixes only the known formatting failure.
-2. CHM-02 validates source contracts and reconciles all remaining check failures against the baseline.
+1. CHM-09 selects asset dispositions and closes material pilot gaps.
+2. CHM-03 verifies native VS Code Copilot discovery/lifecycle and CHM-05 verifies relevant MCP/hooks.
+   These may proceed in parallel with disjoint fixtures.
+3. CHM-10 proves the independently approved no-op execution boundary.
+4. CHM-04 exercises a representative no-cloud lead/skill/reviewer workflow.
 
-Exit: revision-bound validation evidence exists; no migration-introduced failure is unexplained.
-Historical PR test totals do not satisfy this gate.
+Exit: genuine target-runtime evidence for positive/negative cases; owner accepts the pilot before fleet changes.
+Do not probe every legacy worker with a handshake or start the old Azure workflow to certify this architecture.
 
-### Wave 2: verify runtime prerequisites in parallel
+### Wave 2: simplify in bounded engineering slices
 
-- CHM-03 verifies discovery, definition-owned routing, tool metadata, and same-worker continuation.
-- CHM-05 verifies required VS Code MCP projection and supplementary hook behavior.
+- CHM-15 separates native structural/domain checks from prose conventions.
+- CHM-11 converts one conversational role at a time to the accepted lead/skill model.
+- CHM-12 moves deterministic leaf work into tested language-specific adapters.
+- CHM-13 consolidates review, then CHM-14 simplifies durable state behind compatible readers.
+- CHM-16 closes all active retirement callers and references after replacements work.
 
-Exit: every required prerequisite is verified for the proposed smoke scope.
-Unsupported routing, missing tools, unknown capability, or absent operator approval stops progression.
-Collect evidence in disjoint locations; coordinate any fixes touching shared runtime configuration.
+CHM-11 and CHM-13 may run independently after their prerequisites, but not edit shared files concurrently.
+CHM-12 and CHM-14 can proceed in separate tool/state lanes.
+Each packet delivers a tested feature-branch change and updates its PR; no repeated confirmation for in-scope fixes.
+Owner decisions are batched when independent, not multiplied by legacy phase boundaries.
 
-### Wave 3: exercise the bounded workflow
+Exit: accepted replacements preserve Azure outcomes and historical evidence; no active caller relies on retirement.
 
-- CHM-04 uses a fresh approved smoke project.
-- The operator selects `01-Orchestrator`; the agent follows current readiness and approval contracts.
-- Exercise native forms, parent-mediated input, direct step selection, explicit resume, independent reviews,
-  decline, cancellation, and separate human gate decisions.
-- Stop at Gate 2 without Governance, CodeGen, or deployment.
+### Wave 3: verify the final VS Code experience
 
-Exit: manual observations and an explicitly scoped native capture exist.
-Checkpoint and preserve approved smoke state; do not reset Eventdesk or Nordic Foods.
+- CHM-06 validates genuine evidence handling and optional usage coverage.
+- CHM-17 runs final no-Azure-write E2E on the resulting candidate, including Autopilot, review and recovery.
+- Rerun only affected checks after changes; finish with current source/remote validation.
 
-### Wave 4: accept telemetry
+Exit: final-candidate behavior is evidenced, not inferred from earlier pilot or fixture passes.
+Missing required behavior is BLOCKED; missing optional telemetry is explicitly UNKNOWN.
 
-- CHM-06 checks closed-capture handling, later resume, attribution, usage, redaction, and strict smoke thresholds.
-- Any code fix invalidates the affected evidence until the relevant validation is rerun.
+### Wave 4: align documentation and hand off
 
-Exit: strict automated results and manual observations agree; missing evidence remains non-passing.
+- CHM-07 may prepare proposal documentation throughout, but final acceptance follows CHM-17.
+- Run the actual `apex-docs` content/link/build checks and address its PR feedback.
+- CHM-08 assembles requirements, issue state, source/runtime evidence, review dispositions and both PR heads.
 
-### Wave 5: document and decide
+Exit: READY_FOR_OWNER_REVIEW or BLOCKED, with precise remaining decisions.
+No merge, publishing or Azure deployment follows automatically.
 
-1. CHM-07 publishes verified guidance and release notes through a separate `apex-docs` change.
-2. CHM-08 produces a requirement-to-evidence matrix and a READY or BLOCKED recommendation for #767.
-3. The human owner decides whether to merge, defer, or request more work.
+### Optional later work
 
-Exit: linked documentation and a human-reviewed release disposition.
-A positive recommendation is not merge authorization or deployment permission.
+Measured model-tier/performance comparisons, generic skill-pack rationalization, stronger externally enforced
+audit integration and a real-Azure E2E are separate owner-scoped work, not hidden prerequisites.
+Real-Azure E2E needs explicit subscription, budget, write/cleanup authority and functional/private-connectivity tests.
+The retired E2E launcher is not recreated by this plan.
 
-### Critical path and replanning
+### Replanning and failure rules
 
-The critical path is CHM-01, CHM-02, both CHM-03 and CHM-05, CHM-04, CHM-06, CHM-07, then CHM-08.
-CHM-03 and CHM-05 are the only planned parallel prerequisite lane.
-
-Autopilot can continue scoped engineering and validation without repeated confirmations.
-Follow the [recovery sequence](recovery-assessment.md) before claiming live acceptance.
-Missing authority, policy, review or genuine runtime evidence remains blocking.
-Do not merge either repository into `main`, even when CI passes.
+Update the existing issue packet, backlog, roadmap and PR when dependencies or scope change.
+Keep old evidence attributable; do not change hashes or findings to match a new candidate.
+Technical failures get bounded repair and targeted revalidation; unresolved authority stays a human decision.
+Neither a passed packet nor final readiness authorizes merging into `main`.

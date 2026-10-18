@@ -1,5 +1,9 @@
 ## Migration recovery assessment
 
+Historical recovery record, retained without changing the evidence below.
+The 2026-10-18 [PRD](prd.md) and [roadmap](roadmap.md) supersede this document's execution sequence
+for future delivery. Its withdrawn claims remain withdrawn; it does not authorize implementation.
+
 The earlier READY/all-complete report is withdrawn. Work continues on
 `feat/copilot-harness-migration`, through [APEX PR #779](https://github.com/jonathan-vella/apex/pull/779)
 and [apex-docs PR #43](https://github.com/jonathan-vella/apex-docs/pull/43).

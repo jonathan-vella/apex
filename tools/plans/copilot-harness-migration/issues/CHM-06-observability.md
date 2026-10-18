@@ -1,54 +1,44 @@
-## CHM-06: verify native SDK telemetry and scoped log export
+## CHM-06: validate genuine evidence and optional usage
 
-Related: [PR #767](https://github.com/jonathan-vella/apex/pull/767).
 GitHub: [#768](https://github.com/jonathan-vella/apex/issues/768).
-Requirement: R6. Priority: P1. Depends on: CHM-04 (#772).
-Suggested executor: telemetry validation agent; operator assistance is required if capture must be resumed or closed.
+Requirements: R6, R9. Priority: P1. Depends on: CHM-16.
+Status: proposed scope; the earlier strict PASS with synthetic shutdown remains withdrawn.
 
 ### Objective and inputs
 
-Validate the existing profiler, strict smoke verifier, budget checker, and scoped export against the approved
-real native capture from CHM-04. Use the exact session path and candidate revision, current
-`tools/tests/integration/smoke-run.md`, native-event tests, and export/redaction guidance.
-Historical baseline: `ee2712cc341ad0cc19a4b21ba9bf3701ce5aefcd`.
+Make evidence handling useful for the final VS Code target without creating a mandatory attestation framework.
+Use a genuinely selected runtime capture, actual runtime fields, final role/result contracts and existing
+`profile_debug_log.py`, `export-sdk-logs.py`, `smoke_verify.py` and tests.
+Source presence and old numeric thresholds do not prove runtime coverage or current product value.
 
-### Allowed scope
+### Allowed changes and behavior
 
-Read the approved capture and write reports or redacted exports only to caller-approved evidence paths.
-No project-state mutation, global newest-session discovery, unapproved log publication, or fabricated capture.
-Production parser fixes require a separately scoped issue; keep raw runtime logs local.
+Only affected profiling/export/smoke adapters, their tests and associated on-demand guidance.
+No unrelated session scans, global newest-session lookup, raw-log publication or project-state edits.
+Preserve historical native/OTel readers where required.
+Native usage/context facilities are primary; optional diagnostics do not grant permission or certify billing.
 
-### Activities
+### Validation and negative cases
 
-1. Verify the capture's exact workspace/session identity and relation to CHM-04.
-2. Run existing native-event, profiler, smoke, export, and readiness-attribution regression tests.
-3. Run profiler, strict smoke verification, and strict review-budget verification against the exact log path.
-4. Check authoritative usage is counted once and tool/worker execution is attributed to matching calls and parents.
-5. Verify shutdown followed by later resume reopens capture regardless of misleading event timestamps;
-   incomplete root or operations cannot pass.
-6. Verify scoped export and redaction retain required evidence without including unrelated sessions or secrets.
-7. Map automated results to manual observations from CHM-04 and report disagreements explicitly.
+Run `python3 -m pytest tools/tests/scripts/test_sdk_events.py
+tools/tests/scripts/test_export_sdk_logs.py tools/tests/scripts/test_profile_debug_log.py
+tools/tests/scripts/test_native_log_parser.py tools/tests/scripts/test_smoke_verify.py -q`.
+For permitted actual captures, invoke the existing profiler/export commands with explicit session/workspace input.
+Review old smoke thresholds and exact event sequencing individually: keep justified behavior checks,
+adapt unsupported assumptions and retire unmeasured conventions with tests in the same slice.
 
-### Acceptance criteria
+Test missing usage (UNKNOWN, not zero), duplicate authoritative usage, wrong workspace, partial root capture,
+later resume, malformed payload, failed tool, missing attribution and redaction.
+Never append shutdown/events or reconstruct review content to force PASS.
 
-The reported strict PASS is withdrawn: its copied capture contained a manually appended shutdown.
-It is a synthetic test input, not evidence of native session closure.
+### Acceptance and evidence
 
-- [ ] Native format, exact workspace/session scope, and genuine closed root capture are established.
-- [ ] Every observed call has input/output usage; authoritative usage is counted once.
-- [ ] Incomplete operations, unattributed usage and non-benign failures remain non-passing.
-- [ ] `ask_user` count is at most 20 in the capture.
-- [ ] First execution input is at most 45,000 tokens for every attributed execution.
-- [ ] Default-mode review requests are attributed and within the existing allowance.
-- [ ] Every explicitly resumed execution includes successful first-tool recall recovery.
-- [ ] Profiler, strict smoke and strict budget checks pass on unchanged native capture.
-- [ ] Export/redaction scope is verified; raw logs are not posted to GitHub.
+- [ ] Relevant behavior claims are supported by genuine, exact-scope observations.
+- [ ] Required behavior gaps block; optional usage gaps remain explicitly UNKNOWN.
+- [ ] Historical readers and privacy/redaction behavior have regression coverage.
+- [ ] Retained thresholds have rationale; removed prose/metrics gates have caller/test closure.
+- [ ] No token/cost/latency saving, real billing or approval claim is inferred from incomplete data.
 
-### Validation and return
-
-Run `npm run profile:debug-log -- <exact-events-path> --json`,
-`npm run smoke:verify -- <exact-events-path> --strict`, and
-`npm run validate:review-ceiling -- --budget <exact-events-path> --strict`.
-Return commands, exit codes, redacted reports, threshold measurements, and blockers.
-Missing evidence is UNKNOWN and non-passing, not zero or a skipped success.
-Automated telemetry does not certify review validity, complete billing, approval, or deployment.
+Return commands/results, input identities, coverage/unknowns and evidence references for CHM-17.
+Rollback only this packet's adapter changes; do not alter raw history.
+Stop on privacy/scope ambiguity or an unavailable required field. No merge, auto-merge or Azure actions.

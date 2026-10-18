@@ -1,54 +1,45 @@
-## CHM-07: publish verified Copilot harness migration guidance
+## CHM-07: align proposed and verified documentation
 
-Related: [PR #767](https://github.com/jonathan-vella/apex/pull/767).
 GitHub: [#774](https://github.com/jonathan-vella/apex/issues/774).
-Requirement: R8. Priority: P1. Depends on: CHM-06 (#768).
-Suggested executor: documentation coding agent with an explicitly authorized `apex-docs` checkout.
+Requirements: R8, R9. Priority: P1. Depends on: CHM-17 for final acceptance.
+Preparation is authorized now; implementation/pilot claims and site publication are not.
+Companion: [jonathan-vella/apex-docs#43](https://github.com/jonathan-vella/apex-docs/pull/43), issue #40 there.
 
 ### Objective and inputs
 
-Update the separate [documentation repository](https://github.com/jonathan-vella/apex-docs) to describe
-verified SDK harness behavior and the cutover from Local entrypoints.
-Use the candidate revision, current APEX instructions and skill references, CHM-03 through CHM-06 evidence,
-the documentation repository's instructions, and relevant existing pages under `src/content/docs/`.
-Historical APEX baseline: `ee2712cc341ad0cc19a4b21ba9bf3701ce5aefcd`.
+Keep the existing documentation PR aligned with APEX #779, this PRD/backlog/roadmap and the actual
+proposed-versus-verified state. Read the docs repository's own instructions and existing relevant pages.
+Do not create a second plan system, an APEX site directory or claim publication from a comment.
 
-### Allowed changes and prerequisites
+### Allowed changes and behavior
 
-Read APEX source; write only relevant setup, workflow, migration, troubleshooting, log-export,
-and release-note pages in the approved `apex-docs` checkout.
-Do not create an APEX `site/` directory or duplicate published product documentation inside APEX.
-Before changing repositories, the parent supplies the checkout, approved branch, and any publication permission.
-Do not commit, push, create a documentation PR, or publish a site without explicit authorization for that action.
+Relevant setup, workflow/agents, debug/export, migration/troubleshooting and proposed release-note pages in
+the authorized `docs/copilot-sdk-harness-cutover` branch only.
+Preserve existing public anchors and distinguish current production behavior from the proposed target.
+Feature-branch commits/pushes, issue/PR updates and relevant reviewer fixes are authorized.
+No merge, auto-merge, publication, credential switching or unrelated docs refactor.
 
-### Activities
+### Required coverage
 
-1. Inventory current documentation pages and link each proposed change to verified source or runtime evidence.
-2. Document canonical manual skills, human-selected Orchestrator, parent-mediated forms,
-   main/leaf boundaries, fail-closed readiness, and definition-owned routing without claiming model eligibility.
-3. Document actual VS Code MCP projection, required operator prerequisites, native capture/export,
-   explicit resume, approval stops, and historical prompt archival.
-4. Explain unsupported runtime behavior and recovery without inventing a universal `/resume` guarantee.
-5. Add user-facing migration notes and known limitations; remove active Local-only instructions
-   while preserving intentionally historical material.
-6. Run the documentation repository's own applicable build, link, formatting, and content checks.
-7. Return the patch and validation; if publication is approved, link the actual documentation PR or revision.
+- VS Code Copilot-only target, with historical Local archives inactive and no standalone CLI/cloud support claim.
+- Optional lead/domain skills/native review, tested adapters and genuine approval/credential separation as proposals.
+- Autopilot routine engineering autonomy and the fact that chat auto-answers are not human approval.
+- Durable project governance distinct from native session SQL; genuine scoped evidence and missing usage as UNKNOWN.
+- Owner approval before implementation, representative no-cloud pilot and final E2E still required.
+- Existing unresolved external-link/runtime gaps disclosed, not silently waived.
 
-### Acceptance criteria
+### Validation and acceptance
 
-- [ ] Every behavior claim is traceable to current source and accepted runtime evidence.
-- [ ] Setup, entrypoints, forms, delegation, MCP, telemetry, recovery, and approval boundaries are covered.
-- [ ] No false parity, automatic approval, complete billing, or unsupported routing claim remains.
-- [ ] Relevant documentation checks pass with recorded commands and exit codes.
-- [ ] Release notes explain the proposed cutover and remaining limitations.
-- [ ] Documentation review evidence is linked through `jonathan-vella/apex-docs#43`, not merely an issue comment.
+Use actual `apex-docs` commands: `npm run check:docs`, `npm run build`, `npm run check:links`,
+and focused existing tests for edited content/anchors. Test changed external links where relevant;
+preserve unchanged HTTP/access failures explicitly instead of weakening checks.
 
-The publication claim is withdrawn. Both repositories' changes remain on open PRs;
-the current user instruction prohibits merging to `main`.
+- [ ] Current proposal docs and both PR descriptions agree on scope, status and no-merge boundary.
+- [ ] No future role/command/pilot is described as shipped or accepted.
+- [ ] Existing anchors, truthful historical statements and relevant tests remain intact.
+- [ ] Final verified behavior is updated only after CHM-17 evidence, with docs checks on the actual head.
+- [ ] Issue/PR state and validation are linked; neither opening nor pushing means published.
 
-### Return and stop conditions
-
-Return changed documentation paths, validation results, evidence links, and publication state.
-Preparation may start with an inventory earlier, but acceptance requires completed CHM-06 evidence.
-If the checkout, permissions, or runtime evidence is missing, return the blocker; do not invent a repository path,
-publish elsewhere, or mark the documentation delivered.
+Return paths, exact commands/results, feature commit, review dispositions and publication state.
+Rollback only this docs change; retain old anchors/readers where promised.
+Stop for missing checkout/authority or missing runtime evidence for a verified claim.

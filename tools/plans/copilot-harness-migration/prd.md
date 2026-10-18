@@ -1,147 +1,130 @@
-## Product requirements: Copilot SDK harness cutover
+## Product requirements: VS Code Copilot-only migration
+
+**Revision:** 2026-10-18 assessment-led replanning.
+**Delivery:** [APEX #779](https://github.com/jonathan-vella/apex/pull/779) and
+[jonathan-vella/apex-docs#43](https://github.com/jonathan-vella/apex-docs/pull/43).
+**Gate:** OWNER PLAN APPROVAL PENDING. No pilot or migration implementation is authorized by this revision.
+Neither repository may merge into `main`, enable auto-merge, or bypass protection.
 
 ### Product outcome
 
-Complete the migration of APEX to the GitHub Copilot SDK harness inside VS Code, preserving specialist-owned
-work, human approval gates, independent reviews, artifact ownership, and reliable recovery.
-Finish and verify the existing implementation in [PR #779](https://github.com/jonathan-vella/apex/pull/779);
-do not rebuild it from the historical plan.
-The earlier all-complete claim is withdrawn; follow the [recovery assessment](recovery-assessment.md).
-No merge into `main` is authorized.
+Run APEX in the **Copilot session target inside VS Code**, using the Copilot SDK/Agent Host.
+Make routine engineering reliable in native Autopilot, with human interaction reserved for material
+requirements, permissions, risk decisions and consequential approvals.
 
-The source is the [recovered plan](../../../.archive/pre-cpharness/migration-plan-2026-10-16.md).
-Recovery provenance and delegation rules are in the [delivery index](README.md).
+The existing branch is an implementation candidate, not a framework that must be preserved.
+Agents, instructions, skills, orchestration, registries, validators and tests may be adapted,
+consolidated, replaced or retired when their useful outcomes and callers are accounted for.
+Source already implemented should not be replayed merely because the historical plan lists it.
 
-### Users and scenarios
+This PRD supersedes the earlier delivery requirements, not the live production instructions.
+Current security, review and approval controls remain effective until an approved replacement is tested.
+The [assessment adoption](assessment-adoption.md), [execution contract](execution-contract.md),
+[backlog](backlog.md) and [roadmap](roadmap.md) define the proposed changes.
+The [recovery assessment](recovery-assessment.md) remains historical evidence; withdrawn claims stay withdrawn.
 
-- An operator starts or resumes a project through the canonical manual entry skills in VS Code, in interactive or
-  Autopilot (`APEX_UNATTENDED=1` / explicit `"autopilot"` prompt) mode.
-- `01-Orchestrator` dispatches authorized specialists directly with `WORKER_EXECUTE` (`--phase execute`),
-  continuing scoped technical work in Autopilot while retaining required human gate evidence.
-- A directly selected step agent remains interactive; a delegated step returns input requests to its parent
-  and uses supplied brief answers without inventing user confirmations.
-- A maintainer diagnoses the resulting native SDK session without mixing unrelated projects or double-counting usage.
-- A replacement agent recovers this migration from durable requirements, dependencies, issues, and evidence.
+### Target runtime and non-goals
 
-### Scope
+The supported execution target is VS Code Copilot only.
+VS Code Local, standalone Copilot CLI, cloud coding agents, other IDEs and a multi-harness compatibility
+layer are not product execution targets. CLI command-line utilities remain usable as engineering tools.
+SDK/CLI documentation applies only where official VS Code documentation establishes the relevant equivalence.
+Preserve archived Local material and historical readers without rediscovering them as active entry points.
 
-In scope:
+This plan does not authorize Azure deployment/deletion, credential switching, project-state repair,
+resetting findings/review counters, restamping historical evidence, or publishing a site.
+A future real-Azure E2E requires its own explicit owner scope and authorization.
 
-- Canonical entry skills and historical Local prompt archival.
-- VS Code MCP projection, configuration, supplementary hooks, and runtime tool binding.
-- Native forms, parent-mediated input, continuation, cancellation, and approval stops.
-- Definition-owned routing, isolated worker context, and main/leaf delegation boundaries.
-- `apex-recall` recovery, mandatory review integrity, and unchanged artifact ownership.
-- Native SDK profiling, scoped export, smoke verification, and evidence attribution.
-- Regression validation, published documentation, and an explicit release recommendation.
+### Proposed customization architecture
 
-Out of scope:
+- Native Agent for routine repository work, or an optional short interactive APEX engineering lead.
+- On-demand requirements, architecture, design, governance, IaC, diagnostics and documentation skills.
+- Native bounded workers/reviewers only for meaningful independent context or restricted capabilities.
+- Tested deterministic tooling for policy discovery, compilation, previews, security checks and cost math.
+- A separately permissioned deployment operator with Bicep/Terraform command adapters.
+- A small durable project decision/review/approval record, initially behind the `apex-recall` facade.
+  Native session SQL/todos own session task tracking, not cross-project authorization.
 
-- Restoring old live worker memory or assuming historical approvals remain valid.
-- Reimplementing source changes already present in the baseline.
-- A runnable retired E2E launcher, other IDEs, or a new multi-harness compatibility layer.
-- Infrastructure deployment, existing project-state repair, credential changes, or automatic approval.
-- Automatic merge, automatic model fallback, or reauthoring the immutable recovered plan.
+The existing numbered role roster, per-worker readiness handshake, raw-log replay and duplicate review
+paths are not target requirements. Their retirement depends on pilot results, caller closure and owner
+approval; it must not remove Azure security, live governance, review integrity or historical compatibility.
 
-### Functional requirements and traceability
+### Autopilot operating model
 
-| ID  | Requirement                                                                                                | Historical plan | Verification owner   |
-| --- | ---------------------------------------------------------------------------------------------------------- | --------------- | -------------------- |
-| R1  | Archive Local-only entrypoints; retain canonical manual, permission-neutral skills and active references.  | Phase 1         | CHM-02, CHM-03       |
-| R2  | Bind required MCP tools in VS Code without duplicate registrations; treat hooks as supplementary.          | Phase 2         | CHM-02, CHM-05       |
-| R3  | Render native typed input and preserve accept, reject, defer, edit, decline, and cancellation semantics.   | Phase 3         | CHM-04               |
-| R4  | Discover intended definitions and verify named-worker identity, dispatch linkage, tools, and continuation. | Phase 4         | CHM-03, CHM-04       |
-| R5  | Preserve human gates, exact artifact ownership, `apex-recall` recovery, and independent review validity.   | Phases 3-4      | CHM-02, CHM-04       |
-| R6  | Attribute native events correctly, scope capture to the selected workspace, and fail closed on gaps.       | Phase 5         | CHM-06               |
-| R7  | Reconcile validators, registries, source tests, formatting, and baseline failures for the candidate.       | Phase 6         | CHM-01, CHM-02       |
-| R8  | Publish accurate migration guidance and release notes in the separate documentation repository.            | Phase 6         | CHM-07               |
-| R9  | Preserve an auditable recovery package and base release readiness on current evidence, not assertions.     | Cross-cutting   | This package, CHM-08 |
+Autopilot should execute most scoped engineering: reads, edits, tests, bounded repairs, feature-branch
+commits/pushes, issue/PR updates and relevant review fixes. Do not ask permission again for every
+already-approved technical step.
 
-### Current implementation versus acceptance
+Selecting native Autopilot is a runtime action; `APEX_UNATTENDED=1`, an `"autopilot"` prompt or an
+agent's self-description does not prove that mode is active.
+Official VS Code documentation says Autopilot can answer blocking questions automatically.
+Consequently, successful `ask_user`, a persisted approval field, worker completion or reviewer approval
+does not establish independent human authorization.
 
-| Area                          | Observed baseline                                                       | Remaining acceptance                                            |
-| ----------------------------- | ----------------------------------------------------------------------- | --------------------------------------------------------------- |
-| Branch baseline               | Feature branch and migration commit exist after merged #764.            | Do not replay branch-creation commands.                         |
-| Entry skills and archive      | Archive, canonical entry skills, and entrypoint contract tests exist.   | Fresh contracts plus live discovery.                            |
-| MCP and hooks                 | Configuration code, supplementary guards, and tests exist.              | Actual VS Code projection and permitted hook observations.      |
-| Interaction and orchestration | Native interaction guidance, allowlists, and readiness procedure exist. | Live forms, routing, continuation, reviews, and approval stops. |
-| Observability                 | Native-event, smoke, export, and readiness tests exist.                 | Strict verification against an approved real capture.           |
-| Validation and documentation  | PR reports source validation; main CI stopped on formatting.            | Fresh baseline reconciliation and published docs.               |
+CHM-10 must choose and test a genuine consequential boundary: for example, protected execution with an
+independent approval, or an explicitly controlled non-Autopilot operator context.
+Agent frontmatter alone is not credential isolation when the parent can run the same write-capable shell.
+No production action may depend solely on an agent-authored approval.
 
-No row above establishes runtime acceptance. The authoritative baseline revision and initial failures are
-recorded in the [delivery index](README.md).
+### Requirements and traceability
 
-### Historical-plan corrections
+| ID  | Required outcome                                                                                         | Delivery packets       |
+| --- | -------------------------------------------------------------------------------------------------------- | ---------------------- |
+| R1  | VS Code Copilot-only active entry points; historical Local compatibility stays inactive.                 | CHM-03, CHM-11, CHM-16 |
+| R2  | Actual MCP projection and hook behavior are verified without duplicate registration or false guarantees. | CHM-05, CHM-10, CHM-17 |
+| R3  | Interaction, freeform input, decline, cancellation and missing-input behavior are distinct and tested.   | CHM-03, CHM-04, CHM-10 |
+| R4  | Bounded delegation uses actual native lifecycle/continuation, not a compulsory bespoke handshake.        | CHM-03, CHM-04, CHM-11 |
+| R5  | Independent review, unresolved findings, durable decisions and historical readers remain valid.          | CHM-13, CHM-14         |
+| R6  | Evidence is genuine and scoped; missing usage is UNKNOWN, never invented zero or approval.               | CHM-06, CHM-17         |
+| R7  | Current candidate source checks, negative tests and baseline failures are revision-bound.                | CHM-12, CHM-15, CHM-17 |
+| R8  | Both repositories describe the same proposed/verified state; docs build/review is evidenced.             | CHM-07, CHM-08         |
+| R9  | Historical provenance and withdrawn claims are preserved; readiness is evidence-led.                     | CHM-08, CHM-16         |
+| R10 | The simpler architecture accounts for all affected assets and valuable domain outcomes.                  | CHM-09, CHM-11, CHM-12 |
+| R11 | Autopilot cannot manufacture consequential authorization or bypass the chosen execution boundary.        | CHM-10, CHM-17         |
+| R12 | Retirement closes callers, tests, registries, hooks, docs and historical compatibility.                  | CHM-15, CHM-16         |
 
-The historical plan is retained verbatim. The following are current constraints, not edits to that history:
+CHM-01/#769 and CHM-02/#771 remain completed historical work, not fresh candidate validation.
+Revised open issues and new implementation packets form the current backlog; do not reopen completed work
+or treat old checks as acceptance of this proposed architecture.
 
-- Use direct `WORKER_EXECUTE` dispatch (`verify-worker-ready.mjs --phase execute`) as the standard workflow and
-  Autopilot execution path; retain the 2-turn tool-free handshake (`--phase initial` / `--phase complete`) only for
-  standalone diagnostic routing probes. Direct execution does not certify continuation.
-- `01-Orchestrator` dispatches allowlisted main workers; steps call their authorized leaves (`rubber-duck`,
-  `cost-estimate-subagent`, validate/preview subagents).
-- In Autopilot mode, continue approved engineering and authorized mitigations without repeated prompts.
-  Proposed defaults remain assumptions. Required authority, reviews and governance remain separate;
-  user-confirmed ownership, prices and approvals must never be invented to advance.
-- `record-review.mjs` extracts unambiguous JSON from fenced or prose-wrapped `rubber-duck` responses, normalizes
-  `traces_to` strings, finding IDs, and severity counts. Range-read recovery requires a successful read of the
-  same file and remains auditable. Missing, stale or conflicting metadata is never repaired after dispatch.
-- Do not add a root `.mcp.json` or duplicate `.vscode/mcp.json` registrations merely to satisfy historical parity
-  wording. Verify the installed VS Code projection and change configuration only for a demonstrated gap.
-- File-based `SubagentStop` is not a guaranteed enforcement surface in this runtime.
-  Mandatory review and approval checks remain runtime contracts.
-- Never select the newest global session or infer a model from a label. Use exact workspace and call attribution.
+### Acceptance gates
 
-### Acceptance criteria
+1. **Plan approval:** owner approves scope, target direction and Autopilot delegation contract.
+   This planning update does not pass this gate.
+2. **Representative no-cloud pilot:** actual VS Code Copilot target, one bounded workflow,
+   independent review, genuine no-op approval boundary, negative cases and recovery.
+3. **Replacement and retirement:** role/skill/tooling changes pass targeted tests and preserve useful outcomes;
+   retire no unread asset on a filename, reference count or framework convention alone.
+4. **Final VS Code E2E:** authoring, validation, review, interaction, cancellation and recovery work on the
+   final candidate, with no Azure writes and no fabricated telemetry.
+5. **Cross-repository evidence:** documentation and remote checks match the tested revisions.
+   CHM-08 returns READY_FOR_OWNER_REVIEW or BLOCKED, never permission to merge or deploy.
 
-Source and environment:
+A native discovery list, source validator, green fixture or ARM provisioning result is not runtime E2E.
+There are no unmeasured token, cost or latency savings targets. Measure only with attributable real usage.
+Existing smoke numeric thresholds and exact event sequences are historical APEX conventions:
+CHM-06 must justify, adapt or retire each without manufacturing support for missing runtime fields.
 
-- Required source checks pass at the candidate revision; the known formatting failure is resolved.
-- Candidate failures are classified against the baseline in clean isolated worktrees or equivalent safe snapshots.
-  Existing user work and project state remain unchanged.
-- Regression attribution distinguishes pre-migration `05c2ac85`, initial migration `ee2712cc`, and the candidate,
-  with equivalent input snapshots. If equivalent project inputs are unavailable, the classification stays unknown.
-- Required runtime tools and definition-owned routing are observed, not inferred from a registry.
-- Any required runtime capability that is unavailable remains blocking; no substitute model or fabricated evidence.
+### Evidence and compatibility
 
-Workflow:
+The 2026-10-18 assessment was not a clean-room run. Repository guidance was already attached.
+Its full file ledger has explicit content gaps; close only the gaps material to each packet before editing,
+not an unbounded whole-repository re-audit before the pilot.
+Official capabilities, session tool contracts, inspected source, historical claims and unknowns stay separate.
 
-- The human-selected Orchestrator and directly selected step-agent modes are both exercised.
-- Delegated input requests resume the same worker without duplicating answered questions or losing request identity.
-- Decline does not approve; cancellation stops; worker completion does not authorize the next step.
-- An explicitly resumed execution first successfully recovers through `apex-recall show`.
-- Requirements has its mandatory independent review. Architecture has comprehensive and separate cost-feasibility
-  reviews; stale evidence and unresolved must-fix findings cannot approve a gate.
-- A dedicated approved smoke project stops at Gate 2. There is no Governance, CodeGen, or deployment execution.
+Current source planning baseline is `ea8cb3821f6f6d435dacf967d38263a04d438d41`.
+Historical comparisons include `05c2ac85` and `ee2712cc341ad0cc19a4b21ba9bf3701ce5aefcd`.
+Equivalent input snapshots are required for regression attribution; unavailable inputs mean UNKNOWN.
+Preserve all untracked project artifacts and existing `agent-output/` and project IaC.
 
-Telemetry, using the current [smoke contract](../../tests/integration/smoke-run.md):
+### Owner decisions and stop conditions
 
-- Capture is native SDK and explicitly scoped; the root capture is closed after any later resume.
-- Every observed call has input/output usage; authoritative usage is counted once.
-- Incomplete operations, unattributed usage, and non-benign errors are non-passing.
-- Model names, effort, picker selection and model-source labels are diagnostics only, not acceptance gates.
-- At most 20 `ask_user` calls occur in the captured scope.
-- Every attributed worker's first execution input is at most 45,000 tokens.
-- At most two attributed default-mode Challenger execution requests occur per step.
-- Resume evidence includes successful first-tool recall recovery.
-- Automated telemetry passes and manual runtime observations both exist; neither substitutes for the other.
+- Approve this plan before implementation; approval is not a merge or deployment authorization.
+- Choose the consequential approval/credential boundary during CHM-10.
+- Decide whether the generic prepare/validate/deploy skill pack is core or optional before retiring it.
+- Approve any change to the currently mandatory separate architecture cost-feasibility review.
+- Retain current signed-exception trust semantics unless a separately approved change replaces them.
+- Stop only the affected packet for missing capability, permission, conflicting edits, ambiguous authority,
+  unresolved blocking findings, exhausted bounded repair or required owner decision.
 
-Delivery:
-
-- `apex-docs` changes are linked and validated in that repository.
-- Release evidence covers every requirement and issue, is revision-bound, and lists any explicit blockers.
-- A human owns the final merge decision. No issue or document grants deployment permission.
-
-### Risks and decisions
-
-| Risk                                                         | Required treatment                                                               |
-| ------------------------------------------------------------ | -------------------------------------------------------------------------------- |
-| Custom definitions unavailable or worker identity unverified | Stop and retain diagnostic evidence; no fallback.                                |
-| Environment or credentials prevent MCP access                | Return the missing prerequisite; operator resolves it explicitly.                |
-| Historical plan conflicts with current runtime contracts     | Preserve history; follow current instructions and record the difference.         |
-| Existing Eventdesk or link failures obscure regressions      | Compare baseline and candidate without mutating project state.                   |
-| Logs disclose sensitive data                                 | Keep raw capture local; publish only approved redacted summaries.                |
-| Planning files not yet pushed                                | Keep GitHub issues self-contained and do not publish nonexistent artifact links. |
-
-Scheduling is dependency-based, not a promise of dates or cost.
-Live smoke work requires fresh operator scope, budget, project, and cutoff approval.
+No deadline or cost saving is promised. The next action is owner review of the proposed plan.
