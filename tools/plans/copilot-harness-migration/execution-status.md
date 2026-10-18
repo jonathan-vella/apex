@@ -152,6 +152,13 @@ finalization and clarifies discovery-stage review scope. Failed-operation and pr
 unchanged; no existing project attempt is retried, repaired or restamped by this source work.
 See [retry evidence](agent-body-readiness.md#requirements-retry-reviewer-dispatched-recording-rejected).
 
+The owner subsequently authorized unattended local validate/fix/publish work with **zero Copilot CLI
+AI credits**. The newer instruction-audit source `a96c6a31` is preserved as the baseline.
+Full source-only validation, current remote checks and additional deterministic discovery/recovery
+checks pass. Extra scenario-negation cases exposed and repaired a narrow Requirements branching bug.
+No model-backed CLI or reviewer calls, project-state mutation, review retry or Azure action occurred.
+See [zero-credit validation](agent-body-readiness.md#zero-credit-unattended-validation) for scope and limits.
+
 An additional bounded review fix disables implicit model invocation in both deploy entries,
 Diagnose and manual Challenger; structural/negative tests no longer force those roles model-invocable.
 Diagnose explicitly returns a blocker when its actual question tool is unavailable.

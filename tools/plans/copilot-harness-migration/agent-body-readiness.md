@@ -269,3 +269,32 @@ receipt nor a new review allowance. Production retry authorization and integrate
 The staged implementation also passes full source-only `npm run validate:all`: 53 Node validation
 entries, no failures, plus external Python suites. The supplied project/session artifacts were not
 copied, edited or waived. This engineering validation does not make the failed production review valid.
+
+### Zero-credit unattended validation
+
+The owner authorized a bounded unattended validate/fix/publish pass with a total Copilot CLI
+AI-credit budget of zero. The baseline was the newer instruction-audit commit `a96c6a31`;
+its changes were preserved. Copilot CLI `1.0.98` was identified through version/help only.
+No model-backed CLI sessions or new native reviewer calls ran under this authorization.
+
+The exact source-only baseline passed full validation and its current remote checks, including
+container comparisons. Additional Git-hook, full JavaScript/format and documentation compatibility
+checks passed. Extra discovery probes nevertheless exposed incorrect handling of explicit negation:
+`not greenfield` suppressed valid migration intake, and `no migration or modernization` still asked
+migration questions. The helper now removes the complete explicitly negated scenario list before
+deciding which branch applies. Seven regression cases failed before the fix and pass after it.
+Captured answers, stage completion semantics and domain/approval gates are unchanged.
+
+The focused discovery/recorder/Orchestrator suite passed 128 tests. Four complete synthetic discovery
+ledgers also passed the actual native-form Python validator with no duplicate/captured-answer questions.
+Existing synthetic review-retry, revision-conflict, freshness and risk-boundary tests passed 84 cases.
+These fixtures exercise deterministic code only; their seeded review/approval data is not runtime
+review evidence, owner signoff, Azure permission or proof of VS Code/CLI equivalence.
+Final candidate validation and pushed CI are reported with the delivered revision.
+The final staged repair passed full source-only `npm run validate:all`: 53 Node validation entries
+and external Python suites, with no failures. Existing project inputs were excluded, not waived.
+
+No real project state, artifacts, review findings, attempt budgets or credentials were changed.
+No Azure action, deployment, merge or auto-merge was performed. Normal model-backed Requirements
+discovery, independent review recording, UI cancellation/restart and consequential approval remain
+acceptance gaps, not a successful overnight E2E claim.

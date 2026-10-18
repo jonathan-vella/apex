@@ -122,9 +122,13 @@ export function buildDiscoveryForm(stage, answers = {}) {
       throw new Error("Migration discovery requires the captured scenario; restore the business answer ledger first");
     }
     const scenario = String(answers.scenario).trim();
-    const isGreenfield = /\bgreenfield\b/i.test(scenario);
-    const negatedChange = /\b(?:no|not|without)\s+(?:(?:a|any)\s+)?(?:migrat\w*|moderni[sz]\w*)\b/gi;
-    const changes = scenario.replace(negatedChange, "");
+    const scenarioTerm = "(?:(?:a|an|any)\\s+)?(?:greenfield|migrat\\w*|moderni[sz]\\w*|lift[\\s-]and[\\s-]shift)\\b";
+    const negatedTypes = new RegExp(
+      `\\b(?:no|not|without)\\s+${scenarioTerm}(?:\\s*(?:,|and|or|nor)\\s*${scenarioTerm})*`,
+      "gi",
+    );
+    const changes = scenario.replace(negatedTypes, "");
+    const isGreenfield = /\bgreenfield\b/i.test(changes);
     if (!isGreenfield && /\b(?:migrat\w*|moderni[sz]\w*|lift[\s-]and[\s-]shift)\b/i.test(changes)) {
       add(
         "current_platform",

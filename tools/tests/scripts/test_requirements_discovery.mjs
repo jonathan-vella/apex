@@ -52,6 +52,28 @@ test("migration and modernization receive only relevant guided follow-ups", () =
   }
 });
 
+for (const [scenario, needsMigration] of [
+  ["Modernization — improve an existing workload, not a greenfield build", true],
+  ["Not greenfield: migrating an on-premises workload", true],
+  ["No migration or modernization, just extend the existing platform", false],
+  ["This is not a migration or modernization", false],
+  ["Extension without migration and modernization", false],
+  ["No lift-and-shift or modernization; extend the platform", false],
+  ["Not greenfield and not migration, but modernizing an existing service", true],
+]) {
+  test(`scenario negation preserves the intended branch: ${scenario}`, () => {
+    const answers = { scenario };
+    const original = structuredClone(answers);
+    const result = buildDiscoveryForm("migration", answers);
+    assert.equal(result.complete, !needsMigration);
+    assert.deepEqual(
+      Object.keys(result.form?.requestedSchema.properties ?? {}),
+      needsMigration ? ["current_platform", "pain_points", "preservation_requirements"] : [],
+    );
+    assert.deepEqual(answers, original);
+  });
+}
+
 test("captured custom answers and unknowns are retained without redundant confirmation", () => {
   const answers = {
     industry: "Professional services",
