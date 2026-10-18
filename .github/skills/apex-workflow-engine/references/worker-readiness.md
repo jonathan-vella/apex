@@ -30,6 +30,10 @@ A delegated main returns `USER_INPUT_REQUIRED` with stable `request_id`, `phase`
 `requestedSchema.properties` and missing inputs. The interactive parent asks, validates freeform
 answers and supplies them against the same request. Leaves return their role-specific missing-input
 failure and never ask users, manage parent todos or delegate.
+Every resumed/replacement main task receives the complete captured-answer ledger, not just
+the latest form response. Preserve confirmed values, custom answers, unknowns and skipped branches.
+Before rendering a form remove answered/inapplicable fields; don't ask migration details for Greenfield
+or create separate Other-description fields when native choices already accept freeform.
 Pass only the actual native tool's supported form fields. `requestedSchema` contains `properties`;
 do not forward arbitrary JSON Schema `required`, `pattern` or `format` keywords as if the tool enforced them.
 Describe constraints and validate returned freeform answers separately, preserving any invalid-input blocker.
@@ -42,6 +46,11 @@ Consume the actual result in the role's declared file/text/verdict format.
 Validate artifact/result shape, relevant input freshness and real command outcomes.
 Missing capability, malformed result, stale evidence or permission denial blocks the affected action.
 Never replace a missing reviewer with self-review, an arbitrary worker or a main-wrapper fallback.
+Nested task capability missing on a delegated artifact owner is not reviewer unavailability:
+return `REVIEW_REQUIRED` to the authorized interactive Orchestrator for automatic native
+`rubber-duck` sibling execution with the existing metadata/recorder/budget contract.
+The actual interactive parent captures inputs and records results under its own native identity.
+Only a real missing parent capability or failed/invalid result blocks that relay.
 Keep the existing single identical-input empty-review retry and actual invocation budget.
 New tasks/contexts never reset review accounting, findings or approvals.
 

@@ -46,6 +46,9 @@ STOP and return its failure to the interactive parent; never nest a main-agent
 wrapper or fabricate inline review. `10-Challenger` remains optional manual recovery.
 Missing or empty output permits exactly one identical-input retry, then human
 escalation under the [review protocol](../../apex-azure-defaults/references/adversarial-review-protocol.md).
+When the delegated owner cannot call nested tasks, return `REVIEW_REQUIRED` instead:
+the allowlisted interactive Orchestrator runs the same native reviewer as a sibling automatically.
+This is not a manual-wrapper fallback or review exemption. Preserve budget, actual inputs and recorder identity.
 
 ## Output ownership
 

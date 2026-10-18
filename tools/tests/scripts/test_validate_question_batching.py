@@ -30,7 +30,7 @@ def _form():
         "requestedSchema": {
             "properties": {
                 "region": {"type": "string", "title": "Region"},
-                "features": {"type": "array", "title": "Features", "items": {"type": "string"}},
+                "features": {"type": "array", "title": "Features", "items": {"type": "string", "enum": ["A", "B"]}},
             },
         },
     }
@@ -75,6 +75,40 @@ def test_malformed_json_fails(tmp_path):
     fixture = tmp_path / "native.agent.md"
     fixture.write_text(DIRECTIVE + '```json\n{"message": broken}\n```\n')
     assert _load().validate(fixture)
+
+
+def test_native_rich_choices_and_suggested_defaults_are_supported():
+    form = _form()
+    form["requestedSchema"]["properties"]["region"] = {
+        "type": "string",
+        "title": "Region",
+        "oneOf": [{"const": "swedencentral", "title": "Sweden Central"}],
+        "default": "swedencentral",
+    }
+    form["requestedSchema"]["properties"]["features"] = {
+        "type": "array",
+        "title": "Features",
+        "items": {"type": "string", "anyOf": [{"const": "A", "title": "Option A"}]},
+        "default": ["A"],
+    }
+    _load()._validate_example(form)
+
+
+@pytest.mark.parametrize(
+    "field",
+    [
+        {"type": "object", "title": "Unsupported object"},
+        {"type": "string", "title": "Broken labels", "enum": ["A", "B"], "enumNames": ["Only one"]},
+        {"type": "string", "title": "Ambiguous", "enum": ["A"], "oneOf": [{"const": "A", "title": "A"}]},
+        {"type": "array", "title": "No choices", "items": {"type": "string"}},
+        {"type": "string", "title": "Bad choice", "oneOf": [{"const": "A"}]},
+    ],
+)
+def test_invalid_native_choice_shapes_are_rejected(field):
+    form = _form()
+    form["requestedSchema"]["properties"]["region"] = field
+    with pytest.raises(ValueError):
+        _load()._validate_example(form)
 
 
 @pytest.mark.parametrize("field", ["required", "pattern", "additionalProperties", "type"])

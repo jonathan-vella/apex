@@ -178,3 +178,56 @@ not an unconditional claim that every agent is fully exercised in the installed 
 Source/test/docs/PR validation is recorded with the actual delivered revision.
 Owner-reported native questions pass for all current main agents, and the three previously mismatched
 leaf missing-input probes pass. Remaining interaction/permission/domain execution gaps stay visible.
+
+### Requirements discovery UX regression and repair candidate
+
+The owner's supplied Requirements transcript for `cp-harness-01` contradicts any inference that
+passing question-channel probes established normal discovery quality. It shows duplicate employee-size
+and separate Other fields, vague freeform business/timeline questions, migration-only questions after
+Greenfield, repeated technical ownership intake and an explicit admission that earlier answers were
+omitted from a replacement task. No protected project state or answers were edited during this repair.
+
+Comparison with `origin/main` at `3602dea8` confirms the previous Requirements body contained richer
+industry/scenario/sizing menus and conditional migration rounds. Some excessive implementation-binding
+intake predated the harness change; the regression is not attributed entirely to migration.
+
+The candidate restores guided discovery through
+[`requirements-discovery.mjs`](../../scripts/requirements-discovery.mjs):
+inline freeform choices without Other companions, conditional migration/sizing/access fields,
+understandable outcome/timeline/budget menus and reusable captured answers. A missing migration
+scenario fails explicitly instead of treating a dropped ledger as a completed stage.
+Unambiguous selected workloads are not asked again. Unknown access/ownership details are recorded
+for their consuming Architecture/Planning gate rather than forcing account contacts, principal IDs
+or runtime details out of a non-expert in Step 1. Baselines and later implementation gates are unchanged.
+
+Every Requirements continuation now requires the full answer ledger. The Orchestrator can perform
+the same automatic native independent review as a sibling when a delegated producer cannot nest tasks.
+`REVIEW_REQUIRED` does not authorize self-review, findings fabrication, budget resets or relaxed recording.
+Actual reviewer failure and missing recording evidence remain distinct blocking outcomes.
+
+The supplied transcript ends with "reviewer unavailable" and a manual Challenger instruction, but
+contains no visible actual reviewer call/error. The owner reports debug logging is not working;
+no separate usable log was supplied and the exact referenced temporary outputs no longer exist.
+The original runtime failure cause is therefore unknown, not proved to be nested-task unavailability.
+
+Actual bounded observations during the repair:
+
+- A delegated native Requirements probe with a synthetic Greenfield ledger returned only the missing
+  guided industry/timeline fields, preserving earlier answers and excluding migration/Other/contact fields.
+- A no-nesting role-contract probe returned the requested `REVIEW_REQUIRED` scope to its parent.
+  This proves response shape under an explicit synthetic constraint, not automatic production recording.
+- A real independent native `rubber-duck` source review identified missed freeform migration wording,
+  duplicated workload confirmation and missing-ledger handling. Those cases were repaired and covered
+  by behavioral tests; no `cp-harness-01` review receipt or project approval was manufactured.
+- Guided form, parent/agent policy and native rich-field tests pass locally. Full validation is reported
+  against the delivered candidate; an integrated owner retry remains necessary for normal discovery
+  and automatic review-recording acceptance.
+
+Repair validation: focused guided-form/agent-policy tests passed (65); native rich-form Python tests
+passed (30); tooling aggregate passed (849, with 2 skipped). JavaScript/Ruff/Markdown, agent/skill,
+documentation freshness and regenerated Explorer checks passed.
+`npm run validate:all` passed in an isolated source-only candidate checkout:
+53 Node validation entries, no failures, with the external Python suites also passing.
+Protected untracked projects were excluded, not repaired or waived. Subsequent evidence prose does
+not change the tested implementation. Documentation companion `8946267447e667fd52c5d759b03a9135a1b7b077`
+is pushed on `jonathan-vella/apex-docs#43`, with build/content/link and editorial tests passing.

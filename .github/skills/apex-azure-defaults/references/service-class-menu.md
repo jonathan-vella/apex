@@ -42,6 +42,10 @@ Required batching (saves ~10 turns per Phase 3):
   [`sku-manifest.instructions.md`](../../../instructions/sku-manifest.instructions.md#mandatory-elicitation-at-step-1)).
 
 Use business-friendly descriptions with Azure service names in parentheses.
+Native choice fields accept a custom/freeform answer themselves. Never add separate Other-description
+fields or ask a conditional follow-up before its triggering answer. Use “Not sure — guide me” for
+unfamiliar service choices, explain the recommended option and record unresolved design choices honestly.
+Reuse previously captured availability/recovery choices rather than asking the same NFR again.
 
 ## 3a. NFR profile and tier
 
@@ -155,12 +159,11 @@ preferences** the user already knows so Architect treats them as locked
 user-pins; everything else is left for Architect to evaluate at Step 2.
 
 Use one **batched `ask_user` call (Batch D)** with one question per
-unanswered service class confirmed at 3i. For each such class, present three
-options plus a freeform field:
+unanswered service class confirmed at 3i. For each such class, present one choice field with its native freeform route:
 
-- **Pinned SKU/size** — freeform (e.g. `P1v3`, `GP_Standard_D2s_v3`,
+- **Pinned SKU/size** — type the pin in the same field (e.g. `P1v3`, `GP_Standard_D2s_v3`,
   `S2 (50 DTU)`, `Standard_DS3_v2`).
-- **Tier floor only** — freeform (e.g. `Standard or higher`,
+- **Tier floor only** — type the floor in the same field (e.g. `Standard or higher`,
   `Premium_v3 family`).
 - **No preference — let Architect decide** (recommended default).
 

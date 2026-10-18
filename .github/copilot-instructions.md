@@ -139,6 +139,9 @@ body explicitly points to one. There is one tier — no digest, no minimal.
   [one-shot review](skills/apex-azure-defaults/references/one-shot-review.md).
   They require actual synchronous results and validated recorded findings.
   Model selection remains runtime-managed.
+  A delegated owner without nested task capability returns `REVIEW_REQUIRED`; the authorized interactive
+  Orchestrator invokes that same reviewer as a sibling automatically, preserving budgets and actual provenance.
+  Missing nested tools are not by themselves an unavailable reviewer or a reason to request manual Challenger.
 - If a required reviewer is unavailable, STOP and return the actual failure to the
   interactive parent; never invoke a nested wrapper or fabricate an inline review.
   `10-Challenger` remains optional manual recovery. Missing/empty reviewer output

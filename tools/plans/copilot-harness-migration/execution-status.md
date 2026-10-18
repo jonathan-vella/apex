@@ -132,6 +132,17 @@ The later observations include Orchestrator, Planner, Diagnose, Challenger, both
 As-Built and Context Optimizer. Paired snippets are attributed by the requested test order.
 All answers were synthetic and do not authorize real operations or establish normal-workflow completeness.
 
+The later real `cp-harness-01` Requirements transcript demonstrates a normal-workflow UX failure despite
+those question-channel passes: unguided/redundant questions, incorrect Greenfield branching, lost answer
+carry-forward and premature implementation ownership intake. A repair candidate restores tested guided
+forms, complete answer-ledger continuation and automatic parent/sibling `rubber-duck` review when a
+delegated owner cannot nest tasks. It does not change approval authority, review provenance or budgets.
+The transcript claims reviewer unavailability without a visible call/error; unavailable debug logs leave
+that precise cause unknown. Source tests and bounded synthetic probes are not a successful production
+Requirements run or a repaired historical review. See the
+[Requirements repair evidence](agent-body-readiness.md#requirements-discovery-ux-regression-and-repair-candidate).
+Existing project answers, state and findings remain untouched.
+
 An additional bounded review fix disables implicit model invocation in both deploy entries,
 Diagnose and manual Challenger; structural/negative tests no longer force those roles model-invocable.
 Diagnose explicitly returns a blocker when its actual question tool is unavailable.

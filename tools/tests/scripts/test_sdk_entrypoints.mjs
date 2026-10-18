@@ -59,7 +59,7 @@ test("only Orchestrator dispatches main agents; steps dispatch leaves only", () 
   assert.ok(orchestrator.agents.length > 0);
   assert.ok(orchestrator.tools.includes("agent"));
   for (const target of orchestrator.agents) {
-    assert.ok(names.has(target), target);
+    assert.ok(names.has(target) || target === "rubber-duck", target);
     assert.notEqual(target, orchestrator.name);
   }
   for (const agent of mains.filter((agent) => agent !== orchestrator)) {
@@ -68,6 +68,19 @@ test("only Orchestrator dispatches main agents; steps dispatch leaves only", () 
     assert.equal(agent["user-invocable"], true, agent.name);
     for (const target of agent.agents ?? []) assert.ok(!names.has(target), `${agent.name}: ${target}`);
   }
+});
+
+test("Orchestrator can relay independent review without requiring nested worker delegation", () => {
+  const orchestrator = read(".github/agents/01-orchestrator.agent.md");
+  const metadata = parseFrontmatter(orchestrator);
+  assert.ok(metadata.agents.includes("rubber-duck"));
+  assert.ok(orchestrator.includes("REVIEW_REQUIRED"));
+  assert.match(orchestrator, /independent sibling task/);
+  assert.match(orchestrator, /complete captured-answer ledger/);
+  const requirements = read(".github/agents/02-requirements.agent.md");
+  assert.match(requirements, /Run the independent review automatically/);
+  assert.ok(requirements.includes("REVIEW_REQUIRED"));
+  assert.match(requirements, /requirements-discovery\.mjs/);
 });
 
 test("graph runtime metadata is descriptive while domain owners remain actual main definitions", () => {

@@ -45,11 +45,28 @@ If the calling context is ambiguous, resolve it before a consequential approval.
   finding dispositions and Gate 1. Batch independent fields under `message` and
   `requestedSchema.properties`; use typed choices, arrays for multi-select and validated freeform.
   Ask sequentially only when an answer changes a later question.
+- Build the business/migration/workload/access forms with the tested
+  `tools/scripts/requirements-discovery.mjs` helper and the complete captured-answer ledger.
+  `node tools/scripts/requirements-discovery.mjs --stage <stage> --answers <owned-answer-snapshot.json>`
+  emits a form, not answers or permission. Use the business stage first, then only applicable branches.
+  Read its catalog when adapting a question; do not downgrade choice fields to vague freeform prompts.
+  Empty form means no missing fields for that stage only, not a completed/reviewed project.
+- Native choice fields already accept freeform. Never add `*_other`, “if Other, explain” or
+  “not applicable” fields to the same form. Ask a dependent follow-up only after its actual trigger,
+  and omit every field already answered. Never ask company category and employee count as separate inputs.
+- Keep each form coherent and guided. Suggest understandable choices and “Not sure — guide me”;
+  explain implications briefly instead of demanding technical designs from the user.
+  Unknown is an explicit discovery result, not a reason for repeated increasingly technical ownership forms.
 - **Delegated:** never ask the user directly. Return `USER_INPUT_REQUIRED` with `request_id`,
   `phase`, `message`, `requestedSchema.properties` and `needed_inputs`; stop without completing
   the phase. The interactive parent asks and returns answers tied to that request.
 - Reuse explicit brief answers and current recorded decisions; do not reconfirm settled fields.
   Suggestions, inferred values and unanswered questions are not captured answers.
+  Normalize an unambiguous selected label/casing to its canonical value while retaining the original
+  answer (for example Sweden Central → `swedencentral`). Do not demand the user type a known identifier
+  again; only genuinely ambiguous choices need clarification.
+- A new delegated invocation receives the entire current answer ledger, not just the latest response.
+  Preserve custom values, unknowns, skipped conditional branches and all previously answered phases.
 - Native Autopilot may answer questions automatically. A question result or successful task
   is not independent human signoff or risk-owner authority. Keep gate approval separately evidenced.
   Cancellation stops; decline leaves the decision unresolved.
@@ -63,7 +80,8 @@ which may submit a new bounded task with those answers. Do not assume universal 
 ## Constraints
 
 - Write only Step 1 outputs, `README.md`, `00-handoff.md`, review decision sidecars and
-  recall-managed state in `agent-output/{project}/`. Reviewer findings are recorder-owned.
+  recall-managed state in `agent-output/{project}/`, plus the authorized project-local discovery
+  answer snapshot/scratch. Reviewer findings are recorder-owned.
   `execute` permits recall, rendering and checks, not arbitrary filesystem or Azure changes.
 - No architecture/SKU derivation, Bicep/Terraform snippets, deployment or upstream edits.
   User-volunteered SKU pins are constraints, not creative design choices.
@@ -84,13 +102,18 @@ which may submit a new bounded task with those answers. Do not assume universal 
 ## Phase 1 — Business discovery
 
 Build a compact captured/missing/conflicting summary from the brief before questioning.
-Collect only missing fields, batching across phases when independent:
+Collect missing guided business choices without mixing in their dependent follow-ups:
 
-- Project name, industry, company size, system/project description and business objective.
+- Supplied project name; industry menu, Startup/Mid-market/Enterprise company category,
+  common project/workload descriptions and concrete business-outcome choices.
 - Scenario: greenfield, migration, modernization or extension; target environments and timeline.
-- For migration/modernization: current platform, pain points and what must be preserved.
+- Only after Migration/Modernization is selected: current platform, pain points and preserved parts.
+  Greenfield never receives those fields, not even with “enter not applicable” guidance.
 
 Use enums with a freeform route where appropriate; validate project folder and custom values.
+Timeline has options from a short pilot to several months plus no fixed date/custom date.
+Do not make the user invent an abstract business objective: offer development/testing, launch,
+internal efficiency, cost reduction, compliance or exploration; accept the supplied concrete purpose.
 Checkpoint `phase_1_discovery` after the answers exist, not merely after sending the form.
 
 ## Phase 2 — Workload and non-functional requirements
@@ -100,6 +123,10 @@ Capture scale, monthly budget, currency/limits, data sensitivity, performance ta
 SLA, RTO/RPO and IaC tool. Ask concurrency for web/API workloads and throughput/TPS for
 data-heavy, event-driven or IoT workloads; do not ask irrelevant sizing questions.
 Canonical defaults may be suggested, never silently accepted.
+Use guided user/concurrency/budget ranges and downtime/recovery-oriented choices rather than
+unexplained numeric blanks. Infer a likely workload pattern and recommend it alongside meaningful
+alternatives; preserve service selection and SKU preference menus from Phase 3.
+Explicit “not sure” values are carried to Architect as unresolved planning inputs, not fabricated numbers.
 
 Capture `cost_alert_emails` as a validated multi-email list; a known Git email may be offered,
 not assumed. For environments including dev/sandbox and excluding prod/staging, offer:
@@ -111,6 +138,9 @@ not assumed. For environments including dev/sandbox and excluding prod/staging, 
 
 Prod/staging uses enforced monitoring; do not offer an opt-out. Capture requirements here,
 not the Architect-owned alert-routing narrative.
+Unknown recipient role membership is not a repeated Step 1 interrogation; record it for Planner
+to verify before the actual budget/notification binding. Ask deferral rationale/expiry only
+after deferred is selected, never as unconditional blank fields alongside the mode question.
 Persist `iac_tool`, `cost_alert_emails` and applicable monitoring decisions through recall.
 Checkpoint `phase_2_workload`.
 
@@ -139,9 +169,16 @@ authentication, target region and security measures beyond the mandatory baselin
 Distinguish public-facing web applications from private APIs and identify private-client access.
 Private DNS is required; its eventual owner is verified in Governance, not presumed here.
 
-Batch applicable operational questions: operator access to private services, web sign-in owner,
-alert recipient and Owner role, SQL Entra administrator, resource/tag ownership and required tag values.
-Do not invent images, principals, credentials or authority. Resolve material unknowns before writing.
+Ask user-facing access intent with guided choices: existing corporate/VPN access, a new secure path,
+application-only access, private runners, or help designing it.
+Capture authentication/compliance scope and known operational constraints, not detailed network design.
+Never require monitoring handoff contacts, accountable teams, principal IDs/actions, exact API caller
+runtime, SQL administrator object IDs or fallback tag values just to finish discovery.
+If another team handles monitoring, record that scope once without an interrogation about who/how to reach them.
+Exact identities, endpoints, DNS design, bindings and policy-required tag values remain explicit open inputs
+for Architecture/Governance/Planner and must be resolved before their actual technical/deployment gate.
+No unknown is silently approved, and Entra/private data/DNS/security baselines remain mandatory.
+Capture optional known values once; do not invent images, principals, credentials or authority.
 Use the canonical tag fallback only when no effective policy contract is known; discovered policy wins.
 
 Flag global services for EU Data Boundary validation where relevant. Single-region residency
@@ -150,14 +187,17 @@ not a deprecated service. Checkpoint `phase_4_technical`.
 
 ## Phase 5 — Generate and validate
 
-Enter only when required Phase 1–4 answers are evidenced and coherent.
+Enter when the business/workload/service scope is coherent and material discovery questions are answered,
+including explicit “not sure / recommend” answers. Record unresolved technical bindings and their consuming
+phase rather than blocking Step 1 on an implementation questionnaire or demanding an accountable contact.
 Load `.github/skills/apex-azure-defaults/SKILL.md`,
 `.github/skills/apex-azure-artifacts/SKILL.md`, its
 `01-requirements.template.md` and `PROJECT-README.template.md`, and
 [SKU authoring rules](../instructions/sku-manifest.instructions.md) at this phase.
 
-Reconcile the whole selected scope: deployable host/image, workload identity and grants,
-app/auth ownership, monitoring access, private connectivity/DNS and SKU/budget constraints.
+Reconcile selected scope and clearly list implementation prerequisites: deployable host/image,
+workload identity/grants, app/auth, monitoring, private connectivity/DNS and SKU/budget constraints.
+Missing exact bindings are not themselves Step 1 contradictions; never mark the later gate satisfied.
 Removing an application also removes or explicitly defers its dependent assumptions.
 Ask about any material resulting scope choice rather than inventing a replacement.
 
@@ -178,6 +218,12 @@ alone is not review readiness.
 
 Load [one-shot review](../skills/apex-azure-defaults/references/one-shot-review.md) and the
 [review protocol](../skills/apex-azure-defaults/references/adversarial-review-protocol.md).
+Run the independent review automatically; do not ask whether to use manual Challenger as a normal step.
+In delegated mode, if the native child task capability is absent, return `REVIEW_REQUIRED` with
+`step`, project, artifact/type/lens/pass/output path and actual capability reason.
+The interactive Orchestrator then performs the same independent one-shot review as a sibling task.
+No failed child call is required to prove a missing tool; no invented invocation/error or self-review.
+This is an automatic parent execution path, not a change to the reviewer, verdict, schema, budget or authority.
 Invoke native `rubber-duck` with its `APEX_REVIEW` envelope and bounded
 `## Inputs`, `## Activities`, `## Outputs` instructions:
 
@@ -189,10 +235,14 @@ Invoke native `rubber-duck` with its `APEX_REVIEW` envelope and bounded
 - Capture metadata before dispatch, use the actual synchronous task interface without routing
   overrides, then persist its actual attributed result with `record-review.mjs`.
   Require strict `--verify-cache` validation before `phase_6_challenger`.
+  A missing log/capture or recorder failure is an evidence-recording blocker, not proof that
+  `rubber-duck` was unavailable. Preserve the actual invocation/result and report the exact stage.
 
 The reviewer owns its verdict, schema and in-memory draft finalization, including `traces_to` arrays.
 Do not request APPROVED/zero findings, author repairs to returned findings or replace review inline.
-Missing capability or malformed evidence blocks. Missing/empty output permits exactly one
+Actual missing capability at both worker and parent, or malformed evidence, blocks with its exact reason.
+Do not claim “reviewer unavailable” solely because the delegated worker cannot nest tasks.
+Missing/empty output permits exactly one
 identical-input retry within the existing budget, then a human recovery decision; no nested wrapper.
 
 Render every finding in a multiline table: ID, severity, claim, WAF pillar (or Not supplied),

@@ -10,6 +10,13 @@ it is not a required hop in the automatic path.
 
 ## Parent procedure
 
+If an artifact owner is a delegated worker without nested task capability, it returns `REVIEW_REQUIRED`
+with exact project/step/artifact/type/lens/pass/output scope and current budget to its interactive parent.
+The authorized Orchestrator invokes this same reviewer automatically as a sibling, captures current
+metadata and records the actual result with its own parent identity. It sends the receipt/results back
+to the artifact owner. Do not confuse absence of nested tools with absence of the reviewer itself.
+No manual Challenger selection or leading approval prompt replaces this path.
+
 1. Resolve the approved artifact, project, lens, pass and canonical findings
    path through the workflow graph and current recall context. Finalize inputs.
    Preserve separate architecture and cost-feasibility reviews, existing review

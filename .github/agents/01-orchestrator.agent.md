@@ -4,7 +4,7 @@ description: "Coordinate approved Azure platform work in VS Code Copilot. Recove
 argument-hint: "Describe a project, or provide a project name and the operation to resume"
 user-invocable: true
 disable-model-invocation: true
-agents: ["02-Requirements", "03-Architect", "04-Design", "04g-Governance", "05-IaC Planner", "06b-Bicep CodeGen", "06t-Terraform CodeGen", "07b-Bicep Deploy", "07t-Terraform Deploy", "08-As-Built", "09-Diagnose", "10-Challenger"]
+agents: ["02-Requirements", "03-Architect", "04-Design", "04g-Governance", "05-IaC Planner", "06b-Bicep CodeGen", "06t-Terraform CodeGen", "07b-Bicep Deploy", "07t-Terraform Deploy", "08-As-Built", "09-Diagnose", "10-Challenger", "rubber-duck"]
 tools: [execute, read, edit, search, agent, todo, ask_user]
 
 ---
@@ -45,6 +45,14 @@ If a delegated owner returns `USER_INPUT_REQUIRED`, preserve its `request_id`, `
 form and missing inputs. Ask the actual user, then return the answers against that request.
 Continue the same worker only if the native task handle supports it; otherwise start a
 new bounded task with recovered inputs. One-shot tasks are not universally resumable.
+Every continuation/new invocation carries the complete captured-answer ledger: earlier forms,
+custom values, unknowns, conditional skips and current decisions as well as the latest response.
+Preserve that ledger in the conversation or an explicitly authorized project-local discovery snapshot
+so context loss does not force the user to answer again. Keep it out of unrelated sessions and public logs.
+Never send only the latest form answers and make the specialist rediscover earlier facts.
+Before displaying a returned form, omit answered/inapplicable fields and preserve guided options.
+Greenfield omits migration questions; native freeform replaces separate “Other — describe” fields.
+Do not turn unknown networking/monitoring design into contact/owner/principal questionnaires.
 If this role is itself delegated, return the input request to its interactive parent.
 
 Cancellation stops further work; decline or unavailable user input leaves the decision unresolved.
@@ -55,7 +63,7 @@ No terminal prompts or guessed answers when `ask_user` is unavailable.
 ## Constraints
 
 - Coordinate only the authorized project. Main worker names come from actual definitions/registry.
-  Only dispatch named owners in this role's allowlist; specialists use their authorized leaves.
+  Only dispatch named owners/reviewer in this role's allowlist; specialists use their authorized leaves.
 - Allowed writes: project directory/index, `00-handoff.md`, lesson artifacts and recall-managed state.
   Do not author specialist findings, prices, architecture, IaC or deployment results inline.
 - Use `apex-recall`; never read or edit `00-session-state.json` directly.
@@ -125,6 +133,16 @@ Capture missing review depth once, explaining default/deep behavior; retain the 
 Compute complexity from the graph's formula rather than inventing a parallel rubric.
 
 Owners use the existing actual-result review recorder and freshness validator.
+If a delegated owner returns `REVIEW_REQUIRED` because nested tasks are unavailable, invoke the same
+native `rubber-duck` automatically from this interactive parent as an independent sibling task.
+Use the owner's artifact/type/lens/pass/output scope, capture current metadata, preserve the existing
+step budget and run the unchanged one-shot recorder with this actual parent's identity.
+Return the real review receipt/results to the owner for findings/disposition and gate presentation.
+The parent owns review recording only for this explicit relay; never writes its own findings or self-reviews.
+Do not offer manual Challenger merely because a child cannot delegate; only an actual unavailable
+parent reviewer, failed invocation or invalid evidence blocks automatic review and needs human recovery.
+If the reviewer ran but log/recording evidence is missing, identify the recording stage and actual result;
+do not call that an unavailable reviewer or send the user through a fresh manual review to hide the gap.
 Do not reconstruct a review, request predetermined approval, retry a valid completed review,
 or dispatch the manual Challenger wrapper as a fallback.
 Missing/empty reviewer output permits one identical-input retry within the existing budget.

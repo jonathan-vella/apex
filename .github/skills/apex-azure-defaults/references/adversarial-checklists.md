@@ -92,6 +92,9 @@ For **every** artifact, ask:
       with the selected application or platform-only scope? Check all dependent sections in the same review.
 - [ ] Are mandatory private access and DNS captured without conditional policy opt-outs, with unresolved
       ownership left for governance rather than invented? Public web ingress does not exempt an API.
+- [ ] Are discovery-level unknowns honestly recorded for the consuming Architecture/Governance/Planner gate?
+      Missing monitoring contacts, exact API runtimes, principal IDs or deployment tag bindings alone are
+      not Step 1 blockers when scope/security intent is clear. Never invent values or waive later checks.
 
 ### Governance-Constraints-Specific (`artifact_type` = `governance-constraints`)
 

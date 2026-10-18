@@ -107,8 +107,8 @@ export function validateProductionAgentPolicy(agent, agents = new Map()) {
       if (name === "*" || (mainNames.has(name) && !orchestrator)) {
         issues.push(`Only Orchestrator may allowlist main agents; wildcards are forbidden (got: ${name})`);
       }
-      if (orchestrator && (!mainNames.has(name) || name === "01-Orchestrator")) {
-        issues.push(`Orchestrator may allowlist only other named main agents (got: ${name})`);
+      if (orchestrator && ((!mainNames.has(name) && !BUILTIN_REVIEWERS.has(name)) || name === "01-Orchestrator")) {
+        issues.push(`Orchestrator may allowlist only other named main agents and the native reviewer (got: ${name})`);
       }
     }
   }

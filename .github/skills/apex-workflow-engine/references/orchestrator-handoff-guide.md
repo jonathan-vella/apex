@@ -57,9 +57,13 @@ Artifact: agent-output/{project}/01-requirements.md
   `{PASS | ⚠️ {N} must-fix / {N} should-fix findings}`.
 
 **Gate 1 must include current Challenger findings.** If required review is missing,
-STOP and return to the owning Requirements worker for recovery within its existing
-review budget. The Orchestrator cannot invoke reviewers. `10-Challenger` is optional
-manual recovery. Never fabricate an inline review or treat a fallback display as approval.
+return to the owning Requirements worker for recovery within its existing review budget.
+If that delegated worker cannot nest tasks, it returns `REVIEW_REQUIRED` and the interactive
+Orchestrator invokes the same native `rubber-duck` automatically as a sibling task.
+Capture actual inputs/record actual results using the unchanged one-shot contract and budget.
+Only an actually unavailable parent reviewer or failed/invalid execution needs human recovery.
+`10-Challenger` is optional manual recovery, not the normal review path.
+Never fabricate an inline review or treat a fallback display as approval.
 
 ### Gate 2: After Architecture
 

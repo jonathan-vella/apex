@@ -738,7 +738,6 @@ test("production Orchestrator requires an explicit named allowlist and agent too
     { agents: undefined },
     { agents: [], tools: ["agent"] },
     { agents: [worker], tools: ["agent"] },
-    { agents: ["rubber-duck"], tools: ["agent"] },
     { agents: ["*"], tools: ["agent"] },
     { tools: ["read"] },
   ]) {
@@ -748,6 +747,16 @@ test("production Orchestrator requires an explicit named allowlist and agent too
     if (override.agents === undefined && "agents" in override) delete main.frontmatter.agents;
     assert.ok(productionFindings(agents).length > 0, JSON.stringify(override));
   }
+});
+
+test("production Orchestrator may perform the authorized native review relay", () => {
+  const agents = productionFleet();
+  const orchestrator = [...agents.values()].find((agent) => agent.frontmatter.name === "01-Orchestrator");
+  orchestrator.frontmatter.agents = ["02-Requirements", "rubber-duck"];
+  assert.deepEqual(productionFindings(agents), []);
+  assert.deepEqual(validateAgentPermissions(orchestrator.frontmatter, { agents }), []);
+  orchestrator.frontmatter.agents = ["02-Requirements", "unknown-reviewer"];
+  assert.ok(productionFindings(agents).some((finding) => finding.file === orchestrator.path));
 });
 
 test("production workers remain hidden leaves", () => {

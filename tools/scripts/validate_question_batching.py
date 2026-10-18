@@ -16,8 +16,27 @@ from pathlib import Path
 REPO_ROOT = Path(__file__).resolve().parents[2]
 DEFAULT_AGENT = REPO_ROOT / ".github" / "agents" / "02-requirements.agent.md"
 
-FIELD_TYPES = {"string", "number", "integer", "boolean", "array", "object"}
-FORM_FIELDS = {"type", "title", "description", "enum", "items"}
+FIELD_TYPES = {"string", "number", "integer", "boolean", "array"}
+FORM_FIELDS = {"type", "title", "description", "enum", "enumNames", "oneOf", "items", "default"}
+
+
+def _choices(value: object, name: str) -> None:
+    if not isinstance(value, list) or not value or not all(isinstance(item, str) for item in value):
+        raise ValueError(f"question {name!r} requires nonempty string choices")
+
+
+def _labeled_choices(value: object, name: str) -> None:
+    if not isinstance(value, list) or not value:
+        raise ValueError(f"question {name!r} requires labeled choices")
+    for item in value:
+        if (
+            not isinstance(item, dict)
+            or set(item) != {"const", "title"}
+            or not isinstance(item["const"], str)
+            or not isinstance(item["title"], str)
+            or not item["title"].strip()
+        ):
+            raise ValueError(f"question {name!r} requires string const/title choices")
 
 
 def _validate_example(example: object) -> None:
@@ -44,8 +63,33 @@ def _validate_example(example: object) -> None:
             raise ValueError(f"question {name!r} requires a title")
         if field["type"] == "array" and not isinstance(field.get("items"), dict):
             raise ValueError(f"array question {name!r} requires items")
-        if isinstance(field.get("items"), dict) and set(field["items"]) - {"type", "enum"}:
-            raise ValueError(f"array question {name!r} items supports only type and enum")
+        if field["type"] == "array":
+            items = field["items"]
+            if set(items) - {"type", "enum", "anyOf"} or items.get("type") != "string":
+                raise ValueError(f"array question {name!r} items supports string enum or anyOf")
+            if ("enum" in items) == ("anyOf" in items):
+                raise ValueError(f"array question {name!r} requires exactly one choice format")
+            if "enum" in items:
+                _choices(items["enum"], name)
+            else:
+                _labeled_choices(items["anyOf"], name)
+        elif "items" in field:
+            raise ValueError(f"question {name!r} items is only supported for arrays")
+        if "enum" in field:
+            if field["type"] != "string" or "oneOf" in field:
+                raise ValueError(f"question {name!r} requires one string choice format")
+            _choices(field["enum"], name)
+        if "enumNames" in field and (
+            "enum" not in field
+            or not isinstance(field["enumNames"], list)
+            or len(field["enumNames"]) != len(field["enum"])
+            or not all(isinstance(label, str) for label in field["enumNames"])
+        ):
+            raise ValueError(f"question {name!r} enumNames must match its enum choices")
+        if "oneOf" in field:
+            if field["type"] != "string":
+                raise ValueError(f"question {name!r} oneOf is only supported for strings")
+            _labeled_choices(field["oneOf"], name)
 
 
 def validate(agent_path: Path) -> list[str]:

@@ -50,6 +50,8 @@ The reviewer-specific result receipt/freshness contract remains; never fabricate
 Missing required reviewer returns the actual failure. Missing/empty output permits one identical-input
 retry within current accounting, then a real recovery decision; no nested main wrapper fallback.
 Preserve review verdicts, unresolved findings and budgets across workers/chats.
+Delegated owners without nested tools return `REVIEW_REQUIRED` to an authorized interactive parent
+for native sibling review, not self-review or a manual wrapper. Parent review recording uses actual identity.
 
 Use `apex-recall` for project state and significant domain decisions, not direct state JSON edits.
 Atomic state writes, review evidence and actual human approvals remain independent.
