@@ -13,6 +13,7 @@ disable-model-invocation: true
 Use the Copilot session target inside VS Code. A skill inherits actual caller tools/model;
 it cannot change the selected role, grant permission or establish human approval.
 Use the Orchestrator for end-to-end coordination or directly select the requested domain owner.
+If the requested owner is already active, continue there; never ask the user to select the same role again.
 Direct Requirements, Architect, Design and Governance ask missing material questions through native `ask_user`.
 Delegated tasks return the form to their interactive parent.
 
@@ -30,6 +31,10 @@ for authorized delegation and actual results. No handoff-button, handshake or lo
 Missing tool/input/approval returns a precise blocker; do not widen scope or substitute model/owner.
 Decline/cancellation never approve; Autopilot form answers are not independent human authorization.
 For resume preserve findings, checkpoints, current source evidence and actual invocation allowances.
+For an explicit start/new-project request, initialization alone is not completion:
+the active Orchestrator dispatches `02-Requirements` and mediates its missing discovery questions.
+Only an explicit initialization-only request stops at the verified session record.
+Existing pending work is resumed, never reinitialized to recover this startup path.
 
 Git commit and debug-log export remain their separate manual skills.
 Archived Local prompts are history, not active entry points. Do not enable experimental skill forks

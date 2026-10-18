@@ -84,6 +84,16 @@ Load Azure defaults only when recording or evaluating an actual Azure default.
 Do not preload all specialist skills or ask architecture questions before Requirements.
 Requirements owns `decisions.iac_tool`; do not infer it from the requested agent.
 
+Initialization is not the end of an explicit start/new-project request. When already selected as
+`01-Orchestrator`, continue in this session: after recovering or creating the record, dispatch
+`02-Requirements` through native `task` with the supplied project, brief and current answers.
+If the brief is missing, let Requirements return its discovery form and collect it with `ask_user`.
+Do not ask the user to select this same role again or require a new chat simply to begin Step 1.
+Only an explicit initialization-only request stops after creating/verifying the session record.
+Starting discovery grants no later gate or Azure permission.
+Describe `apex-recall init` accurately as a filesystem/session-state write, not "no artifacts created".
+Any template region is an unconfirmed fallback until the user supplies or confirms the actual requirement.
+
 ## Native delegation
 
 Resolve the next domain owner from current `session.steps`, decisions and the

@@ -88,6 +88,21 @@ test("graph runtime metadata is descriptive while domain owners remain actual ma
   }
 });
 
+test("selected Orchestrator continues new-project discovery rather than stopping at initialization", () => {
+  const body = read(".github/agents/01-orchestrator.agent.md");
+  const setup = body.split("## Project setup\n")[1]?.split("\n## Native delegation")[0];
+  assert.ok(setup, "Project startup behavior must be defined");
+  for (const field of ["02-Requirements", "native `task`", "ask_user", "initialization-only"]) {
+    assert.ok(setup.includes(field), `Startup continuation: ${field}`);
+  }
+  assert.match(setup, /Do not ask the user to select this same role again/);
+  const entry = read(".github/skills/apex-workflow-engine/references/workflow-entry.md");
+  assert.match(entry, /only if that role is not already active/);
+  assert.match(entry, /An existing record with Step 1 pending is resumed, not reinitialized/);
+  const start = read(".github/skills/apex-workflow-start/SKILL.md");
+  assert.match(start, /If the requested owner is already active, continue there/);
+});
+
 test("commit procedure retains staged-index, identity, normal-hook and credential gates", () => {
   const shared = read(".github/skills/apex-github-operations/references/git-commit.md");
   for (const phrase of [

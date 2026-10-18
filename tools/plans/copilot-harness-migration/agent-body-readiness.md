@@ -151,6 +151,21 @@ No cloud actions, authority exceptions, review resets or historical evidence rep
 - These source checks do not alone resolve native runtime behavior. Subsequent owner-reported probes
   establish the bounded question/missing-input results above, not tool-enforcement or full E2E acceptance.
 
+### Selected-Orchestrator startup regression
+
+At 16:56 UTC the owner reported `start a new project called cp-harness-01` with
+`01-Orchestrator` already selected. The supplied transcript initialized recall state and then
+asked the user to select that same role instead of beginning Requirements.
+That is not a passing integrated startup. The precise runtime-loading cause is unproven;
+entry guidance did contain unconditional role-selection language.
+
+The source now makes selection conditional and distinguishes initialization-only requests from
+start/new-project requests. The active Orchestrator continues into the native Requirements task
+and parent-mediated discovery; an existing Step 1 pending record is resumed without reinitialization.
+Regression checks cover that source contract, not a fabricated successful workflow run.
+The existing cp-harness-01 state is untouched. Its template region is not a confirmed user requirement,
+and creation of session state is a filesystem write, not "no artifacts created".
+
 ### Completion boundary
 
 Remote CI exposed a separate legacy shell caller that exited on grep's no-match result after all UI

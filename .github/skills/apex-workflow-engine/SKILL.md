@@ -31,7 +31,9 @@ reads instead of relying on hardcoded step logic.
 ## Prerequisites
 
 Use the graph and `apex-recall show <project> --json` together. If the returned
-`session` is empty, initialize or recover the project before routing.
+`session` is empty, initialize or recover the project within the active owner's scope before routing.
+The already selected Orchestrator continues explicit new-project requests into Requirements;
+initialization is not an additional user-selection or approval gate.
 
 ## Steps
 

@@ -6,7 +6,11 @@
 Use the GitHub Copilot SDK harness inside VS Code. Archived Local prompts are not
 entry points. A skill inherits the active session's model/tools; it cannot switch agents.
 
-Select `01-Orchestrator` for end-to-end work. It confirms graph prerequisites
+Select `01-Orchestrator` for end-to-end work only if that role is not already active.
+When it is already selected, continue the requested operation in the same conversation;
+do not ask the user to select it again, treat a loaded skill as missing role selection,
+or stop after initialization when the request was to start a project.
+It confirms graph prerequisites
 and human approval, then dispatches the exact allowlisted owner through the
 [native worker lifecycle](worker-readiness.md). Active definitions omit model and effort pins.
 The operator and runtime manage selection, including Auto and HydraFusion; model
@@ -27,7 +31,9 @@ Require a project except for `resume`; if absent for resume, follow [Resume](#re
 to discover candidates before looking up project state. A supplied project needs
 no reconfirmation. Unsupported operations stop for clarification; Git commit and
 debug-log export retain their separate manual Host commands.
-For a fresh workflow, select `01-Orchestrator`. For a direct step start, select
+For a fresh workflow, use the already selected `01-Orchestrator`, or request that selection
+only when another role is active and cannot perform the required routing.
+For a direct step start, select
 that step's owner and validate its graph prerequisites first. Selection is not
 approval to skip prior steps or gates.
 
@@ -61,6 +67,16 @@ SKU manifest authority, required templates, bounded retries, and approval gates.
 Artifacts without another prefix are under `agent-output/{project}/`. Use the
 owner's current file contracts for concrete filenames, schema, and H2 structure.
 Update state only through `apex-recall`; a start command never marks a step done.
+
+## Startup continuation
+
+Distinguish initialization-only from start/new-project intent.
+An initialization-only request may return after creating/verifying the session record.
+An explicit start/new-project request in the selected Orchestrator continues into a bounded native
+`02-Requirements` task, then parent-mediated discovery questions, without another role-selection gate.
+An existing record with Step 1 pending is resumed, not reinitialized or force-overwritten.
+Missing workload details require discovery, not a synthetic completed requirements document.
+Report the actual session-state write; template defaults are proposals, not confirmed user decisions.
 
 ## Activities And Stop Rules
 
@@ -105,7 +121,7 @@ review. A blocked worker uses the [execution contract](execution-subagent.md).
 
 ## Resume
 
-Require `01-Orchestrator`, then follow its
+Use the active `01-Orchestrator`, requesting selection only if another role is actually active, then follow its
 [Recovery and lessons](../../../agents/01-orchestrator.agent.md#recovery-and-lessons)
 procedure. Use an explicit project without reconfirmation; otherwise discover
 candidates and ask only when ambiguous. Empty recall is not permission to start
