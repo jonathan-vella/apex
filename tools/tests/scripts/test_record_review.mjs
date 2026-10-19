@@ -514,6 +514,25 @@ test("historical native rubber-duck receipts keep their actual identity and read
   assert.equal(fs.existsSync(path.join(f.root, output)), false);
 });
 
+for (const failure of [
+  { status: "FAILED", stage: "inputs", error: "Required artifact is unavailable" },
+  { status: "FAILED", error: "Missing failure stage" },
+]) {
+  test(`structured execution failure stays explicit and unpublished: ${failure.error}`, (t) => {
+    const f = fixture(t);
+    f.flush();
+    f.response.data.content = JSON.stringify(failure);
+    f.write("events.jsonl", f.events.map((event) => JSON.stringify(event)).join("\n"));
+    assert.throws(
+      () => recordReview(f.options),
+      failure.stage
+        ? /Reviewer execution failed at inputs: Required artifact is unavailable/
+        : /requires stage and error/,
+    );
+    assert.equal(fs.existsSync(path.join(f.root, output)), false);
+  });
+}
+
 for (const [label, mutate] of [
   ["actual reviewer identity", (f) => (f.events[1].data.agentName = "rubber-duck")],
   [

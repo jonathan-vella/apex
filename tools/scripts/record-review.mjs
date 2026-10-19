@@ -379,6 +379,10 @@ export function extractReview(events, workerId, parentId) {
     );
   }
   const doc = parseReviewJson(response.data?.content);
+  if (reviewer === STRUCTURED_REVIEWER && doc?.status === "FAILED") {
+    requireEvidence(nonempty(doc.stage) && nonempty(doc.error), "Reviewer execution failure requires stage and error");
+    throw new Error(`Reviewer execution failed at ${doc.stage}: ${doc.error}`);
+  }
   requireEvidence(
     object(doc) && !Object.hasOwn(doc, "review_execution"),
     "Expected raw review JSON without provenance",
