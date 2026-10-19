@@ -52,7 +52,7 @@ No manual Challenger selection or leading approval prompt replaces this path.
      "output_path": "agent-output/example/challenge-findings-requirements.json",
      "overwrite": false,
      "cache_inputs": {},
-     "instructions": "## Inputs\nReview the supplied artifact and captured metadata using the one-shot review contract.\n## Activities\nRead the artifact and applicable Azure checklists independently. No shell commands, code execution, file writes (including scratch), direct session-state reads, delegation, user questions or Azure access. Do not request out-of-bounds file ranges; read short files without a range. Return missing context to the parent. Evaluate requirements at discovery scope; documented later-stage implementation unknowns are not defects solely because they remain open.\n## Outputs\nReturn your complete independent findings as one raw JSON object, starting with { and ending with }. Use traces_to arrays. Omit finding IDs and severity counts; the existing recorder derives those mechanical fields. Copy captured metadata unchanged. No introduction, Markdown fence, conclusion or success summary."
+     "instructions": "## Inputs\nReview the supplied artifact and captured metadata using the one-shot review contract.\n## Activities\nRead the artifact and applicable Azure checklists independently. Read only supplied/linked paths; never call view on guessed paths (e.g., there is no tools/schemas/challenger-findings.schema.json). No shell commands, code execution, file writes (including scratch), direct session-state reads, delegation, user questions or Azure access. Do not request out-of-bounds file ranges; read short files without a range. Return missing context to the parent. Evaluate requirements at discovery scope; documented later-stage implementation unknowns are not defects solely because they remain open.\n## Outputs\nReturn your complete independent findings as one raw JSON object, starting with { and ending with }. Use traces_to arrays. Omit finding IDs and severity counts; the existing recorder derives those mechanical fields. Copy captured metadata unchanged. No introduction, Markdown fence, conclusion or success summary."
    }
    ```
 
@@ -134,7 +134,9 @@ Do not modify artifacts, findings files, decisions or state. Do not delegate,
 ask users, access Azure, change credentials or invent missing evidence.
 Return an explicit execution failure when required inputs are unavailable.
 Read a short reference without `view_range`; do not guess a tail range beyond
-its last line. An avoidable failed read is still an observed execution error.
+its last line, and never call `view` on guessed or unverified schema paths
+(for example, there is no `tools/schemas/challenger-findings.schema.json`).
+An avoidable failed read is still an observed execution error.
 
 Return exactly one raw JSON object using the existing findings schema's substantive fields:
 `schema_version: "1.0"`, `challenged_artifact`, `artifact_type`, `review_focus`,

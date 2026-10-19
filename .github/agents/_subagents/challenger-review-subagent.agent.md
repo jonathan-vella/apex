@@ -52,6 +52,8 @@ Preserve exact scope, pass, prior findings and metadata. Never invent paths, has
    [adversarial checklists](../../skills/apex-azure-defaults/references/adversarial-checklists.md).
    Use [artifact categories](../../skills/apex-azure-defaults/references/artifact-type-categories.md)
    when needed; no full artifact-template/skill-library preload.
+   Never call `view` on guessed or unverified paths (for example, there is no
+   `tools/schemas/challenger-findings.schema.json`); any failed tool call invalidates recording.
 2. Preserve supplied `cache_inputs`/`supporting_inputs` unchanged. The parent captures them before dispatch.
    They identify `challenger-review-subagent`, its definition and the shared one-shot contract.
    Do not compute, refresh or restamp hashes; missing metadata is an execution failure.

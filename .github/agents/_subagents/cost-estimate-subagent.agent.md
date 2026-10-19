@@ -96,6 +96,8 @@ Markdown report templates (`03-des-cost-estimate.template.md`) — this worker e
 3. Group identical `(serviceName, armSkuName, armRegionName, meterName,
    priceType, currencyCode)` queries. Call `pricing_get` (`command: "pricing_get"`, `learn: false`) once per distinct
    group and reuse the returned rows across quantities and candidates.
+   Use exact kebab-case parameter names in `parameters` (`"price-type"`, `"service-family"`,
+   `"include-savings-plan"` — never snake_case `price_type` or `price`, which the MCP server rejects).
   Express meter filters through its OData `filter`; it has no `meterName` input and a bare `service` can be rejected.
   Keep a query ledger including empty/error results; do not repeat successful or empty identical requests.
   After documented empty-result discovery, an exhausted transient retry, or a status-200 multi-band response that
