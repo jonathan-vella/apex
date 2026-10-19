@@ -126,6 +126,24 @@ function step2Residue(projectDir) {
   return found;
 }
 
+const STEP_ORDER = ["1", "2", "3", "3_5", "4", "5", "6", "7"];
+
+function isStepInProgressBeforeHandoff(sessionStatePath, stepKey) {
+  if (!fs.existsSync(sessionStatePath)) return false;
+  try {
+    const state = JSON.parse(fs.readFileSync(sessionStatePath, "utf8"));
+    const steps = state?.steps;
+    if (!steps || typeof steps !== "object") return false;
+    if (steps[stepKey]?.status !== "in_progress") return false;
+    const idx = STEP_ORDER.indexOf(stepKey);
+    if (idx === -1) return false;
+    const laterSteps = STEP_ORDER.slice(idx + 1);
+    return !laterSteps.some((k) => steps[k]?.status === "in_progress" || steps[k]?.status === "complete");
+  } catch {
+    return false;
+  }
+}
+
 function step2Complete(sessionStatePath) {
   try {
     return JSON.parse(fs.readFileSync(sessionStatePath, "utf-8"))?.steps?.["2"]?.status === "complete";
@@ -166,6 +184,11 @@ for (const project of projects) {
     const skipReason = skipReasonFor(sessionState, stepKey);
     if (skipReason) {
       r.info(`${project}/${gate.label}`, `skipped via challenger_skip audit: ${skipReason}`);
+      continue;
+    }
+
+    if (isStepInProgressBeforeHandoff(sessionState, stepKey)) {
+      r.info(`${project}/${gate.label}`, `step ${stepKey} is in_progress (pre-review draft before handoff)`);
       continue;
     }
 

@@ -2,7 +2,7 @@
 name: apex-iac-common
 user-invocable: false
 disable-model-invocation: false
-description: '**UTILITY SKILL** — Shared Bicep/Terraform workflow contracts: planning, codegen cadence, handoffs, deployment strategies and bounded recovery. WHEN: "shared IaC workflow", "phased deployment", "circuit breaker", "deploy strategy", "deploy issue", "shared IaC pattern". DO NOT USE FOR: language-specific modules (apex-azure-bicep-patterns / apex-terraform-patterns) or standalone preflight (apex-azure-validate).'
+description: '**UTILITY SKILL** — Shared Bicep/Terraform workflow contracts: planning, codegen cadence, handoffs, deployment strategies and bounded recovery. WHEN: "shared IaC workflow", "phased deployment", "circuit breaker", "deploy strategy", "deploy issue", "shared IaC pattern". DO NOT USE FOR: language-specific modules (apex-azure-bicep-patterns, apex-terraform-patterns) or preflight (apex-azure-validate).'
 ---
 
 # IaC Common Skill
@@ -66,6 +66,7 @@ Full procedure (`azd up` / `azd provision --preview`, environment preflight chec
 | **Codegen shared workflow**   | `references/codegen-shared-workflow.md` (Phase 2 output cadence loaded by `06b`/`06t` CodeGen agents)                                  |
 | **Codegen file-order**        | `references/codegen-file-order.md` (per-tool file emission order loaded by `06b`/`06t` CodeGen agents)                                 |
 | **Codegen DO / DON'T**        | `references/codegen-do-dont.md` (shared DO/DON'T bullets between `06b` + `06t`; tool-specific bullets stay in each agent body)         |
+| **Placeholder scan protocol** | `references/placeholder-scan-protocol.md` (pre-handoff scan for unresolved tokens and placeholder values in generated IaC)              |
 | **Preflight policy checks**   | `references/preflight-policy-checks.md` (deploy-agent jq snippets, skip-validation shortcut, L3 precheck routing matrix, deprecation scan regex) |
 | **Azure Resource Graph primer** | [`references/azure-resource-graph-primer.md`](references/azure-resource-graph-primer.md) (canonical shared head used by `apex-azure-compliance` / `apex-azure-cost-optimization` / `apex-azure-diagnostics` resource-graph references) |
 | Preflight validation          | `apex-azure-validate/references/infraops-preflight.md`                                                                                     |

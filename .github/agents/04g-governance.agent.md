@@ -78,7 +78,8 @@ Resolve genuinely ambiguous context before consequential approval.
 
 ## Prerequisites and phase guidance
 
-Require approved `02-architecture-assessment.md` and current Step 2 completion evidence.
+Recover state via `apex-recall show <project> --json`. Require approved `02-architecture-assessment.md`
+and current Step 2 completion evidence (no self-edit of upstream artifacts).
 Missing architecture returns to `03-Architect`, not a replacement assessment.
 Resolve the target project/subscription from confirmed inputs. Missing/ambiguous subscription
 requires a question; never default to the active Azure CLI subscription.

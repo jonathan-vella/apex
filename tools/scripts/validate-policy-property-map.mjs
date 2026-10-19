@@ -80,7 +80,9 @@ function checkDenyCoverage(data, fileRel, r) {
     return;
   }
   const mapped = new Set(
-    (data.policies ?? []).filter((policy) => policy.effect === "Deny").map((policy) => policy.policy_id),
+    (data.policies ?? [])
+      .filter((policy) => typeof policy.effect === "string" && policy.effect.toLowerCase() === "deny")
+      .map((policy) => policy.policy_id),
   );
   for (const id of denyIds) {
     if (!mapped.has(id)) {
@@ -94,7 +96,7 @@ function checkDenyCoverage(data, fileRel, r) {
 
 function checkDenyEnrichment(data, fileRel, r) {
   for (const p of data.policies ?? []) {
-    if (p.effect !== "Deny") continue;
+    if (typeof p.effect !== "string" || p.effect.toLowerCase() !== "deny") continue;
     if (!p.evidence_required) {
       r.error(fileRel, `Deny policy "${p.policy_id}" missing evidence_required (mandatory for Deny entries).`);
     }

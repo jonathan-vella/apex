@@ -53,6 +53,12 @@ Formal JSON Schema: `tools/schemas/lesson-log.schema.json`.
 Required fields per entry: `id`, `step`, `category`,
 `severity`, `title`, `observation`, `root_cause`, `recommendation`,
 `applies_to`, `applies_to_paths`, `status`.
+Allowed enums:
+
+- `category`: `agent-behavior`, `skill-gap`, `prompt-quality`, `validation-gap`,
+  `workflow-design`, `context-budget`, `artifact-quality`, `factual-accuracy`, `deployment-failure`
+- `severity`: `critical`, `high`, `medium`, `low`
+- `status`: `open`, `in-progress`, `resolved`, `wont-fix`
 
 ## Completion Protocol
 

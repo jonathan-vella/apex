@@ -61,14 +61,21 @@ def _review_paths(project: str, step: str, governance_review: Path | None = None
     if not gate:
         return []
     gates = [gate]
+    project_dir = session_state_path(project).parent
     if step in ("2", "4"):
         state = read_state(session_state_path(project))
         decisions = state.get("decisions")
         if isinstance(decisions, dict) and decisions.get("review_depth") == "deep":
-            gates[0] = (gate[0], gate[1].removesuffix(".json") + "-pass1.json")
+            stem = gate[1].removesuffix(".json")
+            gates[0] = (gate[0], f"{stem}-pass1.json")
+            complexity = decisions.get("complexity", "")
+            max_passes = 3 if (step == "2" and complexity == "complex") else (2 if complexity in ("standard", "complex") else 1)
+            for pass_num in range(2, max_passes + 1):
+                extra_sidecar = f"{stem}-pass{pass_num}.json"
+                if (project_dir / extra_sidecar).is_file():
+                    gates.append((gate[0], extra_sidecar))
     if step == "2":
         gates.append(("03-des-cost-estimate.md", "challenge-findings-cost-estimate.json"))
-    project_dir = session_state_path(project).parent
     if step in ("3_5", "4") and governance_review is not None:
         return [(project_dir / gate[0], governance_review)]
     produced = any((project_dir / gating_name).is_file() for gating_name, _ in gates)
@@ -137,13 +144,24 @@ def _challenger_findings_invalid(
                 "4": "implementation-plan",
             }[step]
             expected_focus = "governance-reconciliation" if step == "3_5" else "comprehensive"
+            expected_pass = int(sidecar.stem.rsplit("-pass", 1)[1]) if governance_review is not None else 1
+            allowed_focuses = {expected_focus}
             if artifact.name == "03-des-cost-estimate.md":
                 expected_type, expected_focus = "cost-estimate", "cost-feasibility"
-            elif sidecar.name.endswith("-pass1.json") and step in ("2", "4"):
-                expected_focus = "security-governance"
-            if document.get("artifact_type") != expected_type or document.get("review_focus") != expected_focus:
+                allowed_focuses = {expected_focus}
+            elif "-pass" in sidecar.stem and step in ("2", "4") and governance_review is None:
+                pass_suffix = sidecar.stem.rsplit("-pass", 1)[1]
+                if pass_suffix.isdigit():
+                    expected_pass = int(pass_suffix)
+                deep_focus_map = {1: "security-governance", 2: "architecture-reliability", 3: "cost-feasibility"}
+                expected_focus = deep_focus_map.get(expected_pass, "security-governance")
+                allowed_focuses = {expected_focus}
+                if expected_pass == 1:
+                    state_decisions = read_state(session_state_path(project)).get("decisions", {})
+                    if isinstance(state_decisions, dict) and state_decisions.get("complexity") == "simple":
+                        allowed_focuses = {"security-governance", "comprehensive"}
+            if document.get("artifact_type") != expected_type or document.get("review_focus") not in allowed_focuses:
                 return f"{sidecar}: review type/focus does not match the required gate"
-            expected_pass = int(sidecar.stem.rsplit("-pass", 1)[1]) if governance_review is not None else 1
             if type(document.get("pass_number")) is not int or document["pass_number"] != expected_pass:
                 return f"{sidecar}: required pass-{expected_pass} review is invalid"
             if document.get("overall_assessment") in ("BLOCKED", "FAILED"):

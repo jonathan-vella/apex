@@ -277,6 +277,9 @@ def run(args) -> int:  # noqa: C901 — one CLI dispatcher, branchy by design
         else:
             # Defensive: replace with dict only if legacy non-dict was seen.
             data["decisions"] = dict(decisions)
+        for top_key in ("iac_tool", "region"):
+            if top_key in decisions:
+                data[top_key] = decisions[top_key]
 
     # 3. Start to_step.
     to_data = data["steps"].get(to_step, {})

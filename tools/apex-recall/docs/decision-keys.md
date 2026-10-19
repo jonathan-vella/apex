@@ -39,13 +39,20 @@ Specifically:
 
 | Key             | Valid values                                                                                    | Default behaviour if absent     | Set by          | Read by                                             |
 | --------------- | ----------------------------------------------------------------------------------------------- | ------------------------------- | --------------- | --------------------------------------------------- |
-| `iac_tool`      | `Bicep` \| `Terraform`                                                                          | Orchestrator prompts the user   | 01-Orchestrator | 05-IaC Planner, 06b/06t CodeGen, 07b/07t Deploy     |
-| `region`        | Azure region ID (e.g. `swedencentral`)                                                          | `swedencentral`                 | 02-Requirements | All Azure-resource-emitting agents                  |
-| `complexity`    | `low` \| `medium` \| `high`                                                                     | `medium`                        | 02-Requirements | Challenger lens selection                           |
-| `review_depth`  | `default` \| `deep`                                                                             | `default` (single-pass reviews) | 01-Orchestrator | All adversarial review invocations                  |
-| `skip_design`   | `true` \| `false`                                                                               | `false` (Design runs)           | 01-Orchestrator | 03-Architect approval gate routing message          |
-| `order_overrides` | list of `{step, problem, reason, recorded}`                                                   | n/a (no overrides)              | apex-recall (`--allow-out-of-order`) | Audit only                             |
-| `relational_db` | `azure-sql` \| `postgresql-flex` \| `mysql-flex` \| `sql-managed-instance` \| `none` \| `other` | n/a (Phase 3d question)         | 02-Requirements | 03-Architect (SKU), 05-IaC Planner, 06b/06t CodeGen |
+| `iac_tool`          | `Bicep` \| `Terraform`                                                                          | Orchestrator prompts the user   | 01-Orchestrator                      | 05-IaC Planner, 06b/06t CodeGen, 07b/07t Deploy     |
+| `region`            | Azure region ID (e.g. `swedencentral`)                                                          | `swedencentral`                 | 02-Requirements                      | All Azure-resource-emitting agents                  |
+| `complexity`        | `simple` \| `standard` \| `complex`                                                             | `standard`                      | 01-Orchestrator, 02-Requirements     | Challenger lens selection                           |
+| `review_depth`      | `default` \| `deep`                                                                             | `default` (single-pass reviews) | 01-Orchestrator                      | All adversarial review invocations                  |
+| `governance_depth`  | `light` \| `full`                                                                               | `light`                         | 01-Orchestrator                      | 04g-Governance, 05-IaC Planner                      |
+| `identity_resolution` | `auto` \| `manual`                                                                            | `auto`                          | 01-Orchestrator                      | 05-IaC Planner, 06b/06t CodeGen                     |
+| `diagnostics_strategy` | `avm` \| `module` \| `auto`                                                                  | `auto`                          | 01-Orchestrator                      | 06b/06t CodeGen                                     |
+| `skip_design`       | `true` \| `false`                                                                               | `false` (Design runs)           | 01-Orchestrator                      | 03-Architect approval gate routing message          |
+| `compliance`        | string (e.g. `GDPR`, `none`, or framework list)                                                 | `""`                            | 02-Requirements                      | 03-Architect, 04g-Governance, 05-IaC Planner        |
+| `budget`            | string (e.g. `1000 USD/month`)                                                                  | `""`                            | 02-Requirements                      | 03-Architect, 05-IaC Planner                        |
+| `architecture_pattern` | string (e.g. `N-Tier`, `Hub-Spoke`)                                                          | `""`                            | 03-Architect                         | 04-Design, 05-IaC Planner                           |
+| `challenger_skip`   | list of `{step, reason, recorded}`                                                              | n/a (no skips)                  | apex-recall (`--allow-missing-challenger`) | Audit only                                    |
+| `order_overrides`   | list of `{step, problem, reason, recorded}`                                                     | n/a (no overrides)              | apex-recall (`--allow-out-of-order`) | Audit only                                          |
+| `relational_db`     | `azure-sql` \| `postgresql-flex` \| `mysql-flex` \| `sql-managed-instance` \| `none` \| `other` | n/a (Phase 3d question)         | 02-Requirements                      | 03-Architect (SKU), 05-IaC Planner, 06b/06t CodeGen |
 
 ### Challenger-loop keys (Plan 01 Phase 2b)
 
@@ -103,8 +110,9 @@ The `<step>` suffix is the integer step number (`1`, `2`, `3_5`, `4`).
 
 | Key                       | Valid values                                                          | Default behaviour if absent | Set by         | Read by         |
 | ------------------------- | --------------------------------------------------------------------- | --------------------------- | -------------- | --------------- |
-| `deployment_strategy`     | `azd_provision` \| `az_deployment` \| `terraform_apply`               | n/a                         | 07b/07t Deploy | Step 7 As-Built |
+| `deployment_strategy`     | `single` \| `phased` \| `azd_provision` \| `az_deployment` \| `terraform_apply` | `single`                    | 01-Orchestrator, 07b/07t Deploy | 07b/07t Deploy, Step 7 As-Built |
 | `sku_conflict_resolution` | `revert_to_plan` \| `accept_substitute` \| `change_region` \| `abort` | n/a (per-conflict)          | Orchestrator   | 07b/07t Deploy  |
+| `sku_overrides`           | list of `{service_id, original_sku, substitute_sku, reason, recorded}` | n/a (no overrides)         | 07b/07t Deploy | 08-As-Built, sku-manifest validators |
 | `governance_trace`        | `PASSED` or `FAILED: <reason>` (L0 to L3 attestation result)          | n/a                         | 07b/07t Deploy | validate-governance-trace |
 | `governance_override`     | free-form reason recorded by a human                                  | n/a (no override)           | Human via agent | validate-governance-trace |
 

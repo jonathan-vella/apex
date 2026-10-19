@@ -3,7 +3,7 @@ name: apex-entra-app-registration
 user-invocable: true
 disable-model-invocation: false
 argument-hint: "application type and authentication requirements"
-description: '**WORKFLOW SKILL** — Guides Microsoft Entra ID app registration, OAuth 2.0 authentication, and MSAL integration. WHEN: "create app registration", "register Azure AD app", "configure OAuth", "add API permissions", "generate service principal", "MSAL example", "Entra ID setup". DO NOT USE FOR: Azure RBAC (apex-azure-rbac), Key Vault audits (apex-azure-compliance), resource security scanning (apex-azure-compliance).'
+description: '**WORKFLOW SKILL** — Guides Microsoft Entra ID app registration, OAuth 2.0 authentication, and MSAL integration. WHEN: "create app registration", "register Azure AD app", "configure OAuth", "add API permissions", "generate service principal", "MSAL example", "Entra ID setup". DO NOT USE FOR: Azure RBAC (apex-azure-rbac), Key Vault or resource security audits (apex-azure-compliance).'
 license: MIT
 metadata:
   author: Microsoft

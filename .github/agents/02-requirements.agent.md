@@ -269,7 +269,9 @@ Deliver `01-requirements.md`, `README.md`, `sku-manifest.{json,md}`, recorded
 `challenge-findings-requirements.json` and applicable decision sidecar under the project folder.
 Use template-derived length, not filler. Progress updates name only phase changes or blockers.
 
-Persist significant decisions with `apex-recall decide`; checkpoint each completed phase using
+Persist significant decisions with `apex-recall decide` (use `--key <k> --value <v>` only for
+canonical keys in `tools/apex-recall/docs/decision-keys.md`; record free-form phase notes via
+`--decision "<text>" --rationale "<why>" --step 1`); checkpoint each completed phase using
 `apex-recall checkpoint <project> 1 <phase> --json`.
 On resume, reuse current answers and revisions; recover missing sections through recall or targeted
 source reads. A checkpoint alone proves neither captured answers nor approval.

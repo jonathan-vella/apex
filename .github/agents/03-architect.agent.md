@@ -136,7 +136,9 @@ before their decisions; their domain mechanics do not make UI transitions mandat
 2. Run the conditional VNet gate and honor `vnet_planning_mode`. Resolve new/existing VNet,
    containing CIDRs and subnet plan; validate an existing VNet's live prefixes, region and ownership.
    Fast mode preserves its informational finding; deferred mode is not available for production.
-   Keep validated subnet edits and NSG/route/delegation choices in recall.
+   Keep validated subnet edits and NSG/route/delegation choices in recall (`decisions.subnet_plan`
+   must conform to `tools/schemas/subnet-plan.schema.json`: canonical `purpose` enum, string `nsg`,
+   `route_table`, and `delegation`, with no extra properties).
 3. Prepare one complete manifest-based estimate request with `manifest_usage` and
    `supplemental_resources[]`: all applicable network gateways, endpoints/DNS, monitoring,
    secrets, alerts, disks and public IPs. Unknown variable usage is unresolved, not zero.

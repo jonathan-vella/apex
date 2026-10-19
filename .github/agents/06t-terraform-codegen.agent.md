@@ -117,7 +117,7 @@ For every contract resource, read approved `modules.terraform[]` source and exac
 Retrieve that version's module README/inputs/outputs via Azure MCP `azureterraform avm get`
 or the public Registry API; inspect required/defaulted variables, nested types and actual outputs.
 Never upgrade pins or substitute ranges. Unavailable versions return to Planner.
-For non-AVM resources verify pinned provider docs/schema via Azure MCP or official Registry,
+For non-AVM resources verify pinned provider documentation and schema via Azure MCP or official Registry,
 then `terraform providers schema -json` after isolated backend-disabled initialization.
 Verify regions and provider constraints; one supplemental ambiguity query per resource type and
 one official pattern lookup is sufficient unless required evidence remains unresolved.

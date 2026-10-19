@@ -74,10 +74,13 @@ def run(args) -> int:
         if row or primary.exists():
             data = read_state(primary)
             if data and isinstance(data, dict):
+                decisions_map = data.get("decisions", {})
+                if not isinstance(decisions_map, dict):
+                    decisions_map = {}
                 session = {
                     "current_step": data.get("current_step", 0),
-                    "iac_tool": data.get("iac_tool", ""),
-                    "region": data.get("region", ""),
+                    "iac_tool": data.get("iac_tool") or decisions_map.get("iac_tool", ""),
+                    "region": decisions_map.get("region") or data.get("region", ""),
                     "updated": data.get("updated", ""),
                     "decisions": data.get("decisions", {}),
                     "open_findings": data.get("open_findings", []),

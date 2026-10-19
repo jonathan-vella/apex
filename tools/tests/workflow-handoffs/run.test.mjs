@@ -157,7 +157,7 @@ test("companion fixture g1-good-handoff.md passes", () => {
   // Must NOT report missing required H2s for our fixture; relaxed strictness
   // means warns are acceptable but the validator should not reject the file.
   assert.ok(
-    !/00-handoff\.md is missing required H2 headings/.test(out),
+    !/_test-handoff-g1\/00-handoff\.md is missing required H2 headings/.test(out),
     `g1-good-handoff.md should not report missing required H2s. Output:\n${out}`,
   );
 });
@@ -165,7 +165,7 @@ test("companion fixture g1-good-handoff.md passes", () => {
 test("companion fixture g2_5-good-handoff.md passes", () => {
   const out = runArtifactValidator("_test-handoff-g2_5", "g2_5-good-handoff.md");
   assert.ok(
-    !/00-handoff\.md is missing required H2 headings/.test(out),
+    !/_test-handoff-g2_5\/00-handoff\.md is missing required H2 headings/.test(out),
     `g2_5-good-handoff.md should not report missing required H2s. Output:\n${out}`,
   );
 });
@@ -175,7 +175,7 @@ test("companion fixture g5-bad-handoff.md flags missing required H2s", () => {
   // Relaxed strictness ⇒ warning, not error. Assert the warning fires.
   assert.match(
     out,
-    /00-handoff\.md is missing required H2 headings/,
+    /_test-handoff-g5\/00-handoff\.md is missing required H2 headings/,
     `g5-bad-handoff.md should report missing required H2s. Output:\n${out}`,
   );
 });

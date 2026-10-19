@@ -1,6 +1,6 @@
 {
   "$schema": "../../tools/schemas/explorer-graph.schema.json",
-  "generatedAt": "2026-10-19T09:13:35.790Z",
+  "generatedAt": "2026-10-19T10:52:41.103Z",
   "categories": [
     { "id": "agent", "key": "agents", "label": "Agent", "color": "#3b82f6", "shape": "round-rectangle", "count": 14 },
     {
@@ -27,7 +27,7 @@
       "label": "Validator",
       "color": "#8b5cf6",
       "shape": "hexagon",
-      "count": 64
+      "count": 78
     },
     {
       "id": "workflow",
@@ -39,7 +39,7 @@
     },
     { "id": "mcp", "key": "mcp_servers", "label": "MCP Server", "color": "#f43f5e", "shape": "barrel", "count": 3 }
   ],
-  "nodeCount": 160,
+  "nodeCount": 174,
   "edgeCount": 561,
   "nodes": [
     {
@@ -496,7 +496,7 @@
       "id": "skill:apex-azure-artifacts",
       "category": "skill",
       "label": "apex-azure-artifacts",
-      "description": "**UTILITY SKILL** — Artifact template structures, H2 compliance rules, and documentation styling for agent outputs (Steps 1-7). WHEN: \"generate artifact\", \"check H2 structure\", \"artifact template\", \"step 7 as-built\". USE FOR: generating any agent artifact, checking H2 structure compliance. DO NOT USE FOR: Azure resource configuration (use apex-azure-defaults), Bicep/Terraform patterns (use apex-azure-bicep-patterns or apex-terraform-patterns).",
+      "description": "**UTILITY SKILL** — Artifact template structures, H2 compliance rules, and documentation styling for agent outputs (Steps 1-7). WHEN: \"generate artifact\", \"check H2 structure\", \"artifact template\", \"step 7 as-built\". DO NOT USE FOR: Azure resource configuration (apex-azure-defaults), Bicep/Terraform patterns (apex-azure-bicep-patterns or apex-terraform-patterns).",
       "path": ".github/skills/apex-azure-artifacts/SKILL.md",
       "links": {
         "source": "https://github.com/jonathan-vella/apex/blob/main/.github/skills/apex-azure-artifacts/SKILL.md"
@@ -507,7 +507,7 @@
       "id": "skill:apex-azure-bicep-patterns",
       "category": "skill",
       "label": "apex-azure-bicep-patterns",
-      "description": "**UTILITY SKILL** — Reusable Azure Bicep patterns: hub-spoke, private endpoints, diagnostics, AVM composition. WHEN: \"hub-spoke Bicep\", \"private endpoint module\", \"diagnostic settings\", \"AVM Bicep composition\". USE FOR: Bicep template design, hub-spoke networking, private endpoint patterns, AVM modules. DO NOT USE FOR: Terraform code (use apex-terraform-patterns), architecture decisions (use apex-azure-adr), troubleshooting, diagrams (use apex-python-diagrams).",
+      "description": "**UTILITY SKILL** — Reusable Azure Bicep patterns: hub-spoke, private endpoints, diagnostics, AVM composition. WHEN: \"hub-spoke Bicep\", \"private endpoint module\", \"diagnostic settings\", \"AVM Bicep composition\". DO NOT USE FOR: Terraform code (apex-terraform-patterns), architecture decisions (apex-azure-adr), troubleshooting, diagrams (apex-python-diagrams).",
       "path": ".github/skills/apex-azure-bicep-patterns/SKILL.md",
       "links": {
         "source": "https://github.com/jonathan-vella/apex/blob/main/.github/skills/apex-azure-bicep-patterns/SKILL.md"
@@ -609,7 +609,7 @@
       "id": "skill:apex-azure-diagnostics",
       "category": "skill",
       "label": "apex-azure-diagnostics",
-      "description": "**WORKFLOW SKILL** — Debug Azure production issues: Container Apps, Functions, App Service, AKS, VMs and messaging, with KQL log analysis. WHEN: 'troubleshoot container apps', 'troubleshoot AKS', 'pod crashloop', 'VM RDP or SSH failure', 'app service high CPU', 'service bus errors'. DO NOT USE FOR: pre-deploy validation (apex-azure-validate), cost (apex-azure-cost-optimization), AKS design (apex-azure-kubernetes).",
+      "description": "**WORKFLOW SKILL** — Debug Azure production issues: Container Apps, Functions, App Service, AKS, VMs and messaging with KQL log analysis. WHEN: 'troubleshoot container apps', 'troubleshoot AKS', 'pod crashloop', 'app service high CPU', 'service bus errors'. DO NOT USE FOR: pre-deploy validation (apex-azure-validate), cost (apex-azure-cost-optimization), AKS design (apex-azure-kubernetes).",
       "path": ".github/skills/apex-azure-diagnostics/SKILL.md",
       "links": {
         "source": "https://github.com/jonathan-vella/apex/blob/main/.github/skills/apex-azure-diagnostics/SKILL.md"
@@ -673,7 +673,7 @@
       "id": "skill:apex-azure-prepare",
       "category": "skill",
       "label": "apex-azure-prepare",
-      "description": "**WORKFLOW SKILL** — Prepare Azure apps for deployment (Bicep/Terraform, azure.yaml, Dockerfiles). WHEN: \"create app\", \"build web app\", \"create API\", \"deploy to Azure\", \"generate Bicep\", \"generate Terraform\", \"function app\", \"add authentication\", \"managed identity\". DO NOT USE FOR: cross-cloud migration (apex-azure-cloud-migrate), executing deploys (apex-azure-deploy), preflight (apex-azure-validate).",
+      "description": "**WORKFLOW SKILL** — Prepare Azure apps for deployment (Bicep/Terraform, azure.yaml, Dockerfiles). WHEN: \"create app\", \"build web app\", \"create API\", \"deploy to Azure\", \"generate Bicep\", \"generate Terraform\", \"function app\", \"managed identity\". DO NOT USE FOR: cross-cloud migration (apex-azure-cloud-migrate), executing deploys (apex-azure-deploy), preflight (apex-azure-validate).",
       "path": ".github/skills/apex-azure-prepare/SKILL.md",
       "links": {
         "source": "https://github.com/jonathan-vella/apex/blob/main/.github/skills/apex-azure-prepare/SKILL.md"
@@ -735,7 +735,7 @@
       "id": "skill:apex-azure-resources",
       "category": "skill",
       "label": "apex-azure-resources",
-      "description": "**ANALYSIS SKILL** — List, find, and visualize Azure resources via Resource Graph or Mermaid. WHEN: 'list resources', 'list VMs', 'find orphaned resources', 'resource inventory', 'cross-subscription query', 'visualize Azure resources', 'diagram my resources'. DO NOT USE FOR: deploys (apex-azure-deploy), cost (apex-azure-cost-optimization), security (apex-azure-compliance), troubleshooting (apex-azure-diagnostics).",
+      "description": "**ANALYSIS SKILL** — List, find, and visualize Azure resources via Resource Graph or Mermaid. WHEN: 'list resources', 'list VMs', 'find orphaned resources', 'resource inventory', 'cross-subscription query', 'visualize Azure resources'. DO NOT USE FOR: deploys (apex-azure-deploy), cost (apex-azure-cost-optimization), security (apex-azure-compliance), troubleshooting (apex-azure-diagnostics).",
       "path": ".github/skills/apex-azure-resources/SKILL.md",
       "links": {
         "source": "https://github.com/jonathan-vella/apex/blob/main/.github/skills/apex-azure-resources/SKILL.md"
@@ -783,7 +783,7 @@
       "id": "skill:apex-azure-validate",
       "category": "skill",
       "label": "apex-azure-validate",
-      "description": "**WORKFLOW SKILL** — Pre-deployment validation for Azure: config, infrastructure (Bicep/Terraform), permissions, prerequisites. WHEN: 'validate my app', 'check deployment readiness', 'run preflight checks', 'validate azure.yaml', 'validate Bicep', 'test before deploying', 'validate Azure Functions'. DO NOT USE FOR: post-deploy troubleshooting (apex-azure-diagnostics), executing deploys (apex-azure-deploy).",
+      "description": "**WORKFLOW SKILL** — Pre-deployment validation for Azure: config, infrastructure (Bicep/Terraform), permissions, prerequisites. WHEN: 'validate my app', 'check deployment readiness', 'run preflight checks', 'validate azure.yaml', 'validate Bicep', 'validate Azure Functions'. DO NOT USE FOR: post-deploy troubleshooting (apex-azure-diagnostics), executing deploys (apex-azure-deploy).",
       "path": ".github/skills/apex-azure-validate/SKILL.md",
       "links": {
         "source": "https://github.com/jonathan-vella/apex/blob/main/.github/skills/apex-azure-validate/SKILL.md"
@@ -799,7 +799,7 @@
       "id": "skill:apex-context-management",
       "category": "skill",
       "label": "apex-context-management",
-      "description": "**UTILITY SKILL** — Two-mode context-window management. RUNTIME: artifact compression (full/summarized/minimal) used by orchestrator and codegen agents. AUDIT: post-mortem analysis of Copilot debug logs (token profiling, redundancy + hand-off gap detection) used by 11-Context Optimizer. WHEN: \"context optimization\", \"token budget\", \"runtime compression\", \"log parsing\". DO NOT USE FOR: infra, IaC code, deployments.",
+      "description": "**UTILITY SKILL** — Two-mode context-window management. RUNTIME: artifact compression (full/summarized/minimal) for orchestrator and codegen agents. AUDIT: post-mortem analysis of Copilot debug logs (token profiling, redundancy, hand-off gaps) for 11-Context Optimizer. WHEN: \"context optimization\", \"token budget\", \"runtime compression\", \"log parsing\". DO NOT USE FOR: infra, IaC code, deployments.",
       "path": ".github/skills/apex-context-management/SKILL.md",
       "links": {
         "source": "https://github.com/jonathan-vella/apex/blob/main/.github/skills/apex-context-management/SKILL.md"
@@ -831,7 +831,7 @@
       "id": "skill:apex-entra-app-registration",
       "category": "skill",
       "label": "apex-entra-app-registration",
-      "description": "**WORKFLOW SKILL** — Guides Microsoft Entra ID app registration, OAuth 2.0 authentication, and MSAL integration. WHEN: \"create app registration\", \"register Azure AD app\", \"configure OAuth\", \"add API permissions\", \"generate service principal\", \"MSAL example\", \"Entra ID setup\". DO NOT USE FOR: Azure RBAC (apex-azure-rbac), Key Vault audits (apex-azure-compliance), resource security scanning (apex-azure-compliance).",
+      "description": "**WORKFLOW SKILL** — Guides Microsoft Entra ID app registration, OAuth 2.0 authentication, and MSAL integration. WHEN: \"create app registration\", \"register Azure AD app\", \"configure OAuth\", \"add API permissions\", \"generate service principal\", \"MSAL example\", \"Entra ID setup\". DO NOT USE FOR: Azure RBAC (apex-azure-rbac), Key Vault or resource security audits (apex-azure-compliance).",
       "path": ".github/skills/apex-entra-app-registration/SKILL.md",
       "links": {
         "source": "https://github.com/jonathan-vella/apex/blob/main/.github/skills/apex-entra-app-registration/SKILL.md"
@@ -877,7 +877,7 @@
       "id": "skill:apex-golden-principles",
       "category": "skill",
       "label": "apex-golden-principles",
-      "description": "**ANALYSIS SKILL** — The agent-first operating principles governing how agents work in this repository. WHEN: \"golden principles\", \"agent behavior rules\", \"operating philosophy\", \"principle lookup\", \"governance invariants\". USE FOR: agent behavior rules, operating philosophy, principle lookup, governance invariants. DO NOT USE FOR: Azure infrastructure, code generation, troubleshooting, diagram creation.",
+      "description": "**ANALYSIS SKILL** — The agent-first operating principles governing how agents work in this repository. WHEN: \"golden principles\", \"agent behavior rules\", \"operating philosophy\", \"principle lookup\", \"governance invariants\". DO NOT USE FOR: Azure infrastructure, code generation, troubleshooting, diagram creation.",
       "path": ".github/skills/apex-golden-principles/SKILL.md",
       "links": {
         "source": "https://github.com/jonathan-vella/apex/blob/main/.github/skills/apex-golden-principles/SKILL.md"
@@ -888,7 +888,7 @@
       "id": "skill:apex-iac-common",
       "category": "skill",
       "label": "apex-iac-common",
-      "description": "**UTILITY SKILL** — Shared Bicep/Terraform workflow contracts: planning, codegen cadence, handoffs, deployment strategies and bounded recovery. WHEN: \"shared IaC workflow\", \"phased deployment\", \"circuit breaker\", \"deploy strategy\", \"deploy issue\", \"shared IaC pattern\". DO NOT USE FOR: language-specific modules (apex-azure-bicep-patterns / apex-terraform-patterns) or standalone preflight (apex-azure-validate).",
+      "description": "**UTILITY SKILL** — Shared Bicep/Terraform workflow contracts: planning, codegen cadence, handoffs, deployment strategies and bounded recovery. WHEN: \"shared IaC workflow\", \"phased deployment\", \"circuit breaker\", \"deploy strategy\", \"deploy issue\", \"shared IaC pattern\". DO NOT USE FOR: language-specific modules (apex-azure-bicep-patterns, apex-terraform-patterns) or preflight (apex-azure-validate).",
       "path": ".github/skills/apex-iac-common/SKILL.md",
       "links": { "source": "https://github.com/jonathan-vella/apex/blob/main/.github/skills/apex-iac-common/SKILL.md" },
       "meta": { "invocable": false, "disableModelInvocation": false, "argumentHint": null, "context": null }
@@ -1016,7 +1016,7 @@
       "id": "skill:apex-workflow-engine",
       "category": "skill",
       "label": "apex-workflow-engine",
-      "description": "**UTILITY SKILL** — Machine-readable workflow DAG for the multi-step agent pipeline. Defines node types, edge conditions, gates, and fan-out patterns. WHEN: \"orchestrator step routing\", \"resume from graph\", \"workflow validation\", \"workflow DAG\", \"workflow gate\", \"fan-out pattern\". USE FOR: orchestrator step routing, resume-from-graph, workflow validation. DO NOT USE FOR: Azure infrastructure, code generation, troubleshooting.",
+      "description": "**UTILITY SKILL** — Machine-readable workflow DAG for the multi-step agent pipeline. Defines node types, edge conditions, gates, and fan-out patterns. WHEN: \"orchestrator step routing\", \"resume from graph\", \"workflow validation\", \"workflow DAG\", \"workflow gate\", \"fan-out pattern\". DO NOT USE FOR: Azure infrastructure, code generation, troubleshooting.",
       "path": ".github/skills/apex-workflow-engine/SKILL.md",
       "links": {
         "source": "https://github.com/jonathan-vella/apex/blob/main/.github/skills/apex-workflow-engine/SKILL.md"
@@ -1528,6 +1528,26 @@
       "parent": "group:validator-orphans"
     },
     {
+      "id": "validator:validate-challenger-decisions",
+      "category": "validator",
+      "label": "validate:challenger-decisions",
+      "description": "node tools/scripts/validate-challenge-findings-decisions.mjs --all",
+      "path": "package.json",
+      "links": { "source": "https://github.com/jonathan-vella/apex/blob/main/package.json" },
+      "meta": { "command": "node tools/scripts/validate-challenge-findings-decisions.mjs --all", "orphan": true },
+      "parent": "group:validator-orphans"
+    },
+    {
+      "id": "validator:validate-risk-authorizations",
+      "category": "validator",
+      "label": "validate:risk-authorizations",
+      "description": "node tools/scripts/validate-risk-authorizations.mjs",
+      "path": "package.json",
+      "links": { "source": "https://github.com/jonathan-vella/apex/blob/main/package.json" },
+      "meta": { "command": "node tools/scripts/validate-risk-authorizations.mjs", "orphan": true },
+      "parent": "group:validator-orphans"
+    },
+    {
       "id": "validator:lint-workflow-table-sync",
       "category": "validator",
       "label": "lint:workflow-table-sync",
@@ -1635,6 +1655,56 @@
       "path": "package.json",
       "links": { "source": "https://github.com/jonathan-vella/apex/blob/main/package.json" },
       "meta": { "command": "node tools/scripts/validate-iac-security-baseline.mjs", "orphan": true },
+      "parent": "group:validator-orphans"
+    },
+    {
+      "id": "validator:validate-iac-contract",
+      "category": "validator",
+      "label": "validate:iac-contract",
+      "description": "node tools/scripts/validate-iac-contract.mjs",
+      "path": "package.json",
+      "links": { "source": "https://github.com/jonathan-vella/apex/blob/main/package.json" },
+      "meta": { "command": "node tools/scripts/validate-iac-contract.mjs", "orphan": true },
+      "parent": "group:validator-orphans"
+    },
+    {
+      "id": "validator:validate-iac-contract-consistency",
+      "category": "validator",
+      "label": "validate:iac-contract-consistency",
+      "description": "node tools/scripts/validate-iac-contract-consistency.mjs",
+      "path": "package.json",
+      "links": { "source": "https://github.com/jonathan-vella/apex/blob/main/package.json" },
+      "meta": { "command": "node tools/scripts/validate-iac-contract-consistency.mjs", "orphan": true },
+      "parent": "group:validator-orphans"
+    },
+    {
+      "id": "validator:validate-policy-property-map",
+      "category": "validator",
+      "label": "validate:policy-property-map",
+      "description": "node tools/scripts/validate-policy-property-map.mjs",
+      "path": "package.json",
+      "links": { "source": "https://github.com/jonathan-vella/apex/blob/main/package.json" },
+      "meta": { "command": "node tools/scripts/validate-policy-property-map.mjs", "orphan": true },
+      "parent": "group:validator-orphans"
+    },
+    {
+      "id": "validator:validate-environment-manifest",
+      "category": "validator",
+      "label": "validate:environment-manifest",
+      "description": "node tools/scripts/validate-environment-manifest.mjs",
+      "path": "package.json",
+      "links": { "source": "https://github.com/jonathan-vella/apex/blob/main/package.json" },
+      "meta": { "command": "node tools/scripts/validate-environment-manifest.mjs", "orphan": true },
+      "parent": "group:validator-orphans"
+    },
+    {
+      "id": "validator:validate-iac-handoff",
+      "category": "validator",
+      "label": "validate:iac-handoff",
+      "description": "node tools/scripts/validate-iac-handoff.mjs",
+      "path": "package.json",
+      "links": { "source": "https://github.com/jonathan-vella/apex/blob/main/package.json" },
+      "meta": { "command": "node tools/scripts/validate-iac-handoff.mjs", "orphan": true },
       "parent": "group:validator-orphans"
     },
     {
@@ -1848,6 +1918,76 @@
       "path": "package.json",
       "links": { "source": "https://github.com/jonathan-vella/apex/blob/main/package.json" },
       "meta": { "command": "node --test tools/tests/validate-sku-manifest.test.mjs", "orphan": true },
+      "parent": "group:validator-orphans"
+    },
+    {
+      "id": "validator:test-sku-iac-coverage",
+      "category": "validator",
+      "label": "test:sku-iac-coverage",
+      "description": "node --test tools/tests/validate-sku-iac-coverage.test.mjs",
+      "path": "package.json",
+      "links": { "source": "https://github.com/jonathan-vella/apex/blob/main/package.json" },
+      "meta": { "command": "node --test tools/tests/validate-sku-iac-coverage.test.mjs", "orphan": true },
+      "parent": "group:validator-orphans"
+    },
+    {
+      "id": "validator:test-derive-sku-allowlist",
+      "category": "validator",
+      "label": "test:derive-sku-allowlist",
+      "description": "node --test tools/tests/derive-sku-allowlist.test.mjs",
+      "path": "package.json",
+      "links": { "source": "https://github.com/jonathan-vella/apex/blob/main/package.json" },
+      "meta": { "command": "node --test tools/tests/derive-sku-allowlist.test.mjs", "orphan": true },
+      "parent": "group:validator-orphans"
+    },
+    {
+      "id": "validator:test-subagent-file-contract",
+      "category": "validator",
+      "label": "test:subagent-file-contract",
+      "description": "node --test tools/tests/subagent-file-contract.test.mjs",
+      "path": "package.json",
+      "links": { "source": "https://github.com/jonathan-vella/apex/blob/main/package.json" },
+      "meta": { "command": "node --test tools/tests/subagent-file-contract.test.mjs", "orphan": true },
+      "parent": "group:validator-orphans"
+    },
+    {
+      "id": "validator:test-orphan-skill-discovery",
+      "category": "validator",
+      "label": "test:orphan-skill-discovery",
+      "description": "node --test tools/tests/orphan-skill-discovery.test.mjs",
+      "path": "package.json",
+      "links": { "source": "https://github.com/jonathan-vella/apex/blob/main/package.json" },
+      "meta": { "command": "node --test tools/tests/orphan-skill-discovery.test.mjs", "orphan": true },
+      "parent": "group:validator-orphans"
+    },
+    {
+      "id": "validator:test-azure-sla-section",
+      "category": "validator",
+      "label": "test:azure-sla-section",
+      "description": "node --test tools/tests/azure-sla-section.test.mjs",
+      "path": "package.json",
+      "links": { "source": "https://github.com/jonathan-vella/apex/blob/main/package.json" },
+      "meta": { "command": "node --test tools/tests/azure-sla-section.test.mjs", "orphan": true },
+      "parent": "group:validator-orphans"
+    },
+    {
+      "id": "validator:test-context-budget",
+      "category": "validator",
+      "label": "test:context-budget",
+      "description": "node --test tools/tests/validate-context-budget.test.mjs",
+      "path": "package.json",
+      "links": { "source": "https://github.com/jonathan-vella/apex/blob/main/package.json" },
+      "meta": { "command": "node --test tools/tests/validate-context-budget.test.mjs", "orphan": true },
+      "parent": "group:validator-orphans"
+    },
+    {
+      "id": "validator:test-models",
+      "category": "validator",
+      "label": "test:models",
+      "description": "node --test tools/tests/validate-models.test.mjs",
+      "path": "package.json",
+      "links": { "source": "https://github.com/jonathan-vella/apex/blob/main/package.json" },
+      "meta": { "command": "node --test tools/tests/validate-models.test.mjs", "orphan": true },
       "parent": "group:validator-orphans"
     },
     {
@@ -2071,10 +2211,10 @@
     {
       "id": "group:validator-orphans",
       "category": "validator",
-      "label": "Validator (unlinked, 57)",
-      "description": "57 validator nodes with no cross-references in the current graph.",
+      "label": "Validator (unlinked, 71)",
+      "description": "71 validator nodes with no cross-references in the current graph.",
       "isGroup": true,
-      "meta": { "groupSize": 57 }
+      "meta": { "groupSize": 71 }
     },
     {
       "id": "group:workflow-orphans",

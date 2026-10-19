@@ -3,7 +3,7 @@ name: apex-context-management
 user-invocable: true
 disable-model-invocation: false
 argument-hint: "compression or audit, artifact or log path and scope"
-description: '**UTILITY SKILL** — Two-mode context-window management. RUNTIME: artifact compression (full/summarized/minimal) used by orchestrator and codegen agents. AUDIT: post-mortem analysis of Copilot debug logs (token profiling, redundancy + hand-off gap detection) used by 11-Context Optimizer. WHEN: "context optimization", "token budget", "runtime compression", "log parsing". DO NOT USE FOR: infra, IaC code, deployments.'
+description: '**UTILITY SKILL** — Two-mode context-window management. RUNTIME: artifact compression (full/summarized/minimal) for orchestrator and codegen agents. AUDIT: post-mortem analysis of Copilot debug logs (token profiling, redundancy, hand-off gaps) for 11-Context Optimizer. WHEN: "context optimization", "token budget", "runtime compression", "log parsing". DO NOT USE FOR: infra, IaC code, deployments.'
 compatibility: Audit mode requires Python 3.14 for log parser script
 ---
 
@@ -145,6 +145,7 @@ Load on demand:
 | `references/skill-loading.md`         | Runtime | Multi-skill loads / clarifying single-tier load protocol                   |
 | `references/token-estimation.md`      | Audit   | Estimating token counts for context optimisation                           |
 | `references/analysis-methodology.md`  | Audit   | Log format, 5-step methodology, optimisation patterns, baseline comparison |
+| `references/log-profiling.md`         | Audit   | Turn-cost profiling and debug-log telemetry breakdown                      |
 | `references/audit-setup.md`           | Audit   | Prerequisites, enabling debug logs, audit capabilities, portability        |
 | `scripts/parse-chat-logs.py`          | Audit   | Log parser producing structured JSON                                       |
 | `templates/optimization-report.md`    | Audit   | Report output template                                                     |

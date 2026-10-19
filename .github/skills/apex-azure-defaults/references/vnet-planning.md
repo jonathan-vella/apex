@@ -204,6 +204,17 @@ apex-recall decide <project> --key vnet_plan_decision --value <confirmed|edited|
 (v1). `validate:decision-keys` parses it and emits a soft warning
 when the value is absent but the trigger contract holds.
 
+Each array item enforces `additionalProperties: false` (never emit `size` or `outbound` keys):
+
+- **Required keys**: `name` (string), `address_prefix` (IPv4 CIDR), `purpose` (enum: `app-gateway`, `apim`, `aks-system`, `aks-user`, `aks-pe`, `private-endpoint`, `app-service-integration`, `vm`, `vmss`, `bastion`, `azure-firewall`, `vpn-gateway`, `expressroute-gateway`, `nat-gateway`, `application-gateway-for-containers`, `route-server`, `custom`).
+- **Optional keys**:
+  - `delegation` (string enum: `"none"` or canonical Microsoft resource type — never `null`)
+  - `nsg` (string: `"auto"`, `"none"`, or explicit NSG name — never boolean `true`/`false`)
+  - `route_table` (string: `"auto"`, `"none"`, or explicit route-table name — never `null`)
+  - `service_endpoints` (array of strings)
+  - `private_endpoint_network_policies` (`"Disabled"` | `"Enabled"`)
+  - `ipv6_prefix` (string or `null`)
+
 ## Defaults that always hold
 
 - **NSG attached to every subnet** (`nsg: "auto"`) unless governance

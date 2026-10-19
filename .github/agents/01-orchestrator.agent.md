@@ -134,7 +134,7 @@ comprehensive plus separate cost-feasibility; Governance reconciliation when req
 Design ADR and Code review remain opt-in. Deploy has no extra Challenger review.
 Deep review requires explicit `decisions.review_depth=deep`, not complexity alone.
 Capture missing review depth once, explaining default/deep behavior; retain the recorded choice.
-Compute complexity from the graph's formula rather than inventing a parallel rubric.
+Compute complexity (`simple | standard | complex`) from the graph's formula rather than inventing a parallel rubric.
 
 Owners use the existing actual-result review recorder and freshness validator.
 If a delegated owner returns `REVIEW_REQUIRED` because nested tasks are unavailable, invoke the same
