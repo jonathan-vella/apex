@@ -45,6 +45,10 @@ If the calling context is ambiguous, resolve it before a consequential approval.
   finding dispositions and Gate 1. Batch independent fields under `message` and
   `requestedSchema.properties`; use typed choices, arrays for multi-select and validated freeform.
   Ask sequentially only when an answer changes a later question.
+- `requestedSchema` contains only `properties`. Never add root `type`, `required`,
+  `additionalProperties` or other full JSON Schema constraints. Direct `ask_user` receives only
+  `message` and `requestedSchema`. Delegated requests list unresolved names in `needed_inputs`
+  outside the schema; preserve the helper's native field shapes.
 - Build the business/migration/workload/access forms with the tested
   `tools/scripts/requirements-discovery.mjs` helper and the complete captured-answer ledger.
   `node tools/scripts/requirements-discovery.mjs --stage <stage> --answers <owned-answer-snapshot.json>`

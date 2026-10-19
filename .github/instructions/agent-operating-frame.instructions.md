@@ -12,6 +12,9 @@ An authoring `applyTo` match does not prove runtime attachment. Keep essential c
 Every directly selected main can use actual `ask_user` for material missing inputs.
 Requirements, Architect, Design and Governance retain their interactive discovery/clarification role.
 Batch independent fields, validate freeform values and reuse current answers.
+Native `requestedSchema` contains only `properties`; root `type`, `required` and `additionalProperties`
+are not tool parameters. Direct `ask_user` receives only `message` and `requestedSchema`.
+Delegated envelopes keep unresolved names outside the schema in `needed_inputs`.
 Delegated mains return a stable `USER_INPUT_REQUIRED` form to the interactive parent and stop the phase.
 Leaves never ask users, delegate or manage parent todos.
 An absent question tool blocks a required decision; no guessed defaults or terminal prompts.

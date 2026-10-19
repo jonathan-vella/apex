@@ -298,3 +298,56 @@ No real project state, artifacts, review findings, attempt budgets or credential
 No Azure action, deployment, merge or auto-merge was performed. Normal model-backed Requirements
 discovery, independent review recording, UI cancellation/restart and consequential approval remain
 acceptance gaps, not a successful overnight E2E claim.
+
+### Model-backed CLI validation, October 19
+
+Owner authorization replaced the zero-credit hold with usage as required, a two-hour window and
+at most six model-backed CLI sessions. The test used source `7487fe4a` plus the bounded form-contract
+repair, in a disposable clone without existing project data. Five CLI launches included one exact
+session resume, producing four distinct root sessions and one native reviewer context.
+Counting the resume and child conservatively gives six context launches; no further model call ran.
+
+CLI `1.0.98` emitted actual agent-selection and attached-system-context events, read-only tool
+projection notices, disabled MCP status and complete native usage files. Root calls used the configured
+`gpt-6.1-sol`; the actual independent `rubber-duck` worker used `claude-sonnet-5`, without caller overrides.
+Only read tools and the explicitly enabled parent `task` were observed. Persistent permission-setting
+snapshots were unchanged. These observations do not certify general tool or credential isolation.
+
+The first Requirements result correctly offered only missing industry/timeline choices but added
+unsupported schema-root `type`/`required`. The existing native-form validator rejected it.
+Producer, parent and shared guidance now require `requestedSchema` to contain only `properties`,
+with missing names outside the schema. The parent allows one schema-only correction for that request;
+a repeated malformed form blocks without re-asking settled answers. Regression tests preserve strict
+validation rather than accepting unsupported fields. A fresh post-fix session with the unchanged
+original prompt passed the native-form validator.
+That runtime retest covered the initial form-wrapper patch. The later direct/delegated metadata
+clarification and one-correction bound were validated in source tests, not another model call.
+
+Exact-session continuation retained the full ledger, including the custom industry and explicit
+timeline answer, and returned the next guided workload form without business/migration/Other/contact
+questions. A separate delegated Requirements call returned an actual `REVIEW_REQUIRED` scope because
+the nested task tool was not projected; it did not claim the reviewer was unavailable.
+
+The interactive Orchestrator then dispatched exactly one synchronous native independent reviewer.
+Its actual `APEX_REVIEW` prompt matched prepared scope and pre-dispatch metadata exactly.
+The worker completed successful reads but returned prose, reporting a configured critic-output conflict.
+The unchanged recorder rejected that response; no findings sidecar, approval or completed step resulted.
+The prose was neither converted to JSON nor rerun with a new reviewer/counter. This is a CLI-only
+recording compatibility gap, not proof of the same failure in the supported VS Code harness.
+
+Native usage was complete for every launch. The latest cumulative checkpoint per exact root session
+totals `33932850000` in the emitted `totalNanoAiu` field; child usage is already included and the
+earlier resumed checkpoint is not added twice. The native legacy premium-request cost field totals 5.
+No USD price or independently verified conversion to AI-credit units is claimed.
+Exact session/worker IDs, raw attributed outputs, usage files, analysis and test expectations are
+preserved in the session-owned model-CLI evidence directory outside the checkout.
+
+The supported-runtime next step is a separately authorized single typed-review probe in VS Code
+before deciding whether its actual built-in reviewer supports the required receipt.
+Do not broaden product support, relax provenance, switch credentials, bypass reviews or repair
+existing project history on the strength of these CLI observations.
+
+Final engineering verification passed: focused discovery/recorder/agent tests (129), strict native
+form Python tests (31), and full isolated source validation (53 Node entries plus external Python).
+The documentation build, metadata/internal-link checks and compatibility/editorial/anchor tests pass.
+These results validate the scoped repair; the failed independent review recording remains blocked.

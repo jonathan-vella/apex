@@ -94,6 +94,14 @@ def test_native_rich_choices_and_suggested_defaults_are_supported():
     _load()._validate_example(form)
 
 
+def test_delegated_form_rejects_full_schema_wrapper_observed_in_cli_output():
+    form = _form()
+    form.update(status="USER_INPUT_REQUIRED", request_id="fictional-business-001", needed_inputs=["region", "features"])
+    form["requestedSchema"].update(type="object", required=["region", "features"])
+    with pytest.raises(ValueError, match="supports only properties"):
+        _load()._validate_example(form)
+
+
 @pytest.mark.parametrize(
     "field",
     [

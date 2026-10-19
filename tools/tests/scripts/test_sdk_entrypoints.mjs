@@ -83,6 +83,23 @@ test("Orchestrator can relay independent review without requiring nested worker 
   assert.match(requirements, /requirements-discovery\.mjs/);
 });
 
+test("Requirements and its interactive parent preserve the native form wrapper", () => {
+  for (const file of [
+    ".github/agents/01-orchestrator.agent.md",
+    ".github/agents/02-requirements.agent.md",
+    ".github/instructions/agent-operating-frame.instructions.md",
+  ]) {
+    const body = read(file);
+    assert.match(body, /`requestedSchema` contains only `properties`/, file);
+    assert.match(body, /only\s+`message` and `requestedSchema`/, file);
+    for (const keyword of ["type", "required", "additionalProperties"]) {
+      assert.ok(body.includes(`\`${keyword}\``), `${file}: unsupported root ${keyword}`);
+    }
+  }
+  assert.match(read(".github/agents/01-orchestrator.agent.md"), /Return malformed forms to the producer/);
+  assert.match(read(".github/agents/01-orchestrator.agent.md"), /one schema-only correction/);
+});
+
 test("graph runtime metadata is descriptive while domain owners remain actual main definitions", () => {
   const graph = JSON.parse(read(".github/skills/apex-workflow-engine/templates/workflow-graph.json"));
   for (const key of ["harness", "delegation", "interaction", "handoffs", "permissions"]) {

@@ -159,6 +159,15 @@ checks pass. Extra scenario-negation cases exposed and repaired a narrow Require
 No model-backed CLI or reviewer calls, project-state mutation, review retry or Azure action occurred.
 See [zero-credit validation](agent-body-readiness.md#zero-credit-unattended-validation) for scope and limits.
 
+The October 19 owner authorization subsequently permitted model-backed CLI tests. Actual CLI
+agent/instruction loading, exact-session answer continuation, `REVIEW_REQUIRED` and native sibling
+review dispatch were observed in disposable fixtures. A native form-wrapper defect was repaired
+and a fresh identical-prompt retest passed. Recording the independent reviewer remains **BLOCKED**
+in this CLI observation: it returned prose and reported a configured output-format conflict.
+The existing recorder rejected it; no prose conversion, review retry, counter reset or approval occurred.
+See [model-backed CLI evidence](agent-body-readiness.md#model-backed-cli-validation-october-19).
+This does not establish the same behaviour or acceptance in the supported VS Code runtime.
+
 An additional bounded review fix disables implicit model invocation in both deploy entries,
 Diagnose and manual Challenger; structural/negative tests no longer force those roles model-invocable.
 Diagnose explicitly returns a blocker when its actual question tool is unavailable.

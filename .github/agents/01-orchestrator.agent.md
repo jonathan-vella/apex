@@ -51,6 +51,10 @@ Preserve that ledger in the conversation or an explicitly authorized project-loc
 so context loss does not force the user to answer again. Keep it out of unrelated sessions and public logs.
 Never send only the latest form answers and make the specialist rediscover earlier facts.
 Before displaying a returned form, omit answered/inapplicable fields and preserve guided options.
+`requestedSchema` contains only `properties`, without root `type`, `required` or `additionalProperties`.
+Pass only `message` and `requestedSchema` to `ask_user`; retain request ID, phase and missing-input metadata here.
+Return malformed forms to the producer for correction before invoking `ask_user`; do not re-ask settled answers.
+Allow one schema-only correction for the same request; another malformed response blocks with its validation error.
 Greenfield omits migration questions; native freeform replaces separate “Other — describe” fields.
 Do not turn unknown networking/monitoring design into contact/owner/principal questionnaires.
 If this role is itself delegated, return the input request to its interactive parent.

@@ -191,6 +191,12 @@ Do not automatically switch to Challenger, change models, run an inline
 self-review, reset attempt counters or approve a gate. Missing/empty output
 permits only the existing identical-input retry within the existing budget.
 
+A successful task can still return an invalid review. If a reviewer emits prose or reports a
+configured output-format conflict, preserve that response and report a recording/schema blocker.
+Do not translate prose into findings, overwrite its role, change reviewers or treat readable criticism
+as a valid receipt. A CLI-only format mismatch is not proof of the same behaviour in VS Code.
+It grants no retry, counter reset or integrity exception.
+
 Technical step handoffs return paths, checkpoints, actual checks, unresolved
 findings and pending forms to the same Orchestrator. Do not request manual
 agent selection merely because a normal automatic review finished. Optional
