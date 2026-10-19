@@ -1,4 +1,5 @@
 import assert from "node:assert/strict";
+import { spawnSync } from "node:child_process";
 import fs from "node:fs";
 import os from "node:os";
 import path from "node:path";
@@ -18,6 +19,8 @@ import {
 
 const BASELINE = "b87b57f719520049d6bcf2f00bc3d9431c1002a7";
 const BRANCH = "chore/whole-repo-retirement-scan-2026-08-27";
+const HAS_BASELINE_ANCESTRY = spawnSync("git", ["merge-base", "--is-ancestor", BASELINE, "HEAD"]).status === 0;
+const BASELINE_SKIP = !HAS_BASELINE_ANCESTRY ? "historical baseline commit not in this clone/template history" : false;
 let cachedScan;
 
 function scan() {
@@ -62,7 +65,7 @@ test("classifies repository domains and protected dynamic entrypoints", () => {
   assert.equal(protectionFor("README.md"), null);
 });
 
-test("builds a schema-valid complete baseline inventory", () => {
+test("builds a schema-valid complete baseline inventory", { skip: BASELINE_SKIP }, () => {
   const result = scan();
   const validation = validateScan(result);
   assert.equal(validation.valid, true, JSON.stringify(validation, null, 2));
@@ -73,7 +76,7 @@ test("builds a schema-valid complete baseline inventory", () => {
   assert.deepEqual(result.scan_findings, []);
 });
 
-test("protects dynamic and structural content from automatic retirement", () => {
+test("protects dynamic and structural content from automatic retirement", { skip: BASELINE_SKIP }, () => {
   const result = scan();
   const byPath = new Map(result.inventory.map((item) => [item.path, item]));
   assert.equal(byPath.get(".github/agents/01-orchestrator.agent.md").status, "protected");
@@ -81,7 +84,7 @@ test("protects dynamic and structural content from automatic retirement", () => 
   assert.equal(byPath.get("site/public/downloads/bmit-2026.zip").status, "protected");
 });
 
-test("groups exact duplicates without approving retirement", () => {
+test("groups exact duplicates without approving retirement", { skip: BASELINE_SKIP }, () => {
   const result = scan();
   const duplicateItems = result.inventory.filter((item) => item.duplication.exact_duplicate_group);
   assert.ok(duplicateItems.length > 0);
@@ -94,7 +97,7 @@ test("groups exact duplicates without approving retirement", () => {
   );
 });
 
-test("records repository ownership for every baseline file", () => {
+test("records repository ownership for every baseline file", { skip: BASELINE_SKIP }, () => {
   const result = scan();
   assert.ok(result.inventory.every((item) => item.ownership.codeowners.length > 0));
   const byPath = new Map(result.inventory.map((item) => [item.path, item]));
@@ -108,7 +111,7 @@ test("records repository ownership for every baseline file", () => {
   ]);
 });
 
-test("resolves historical reference filenames within the pinned baseline", () => {
+test("resolves historical reference filenames within the pinned baseline", { skip: BASELINE_SKIP }, () => {
   const result = scan();
   const identity = result.inventory.find(
     (item) => item.path === ".github/skills/azure-deploy/references/sdk/azure-identity-py.md",
@@ -116,14 +119,14 @@ test("resolves historical reference filenames within the pinned baseline", () =>
   assert.deepEqual(identity.reachability.direct_references, [".github/skills/azure-deploy/SKILL.md"]);
 });
 
-test("repeated scans have deterministic semantic output", () => {
+test("repeated scans have deterministic semantic output", { skip: BASELINE_SKIP }, () => {
   const first = scan();
   const second = buildInventory({ baseline: BASELINE, branch: BRANCH });
   assert.deepEqual(second, first);
   assert.equal(renderMarkdown(second), renderMarkdown(first));
 });
 
-test("writes default reports when the destination directory is absent", () => {
+test("writes default reports when the destination directory is absent", { skip: BASELINE_SKIP }, () => {
   const directory = fs.mkdtempSync(path.join(os.tmpdir(), "apex-retirement-output-"));
   try {
     const jsonPath = path.join(directory, "tmp", "retirement-scan.json");
@@ -150,7 +153,7 @@ test("writes default reports when the destination directory is absent", () => {
   }
 });
 
-test("coverage validation rejects missing and duplicate paths", () => {
+test("coverage validation rejects missing and duplicate paths", { skip: BASELINE_SKIP }, () => {
   const result = structuredClone(scan());
   result.inventory.push(result.inventory[0]);
   result.inventory.splice(1, 1);

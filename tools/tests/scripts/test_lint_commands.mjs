@@ -107,7 +107,10 @@ test("extension guard rejects Azure Copilot and bundling extensions", (context) 
   }
 });
 
-test("product CI retains coverage while migrated docs automation stays retired", () => {
+const HAS_PRODUCT_CI = existsSync(new URL("../../../.github/workflows/ci.yml", import.meta.url));
+const CI_SKIP = !HAS_PRODUCT_CI ? "upstream ci.yml not present in consumer repo" : false;
+
+test("product CI retains coverage while migrated docs automation stays retired", { skip: CI_SKIP }, () => {
   const workflow = (name) =>
     load(readFileSync(new URL(`../../../.github/workflows/${name}.yml`, import.meta.url), "utf8"));
   const ci = workflow("ci");
@@ -131,33 +134,37 @@ test("product CI retains coverage while migrated docs automation stays retired",
   }
 });
 
-test("hook retirement removes obsolete callers while retaining Git hooks and validation coverage", () => {
-  assert.equal(scripts["validate:hooks"], undefined);
-  assert.equal(scripts["test:hooks"], undefined);
-  assert.equal(scripts["test:git-hooks"], "bash tools/tests/test-git-hooks.sh");
-  assert.equal(existsSync(new URL("../../scripts/validate-hooks.mjs", import.meta.url)), false);
-  const runner = readFileSync(new URL("../test-git-hooks.sh", import.meta.url), "utf8");
-  assert.match(runner, /bats "\$SCRIPT_DIR\/bats\/lefthook-config\.bats"/);
-  const ci = load(readFileSync(new URL("../../../.github/workflows/ci.yml", import.meta.url), "utf8"));
-  const steps = ci.jobs.ci.steps;
-  assert.ok(steps.some((step) => step.run === "npm run test:git-hooks" && !step.if));
-  assert.ok(steps.some((step) => step.run === "npm run validate:_node-ci" && !step.if));
-  assert.doesNotMatch(JSON.stringify(ci), /npm run (?:validate:hooks|test:hooks)\b/);
-  for (const suite of ["validate:_node", "validate:_node-ci"]) {
-    const leaves = expandScript(scripts, suite);
-    assert.ok(!leaves.includes("validate:hooks"), suite);
-    for (const retained of ["validate:vscode", "lint:json", "test:tool-contracts", "lint:safe-shell"]) {
-      assert.ok(leaves.includes(retained), `${suite}: ${retained}`);
+test(
+  "hook retirement removes obsolete callers while retaining Git hooks and validation coverage",
+  { skip: CI_SKIP },
+  () => {
+    assert.equal(scripts["validate:hooks"], undefined);
+    assert.equal(scripts["test:hooks"], undefined);
+    assert.equal(scripts["test:git-hooks"], "bash tools/tests/test-git-hooks.sh");
+    assert.equal(existsSync(new URL("../../scripts/validate-hooks.mjs", import.meta.url)), false);
+    const runner = readFileSync(new URL("../test-git-hooks.sh", import.meta.url), "utf8");
+    assert.match(runner, /bats "\$SCRIPT_DIR\/bats\/lefthook-config\.bats"/);
+    const ci = load(readFileSync(new URL("../../../.github/workflows/ci.yml", import.meta.url), "utf8"));
+    const steps = ci.jobs.ci.steps;
+    assert.ok(steps.some((step) => step.run === "npm run test:git-hooks" && !step.if));
+    assert.ok(steps.some((step) => step.run === "npm run validate:_node-ci" && !step.if));
+    assert.doesNotMatch(JSON.stringify(ci), /npm run (?:validate:hooks|test:hooks)\b/);
+    for (const suite of ["validate:_node", "validate:_node-ci"]) {
+      const leaves = expandScript(scripts, suite);
+      assert.ok(!leaves.includes("validate:hooks"), suite);
+      for (const retained of ["validate:vscode", "lint:json", "test:tool-contracts", "lint:safe-shell"]) {
+        assert.ok(leaves.includes(retained), `${suite}: ${retained}`);
+      }
     }
-  }
-  const gitHooks = load(readFileSync(new URL("../../../lefthook.yml", import.meta.url), "utf8"));
-  assert.match(gitHooks["pre-commit"].commands["secrets-baseline"].run, /gitleaks protect/);
-  assert.match(gitHooks["pre-commit"].commands["iac-security-baseline"].run, /validate:iac-security-baseline/);
-  assert.ok(gitHooks["pre-push"].commands);
-  assert.ok(ci.jobs["secret-scan"].steps.some((step) => step.run === "gitleaks git --redact --no-banner ."));
-});
+    const gitHooks = load(readFileSync(new URL("../../../lefthook.yml", import.meta.url), "utf8"));
+    assert.match(gitHooks["pre-commit"].commands["secrets-baseline"].run, /gitleaks protect/);
+    assert.match(gitHooks["pre-commit"].commands["iac-security-baseline"].run, /validate:iac-security-baseline/);
+    assert.ok(gitHooks["pre-push"].commands);
+    assert.ok(ci.jobs["secret-scan"].steps.some((step) => step.run === "gitleaks git --redact --no-banner ."));
+  },
+);
 
-test("Python CI installs diagram dependencies and renderer before running tooling tests", () => {
+test("Python CI installs diagram dependencies and renderer before running tooling tests", { skip: CI_SKIP }, () => {
   const workflow = load(readFileSync(new URL("../../../.github/workflows/ci.yml", import.meta.url), "utf8"));
   const steps = workflow.jobs["external-tests"].steps;
   const testIndex = steps.findIndex((step) => step.run === "npm run test:python-tools");
@@ -171,7 +178,7 @@ test("Python CI installs diagram dependencies and renderer before running toolin
   }
 });
 
-test("Node CI provides the supported Python interpreter before executable validator tests", () => {
+test("Node CI provides the supported Python interpreter before executable validator tests", { skip: CI_SKIP }, () => {
   const workflow = load(readFileSync(new URL("../../../.github/workflows/ci.yml", import.meta.url), "utf8"));
   const steps = workflow.jobs.ci.steps;
   const setup = steps.findIndex((step) => step.uses === "actions/setup-python@v7");
@@ -184,7 +191,7 @@ test("Node CI provides the supported Python interpreter before executable valida
   assert.equal(steps[setup].with["python-version"], minimum[1]);
 });
 
-test("Node CI provides a native Terraform CLI before executable validator tests", () => {
+test("Node CI provides a native Terraform CLI before executable validator tests", { skip: CI_SKIP }, () => {
   const workflow = load(readFileSync(new URL("../../../.github/workflows/ci.yml", import.meta.url), "utf8"));
   const steps = workflow.jobs.ci.steps;
   const setup = steps.findIndex((step) => step.uses === "hashicorp/setup-terraform@v4");
@@ -277,18 +284,26 @@ test("active registry rejects retired prompts even when their former paths exist
   assert.equal(runRegistry({ ...inherited, invokable: "yes" }), 1);
 });
 
-test("root workflow diagram uses declared participants and current artifact names", () => {
-  const readme = readFileSync(new URL("../../../README.md", import.meta.url), "utf8");
-  const diagram = readme.split("```mermaid")[1].split("```")[0];
-  const participants = new Set([...diagram.matchAll(/participant (\w+) as/g)].map((match) => match[1]));
-  for (const match of diagram.matchAll(/^\s*(\w+)(?:-->>|->>)(\w+):/gm)) {
-    assert.ok(participants.has(match[1]), match[1]);
-    assert.ok(participants.has(match[2]), match[2]);
-  }
-  assert.doesNotMatch(diagram, /02-assessment.md|03-cost-estimate.md|04-plan.md|challenge-findings.json/);
-  assert.ok(diagram.indexOf("challenge-findings-cost-estimate.json") < diagram.indexOf("Approve architecture"));
-  assert.match(diagram, /C->>G: Discover policy constraints/);
-});
+test(
+  "root workflow diagram uses declared participants and current artifact names",
+  {
+    skip:
+      !readFileSync(new URL("../../../README.md", import.meta.url), "utf8").includes("```mermaid") &&
+      "consumer README does not embed upstream workflow mermaid diagram",
+  },
+  () => {
+    const readme = readFileSync(new URL("../../../README.md", import.meta.url), "utf8");
+    const diagram = readme.split("```mermaid")[1].split("```")[0];
+    const participants = new Set([...diagram.matchAll(/participant (\w+) as/g)].map((match) => match[1]));
+    for (const match of diagram.matchAll(/^\s*(\w+)(?:-->>|->>)(\w+):/gm)) {
+      assert.ok(participants.has(match[1]), match[1]);
+      assert.ok(participants.has(match[2]), match[2]);
+    }
+    assert.doesNotMatch(diagram, /02-assessment.md|03-cost-estimate.md|04-plan.md|challenge-findings.json/);
+    assert.ok(diagram.indexOf("challenge-findings-cost-estimate.json") < diagram.indexOf("Approve architecture"));
+    assert.match(diagram, /C->>G: Discover policy constraints/);
+  },
+);
 
 test("version sync fails on missing or malformed required version evidence", (context) => {
   const root = fixture(context);

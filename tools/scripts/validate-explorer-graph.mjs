@@ -77,11 +77,15 @@ function main() {
   const ids = new Set((graph.nodes || []).map((n) => n.id));
 
   // Node paths exist
+  const hasUpstreamWorkflows = existsSync(join(REPO_ROOT, ".github/workflows/ci.yml"));
   for (const n of graph.nodes || []) {
     if (!n.id || !n.category || !n.label) {
       errors.push(`Invalid node (missing id/category/label): ${JSON.stringify(n).slice(0, 120)}`);
     }
     if (n.path && !existsSync(join(REPO_ROOT, n.path))) {
+      if (!hasUpstreamWorkflows && n.category === "workflow" && n.path.startsWith(".github/workflows/")) {
+        continue;
+      }
       errors.push(`Node "${n.id}" references missing file: ${n.path}`);
     }
   }

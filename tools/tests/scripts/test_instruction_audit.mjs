@@ -136,15 +136,21 @@ test("lockfile-provisioned YAML parser supports structured values and rejects ma
   assert.match(instruction("shell"), /yq` is not provisioned or required/);
 });
 
-test("CI documents independent checks and inventories the current workflows", () => {
-  const workflow = load(read(".github/workflows/ci.yml"));
-  for (const job of ["ci", "external-tests", "secret-scan"]) assert.ok(workflow.jobs[job]);
-  assert.doesNotMatch(read(".github/workflows/ci.yml"), /Single required status check/);
-  assert.match(instruction("github-actions"), /Local YAML inspection does not verify those live settings/);
-  for (const file of fs.readdirSync(path.join(root, ".github/workflows"))) {
-    if (/\.ya?ml$/.test(file)) assert.ok(instruction("github-actions").includes(file), file);
-  }
-});
+test(
+  "CI documents independent checks and inventories the current workflows",
+  {
+    skip: !fs.existsSync(path.join(root, ".github/workflows/ci.yml")) && "upstream ci.yml not present in consumer repo",
+  },
+  () => {
+    const workflow = load(read(".github/workflows/ci.yml"));
+    for (const job of ["ci", "external-tests", "secret-scan"]) assert.ok(workflow.jobs[job]);
+    assert.doesNotMatch(read(".github/workflows/ci.yml"), /Single required status check/);
+    assert.match(instruction("github-actions"), /Local YAML inspection does not verify those live settings/);
+    for (const file of fs.readdirSync(path.join(root, ".github/workflows"))) {
+      if (/\.ya?ml$/.test(file)) assert.ok(instruction("github-actions").includes(file), file);
+    }
+  },
+);
 
 test("canonical artifact fix command previews before applying to an owned fixture", (t) => {
   const manifest = JSON.parse(read("package.json"));
