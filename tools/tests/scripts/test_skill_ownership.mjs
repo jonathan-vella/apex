@@ -35,7 +35,6 @@ for (const [previous, owner, name, adapter] of moves) {
     assert.ok(source(`.github/skills/${owner}/SKILL.md`).includes(`references/${name}.md`));
     const prompt = `tools/apex-prompts/utility-prompts/${adapter}.prompt.md`;
     assert.equal(existsSync(path.join(root, prompt)), false, "retired adapter must not be active");
-    assert.ok(existsSync(path.join(root, `.archive/pre-cpharness/apex-prompts/utility-prompts/${adapter}.prompt.md`)));
     checkRelativeLinks(destination);
     const ignored = spawnSync("git", ["check-ignore", "--no-index", destination], { cwd: root, encoding: "utf8" });
     assert.equal(ignored.status, 1, `${destination}: ${ignored.stdout}${ignored.stderr}`);

@@ -137,7 +137,7 @@ directly.
 - Reference implementations for Bicep and Terraform tracks
 - Validation scripts, MCP configuration, and sample agent outputs
 - `apex-recall` CLI for progressive session recall across agent-output projects
-- Source content for the published documentation site
+- Runtime references, artifact templates, and architecture explorer graph metadata
 
 The [skill catalog](.github/skills/README.md) describes procedure ownership and invocation flags.
 For explicit prose cleanup, use [/apex-unslop](.github/skills/apex-unslop/SKILL.md); it is manual-only,
@@ -151,13 +151,14 @@ Active agents omit model and reasoning-effort pins; the operator and runtime
 control selection, including Auto and HydraFusion. Readiness is model-agnostic:
 model names, effort, picker selection and model-source labels are diagnostics only.
 Skills inherit caller model/tools; completion never bypasses approval or independent review.
-Legacy Local prompts are retained only in [.archive/pre-cpharness/](.archive/pre-cpharness/).
+Legacy Local prompts are retired and excluded from active discovery.
 Worker identity, dispatch linkage, tool-free same-worker continuation, required
 tools and human approval still require runtime verification.
-Automatic independent reviews use built-in `rubber-duck` through the
+Automatic independent reviews use the shared read-only `challenger-review-subagent` through the
 [one-shot review contract](.github/skills/apex-azure-defaults/references/one-shot-review.md),
 without reviewer handshake/ACK turns. The owning step records the actual attributed
-result, validates freshness and returns to the same Orchestrator. `10-Challenger`
+result via `record-review.mjs`, validates strict cache freshness and returns to the same Orchestrator;
+historical `rubber-duck` receipts remain read-only compatibility. `10-Challenger`
 remains optional manual review/repair. Technical handoffs do not approve human gates.
 
 APEX's former tool-guardian and subagent-validation runtime hooks are retired.

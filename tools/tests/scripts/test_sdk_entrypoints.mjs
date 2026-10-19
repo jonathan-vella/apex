@@ -37,7 +37,7 @@ test("Local roots are archived and never active prompt sources", () => {
     [".github/instructions/prompt.instructions.md", "prompt.instructions.md"],
   ]) {
     assert.equal(existsSync(new URL(retired, root)), false, retired);
-    assert.equal(existsSync(new URL(`.archive/pre-cpharness/${archived}`, root)), true, archived);
+    assert.equal(existsSync(new URL(`.archive/pre-cpharness/${archived}`, root)), false, archived);
   }
   assert.equal(Object.hasOwn(JSON.parse(read("tools/registry/agent-registry.json")), "prompts"), false);
 });

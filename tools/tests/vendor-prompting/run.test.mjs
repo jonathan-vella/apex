@@ -604,11 +604,7 @@ test("agent catalog preserves descriptive metadata and operator-selected runtime
 
 test("prompt and skill authoring distinguish Local adapters from Host execution", () => {
   const root = path.resolve(__dirname, "../../..");
-  const archive = fs.readFileSync(path.join(root, ".archive/pre-cpharness/prompt.instructions.md"), "utf8");
-  assert.match(archive, /Local prompt files are adapters, not Agent Host entry points/);
-  assert.match(archive, /explicitly select its owning main agent before consequential\s+work/);
-  assert.match(archive, /Skills inherit the caller's model\/tools/);
-  assert.match(archive, /Keep needed Local discovery settings/);
+  assert.equal(fs.existsSync(path.join(root, ".archive/pre-cpharness/prompt.instructions.md")), false);
   const active = fs.readFileSync(path.join(root, ".github/instructions/agent-skills.instructions.md"), "utf8");
   assert.match(active, /Local prompt adapters are archived and excluded from active discovery/);
   assert.match(active, /Use the\s+shared skill with its owning agent/);
