@@ -19,8 +19,8 @@
  *   `artifact_path` and `proposed_edit`.
  * - `cache_inputs` carries artifact/checklist/protocol hashes, `model_policy`
  *   and `artifact_hash`. Legacy reviews use `subagent_sha`; explicit
- *   rubber-duck reviews use `reviewer_contract` / `reviewer_contract_sha`
- *   and require execution provenance at strict current validation.
+ *   Recorded reviews use explicit reviewer identity and contract hashes,
+ *   and require matching execution provenance at strict current validation.
  *
  * Excludes the decisions sidecar (`challenge-findings-*-decisions.json`)
  * which has its own shape defined in `adversarial-review-protocol.md`
@@ -71,10 +71,16 @@ const REQUIRED_FINDING_FIELDS = [
 ];
 const REQUIRED_CACHE_FIELDS = ["artifact_sha", "checklists_sha", "protocol_sha", "model_policy", "artifact_hash"];
 export const ONE_SHOT_REVIEW_CONTRACT = ".github/skills/apex-azure-defaults/references/one-shot-review.md";
+export const STRUCTURED_REVIEWER = "challenger-review-subagent";
+export const STRUCTURED_REVIEWER_DEFINITION = ".github/agents/_subagents/challenger-review-subagent.agent.md";
+
+export function isRecordedReviewer(reviewer) {
+  return reviewer === STRUCTURED_REVIEWER || reviewer === "rubber-duck";
+}
 
 function reviewerMode(reviewer) {
-  if (reviewer === undefined || reviewer === "challenger-review-subagent") return "legacy";
-  if (reviewer === "rubber-duck") return reviewer;
+  if (reviewer === undefined) return "legacy";
+  if (isRecordedReviewer(reviewer)) return reviewer;
   throw new Error(`Unknown reviewer: ${JSON.stringify(reviewer)}`);
 }
 const VALID_SEVERITY = new Set(["must_fix", "should_fix", "suggestion"]);
@@ -132,9 +138,7 @@ export function cacheInputs(artifactPath, root = process.cwd(), reviewer) {
   visit(artifact);
   if (!entries.length) throw new Error("Review artifact directory contains no files");
   const artifactSha = fs.lstatSync(artifact).isDirectory() ? hash(JSON.stringify(entries)) : entries[0][1];
-  const worker = read(
-    mode === "legacy" ? ".github/agents/_subagents/challenger-review-subagent.agent.md" : ONE_SHOT_REVIEW_CONTRACT,
-  );
+  const worker = read(mode === "legacy" ? STRUCTURED_REVIEWER_DEFINITION : ONE_SHOT_REVIEW_CONTRACT);
   const models = mode === "legacy" ? parseFrontmatter(worker.toString("utf8"))?.model : undefined;
   const model = Array.isArray(models) ? models[0] : null;
   const inputs = {
@@ -144,9 +148,15 @@ export function cacheInputs(artifactPath, root = process.cwd(), reviewer) {
     ...(mode === "legacy"
       ? { subagent_sha: hash(worker) }
       : {
-          reviewer: "rubber-duck",
+          reviewer: mode,
           reviewer_contract: ONE_SHOT_REVIEW_CONTRACT,
           reviewer_contract_sha: hash(worker),
+          ...(mode === STRUCTURED_REVIEWER
+            ? {
+                reviewer_definition: STRUCTURED_REVIEWER_DEFINITION,
+                reviewer_definition_sha: hash(read(STRUCTURED_REVIEWER_DEFINITION)),
+              }
+            : {}),
         }),
     model_policy: model ? "legacy-pinned" : "runtime-managed",
   };
@@ -162,12 +172,13 @@ function verifyCache(file, doc, root = process.cwd(), execution = doc.review_exe
   if (Object.hasOwn(doc.cache_inputs ?? {}, "model") !== Object.hasOwn(expected, "model")) {
     r.error(`${file}: cache_inputs.model must be present only for an explicitly pinned legacy reviewer`);
   }
-  if (doc.cache_inputs?.reviewer === "rubber-duck") {
+  const reviewer = doc.cache_inputs?.reviewer;
+  if (isRecordedReviewer(reviewer)) {
     if (Object.hasOwn(doc.cache_inputs, "subagent_sha")) {
-      r.error(`${file}: rubber-duck cache must not claim a legacy subagent_sha`);
+      r.error(`${file}: ${reviewer} recorded cache must not claim a legacy subagent_sha`);
     }
     if (
-      execution?.reviewer !== "rubber-duck" ||
+      execution?.reviewer !== reviewer ||
       !["worker_id", "parent_id", "tool_call_id", "completed_at", "request_id", "step", "project_name"].every((key) =>
         isNonEmptyString(execution?.[key]),
       ) ||
@@ -175,7 +186,7 @@ function verifyCache(file, doc, root = process.cwd(), execution = doc.review_exe
       execution.worker_id === execution.parent_id ||
       !Number.isFinite(Date.parse(execution.completed_at))
     ) {
-      r.error(`${file}: rubber-duck requires matching review_execution provenance`);
+      r.error(`${file}: ${reviewer} requires matching review_execution provenance`);
     }
   }
   if (doc.supporting_inputs !== undefined) {
@@ -293,17 +304,18 @@ function validateFindings(file, doc) {
   }
   if (doc.cache_inputs && typeof doc.cache_inputs === "object") {
     const mode = reviewerMode(doc.cache_inputs.reviewer);
-    if (mode === "rubber-duck") {
+    if (mode !== "legacy") {
       if (!["APPROVED", "NEEDS_REVISION", "BLOCKED"].includes(doc.overall_assessment)) {
-        r.error(`${file}: rubber-duck requires a valid overall_assessment`);
+        r.error(`${file}: ${mode} requires a valid overall_assessment`);
       }
       if (!["low", "medium", "high"].includes(doc.risk_level)) {
-        r.error(`${file}: rubber-duck requires a valid risk_level`);
+        r.error(`${file}: ${mode} requires a valid risk_level`);
       }
     }
     const fields = [
       ...REQUIRED_CACHE_FIELDS,
       ...(mode === "legacy" ? ["subagent_sha"] : ["reviewer_contract", "reviewer_contract_sha"]),
+      ...(mode === STRUCTURED_REVIEWER ? ["reviewer_definition", "reviewer_definition_sha"] : []),
     ];
     for (const f of fields) {
       if (!isNonEmptyString(doc.cache_inputs[f])) {
@@ -356,8 +368,9 @@ export function runValidator(args = process.argv.slice(2)) {
     if (values.help) {
       console.log(
         "Usage: validate-challenger-findings.mjs [--root DIR | --path FILE | FILE ...] [--verify-cache]\n" +
-          "Read-only metadata: --metadata ARTIFACT [--reviewer rubber-duck] [--supporting-input PATH ...] [--finding-ids DRAFT.json.tmp]\n" +
+          "Read-only metadata: --metadata ARTIFACT [--reviewer challenger-review-subagent|rubber-duck] [--supporting-input PATH ...] [--finding-ids DRAFT.json.tmp]\n" +
           "Metadata hashes file bytes or sorted directory entries and the reviewer's model-policy contract.\n" +
+          "New recordings use challenger-review-subagent; rubber-duck metadata is historical compatibility.\n" +
           "Use --verify-cache for current review gates, not historical schema-only scans.",
       );
       return 0;

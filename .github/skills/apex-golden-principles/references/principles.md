@@ -126,7 +126,7 @@ Use independent reviewers under the current graph and explicit caller contracts.
 Only the Orchestrator dispatches approved main-agent workers; never use a
 main-agent wrapper as an automatic reviewer fallback.
 Keep both Step 2 architecture and cost-feasibility reviews; deep review is opt-in.
-Automatic reviews use built-in `rubber-duck` through
+Automatic and manual reviews use the shared `challenger-review-subagent` through
 [one-shot review](../../apex-azure-defaults/references/one-shot-review.md),
 with recorded independent output and strict freshness checks.
 Unavailable reviewers return a blocker to the interactive parent; `10-Challenger`

@@ -6,7 +6,7 @@ entrypoint. Copy the ordered Inputs, Activities, Outputs sections into the
 invocation of a named, explicitly allowlisted worker. The runtime selects the
 worker model and its agent definition declares tools. Picker selection, model
 names and effort are not readiness gates. This reference grants no permissions.
-Automatic built-in `rubber-duck` reviews use the separate
+Automatic and manual `challenger-review-subagent` reviews use the separate
 [one-shot contract](../../apex-azure-defaults/references/one-shot-review.md),
 including its `APEX_REVIEW` JSON envelope and provenance-aware recorder.
 Routine approved work uses the actual native task prompt and result lifecycle in
@@ -56,6 +56,8 @@ Choose the output mode required by the named worker, not a universal disk format
 - **File JSON**: specify the authorized on-disk path and the worker's schema or
 	documented JSON shape, plus its compact parent summary. The parent reads the
 	persisted payload when schema evidence is required; chat prose is not a substitute.
+- **Returned review JSON**: the shared read-only reviewer returns its complete findings;
+  the authorized parent records actual native events, then validates provenance and freshness.
 - **Fixed verdict**: use the worker's exact enum within its declared response shape.
 - **Text summary**: return the worker's exact text block, field order and bounds;
 	no findings-file write is implied. A verdict can be part of this text summary.
@@ -115,25 +117,16 @@ File JSON: caller `output_path`, the documented cost JSON shape, plus
 report persistence failure without claiming a file. Manifest writeback remains
 limited to the worker's explicitly authorized price/timestamp fields.
 
-### rubber-duck
-
-Automatic independent reviewer. Follow
-[one-shot review](../../apex-azure-defaults/references/one-shot-review.md).
-Return raw findings JSON; the parent uses `record-review.mjs` to persist the
-actual attributed result atomically and validate freshness. No handshake,
-nonce-only ACK, `WORKER_EXECUTE` or reviewer-authored file is required.
-The parent cannot author, repair or reclassify these findings.
-
 ### challenger-review-subagent
 
-Optional manual Challenger workflow only; automatic reviews use rubber-duck above.
-
-Source: [agent File Write Protocol and Parent-Facing Summary](../../../agents/_subagents/challenger-review-subagent.agent.md).
-File JSON: caller `output_path`, single-lens findings or `batch_results`, plus
-`CHALLENGE COMPLETE` with `overall_assessment: {APPROVED | NEEDS_REVISION | BLOCKED}`
-in the compact summary (at most 15 lines and 2 KB). Preserve atomic writes and
-refuse-on-exists unless `overwrite: true`. A read-only request fails before writes;
-no inline-only fallback. Return explicit failure if persistence is unavailable.
+Shared automatic/manual independent reviewer.
+Source: [structured reviewer role and output](../../../agents/_subagents/challenger-review-subagent.agent.md)
+and [one-shot contract](../../apex-azure-defaults/references/one-shot-review.md).
+Returned JSON: single-lens findings or `batch_results` with captured metadata and honest `overall_assessment`.
+No shell/code, file writes, questions or delegation. The parent uses `record-review.mjs` to persist
+the actual attributed result atomically, then requires strict schema/freshness/provenance validation.
+No handshake, nonce-only ACK or reviewer-authored file is required. The parent cannot reconstruct findings.
+Built-in prose critics are not mandatory JSON dependencies or automatic reviewer fallbacks.
 
 ### Failure and recovery
 

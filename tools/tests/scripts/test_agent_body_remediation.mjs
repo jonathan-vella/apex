@@ -30,7 +30,7 @@ const root = fileURLToPath(new URL("../../../", import.meta.url));
 const agentRoot = path.join(root, ".github/agents");
 const read = (name) => readFileSync(path.join(agentRoot, `${name}.agent.md`), "utf8");
 
-test("automatic review callers use one-shot rubber-duck while manual Challenger stays independent", () => {
+test("automatic and manual callers share the same structured reviewer and actual-event recorder", () => {
   for (const name of [
     "02-requirements",
     "03-architect",
@@ -42,8 +42,8 @@ test("automatic review callers use one-shot rubber-duck while manual Challenger 
   ]) {
     const content = read(name);
     const frontmatter = parseFrontmatter(content);
-    assert.ok(frontmatter.agents.includes("rubber-duck"), name);
-    assert.ok(!frontmatter.agents.includes("challenger-review-subagent"), name);
+    assert.ok(frontmatter.agents.includes("challenger-review-subagent"), name);
+    assert.ok(!frontmatter.agents.includes("rubber-duck"), name);
     assert.match(content, /one-shot-review\.md/, name);
     assert.match(content, /record-review\.mjs/, name);
     assert.ok(frontmatter.tools.includes("agent"), name);
@@ -54,7 +54,7 @@ test("automatic review callers use one-shot rubber-duck while manual Challenger 
     "utf8",
   );
   assert.match(contract, /APEX_REVIEW/);
-  assert.match(contract, /--reviewer rubber-duck/);
+  assert.match(contract, /--reviewer challenger-review-subagent/);
   assert.match(contract, /--verify-cache/);
   assert.match(contract, /not a parent-authored reconstruction/i);
 });
@@ -824,8 +824,9 @@ test("AB-21 declared empty-artifact payload validates; ad hoc failure and partia
   assert.equal(batch.status, 0, batch.stdout + batch.stderr);
   assert.equal(run({ status: "artifact_not_found", artifact_path: "missing", findings: [] }).status, 1);
   assert.equal(run('{"partial":').status, 1);
-  assert.match(body, /file_path:\s*not_written/);
-  assert.match(body, /unwritable path[\s\S]{0,100}preserve files/i);
+  assert.match(body, /status:"FAILED"/);
+  assert.match(body, /No writes, including findings/);
+  assert.deepEqual(parseFrontmatter(body).tools, ["read", "search"]);
 });
 
 test("AB-16 parent follow-up: policy validator must accept BLOCKING drift without fabricated violations", (context) => {

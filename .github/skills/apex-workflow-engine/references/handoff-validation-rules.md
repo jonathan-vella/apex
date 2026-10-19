@@ -119,7 +119,7 @@ from `handoffs[]`):
 - Target-name validity is not production invocation permission. Production main
   agents require human selection; explicit caller allowlists must not override
   that boundary or enable a nested `10-Challenger` wrapper.
-- `rubber-duck` and optional manual `challenger-review-subagent` require an artifact-producing source
+- Current `challenger-review-subagent` and historical built-in review fixtures require an artifact-producing source
   (workflow node `produces[]` non-empty, or `handoffs[]` references
   `agent-output/`, or in `CHALLENGER_DISPATCHER_ALLOWLIST`).
 - `cost-estimate-subagent` requires source ∈ {`03-Architect`,

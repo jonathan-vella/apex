@@ -131,7 +131,10 @@ test("unattended production reviews fail closed on unresolved blockers", () => {
 test("unavailable reviewers return to the parent without nested wrapper or retry reset", () => {
   const read = (file) => readFileSync(new URL(`../../../${file}`, import.meta.url), "utf8");
   const protocol = read(".github/skills/apex-azure-defaults/references/adversarial-review-protocol.md");
-  assert.match(protocol, /Automatic callers use built-in `rubber-duck`/);
+  assert.match(
+    protocol,
+    /Automatic callers and optional `10-Challenger` use the same read-only\s+`challenger-review-subagent`/,
+  );
   assert.match(protocol, /return the actual error to the interactive parent/);
   assert.match(protocol, /`10-Challenger` is optional manual recovery/);
   assert.match(protocol, /Do not invoke it as a fallback subagent/);

@@ -120,7 +120,7 @@ or repeat a decision already recorded for the current finding.
 
 The separate cost-estimate review is mandatory in default and deep modes,
 regardless of budget utilization. Resolve the budget gate above first, then
-run `rubber-duck` through [one-shot review](one-shot-review.md) with `artifact_type: cost-estimate`,
+run `challenger-review-subagent` through [shared structured review](one-shot-review.md) with `artifact_type: cost-estimate`,
 `review_focus: cost-feasibility`, and
 `output_path: agent-output/{project}/challenge-findings-cost-estimate.json`.
 It does not replace architecture review or count as an architecture cascade pass.
@@ -131,7 +131,8 @@ obtain the missing review before Step 2 approval and completion. Record
 `apex-recall decide <project> --key cost_feasibility_review --value run --json`.
 
 Follow [review input finalization](adversarial-review-protocol.md#review-input-finalization) before dispatch.
-Supply the actual COMPLETE cost JSON and raw evidence via `supporting_paths`; a versioned output does not need
+Capture the actual COMPLETE cost JSON and raw evidence with metadata `--supporting-input` and pass the
+emitted `supporting_inputs` unchanged; a versioned output does not need
 a conventional filename alias. Final human approval is recorded in recall and the project index, not by rewriting
 reviewed artifact badges. On resume, verify both Step 2 review hashes before routing to Design or Governance;
 stale evidence returns to Architect for reconciliation without resetting unrelated approvals.
@@ -226,10 +227,9 @@ Governance — never Planner directly. Enforced by
 
 ## Challenger empty-output diagnostic + bounded retry
 
-Applies to automatic `rubber-duck` and optional manual `challenger-review-subagent`
-invocations. For a one-shot review, empty returned output is a failure, not
-permission to synthesize findings. For file-mode review, missing or zero-byte
-`output_path` is a failure:
+Applies to automatic and manual `challenger-review-subagent` invocations.
+Empty returned output is a failure, not permission to synthesize findings.
+A recording failure is distinct from empty reviewer output and grants no new worker allowance:
 
 1. **Before any retry**, append a structured failure entry to
    `agent-output/{project}/_meta/challenger-failures.json` with

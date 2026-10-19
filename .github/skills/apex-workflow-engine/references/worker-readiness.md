@@ -48,7 +48,7 @@ Missing capability, malformed result, stale evidence or permission denial blocks
 Never replace a missing reviewer with self-review, an arbitrary worker or a main-wrapper fallback.
 Nested task capability missing on a delegated artifact owner is not reviewer unavailability:
 return `REVIEW_REQUIRED` to the authorized interactive Orchestrator for automatic native
-`rubber-duck` sibling execution with the existing metadata/recorder/budget contract.
+`challenger-review-subagent` sibling execution with the shared metadata/recorder/budget contract.
 The actual interactive parent captures inputs and records results under its own native identity.
 Only a real missing parent capability or failed/invalid result blocks that relay.
 Keep the existing single identical-input empty-review retry and actual invocation budget.

@@ -46,6 +46,8 @@ distinct from domain prerequisites, actual result validation and consequential p
 ## Independent review and durable state
 
 Automatic review uses [one-shot review](../skills/apex-azure-defaults/references/one-shot-review.md).
+Automatic and manual callers share the read-only `challenger-review-subagent`: JSON output,
+no leaf writes or shell/code execution, and parent-owned recording of actual attributed events.
 The reviewer-specific result receipt/freshness contract remains; never fabricate findings or source metadata.
 Missing required reviewer returns the actual failure. Missing/empty output permits one identical-input
 retry within current accounting, then a real recovery decision; no nested main wrapper fallback.

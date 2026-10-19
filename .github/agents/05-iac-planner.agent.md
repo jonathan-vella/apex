@@ -3,7 +3,7 @@ name: 05-IaC Planner
 description: "Expert Azure IaC planner that creates comprehensive machine-readable implementation plans. Consults Microsoft documentation, evaluates Azure Verified Modules (Bicep or Terraform), designs full infrastructure solutions with architecture diagrams. Routes by decisions.iac_tool."
 user-invocable: true
 disable-model-invocation: false
-agents: ["rubber-duck"]
+agents: ["challenger-review-subagent"]
 tools: [execute, read, agent, edit, search, web, 'azure-mcp/*', 'bicep/*', todo, ask_user]
 
 ---
@@ -50,7 +50,7 @@ Resolve genuinely ambiguous context before consequential approval.
   Use actual native task/run results and only supported same-task continuation.
   A one-shot missing-input response returns to its parent for a new bounded task, not assumed resumption.
 
-Only native `rubber-duck` is an authorized leaf, for independent review rather than self-checks.
+Only native `challenger-review-subagent` is an authorized leaf, for independent review rather than self-checks.
 Give bounded Inputs/Activities/Outputs and failure rules, without routing overrides or a nested main wrapper.
 
 ## Constraints
@@ -212,7 +212,7 @@ Load [one-shot review](../skills/apex-azure-defaults/references/one-shot-review.
 [review lifecycle](../skills/apex-azure-defaults/references/adversarial-review-protocol.md).
 Finalize and validate plan/contracts before capturing metadata and complete immutable supporting inputs.
 Do not freeze mutable manifest/recall/README/decisions as review inputs.
-Invoke native `rubber-duck` with `APEX_REVIEW`, bounded Inputs/Activities/Outputs,
+Invoke native `challenger-review-subagent` with `APEX_REVIEW`, bounded Inputs/Activities/Outputs,
 read-only direct raw-JSON instructions without shell/code execution and a unique request ID:
 
 - `artifact_path=agent-output/{project}/04-implementation-plan.md`,

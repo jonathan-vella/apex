@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 /**
- * Persist independently returned one-shot rubber-duck JSON from attributed SDK events.
+ * Persist independently returned one-shot review JSON from attributed SDK events.
  * Usage: record-review.mjs --events /absolute/events.jsonl --worker-id ID --parent-id root|ID --output PATH
  */
 import fs from "node:fs";
@@ -9,7 +9,13 @@ import { randomUUID } from "node:crypto";
 import { isDeepStrictEqual } from "node:util";
 import { parseArgs } from "node:util";
 import { fileURLToPath } from "node:url";
-import { cacheInputs, findingId, validateReview } from "./validate-challenger-findings.mjs";
+import {
+  cacheInputs,
+  findingId,
+  isRecordedReviewer,
+  STRUCTURED_REVIEWER,
+  validateReview,
+} from "./validate-challenger-findings.mjs";
 
 const nonempty = (value) => typeof value === "string" && value.trim().length > 0;
 const object = (value) => value !== null && typeof value === "object" && !Array.isArray(value);
@@ -125,7 +131,7 @@ function resolveReviewer(events, requestId) {
   const dispatches = events.filter((event) => {
     if (event.type !== "tool.execution_start" || event.data?.toolName !== "task") return false;
     const args = event.data.arguments;
-    if (args?.agent_type !== "rubber-duck" || !args.prompt?.startsWith("APEX_REVIEW\n")) return false;
+    if (!isRecordedReviewer(args?.agent_type) || !args.prompt?.startsWith("APEX_REVIEW\n")) return false;
     const input = JSON.parse(args.prompt.slice("APEX_REVIEW\n".length));
     return input.request_id === requestId;
   });
@@ -135,7 +141,7 @@ function resolveReviewer(events, requestId) {
     (event) =>
       event.type === "subagent.started" &&
       event.data?.toolCallId === dispatch.data.toolCallId &&
-      event.data?.agentName === "rubber-duck" &&
+      event.data?.agentName === dispatch.data.arguments.agent_type &&
       nonempty(event.agentId),
   );
   requireEvidence(starts.length === 1, "Review dispatch must identify exactly one worker");
@@ -168,6 +174,7 @@ export function extractReview(events, workerId, parentId) {
   const start = exactly(worker, "subagent.started");
   const configured = exactly(worker, "subagent.configured");
   const completed = exactly(worker, "subagent.completed");
+  const reviewer = start.data?.agentName;
   const call = start.data?.toolCallId;
   const effectiveParent =
     start.data?.parentId ?? (parentId === "root" && start.data?.resumable === false ? "root" : undefined);
@@ -176,7 +183,7 @@ export function extractReview(events, workerId, parentId) {
     (configured.data.multiTurn !== true || (start.data?.executionMode === "sync" && start.data?.resumable === false));
   requireEvidence(
     nonempty(call) &&
-      start.data.agentName === "rubber-duck" &&
+      isRecordedReviewer(reviewer) &&
       start.data.executionMode === "sync" &&
       effectiveParent === parentId &&
       oneShotConfig &&
@@ -197,7 +204,7 @@ export function extractReview(events, workerId, parentId) {
     dispatch.data.toolName === "task" &&
       (dispatch.agentId ?? "root") === parentId &&
       object(args) &&
-      args.agent_type === "rubber-duck" &&
+      args.agent_type === reviewer &&
       (!Object.hasOwn(args, "mode") || args.mode === "sync") &&
       !["model", "reasoning_effort", "context_tier"].some((key) => Object.hasOwn(args, key)) &&
       (finished.agentId ?? "root") === parentId &&
@@ -380,7 +387,7 @@ export function extractReview(events, workerId, parentId) {
     input,
     doc,
     execution: {
-      reviewer: "rubber-duck",
+      reviewer,
       worker_id: workerId,
       parent_id: parentId,
       tool_call_id: call,
@@ -447,8 +454,9 @@ function checkReview(input, doc, root) {
     "Review lenses and pass numbers must be explicit and unambiguous",
   );
   requireEvidence(
-    input.cache_inputs.reviewer === "rubber-duck" &&
-      isDeepStrictEqual(input.cache_inputs, cacheInputs(input.artifact_path, root, "rubber-duck")),
+    isRecordedReviewer(input.cache_inputs.reviewer) &&
+      input.cache_inputs.reviewer === doc.review_execution?.reviewer &&
+      isDeepStrictEqual(input.cache_inputs, cacheInputs(input.artifact_path, root, input.cache_inputs.reviewer)),
     "Dispatched cache snapshot does not match current artifact or reviewer contract bytes",
   );
   const entries = batch ? doc.batch_results : [doc];
@@ -523,6 +531,10 @@ export function recordReview({
   }
   requireEvidence(nonempty(workerId) && nonempty(parentId), "Supply --request-id or both --worker-id and --parent-id");
   const { input, doc, execution } = extractReview(loadEventsWithFlushWait(eventsPath, workerId), workerId, parentId);
+  requireEvidence(
+    execution.reviewer === STRUCTURED_REVIEWER,
+    "New recordings require challenger-review-subagent; historical rubber-duck receipts are read-only compatibility",
+  );
   normalizeReviewDoc(doc, input, root);
   const target = outputPath(root, input.project_name, output);
   requireEvidence(

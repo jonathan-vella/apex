@@ -1,10 +1,10 @@
 // Subagent file-mode contract test (Phase 1 of context-window optimization).
 //
-// Asserts the contract that challenger-review-subagent and cost-estimate-subagent
-// follow when writing structured output to disk and returning a compact summary
-// to the parent. Driven by canned recordings under
-// tools/tests/fixtures/subagent-file-contract/ — when real subagents are wired
-// up, replace the fixtures with captured invocations.
+// Preserves historical reviewer file-output fixtures and the current cost-worker
+// file-output contract. Current structured review recording is tested separately.
+// Driven by canned recordings under
+// tools/tests/fixtures/subagent-file-contract/. Keep historical fixtures distinct
+// from new attributed structured-review recording tests.
 //
 // Contract assertions:
 //   (a) summary message is <=2 KB and <=15 lines
@@ -75,14 +75,14 @@ describe("subagent file-mode contract", () => {
     fs.rmSync(tmpDir, { recursive: true, force: true });
   });
 
-  it("reviewer allocates isolated drafts without touching stale siblings or publishing invalid JSON", () => {
+  it("current reviewer is read-only while historical malformed-file fixtures remain rejected", () => {
     const worker = fs.readFileSync(
       new URL("../../.github/agents/_subagents/challenger-review-subagent.agent.md", import.meta.url),
       "utf8",
     );
-    assert.match(worker, /unique invocation-owned sibling directory/);
-    assert.match(worker, /preserve unowned temporary files/);
-    assert.match(worker, /never append a second document/);
+    assert.match(worker, /No writes, including findings/);
+    assert.match(worker, /recorder derives actual worker\/parent identity/);
+    assert.match(worker, /Return one raw JSON object/);
     const output = path.join(tmpDir, "review with spaces.json");
     const canonical = JSON.stringify(loadFixture("challenger-review").findings);
     const stale = `${canonical}${canonical}`;
@@ -105,7 +105,7 @@ describe("subagent file-mode contract", () => {
     assert.equal(fs.readFileSync(output, "utf8"), canonical);
   });
 
-  describe("challenger-review-subagent fixture", () => {
+  describe("historical challenger-review-subagent file fixture", () => {
     const fixture = loadFixture("challenger-review");
 
     it("(a) summary stays within byte and line budgets", () => {

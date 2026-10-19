@@ -62,8 +62,8 @@ const WORKER_CONTRACTS = [
   },
   {
     name: "challenger-review-subagent",
-    mode: "File JSON",
-    fields: ["CHALLENGE COMPLETE", "overall_assessment", "batch_results"],
+    mode: "Returned JSON",
+    fields: ["overall_assessment", "batch_results"],
     preserved: ["output_path"],
   },
 ];
@@ -93,14 +93,16 @@ for (const { name, mode, fields, preserved } of WORKER_CONTRACTS) {
       assert.ok(section.includes(field), `reference omits worker field: ${name}: ${field}`);
     }
     if (name === "challenger-review-subagent") {
-      for (const body of [source, section])
-        assert.match(body, /overall_assessment:\s*\{APPROVED\s*\|\s*NEEDS_REVISION\s*\|\s*BLOCKED\}/);
+      assert.deepEqual(frontmatter.tools, ["read", "search"]);
+      assert.match(source, /No writes, including findings/);
+      assert.match(section, /record-review\.mjs/);
+      assert.doesNotMatch(section, /CHALLENGE COMPLETE|File JSON:/);
     }
     if (mode === "Text summary") {
       assert.match(source, /```text\n/);
       assert.match(section, /no findings-file writes/i);
       assert.doesNotMatch(section, /File JSON:|deployment-preview-v1|06-bicep-whatif\.json/);
-    } else {
+    } else if (mode === "File JSON") {
       assert.match(section, /caller `output_path`/);
       assert.match(source, /(?:Emit JSON|Write this shape|Single-lens JSON required fields|\*\*On disk\*\*)/);
       assert.match(section, /persistence/);

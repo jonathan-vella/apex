@@ -42,6 +42,7 @@ The graph defines domain prerequisites/owners, not permission or native UI trans
 Runtime hooks are retired and must not be restored.
 
 Independent reviewers retain the existing actual-result receipt/freshness contract and review budgets.
+Automatic and manual review use the same read-only structured leaf; only the parent records its actual JSON.
 One identical-input missing/empty review retry may apply; missing capability returns an explicit blocker.
 No nested main wrapper, model substitution, fabricated findings or counter reset.
 

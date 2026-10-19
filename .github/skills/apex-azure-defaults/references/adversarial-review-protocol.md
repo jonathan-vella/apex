@@ -3,9 +3,9 @@
 # Adversarial Review Protocol
 
 Standard protocol for independent artifact review across agents.
-Automatic callers use built-in `rubber-duck` through
-[one-shot review](one-shot-review.md). The optional `10-Challenger` manual workflow
-retains its file-output `challenger-review-subagent` contract.
+Automatic callers and optional `10-Challenger` use the same read-only
+`challenger-review-subagent` through [shared structured review](one-shot-review.md).
+The leaf returns JSON; its interactive parent records the actual attributed result.
 Each agent specifies its own `artifact_path`,
 `artifact_type`, pass count, and review focus — this reference
 defines the shared mechanics.
@@ -70,7 +70,7 @@ comprehensive pass**. No early-exit logic. No complexity-tier routing.
 - `pass_number` = `1`
 - `prior_findings` = `null`
 - The actual independent result is recorded as a sidecar JSON file
-  (`challenge-findings-{artifact_type}.json`). Automatic rubber-duck results are
+  (`challenge-findings-{artifact_type}.json`). Current structured results are
   persisted only by `record-review.mjs`, not reconstructed by the parent.
 - Parent agent presents the per-finding decision panel (see
   `## Per-Finding Decision Protocol`) and then the aggregated proceed /
@@ -78,13 +78,12 @@ comprehensive pass**. No early-exit logic. No complexity-tier routing.
 
 ### Subagent-discovery fallback (default + deep)
 
-For automatic reviews, use only the declared built-in `rubber-duck` through the
-one-shot contract. Missing capability or invalid recorded output blocks the step:
+For automatic and manual reviews, use the declared `challenger-review-subagent` through the
+shared one-shot contract. Missing capability or invalid recorded output blocks the step:
 return the actual error to the interactive parent, which owns recovery.
 `10-Challenger` is optional manual recovery, not a required automatic handoff.
 Do not substitute it silently, fabricate findings or restart a review allowance.
 
-For the optional manual workflow, use the declared `challenger-review-subagent`.
 If that reviewer is unavailable (discovery, permissions or missing delegation
 capability), **STOP** and request human intervention.
 Include the verbatim error, artifact path/type, review lens, pass, prior findings,
@@ -174,9 +173,8 @@ old sessions, default to `"standard"`.
 
 ## Model Routing
 
-The model used for each review lens is determined by the
-`challenger-review-subagent` frontmatter (source of truth). All lenses
-share the same subagent; the `review_focus` field rotates per pass.
+The runtime/operator selects the model; the active reviewer definition has no model pin.
+All lenses share `challenger-review-subagent`; the `review_focus` field rotates per pass.
 Do not infer runtime cost-tier eligibility or API parameters from Sol, Terra,
 or Luna labels or catalog capability descriptions. Unsupported or unknown
 eligibility is not permission to change models or bypass the human handoff.
@@ -199,7 +197,7 @@ when they target different artifacts AND both use `prior_findings = null`.
 3. If either returns a blocking failure, halt before subsequent passes
 4. For Step 4: if governance review returns `must_fix` items that affect
    the plan, feed the compact governance findings into plan pass 2's
-   `prior_findings` alongside plan pass 1's compact string
+   `prior_findings` alongside plan pass 1's compact actual-finding array
 
 > **Do NOT parallelize** rotating-lens passes (1→2→3) within the same
 > artifact — each pass depends on `prior_findings` from the previous pass.
@@ -207,21 +205,19 @@ when they target different artifacts AND both use `prior_findings = null`.
 ## Context Efficiency — Compact prior_findings
 
 > [!IMPORTANT]
-> After writing each pass result to disk, **do NOT keep the full JSON
-> in working context**. Extract only the `compact_for_parent` string
-> from the subagent response and discard the rest.
+> After recording each pass, use its path and a compact display summary rather than
+> repeatedly copying the whole result into parent context.
 >
-> For passes 2 and 3, set `prior_findings` to a compact multi-line
-> string built from previous `compact_for_parent` values — **not the
-> full JSON objects**:
+> For later passes, `prior_findings` is an array of compact actual finding objects,
+> retaining IDs, severity, claim and the source receipt path. Never replace a finding
+> with a parent-invented disposition or use a string that drops its identity:
 >
-> ```text
-> prior_findings: "Pass 1: <compact_for_parent>\nPass 2: <compact_for_parent>"
+> ```json
+> {"prior_findings":[{"id":"a1b2c3d4","severity":"must_fix","claim":"Actual prior claim","source_path":"challenge-findings-plan-pass1.json"}]}
 > ```
 >
-> This prevents each subagent call from re-injecting thousands of
-> tokens of prior findings into the parent context. Full detail is
-> already saved to disk.
+> The reviewer reads the current prior receipt/evidence when necessary and verifies closure.
+> Full detail remains recorded on disk; accepted decisions alone never close findings.
 
 ## Context Shredding for Challenger Inputs
 
@@ -298,25 +294,24 @@ Even formatting-only changes invalidate exact-byte evidence: never normalize has
 Do not edit upstream artifacts or invalidate unrelated project decisions as part of drift recovery.
 
 Use the existing validator's read-only metadata mode before review:
-`node tools/scripts/validate-challenger-findings.mjs --metadata <artifact_path> --reviewer rubber-duck`.
+`node tools/scripts/validate-challenger-findings.mjs --metadata <artifact_path> --reviewer challenger-review-subagent`.
 It computes byte hashes and the explicit reviewer contract without opening source files in chat.
-For automatic review, use emitted metadata unchanged and record the actual output
+For automatic and manual review, use emitted metadata unchanged and record the actual output
 through `record-review.mjs`; strict validation also requires its execution provenance.
-Automatic metadata explicitly carries `reviewer: rubber-duck`, `reviewer_contract`
-and `reviewer_contract_sha`, without a legacy `subagent_sha` or runtime model pin.
-The default metadata mode without `--reviewer` retains the optional manual
-Challenger's historical identity. Never relabel legacy evidence as rubber-duck.
-Use `--finding-ids <draft.json.tmp>` for deterministic finding identities; copy results with editing tools.
-Validate the temporary payload with `--verify-cache <draft.json.tmp>` before publication, and use the
-same flag on a saved file before cache reuse. A mismatch blocks reuse; never refresh hashes on an old review.
+New metadata explicitly carries `reviewer: challenger-review-subagent`, shared `reviewer_contract`
+and `reviewer_contract_sha`, plus `reviewer_definition` and `reviewer_definition_sha`.
+Both execution guidance and the actual leaf definition are bound, without a runtime model pin.
+The default metadata mode without `--reviewer` remains legacy compatibility; historical
+`rubber-duck` metadata and provenance also remain readable. Never relabel either identity.
+The recorder derives IDs/counts from actual returned JSON and validates before atomic publication.
+Use `--verify-cache` on saved evidence before reuse. A mismatch blocks reuse; never refresh hashes on an old review.
 Default scans remain schema-only for historical evidence. Directory artifacts hash UTF-8 JSON of sorted
 `[relative/posix/path, file_sha256]` pairs, walking each directory in lexical order. Exclude `.git`, `.terraform`,
 `node_modules`, `.venv` and `__pycache__`; reject symlinks, special files and empty trees. All remaining files count.
 File artifacts retain the byte-hash contract. A previously different directory hash requires a fresh review.
 
-Legacy manual subagent output includes this `cache_inputs` block; automatic review
-uses the validator's explicit rubber-duck metadata and hashes `one-shot-review.md`
-instead of pretending that a built-in reviewer has a local agent definition:
+Historical file-output receipts may contain this legacy `cache_inputs` block.
+It is retained for readers, not a template for a new structured dispatch:
 
 ```json
 {
@@ -333,7 +328,7 @@ instead of pretending that a built-in reviewer has a local agent definition:
 
 **Cache lookup on REVISE / retry**: before invoking the subagent again,
 the parent computes the current `cache_inputs` and compares **every
-component** to the cached value. **All five** must match for a cache
+component** to the cached value. Every captured component must match for a cache
 hit. Any single component mismatch invalidates the cache and forces a
 fresh invocation:
 
@@ -344,8 +339,8 @@ fresh invocation:
 | This protocol doc updated                            | Re-invoke             |
 | Reviewer model-policy contract changed               | Re-invoke             |
 | `challenger-review-subagent.agent.md` prompt updated | Re-invoke             |
-| `challenger-review-subagent` model rolled            | Re-invoke             |
-| **All five match** (rare on real REVISE loops)       | Reuse cached findings |
+| Explicit legacy model policy changed                 | Re-invoke             |
+| **All captured components match**                    | Reuse cached findings |
 
 The cache protects against prompt drift
 (checklist, protocol or reviewer-contract edits), legacy pinned-policy drift, and downstream

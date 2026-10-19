@@ -695,8 +695,12 @@ test("#740: confirmation reviews may use pass numbers above 3", () => {
   const subagent = read(".github/agents/_subagents/challenger-review-subagent.agent.md");
   const challenger = read(".github/agents/10-challenger.agent.md");
   assert.doesNotMatch(subagent, /`pass_number`: 1, 2, or 3/);
-  assert.match(subagent, /confirmation passes use new identities/);
+  assert.match(subagent, /Preserve exact scope, pass, prior findings and metadata/);
   assert.match(challenger, /next unused pass\/path/);
+  assert.match(
+    skill("apex-azure-defaults/references/one-shot-review.md"),
+    /A new ID never resets the review allowance/,
+  );
   assert.match(skill("apex-iac-common/references/iac-planner-approval-gate.md"), /not capped at 3/);
 });
 

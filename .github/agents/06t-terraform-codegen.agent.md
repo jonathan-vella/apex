@@ -3,7 +3,7 @@ name: 06t-Terraform CodeGen
 description: "Expert Azure Terraform IaC specialist that creates near-production-ready Terraform configurations following Azure Verified Modules (AVM-TF) standards. Validates, tests, and ensures code quality."
 user-invocable: true
 disable-model-invocation: false
-agents: ["terraform-validate-subagent", "rubber-duck"]
+agents: ["terraform-validate-subagent", "challenger-review-subagent"]
 tools:
   [execute, read, agent, edit, search, web, 'azure-mcp/*', todo, ask_user]
 
@@ -71,7 +71,7 @@ format, initialization, validation, independent-review and provider-plan evidenc
 ## Operating frame
 
 Use Copilot-native tools in VS Code. The `agent` alias permits native `task` calls only to
-`terraform-validate-subagent` and optional `rubber-duck`, at their designated phases.
+`terraform-validate-subagent` and optional `challenger-review-subagent`, at their designated phases.
 Pass Inputs, Activities and Outputs with exact paths, scope, current evidence and failure shape per the
 [execution contract](../skills/apex-workflow-engine/references/execution-subagent.md).
 Consume actual results. `read_agent` follows a returned running handle; `write_agent` is only for
@@ -200,7 +200,7 @@ Use the graph's opt-in matrix and
 [review protocol](../skills/apex-azure-defaults/references/adversarial-review-protocol.md):
 simple comprehensive; standard security-governance then architecture-reliability;
 complex adds cost-feasibility. Preserve cascade early exits and existing attempt counters.
-Dispatch native one-shot `rubber-duck` with `artifact_type = "iac-code"` and actual captured metadata.
+Dispatch native one-shot `challenger-review-subagent` with `artifact_type = "iac-code"` and actual captured metadata.
 Persist `challenge-findings-iac-code-pass{N}.json` through the
 [independent receipt](../skills/apex-azure-defaults/references/one-shot-review.md), `record-review.mjs`
 and strict freshness checks. No parent-authored/reclassified findings or inline self-review.

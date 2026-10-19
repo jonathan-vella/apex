@@ -31,9 +31,11 @@ test("graph CLI generates and validates an explicit output without a site direct
   });
   assert.equal(validated.status, 0, validated.stderr);
   const graph = JSON.parse(fs.readFileSync(output, "utf8"));
-  const reviewer = graph.nodes.find((node) => node.id === "subagent:rubber-duck");
-  assert.equal(reviewer?.meta.builtin, true);
-  assert.equal(reviewer.path, ".github/skills/apex-azure-defaults/references/one-shot-review.md");
+  const reviewer = graph.nodes.find((node) => node.id === "subagent:challenger-review-subagent");
+  assert.ok(reviewer);
+  assert.notEqual(reviewer.meta.builtin, true);
+  assert.equal(reviewer.path, ".github/agents/_subagents/challenger-review-subagent.agent.md");
+  assert.ok(!graph.nodes.some((node) => node.id === "subagent:rubber-duck"));
   assert.ok(graph.edges.some((edge) => edge.target === reviewer.id && edge.kind === "delegates"));
   const invalid = spawnSync(process.execPath, [generator.pathname, "--unknown"], { cwd: directory, encoding: "utf8" });
   assert.notEqual(invalid.status, 0);

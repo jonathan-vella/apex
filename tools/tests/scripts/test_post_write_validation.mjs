@@ -156,9 +156,9 @@ test("review finalization freezes inputs while keeping mutable approval outside 
   assert.ok(architect.includes("--supporting-input"));
   assert.match(architect, /(?:approval|decision)[\s\S]{0,150}outside reviewed/i);
   const reviewer = read(".github/agents/_subagents/challenger-review-subagent.agent.md");
-  assert.ok(reviewer.includes("Optional:"));
-  assert.ok(reviewer.includes("supporting_paths"));
-  assert.match(reviewer, /each supplied supporting file/);
+  assert.match(reviewer, /Optional `supporting_inputs` binds immutable evidence/);
+  assert.match(reviewer, /Preserve supplied `cache_inputs`\/`supporting_inputs` unchanged/);
+  assert.match(reviewer, /The parent captures them before dispatch/);
   for (const name of ["02-architecture-assessment", "03-des-cost-estimate"]) {
     const template = read(`.github/skills/apex-azure-artifacts/templates/${name}.template.md`);
     assert.match(template, /\[Review and approval status\]\(README.md#-workflow-progress\)/);
@@ -368,9 +368,10 @@ test("Challenger resolves canonical stems and consumes persisted schema fields",
     path.join(ROOT, ".github/agents/_subagents/challenger-review-subagent.agent.md"),
     "utf8",
   );
-  for (const field of ["deployment-preview", "design-adr", "prior_findings", "compact result"])
+  for (const field of ["deployment-preview", "design-adr", "prior_findings", "overall_assessment", "cache_inputs"])
     assert.ok(worker.includes(field), field);
-  assert.doesNotMatch(worker, /Return ONLY valid JSON matching/);
+  assert.match(worker, /Return one raw JSON object/);
+  assert.doesNotMatch(worker, /CHALLENGE COMPLETE|file_path:not_written/);
 });
 
 test("review reuse and deployment routing cannot bypass current evidence", () => {

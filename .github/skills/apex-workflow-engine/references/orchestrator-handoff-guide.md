@@ -59,8 +59,8 @@ Artifact: agent-output/{project}/01-requirements.md
 **Gate 1 must include current Challenger findings.** If required review is missing,
 return to the owning Requirements worker for recovery within its existing review budget.
 If that delegated worker cannot nest tasks, it returns `REVIEW_REQUIRED` and the interactive
-Orchestrator invokes the same native `rubber-duck` automatically as a sibling task.
-Capture actual inputs/record actual results using the unchanged one-shot contract and budget.
+Orchestrator invokes the same native `challenger-review-subagent` automatically as a sibling task.
+Capture actual inputs/record actual results using the shared one-shot contract and existing budget.
 Only an actually unavailable parent reviewer or failed/invalid execution needs human recovery.
 `10-Challenger` is optional manual recovery, not the normal review path.
 Never fabricate an inline review or treat a fallback display as approval.
@@ -183,7 +183,7 @@ session-database edit.
 Use current parent allowlists and the [execution contract](execution-subagent.md).
 Leaf workers return missing inputs to their parent, without questions, todo
 management, or nested calls. Automatic reviews use
-[one-shot rubber-duck](../../apex-azure-defaults/references/one-shot-review.md).
+[shared structured review](../../apex-azure-defaults/references/one-shot-review.md).
 Required reviewer unavailable: return the error to the interactive parent,
 never a nested wrapper. `10-Challenger` remains optional. Missing or empty reviewer output allows
 exactly one identical-input retry, then human escalation. No prose table grants permissions.

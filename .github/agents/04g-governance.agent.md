@@ -4,7 +4,7 @@ description: "Azure governance discovery agent. Queries Azure Policy assignments
 argument-hint: Discover governance constraints for a project
 user-invocable: true
 disable-model-invocation: false
-agents: ["rubber-duck"]
+agents: ["challenger-review-subagent"]
 tools:
   [execute, read, agent, edit, search, web, todo, ask_user]
 
@@ -201,7 +201,7 @@ An exhausted one-pass allowance blocks a new review; changed filenames/sessions 
 
 Load [one-shot review](../skills/apex-azure-defaults/references/one-shot-review.md) and the
 [review protocol](../skills/apex-azure-defaults/references/adversarial-review-protocol.md).
-Invoke native `rubber-duck` using `APEX_REVIEW`, captured metadata, bounded
+Invoke native `challenger-review-subagent` using `APEX_REVIEW`, captured metadata, bounded
 Inputs/Activities/Outputs, direct raw-JSON rules without shell/code execution and a unique request ID:
 
 - `artifact_path=agent-output/{project}/04-governance-constraints.md`,

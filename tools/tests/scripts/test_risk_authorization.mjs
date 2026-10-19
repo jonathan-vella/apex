@@ -21,7 +21,11 @@ test("required Plan coverage matches frozen graph inputs and reviewer guidance",
   const planner = repoFile(".github/agents/05-iac-planner.agent.md");
   assert.ok(planner.includes("contract-emission-and-handoff.md"));
   assert.ok(planner.includes("immutable supporting inputs"));
-  assert.match(repoFile(".github/agents/_subagents/challenger-review-subagent.agent.md"), /--supporting-input <path>/);
+  assert.match(repoFile(".github/skills/apex-azure-defaults/references/one-shot-review.md"), /--supporting-input/);
+  assert.match(
+    repoFile(".github/agents/_subagents/challenger-review-subagent.agent.md"),
+    /Optional `supporting_inputs` binds immutable evidence/,
+  );
 });
 
 function fixture(t) {

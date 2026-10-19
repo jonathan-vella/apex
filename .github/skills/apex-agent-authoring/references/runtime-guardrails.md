@@ -34,10 +34,10 @@ with the [native worker lifecycle](../../apex-workflow-engine/references/worker-
 
 ## Challenger Fallback
 
-Automatic review uses [one-shot rubber-duck](../../apex-azure-defaults/references/one-shot-review.md),
-not the resumable worker handshake. Record actual independent output and validate
-freshness before reporting success. The optional manual Challenger workflow
-retains its own worker contract.
+Automatic and manual review share the read-only structured leaf through
+[one-shot review](../../apex-azure-defaults/references/one-shot-review.md),
+not a worker handshake or file-output reviewer mode. Record actual independent JSON and validate
+schema, attribution and freshness before reporting success.
 
 1. If a required reviewer is unavailable, stop and return the failure to the interactive parent.
 2. Missing or empty reviewer output permits exactly one identical-input retry,

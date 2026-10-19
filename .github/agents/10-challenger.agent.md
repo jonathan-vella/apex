@@ -16,7 +16,8 @@ tools: [execute, read, agent, edit, ask_user]
 Coordinate an explicitly requested manual adversarial review in VS Code Copilot.
 The allowlisted independent leaf owns findings; this interactive parent owns presentation,
 finding decisions and separately authorized accepted edits.
-Automatic workflow reviews continue through native `rubber-duck`, not this wrapper as fallback.
+Automatic workflow owners use the same `challenger-review-subagent` leaf directly,
+not this interactive wrapper as a fallback.
 
 ## Goal
 
@@ -45,8 +46,9 @@ Cancel stops; decline never approves. Autopilot answers are not independent huma
 ## Constraints
 
 - Resolve verification-only/read-only before delegation. Verification-only permits no artifact edits.
-  Fully read-only scope prohibits all disk writes, including leaf findings and recall;
-  request output permission rather than inventing an inline/file-contract substitute.
+  The shared leaf is read-only; recording its actual result is still a write.
+  Fully read-only scope prohibits that recording and recall too; request bounded output permission
+  before dispatch rather than presenting an unrecorded result as a validated receipt.
 - Allowed writes otherwise: resolved decisions sidecar, explicitly accepted edits to the challenged
   artifact, authorized recall findings. Independent findings remain leaf-owned.
 - Honor plan lock/upstream ownership; frozen artifacts return to their owner for reopening.
@@ -67,6 +69,8 @@ Exhausted accounting requires the owner's recovery decision, not a new path, ses
 
 1. Recover current project context with `apex-recall show <project> --json` when applicable.
    Never read/edit state JSON directly. Read only target/current supporting evidence.
+   Resolve the owning workflow step and review depth from current context/artifact ownership;
+   this agent's `10` prefix is not a workflow step. Resolve missing scope before reviewer dispatch.
 2. Classify the artifact and resolve output paths:
 
    | Input | Artifact type | Default findings stem |
@@ -87,16 +91,20 @@ Exhausted accounting requires the owner's recovery decision, not a new path, ses
 3. Load [review protocol](../skills/apex-azure-defaults/references/adversarial-review-protocol.md)
    for severity, cache, decisions and invocation budget. Default to one comprehensive pass.
    Deep/multi-pass is explicit opt-in, not automatic complexity escalation.
-4. Call native `task` for `challenger-review-subagent` with exact Inputs, Activities, Outputs:
-   artifact/project/type, lens/pass, prior findings, allowed writes, `output_path` and overwrite policy.
-   Consume the actual return and file; no nonce/ready-only prerequisite or UI handoff.
+4. Load [shared structured review](../skills/apex-azure-defaults/references/one-shot-review.md).
+   Capture metadata with `--reviewer challenger-review-subagent` and immutable supporting inputs before dispatch.
+   Call native synchronous `task` for `challenger-review-subagent` using its `APEX_REVIEW` envelope,
+   unique request ID, step/depth, exact artifact/project/type, lens/pass, prior findings, captured metadata,
+   `output_path` and overwrite policy. Omit routing overrides. The leaf returns JSON without any writes.
+   Record the actual attributed result through `record-review.mjs` and require strict `--verify-cache`.
+   No nonce/ready-only prerequisite, leaf-owned output file or UI handoff is used.
 5. For a single pass use `review_focus`, `pass_number`, `prior_findings` and `overwrite:false`
    unless the owner authorizes an existing bounded same-pass repair.
    A confirmation uses the next unused pass/path; never overwrite history to reset an allowance.
 6. Deep sequence uses security-governance, architecture-reliability and cost-feasibility per
    [deep cascade](../skills/apex-azure-defaults/references/adversarial-review-deep.md).
-   Manual `batch_lenses` writes one consolidated `batch_results` object to one `output_path`
-   and returns one `file_path`; do not expect automatic per-pass files.
+   Manual `lenses` returns one consolidated `batch_results` object, recorded by the parent at one
+   `output_path`; do not expect automatic per-pass files or a file-path-only leaf response.
 7. Validate the result/freshness and render all findings in a real Markdown table:
    ID, Severity, Claim, Category, Recommendation; must-fix first. Missing optional fixes stay
    unspecified. Never request predetermined approval or reconstruct missing findings.
@@ -115,7 +123,8 @@ Exhausted accounting requires the owner's recovery decision, not a new path, ses
 
 ## Output
 
-Return findings/decisions paths, current verdict and counts, every finding, actual applied/deferred/
+Return recorded findings `file_path` and decisions paths, current verdict and counts, every finding,
+actual applied/deferred/
 rejected outcomes, tests and remaining blockers. In partial mode identify unapplied accepted fixes.
 Use a native result to the interactive caller or explicit user selection of the next owner;
 no handoff button or return label is required.

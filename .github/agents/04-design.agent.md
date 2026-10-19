@@ -3,7 +3,7 @@ name: 04-Design
 description: "Step 3 — Design Artifacts. Generates code-based Python architecture diagrams and Architecture Decision Records for approved Azure designs. Optional step before governance and IaC planning."
 user-invocable: true
 disable-model-invocation: false
-agents: ["rubber-duck"]
+agents: ["challenger-review-subagent"]
 tools: [execute, read, agent, edit, search, web, todo, ask_user]
 
 ---
@@ -51,7 +51,7 @@ Resolve genuinely ambiguous context before consequential decisions.
   task results, and same-task continuation only when supported. A one-shot missing-input
   response returns to the parent for a new bounded task, not assumed resumability.
 
-Only `rubber-duck` is an authorized leaf, solely for enabled ADR review.
+Only `challenger-review-subagent` is an authorized leaf, solely for enabled ADR review.
 Do not dispatch another main agent, outsource diagram self-checks or widen the allowlist.
 
 ## Constraints
@@ -135,7 +135,7 @@ template and verified Architect pricing. Never invent dollar figures or silently
 
 Run only when ADRs were produced and `decisions.review_depth=deep` or review was explicitly requested.
 Review findings are informational at Step 3, not permission to alter architecture.
-For each ADR, use native `rubber-duck` with
+For each ADR, use native `challenger-review-subagent` with
 [one-shot review](../skills/apex-azure-defaults/references/one-shot-review.md):
 
 - Exact ADR path, `artifact_type=design-adr`, `review_focus=comprehensive`, `pass_number=1`,

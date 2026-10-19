@@ -39,8 +39,8 @@ Direct main-agent selection retains native questions. Delegated steps return
 cancel stops and decline never approves. Steps call only their authorized leaves.
 An allowlist or invocation flag is not runtime routing or approval evidence.
 
-Automatic independent reviews use
-[one-shot rubber-duck](../../apex-azure-defaults/references/one-shot-review.md),
+Automatic and optional manual reviews use `challenger-review-subagent` through
+[shared structured review](../../apex-azure-defaults/references/one-shot-review.md),
 with its own actual-result receipt/freshness contract. If a required reviewer is unavailable,
 STOP and return its failure to the interactive parent; never nest a main-agent
 wrapper or fabricate inline review. `10-Challenger` remains optional manual recovery.
@@ -52,14 +52,13 @@ This is not a manual-wrapper fallback or review exemption. Preserve budget, actu
 
 ## Output ownership
 
-Automatic `rubber-duck` reviews return raw structured JSON once.
+The shared review leaf returns raw structured JSON once, without writes.
 The parent runs `record-review.mjs` against the exact attributed runtime response,
 which validates and atomically persists it. The parent must not reconstruct or
 repair the independently returned findings. Summaries and downstream handoffs
 use the recorded paths, not repeated full JSON dumps.
 
-The optional manual `challenger-review-subagent` and `cost-estimate-subagent` follow a **file-mode
-contract**: the subagent writes its full structured output to a parent-supplied
+`cost-estimate-subagent` retains a **file-mode contract**: it writes its structured output to a parent-supplied
 path on disk and returns only a compact summary (≤15 lines, ≤2 KB) to the
 parent's chat context. This keeps parent agents' context windows small and
 prevents repeated JSON dumps from bloating the conversation.
@@ -71,12 +70,12 @@ never invents or guesses a path.
 
 | Subagent                     | Caller (step)                 | Canonical `output_path`                                                       |
 | ---------------------------- | ----------------------------- | ----------------------------------------------------------------------------- |
-| `rubber-duck` | Requirements (1)              | `agent-output/{project}/challenge-findings-requirements.json`                 |
-| `rubber-duck` | Architect (2) — architecture  | `agent-output/{project}/challenge-findings-architecture.json` (default); `architecture-pass{N}` stem for deep |
-| `rubber-duck` | Architect (2) — cost          | `agent-output/{project}/challenge-findings-cost-estimate.json`                |
-| `rubber-duck` | Governance (3.5)              | `agent-output/{project}/challenge-findings-governance-constraints-pass1.json` |
-| `rubber-duck` | IaC Planner (4)               | `agent-output/{project}/challenge-findings-plan.json` (default); `plan-pass{N}` stem for deep |
-| `rubber-duck` | Bicep / Terraform CodeGen (5) | `agent-output/{project}/challenge-findings-iac-code-pass{N}.json`             |
+| `challenger-review-subagent` | Requirements (1)              | `agent-output/{project}/challenge-findings-requirements.json`                 |
+| `challenger-review-subagent` | Architect (2) — architecture  | `agent-output/{project}/challenge-findings-architecture.json` (default); `architecture-pass{N}` stem for deep |
+| `challenger-review-subagent` | Architect (2) — cost          | `agent-output/{project}/challenge-findings-cost-estimate.json`                |
+| `challenger-review-subagent` | Governance (3.5)              | `agent-output/{project}/challenge-findings-governance-constraints-pass1.json` |
+| `challenger-review-subagent` | IaC Planner (4)               | `agent-output/{project}/challenge-findings-plan.json` (default); `plan-pass{N}` stem for deep |
+| `challenger-review-subagent` | Bicep / Terraform CodeGen (5) | `agent-output/{project}/challenge-findings-iac-code-pass{N}.json`             |
 | `cost-estimate-subagent`     | Architect (2)                 | `agent-output/{project}/02-cost-estimate.json`                                |
 | `cost-estimate-subagent`     | As-Built (7)                  | `agent-output/{project}/07-ab-cost-estimate.json`                             |
 
@@ -86,8 +85,8 @@ but never treat a legacy filename alone as proof of a current valid review.
 
 ### Atomic write + refuse-on-exists
 
-For file-mode workers, the subagent performs these operations. For automatic
-rubber-duck reviews, the provenance-aware recorder owns the writes:
+For file-mode workers, the subagent performs these operations. For all structured
+reviews, the provenance-aware recorder owns the writes and actual no-overwrite checks:
 
 1. Writes to `{output_path}.tmp` first.
 2. Renames `{output_path}.tmp` → `{output_path}` only after a successful
@@ -114,12 +113,12 @@ worker's compact summary), the parent agent MUST:
    `checkpoint` subcommand stamps the new file in session state, and the
    file index picks the new file up on the next `reindex`.
 
-3. When re-running after revisions, set `overwrite: true` explicitly.
+3. Preserve attempt accounting and history on revisions. Set `overwrite: true` only for an explicitly
+   authorized bounded replacement; a new pass uses its own canonical output path.
 
-### Why the contract was flipped
+### Historical file-output reviews
 
-Previously parents wrote the JSON, which forced the subagent to return the
-full payload via chat. On multi-pass reviews this dumped 5–10 KB of JSON
-into the parent's context per pass. The file-mode contract pushes that
-weight to disk and replaces it with a 15-line summary, cutting per-turn
-context floor on review-heavy steps (2, 4, 5).
+Earlier manual reviewers wrote their own JSON and returned a compact file pointer.
+Those receipts remain readable history. New automatic/manual reviews share one read-only leaf
+and actual-event recorder; neither parent-authored reconstruction nor a file-pointer-only result
+satisfies the current contract. Keep downstream context compact through recorded paths and summaries.

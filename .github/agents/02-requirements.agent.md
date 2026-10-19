@@ -4,7 +4,7 @@ description: Researches and captures Azure platform engineering project requirem
 argument-hint: Describe the Azure workload or project you want to gather requirements for
 user-invocable: true
 disable-model-invocation: false
-agents: ["rubber-duck"]
+agents: ["challenger-review-subagent"]
 tools: [execute, read, agent, edit, search, todo, ask_user]
 
 ---
@@ -228,7 +228,7 @@ In delegated mode, if the native child task capability is absent, return `REVIEW
 The interactive Orchestrator then performs the same independent one-shot review as a sibling task.
 No failed child call is required to prove a missing tool; no invented invocation/error or self-review.
 This is an automatic parent execution path, not a change to the reviewer, verdict, schema, budget or authority.
-Invoke native `rubber-duck` with its `APEX_REVIEW` envelope and bounded
+Invoke native `challenger-review-subagent` with its `APEX_REVIEW` envelope and bounded
 `## Inputs`, `## Activities`, `## Outputs` instructions:
 
 - Artifact `01-requirements.md`; `artifact_type=requirements`, `review_focus=comprehensive`,
@@ -240,7 +240,7 @@ Invoke native `rubber-duck` with its `APEX_REVIEW` envelope and bounded
   overrides, then persist its actual attributed result with `record-review.mjs`.
   Require strict `--verify-cache` validation before `phase_6_challenger`.
   A missing log/capture or recorder failure is an evidence-recording blocker, not proof that
-  `rubber-duck` was unavailable. Preserve the actual invocation/result and report the exact stage.
+  the structured reviewer was unavailable. Preserve the actual invocation/result and report the exact stage.
 
 The reviewer returns substantive JSON with `traces_to` arrays directly, without shell/code execution.
 The existing recorder derives IDs/counts; the reviewer alone owns claims, severity and verdict.

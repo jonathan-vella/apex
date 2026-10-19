@@ -3,7 +3,7 @@ name: 06b-Bicep CodeGen
 description: Expert Azure Bicep IaC specialist that creates near-production-ready Bicep templates following Azure Verified Modules (AVM) standards. Validates, tests, and ensures code quality.
 user-invocable: true
 disable-model-invocation: false
-agents: ["bicep-validate-subagent", "rubber-duck"]
+agents: ["bicep-validate-subagent", "challenger-review-subagent"]
 tools:
   [execute, read, agent, edit, search, web, 'azure-mcp/*', 'bicep/*', todo, ask_user]
 
@@ -68,7 +68,7 @@ compiler, governance, independent-validation and provider-validation evidence.
 ## Operating frame
 
 Use Copilot-native tools in VS Code. `agent` is the delegation alias; native `task` invokes only
-`bicep-validate-subagent` and the optional `rubber-duck` reviewer in their bounded phases.
+`bicep-validate-subagent` and the optional `challenger-review-subagent` in their bounded phases.
 Supply ordered Inputs, Activities and Outputs with paths, scope, evidence and failure shape per the
 [execution contract](../skills/apex-workflow-engine/references/execution-subagent.md).
 Consume actual worker results, not declarations of readiness. Use `read_agent` for a returned
@@ -195,7 +195,7 @@ Use the current graph's opt-in lenses and
 [review protocol](../skills/apex-azure-defaults/references/adversarial-review-protocol.md):
 simple comprehensive; standard security-governance then architecture-reliability;
 complex adds cost-feasibility. Preserve documented cascade early exits and existing attempt budgets.
-Invoke `rubber-duck` as native one-shot review with `artifact_type = "iac-code"`,
+Invoke `challenger-review-subagent` as native one-shot review with `artifact_type = "iac-code"`,
 current metadata and `challenge-findings-iac-code-pass{N}.json`.
 Follow the [independent review receipt](../skills/apex-azure-defaults/references/one-shot-review.md):
 record actual attributed returned JSON with `record-review.mjs`, then strict freshness validation.

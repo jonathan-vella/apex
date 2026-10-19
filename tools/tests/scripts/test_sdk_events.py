@@ -415,7 +415,7 @@ def test_worker_received_execution_is_attributed_even_without_a_native_send_tool
 
 @pytest.fixture
 def one_shot(events):
-    def capture(*, batch=False, legacy=False):
+    def capture(*, batch=False, legacy=False, reviewer="rubber-duck"):
         records = copy.deepcopy(events)
         if not legacy:
             leaf_calls = {
@@ -457,14 +457,14 @@ def one_shot(events):
                 "data": {
                     "toolCallId": "review-task",
                     "toolName": "task",
-                    "arguments": {"agent_type": "rubber-duck", "mode": "sync", "prompt": prompt},
+                    "arguments": {"agent_type": reviewer, "mode": "sync", "prompt": prompt},
                 },
             },
             {
                 "type": "subagent.started",
                 "agentId": "reviewer",
                 "data": {
-                    "agentName": "rubber-duck",
+                    "agentName": reviewer,
                     "parentId": "main",
                     "toolCallId": "review-task",
                     "executionMode": "sync",
@@ -599,8 +599,9 @@ def test_one_shot_explicit_non_sync_argument_cannot_use_runtime_default(one_shot
 
 @pytest.mark.parametrize("batch", [False, True])
 @pytest.mark.parametrize("legacy", [False, True])
-def test_one_shot_single_and_batch_are_one_execution_per_dispatch(one_shot, batch, legacy):
-    records = one_shot(batch=batch, legacy=legacy)
+@pytest.mark.parametrize("reviewer", ["rubber-duck", "challenger-review-subagent"])
+def test_one_shot_single_and_batch_are_one_execution_per_dispatch(one_shot, batch, legacy, reviewer):
+    records = one_shot(batch=batch, legacy=legacy, reviewer=reviewer)
     report = metrics(records)
     assert report["_computed"]["execution_count"] == (3 if legacy else 2)
     assert report["_computed"]["challenger_per_step"] == {"2": 2 if legacy else 1}

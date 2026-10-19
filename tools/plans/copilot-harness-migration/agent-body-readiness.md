@@ -351,3 +351,47 @@ Final engineering verification passed: focused discovery/recorder/agent tests (1
 form Python tests (31), and full isolated source validation (53 Node entries plus external Python).
 The documentation build, metadata/internal-link checks and compatibility/editorial/anchor tests pass.
 These results validate the scoped repair; the failed independent review recording remains blocked.
+
+### Owner-approved shared structured reviewer cutover
+
+The owner approved reusing `challenger-review-subagent` for automatic and optional manual review.
+Its former file-output body was intentionally rewritten to a read-only JSON contract, narrowing tools
+to read/search and moving all recording to the actual-event recorder. No new reviewer or model pin was added.
+This replaces the incompatible built-in-critic JSON assumption, not independent review or human approval.
+
+Producing agents, the authorized Orchestrator and optional `10-Challenger` now use the same leaf.
+The manual coordinator captures metadata and records actual output instead of relying on leaf-owned files.
+The graph, registry policy, shared skills/instructions, deep/batch guidance and gate remediation agree.
+Manual batches use `lenses`; prior findings remain null or compact actual-finding arrays, not strings.
+Parent-owned immutable input capture and IDs, severity, source paths and unresolved findings are preserved.
+
+New receipts bind both the shared procedure and actual leaf definition and require matching native identity.
+New publication accepts only the structured leaf. Legacy absent-reviewer/file-output schemas and historical
+`rubber-duck` receipts/extraction remain read-only compatibility; no old identity, hash or finding is rewritten.
+Changed contract bytes may make prior evidence stale under the existing strict check, never fresh by restamping.
+Existing project state, attempts, budgets, lenses and separate approvals are not reset by the cutover.
+
+Two actual native probes in this running VS Code conversation still served the old file-output role.
+Both refused the read-only request before artifact reads/writes; the second followed the owner's reported
+refresh and explicit additional-probe authorization. This is a runtime-definition loading limitation,
+not proof that edited source is attached. A genuinely fresh supported-context verification remains blocked.
+
+The owner then explicitly chose one fresh CLI fixture test and candidate publication with that native limit
+disclosed. CLI session `1a7ac903-df65-4910-ab0e-776f00b4051f` dispatched exactly one structured leaf worker
+`d25e954f-4c0e-47f7-82c7-9f8ccf6878a1`. It returned substantive JSON with no writes or routing overrides.
+The new recorder published the actual result, and strict schema/provenance/freshness validation passed
+with no errors or warnings, including against the final current source contracts. Its fixture assessment
+was APPROVED with no findings; this is not a real project approval. Refused replay preserved the receipt bytes.
+
+Focused compatibility/contracts passed 244 tests. The tooling aggregate passed 878 with two existing skips.
+Historical/current reviewer event tests also cover identical per-step accounting without backend resets.
+Those tests exposed an old profiler filter that recognized only the built-in identity. It now accepts
+the explicit current or historical reviewer and verifies the actual linked worker matches the dispatch.
+The SDK event suite passed 117 tests; parsing the successful CLI event log counts exactly one Step 1
+review. This corrects accounting without changing stored attempts or synthesizing execution records.
+Final isolated `npm run validate:all` passed all 53 Node validation entries and external Python suites.
+Existing untracked project inputs were excluded, not repaired or waived. This validates the candidate
+source; it does not turn the two old-role native refusals into successful fresh-context verification.
+Source-only integration and published candidate checks are reported with the delivered revision.
+No production review was rerun, no existing project artifacts/state or historical receipts were repaired,
+and no Azure operation, merge, auto-merge or credential switch occurred.

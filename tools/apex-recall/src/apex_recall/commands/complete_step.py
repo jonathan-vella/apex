@@ -181,7 +181,11 @@ def _report_invalid_review(project: str, step: str, reason: str, as_json: bool) 
         "step": step,
         "error": "challenger_findings_invalid",
         "reason": reason,
-        "remediation": "Return to the artifact owner and 10-Challenger for current review and blocker closure. Preserve retry limits; do not restamp hashes.",
+        "remediation": (
+            "Return to the artifact owner for a current shared structured review and blocker closure. "
+            "10-Challenger is an optional coordinator, not a required handoff. "
+            "Preserve retry limits; do not restamp hashes."
+        ),
     }
     print(json.dumps(message) if as_json else f"Refusing completion: {reason}\n{message['remediation']}")
     return 2
@@ -371,9 +375,9 @@ def run(args) -> int:
             "gating_artifact": gating_path,
             "required_sidecar": sidecar_path,
             "remediation": (
-                "Run the challenger-review-subagent (or the 10-Challenger agent) "
-                "against the gating artifact and produce the required findings "
-                "sidecar, then re-run `apex-recall complete-step`. To bypass "
+                "Ask the artifact owner to invoke challenger-review-subagent and record its actual "
+                "attributed findings against the gating artifact, then re-run `apex-recall complete-step`. "
+                "10-Challenger is an optional coordinator. To bypass "
                 "intentionally, pass --allow-missing-challenger "
                 '--challenger-skip-reason "..."'
             ),

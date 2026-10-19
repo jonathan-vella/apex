@@ -752,7 +752,7 @@ test("production Orchestrator requires an explicit named allowlist and agent too
 test("production Orchestrator may perform the authorized native review relay", () => {
   const agents = productionFleet();
   const orchestrator = [...agents.values()].find((agent) => agent.frontmatter.name === "01-Orchestrator");
-  orchestrator.frontmatter.agents = ["02-Requirements", "rubber-duck"];
+  orchestrator.frontmatter.agents = ["02-Requirements", "challenger-review-subagent"];
   assert.deepEqual(productionFindings(agents), []);
   assert.deepEqual(validateAgentPermissions(orchestrator.frontmatter, { agents }), []);
   orchestrator.frontmatter.agents = ["02-Requirements", "unknown-reviewer"];

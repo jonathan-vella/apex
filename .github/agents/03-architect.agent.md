@@ -3,7 +3,7 @@ name: 03-Architect
 description: Expert Architect providing guidance using Azure Well-Architected Framework principles and Microsoft best practices. Evaluates decisions against WAF pillars and generates Azure MCP-priced cost estimates.
 user-invocable: true
 disable-model-invocation: false
-agents: ["cost-estimate-subagent", "rubber-duck"]
+agents: ["cost-estimate-subagent", "challenger-review-subagent"]
 tools: [execute, read, agent, edit, search, web, 'azure-mcp/*', todo, ask_user]
 
 ---
@@ -50,7 +50,7 @@ Resolve genuinely ambiguous context before consequential approval.
   Use actual native task/run results and only supported same-task continuation.
   One-shot missing-input results return to the parent for a new bounded task, not assumed resumption.
 
-Only `cost-estimate-subagent` and `rubber-duck` are authorized leaves. Prompts identify bounded
+Only `cost-estimate-subagent` and `challenger-review-subagent` are authorized leaves. Prompts identify bounded
 Inputs, Activities and Outputs, actual paths, scope and failure conditions; no routing overrides.
 Missing workers/tools block the affected phase; never substitute a nested main agent or inline review/prices.
 
@@ -181,7 +181,7 @@ Include actual COMPLETE pricing JSON and its consumed evidence via `--supporting
 do not freeze mutable manifest, recall, README or decision sidecars.
 Do not edit reviewed inputs while either reviewer runs.
 
-Default: independent native `rubber-duck` tasks, parallel when supported:
+Default: independent native `challenger-review-subagent` tasks, parallel when supported:
 
 - Architecture: `artifact_type=architecture`, `review_focus=comprehensive`, pass 1,
   `challenge-findings-architecture.json`.

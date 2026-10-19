@@ -5,11 +5,13 @@ import { randomUUID, createHash } from "node:crypto";
 import { spawnSync } from "node:child_process";
 import { fileURLToPath } from "node:url";
 import test from "node:test";
-import { recordReview } from "../../scripts/record-review.mjs";
+import { extractReview, recordReview } from "../../scripts/record-review.mjs";
 import {
   cacheInputs,
   findingId,
   ONE_SHOT_REVIEW_CONTRACT,
+  STRUCTURED_REVIEWER,
+  STRUCTURED_REVIEWER_DEFINITION,
   validateReview,
 } from "../../scripts/validate-challenger-findings.mjs";
 
@@ -19,7 +21,7 @@ const artifact = "agent-output/example/01-requirements.md";
 const output = "agent-output/example/challenge-findings-requirements.json";
 const hash = (value) => createHash("sha256").update(value).digest("hex");
 
-function fixture(t, { batch = false, supporting = false, parent = "root" } = {}) {
+function fixture(t, { batch = false, supporting = false, parent = "root", reviewer = STRUCTURED_REVIEWER } = {}) {
   const root = path.resolve(`.record-review-test-${randomUUID()}`);
   fs.mkdirSync(root);
   t.after(() => fs.rmSync(root, { recursive: true, force: true }));
@@ -51,7 +53,7 @@ function fixture(t, { batch = false, supporting = false, parent = "root" } = {})
     output_path: output,
     overwrite: false,
     prior_findings: null,
-    cache_inputs: cacheInputs(artifact, root, "rubber-duck"),
+    cache_inputs: cacheInputs(artifact, root, reviewer),
     instructions: "## Inputs\nRead fixture\n## Activities\nReview independently\n## Outputs\nReturn JSON",
   };
   if (supporting) {
@@ -83,13 +85,13 @@ function fixture(t, { batch = false, supporting = false, parent = "root" } = {})
       data: {
         toolCallId: "call-1",
         toolName: "task",
-        arguments: { agent_type: "rubber-duck", mode: "sync", prompt: "" },
+        arguments: { agent_type: reviewer, mode: "sync", prompt: "" },
       },
     },
     {
       type: "subagent.started",
       agentId: "worker-1",
-      data: { toolCallId: "call-1", agentName: "rubber-duck", parentId: parent, executionMode: "sync" },
+      data: { toolCallId: "call-1", agentName: reviewer, parentId: parent, executionMode: "sync" },
     },
     { type: "subagent.configured", agentId: "worker-1", data: { multiTurn: false } },
     {
@@ -259,7 +261,7 @@ test("one-shot records actual raw findings and execution with absent model metad
   const saved = f.persisted();
   assert.deepEqual(saved, { ...f.doc, review_execution: result.review_execution });
   assert.deepEqual(saved.review_execution, {
-    reviewer: "rubber-duck",
+    reviewer: STRUCTURED_REVIEWER,
     worker_id: "worker-1",
     parent_id: "root",
     tool_call_id: "call-1",
@@ -370,7 +372,7 @@ test("IaC code directories publish canonical pass evidence and invalidate on cha
     f.input.artifact_path = f.doc.challenged_artifact = directory;
     f.input.artifact_type = f.doc.artifact_type = "iac-code";
     f.input.output_path = f.options.output = "agent-output/example/challenge-findings-iac-code-pass1.json";
-    f.input.cache_inputs = cacheInputs(directory, f.root, "rubber-duck");
+    f.input.cache_inputs = cacheInputs(directory, f.root, STRUCTURED_REVIEWER);
     f.doc.cache_inputs = structuredClone(f.input.cache_inputs);
     f.record();
     const saved = f.persisted();
@@ -476,9 +478,11 @@ test("legacy metadata is unchanged and new metadata hashes the actual reviewer c
   assert.equal(Object.hasOwn(oldDoc, "review_execution"), false);
   assert.equal(f.input.cache_inputs.reviewer_contract, ONE_SHOT_REVIEW_CONTRACT);
   assert.equal(f.input.cache_inputs.reviewer_contract_sha, hash("# One-shot contract\n"));
+  assert.equal(f.input.cache_inputs.reviewer_definition, STRUCTURED_REVIEWER_DEFINITION);
+  assert.equal(f.input.cache_inputs.reviewer_definition_sha, hash("---\nname: legacy\n---\nLegacy\n"));
   assert.equal(Object.hasOwn(f.input.cache_inputs, "subagent_sha"), false);
   assert.throws(() => cacheInputs(artifact, f.root, "unknown"), /Unknown reviewer/);
-  const checked = spawnSync(process.execPath, [validator, "--metadata", artifact, "--reviewer", "rubber-duck"], {
+  const checked = spawnSync(process.execPath, [validator, "--metadata", artifact, "--reviewer", STRUCTURED_REVIEWER], {
     cwd: f.root,
     encoding: "utf8",
   });
@@ -496,6 +500,59 @@ test("legacy metadata is unchanged and new metadata hashes the actual reviewer c
   assert.equal(pinned.model, "legacy-model");
   assert.equal(pinned.model_policy, "legacy-pinned");
 });
+
+test("historical native rubber-duck receipts keep their actual identity and reader", (t) => {
+  const f = fixture(t, { reviewer: "rubber-duck" });
+  f.flush();
+  const extracted = extractReview(f.events, "worker-1", "root");
+  const saved = { ...f.doc, review_execution: extracted.execution };
+  assert.equal(saved.review_execution.reviewer, "rubber-duck");
+  assert.equal(saved.cache_inputs.reviewer, "rubber-duck");
+  assert.equal(Object.hasOwn(saved.cache_inputs, "reviewer_definition_sha"), false);
+  assert.deepEqual(validateReview(saved, { root: f.root, verifyCurrent: true }), []);
+  assert.throws(() => f.record(), /historical rubber-duck receipts are read-only compatibility/);
+  assert.equal(fs.existsSync(path.join(f.root, output)), false);
+});
+
+for (const [label, mutate] of [
+  ["actual reviewer identity", (f) => (f.events[1].data.agentName = "rubber-duck")],
+  [
+    "metadata reviewer identity",
+    (f) => {
+      f.input.cache_inputs = cacheInputs(artifact, f.root, "rubber-duck");
+      f.doc.cache_inputs = structuredClone(f.input.cache_inputs);
+    },
+  ],
+  [
+    "legacy metadata downgrade",
+    (f) => {
+      f.input.cache_inputs = cacheInputs(artifact, f.root);
+      f.doc.cache_inputs = structuredClone(f.input.cache_inputs);
+    },
+  ],
+]) {
+  test(`structured recording rejects ${label} drift without publishing`, (t) => {
+    const f = fixture(t);
+    mutate(f);
+    assert.throws(() => f.record());
+    assert.equal(fs.existsSync(path.join(f.root, output)), false);
+  });
+}
+
+for (const [source, field] of [
+  [STRUCTURED_REVIEWER_DEFINITION, "reviewer_definition_sha"],
+  [ONE_SHOT_REVIEW_CONTRACT, "reviewer_contract_sha"],
+]) {
+  test(`structured freshness independently binds ${field}`, (t) => {
+    const f = fixture(t);
+    f.record();
+    const saved = f.persisted();
+    const before = fs.readFileSync(path.join(f.root, output), "utf8");
+    fs.appendFileSync(path.join(f.root, source), "\nChanged contract bytes\n");
+    assert.match(validateReview(saved, { root: f.root, verifyCurrent: true }).join("\n"), new RegExp(field));
+    assert.equal(fs.readFileSync(path.join(f.root, output), "utf8"), before);
+  });
+}
 
 const invalidCases = [
   ["wrong worker identity", (f) => (f.options.workerId = "other")],
@@ -728,7 +785,7 @@ test("recording never fills or refreshes missing, stale or conflicting review me
   f.input.cache_inputs = {};
   f.doc.cache_inputs = {};
   assert.throws(() => f.record(), /Dispatched cache snapshot/);
-  f.input.cache_inputs = cacheInputs(artifact, f.root, "rubber-duck");
+  f.input.cache_inputs = cacheInputs(artifact, f.root, STRUCTURED_REVIEWER);
   f.doc.cache_inputs = { ...f.input.cache_inputs, protocol_sha: "incorrect" };
   assert.throws(() => f.record(), /cache snapshot/);
   assert.equal(fs.existsSync(path.join(f.root, output)), false);

@@ -20,6 +20,7 @@ import { getBody, parseFrontmatter } from "./_lib/parse-frontmatter.mjs";
 import { modelLabels, catalogModelLabel } from "./_lib/model-helpers.mjs";
 import { Reporter } from "./_lib/reporter.mjs";
 import { MAX_BODY_LINES } from "./_lib/paths.mjs";
+import { STRUCTURED_REVIEWER } from "./validate-challenger-findings.mjs";
 import {
   loadWorkflowGraph,
   isVersionAtLeast22,
@@ -107,8 +108,10 @@ export function validateProductionAgentPolicy(agent, agents = new Map()) {
       if (name === "*" || (mainNames.has(name) && !orchestrator)) {
         issues.push(`Only Orchestrator may allowlist main agents; wildcards are forbidden (got: ${name})`);
       }
-      if (orchestrator && ((!mainNames.has(name) && !BUILTIN_REVIEWERS.has(name)) || name === "01-Orchestrator")) {
-        issues.push(`Orchestrator may allowlist only other named main agents and the native reviewer (got: ${name})`);
+      if (orchestrator && ((!mainNames.has(name) && name !== STRUCTURED_REVIEWER) || name === "01-Orchestrator")) {
+        issues.push(
+          `Orchestrator may allowlist only other named main agents and the structured reviewer (got: ${name})`,
+        );
       }
     }
   }

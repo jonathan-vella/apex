@@ -168,6 +168,20 @@ The existing recorder rejected it; no prose conversion, review retry, counter re
 See [model-backed CLI evidence](agent-body-readiness.md#model-backed-cli-validation-october-19).
 This does not establish the same behaviour or acceptance in the supported VS Code runtime.
 
+The owner approved the shared structured-reviewer cutover: automatic and optional manual review use
+the existing read-only `challenger-review-subagent`, with parent-owned attributed recording and hashes
+for both procedure and definition. New recorder publication accepts that leaf only; historical
+file-output and `rubber-duck` readers remain, without relabelling or rewriting user evidence.
+Related skills/instructions, caller allowlists, deep/batch input guidance and gate diagnostics are aligned.
+
+Two native attempts in this running conversation still used the old file-output definition, including
+one after the owner's reported refresh. Both stopped before artifact reads/writes. The owner explicitly
+selected fresh CLI verification and candidate publication with supported-native acceptance left blocked.
+That fresh CLI call returned actual typed JSON; recording and strict freshness/provenance/schema checks
+passed, and refused replay preserved the result bytes. The source cutover is therefore a verified
+CLI-tested candidate, not a claim that this running VS Code context has loaded the new definition.
+See [cutover evidence](agent-body-readiness.md#owner-approved-shared-structured-reviewer-cutover).
+
 An additional bounded review fix disables implicit model invocation in both deploy entries,
 Diagnose and manual Challenger; structural/negative tests no longer force those roles model-invocable.
 Diagnose explicitly returns a blocker when its actual question tool is unavailable.

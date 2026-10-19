@@ -472,7 +472,7 @@ def sdk_events_to_spans(events: list[dict[str, Any]]) -> list[dict[str, Any]]:
         if tool["name"] != "task":
             continue
         args = json.loads(_attrs(tool).get("gen_ai.tool.call.arguments") or "null")
-        if not isinstance(args, dict) or args.get("agent_type") != "rubber-duck":
+        if not isinstance(args, dict) or args.get("agent_type") not in {"rubber-duck", "challenger-review-subagent"}:
             continue
         prompt = args.get("prompt")
         if not isinstance(prompt, str) or not prompt.startswith("APEX_REVIEW\n"):
@@ -485,7 +485,7 @@ def sdk_events_to_spans(events: list[dict[str, Any]]) -> list[dict[str, Any]]:
         ]
         if (
             len(linked) != 1
-            or linked[0]["_jsonl_subagent"] != "rubber-duck"
+            or linked[0]["_jsonl_subagent"] != args["agent_type"]
             or (parent != "root" and parent not in workers)
             or int(linked[0]["startTimeUnixNano"]) < int(tool["startTimeUnixNano"])
         ):

@@ -135,9 +135,10 @@ body explicitly points to one. There is one tier — no digest, no minimal.
   Every directly selected main owns native `ask_user`; Requirements, Architect, Design and Governance
   remain interactive. Delegated steps return `USER_INPUT_REQUIRED` to their interactive parent.
   Decline never approves and cancellation stops. Static allowlists are not routing evidence.
-- Automatic reviews use built-in `rubber-duck` through
-  [one-shot review](skills/apex-azure-defaults/references/one-shot-review.md).
-  They require actual synchronous results and validated recorded findings.
+- Automatic and optional manual reviews use the same read-only `challenger-review-subagent` through
+  [shared structured review](skills/apex-azure-defaults/references/one-shot-review.md).
+  The leaf returns JSON; its interactive parent records actual synchronous results and validates
+  schema, provenance and freshness. Built-in prose critics are not mandatory JSON dependencies.
   Model selection remains runtime-managed.
   A delegated owner without nested task capability returns `REVIEW_REQUIRED`; the authorized interactive
   Orchestrator invokes that same reviewer as a sibling automatically, preserving budgets and actual provenance.

@@ -4,7 +4,7 @@ description: "Coordinate approved Azure platform work in VS Code Copilot. Recove
 argument-hint: "Describe a project, or provide a project name and the operation to resume"
 user-invocable: true
 disable-model-invocation: true
-agents: ["02-Requirements", "03-Architect", "04-Design", "04g-Governance", "05-IaC Planner", "06b-Bicep CodeGen", "06t-Terraform CodeGen", "07b-Bicep Deploy", "07t-Terraform Deploy", "08-As-Built", "09-Diagnose", "10-Challenger", "rubber-duck"]
+agents: ["02-Requirements", "03-Architect", "04-Design", "04g-Governance", "05-IaC Planner", "06b-Bicep CodeGen", "06t-Terraform CodeGen", "07b-Bicep Deploy", "07t-Terraform Deploy", "08-As-Built", "09-Diagnose", "10-Challenger", "challenger-review-subagent"]
 tools: [execute, read, edit, search, agent, todo, ask_user]
 
 ---
@@ -138,7 +138,7 @@ Compute complexity from the graph's formula rather than inventing a parallel rub
 
 Owners use the existing actual-result review recorder and freshness validator.
 If a delegated owner returns `REVIEW_REQUIRED` because nested tasks are unavailable, invoke the same
-native `rubber-duck` automatically from this interactive parent as an independent sibling task.
+native `challenger-review-subagent` automatically from this interactive parent as an independent sibling task.
 Use the owner's artifact/type/lens/pass/output scope, capture current metadata, preserve the existing
 step budget and run the unchanged one-shot recorder with this actual parent's identity.
 Return the real review receipt/results to the owner for findings/disposition and gate presentation.
