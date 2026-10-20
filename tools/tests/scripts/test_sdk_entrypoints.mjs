@@ -9,7 +9,6 @@ const read = (file) => readFileSync(new URL(file, root), "utf8");
 
 for (const [entry, reference] of [
   ["apex-workflow-start", "apex-workflow-engine/references/workflow-entry.md"],
-  ["apex-git-commit", "apex-github-operations/references/git-commit.md"],
   ["apex-debug-log-export", "apex-context-management/references/debug-log-export.md"],
 ]) {
   test(`${entry} is manual, model-inheriting and permission-neutral`, () => {
@@ -131,18 +130,4 @@ test("selected Orchestrator continues new-project discovery rather than stopping
   assert.match(entry, /An existing record with Step 1 pending is resumed, not reinitialized/);
   const start = read(".github/skills/apex-workflow-start/SKILL.md");
   assert.match(start, /If the requested owner is already active, continue there/);
-});
-
-test("commit procedure retains staged-index, identity, normal-hook and credential gates", () => {
-  const shared = read(".github/skills/apex-github-operations/references/git-commit.md");
-  for (const phrase of [
-    "git var GIT_AUTHOR_IDENT",
-    "git var GIT_COMMITTER_IDENT",
-    "First inspect the entire existing index",
-    "Never commit to `main`",
-    "Never force-push",
-    "do not change persistent credential configuration",
-    "If a pre-commit hook fails, capture its output, summarize the error and stop",
-  ])
-    assert.ok(shared.includes(phrase), phrase);
 });

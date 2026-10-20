@@ -179,8 +179,9 @@ body explicitly points to one. There is one tier — no digest, no minimal.
 
 For issues and pull requests, prefer the `gh` CLI over GitHub MCP tools — the
 CLI is always available in this dev container and is the more stable primitive.
-Fall back to MCP only when an operation has no `gh` CLI equivalent (e.g., rich
-PR review thread management or bulk GraphQL queries). In devcontainers,
+Use `gh api` for REST/GraphQL operations beyond high-level CLI commands.
+Fall back to discovered MCP tools only when a required CLI capability is unavailable;
+GraphQL or review threads alone do not establish that limitation. In devcontainers,
 do not run `gh auth` commands unless the user explicitly asks for CLI auth
 troubleshooting. Git normally uses VS Code-forwarded host credentials;
 `gh` uses its explicitly authenticated config volume or optional `GH_TOKEN`

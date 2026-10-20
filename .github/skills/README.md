@@ -64,12 +64,15 @@ name to its prefixed local directory and review the diff to retain APEX adaptati
 - [apex-context-management](apex-context-management/SKILL.md) owns log export, context audit,
    and runtime compression. A supplied profile can inform an authoring scorecard without moving runtime ownership.
 - [apex-workflow-engine](apex-workflow-engine/SKILL.md) owns workflow entry, recovery, and DAG routing.
+- [apex-github-operations](apex-github-operations/SKILL.md) owns scoped commits, authorized push,
+   issues, PRs, Actions and releases. Invoke `/apex-github-operations commit` instead of the retired
+   `/apex-git-commit` entrypoint. A commit request does not authorize publication or a PR.
 
-### Local And Agent Host
+### Supported SDK Entry Points
 
-Local `.prompt.md` files are adapters; they are not Host entry points. Agent Host uses
-manual skills such as `apex-workflow-start`, `apex-git-commit`, and
-`apex-debug-log-export`. Select the required owning agent first. For recovery,
+Local `.prompt.md` adapters are retired and excluded from active discovery. The SDK harness uses
+manual skills such as `apex-workflow-start` and `apex-debug-log-export`, and discoverable task
+skills such as `apex-github-operations`. Select the required owning agent first. For recovery,
 explicitly request the `resume` operation through `apex-workflow-start`.
 Skills inherit the caller's model/tools and never grant permissions or select an agent.
 Source checks do not prove runtime availability, attachment, or model eligibility.

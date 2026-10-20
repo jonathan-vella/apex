@@ -1,40 +1,41 @@
 #!/usr/bin/env bash
-# validate-branch-scope.sh
-# Enforces that domain-scoped branches only modify files within their domain.
-# Cross-cutting prefixes (feat/, fix/, chore/, refactor/, revert/, perf/, test/, build/, ci/)
-# are exempt — they may touch any files.
-# Called by lefthook pre-push hook and can be run standalone.
+# Validate committed branch scope against an explicit base, locally and in CI.
 set -euo pipefail
 
-BRANCH=$(git rev-parse --abbrev-ref HEAD)
+if [[ "${1:-}" == "--help" || "${1:-}" == "-h" ]]; then
+  echo "Usage: bash tools/scripts/validate-branch-scope.sh [branch] [base-ref]"
+  echo "Defaults to the current branch and origin/main. Missing comparison evidence fails."
+  exit 0
+fi
+if [[ $# -gt 2 ]]; then
+  echo "Expected branch and optional base-ref arguments. Use --help for usage." >&2
+  exit 1
+fi
 
-# Skip enforcement for main, HEAD (detached), and dependabot branches
-if [[ "$BRANCH" == "main" || "$BRANCH" == "HEAD" || "$BRANCH" == dependabot/* ]]; then
+BRANCH="${1-$(git rev-parse --abbrev-ref HEAD)}"
+BASE_REF="${2-origin/main}"
+bash "$(dirname "${BASH_SOURCE[0]}")/validate-branch-naming.sh" "$BRANCH"
+
+if [[ "$BRANCH" == "main" || "$BRANCH" == "HEAD" ]]; then
   exit 0
 fi
 
-PREFIX=$(echo "$BRANCH" | cut -d'/' -f1)
-
-# Cross-cutting prefixes: no file scope restriction
+PREFIX="${BRANCH%%/*}"
 case "$PREFIX" in
-  feat|fix|chore|refactor|revert|perf|test|build|ci)
-    echo "ℹ️  Branch prefix '$PREFIX/' is cross-cutting — no file scope restriction"
+  feat|fix|chore|refactor|revert|perf|test|build|ci|dependabot|automation)
+    echo "Branch '$BRANCH' is cross-cutting; no domain scope restriction."
     exit 0
     ;;
-esac
-
-# Determine allowed file patterns per domain prefix
-case "$PREFIX" in
   docs)
-    ALLOWED_PATTERN='^(README\.md|CONTRIBUTING\.md|CHANGELOG\.md|GLOSSARY\.md)'
+    ALLOWED_PATTERN='^(README\.md|CONTRIBUTING\.md|CHANGELOG\.md|GLOSSARY\.md)$'
     LABEL="README.md, CONTRIBUTING.md, CHANGELOG.md, GLOSSARY.md"
     ;;
   agents)
-    ALLOWED_PATTERN='^(\.github/agents/|tools/registry/agent-registry\.json)'
+    ALLOWED_PATTERN='^(\.github/agents/|tools/registry/agent-registry\.json$)'
     LABEL=".github/agents/, tools/registry/agent-registry.json"
     ;;
   skills)
-    ALLOWED_PATTERN='^(\.github/skills/)'
+    ALLOWED_PATTERN='^\.github/skills/'
     LABEL=".github/skills/"
     ;;
   infra)
@@ -42,45 +43,36 @@ case "$PREFIX" in
     LABEL="infra/"
     ;;
   scripts)
-    ALLOWED_PATTERN='^(tools/tools/scripts/|package\.json)'
-    LABEL="tools/tools/scripts/, package.json"
+    ALLOWED_PATTERN='^(tools/scripts/|package\.json$)'
+    LABEL="tools/scripts/, package.json"
     ;;
   instructions)
     ALLOWED_PATTERN='^\.github/instructions/'
     LABEL=".github/instructions/"
     ;;
-  *)
-    echo "ℹ️  Unknown branch prefix '$PREFIX/' — no file scope restriction"
-    exit 0
-    ;;
 esac
 
-# Get list of changed files vs origin/main (or fallback to HEAD~1)
-CHANGED_FILES=$(git diff --name-only origin/main...HEAD 2>/dev/null || git diff --name-only HEAD~1...HEAD 2>/dev/null || echo "")
-
-if [ -z "$CHANGED_FILES" ]; then
-  echo "ℹ️  No changed files detected — skipping scope check"
-  exit 0
+CHANGED_FILES_FILE=$(mktemp)
+trap 'rm -f "$CHANGED_FILES_FILE"' EXIT
+if [[ -z "$BASE_REF" ]] || ! git diff --name-only --no-renames -z "$BASE_REF"...HEAD -- > "$CHANGED_FILES_FILE"; then
+  echo "Cannot compare branch '$BRANCH' with base '$BASE_REF'; fetch/verify the base before retrying." >&2
+  exit 1
 fi
 
-# Find files that fall outside the allowed scope
-OUT_OF_SCOPE=""
-while IFS= read -r file; do
-  if ! echo "$file" | grep -qE "$ALLOWED_PATTERN"; then
-    OUT_OF_SCOPE="${OUT_OF_SCOPE}    ${file}\n"
+OUT_OF_SCOPE=()
+TOTAL=0
+while IFS= read -r -d '' file; do
+  TOTAL=$((TOTAL + 1))
+  if [[ ! "$file" =~ $ALLOWED_PATTERN ]]; then
+    OUT_OF_SCOPE+=("$file")
   fi
-done <<< "$CHANGED_FILES"
+done < "$CHANGED_FILES_FILE"
 
-if [ -n "$OUT_OF_SCOPE" ]; then
-  echo "⚠️  Branch scope notice: '$BRANCH' also modifies files outside $LABEL"
-  echo ""
-  echo "   Files outside scope:"
-  echo -e "$OUT_OF_SCOPE"
-  echo "   💡 Consider a feat/ or fix/ branch for cross-cutting changes."
-  echo ""
-  # Warning only — do not block push
-  exit 0
+if [[ ${#OUT_OF_SCOPE[@]} -gt 0 ]]; then
+  echo "Branch '$BRANCH' modifies files outside $LABEL:" >&2
+  printf '  %q\n' "${OUT_OF_SCOPE[@]}" >&2
+  echo "Use an approved cross-cutting branch or split the changes." >&2
+  exit 1
 fi
 
-TOTAL=$(echo "$CHANGED_FILES" | wc -l | tr -d ' ')
-echo "✅ All $TOTAL changed file(s) are within scope for '$PREFIX/' branch"
+echo "All $TOTAL changed file(s) are within scope for '$PREFIX/' branch."

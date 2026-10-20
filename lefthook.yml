@@ -274,7 +274,7 @@ pre-push:
         ❌ Branch naming convention violated!
 
         🔧 Rename your branch using an approved prefix:
-           docs/, agents/, skills/, infra/, tools/scripts/, instructions/,
+           docs/, agents/, skills/, infra/, scripts/, instructions/,
            fix/, feat/, chore/, ci/, refactor/, perf/, test/, build/, revert/
 
     branch-scope:

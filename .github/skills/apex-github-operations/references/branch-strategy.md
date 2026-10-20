@@ -3,7 +3,8 @@
 # Branch Naming and Scope Strategy
 
 Rules for branch naming conventions and file-scope enforcement.
-Validated by `scripts/validate-branch-naming.sh` and `scripts/validate-branch-scope.sh`.
+The same [naming validator](../../../../tools/scripts/validate-branch-naming.sh) and
+[scope validator](../../../../tools/scripts/validate-branch-scope.sh) run locally and in CI.
 
 ## Approved Prefixes
 
@@ -15,12 +16,17 @@ Validated by `scripts/validate-branch-naming.sh` and `scripts/validate-branch-sc
 | `agents/`       | `.github/agents/`, `tools/registry/agent-registry.json` |
 | `skills/`       | `.github/skills/`                                       |
 | `infra/`        | `infra/`                                                |
-| `scripts/`      | `scripts/`, `package.json`                              |
+| `scripts/`      | `tools/scripts/`, `package.json`                         |
 | `instructions/` | `.github/instructions/`                                 |
 
 ### Cross-Cutting (any files allowed)
 
 `feat/`, `fix/`, `chore/`, `ci/`, `refactor/`, `perf/`, `test/`, `build/`, `revert/`
+
+Automation branches use `dependabot/` or `automation/`; they are exempt from domain scope.
+Use `scripts/`, not `tools/scripts/`, as the branch prefix.
+The validators skip `main` and detached `HEAD` for non-publishing contexts;
+the Git operation procedure still refuses commits/pushes there and on the repository default branch.
 
 ## Branch Creation
 
@@ -44,7 +50,16 @@ bash tools/scripts/validate-branch-naming.sh
 
 # Check file scope locally
 bash tools/scripts/validate-branch-scope.sh
+
+# CI or explicit target comparison
+bash tools/scripts/validate-branch-naming.sh "<branch>"
+bash tools/scripts/validate-branch-scope.sh "<branch>" "origin/<base>"
 ```
+
+Scope checks compare committed changes with `origin/main` by default and fail when
+the base or diff is unavailable. They do not inspect uncommitted/staged files;
+before committing, also validate the approved staged paths against the domain table.
+Scope violations fail locally and in CI; no previous-commit fallback silently passes.
 
 ## Agent Workflow
 
@@ -53,7 +68,7 @@ Before committing or creating a PR, agents MUST:
 1. **Read the current branch name**: `git rev-parse --abbrev-ref HEAD`
 2. **Validate the prefix** matches an approved prefix from the table above
 3. **If domain-scoped**, verify changed files are within the allowed paths
-4. **If invalid**, warn the user and suggest:
+4. **If invalid**, stop and propose an authorized rename or split:
    - Rename: `git branch -m <old> feat/<descriptive-name>`
    - Or split into two branches (one per domain)
 
