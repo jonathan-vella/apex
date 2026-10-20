@@ -440,9 +440,10 @@ host VS Code process, as it does for `GH_TOKEN`:
 | `APEX_PIP_INDEX_HOST_PATH`    | `packagefeedproxy.microsoft.io/pypi/simple/` | `pypi.org/simple/`    |
 
 Values are host and path without `https://`. The prefix is fixed in `devcontainer.json`, because the Dev Containers
-CLI cuts a default value at its first colon. `post-start.sh` prints a "package sources" line at every start, so a
-maintainer who forgot to opt in sees the public default instead of silently installing from it. The substitution was
-checked with the bundled Dev Containers CLI (`read-configuration`), not with a full rebuild.
+CLI cuts a default value at its first colon. `post-start.sh` prints the npm, pip and uv sources separately at every
+start (labels only: `Microsoft CFS`, `public`, `custom` or `unset`; URLs are never printed) and warns when the CFS
+opt-in is incomplete, so a maintainer who forgot one variable is not silently on a public source. The substitution
+was checked with the bundled Dev Containers CLI (`read-configuration`), not with a full rebuild.
 
 Outside the container, npm reads `NPM_CONFIG_REGISTRY`, pip reads `PIP_INDEX_URL` and uv reads `UV_INDEX_URL`.
 The `package-lock.json` URLs point at `registry.npmjs.org`, which npm replaces with the configured registry host.
