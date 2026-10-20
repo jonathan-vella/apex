@@ -1,6 +1,6 @@
 {
   "$schema": "../../tools/schemas/explorer-graph.schema.json",
-  "generatedAt": "2026-10-19T10:52:41.103Z",
+  "generatedAt": "2026-10-20T07:01:39.914Z",
   "categories": [
     { "id": "agent", "key": "agents", "label": "Agent", "color": "#3b82f6", "shape": "round-rectangle", "count": 14 },
     {
@@ -2186,8 +2186,8 @@
       "category": "mcp",
       "label": "github",
       "description": "HTTP: https://api.githubcopilot.com/mcp/",
-      "path": ".vscode/mcp.json",
-      "links": { "source": "https://github.com/jonathan-vella/apex/blob/main/.vscode/mcp.json" },
+      "path": ".mcp.json",
+      "links": { "source": "https://github.com/jonathan-vella/apex/blob/main/.mcp.json" },
       "meta": { "type": "http" }
     },
     {
@@ -2195,8 +2195,8 @@
       "category": "mcp",
       "label": "azure-resource-manager-mcp",
       "description": "HTTP: https://mcp.management.azure.com",
-      "path": ".vscode/mcp.json",
-      "links": { "source": "https://github.com/jonathan-vella/apex/blob/main/.vscode/mcp.json" },
+      "path": ".mcp.json",
+      "links": { "source": "https://github.com/jonathan-vella/apex/blob/main/.mcp.json" },
       "meta": { "type": "http", "orphan": true }
     },
     {
@@ -2204,8 +2204,8 @@
       "category": "mcp",
       "label": "azure-mcp",
       "description": "stdio: npx",
-      "path": ".vscode/mcp.json",
-      "links": { "source": "https://github.com/jonathan-vella/apex/blob/main/.vscode/mcp.json" },
+      "path": ".mcp.json",
+      "links": { "source": "https://github.com/jonathan-vella/apex/blob/main/.mcp.json" },
       "meta": { "type": "stdio" }
     },
     {

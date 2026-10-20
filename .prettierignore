@@ -43,10 +43,10 @@ VERSION.md
 
 # Generated JSON — owned by their generators; Prettier must not fight them.
 # (model-catalog.json ← generate-model-catalog.mjs; azure-deprecations.json is
-# a fetched data snapshot; mcp.json is hand-maintained with a fixed shape.)
+# a fetched data snapshot; .mcp.json is hand-maintained with a fixed shape.)
 .github/model-catalog.json
 .github/data/azure-deprecations.json
-.vscode/mcp.json
+.mcp.json
 
 # Generated caches / rendered summaries — owned by their generators.
 tools/scripts/_data/

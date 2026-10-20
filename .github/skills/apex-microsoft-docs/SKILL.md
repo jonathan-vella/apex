@@ -20,7 +20,7 @@ technologies.
 
 ## Prerequisites
 
-- **Azure MCP server** configured in `.vscode/mcp.json`. Microsoft Learn tools
+- **Azure MCP server** configured in `.mcp.json`. Microsoft Learn tools
   are exposed through its `documentation` router.
 - **Outbound HTTPS** to `learn.microsoft.com`
 - **Node.js ≥ 18** for the `mslearn` CLI fallback (via `npx @microsoft/learn-cli ...`)

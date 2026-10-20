@@ -31,7 +31,7 @@ const SOURCE_DIRS = [
   ".github/instructions",
   ".github/workflows",
 ];
-const SOURCE_FILES = [".vscode/mcp.json", "tools/registry/agent-registry.json", "package.json"];
+const SOURCE_FILES = [".mcp.json", "tools/registry/agent-registry.json", "package.json"];
 
 const errors = [];
 const warnings = [];

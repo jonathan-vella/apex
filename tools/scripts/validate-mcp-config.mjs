@@ -9,13 +9,18 @@ import { Reporter } from "./_lib/reporter.mjs";
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 const repoRoot = resolve(__dirname, "../..");
-const mcpConfigPath = resolve(repoRoot, ".vscode/mcp.json");
+const mcpConfigPath = resolve(repoRoot, ".mcp.json");
+const legacyMcpConfigPath = resolve(repoRoot, ".vscode/mcp.json");
 
 const r = new Reporter("MCP Config Validator");
 r.header();
 
+if (existsSync(legacyMcpConfigPath)) {
+  r.error("Deprecated .vscode/mcp.json must be removed; use root .mcp.json (portable Copilot format)");
+}
+
 if (!existsSync(mcpConfigPath)) {
-  r.error("Missing .vscode/mcp.json");
+  r.error("Missing .mcp.json");
   r.summary();
   r.exitOnError();
 }
@@ -24,22 +29,22 @@ let mcpConfig;
 try {
   mcpConfig = parseJsonc(readFileSync(mcpConfigPath, "utf-8"));
 } catch (error) {
-  r.error(`Invalid JSON in .vscode/mcp.json: ${error.message}`);
+  r.error(`Invalid JSON in .mcp.json: ${error.message}`);
   r.summary();
   r.exitOnError();
 }
 
 const requiredServers = ["github"];
 const isObject = (value) => value !== null && typeof value === "object" && !Array.isArray(value);
-if (!isObject(mcpConfig) || !isObject(mcpConfig.servers)) {
-  r.error("MCP configuration and servers must be objects");
+if (!isObject(mcpConfig) || Object.hasOwn(mcpConfig, "servers") || !isObject(mcpConfig.mcpServers)) {
+  r.error("MCP configuration and mcpServers must be objects");
   r.summary();
   r.exitOnError();
 }
 for (const name of requiredServers) {
   r.tick();
-  if (!mcpConfig?.servers?.[name]) {
-    r.error(`Missing required MCP server: servers.${name}`);
+  if (!mcpConfig?.mcpServers?.[name]) {
+    r.error(`Missing required MCP server: mcpServers.${name}`);
   } else {
     r.ok(`MCP config includes required server: ${name}`);
   }
@@ -47,13 +52,13 @@ for (const name of requiredServers) {
 
 // The hosted ARM MCP replaces the former in-repo pricing server.
 r.tick();
-const armMcp = mcpConfig?.servers?.["azure-resource-manager-mcp"];
+const armMcp = mcpConfig?.mcpServers?.["azure-resource-manager-mcp"];
 const armToolsets = String(armMcp?.headers?.["x-mcp-toolset"] ?? "")
   .split(",")
   .map((toolset) => toolset.trim())
   .filter(Boolean);
 if (!armMcp) {
-  r.error("Missing required MCP server: servers.azure-resource-manager-mcp");
+  r.error("Missing required MCP server: mcpServers.azure-resource-manager-mcp");
 } else if (armMcp.type !== "http") {
   r.error(`azure-resource-manager-mcp must use type: "http", got "${armMcp.type}"`);
 } else if (armMcp.url !== "https://mcp.management.azure.com") {
@@ -65,9 +70,9 @@ if (!armMcp) {
 }
 
 r.tick();
-const azureMcp = mcpConfig?.servers?.["azure-mcp"];
+const azureMcp = mcpConfig?.mcpServers?.["azure-mcp"];
 if (!azureMcp) {
-  r.error("Missing required MCP server: servers.azure-mcp");
+  r.error("Missing required MCP server: mcpServers.azure-mcp");
 } else if (azureMcp.type !== "stdio") {
   r.error(`azure-mcp must use type: "stdio", got "${azureMcp.type}"`);
 } else if (typeof azureMcp.command !== "string" || !azureMcp.command.trim()) {
@@ -84,8 +89,8 @@ if (!azureMcp) {
 const retiredServers = ["azure-pricing", "drawio", "astro-docs", "terraform"];
 for (const name of retiredServers) {
   r.tick();
-  if (Object.hasOwn(mcpConfig.servers, name)) {
-    r.error(`Retired servers.${name} entry must be removed`);
+  if (Object.hasOwn(mcpConfig.mcpServers, name)) {
+    r.error(`Retired mcpServers.${name} entry must be removed`);
   } else {
     r.ok(`Retired MCP server is not configured: ${name}`);
   }

@@ -56,7 +56,7 @@ The existing tool updater does not update these pins; maintain their versions an
 Azure MCP 3.0.0 lists `extension_azqr` only while azqr 3.0.0 or later is on `PATH`. The install is optional: if it
 fails, the compliance and cost skills fall back to running `azqr` directly.
 
-### MCP Servers (auto-configured in `.vscode/mcp.json`)
+### MCP Servers (auto-configured in `.mcp.json`)
 
 | Server            | Transport         | Purpose                                          |
 | ----------------- | ----------------- | ------------------------------------------------ |
@@ -99,7 +99,7 @@ to the default branch. Monitor failed workflow notifications; it neither opens n
 | GitHub Actions Weekly Maintenance | Monday 06:00 UTC or manual dispatch | Failing job on outdated or unverifiable pins |
 | Maintainer | After a warning or failed maintenance job | Review and validate the upgrade, then restart the MCP server |
 
-For an upgrade, review release notes, update the package pin in `.vscode/mcp.json` and `configure-mcp.mjs` together,
+For an upgrade, review release notes, update the package pin in `.mcp.json` and `configure-mcp.mjs` together,
 then run `node --test tools/tests/scripts/test_devcontainer_setup.mjs` and `npm run lint:mcp-config`.
 Restart Azure MCP from VS Code's `MCP: List Servers` command. Verify the reported runtime version, MCP initialization
 and tool discovery before resuming APEX. Downloaded updates do not replace an already-running server.
@@ -118,7 +118,7 @@ Keep the previous pin available for rollback; do not auto-promote a beta or sile
 
 #### Lean Extension Policy
 
-Azure MCP runs directly from [the workspace MCP configuration](../.vscode/mcp.json), not an editor extension.
+Azure MCP runs directly from [the workspace MCP configuration](../.mcp.json), not an editor extension.
 Keep GitHub Copilot Chat; GitHub Copilot for Azure is a separate, unwanted extension for this workflow.
 The Azure Tools pack and Azure MCP Server extension bundle Azure Copilot. AI Toolkit adds another agent/skill
 surface and depends on that MCP extension. Avoid those packages for the lean APEX setup.

@@ -66,10 +66,10 @@ Checked 2026-09-23: `v1.2.51` is still the latest tag, `main` is unchanged since
 - **Coexistence**: `apex-` names avoid name collisions, and plugin skills appear as `/azure:<skill>`. APEX agents
   reference `apex-*` skills by explicit name or path, so workflow runs keep using APEX copies; free-form chats can
   load either set.
-- **APEX Azure MCP coupling**: [mcp.json](../../../../.vscode/mcp.json) pins `@azure/mcp@3.0.0` and sets
+- **APEX Azure MCP coupling**: [.mcp.json](../../../../.mcp.json) pins `@azure/mcp@3.0.0` and sets
   `NPM_CONFIG_ALLOW_REMOTE=all` for the npm 12 feed. [configure-mcp.mjs](../../../../.devcontainer/configure-mcp.mjs)
   holds the defaults and release check, [validate-mcp-config.mjs](../../../../tools/scripts/validate-mcp-config.mjs)
-  requires `servers.azure-mcp`, and
+  requires `mcpServers.azure-mcp`, and
   [test_devcontainer_setup.mjs](../../../../tools/tests/scripts/test_devcontainer_setup.mjs) asserts the environment
   variable. Agents 03, 05, 06b, 06t, 07b, 07t, 08 and 09 use `azure-mcp/*`. The cost worker uses
   `azure-resource-manager-mcp`, which the plugin doesn't provide.

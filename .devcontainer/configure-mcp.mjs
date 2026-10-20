@@ -6,17 +6,19 @@ import { applyEdits, modify } from "jsonc-parser";
 import { parseJsonc } from "../tools/scripts/_lib/parse-jsonc.mjs";
 
 const defaults = {
-  github: { type: "http", url: "https://api.githubcopilot.com/mcp/" },
+  github: { type: "http", url: "https://api.githubcopilot.com/mcp/", tools: ["*"] },
   "azure-resource-manager-mcp": {
     type: "http",
     url: "https://mcp.management.azure.com",
     headers: { "x-mcp-toolset": "CostManagement" },
+    tools: ["*"],
   },
   "azure-mcp": {
     type: "stdio",
     command: "npx",
     args: ["-y", "@azure/mcp@3.0.0", "server", "start"],
     env: { NPM_CONFIG_ALLOW_REMOTE: "all" },
+    tools: ["*"],
   },
 };
 
@@ -34,7 +36,7 @@ export function azureMcpReleaseStatus(config, versions) {
     });
   const latestStable = stable.at(-1);
   if (!latestStable) throw new Error("Registry returned no stable Azure MCP release");
-  const server = config?.servers?.["azure-mcp"];
+  const server = config?.mcpServers?.["azure-mcp"];
   const packages = Array.isArray(server?.args)
     ? server.args.filter((arg) => typeof arg === "string" && arg.startsWith("@azure/mcp@"))
     : [];
@@ -70,15 +72,19 @@ export function configureMcp(filename) {
   const original = fs.existsSync(filename) ? fs.readFileSync(filename, "utf8") : "{}\n";
   const config = parseJsonc(original);
   const isObject = (value) => value !== null && typeof value === "object" && !Array.isArray(value);
-  if (!isObject(config) || (Object.hasOwn(config, "servers") && !isObject(config.servers))) {
-    throw new Error("MCP configuration and servers must be objects; file left unchanged");
+  if (
+    !isObject(config) ||
+    Object.hasOwn(config, "servers") ||
+    (Object.hasOwn(config, "mcpServers") && !isObject(config.mcpServers))
+  ) {
+    throw new Error("MCP configuration and mcpServers must be objects; file left unchanged");
   }
   let updated = original;
   for (const [name, server] of Object.entries(defaults)) {
-    if (Object.hasOwn(config.servers ?? {}, name)) continue;
+    if (Object.hasOwn(config.mcpServers ?? {}, name)) continue;
     updated = applyEdits(
       updated,
-      modify(updated, ["servers", name], server, {
+      modify(updated, ["mcpServers", name], server, {
         formattingOptions: { insertSpaces: true, tabSize: 2, eol: original.includes("\r\n") ? "\r\n" : "\n" },
       }),
     );
@@ -92,13 +98,13 @@ export function configureMcp(filename) {
 if (process.argv[1] && path.resolve(process.argv[1]) === fileURLToPath(import.meta.url)) {
   if (process.argv[2] === "--help") {
     console.log(
-      "Usage: node .devcontainer/configure-mcp.mjs [mcp.json]\n" +
-        "       node .devcontainer/configure-mcp.mjs --check-release [mcp.json]\n" +
+      "Usage: node .devcontainer/configure-mcp.mjs [.mcp.json]\n" +
+        "       node .devcontainer/configure-mcp.mjs --check-release [.mcp.json]\n" +
         "Release checks query the configured npm registry, never write config, and exit 1 on outdated or unknown state.",
     );
   } else if (process.argv[2] === "--check-release") {
     try {
-      const result = checkAzureMcpRelease(path.resolve(process.argv[3] ?? ".vscode/mcp.json"));
+      const result = checkAzureMcpRelease(path.resolve(process.argv[3] ?? ".mcp.json"));
       console.log(JSON.stringify(result, null, 2));
       process.exitCode = result.status === "CURRENT" ? 0 : 1;
     } catch (error) {
@@ -106,6 +112,6 @@ if (process.argv[1] && path.resolve(process.argv[1]) === fileURLToPath(import.me
       process.exitCode = 1;
     }
   } else {
-    configureMcp(path.resolve(process.argv[2] ?? ".vscode/mcp.json"));
+    configureMcp(path.resolve(process.argv[2] ?? ".mcp.json"));
   }
 }
