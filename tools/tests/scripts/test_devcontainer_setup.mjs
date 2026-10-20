@@ -220,7 +220,8 @@ for (const [name, sources, expected, notice] of [
       },
     });
     assert.equal(result.status, 0, result.stderr);
-    assert.match(result.stdout, new RegExp(`package sources\\s+${expected}`));
+    const sourceLine = result.stdout.split("\n").find((line) => line.includes("package sources"));
+    assert.ok(sourceLine?.endsWith(expected), `unexpected package sources line: ${sourceLine}`);
     if (notice) assert.match(result.stdout, notice);
     else assert.doesNotMatch(result.stdout, /opt in to CFS|incomplete/);
     assert.doesNotMatch(result.stdout, /secret|mirror\.example|evil\.test|https:\/\//);
