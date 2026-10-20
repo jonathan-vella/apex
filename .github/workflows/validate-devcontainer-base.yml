@@ -103,10 +103,12 @@ env:
     config.containerEnv = { ...config.containerEnv, GH_TOKEN: "", GITHUB_TOKEN: "" };
     config.waitFor = "postCreateCommand";
     // Co-location preserves relative paths and the CLI's devcontainer-lock.json lookup.
-    const output = path.join(root, ".devcontainer/ci-validation.json");
-    if (fs.existsSync(output)) throw new Error("Refusing to overwrite existing validation config");
+    const output = path.join(root, ".devcontainer/devcontainer.json");
+    const sourceBackup = path.join(root, ".devcontainer/devcontainer.source.json");
+    if (fs.existsSync(sourceBackup)) throw new Error("Refusing to overwrite existing validation backup");
+    fs.renameSync(configPath, sourceBackup);
     const formatted = await prettier.format(JSON.stringify(config), {
-      ...await prettier.resolveConfig(configPath), filepath: output,
+      ...await prettier.resolveConfig(sourceBackup), filepath: output,
     });
     fs.writeFileSync(output, formatted, { flag: "wx" });
 
@@ -267,7 +269,7 @@ jobs:
         with:
           # checkoutPath and configFile are action.yml inputs; paths resolve from this checkout.
           checkoutPath: validation-source
-          configFile: .devcontainer/ci-validation.json
+          configFile: .devcontainer/devcontainer.json
           platform: ${{ matrix.platform }}
           useNativeRunner: true
           push: never

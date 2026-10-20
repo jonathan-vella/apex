@@ -8,7 +8,7 @@
 #
 # This action bundles the two steps that every Node-based job in
 # `.github/workflows/` was repeating after checkout:
-#   1. actions/setup-node (with npm cache)
+#   1. actions/setup-node (without dependency caching)
 #   2. npm ci
 #
 # Bumping Node version or setup-node version is now a single-file edit
@@ -41,7 +41,6 @@ inputs:
     description: Set to "false" to skip `npm ci` (e.g. matrix workflows that install per-job)
     required: false
     default: "true"
-
 runs:
   using: composite
   steps:
@@ -49,7 +48,6 @@ runs:
       uses: actions/setup-node@v7
       with:
         node-version: ${{ inputs.node-version }}
-        cache: npm
 
     - name: Install Node dependencies
       if: inputs.install-deps == 'true'

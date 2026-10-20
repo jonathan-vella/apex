@@ -703,7 +703,7 @@ else {
     assert.ok(test.read("outputs").includes(`candidate_image=${candidateImage}`));
     const prepared = test.run(prepare);
     assert.equal(prepared.status, 0, prepared.stderr);
-    const derived = parseJsonc(test.read("validation-source/.devcontainer/ci-validation.json"));
+    const derived = parseJsonc(test.read("validation-source/.devcontainer/devcontainer.json"));
     assert.deepEqual(derived.features, candidate.features);
     assert.equal(parseJsonc(test.read(configPath)).features["./features/python"].version, "3.15.0");
   });
@@ -733,12 +733,12 @@ else {
     const original = test.read(configPath);
     const result = test.run(prepare);
     assert.equal(result.status, 0, result.stderr);
-    assert.equal(test.read(configPath), original);
+    assert.equal(test.read("validation-source/.devcontainer/devcontainer.source.json"), original);
     assert.equal(test.read("validation-source/package-lock.json"), "historical dependencies");
     assert.equal(test.read("validation-source/.devcontainer/post-create.sh"), "historical install commands");
     assert.equal(test.read("validation-source/.devcontainer/devcontainer-lock.json"), "historical feature locks");
     assert.equal(test.read("devcontainer-evaluator/validate-devcontainer.sh"), runnerSource);
-    const derived = JSON.parse(test.read("validation-source/.devcontainer/ci-validation.json"));
+    const derived = JSON.parse(test.read("validation-source/.devcontainer/devcontainer.json"));
     assert.equal(derived.image, config.image);
     assert.deepEqual(derived.features, config.features);
     assert.deepEqual(derived.mounts, [
