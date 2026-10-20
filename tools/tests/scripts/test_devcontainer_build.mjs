@@ -133,6 +133,7 @@ test("build uses Azure Linux 4 with explicit user prerequisites and preserves ho
   assert.match(dockerfile, /dnf install -y/);
   assert.match(dockerfile, /graphviz bats/);
   assert.match(dockerfile, /findutils coreutils-single\b/);
+  assert.match(dockerfile, /\bdiffutils\b/);
   assert.match(dockerfile, /krb5-libs libatomic openssl-libs/);
   assert.match(dockerfile, /\bunzip\b/);
   assert.doesNotMatch(dockerfile, /apt-get|dos2unix|DEBIAN_FRONTEND/);

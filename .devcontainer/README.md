@@ -81,6 +81,8 @@ provisioned through this proxy after verifying its publication date against the 
 DNF installs retained native utilities, Graphviz, Bats, archive/checksum tools, Git/SSH, runtime libraries,
 and user-management prerequisites. `dos2unix` was removed because no active conversion task required it.
 The base's `coreutils-single` is retained because installing the conflicting `coreutils` package fails.
+`diffutils` supplies `diff` for context-baseline comparisons; missing tools or comparison errors fail
+explicitly instead of being reported as file changes.
 `libatomic` supplies `libatomic.so.1`, required by the selected Node.js binary on ARM64.
 The image explicitly creates `vscode` and noninteractive sudo, rather than inheriting them from an Ubuntu base.
 Package-feed environment defaults live in the Dockerfile so local Feature builds and running containers

@@ -10,7 +10,7 @@ ENV NPM_CONFIG_REGISTRY=https://packagefeedproxy.microsoft.io/npm/ \
 RUN dnf upgrade -y --refresh \
     && dnf install -y \
         bash ca-certificates curl jq tar gzip xz unzip graphviz bats \
-        git openssh-clients procps-ng sudo shadow-utils util-linux findutils coreutils-single \
+        git openssh-clients procps-ng sudo shadow-utils util-linux findutils coreutils-single diffutils \
         icu krb5-libs libatomic openssl-libs zlib-ng-compat \
     && dnf clean all \
     && groupadd --gid 1000 vscode \
