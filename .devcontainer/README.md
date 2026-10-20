@@ -106,10 +106,10 @@ Maintainers opt the container in to the proxy or that approved feed (see Package
 browsing/troubleshooting only. Maintainers must not switch to public registries to work around quarantine or missing
 metadata.
 
-Known exception ([#794](https://github.com/jonathan-vella/apex/issues/794)): no authenticated CI feed exists yet.
-Every hosted CI job, including the dev container validation job, installs packages from the public registries; no
-workflow configures a feed or sets the opt-in variables. This is a recorded gap, not compliance, and it does not
-apply to dev boxes or local builds.
+Standing exception (history in [#794](https://github.com/jonathan-vella/apex/issues/794), closed as not planned): no
+authenticated CI feed exists and none is planned. Every hosted CI job, including the dev container validation job,
+installs packages from the public registries; no workflow configures a feed or sets the opt-in variables. This is a
+recorded gap, not compliance, and it does not apply to dev boxes or local builds.
 Only install versions whose upstream artifacts are at least seven days old, including transitive and build
 dependencies. Verify original publication dates separately: a mirror's upload timestamp can reflect later
 ingestion, and feed availability alone does not establish artifact age.

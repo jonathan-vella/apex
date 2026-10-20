@@ -21,10 +21,10 @@ Microsoft maintainers keep package managers on `packagefeedproxy.microsoft.io` f
 approved team-owned Azure Artifacts feed, and opt the dev container in with `APEX_NPM_REGISTRY_HOST_PATH` and
 `APEX_PIP_INDEX_HOST_PATH`; the dev container uses public registries otherwise. Automated builds and CI require an
 authenticated CFS-compliant feed.
-Known exception ([#794](https://github.com/jonathan-vella/apex/issues/794)): no authenticated CI feed exists yet, so
-hosted CI does not meet this requirement. Every hosted job, including the dev container validation job, installs from
-the public registries (no workflow configures a feed or sets the opt-in variables). The exception does not extend to
-dev boxes or local builds.
+Standing exception (history in [#794](https://github.com/jonathan-vella/apex/issues/794), closed as not planned): no
+authenticated CI feed exists and none is planned, so hosted CI does not meet this requirement. Every hosted job,
+including the dev container validation job, installs from the public registries (no workflow configures a feed or sets
+the opt-in variables). The exception does not extend to dev boxes or local builds.
 Never bypass quarantine using public registries or `ms-feed-*` browsing URLs. Verify age and feed availability
 before changing pins; missing versions or metadata are not permission to bypass these requirements.
 These CFS and quarantine rules are Microsoft's supply-chain policy for its own maintainers' environments. Other users
