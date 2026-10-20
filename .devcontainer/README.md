@@ -104,6 +104,11 @@ The default CFS proxy, `packagefeedproxy.microsoft.io`, is intended for corporat
 not automated builds or CI. Those workloads require an authenticated, approved team-owned Azure Artifacts feed.
 Keep package managers on the proxy or that approved feed; `ms-feed-*` links are for browsing/troubleshooting only.
 Do not switch to public registries to work around quarantine or missing metadata.
+
+Known exception ([#794](https://github.com/jonathan-vella/apex/issues/794)): hosted GitHub Actions cannot reach the
+device-only proxy and no approved CI feed exists yet. Hosted CI, including its Python jobs and container-build
+validation, therefore does not use an authenticated feed and may resolve packages from the runner's default
+registries. This is a recorded gap, not compliance, and it does not apply to dev boxes or local builds.
 Only install versions whose upstream artifacts are at least seven days old, including transitive and build
 dependencies. Verify original publication dates separately: a mirror's upload timestamp can reflect later
 ingestion, and feed availability alone does not establish artifact age.
