@@ -105,10 +105,12 @@ not automated builds or CI. Those workloads require an authenticated, approved t
 Keep package managers on the proxy or that approved feed; `ms-feed-*` links are for browsing/troubleshooting only.
 Do not switch to public registries to work around quarantine or missing metadata.
 
-Known exception ([#794](https://github.com/jonathan-vella/apex/issues/794)): hosted GitHub Actions cannot reach the
-device-only proxy and no approved CI feed exists yet. Hosted CI jobs therefore install npm and Python packages from
-the runner's default public registries; no workflow configures a feed. This is a recorded gap, not compliance, and
-it does not apply to dev boxes or local builds.
+Known exception ([#794](https://github.com/jonathan-vella/apex/issues/794)): the device-only proxy is not an approved
+CI source and no authenticated CI feed exists yet. Hosted CI installs packages in two ways: jobs that install on
+the runner use the runner's default public registries (no workflow configures a feed), and the dev container
+validation job runs `npm ci` and `uv pip install` inside the container with the proxy defaults from
+`devcontainer.json`, with no credentials configured by the repo. This is a recorded gap, not compliance, and it does
+not apply to dev boxes or local builds.
 Only install versions whose upstream artifacts are at least seven days old, including transitive and build
 dependencies. Verify original publication dates separately: a mirror's upload timestamp can reflect later
 ingestion, and feed availability alone does not establish artifact age.
