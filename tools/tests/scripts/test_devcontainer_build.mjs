@@ -1,15 +1,6 @@
 import assert from "node:assert/strict";
 import { createHash } from "node:crypto";
-import {
-  copyFileSync,
-  existsSync,
-  mkdirSync,
-  mkdtempSync,
-  readFileSync,
-  readdirSync,
-  rmSync,
-  writeFileSync,
-} from "node:fs";
+import { copyFileSync, mkdirSync, mkdtempSync, readFileSync, readdirSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import path from "node:path";
 import { spawnSync } from "node:child_process";
@@ -130,9 +121,7 @@ if (command === "uname") {
 }
 
 test("build uses Azure Linux 4 with explicit user prerequisites and preserves host interfaces", () => {
-  const activeConfig = parseJsonc(readFileSync(new URL("devcontainer.json", containerDir), "utf8"));
-  const sourceConfigPath = new URL("devcontainer.source.json", containerDir);
-  const config = existsSync(sourceConfigPath) ? parseJsonc(readFileSync(sourceConfigPath, "utf8")) : activeConfig;
+  const config = parseJsonc(readFileSync(new URL("devcontainer.json", containerDir), "utf8"));
   const lock = JSON.parse(readFileSync(new URL("devcontainer-lock.json", containerDir), "utf8"));
   const dockerfile = readFileSync(new URL("Dockerfile", containerDir), "utf8");
   assert.deepEqual(config.build, { dockerfile: "Dockerfile", context: "." });
@@ -325,7 +314,7 @@ test("rejects malformed checksum before downloading", (context) => {
   );
 });
 
-for (const failure of ["", "invalid-version", "uv", "az"]) {
+for (const failure of ["", "invalid-version", "invalid-pip-version", "uv", "pip", "az"]) {
   test(`local Azure CLI Feature ${failure ? `rejects ${failure}` : "uses isolated Python after the runtime Feature"}`, (context) => {
     const root = mkdtempSync(path.join(tmpdir(), "apex-azure-cli-test-"));
     context.after(() => rmSync(root, { recursive: true, force: true }));
@@ -335,7 +324,7 @@ for (const failure of ["", "invalid-version", "uv", "az"]) {
     for (const command of ["uv", "ln", "az"]) {
       writeFileSync(
         path.join(root, "bin", command),
-        `#!/bin/sh\nprintf '%s %s\\n' '${command}' "$*" >> "$CALL_LOG"\nif [ '${command}' = "$FAIL_COMMAND" ]; then echo 'fixture install failure' >&2; exit 17; fi\n`,
+        `#!/bin/sh\nprintf '%s %s\\n' '${command}' "$*" >> "$CALL_LOG"\nif [ '${command}' = "$FAIL_COMMAND" ] || { [ "$FAIL_COMMAND" = pip ] && [ '${command}' = uv ] && [ "$1" = pip ]; }; then echo 'fixture install failure' >&2; exit 17; fi\n`,
         { mode: 0o755 },
       );
     }
@@ -349,19 +338,23 @@ for (const failure of ["", "invalid-version", "uv", "az"]) {
         ...process.env,
         PATH: `${path.join(root, "bin")}:${process.env.PATH}`,
         VERSION: failure === "invalid-version" ? "latest" : feature.options.version.default,
+        PIPVERSION: failure === "invalid-pip-version" ? "latest" : feature.options.pipVersion.default,
         CALL_LOG: log,
         FAIL_COMMAND: failure,
       },
     });
-    assert.equal(result.status, failure === "invalid-version" ? 1 : failure ? 17 : 0, result.stdout + result.stderr);
+    const invalid = failure === "invalid-version" || failure === "invalid-pip-version";
+    assert.equal(result.status, invalid ? 1 : failure ? 17 : 0, result.stdout + result.stderr);
     const calls = readFileSync(log, "utf8");
-    if (failure === "invalid-version") assert.equal(calls, "");
+    if (invalid) assert.equal(calls, "");
     if (!failure) {
       assert.match(calls, /uv venv --python \/usr\/local\/python\/current\/bin\/python3 \/opt\/azure-cli/);
       assert.ok(calls.includes(`azure-cli==${feature.options.version.default}`));
+      assert.ok(calls.includes(`pip==${feature.options.pipVersion.default}`));
       assert.match(calls, /ln -s \/opt\/azure-cli\/bin\/az \/usr\/local\/bin\/az/);
       assert.match(calls, /az version --output none/);
     }
+    if (failure === "pip") assert.doesNotMatch(calls, /ln -s|az version/);
 
     for (const failure of ["", "invalid-version", "uv"]) {
       test(`local Python Feature ${failure ? `rejects ${failure}` : "keeps the managed base separate from project dependencies"}`, (context) => {

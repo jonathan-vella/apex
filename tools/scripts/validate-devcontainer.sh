@@ -89,6 +89,8 @@ if [[ "$EXPECTED_ARCH" != "amd64" && "$EXPECTED_ARCH" != "arm64" ]]; then
     exit 2
 fi
 
+readonly EVALUATOR_DIR="$(cd -- "$(dirname -- "${BASH_SOURCE[0]:-$0}")" && pwd)"
+
 if ! cd -- "$WORKSPACE_ROOT" || [[ ! -f package.json || ! -f .devcontainer/devcontainer.json ]]; then
     printf 'Invalid --workspace-root: %s\n' "$WORKSPACE_ROOT" >&2
     exit 2
@@ -101,7 +103,6 @@ if ! mkdir -p -- "$(dirname -- "$OUTPUT_DIR")" || ! mkdir -- "$OUTPUT_DIR"; then
 fi
 
 readonly VALIDATION_VARIANT EXPECTED_DISTRO_ID EXPECTED_OS EXPECTED_ARCH EXPECTED_PYTHON EXPECTED_NODE WORKSPACE_ROOT
-readonly EVALUATOR_DIR="$(cd -- "$(dirname -- "${BASH_SOURCE[0]:-$0}")" && pwd)"
 readonly START_EPOCH="$(date +%s)"
 readonly OUTPUT_DIR
 readonly CHECK_LOG_DIR="${OUTPUT_DIR}/checks"
@@ -173,6 +174,33 @@ normalize_arch() {
 
 check_expected_arch() {
     [[ "$OBSERVED_ARCH" == "$EXPECTED_ARCH" ]]
+}
+
+check_azure_cli_extension() {
+    local wheel="${WORK_DIR}/apex_ci_probe-0.0.0-py3-none-any.whl"
+    python3 -c '
+import sys
+from zipfile import ZipFile
+
+with ZipFile(sys.argv[1], "w") as wheel:
+    wheel.writestr("azext_apex_ci_probe/__init__.py", "")
+    wheel.writestr("azext_apex_ci_probe/azext_metadata.json", "{}")
+    wheel.writestr("apex_ci_probe-0.0.0.dist-info/METADATA",
+                   "Metadata-Version: 2.1\nName: apex-ci-probe\nVersion: 0.0.0\n")
+    wheel.writestr("apex_ci_probe-0.0.0.dist-info/WHEEL",
+                   "Wheel-Version: 1.0\nRoot-Is-Purelib: true\nTag: py3-none-any\n")
+    wheel.writestr("apex_ci_probe-0.0.0.dist-info/RECORD", "")
+' "$wheel" || return
+    (
+        export AZURE_CONFIG_DIR="${WORK_DIR}/azure-config"
+        export AZURE_EXTENSION_DIR="${WORK_DIR}/azure-extensions"
+        export PIP_NO_INDEX=1 PIP_NO_CACHE_DIR=1 PIP_DISABLE_PIP_VERSION_CHECK=1
+        export AZURE_CORE_COLLECT_TELEMETRY=no AZURE_CORE_CHECK_LATEST_VERSION=no
+        az extension add --source "$wheel" --yes --only-show-errors || exit
+        local version
+        version=$(az extension show --name apex-ci-probe --query version --output tsv) || exit
+        [[ "$version" == "0.0.0" ]]
+    )
 }
 
 check_post_create_log() {
@@ -333,6 +361,7 @@ run_check "runtime-version-contract" "compatibility" check_runtime_contract
 
 # Tool availability and basic execution.
 run_check "azure-cli" "compatibility" az version --output json
+run_check "azure-cli-extensions" "compatibility" check_azure_cli_extension
 run_check "bicep-cli" "compatibility" check_bicep_cli
 run_check "powershell" "compatibility" pwsh --version
 run_check "powershell-analyzer" "compatibility" pwsh -NoLogo -NoProfile -NonInteractive -Command \

@@ -392,8 +392,13 @@ describe("manual evaluator contracts", () => {
     assert.equal(result.stdout, "candidate\nContainer Image\nazurelinux\n4.0\n");
   });
 
-  for (const analyzerFailure of [false, true]) {
-    it(`runs the separately delivered evaluator with mocked tools and ${analyzerFailure ? "fails an actual analyzer import error" : "emits every required check"}`, (context) => {
+  for (const [analyzerFailure, extensionFailure, relativePath] of [
+    [false, false, false],
+    [true, false, false],
+    [false, false, true],
+    [false, true, true],
+  ]) {
+    it(`runs the separately delivered evaluator: analyzerFailure=${analyzerFailure}, extensionFailure=${extensionFailure}, relativePath=${relativePath}`, (context) => {
       const root = fixture(context);
       const workspace = path.join(root, "historical");
       tree(workspace, "historical");
@@ -427,6 +432,8 @@ if (command === "uname") console.log("aarch64");
 else if (command === "id") console.log("1000");
 else if (command === "bicep" && args[0] === "build") fs.writeFileSync(args[args.indexOf("--outfile") + 1], "{}");
 else if (command === "pwsh" && args.includes("-Command") && process.env.ANALYZER_FAILURE === "true") process.exit(1);
+else if (command === "az" && args[0] === "extension" && args[1] === "add" && process.env.EXTENSION_FAILURE === "true") process.exit(1);
+else if (command === "az" && args[0] === "extension" && args[1] === "show") console.log("0.0.0");
 else console.log("mock tool success");
 `,
       );
@@ -462,7 +469,7 @@ else console.log("mock tool success");
       const result = spawnSync(
         "bash",
         [
-          path.join(root, "evaluator/validate-devcontainer.sh"),
+          relativePath ? "evaluator/validate-devcontainer.sh" : path.join(root, "evaluator/validate-devcontainer.sh"),
           "--variant",
           "candidate",
           "--expected-distro-id",
@@ -486,17 +493,23 @@ else console.log("mock tool success");
             PATH: `${path.join(root, "bin")}:${process.env.PATH}`,
             CALLS: path.join(root, "calls.jsonl"),
             ANALYZER_FAILURE: String(analyzerFailure),
+            EXTENSION_FAILURE: String(extensionFailure),
           },
         },
       );
-      assert.equal(result.status, analyzerFailure ? 1 : 0, result.stdout + result.stderr);
+      const failed = analyzerFailure || extensionFailure;
+      assert.equal(result.status, failed ? 1 : 0, result.stdout + result.stderr);
       const output = JSON.parse(fs.readFileSync(path.join(workspace, "evidence/verdict.json"), "utf8"));
       assert.deepEqual(output.checks.map((check) => check.name).sort(), [...REQUIRED_CHECKS].sort());
       assert.equal(output.observed_arch, "arm64");
-      assert.equal(output.status, analyzerFailure ? "FAIL" : "PASS");
+      assert.equal(output.status, failed ? "FAIL" : "PASS");
       assert.equal(
         output.checks.find((check) => check.name === "powershell-analyzer").status,
         analyzerFailure ? "FAIL" : "PASS",
+      );
+      assert.equal(
+        output.checks.find((check) => check.name === "azure-cli-extensions").status,
+        extensionFailure ? "FAIL" : "PASS",
       );
       const calls = fs.readFileSync(path.join(root, "calls.jsonl"), "utf8").trim().split("\n").map(JSON.parse);
       assert.ok(calls.filter(({ command }) => command === "npm").every(({ cwd }) => cwd === workspace));
@@ -513,6 +526,19 @@ else console.log("mock tool success");
       assert.equal(fs.existsSync(path.join(workspace, "evidence/.work")), false);
     });
   }
+
+  it(
+    "installs an Azure CLI extension from a local wheel without any package index",
+    {
+      skip: process.env.APEX_TEST_REAL_AZURE_CLI !== "1",
+    },
+    (context) => {
+      const root = fixture(context);
+      tree(root);
+      const result = runConsumer(root, "check_azure_cli_extension");
+      assert.equal(result.status, 0, result.stdout + result.stderr);
+    },
+  );
 
   it("rejects reused output directories without deleting existing evidence", (context) => {
     const root = fixture(context);
@@ -715,6 +741,29 @@ else {
     assert.match(test.read("outputs"), /baseline_os=26\.04/);
   });
 
+  for (const registry of ["azurelinux", "azurelinux-beta"]) {
+    it(`infers an Azure-Linux-to-Azure-Linux PR baseline from ${registry} without dispatch inputs`, (context) => {
+      const test = setup(context, buildConfig);
+      write(test.root, "baseline-docker", `FROM mcr.microsoft.com/${registry}/base/core:4.0@sha256:baseline\n`);
+      const result = test.run(resolve, { INPUT_BASELINE_DISTRO_ID: "", INPUT_BASELINE_OS: "" });
+      assert.equal(result.status, 0, result.stdout + result.stderr);
+      assert.match(test.read("outputs"), /baseline_distro_id=azurelinux\nbaseline_os=4\.0/);
+      assert.ok(test.read("outputs").includes(`candidate_image=${candidateImage}`));
+    });
+  }
+
+  it("preserves explicitly supplied manual baseline expectations instead of re-deriving them", (context) => {
+    const test = setup(context, buildConfig);
+    write(test.root, "baseline-docker", "FROM custom.example/base:fixed\n");
+    const result = test.run(resolve, {
+      EVENT_NAME: "workflow_dispatch",
+      INPUT_BASELINE_DISTRO_ID: "custom",
+      INPUT_BASELINE_OS: "9.1",
+    });
+    assert.equal(result.status, 0, result.stdout + result.stderr);
+    assert.match(test.read("outputs"), /baseline_distro_id=custom\nbaseline_os=9\.1/);
+  });
+
   it("manual dispatch selects an explicit complete baseline revision, not a replacement FROM", (context) => {
     const test = setup(context);
     const result = test.run(resolve, { EVENT_NAME: "workflow_dispatch", INPUT_BASELINE_REF: "origin/previous" });
@@ -733,7 +782,7 @@ else {
     const original = test.read(configPath);
     const result = test.run(prepare);
     assert.equal(result.status, 0, result.stderr);
-    assert.equal(test.read("validation-source/.devcontainer/devcontainer.source.json"), original);
+    assert.equal(test.read("devcontainer-evaluator/source-devcontainer.json"), original);
     assert.equal(test.read("validation-source/package-lock.json"), "historical dependencies");
     assert.equal(test.read("validation-source/.devcontainer/post-create.sh"), "historical install commands");
     assert.equal(test.read("validation-source/.devcontainer/devcontainer-lock.json"), "historical feature locks");
@@ -744,8 +793,56 @@ else {
     assert.deepEqual(derived.mounts, [
       `type=bind,source=${path.join(test.root, "devcontainer-evaluator")},target=/opt/apex-evaluator,readonly`,
     ]);
-    assert.deepEqual(derived.remoteEnv, { GH_TOKEN: "${localEnv:GH_TOKEN}", GITHUB_TOKEN: "", PRESERVED: "baseline" });
+    assert.deepEqual(derived.remoteEnv, { GH_TOKEN: "", GITHUB_TOKEN: "", PRESERVED: "baseline" });
     assert.notEqual(test.run(prepare).status, 0, "must not overwrite an existing evaluator/config");
+  });
+
+  it("restores the byte-identical source config before running repository validation", (context) => {
+    const test = setup(context);
+    const configPath = "validation-source/.devcontainer/devcontainer.json";
+    const original = test.read(configPath);
+    assert.equal(test.run(prepare).status, 0);
+    assert.notEqual(test.read(configPath), original);
+    const build = workflow.jobs.validate.steps.find((step) => step.uses === "devcontainers/ci@v0.3");
+    write(
+      test.root,
+      "devcontainer-evaluator/validate-devcontainer.sh",
+      '#!/bin/bash\nset -euo pipefail\ncmp .devcontainer/devcontainer.json ../devcontainer-evaluator/source-devcontainer.json\nprintf "original config validated\\n"\n',
+    );
+    const command = build.with.runCmd.replaceAll(
+      "/opt/apex-evaluator/",
+      `${path.join(test.root, "devcontainer-evaluator")}/`,
+    );
+    const result = test.run(`cd validation-source\n${command}`, {
+      SELECTED_VARIANT: "candidate",
+      SELECTED_DISTRO_ID: "azurelinux",
+      SELECTED_OS: "4.0",
+      SELECTED_ARCH: "amd64",
+    });
+    assert.equal(result.status, 0, result.stdout + result.stderr);
+    assert.match(result.stdout, /original config validated/);
+    assert.equal(test.read(configPath), original);
+    assert.equal(test.read("validation-source/.devcontainer/devcontainer-lock.json"), "historical feature locks");
+    assert.equal(
+      fs.existsSync(path.join(test.root, "validation-source/.devcontainer/devcontainer.source.json")),
+      false,
+    );
+    fs.rmSync(path.join(test.root, "devcontainer-evaluator/source-devcontainer.json"));
+    const missing = test.run(`cd validation-source\n${command}`);
+    assert.notEqual(missing.status, 0, "missing original config must block validation");
+    assert.doesNotMatch(missing.stdout, /original config validated/);
+  });
+
+  it("disables both explicit and automatic caching for candidate-controlled Node setup", () => {
+    for (const job of Object.values(workflow.jobs)) {
+      const setupNode = job.steps.find((step) => step.uses === "actions/setup-node@v7");
+      assert.ok(setupNode, "candidate-controlled jobs need explicit cache-free Node setup");
+      assert.equal(setupNode.with.cache, undefined);
+      assert.equal(setupNode.with["package-manager-cache"], false);
+      assert.ok(job.steps.some((step) => step.run === "npm ci"));
+    }
+    const action = load(fs.readFileSync(path.join(repoRoot, ".github/actions/setup-node-repo/action.yml"), "utf8"));
+    assert.equal(action.runs.steps.find((step) => step.uses === "actions/setup-node@v7").with.cache, "npm");
   });
 
   for (const [name, config, docker] of [

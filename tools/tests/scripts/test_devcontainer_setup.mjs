@@ -354,6 +354,7 @@ test("tool version gate supports Azure CLI Bicep fallback without waiving minimu
 for (const failure of [
   "",
   "npm",
+  "sudo",
   "uv",
   "python3",
   "apex-recall",
@@ -370,7 +371,9 @@ for (const failure of [
       fs.mkdirSync(path.join(root, directory), { recursive: true });
     }
     const calls = path.join(root, "calls");
+    const sudoCalls = path.join(root, "sudo-calls");
     fs.writeFileSync(calls, "");
+    fs.writeFileSync(sudoCalls, "");
     for (const command of [
       "npm",
       "uv",
@@ -390,11 +393,12 @@ for (const failure of [
     ]) {
       fs.writeFileSync(
         path.join(root, "bin", command),
-        `#!/bin/sh\nprintf '%s\\n' '${command}' >> "$CALL_LOG"\nif [ '${command}' = npm ] && [ "$1" = --version ]; then echo 12.2.0; exit 0; fi\nif [ '${command}' = "$FAIL_COMMAND" ]; then exit 17; fi\nif [ '${command}' = npm ] && [ "$1 $2" = 'run setup:powershell' ]; then exec pwsh; fi\nexit 0\n`,
+        `#!/bin/sh\nprintf '%s\\n' '${command}' >> "$CALL_LOG"\nif [ '${command}' = sudo ]; then printf '%s\\n' "$*" >> "$SUDO_CALL_LOG"; fi\nif [ '${command}' = npm ] && [ "$1" = --version ]; then echo 12.2.0; exit 0; fi\nif [ '${command}' = "$FAIL_COMMAND" ]; then exit 17; fi\nif [ '${command}' = npm ] && [ "$1 $2" = 'run setup:powershell' ]; then exec pwsh; fi\nexit 0\n`,
         { mode: 0o755 },
       );
     }
-    const result = spawnSync("bash", ["-c", setup], {
+    const pythonEnvironment = path.join(root, "python-environment");
+    const result = spawnSync("bash", ["-c", setup.replaceAll("/usr/local/python/current", pythonEnvironment)], {
       cwd: root,
       encoding: "utf8",
       env: {
@@ -403,6 +407,7 @@ for (const failure of [
         PATH: `${root}/bin:${process.env.PATH}`,
         TF_PLUGIN_CACHE_DIR: `${root}/.terraform.d/plugin-cache`,
         CALL_LOG: calls,
+        SUDO_CALL_LOG: sudoCalls,
         FAIL_COMMAND: failure,
       },
     });
@@ -435,13 +440,36 @@ for (const failure of [
     assert.equal(summary.status, failure ? 1 : 0, summary.stdout + summary.stderr);
     assert.equal(/^Setup complete\.$/m.test(log), !failure);
     assert.equal(result.status, failure ? 17 : 0, result.stdout + result.stderr);
-    assert.ok(!commands.some((command) => ["sudo", "git", "curl", "pip", "pip3"].includes(command)));
+    assert.ok(!commands.some((command) => ["git", "curl", "pip", "pip3"].includes(command)));
+    const expectedRepair =
+      failure === "npm" ? "" : `-n chown -R ${process.getuid()}:${process.getgid()} ${pythonEnvironment}\n`;
+    assert.equal(fs.readFileSync(sudoCalls, "utf8"), expectedRepair);
+    if (failure === "sudo") assert.ok(!commands.includes("uv"), "ownership errors must block dependency installation");
     if (!failure) {
       assert.equal(commands.filter((command) => command === "uv").length, 2);
       assert.match(result.stdout, /Setup complete/);
     } else assert.doesNotMatch(result.stdout, /Setup complete/);
   });
 }
+
+test("setup leaves an already writable Python environment unchanged", (context) => {
+  const root = fixture(context);
+  const pythonEnvironment = path.join(root, "python-environment");
+  fs.mkdirSync(pythonEnvironment);
+  const start = setup.indexOf("if [[ ! -w /usr/local/python/current ]]");
+  const end = setup.indexOf("uv pip install", start);
+  assert.ok(start >= 0 && end > start);
+  const result = spawnSync(
+    "bash",
+    ["-c", setup.slice(start, end).replaceAll("/usr/local/python/current", pythonEnvironment)],
+    {
+      encoding: "utf8",
+    },
+  );
+  assert.equal(result.status, 0, result.stdout + result.stderr);
+  assert.equal(result.stdout, "");
+  assert.equal(result.stderr, "");
+});
 
 test("setup retains pinned PowerShell analysis without installing unused Azure modules", () => {
   assert.match(setup, /npm run setup:powershell/);

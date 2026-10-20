@@ -38,6 +38,9 @@ Official npm registry access was TLS-blocked during this execution; feed freshne
 
 The upstream Azure CLI, GitHub CLI, and azd Features invoke Debian tooling, so they are not used on this base.
 Azure CLI is installed by a local Feature after Python, in `/opt/azure-cli`, with a standalone `az` symlink.
+Its isolated environment also installs pip 26.2.1, using the existing Python toolchain pin, so Azure CLI
+extension installation has its own pip module. Acceptance installs a local dependency-free probe extension
+with package indexes disabled and isolated temporary Azure configuration; it downloads no extension package.
 GitHub CLI, Terraform, Bicep, and azd are verified standalone build-time binaries.
 The upstream azd Feature can report success after failing to install on this base; the standalone installer
 fails closed on download, checksum, extraction, or installation errors instead.
@@ -64,6 +67,15 @@ Required setup errors stop the script with a nonzero exit. PowerShell and PSScri
 Az.Accounts, Az.Resources, Az.Storage, Az.Network, Az.KeyVault, and Az.Websites are no longer preinstalled.
 Maintained Azure scripts use Azure CLI/REST. Install a particular Az module only for an actual local consumer.
 Setup does not change global Git settings or credentials.
+When Dev Containers remaps the `vscode` UID, setup repairs ownership only if the project Python
+environment is no longer writable. The repair is noninteractive, limited to `/usr/local/python/current`,
+and fails before Python package installation if ownership cannot be corrected.
+
+CI temporarily removes credential forwarding and persistent mounts from the startup configuration.
+It restores the original configuration byte-for-byte before running repository checks, so those checks
+inspect the selected revision rather than CI's sanitized configuration. Candidate-controlled container
+validation explicitly disables automatic and explicit package caching. Ordinary repository CI retains its
+shared cached Node setup; cache-free steps are intentionally local to the container validation workflow.
 
 PowerShell analysis uses the exact PSScriptAnalyzer version in
 [`requirements.psd1`](../tools/powershell/requirements.psd1), installed from PSGallery in `CurrentUser` scope.
@@ -271,6 +283,9 @@ A zero exit status and fresh mandatory-check `PASS` verdict are required; report
 Test dependency/provider downloads require network access, but acceptance must not deploy resources or apply Terraform.
 CI independently compares historical baseline/candidate environments on native architectures; do not fabricate
 the other matrix legs from this local run. Readiness remains **awaiting manual acceptance** until results are inspected.
+Official Ubuntu and Azure Linux baseline tags supply default distro/version expectations, while explicit
+manual-dispatch expectations are preserved. A relatively launched evaluator resolves its own directory before
+entering the selected workspace, so it cannot accidentally load helpers from the historical checkout.
 
 ### Validation Limits and Rollback
 

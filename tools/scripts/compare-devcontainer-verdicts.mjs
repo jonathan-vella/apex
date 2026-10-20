@@ -33,6 +33,7 @@ export const REQUIRED_CHECKS = [
   "runtime-version-contract",
   "tool-version-contracts",
   "azure-cli",
+  "azure-cli-extensions",
   "bicep-cli",
   "powershell",
   "powershell-analyzer",
