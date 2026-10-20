@@ -108,6 +108,7 @@ version (`key-vault/vault` 0.14.2, `web/site` 0.24.0, `sql/server` 0.22.1,
 | `avm/res/consumption/budget` | `0.3.8` | Called from an RG-scoped module without `scope:` | Requires `scope: subscription()` on the module call |
 | `avm/res/db-for-my-sql/flexible-server` | `0.10.3` | `delegatedSubnetResourceId` into a shared PE subnet; `aad_auth_only` via `configurations[]` | Use `privateEndpoints[]` (`service: 'mysqlServer'`) — mutually exclusive with delegated subnet; `aad_auth_only` is read-only (enforce post-deploy). See [MySQL section](#mysql-flexible-server-apply-time-gotchas) |
 | `avm/res/automation/automation-account` | `0.19.1` | runbook `runbookType` + inline `content`/`publishContentLink`; `jobSchedules` to a draft runbook | runbook `type` (no inline content; `uri` only); create `jobSchedules` post-deploy after publishing. See [Automation section](#automation-account-runbook-and-jobschedule) |
+| `avm/res/storage/storage-account` | `0.33.1` | `blobServices: { restorePolicyEnabled: true, restorePolicyDays: 7, deleteRetentionPolicyDays: 7 }` (`restorePolicyDays == deleteRetentionPolicyDays`) | `restorePolicyDays` must be strictly less than `deleteRetentionPolicyDays` (e.g. `restorePolicyDays: 6` when `deleteRetentionPolicyDays: 7`). Passes `bicep build` and `az deployment ... validate` but fails at apply time with `InvalidValuesForRequestParameters`. |
 
 ### Why what-if and lint don't catch this
 

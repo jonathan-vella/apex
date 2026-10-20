@@ -8,9 +8,10 @@ Two modes:
     are present in 01-orchestrator.agent.md and 10-challenger.agent.md.
     Hard fail. Wired into `validate:agents` via `validate:_node`.
 
-  - `--budget LOGFILE` (post-action check): parses an OTel debug log,
-    counts `challenger-review-subagent` invocations per step (using
-    `turn_start:N` markers as step boundaries), and reports whether
+  - `--budget LOGFILE` (post-action check): counts native WORKER_EXECUTE
+    and linked one-shot APEX_REVIEW requests per attributed step;
+    historical OTel turn_start markers remain
+    diagnostic compatibility only. Reports whether
     any step exceeded the default-depth ceiling of 2. Informational
     only — exit 0 — unless `--strict` is set.
 
@@ -27,7 +28,7 @@ violation), 2 on argparse / IO errors.
 from __future__ import annotations
 
 import argparse
-import json
+import importlib.util
 import sys
 from collections import Counter
 from pathlib import Path
@@ -39,6 +40,7 @@ CHALLENGER = REPO_ROOT / ".github" / "agents" / "10-challenger.agent.md"
 # Ceiling-table evidence. The substrings are deliberately minimal so
 # cosmetic wording around them stays free.
 ORCHESTRATOR_REQUIRED = (
+    "ask_user",
     "Challenger-invocation ceiling",
     "challenger_invocations_<step>",
     '"Accept findings"',
@@ -47,6 +49,7 @@ ORCHESTRATOR_REQUIRED = (
 )
 
 CHALLENGER_REQUIRED = (
+    "ask_user",
     "Challenger-invocation ceiling",
     "challenger_invocations_<step>",
 )
@@ -74,16 +77,17 @@ def check_ceiling_contract() -> list[str]:
 
 
 def count_challenger_per_step(log_path: Path) -> dict[str, int]:
-    """Count challenger-review-subagent invocations between turn_start:N markers."""
+    """Count attributed native executions, or historical marker-based diagnostics."""
+    spec = importlib.util.spec_from_file_location("profile_debug_log", Path(__file__).with_name("profile_debug_log.py"))
+    assert spec and spec.loader
+    profiler = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(profiler)
     try:
-        raw = json.loads(log_path.read_text())
-    except (OSError, json.JSONDecodeError) as exc:
-        raise ValueError(f"cannot read OTel log {log_path}: {exc}") from exc
-
-    spans: list[dict] = []
-    for rs in raw.get("resourceSpans", []):
-        for ss in rs.get("scopeSpans", []):
-            spans.extend(ss.get("spans", []))
+        spans = profiler.load_spans(log_path)
+    except (OSError, ValueError) as exc:
+        raise ValueError(f"cannot read log {log_path}: {exc}") from exc
+    if any(span.get("_source_format") == "copilot-sdk" for span in spans):
+        return profiler.sdk_execution_metrics(spans)["challenger_per_step"]
 
     # Linear scan: track current step from the most recent turn_start:N.
     counts: Counter[str] = Counter()
@@ -111,7 +115,7 @@ def main(argv: list[str] | None = None) -> int:
         "--budget",
         type=Path,
         default=None,
-        help="OTel log file to budget-check (post-action mode); skips contract lint",
+        help="Native events.jsonl or historical OTel budget diagnostic; skips contract lint",
     )
     parser.add_argument(
         "--ceiling",
@@ -150,8 +154,9 @@ def main(argv: list[str] | None = None) -> int:
         return 1
 
     print(f"# challenger budget for {args.budget}")
-    if not per_step:
-        print("  no challenger invocations recorded")
+    if not per_step or not any(per_step.values()):
+        print("  UNKNOWN: no attributed challenger execution evidence; no budget certification")
+        return 1 if args.strict else 0
     for step, n in sorted(per_step.items()):
         marker = " !!" if n > args.ceiling else ""
         print(f"  step {step}: {n}{marker}")
@@ -160,7 +165,7 @@ def main(argv: list[str] | None = None) -> int:
         for v in violations:
             print(f"  - {v}", file=sys.stderr)
         return 1 if args.strict else 0
-    print(f"\n✓ all steps within ceiling ({args.ceiling})")
+    print(f"\n✓ observed counts within ceiling ({args.ceiling}); not approval or complete-capture certification")
     return 0
 
 

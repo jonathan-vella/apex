@@ -112,6 +112,20 @@ function main() {
       continue;
     }
     const envs = Object.keys(data.environments ?? {});
+    if (envs.length === 0) {
+      r.error(fileRel, "environments must contain at least one environment entry");
+      continue;
+    }
+    let envErrors = 0;
+    for (const [envName, env] of Object.entries(data.environments ?? {})) {
+      for (const reqField of ["subscription_id", "tenant_id", "primary_region"]) {
+        if (typeof env?.[reqField] !== "string" || !env[reqField].trim()) {
+          r.error(fileRel, `environments.${envName}.${reqField} must be a non-empty string`);
+          envErrors++;
+        }
+      }
+    }
+    if (envErrors > 0) continue;
     r.ok(fileRel, `environment-manifest (${envs.length} envs: ${envs.join(", ")})`);
     if (redact) {
       console.log(JSON.stringify(redactManifest(data), null, 2));

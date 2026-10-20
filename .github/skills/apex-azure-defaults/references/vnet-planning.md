@@ -66,13 +66,13 @@ Top-level decision key. Default: `guided`. Recorded via
 
 | Mode       | Behaviour                                                                                                                                                                                                |
 | ---------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `guided`   | Full two-round askQuestions; mandatory for prod.                                                                                                                                                         |
+| `guided`   | Full two-round ask_user; mandatory for prod.                                                                                                                                                         |
 | `fast`     | Round 1 only; Round 2 auto-confirms the proposed table with a Challenger-tagged informational finding (`subnet plan auto-confirmed in fast mode`).                                                       |
 | `deferred` | Gate writes a placeholder `subnet_plan = []` and a Challenger-tagged informational finding (`VNet planning deferred; sandbox/exploration mode`). **Disallowed when the inferred environment is `prod`** — block with explanation. |
 
-## askQuestions Round 1 (`guided` or `fast`)
+## ask_user Round 1 (`guided` or `fast`)
 
-Single batched `vscode_askQuestions` call. Three questions max
+Single batched `ask_user` call. Three questions max
 (Q3 only fires when Q1 = `use-existing`):
 
 - **Q1 — `vnet_mode`** (options): `create-new` (default), `use-existing`.
@@ -165,14 +165,14 @@ Three outcomes:
   use the exact case-sensitive name and may **only** appear when the
   respective resource is in scope.
 
-## askQuestions Round 2 (table confirmation)
+## ask_user Round 2 (table confirmation)
 
 Present the proposed `subnet_plan` as a markdown table in the
 question text. Columns: `purpose / SKU-derived size / address_prefix /
 delegation / NSG-attached / route-table`.
 
 Then run the **per-row askMe loop** — one
-`vscode_askQuestions` call per subnet row with three options:
+`ask_user` call per subnet row with three options:
 
 - `Apply edit (freeform diff)` — user types replacement values in the
   follow-up freeform field; Architect parses and updates the row.
@@ -203,6 +203,17 @@ apex-recall decide <project> --key vnet_plan_decision --value <confirmed|edited|
 [`tools/schemas/subnet-plan.schema.json`](../../../../tools/schemas/subnet-plan.schema.json)
 (v1). `validate:decision-keys` parses it and emits a soft warning
 when the value is absent but the trigger contract holds.
+
+Each array item enforces `additionalProperties: false` (never emit `size` or `outbound` keys):
+
+- **Required keys**: `name` (string), `address_prefix` (IPv4 CIDR), `purpose` (enum: `app-gateway`, `apim`, `aks-system`, `aks-user`, `aks-pe`, `private-endpoint`, `app-service-integration`, `vm`, `vmss`, `bastion`, `azure-firewall`, `vpn-gateway`, `expressroute-gateway`, `nat-gateway`, `application-gateway-for-containers`, `route-server`, `custom`).
+- **Optional keys**:
+  - `delegation` (string enum: `"none"` or canonical Microsoft resource type — never `null`)
+  - `nsg` (string: `"auto"`, `"none"`, or explicit NSG name — never boolean `true`/`false`)
+  - `route_table` (string: `"auto"`, `"none"`, or explicit route-table name — never `null`)
+  - `service_endpoints` (array of strings)
+  - `private_endpoint_network_policies` (`"Disabled"` | `"Enabled"`)
+  - `ipv6_prefix` (string or `null`)
 
 ## Defaults that always hold
 

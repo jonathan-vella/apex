@@ -166,6 +166,22 @@ pre-commit:
           echo "ℹ️  No Terraform files to format-check"
         fi
 
+    powershell:
+      glob:
+        - "tools/scripts/*.{ps1,psm1,psd1}"
+        - "tools/scripts/**/*.{ps1,psm1,psd1}"
+        - "tools/powershell/**"
+        - ".devcontainer/*.{ps1,psm1,psd1}"
+        - ".github/skills/*/scripts/*.{ps1,psm1,psd1}"
+        - ".github/skills/*/scripts/**/*.{ps1,psm1,psd1}"
+        - "tools/tests/powershell-analysis.test.mjs"
+        - "tools/tests/fixtures/powershell/**"
+      run: npm run lint:powershell && npm run test:powershell
+      fail_text: |
+        ❌ PowerShell parsing, analyzer rules or regression tests failed!
+        🔧 Provision the pinned analyzer: npm run setup:powershell
+        🔧 Inspect diagnostics: npm run lint:powershell
+
     terraform-validate:
       glob: "*.tf"
       run: |

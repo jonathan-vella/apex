@@ -6,6 +6,60 @@ Entries are grouped by conventional-commit type. Breaking changes list the migra
 
 ### Breaking changes
 
+#### Instruction audit remediation and Copilot-only discovery
+
+Remove Local-only customization-location settings from workspace and devcontainer configuration.
+Copilot discovers APEX's conventional `.github/` locations; the VS Code validator now rejects
+these ineffective legacy location settings instead of requiring them.
+The redundant `fix:artifact-h2` npm alias is removed; use
+`npm run fix:artifacts -- <artifact-path>` to preview, then add `--apply` for reviewed changes.
+
+Instruction contracts now require observed terminal prompts and existing authorization rather than
+confirmation inferred from silence. Governance guidance uses the producer's `required_value` key and
+conditional property mappings. Markdown/artifact enforcement, CI jobs, documentation triggers and
+model-neutral authoring ownership are documented against their actual local contracts.
+Historical project evidence and independent approval/review requirements remain unchanged.
+
+#### Copilot SDK entrypoints replace Local prompt adapters
+
+The target is the GitHub Copilot SDK harness inside VS Code, not a standalone CLI
+or headless deployment service. Local prompt roots and split-harness adapters move to
+`.archive/pre-cpharness/` and are excluded from active discovery.
+
+Migration:
+
+1. Select `01-Orchestrator` and use `/apex-workflow-start` with a fresh or `resume` operation.
+2. Use `/apex-git-commit` and `/apex-debug-log-export` instead of their former prompt adapters.
+3. Main workers use actual native bounded task prompts/results, not custom execution envelopes,
+   readiness nonce turns or mandatory raw-log verification. Model/effort labels remain diagnostics.
+   Direct owner selection remains available, with native questioning in every interactive main.
+4. Native forms use `ask_user`; delegated steps return pending forms to their interactive parent.
+   A completed worker or accepted finding never approves a workflow/deployment gate.
+5. Profile repository-scoped native `events.jsonl` files. Legacy logs remain readable but cannot
+   certify SDK acceptance. Export includes raw events only with explicit `--include-raw`.
+
+Custom-agent runtime acceptance and MCP projection still require live verification;
+static validation and built-in worker probes do not certify the cutover.
+
+#### Native agent bodies and interaction
+
+All active main and leaf bodies are audited and condensed around native interaction, bounded work,
+actual output contracts and current domain evidence. Active `handoffs` metadata is removed after the
+owner observed no controls with Probe Source selected in Copilot. This is not a blanket claim about
+all VS Code versions. `00-handoff.md` remains a durable recovery artifact, not a UI transition.
+Direct Requirements, Architect, Design and Governance retain native `ask_user`.
+Delegated mains return input forms to the parent; leaves return role-specific failures.
+No source tool list or successful task proves credential isolation or genuine human approval.
+
+#### Repository agent runtime hooks are retired
+
+The owner intentionally removed Tool Guardian and the advisory SubagentStop hook.
+Remove their stale workspace/devcontainer registrations and runtime-only validator/test commands.
+Do not restore them as migration prerequisites or introduce a replacement guardian.
+Git Lefthook checks, secret/dependency scans and Azure security/governance requirements remain.
+Native permissions are not claimed to provide equivalent regex/self-modification protection.
+Consequential authorization and actual deployment scope remain separate requirements.
+
 #### Reopening a step marks dependent steps stale and supersedes the Plan approval
 
 `apex-recall start-step <project> <step> --force` on a completed step now sets every dependent step that is `complete`
@@ -70,6 +124,17 @@ Migration: add one row per raw resource (resource type, stack, scope, evidence U
 
 ### Features
 
+- PowerShell tooling adds `npm run setup:powershell`, `lint:powershell` and `test:powershell`.
+  PSScriptAnalyzer 1.24.0 installs in current-user scope; parsing and selected-rule diagnostics fail closed.
+  Maintained scripts and negative fixtures are checked through CI and existing Git hooks, not runtime hooks.
+- Deploy, Diagnose and manual Challenger entries disable implicit model invocation.
+  Structural validation preserves this policy without forcing every other role to
+  enable implicit invocation. This is not a claim of independent credential isolation.
+- `verify-worker-ready.mjs` remains a historical diagnostic reader, not an active agent-body runtime gate.
+  Actual artifact validity, reviewer result provenance and human gates remain separate;
+  neither catalog runtime IDs nor readiness records grant project or deployment permission.
+- Earlier migration candidates included Tool Guardian and advisory subagent checks.
+  These runtime hooks are now retired by owner instruction; their earlier behavior is not active protection.
 - `apex-recall review-audit --attempt-input <path>` computes the attempt digest from input files, so the start and the
   outcome records agree and a changed input is rejected. It prints `input_digest` and
   `permission_granted_by_this_record: false`; `authorization: not_granted` remains for existing readers.

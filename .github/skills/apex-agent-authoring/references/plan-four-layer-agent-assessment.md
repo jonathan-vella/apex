@@ -12,7 +12,7 @@ it once. Layers 1–2 mechanical parts are deterministic (a script reusing exist
 validators); the judgment parts (qualitative Layer 2 + Layer 4 adversarial) fan out
 to `Explore` subagents against fixed rubrics; Layer 3 reuses the debug-log profiler.
 A read-only plan with an approval gate before any agent edits — mirroring the
-`tools/apex-prompts/utility-prompts/assess-github-folder.prompt.md` pattern.
+`.github/skills/apex-agent-authoring/references/assess-github-folder.md` pattern.
 
 **Why this shape:** the challenger (Layer 4) is artifact-type scoped to
 `agent-output/` infra artifacts and **cannot target `.agent.md`** — so Layer 4 uses
@@ -49,7 +49,7 @@ extending the challenger schema.
   Operating-frame (main agents only, NOT subagents): read SKILL.md once, use apex-recall,
   never edit upstream artifacts.
 - **L3 Runtime** (debug-log dependent): `tools/scripts/profile_debug_log.py` (OTel JSON →
-  tokens / dup-reads / tool-payloads / askQuestions / subagent walltime / errors;
+  tokens / dup-reads / tool-payloads / ask_user / subagent walltime / errors;
   `npm run profile:debug-log`), `.github/skills/apex-context-management/scripts/parse-chat-logs.py`
   (ccreq text → latency / model distribution), `11-Context Optimizer` agent +
   `context-audit.prompt.md`. Logs live at
@@ -74,7 +74,7 @@ extending the challenger schema.
    `agent-output/_baselines/agent-assess-{ts}/` (gitignored). Wire `npm run assess:agents`.
 2. `tools/schemas/agent-scorecard.schema.json` — JSON schema for a scorecard
    (ajv-validatable; mirrors `tools/schemas/lesson-log.schema.json` style).
-3. `tools/apex-prompts/utility-prompts/assess-agents.prompt.md` — orchestrating prompt
+3. `.github/skills/apex-agent-authoring/references/assess-agents.md` — orchestrating prompt
    (`model:` explicit Claude Opus; `agent: agent`; tools read / search / execute / agent /
    todo; `argument-hint` scope). Phases: **0** run the script (L1 + mechanical L2 + optional
    L3); **1** fan out one `Explore` per agent for qualitative L2 vs the rubric; **2** L3
@@ -82,9 +82,9 @@ extending the challenger schema.
    fan-out (`Explore` per agent vs the checklist); **4** aggregate → per-agent scorecards +
    ranked fleet plan; **GATE** before edits. `output_contract` + resumable plan. Follows the
    `assess-github-folder.prompt.md` pattern (read-only plan, approval gate).
-4. `tools/apex-prompts/utility-prompts/references/agent-scorecard-rubric.md` — L2 qualitative
+4. `.github/skills/apex-agent-authoring/references/agent-scorecard-rubric.md` — L2 qualitative
    dimensions + 0–5 scoring bands + subagent-reduced variant + weights.
-5. `tools/apex-prompts/utility-prompts/references/agent-adversarial-checklist.md` — L4
+5. `.github/skills/apex-agent-authoring/references/agent-adversarial-checklist.md` — L4
    red-team lenses for `.agent.md` / subagents / prompts.
 
 ## Scorecard schema (per agent)
@@ -104,7 +104,7 @@ Dimensions → `{score 0-5 | pass/warn/fail, evidence, severity blocker/high/med
 6. **Operating-frame & safety (L2; frame N/A for subagents)** — SKILL once, apex-recall,
    never edit upstream; destructive gating, no interactive shell, no secrets.
 7. **Runtime behavior (L3; N/A if no logs)** — token cost, dup reads, latency band,
-   askQuestions batching.
+   ask_user batching.
 8. **Adversarial (L4)** — red-team findings with severity.
 
 Composite weights: L1 .20 (hard fail caps), ctx .15, vendor .15, role .15, frame+safety .10,

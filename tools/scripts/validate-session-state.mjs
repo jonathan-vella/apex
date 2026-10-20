@@ -163,13 +163,13 @@ function validateStateFile(filePath, isTemplate) {
         if (typeof audit === "object" && audit !== null) {
           if (
             audit.passes_planned !== undefined &&
-            (typeof audit.passes_planned !== "number" || audit.passes_planned < 0)
+            (!Number.isInteger(audit.passes_planned) || audit.passes_planned < 0)
           ) {
             error(label, `review_audit.${key}.passes_planned must be a non-negative integer`);
           }
           if (
             audit.passes_executed !== undefined &&
-            (typeof audit.passes_executed !== "number" || audit.passes_executed < 0)
+            (!Number.isInteger(audit.passes_executed) || audit.passes_executed < 0)
           ) {
             error(label, `review_audit.${key}.passes_executed must be a non-negative integer`);
           }

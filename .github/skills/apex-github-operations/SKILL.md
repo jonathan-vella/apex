@@ -111,7 +111,7 @@ Full state machine, watchdog pattern, and auto-merge gates in
 
 Operational procedures: [commit/push/PR](references/git-commit.md) and
 [sensei-free PR](references/merge-sensei-free-pr.md). The manual Host entrypoint
-is [apex-host-git-commit](../apex-host-git-commit/SKILL.md); it requires explicit
+is [apex-git-commit](../apex-git-commit/SKILL.md); it requires explicit
 owner/model selection and does not change the Local slash name.
 
 | Reference          | File                               | Content                                             |

@@ -29,9 +29,14 @@ const KNOWN_UNLINKED_SKILLS = new Set([
   "apex-azure-rbac",
   "apex-azure-resources",
   "apex-azure-storage",
+  "apex-debug-log-export",
   "apex-entra-app-registration",
+  "apex-git-commit",
   "apex-mermaid",
+  "apex-microsoft-docs",
   "apex-python-diagrams",
+  "apex-terraform-test",
+  "apex-workflow-start",
 ]);
 
 const r = new Reporter("Orphaned Content Validator");
@@ -50,7 +55,7 @@ function gatherReferenceContent() {
   }
 
   // Top-level config files
-  for (const f of [COPILOT_INSTRUCTIONS, "AGENTS.md", "tools/apex-prompts/plan-agenticWorkflowOverhaul.prompt.md"]) {
+  for (const f of [COPILOT_INSTRUCTIONS, "AGENTS.md"]) {
     if (fs.existsSync(f)) corpus.push(fs.readFileSync(f, "utf-8"));
   }
 

@@ -15,62 +15,62 @@ import test from "node:test";
 import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
+import { getAgentBodyStructure } from "../../scripts/validate-agents.mjs";
+import { parseFrontmatter } from "../../scripts/_lib/parse-frontmatter.mjs";
 
 const HERE = path.dirname(fileURLToPath(import.meta.url));
 const ROOT = path.resolve(HERE, "../../..");
-const TEMPLATE = path.join(ROOT, "tools/apex-prompts/utility-prompts/execution-subagent.prompt.md");
 const CONTRACT = path.join(ROOT, ".github/skills/apex-workflow-engine/references/execution-subagent.md");
 const contractBody = fs.readFileSync(CONTRACT, "utf8");
-const ADAPTERS = [TEMPLATE, path.join(ROOT, "tools/apex-prompts/utility-prompts/execution-subagent-gpt.prompt.md")];
 
 const WORKER_CONTRACTS = [
   {
     name: "bicep-validate-subagent",
     mode: "Text summary",
     fields: ["BICEP VALIDATION RESULT", "Verdict: {APPROVED|NEEDS_REVISION|FAILED}"],
-    scope: /No source, artifact, findings-file/,
+    preserved: ["source", "parameters", "artifacts", "findings", "recall"],
   },
   {
     name: "bicep-whatif-subagent",
     mode: "Text summary",
     fields: ["WHAT-IF ANALYSIS RESULT", "Status: [PASS|FAIL|WARNING]"],
-    scope: /never source, parameters,\s*findings artifacts/,
+    preserved: ["source", "parameters", "findings"],
   },
   {
     name: "terraform-validate-subagent",
     mode: "Text summary",
     fields: ["TERRAFORM VALIDATION RESULT", "Verdict: {APPROVED|NEEDS_REVISION|FAILED}"],
-    scope: /No lockfile, source, artifact, findings-file/,
+    preserved: ["source", "tfvars", "lockfile", "artifact", "findings", "recall"],
   },
   {
     name: "terraform-plan-subagent",
     mode: "Text summary",
     fields: ["TERRAFORM PLAN RESULT", "Status: [PASS|WARNING|FAIL]", "Plan File: {path/to/tfplan}"],
-    scope: /saved `tfplan`,\s*not source, tfvars, lockfile, findings artifacts/,
+    preserved: ["source", "tfvars", "lockfile", "findings"],
   },
   {
     name: "policy-precheck-subagent",
     mode: "File JSON",
     fields: ["POLICY PRECHECK RESULT", "Deploy gate: [PROCEED|BLOCK]", "Status: [CLEAN|INFORMATIONAL|BLOCKED|FAILED]"],
-    scope: /Allowed writes: caller `output_path`/,
+    preserved: ["output_path"],
   },
   {
     name: "cost-estimate-subagent",
     mode: "File JSON",
     fields: ["COST ESTIMATE {COMPLETE | FAILED}", "file_path"],
-    scope: /Allowed filesystem writes: caller `output_path`/,
+    preserved: ["output_path"],
   },
   {
     name: "challenger-review-subagent",
-    mode: "File JSON",
-    fields: ["CHALLENGE COMPLETE", "overall_assessment: {APPROVED | NEEDS_REVISION | BLOCKED}", "batch_results"],
-    scope: /Allowed writes: caller `output_path` and its `\.tmp` sibling only/,
+    mode: "Returned JSON",
+    fields: ["overall_assessment", "batch_results"],
+    preserved: ["output_path"],
   },
 ];
 
 const REQUIRED_H2S = ["## Inputs", "## Activities", "## Outputs"];
 
-for (const { name, mode, fields, scope } of WORKER_CONTRACTS) {
+for (const { name, mode, fields, preserved } of WORKER_CONTRACTS) {
   test(`${name} output mode stays bound to its current source contract`, () => {
     const section = contractBody.split(`### ${name}\n`)[1]?.split(/\n### /)[0];
     assert.ok(section, `missing named worker contract: ${name}`);
@@ -80,18 +80,31 @@ for (const { name, mode, fields, scope } of WORKER_CONTRACTS) {
     assert.equal(sourcePath, path.join(ROOT, `.github/agents/_subagents/${name}.agent.md`));
     const source = fs.readFileSync(sourcePath, "utf8");
     assert.ok(section.includes(`${mode}:`), `wrong output mode for ${name}`);
-    assert.match(source, scope, `worker write scope changed: ${name}`);
+    const frontmatter = parseFrontmatter(source);
+    assert.equal(frontmatter["user-invocable"], false);
+    assert.deepEqual(frontmatter.agents, []);
+    const constraints = getAgentBodyStructure(source).headings.find((heading) =>
+      ["constraints", "scope", "operating posture"].includes(heading.title.toLowerCase()),
+    );
+    assert.ok(constraints?.content, `worker write scope missing: ${name}`);
+    for (const field of preserved) assert.ok(source.includes(field), `${name}: ${field}`);
     for (const field of fields) {
       assert.ok(source.includes(field), `field no longer matches worker: ${name}: ${field}`);
       assert.ok(section.includes(field), `reference omits worker field: ${name}: ${field}`);
     }
+    if (name === "challenger-review-subagent") {
+      assert.deepEqual(frontmatter.tools, ["read", "search"]);
+      assert.match(source, /No writes, including findings/);
+      assert.match(section, /record-review\.mjs/);
+      assert.doesNotMatch(section, /CHALLENGE COMPLETE|File JSON:/);
+    }
     if (mode === "Text summary") {
-      assert.match(source, /Return results in this exact text shape/);
+      assert.match(source, /```text\n/);
       assert.match(section, /no findings-file writes/i);
       assert.doesNotMatch(section, /File JSON:|deployment-preview-v1|06-bicep-whatif\.json/);
-    } else {
+    } else if (mode === "File JSON") {
       assert.match(section, /caller `output_path`/);
-      assert.match(source, /(?:Emit JSON|Write this shape|\*\*On disk\*\*)/);
+      assert.match(source, /(?:Emit JSON|Write this shape|Single-lens JSON required fields|\*\*On disk\*\*)/);
       assert.match(section, /persistence/);
     }
   });
@@ -127,11 +140,12 @@ test("Bicep preview example requests the real text contract, not a JSON artifact
   assert.doesNotMatch(inputs, /06-bicep-whatif\.json|deployment-preview-v1|output_path/);
 });
 
-test("execution-subagent prompt template exists", () => {
-  assert.ok(fs.existsSync(TEMPLATE), `missing template: ${TEMPLATE}`);
+test("execution contract is an active reference, not a Local prompt adapter", () => {
+  assert.ok(fs.existsSync(CONTRACT), `missing contract: ${CONTRACT}`);
+  assert.match(contractBody, /reference-only parent-to-worker contract/);
 });
 
-for (const filePath of [CONTRACT, ...ADAPTERS]) {
+for (const filePath of [CONTRACT]) {
   test(`${path.basename(filePath)} preserves exactly the three required H2 slots in order`, () => {
     const body = fs.readFileSync(filePath, "utf8");
     let inFence = false;
@@ -149,19 +163,6 @@ for (const filePath of [CONTRACT, ...ADAPTERS]) {
   });
 }
 
-for (const adapter of ADAPTERS) {
-  test(`${path.basename(adapter)} delegates output mode and ownership without forcing disk writes`, () => {
-    const body = fs.readFileSync(adapter, "utf8");
-    assert.match(body, /apex-workflow-engine\/references\/execution-subagent\.md/);
-    const outputs = body.split("## Outputs\n")[1];
-    assert.match(outputs, /named worker's source contract/);
-    assert.match(outputs, /file JSON with path\/schema/);
-    assert.match(outputs, /or its fixed verdict\/text summary without a findings-file write/);
-    assert.match(outputs, /parent persists evidence only if its own contract\s+owns and authorizes that artifact/);
-    assert.doesNotMatch(outputs, /Declare the canonical output path\/schema, verdict/);
-  });
-}
-
 test("preflight plan and module substitutions require a Planner handoff, not CodeGen self-edit", () => {
   const workflow = fs.readFileSync(
     path.join(ROOT, ".github/skills/apex-iac-common/references/codegen-shared-workflow.md"),
@@ -176,9 +177,9 @@ test("preflight plan and module substitutions require a Planner handoff, not Cod
   assert.doesNotMatch(fixOption, /agent revises the plan\s+inputs or substitutes an alternative module/);
 });
 
-test("authoring instructions reference the template", () => {
+test("authoring instructions link native lifecycle guidance without requiring a historical call heading", () => {
   const auth = path.join(ROOT, ".github/instructions/agent-authoring.instructions.md");
   const body = fs.readFileSync(auth, "utf8");
-  assert.match(body, /Execution-subagent invocation contract/, "missing H3 in agent-authoring");
-  assert.match(body, /apex-prompts\/utility-prompts\/execution-subagent\.prompt\.md/, "missing link to template");
+  assert.match(body, /apex-workflow-engine\/references\/worker-readiness\.md/, "missing native lifecycle link");
+  assert.ok(fs.existsSync(CONTRACT));
 });

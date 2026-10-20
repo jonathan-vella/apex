@@ -34,10 +34,8 @@ for (const [previous, owner, name, adapter] of moves) {
     assert.equal(statSync(path.join(root, destination)).mode & 0o111, 0);
     assert.ok(source(`.github/skills/${owner}/SKILL.md`).includes(`references/${name}.md`));
     const prompt = `tools/apex-prompts/utility-prompts/${adapter}.prompt.md`;
-    assert.ok(source(prompt).includes(`${owner}/references/${name}.md`));
-    if (!name.startsWith("plan-four-layer")) assert.ok(source(prompt).includes(`${owner}/SKILL.md`));
+    assert.equal(existsSync(path.join(root, prompt)), false, "retired adapter must not be active");
     checkRelativeLinks(destination);
-    checkRelativeLinks(prompt);
     const ignored = spawnSync("git", ["check-ignore", "--no-index", destination], { cwd: root, encoding: "utf8" });
     assert.equal(ignored.status, 1, `${destination}: ${ignored.stdout}${ignored.stderr}`);
   });

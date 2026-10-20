@@ -58,6 +58,8 @@ def run(args) -> int:
     if has_kv:
         # Mode A: key-value in decisions object
         data.setdefault("decisions", {})[key] = value
+        if key in ("iac_tool", "region"):
+            data[key] = value
         if rationale or step:
             entry = {"decision": f"{key}={value}", "timestamp": _iso_now()}
             if rationale:

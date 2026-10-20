@@ -233,7 +233,8 @@ export function main(argv = process.argv.slice(2)) {
     if (args.length) throw new Error(`Explicit target matched no files: ${args.join(", ")}`);
     r.info("(no 05-iac-handoff.json files found)");
     r.summary();
-    process.exit(0);
+    r.exitOnError("No IaC handoff files selected");
+    return;
   }
 
   for (const filePath of files) {

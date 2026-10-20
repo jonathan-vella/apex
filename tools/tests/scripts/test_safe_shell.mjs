@@ -10,9 +10,11 @@
 import { strict as assert } from "node:assert";
 import test from "node:test";
 import path from "node:path";
+import fs from "node:fs";
+import os from "node:os";
 import { fileURLToPath } from "node:url";
 
-import { lintFile, RULES } from "../../scripts/safe-shell.mjs";
+import { collectFiles, lintFile, RULES } from "../../scripts/safe-shell.mjs";
 
 const HERE = path.dirname(fileURLToPath(import.meta.url));
 const FIXTURES = path.join(HERE, "fixtures/safe-shell");
@@ -34,6 +36,31 @@ test("non-compliant bare grep inside set -e is flagged exactly once", () => {
   const greps = findings.filter((f) => f.rule === "grep-no-fallback-in-set-e");
   assert.equal(greps.length, 1, `expected exactly 1 grep finding, got: ${JSON.stringify(greps)}`);
   assert.match(greps[0].snippet, /grep -n 'pattern' file\.md/);
+});
+
+test("grep rule follows explicit errexit enable/disable transitions and resets between fences", (t) => {
+  const root = fs.mkdtempSync(path.join(os.tmpdir(), "safe-shell-errexit-"));
+  t.after(() => fs.rmSync(root, { recursive: true, force: true }));
+  const file = path.join(root, "fixture.md");
+  fs.writeFileSync(
+    file,
+    [
+      "```bash",
+      "set +e",
+      "grep -n optional missing.md",
+      "set -euo pipefail",
+      "grep -n required missing.md",
+      "set +e",
+      "grep -n optional-again missing.md",
+      "```",
+      "```sh",
+      "grep -n separate missing.md",
+      "```",
+    ].join("\n"),
+  );
+  const findings = lintFile(file).filter((finding) => finding.rule === "grep-no-fallback-in-set-e");
+  assert.equal(findings.length, 1, JSON.stringify(findings));
+  assert.match(findings[0].snippet, /required/);
 });
 
 // ---------------------------------------------------------------------------
@@ -88,4 +115,38 @@ test("node-e-double-quoted-bang flags double-quoted !identifier in node -e but a
     false,
   );
   assert.equal(rule.pattern.test("node tools/scripts/cost-estimate.mjs publish --draft a.tmp --output a.json"), false);
+});
+
+test("scan includes active authoring files but excludes references, archives and executed scripts", (t) => {
+  const root = fs.mkdtempSync(path.join(os.tmpdir(), "safe-shell-scope-"));
+  t.after(() => fs.rmSync(root, { recursive: true, force: true }));
+  const included = [
+    ".github/agents/main.agent.md",
+    ".github/agents/_subagents/leaf.agent.md",
+    ".github/instructions/shell.instructions.md",
+    ".github/skills/example/SKILL.md",
+    ".github/copilot-instructions.md",
+    "AGENTS.md",
+    "README.md",
+  ];
+  const excluded = [
+    ".github/instructions/references/example.md",
+    ".github/agents/README.md",
+    ".github/skills/example/references/example.md",
+    ".github/skills/example/templates/example.md",
+    ".archive/old.agent.md",
+    "tools/scripts/example.sh",
+  ];
+  for (const file of [...included, ...excluded]) {
+    const target = path.join(root, file);
+    fs.mkdirSync(path.dirname(target), { recursive: true });
+    fs.writeFileSync(target, "```bash\nrm -i example\n```\n");
+  }
+  assert.deepEqual(
+    collectFiles(root)
+      .map((file) => path.relative(root, file))
+      .sort(),
+    included.sort(),
+  );
+  assert.equal(lintFile(path.join(root, included[0]))[0].rule, "rm-interactive");
 });

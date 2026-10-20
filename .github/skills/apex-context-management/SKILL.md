@@ -3,7 +3,7 @@ name: apex-context-management
 user-invocable: true
 disable-model-invocation: false
 argument-hint: "compression or audit, artifact or log path and scope"
-description: '**UTILITY SKILL** — Two-mode context-window management. RUNTIME: artifact compression (full/summarized/minimal) used by orchestrator and codegen agents. AUDIT: post-mortem analysis of Copilot debug logs (token profiling, redundancy + hand-off gap detection) used by 11-Context Optimizer. WHEN: "context optimization", "token budget", "runtime compression", "log parsing". DO NOT USE FOR: infra, IaC code, deployments.'
+description: '**UTILITY SKILL** — Two-mode context-window management. RUNTIME: artifact compression (full/summarized/minimal) for orchestrator and codegen agents. AUDIT: post-mortem analysis of Copilot debug logs (token profiling, redundancy, hand-off gaps) for 11-Context Optimizer. WHEN: "context optimization", "token budget", "runtime compression", "log parsing". DO NOT USE FOR: infra, IaC code, deployments.'
 compatibility: Audit mode requires Python 3.14 for log parser script
 ---
 
@@ -104,15 +104,15 @@ prioritised optimisation reports.
 
 Capabilities cover log parsing, turn-cost profiling, redundancy detection,
 hand-off gap analysis, instruction audit, and structured report generation.
-Prerequisites: Python 3.14, VS Code Copilot Chat debug logs, and
+Prerequisites: Python 3.14, native Copilot SDK event logs scoped to the repository, and
 `.github/agents/*.agent.md` (or equivalent). Full capability matrix,
 portability checklist, and debug-log discovery in
 [`references/audit-setup.md`](references/audit-setup.md).
 
 ### Analysis Methodology
 
-For the complete methodology — log format reference (`ccreq` line parsing,
-request types, latency heuristics), Steps 1-5 (log parsing → optimisation
+For the complete methodology — native event attribution, usage completeness,
+latency limitations, Steps 1-5 (log parsing → optimisation
 recommendations), common optimisation patterns, and baseline comparison
 workflow (Phase 0 + Phase 6) — read
 [`references/analysis-methodology.md`](references/analysis-methodology.md).
@@ -128,8 +128,8 @@ for the full output template.
 
 Operational procedures (load only the requested one):
 
-- [Debug-log export](references/debug-log-export.md), with manual Host entrypoint
-  [apex-host-debug-log-export](../apex-host-debug-log-export/SKILL.md).
+- [Debug-log export](references/debug-log-export.md), with manual SDK entrypoint
+  [apex-debug-log-export](../apex-debug-log-export/SKILL.md).
 - [Context audit](references/context-audit.md).
 
 For definition scorecards, static authoring-asset assessments, and their design history,
@@ -145,6 +145,7 @@ Load on demand:
 | `references/skill-loading.md`         | Runtime | Multi-skill loads / clarifying single-tier load protocol                   |
 | `references/token-estimation.md`      | Audit   | Estimating token counts for context optimisation                           |
 | `references/analysis-methodology.md`  | Audit   | Log format, 5-step methodology, optimisation patterns, baseline comparison |
+| `references/log-profiling.md`         | Audit   | Turn-cost profiling and debug-log telemetry breakdown                      |
 | `references/audit-setup.md`           | Audit   | Prerequisites, enabling debug logs, audit capabilities, portability        |
 | `scripts/parse-chat-logs.py`          | Audit   | Log parser producing structured JSON                                       |
 | `templates/optimization-report.md`    | Audit   | Report output template                                                     |

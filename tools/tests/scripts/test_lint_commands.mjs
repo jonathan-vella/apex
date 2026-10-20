@@ -8,8 +8,42 @@ import test from "node:test";
 import { load, dump } from "js-yaml";
 import { parseJsonc } from "../../scripts/_lib/parse-jsonc.mjs";
 import { artifactTrigger } from "../../scripts/check-publication-scope.mjs";
+import { expandScript } from "../../scripts/_lib/npm-script-graph.mjs";
 
 const { scripts } = JSON.parse(readFileSync(new URL("../../../package.json", import.meta.url), "utf8"));
+
+test("legacy handoff reference CLI accepts native agents with no UI transitions", (context) => {
+  const root = fixture(context);
+  writeFileSync(path.join(root, "source.agent.md"), "---\nname: Source\n---\n# Source\n");
+  const script = fileURLToPath(new URL("../../scripts/validate-handoff-references.sh", import.meta.url));
+  const result = spawnSync("bash", [script, root], { encoding: "utf8" });
+  assert.equal(result.status, 0, result.stdout + result.stderr);
+  assert.match(result.stdout, /All handoff references are valid/);
+});
+
+test("legacy handoff reference CLI retains missing-target and empty-directory failures", (context) => {
+  const root = fixture(context);
+  const script = fileURLToPath(new URL("../../scripts/validate-handoff-references.sh", import.meta.url));
+  const run = () => spawnSync("bash", [script, root], { encoding: "utf8" });
+  assert.equal(run().status, 2);
+  writeFileSync(
+    path.join(root, "source.agent.md"),
+    "---\nname: Source\nhandoffs:\n  - agent: MissingTarget\n---\n# Source\n",
+  );
+  const result = run();
+  assert.equal(result.status, 1, result.stdout + result.stderr);
+  assert.match(result.stdout, /Invalid handoff reference: MissingTarget/);
+  writeFileSync(path.join(root, "target.agent.md"), "---\nname: MissingTarget\n---\n# Target\n");
+  assert.equal(run().status, 0);
+});
+
+test("legacy handoff target names are matched literally rather than as regular expressions", (context) => {
+  const root = fixture(context);
+  const script = fileURLToPath(new URL("../../scripts/validate-handoff-references.sh", import.meta.url));
+  writeFileSync(path.join(root, "source.agent.md"), "---\nname: Source\nhandoffs:\n  - agent: .*\n---\n# Source\n");
+  const result = spawnSync("bash", [script, root], { encoding: "utf8" });
+  assert.equal(result.status, 1, result.stdout + result.stderr);
+});
 
 test("npm lockfiles retain portable registry URLs rather than environment-specific feed addresses", () => {
   for (const file of ["package-lock.json"]) {
@@ -73,7 +107,10 @@ test("extension guard rejects Azure Copilot and bundling extensions", (context) 
   }
 });
 
-test("product CI retains coverage while migrated docs automation stays retired", () => {
+const HAS_PRODUCT_CI = existsSync(new URL("../../../.github/workflows/ci.yml", import.meta.url));
+const CI_SKIP = !HAS_PRODUCT_CI ? "upstream ci.yml not present in consumer repo" : false;
+
+test("product CI retains coverage while migrated docs automation stays retired", { skip: CI_SKIP }, () => {
   const workflow = (name) =>
     load(readFileSync(new URL(`../../../.github/workflows/${name}.yml`, import.meta.url), "utf8"));
   const ci = workflow("ci");
@@ -97,7 +134,37 @@ test("product CI retains coverage while migrated docs automation stays retired",
   }
 });
 
-test("Python CI installs diagram dependencies and renderer before running tooling tests", () => {
+test(
+  "hook retirement removes obsolete callers while retaining Git hooks and validation coverage",
+  { skip: CI_SKIP },
+  () => {
+    assert.equal(scripts["validate:hooks"], undefined);
+    assert.equal(scripts["test:hooks"], undefined);
+    assert.equal(scripts["test:git-hooks"], "bash tools/tests/test-git-hooks.sh");
+    assert.equal(existsSync(new URL("../../scripts/validate-hooks.mjs", import.meta.url)), false);
+    const runner = readFileSync(new URL("../test-git-hooks.sh", import.meta.url), "utf8");
+    assert.match(runner, /bats "\$SCRIPT_DIR\/bats\/lefthook-config\.bats"/);
+    const ci = load(readFileSync(new URL("../../../.github/workflows/ci.yml", import.meta.url), "utf8"));
+    const steps = ci.jobs.ci.steps;
+    assert.ok(steps.some((step) => step.run === "npm run test:git-hooks" && !step.if));
+    assert.ok(steps.some((step) => step.run === "npm run validate:_node-ci" && !step.if));
+    assert.doesNotMatch(JSON.stringify(ci), /npm run (?:validate:hooks|test:hooks)\b/);
+    for (const suite of ["validate:_node", "validate:_node-ci"]) {
+      const leaves = expandScript(scripts, suite);
+      assert.ok(!leaves.includes("validate:hooks"), suite);
+      for (const retained of ["validate:vscode", "lint:json", "test:tool-contracts", "lint:safe-shell"]) {
+        assert.ok(leaves.includes(retained), `${suite}: ${retained}`);
+      }
+    }
+    const gitHooks = load(readFileSync(new URL("../../../lefthook.yml", import.meta.url), "utf8"));
+    assert.match(gitHooks["pre-commit"].commands["secrets-baseline"].run, /gitleaks protect/);
+    assert.match(gitHooks["pre-commit"].commands["iac-security-baseline"].run, /validate:iac-security-baseline/);
+    assert.ok(gitHooks["pre-push"].commands);
+    assert.ok(ci.jobs["secret-scan"].steps.some((step) => step.run === "gitleaks git --redact --no-banner ."));
+  },
+);
+
+test("Python CI installs diagram dependencies and renderer before running tooling tests", { skip: CI_SKIP }, () => {
   const workflow = load(readFileSync(new URL("../../../.github/workflows/ci.yml", import.meta.url), "utf8"));
   const steps = workflow.jobs["external-tests"].steps;
   const testIndex = steps.findIndex((step) => step.run === "npm run test:python-tools");
@@ -111,7 +178,20 @@ test("Python CI installs diagram dependencies and renderer before running toolin
   }
 });
 
-test("Node CI provides a native Terraform CLI before executable validator tests", () => {
+test("Node CI provides the supported Python interpreter before executable validator tests", { skip: CI_SKIP }, () => {
+  const workflow = load(readFileSync(new URL("../../../.github/workflows/ci.yml", import.meta.url), "utf8"));
+  const steps = workflow.jobs.ci.steps;
+  const setup = steps.findIndex((step) => step.uses === "actions/setup-python@v7");
+  const tests = steps.findIndex((step) => step.run === "npm run validate:_node-ci");
+  assert.ok(setup >= 0 && setup < tests);
+  assert.equal(steps[setup].if, undefined);
+  const project = readFileSync(new URL("../../../pyproject.toml", import.meta.url), "utf8");
+  const minimum = project.match(/^requires-python\s*=\s*">=(\d+\.\d+)"/m);
+  assert.ok(minimum, "Expected an explicit minimum Python version");
+  assert.equal(steps[setup].with["python-version"], minimum[1]);
+});
+
+test("Node CI provides a native Terraform CLI before executable validator tests", { skip: CI_SKIP }, () => {
   const workflow = load(readFileSync(new URL("../../../.github/workflows/ci.yml", import.meta.url), "utf8"));
   const steps = workflow.jobs.ci.steps;
   const setup = steps.findIndex((step) => step.uses === "hashicorp/setup-terraform@v4");
@@ -175,7 +255,7 @@ test("artifact hook validates template-only and output changes and propagates ga
   }
 });
 
-test("prompt registry validates paths, explicit models and inherited models", (context) => {
+test("active registry rejects retired prompts even when their former paths exist", (context) => {
   const root = fixture(context);
   mkdirSync(path.join(root, "tools/registry"), { recursive: true });
   mkdirSync(path.join(root, ".github/prompts"), { recursive: true });
@@ -188,33 +268,42 @@ test("prompt registry validates paths, explicit models and inherited models", (c
   const runRegistry = (entry) => {
     writeFileSync(
       path.join(root, "tools/registry/agent-registry.json"),
-      JSON.stringify({ agents: {}, subagents: {}, prompts: { example: entry } }),
+      JSON.stringify({ agents: {}, subagents: {}, ...(entry ? { prompts: { example: entry } } : {}) }),
     );
     return spawnSync(process.execPath, [script], { cwd: root, encoding: "utf8" }).status;
   };
   const inherited = { prompt: ".github/prompts/resume.prompt.md", model: null, invokable: true };
-  assert.equal(runRegistry(inherited), 0);
+  assert.equal(runRegistry(null), 0);
+  assert.equal(runRegistry(inherited), 1);
   assert.equal(
     runRegistry({ prompt: ".github/prompts/explicit.prompt.md", model: "Example Model", invokable: true }),
-    0,
+    1,
   );
   assert.equal(runRegistry({ ...inherited, prompt: ".github/prompts/missing.prompt.md" }), 1);
   assert.equal(runRegistry({ ...inherited, model: "Wrong" }), 1);
   assert.equal(runRegistry({ ...inherited, invokable: "yes" }), 1);
 });
 
-test("root workflow diagram uses declared participants and current artifact names", () => {
-  const readme = readFileSync(new URL("../../../README.md", import.meta.url), "utf8");
-  const diagram = readme.split("```mermaid")[1].split("```")[0];
-  const participants = new Set([...diagram.matchAll(/participant (\w+) as/g)].map((match) => match[1]));
-  for (const match of diagram.matchAll(/^\s*(\w+)(?:-->>|->>)(\w+):/gm)) {
-    assert.ok(participants.has(match[1]), match[1]);
-    assert.ok(participants.has(match[2]), match[2]);
-  }
-  assert.doesNotMatch(diagram, /02-assessment.md|03-cost-estimate.md|04-plan.md|challenge-findings.json/);
-  assert.ok(diagram.indexOf("challenge-findings-cost-estimate.json") < diagram.indexOf("Approve architecture"));
-  assert.match(diagram, /C->>G: Discover policy constraints/);
-});
+test(
+  "root workflow diagram uses declared participants and current artifact names",
+  {
+    skip:
+      !readFileSync(new URL("../../../README.md", import.meta.url), "utf8").includes("```mermaid") &&
+      "consumer README does not embed upstream workflow mermaid diagram",
+  },
+  () => {
+    const readme = readFileSync(new URL("../../../README.md", import.meta.url), "utf8");
+    const diagram = readme.split("```mermaid")[1].split("```")[0];
+    const participants = new Set([...diagram.matchAll(/participant (\w+) as/g)].map((match) => match[1]));
+    for (const match of diagram.matchAll(/^\s*(\w+)(?:-->>|->>)(\w+):/gm)) {
+      assert.ok(participants.has(match[1]), match[1]);
+      assert.ok(participants.has(match[2]), match[2]);
+    }
+    assert.doesNotMatch(diagram, /02-assessment.md|03-cost-estimate.md|04-plan.md|challenge-findings.json/);
+    assert.ok(diagram.indexOf("challenge-findings-cost-estimate.json") < diagram.indexOf("Approve architecture"));
+    assert.match(diagram, /C->>G: Discover policy constraints/);
+  },
+);
 
 test("version sync fails on missing or malformed required version evidence", (context) => {
   const root = fixture(context);
@@ -315,6 +404,7 @@ test("link selection checks active Markdown but skips ignored residue and genera
   writeFileSync(path.join(root, ".gitignore"), ".venv/\ntmp/\n");
   for (const file of [
     "README.md",
+    "retired.prompt.md",
     "new guide.md",
     ".github/skills/apex-azure-artifacts/templates/07-backup-dr-plan.template.md",
     ".github/skills/apex-azure-artifacts/templates/ordinary.md",
@@ -326,13 +416,15 @@ test("link selection checks active Markdown but skips ignored residue and genera
     mkdirSync(path.dirname(path.join(root, file)), { recursive: true });
     writeFileSync(path.join(root, file), "# Example\n");
   }
-  assert.equal(spawnSync("git", ["add", "README.md"], { cwd: root }).status, 0);
+  assert.equal(spawnSync("git", ["add", "README.md", "retired.prompt.md"], { cwd: root }).status, 0);
+  rmSync(path.join(root, "retired.prompt.md"));
   const result = run(root, "lint:links");
   assert.equal(result.status, 0);
   assert.match(result.stdout, /README.md/);
   assert.match(result.stdout, /new guide.md/);
   assert.match(result.stdout, /templates\/ordinary\.md/);
   assert.doesNotMatch(result.stdout, /\.template\.md/);
+  assert.doesNotMatch(result.stdout, /retired\.prompt\.md/);
   assert.doesNotMatch(result.stdout, /\.venv|tmp\/run|\.archive|infra\/demo/);
   assert.notEqual(run(root, "lint:links", { LINT_EXIT: "3" }).status, 0);
 });

@@ -3,7 +3,7 @@
   "$id": "https://github.com/jonathan-vella/apex/schemas/subnet-plan/v1.json",
   "version": "1.0.0",
   "title": "Subnet Plan v1",
-  "description": "Schema for decisions.subnet_plan emitted by 03-Architect Phase 6b (VNet planning gate). Authoring rules in .github/skills/azure-defaults/references/vnet-planning.md.",
+  "description": "Schema for decisions.subnet_plan emitted by 03-Architect Phase 6b (VNet planning gate). Authoring rules in .github/skills/apex-azure-defaults/references/vnet-planning.md.",
   "type": "array",
   "items": {
     "type": "object",

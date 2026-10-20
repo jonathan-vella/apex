@@ -1,6 +1,6 @@
 ---
 description: "Guidelines for creating high-quality Agent Skills for GitHub Copilot"
-applyTo: "**/.github/skills/**/SKILL.md, **/.claude/skills/**/SKILL.md"
+applyTo: "**/.github/skills/**/SKILL.md"
 ---
 
 # Agent Skills File Guidelines
@@ -48,7 +48,7 @@ Block scalars break VS Code prompts-diagnostics-provider.
 
 ## Slash Command Visibility
 
-In Local chat, skills are available as `/` slash commands alongside prompt files.
+In the supported VS Code SDK harness, manual skills are `/` entry points.
 Use `user-invocable` and `disable-model-invocation` to control access:
 
 | `user-invocable` | `disable-model-invocation` | In `/` menu | Model-loadable | APEX use |
@@ -64,8 +64,8 @@ Keep internal `apex-azure-defaults`, `apex-azure-artifacts`,
 `apex-golden-principles`, and `apex-workflow-engine` hidden but model-loadable.
 Preserve their required agent-body loading references. Task skills are normally visible and model-loadable.
 Explicit exceptions `apex-unslop`, `apex-vendor-prompting` and `apex-terraform-search-import`
-remain visible and manual-only, as do Host adapters. Do not read a manual-only skill body automatically to bypass
-its flag. Explicit user-selected prompt adapters may load their owning manual skill for that requested operation.
+remain visible and manual-only, as do workflow-start, git-commit and debug-log-export.
+Do not read a manual-only skill body automatically to bypass its flag.
 Hints do not validate arguments, confer permissions, or grant approval. Never
 request passwords, tokens, keys, or secret-bearing share links in hints. Omit
 hints for hidden guidance. Treat hiding a skill as a slash-access change and
@@ -77,14 +77,13 @@ Keep all current skills inline by omitting `context`. `context: fork` is experim
 and not adopted; production policy tests prohibit it. Adoption conditions are in the
 [skill authoring reference](../skills/apex-agent-authoring/references/skill-authoring.md#context-policy).
 
-### Local And Agent Host
+### SDK Harness Boundary
 
-Local prompt files are adapters, not Agent Host entry points. On Agent Host, use
-the shared skill and explicitly select its owning main agent before consequential
-work. Skills inherit the caller's model/tools; they do not switch agents or grant
-permissions. Skill discovery and invocation flags do not override production
-human-selection boundaries. Keep needed Local discovery settings and verify each
-harness separately; authoring checks do not prove runtime attachment or support.
+Local prompt adapters are archived and excluded from active discovery. Use the
+shared skill with its owning agent in the VS Code SDK harness. Skills inherit
+caller model/tools; they do not select models, grant permissions or approve gates.
+Orchestrator dispatch uses bounded native tasks and actual results with separate approval;
+authoring checks do not certify runtime discovery, attachment or tool binding.
 
 ## Wiring a Skill to an Agent
 
@@ -119,6 +118,9 @@ wiring form. Use the canonical `SKILL.md` pattern for explicit wiring.
 - [ ] No hardcoded credentials or secrets
 
 ## Per-Step File Re-Read Budget (HARD LIMIT)
+
+When authoring workflow skills, preserve this execution contract and its freshness exceptions.
+This placement supports skill-authoring validation; `applyTo` alone does not attach it to a running worker.
 
 Agents driving a workflow step (`.github/agents/0*-*.agent.md`) MUST treat
 predecessor artifacts as session-cached while their content is unchanged and

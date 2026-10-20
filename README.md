@@ -137,14 +137,37 @@ directly.
 - Reference implementations for Bicep and Terraform tracks
 - Validation scripts, MCP configuration, and sample agent outputs
 - `apex-recall` CLI for progressive session recall across agent-output projects
-- Source content for the published documentation site
+- Runtime references, artifact templates, and architecture explorer graph metadata
 
 The [skill catalog](.github/skills/README.md) describes procedure ownership and invocation flags.
 For explicit prose cleanup, use [/apex-unslop](.github/skills/apex-unslop/SKILL.md); it is manual-only,
 preserves technical content, and is not part of the automatic workflow.
-Local prompt files are adapters. On Agent Host, select the owning agent and use the shared
-manual entry skill; `apex-host-workflow-start` supports an explicit `resume` operation.
-Skills inherit the caller's model/tools and do not bypass human approval gates.
+The supported target is the GitHub Copilot SDK harness **inside VS Code**.
+Select `01-Orchestrator`, then use
+[/apex-workflow-start](.github/skills/apex-workflow-start/SKILL.md) for fresh or `resume` operations.
+After human approval, named specialists run through the
+[verified worker protocol](.github/skills/apex-workflow-engine/references/worker-readiness.md).
+Active agents omit model and reasoning-effort pins; the operator and runtime
+control selection, including Auto and HydraFusion. Readiness is model-agnostic:
+model names, effort, picker selection and model-source labels are diagnostics only.
+Skills inherit caller model/tools; completion never bypasses approval or independent review.
+Legacy Local prompts are retired and excluded from active discovery.
+Worker identity, dispatch linkage, tool-free same-worker continuation, required
+tools and human approval still require runtime verification.
+Automatic independent reviews use the shared read-only `challenger-review-subagent` through the
+[one-shot review contract](.github/skills/apex-azure-defaults/references/one-shot-review.md),
+without reviewer handshake/ACK turns. The owning step records the actual attributed
+result via `record-review.mjs`, validates strict cache freshness and returns to the same Orchestrator;
+historical `rubber-duck` receipts remain read-only compatibility. `10-Challenger`
+remains optional manual review/repair. Technical handoffs do not approve human gates.
+
+APEX's former tool-guardian and subagent-validation runtime hooks are retired.
+There are no active `.github/hooks/` registrations or replacement runtime guards.
+This removes their tool-interception and automatic post-subagent validation behavior;
+native Copilot permissions and human approvals are not equivalent security enforcement.
+Lefthook Git pre-commit/pre-push checks and CI validation remain separate and unchanged.
+Run `npm run test:git-hooks` for Lefthook configuration tests; `npm run validate:vscode`
+also rejects enabled retired hook settings. The former `test:hooks` and `validate:hooks` commands are removed.
 
 Explicit risk acceptance is supported only for authorized non-production labs, with externally verified authority,
 individual finding selection and separate human gate approval. Kit authoring permission never grants deployment

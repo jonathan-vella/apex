@@ -84,14 +84,14 @@ PolicyResources
 ## Common Policy Constraints
 
 > [!NOTE]
-> The governance constraints JSON output schema must include
-> `bicepPropertyPath`, `azurePropertyPath`, and `requiredValue`
-> fields for each Deny policy.
+> Read `required_value` and applicable `azurePropertyPath`/`bicepPropertyPath` mapping aids.
+> These are conditional fields, not universal schema requirements. Reconcile unmapped
+> constraints with Governance/Planner before claiming compliance.
 
 | Policy             | Impact                    | Solution                        |
 | ------------------ | ------------------------- | ------------------------------- |
-| Required tags      | Deploy fails without tags | Include all 4 required tags     |
-| Allowed locations  | Resources rejected        | Use `swedencentral` default     |
+| Required tags      | Deploy fails without tags | Use the discovered tag contract |
+| Allowed locations  | Resources rejected        | Use a discovered allowed region |
 | SQL AAD-only auth  | SQL password auth blocked | Use `azureADOnlyAuth: true`     |
 | Storage shared key | Shared key access denied  | Use managed identity RBAC       |
 | Zone redundancy    | Non-zonal SKUs rejected   | Use P1v4+ for App Service Plans |

@@ -19,6 +19,7 @@ INSTRUCTION_COUNT=0
 SKILL_COUNT=0
 JSON_COUNT=0
 PY_COUNT=0
+POWERSHELL_COUNT=0
 SKU_MANIFEST_COUNT=0
 SKU_COVERAGE_COUNT=0
 
@@ -34,6 +35,11 @@ while IFS= read -r file; do
     mcp/*.py|tools/scripts/*.py) PY_COUNT=$((PY_COUNT + 1)) ;;
   esac
   case "$file" in
+    tools/scripts/*.ps1|tools/scripts/*.psm1|tools/scripts/*.psd1|tools/powershell/*|.devcontainer/*.ps1|.github/skills/*/scripts/*.ps1|.github/skills/*/scripts/*.psm1|.github/skills/*/scripts/*.psd1|tools/tests/powershell-analysis.test.mjs|tools/tests/fixtures/powershell/*)
+      POWERSHELL_COUNT=$((POWERSHELL_COUNT + 1))
+      ;;
+  esac
+  case "$file" in
     agent-output/*/sku-manifest.json)
       SKU_MANIFEST_COUNT=$((SKU_MANIFEST_COUNT + 1))
       SKU_COVERAGE_COUNT=$((SKU_COVERAGE_COUNT + 1))
@@ -44,7 +50,7 @@ while IFS= read -r file; do
   esac
 done <<< "$CHANGED_FILES"
 
-TOTAL=$((BICEP_COUNT + TF_COUNT + MD_ARTIFACT_COUNT + AGENT_COUNT + INSTRUCTION_COUNT + SKILL_COUNT + JSON_COUNT + PY_COUNT + SKU_MANIFEST_COUNT + SKU_COVERAGE_COUNT))
+TOTAL=$((BICEP_COUNT + TF_COUNT + MD_ARTIFACT_COUNT + AGENT_COUNT + INSTRUCTION_COUNT + SKILL_COUNT + JSON_COUNT + PY_COUNT + POWERSHELL_COUNT + SKU_MANIFEST_COUNT + SKU_COVERAGE_COUNT))
 
 if [ "$TOTAL" -eq 0 ]; then
   echo "ℹ️  No validatable files changed — skipping"
@@ -105,6 +111,7 @@ run_check "Instruction checks" "$INSTRUCTION_COUNT" "npm run validate:instructio
 run_check "Skills validation" "$SKILL_COUNT" "npm run validate:skills" "skills" &
 run_check "JSON syntax" "$JSON_COUNT" "npm run lint:json" "json" &
 run_check "Python lint" "$PY_COUNT" "npm run lint:python" "python" &
+run_check "PowerShell analysis and tests" "$POWERSHELL_COUNT" "npm run lint:powershell && npm run test:powershell" "powershell" &
 run_check "SKU manifest" "$SKU_MANIFEST_COUNT" "npm run validate:sku-manifest" "sku-manifest" &
 run_check "SKU ↔ IaC coverage" "$SKU_COVERAGE_COUNT" "npm run validate:sku-iac-coverage -- --diff-mode" "sku-iac-coverage" &
 
@@ -127,7 +134,7 @@ for result_file in "$RESULTS_DIR"/*; do
 done
 
 echo ""
-echo "📊 Checked: ${BICEP_COUNT} Bicep, ${TF_COUNT} Terraform, ${MD_ARTIFACT_COUNT} Artifact MD, ${AGENT_COUNT} Agent, ${INSTRUCTION_COUNT} Instruction, ${SKILL_COUNT} Skill, ${JSON_COUNT} JSON, ${PY_COUNT} Python, ${SKU_MANIFEST_COUNT} SKU manifest, ${SKU_COVERAGE_COUNT} SKU coverage"
+echo "📊 Checked: ${BICEP_COUNT} Bicep, ${TF_COUNT} Terraform, ${MD_ARTIFACT_COUNT} Artifact MD, ${AGENT_COUNT} Agent, ${INSTRUCTION_COUNT} Instruction, ${SKILL_COUNT} Skill, ${JSON_COUNT} JSON, ${PY_COUNT} Python, ${POWERSHELL_COUNT} PowerShell, ${SKU_MANIFEST_COUNT} SKU manifest, ${SKU_COVERAGE_COUNT} SKU coverage"
 echo "   Results: ${PASS} passed, ${FAIL} failed"
 
 if [ "$FAIL" -gt 0 ]; then

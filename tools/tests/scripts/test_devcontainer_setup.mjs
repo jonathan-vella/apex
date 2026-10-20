@@ -15,7 +15,7 @@ function fixture(context) {
   return root;
 }
 
-test("VS Code cross-check distinguishes exclusions from recommendations", (context) => {
+function vscodeFixture(context) {
   const root = fixture(context);
   fs.mkdirSync(path.join(root, "tools/scripts"), { recursive: true });
   fs.mkdirSync(path.join(root, ".devcontainer"));
@@ -30,11 +30,18 @@ test("VS Code cross-check distinguishes exclusions from recommendations", (conte
   const recommendations = JSON.parse(
     fs.readFileSync(new URL("../../../.vscode/extensions.json", import.meta.url), "utf8"),
   );
+  const settings = parseJsonc(fs.readFileSync(new URL("../../../.vscode/settings.json", import.meta.url), "utf8"));
   const check = () => {
     fs.writeFileSync(path.join(root, ".devcontainer/devcontainer.json"), JSON.stringify(config));
     fs.writeFileSync(path.join(root, ".vscode/extensions.json"), JSON.stringify(recommendations));
+    fs.writeFileSync(path.join(root, ".vscode/settings.json"), JSON.stringify(settings));
     return spawnSync(process.execPath, [validator], { encoding: "utf8" });
   };
+  return { config, recommendations, settings, check, root, validator };
+}
+
+test("VS Code cross-check distinguishes exclusions from recommendations", (context) => {
+  const { config, recommendations, check } = vscodeFixture(context);
   const valid = check();
   assert.equal(valid.status, 0, valid.stdout + valid.stderr);
   recommendations.recommendations.push("ms-azuretools.vscode-azure-mcp-server@2.0.0");
@@ -42,6 +49,81 @@ test("VS Code cross-check distinguishes exclusions from recommendations", (conte
   recommendations.recommendations.pop();
   config.customizations.vscode.extensions.push("example.unexpected");
   assert.equal(check().status, 1);
+});
+
+test("VS Code validation rejects enabled retired hooks in workspace and container settings", (context) => {
+  const { config, settings, check } = vscodeFixture(context);
+  assert.equal(check().status, 0);
+  for (const source of [settings, config.customizations.vscode.settings]) {
+    assert.equal(source["chat.useCustomAgentHooks"], undefined);
+    assert.equal(source["chat.hookFilesLocations"], undefined);
+    source["chat.useCustomAgentHooks"] = true;
+    let result = check();
+    assert.equal(result.status, 1, result.stdout + result.stderr);
+    assert.match(result.stdout, /retired APEX custom agent hooks must not be enabled/);
+    source["chat.useCustomAgentHooks"] = false;
+    for (const location of [
+      ".github/hooks/tool-guardian",
+      ".github/hooks/subagent-validation",
+      ".github/hooks",
+      "./.github/hooks/tool-guardian",
+      ".github\\hooks\\tool-guardian",
+    ]) {
+      source["chat.hookFilesLocations"] = { [location]: true };
+      result = check();
+      assert.equal(result.status, 1, result.stdout + result.stderr);
+      assert.match(result.stdout, /retired APEX hook location must not be enabled/);
+      source["chat.hookFilesLocations"][location] = false;
+      result = check();
+      assert.equal(result.status, 0, result.stdout + result.stderr);
+    }
+    delete source["chat.useCustomAgentHooks"];
+    delete source["chat.hookFilesLocations"];
+  }
+});
+
+test("VS Code validation still fails for invalid structural settings", (context) => {
+  const { config, settings, check, root, validator } = vscodeFixture(context);
+  for (const source of [settings, config.customizations.vscode.settings]) {
+    for (const invalid of [null, [], "not an object"]) {
+      source["chat.hookFilesLocations"] = invalid;
+      const result = check();
+      assert.equal(result.status, 1, result.stdout + result.stderr);
+      assert.match(result.stdout, /chat.hookFilesLocations must be an object/);
+    }
+    source["chat.hookFilesLocations"] = { ".github/hooks/tool-guardian": "true" };
+    assert.equal(check().status, 1);
+    delete source["chat.hookFilesLocations"];
+    source["chat.useCustomAgentHooks"] = "true";
+    assert.equal(check().status, 1);
+    delete source["chat.useCustomAgentHooks"];
+  }
+  config.customizations.vscode.settings["chat.customAgentInSubagent.enabled"] = false;
+  assert.equal(check().status, 1);
+  delete config.customizations.vscode.settings["chat.useAgentSkills"];
+  assert.equal(check().status, 1);
+  config.customizations.vscode.settings["chat.customAgentInSubagent.enabled"] = true;
+  config.customizations.vscode.settings["chat.useAgentSkills"] = settings["chat.useAgentSkills"];
+  assert.equal(check().status, 0);
+  for (const invalid of ["{broken", "[]", "null"]) {
+    fs.writeFileSync(path.join(root, ".vscode/settings.json"), invalid);
+    const result = spawnSync(process.execPath, [validator], { encoding: "utf8" });
+    assert.equal(result.status, 1, result.stdout + result.stderr);
+  }
+});
+
+test("Copilot-only validation rejects ineffective Local discovery settings in either editor source", (context) => {
+  const { config, settings, check } = vscodeFixture(context);
+  for (const source of [settings, config.customizations.vscode.settings]) {
+    for (const key of ["chat.agentFilesLocations", "chat.agentSkillsLocations", "chat.instructionsFilesLocations"]) {
+      source[key] = { ".github/example": true };
+      const result = check();
+      assert.equal(result.status, 1, result.stdout + result.stderr);
+      assert.match(result.stdout, /remove Local-only/);
+      delete source[key];
+      assert.equal(check().status, 0);
+    }
+  }
 });
 
 test("extension policy requires exclusions and rejects direct or pinned duplicate providers", (context) => {

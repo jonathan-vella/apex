@@ -462,6 +462,13 @@
   "orchestrator_targets": ["01-Orchestrator"],
   "ui_pseudo_targets": ["agent"],
   "metadata": {
+    "runtime_contract": {
+      "harness": "Copilot inside VS Code",
+      "delegation": "Native bounded tasks and actual results; no worker handshake or custom execution envelope",
+      "interaction": "Direct main agents use ask_user; delegated input requests return to the interactive parent",
+      "handoffs": "No active agent UI handoff metadata. ui_label_pattern remains historical fixture compatibility only.",
+      "permissions": "Graph edges, names and tool lists do not prove runtime enforcement or credential isolation"
+    },
     "version": "2.5",
     "risk_acceptance": {
       "contract": "risk-authorization-v1",

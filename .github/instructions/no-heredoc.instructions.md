@@ -1,20 +1,22 @@
 ---
-description: "Prevents terminal heredoc file corruption in VS Code Copilot by enforcing use of file editing tools instead of shell redirections"
+description: "Requires editing tools for agent-authored source and artifacts; separates terminal transport risks from ordinary shell syntax."
 applyTo: "**/*.{js,mjs,cjs,ts,tsx,jsx,py,ps1,sh,bicep,tf}"
 ---
 
 # MANDATORY: File Operation Override
 
 > [!CAUTION]
-> Terminal heredoc/redirect operations (`cat <<EOF`, `echo "..." >`,
-> `printf >`, `tee <<EOF`) corrupt files in VS Code Copilot due to
-> tab-completion interference, escape failures, and exit-code 130
-> interruptions. This is a hard technical requirement.
+> Agent-authored file content must go through file-editing tools. Interactive terminal
+> transport and quoting have caused corruption in prior runs; this repository policy
+> avoids that pathway. Heredoc/redirection syntax is not inherently corrupting, and
+> committed scripts and normal log capture are not prohibited by this policy.
 
 ## Rule
 
-**NEVER** use `cat`, `echo`, `printf`, `tee`, or `>>`/`>` to write
-multi-line content to a file. Use file creation/editing tools instead.
+Do not use `cat`, `echo`, `printf`, `tee`, or redirects to author multi-line source or
+artifact content from chat. Use available file creation/editing tools instead.
+Build tools, formatters, generators, downloads and output/log capture retain their
+ordinary behavior within the authorized task.
 
 ## Allowed Terminal Commands
 
@@ -24,12 +26,11 @@ navigation (`ls`, `cd`, `mkdir`, `rm`), and downloads (`curl`, `wget`
 
 ## Sub-rule: No heredoc'd code into `node -e` / `python3 -c`
 
-Piping a heredoc into `node -e` or `python3 -c` is forbidden when the
-code contains shell-meaningful constructs. The shell expands them before
-the interpreter sees them and you typically get a `SyntaxError: Invalid
-or unexpected token` (or silently wrong output).
+Do not transport agent-authored multi-line interpreter code through live heredocs.
+Unquoted delimiters permit shell expansion before the interpreter receives the code;
+quoted delimiters change those semantics but do not waive the editing-tool policy.
 
-Forbidden constructs in heredoc bodies:
+Expansion hazards with unquoted heredoc delimiters include:
 
 - Backtick template literals (`` `${value}` ``) — interpreted as command substitution.
 - `${variable}` — interpreted as parameter expansion.

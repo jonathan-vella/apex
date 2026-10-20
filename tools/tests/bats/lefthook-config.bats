@@ -3,6 +3,13 @@
 
 load setup
 
+@test "Git pre-commit and pre-push hooks remain configured" {
+  grep -q '^pre-commit:' "$REPO_ROOT/lefthook.yml"
+  grep -q '^pre-push:' "$REPO_ROOT/lefthook.yml"
+  grep -q 'gitleaks protect --staged' "$REPO_ROOT/lefthook.yml"
+  grep -q 'diff-based-push-check.sh' "$REPO_ROOT/lefthook.yml"
+}
+
 @test "post-commit block contains only the allow-listed stamp-sku-manifest hook" {
   # post-commit hooks are normally rejected to keep the commit path
   # blocking-free. The only sanctioned exception is the

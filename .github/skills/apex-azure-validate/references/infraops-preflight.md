@@ -53,7 +53,8 @@ does NOT authenticate CLI commands. Always validate independently.
 When translating Azure Policy `Deny` constraints to IaC:
 
 1. Read `04-governance-constraints.json` for the machine-actionable policy data
-2. For each `Deny` policy, extract `azurePropertyPath` + `requiredValue`
+2. For each `Deny` policy, read `required_value` and applicable `azurePropertyPath`;
+   return unmapped constraints to Governance/Planner rather than guessing
 3. Translate to IaC property:
    - **Bicep**: Drop leading resource-type segment from `azurePropertyPath`
    - **Terraform**: Use translation table in `.github/instructions/references/iac-policy-compliance.md`

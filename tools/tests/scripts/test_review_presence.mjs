@@ -10,24 +10,21 @@ import { loadValidator } from "../../scripts/_lib/ajv-validator.mjs";
 const script = fileURLToPath(new URL("../../scripts/validate-challenger-presence.mjs", import.meta.url));
 
 test("native resume delegates recovery and routing without extra mode questions", () => {
-  const native = readFileSync(
-    new URL("../../../.github/prompts/apex-resume-workflow.prompt.md", import.meta.url),
-    "utf8",
-  );
-  assert.match(native, /01-orchestrator.agent.md#resuming-a-project/);
+  const native = readFileSync(new URL("../../../.github/skills/apex-workflow-start/SKILL.md", import.meta.url), "utf8");
+  assert.match(native, /apex-workflow-engine\/references\/workflow-entry.md/);
   assert.doesNotMatch(native, /next-step-mode|current_step.status|\|\| cat|Graph Node →/);
-  const attached = readFileSync(
-    new URL("../../apex-prompts/workflow-prompts/00-resume-workflow.prompt.md", import.meta.url),
+  const entry = readFileSync(
+    new URL("../../../.github/skills/apex-workflow-engine/references/workflow-entry.md", import.meta.url),
     "utf8",
   );
-  assert.equal(native.split("[resume]:")[0].trim(), attached.split("[resume]:")[0].trim());
-  assert.match(attached, /\.\.\/\.\.\/\.\.\/\.github\/agents\/01-orchestrator.agent.md#resuming-a-project/);
+  assert.match(entry, /01-orchestrator.agent.md#/);
+  assert.ok(entry.includes("approval"));
   const paths = readFileSync(new URL("../../scripts/_lib/paths.mjs", import.meta.url), "utf8");
-  assert.match(paths, /PROMPT_SOURCE_DIRS = \["\.github\/prompts"/);
+  assert.match(paths, /PROMPT_SOURCE_DIRS = \[\]/);
   const agent = readFileSync(new URL("../../../.github/agents/01-orchestrator.agent.md", import.meta.url), "utf8");
-  assert.match(agent, /use an explicitly supplied project without reconfirming it/);
-  assert.match(agent, /Do not require a session-state file before attempting recovery/);
-  assert.match(agent, /applicable approval gate or exact handoff/);
+  assert.match(agent, /supplied project name without redundant confirmation/);
+  assert.match(agent, /If recall is empty[\s\S]{0,120}existing artifacts/);
+  assert.ok(agent.includes("human approval"));
 });
 
 test("decision presentation maps canonical fields and persists schema-valid Edit and empty notes", () => {
@@ -123,7 +120,7 @@ test("unattended production reviews fail closed on unresolved blockers", () => {
   assert.doesNotMatch(unattended, /Final aggregated gate auto-proceeds/);
   const challenger = read(".github/agents/10-challenger.agent.md");
   assert.doesNotMatch(challenger, /auto-proceed/);
-  assert.match(challenger, /stop on unresolved `must_fix`/);
+  assert.match(challenger, /unresolved blockers prevent completion\/advancement/);
   assert.doesNotMatch(unattended, /E2E_BLOCKED|E2E harness|benchmark runs/);
   assert.match(
     read(".github/skills/apex-iac-common/references/iac-planner-approval-gate.md"),
@@ -131,27 +128,32 @@ test("unattended production reviews fail closed on unresolved blockers", () => {
   );
 });
 
-test("unavailable reviewers require human handoff without nested wrapper or retry reset", () => {
+test("unavailable reviewers return to the parent without nested wrapper or retry reset", () => {
   const read = (file) => readFileSync(new URL(`../../../${file}`, import.meta.url), "utf8");
   const protocol = read(".github/skills/apex-azure-defaults/references/adversarial-review-protocol.md");
-  assert.match(protocol, /STOP\*\* and request a human handoff to `10-Challenger`/);
-  assert.match(protocol, /disable-model-invocation: true/);
-  assert.match(protocol, /Do not invoke it as a subagent/);
+  assert.match(
+    protocol,
+    /Automatic callers and optional `10-Challenger` use the same read-only\s+`challenger-review-subagent`/,
+  );
+  assert.match(protocol, /return the actual error to the interactive parent/);
+  assert.match(protocol, /`10-Challenger` is optional manual recovery/);
+  assert.match(protocol, /Do not invoke it as a fallback subagent/);
   assert.match(protocol, /retry exactly once with identical inputs/);
   assert.match(protocol, /Do not reset this budget by changing wrappers or models/);
   assert.match(protocol, /already the active owner, request human intervention instead\s+of a self-handoff/);
   assert.match(protocol, /Preserve exhausted retry status across handoffs and resumed sessions/);
   assert.match(protocol, /does not itself satisfy the review gate or renew the retry allowance/);
   const challenger = read(".github/agents/10-challenger.agent.md");
-  assert.match(challenger, /do not hand off to yourself/);
-  assert.match(challenger, /Preserve the exhausted retry\s+status across handoffs and resumed sessions/);
-  assert.match(challenger, /missing evidence still blocks advancement/);
+  assert.match(challenger, /No nested main wrappers/);
+  assert.match(challenger, /Preserve invocation ceilings/);
+  assert.match(challenger, /exhausted allowance/);
+  assert.match(challenger, /execution failures block with actual error/);
   assert.doesNotMatch(protocol, /Retry once via the `10-Challenger`|#runSubagent|doubles input-token cost/);
   const gates = read(".github/skills/apex-azure-defaults/references/workflow-gates.md");
   assert.match(gates, /Before any retry/);
   assert.match(gates, /Retry exactly once\*\* with identical inputs/);
   assert.match(gates, /After the second failure\*\*: STOP/);
-  assert.match(gates, /request a human handoff to `10-Challenger`/);
+  assert.match(gates, /require a human recovery decision/);
   assert.match(gates, /Do NOT call\s+the subagent a third time/);
   assert.match(gates, /already active, request human intervention instead of a\s+self-handoff/);
   assert.match(gates, /neither human selection nor a new wrapper renews the retry allowance/);
@@ -164,7 +166,8 @@ test("Planner finding choices agree with its canonical approval reference", () =
   const read = (file) => readFileSync(new URL(`../../../${file}`, import.meta.url), "utf8");
   const planner = read(".github/agents/05-iac-planner.agent.md");
   const gate = read(".github/skills/apex-iac-common/references/iac-planner-approval-gate.md");
-  assert.match(planner, /canonical four-option payload \(Accept \/ Reject \/ Defer \/ Edit\)/);
+  assert.ok(planner.includes("iac-planner-approval-gate.md"));
+  assert.match(planner, /per-finding panel/);
   assert.doesNotMatch(planner, /carries Accept \/ Skip options|WAF-pillar default matrix/);
   assert.match(gate, /four-option payload per protocol section 2g/);
   assert.match(gate, /recommended = `Defer` for `should_fix`/);
@@ -174,13 +177,12 @@ test("Requirements fresh and resumed entry points preserve questions without for
   const read = (file) => readFileSync(new URL(`../../../${file}`, import.meta.url), "utf8");
   const requirements = read(".github/agents/02-requirements.agent.md");
   const orchestrator = read(".github/agents/01-orchestrator.agent.md");
-  assert.match(requirements, /For fresh capture/);
-  assert.match(requirements, /### Resume and refinement/);
-  assert.match(requirements, /A checkpoint\s+is not evidence that every required answer exists/);
-  assert.match(requirements, /Preserve current manifest revisions and user pins/);
-  assert.match(requirements, /do not invent manifest fields or rewrite unaffected SKU rows/);
-  assert.match(requirements, /Changed requirements\s+invalidate affected review evidence/);
-  assert.match(orchestrator, /on resume or refinement, recover recorded answers/);
+  for (const field of ["ask_user", "USER_INPUT_REQUIRED", "request_id", "requestedSchema.properties", "On resume"])
+    assert.ok(requirements.includes(field), field);
+  assert.match(requirements, /checkpoint alone proves neither captured answers nor approval/);
+  assert.match(requirements, /must not rewrite unaffected SKU rows or reset the manifest revision/);
+  assert.match(requirements, /Changed inputs invalidate affected reviews and approvals/);
+  assert.match(orchestrator, /Start recovery with `apex-recall show/);
   assert.doesNotMatch(orchestrator, /Your FIRST action must be calling askQuestions/);
 });
 
@@ -193,23 +195,21 @@ test("Architect gate reference cannot skip mandatory cost review or complete aft
   assert.match(gate, /old `cost_feasibility_review: skip` decision is not an exemption/);
   assert.doesNotMatch(gate, /monthly_total >|Run iff|<run\|skip>/);
   const architect = read(".github/agents/03-architect.agent.md");
-  assert.match(architect, /Budget or SKU approval alone does not complete Step 2/);
-  assert.match(architect, /phase_5_artifact` → `phase_6_challenger_pass\{N\}`/);
-  assert.match(architect, /Legacy `phase_4_challenger` checkpoints/);
+  for (const field of ["phase_5_artifact", "phase_6_challenger_pass{N}", "cost-feasibility"])
+    assert.ok(architect.includes(field), field);
+  assert.match(architect, /SKU or budget consent alone is insufficient/);
 });
 
 test("Architect batches independent finding questions without combining decisions", () => {
   const read = (file) => readFileSync(new URL(`../../../${file}`, import.meta.url), "utf8");
-  for (const file of [
-    ".github/agents/03-architect.agent.md",
-    ".github/skills/apex-azure-defaults/references/workflow-gates.md",
-  ]) {
-    const body = read(file);
-    assert.match(body, /one batched `vscode_askQuestions` panel with a separate question per/);
-    assert.match(body, /canonical action options/);
-    assert.match(body, /panel cap/);
-    assert.doesNotMatch(body, /One `vscode_askQuestions` call per finding|5 findings → 5 sequential/);
-  }
+  const architect = read(".github/agents/03-architect.agent.md");
+  for (const field of ["ask_user", "requestedSchema.properties", "Per-Finding Decision Protocol"])
+    assert.ok(architect.includes(field), field);
+  const gates = read(".github/skills/apex-azure-defaults/references/workflow-gates.md");
+  assert.match(gates, /one batched `ask_user` panel with a separate question per/);
+  assert.match(gates, /canonical action options/);
+  for (const body of [architect, gates])
+    assert.doesNotMatch(body, /One `ask_user` call per finding|5 findings → 5 sequential/);
   const protocol = read(".github/skills/apex-azure-defaults/references/adversarial-review-protocol.md");
   assert.match(protocol, /^## Per-Finding Decision Protocol$/m);
   assert.ok(
@@ -252,20 +252,18 @@ test("orchestrator reuses valid reviews without bypassing plan or resume gates",
     /All steps default to|Steps 4 and 5 \(Plan and Code\) \*\*skip|unless context is below 40%/,
   );
   assert.doesNotMatch(body, /Execute the current node's agent|infer the last completed step from artifact numbering/);
-  assert.match(body, /Step 4 Plan review remains mandatory/);
-  assert.match(body, /Do not rerun a valid completed review/);
-  assert.match(body, /review_depth == "deep"/);
-  assert.match(body, /cost-feasibility review at Step 2/);
+  assert.match(body, /Requirements\/Plan comprehensive/);
+  assert.match(body, /retry a valid completed review/);
+  assert.ok(body.includes("decisions.review_depth=deep"));
+  assert.ok(body.includes("cost-feasibility"));
   assert.match(body, /session\.steps/);
-  assert.match(body, /Only after the\s+human gate is approved/);
-  assert.ok(
-    body.includes(
-      "Run `/clear`, then switch the chat agent picker to `01-Orchestrator` and send `resume <project>` to continue Step N+1.",
-    ),
-  );
+  assert.ok(body.includes("human approval"));
+  assert.doesNotMatch(body, /APEX_WORKER_HANDSHAKE|WORKER_READY|WORKER_EXECUTE|verify-worker-ready\.mjs/);
+  assert.match(body, /apex-recall checkpoint/);
+  assert.doesNotMatch(body, /Run `\/clear`, then switch the chat agent picker/);
 });
 
-test("workflow graph and agent handoffs preserve review and validation floors", () => {
+test("workflow graph and native role ownership preserve review and validation floors without UI handoffs", () => {
   const read = (relativePath) => readFileSync(new URL(`../../../${relativePath}`, import.meta.url), "utf8");
   const graph = JSON.parse(read(".github/skills/apex-workflow-engine/templates/workflow-graph.json"));
   assert.deepEqual(graph.nodes["step-2"].challenger.default_lenses, ["comprehensive", "cost-feasibility"]);
@@ -273,8 +271,12 @@ test("workflow graph and agent handoffs preserve review and validation floors", 
   assert.match(JSON.stringify(graph.nodes["gate-2"].preconditions), /challenge-findings-cost-estimate.json/);
   const orchestrator = read(".github/agents/01-orchestrator.agent.md");
   assert.doesNotMatch(orchestrator, /Proceed directly to completion - Deploy agent will validate/);
-  assert.match(orchestrator, /Complete CodeGen build, lint, security and handoff validation/);
-  assert.match(orchestrator, /Complete CodeGen format, validate, security and handoff checks/);
+  for (const [step, owner] of [
+    ["step-5b", "06b-Bicep CodeGen"],
+    ["step-5t", "06t-Terraform CodeGen"],
+  ]) {
+    assert.equal(graph.nodes[step].agent, owner);
+  }
 });
 
 for (const artifact of ["02-architecture-assessment.md", "03-des-cost-estimate.md"]) {

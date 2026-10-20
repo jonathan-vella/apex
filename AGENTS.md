@@ -26,7 +26,7 @@ npm run validate:all
 npm run lint:md                          # Markdown linting
 npm run lint:json                        # JSON/JSONC validation
 npm run validate:agents                  # Agent + prompt frontmatter, model alignment
-npm run validate:agent-registry          # Registry shape (file path, model, step)
+npm run validate:agent-registry          # Registry shape (file path, optional legacy model, step)
 npm run validate:iac-security-baseline   # TLS/HTTPS/Entra-only/no-public-blob baseline
 npm run lint:safe-shell                  # No interactive shell prompts in committed snippets
 
@@ -97,17 +97,22 @@ Rotating multi-pass reviews are an explicit opt-in via
 01-Orchestrator) or via direct `10-Challenger` invocation. Reviews target
 AI-generated creative decisions — not tool output (what-if/plan previews).
 
-Production main agents, including `10-Challenger`, are human-selected entry points
-with `disable-model-invocation: true`; the Orchestrator uses human handoffs only.
-Unavailable reviewers require a human handoff to `10-Challenger`, never a nested
-wrapper fallback. Missing/empty reviewer output permits exactly one identical-input
-retry, then human escalation. Preserve current review evidence and approval gates.
-
-Local prompt files are adapters; Agent Host uses shared skills with the caller's
-model/tools and explicit selection of the owning agent. Legacy discovery settings
-are not a security boundary. Model labels do not establish runtime cost-tier
-eligibility or API support. Runtime rules and canonical review procedure:
+The sole supported runtime is the GitHub Copilot SDK harness inside VS Code.
+Canonical runtime rules:
 [Copilot instructions](.github/copilot-instructions.md#harness-and-runtime-boundaries).
+This entry-point safety summary does not replace them:
+
+- `01-Orchestrator` is human-selected (`disable-model-invocation: true`); native tasks
+  do not waive domain prerequisites or separate consequential approval.
+- Direct main agents own `ask_user`; delegated mains return forms to the interactive parent.
+  Leaves cannot ask users or delegate. Cancel stops; decline never approves.
+- Independent reviews require actual attributed results and current evidence. Missing capability
+  blocks; missing/empty output allows one identical-input retry within existing accounting,
+  then human escalation. No self-review, nested wrapper or invented approval.
+- Skills inherit caller model/tools without granting permissions. Active definitions omit model pins;
+  model telemetry is not a readiness gate and does not prove runtime cost-tier eligibility.
+- Native task results, essential agent-body constraints and separate human approvals remain required.
+  Historical prompts are not active entry points; repository runtime hooks remain retired.
 
 The E2E launch subsystem is retired. Production lesson collection, historical
 lesson/schema compatibility, and existing evidence remain supported; historical

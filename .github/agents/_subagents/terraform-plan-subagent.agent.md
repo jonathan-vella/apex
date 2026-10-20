@@ -1,12 +1,11 @@
 ---
 name: terraform-plan-subagent
 description: Terraform deployment preview subagent. Runs terraform plan to preview changes before deployment. Classifies resources into create/update/destroy/replace, highlights destructive ops, returns structured change summary.
-model: ["GPT-6 Luna (copilot)"]
-reasoning-effort: max
 user-invocable: false
 disable-model-invocation: false
 agents: []
 tools: [execute, read, search]
+
 ---
 
 # terraform-plan-subagent
@@ -40,8 +39,8 @@ Allowed writes: current invocation's Terraform runtime data and saved `tfplan`,
 not source, tfvars, lockfile, findings artifacts, recall or remote state. Plan may
 acquire/release its normal backend lock; no state migration, force-unlock or bootstrap.
 `execute` is not inherently read-only. No questions, todos, delegation or model fallback.
-Missing essential tools/model/inputs return the existing FAIL shape. Local and Host
-callers supply the same contract; inline skills cannot select models or widen tools.
+Missing essential tools/inputs return the existing FAIL shape.
+This is a VS Code Copilot worker; skill text cannot widen permissions.
 
 This subagent does not:
 
@@ -120,6 +119,13 @@ Before composing the response:
    `Recommendation` so the parent agent can route it to the correct
    remediation.
 
+## Native execution
+
+The native task prompt supplies the bounded assignment and exact allowed outputs.
+Return missing required inputs to the parent in this role's failure shape; do not ask users,
+manage parent todos or delegate. Use actual task results, not a readiness declaration.
+No role/tool metadata, task success or Autopilot answer grants operation permission.
+
 ## Inputs
 
 The parent agent supplies:
@@ -130,12 +136,12 @@ The parent agent supplies:
   (e.g. `environments/dev.tfvars`). When omitted, plan runs without one.
 - `workspace` — optional Terraform workspace; defaults to the active
   workspace (recorded in the output).
-- `subscription` — optional Azure subscription id or name; defaults to
-  the active CLI subscription (recorded in the output).
+- `subscription` — required approved Azure subscription ID/name; verify provider/target binding.
+  Do not infer scope permission from the active CLI subscription.
 - `project` — optional APEX project slug used to locate
   `agent-output/{project}/04-governance-constraints.json`.
 
-If `module_path` is missing or does not exist, return `Status: FAIL`
+If `subscription` is missing, or `module_path` is missing or does not exist, return `Status: FAIL`
 with a one-line `Recommendation` naming the missing field — do not
 guess defaults.
 
@@ -146,6 +152,7 @@ guess defaults.
 
    ```bash
    az account get-access-token \
+     --subscription {subscription} \
      --resource https://management.azure.com/ \
      --output none
    ```
@@ -220,58 +227,6 @@ guess defaults.
 ## Output
 
 See Output Contract above. Emit one block, no commentary outside it.
-
-### Example
-Input fragment (parent agent passes):
-
-```text
-module_path: infra/terraform/demo
-var_file: environments/dev.tfvars
-```
-
-Plan JSON snippet:
-
-```json
-{
-  "resource_changes": [
-    {
-      "address": "azurerm_storage_account.demo",
-      "change": { "actions": ["create"] }
-    },
-    {
-      "address": "azurerm_key_vault.legacy",
-      "change": { "actions": ["delete", "create"] }
-    }
-  ]
-}
-```
-
-Resulting findings (abridged):
-
-```text
-TERRAFORM PLAN RESULT
-Status: WARNING
-Module: infra/terraform/demo
-Workspace: default
-
-Change Summary:
-  Create:  1
-  Update:  0
-  Destroy: 0
-  Replace: 1
-  No-Change: 0
-
-⚠️ DESTRUCTIVE OPERATIONS (require explicit approval):
-  azurerm_key_vault.legacy
-
-Resource Changes:
-  [+] azurerm_storage_account.demo — create
-  [-/+] azurerm_key_vault.legacy — REPLACE (destroy then create)
-
-Plan File: infra/terraform/demo/tfplan
-
-Recommendation: review-destroys
-```
 
 ## Boundaries
 

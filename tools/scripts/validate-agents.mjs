@@ -20,6 +20,7 @@ import { getBody, parseFrontmatter } from "./_lib/parse-frontmatter.mjs";
 import { modelLabels, catalogModelLabel } from "./_lib/model-helpers.mjs";
 import { Reporter } from "./_lib/reporter.mjs";
 import { MAX_BODY_LINES } from "./_lib/paths.mjs";
+import { STRUCTURED_REVIEWER } from "./validate-challenger-findings.mjs";
 import {
   loadWorkflowGraph,
   isVersionAtLeast22,
@@ -51,7 +52,7 @@ function parseStructuredHandoffs(content) {
 
 const MAIN_AGENT_REQUIRED = ["name", "description", "user-invocable", "tools"];
 const SUBAGENT_REQUIRED = ["name", "description", "user-invocable", "tools"];
-const RECOMMENDED_FIELDS = ["agents", "model"];
+const RECOMMENDED_FIELDS = ["agents"];
 const BLOCK_SCALAR_PATTERN = /^description:\s*[>|][-\s]*$/m;
 // Description length cap: enforces concise routing-keyword-only descriptions.
 // See .github/instructions/agent-authoring.instructions.md#frontmatter-description-length.
@@ -60,8 +61,16 @@ const BLOCK_SCALAR_PATTERN = /^description:\s*[>|][-\s]*$/m;
 const DESCRIPTION_MAX_LEN = 350;
 const DESCRIPTION_WARN_LEN = 300;
 const PRODUCTION_AGENTS_DIR = fileURLToPath(new URL("../../.github/agents/", import.meta.url));
+const BUILTIN_REVIEWERS = new Set(["rubber-duck"]);
+const MANUAL_ENTRY_AGENTS = new Set([
+  "01-Orchestrator",
+  "07b-Bicep Deploy",
+  "07t-Terraform Deploy",
+  "09-Diagnose",
+  "10-Challenger",
+]);
 const LEAF_WORKER_TOOL_PATTERN =
-  /^(?:\*|agent(?:\/|$)|todo(?:\/|$)|vscode$)|runSubagent|askQuestions|askUser|manage.?todo/i;
+  /^(?:\*|agent(?:\/|$)|todo(?:\/|$)|vscode$)|runSubagent|askQuestions|ask_user|askUser|manage.?todo/i;
 
 function productionAgentKind(agent) {
   const directory = path.dirname(path.resolve(agent.path));
@@ -70,14 +79,25 @@ function productionAgentKind(agent) {
   return null;
 }
 
-function validateProductionAgentPolicy(agent, agents) {
+export function validateProductionAgentPolicy(agent, agents = new Map()) {
   const kind = productionAgentKind(agent);
   if (!kind) return [];
 
   const issues = [];
-  const frontmatter = agent.frontmatter;
+  const frontmatter = agent.frontmatter ?? {};
+  if ("handoffs" in frontmatter) {
+    issues.push("Active production agents must omit UI handoffs; native tasks and human gates control routing");
+  }
+  if ("model" in frontmatter)
+    issues.push("Active production agents must omit model pins; select Auto in the runtime separately");
+  if ("reasoning-effort" in frontmatter) {
+    issues.push(
+      "Active production agents must omit reasoning-effort pins and use the operator-selected runtime policy",
+    );
+  }
   const allowed = frontmatter.agents;
   const tools = frontmatter.tools;
+  const orchestrator = kind === "main" && frontmatter.name === "01-Orchestrator";
   const mainNames = new Set(
     [...agents.values()]
       .filter((candidate) => productionAgentKind(candidate) === "main")
@@ -85,20 +105,34 @@ function validateProductionAgentPolicy(agent, agents) {
   );
   if (Array.isArray(allowed)) {
     for (const name of allowed) {
-      if (name === "*" || mainNames.has(name)) {
-        issues.push(`Production agents cannot allowlist main agents or wildcard targets (got: ${name})`);
+      if (name === "*" || (mainNames.has(name) && !orchestrator)) {
+        issues.push(`Only Orchestrator may allowlist main agents; wildcards are forbidden (got: ${name})`);
+      }
+      if (orchestrator && ((!mainNames.has(name) && name !== STRUCTURED_REVIEWER) || name === "01-Orchestrator")) {
+        issues.push(
+          `Orchestrator may allowlist only other named main agents and the structured reviewer (got: ${name})`,
+        );
       }
     }
   }
-  if (kind === "main" && frontmatter["disable-model-invocation"] !== true) {
-    issues.push("Production main agents require disable-model-invocation: true");
-  }
-  if (kind === "main" && frontmatter.name === "01-Orchestrator") {
-    if (!Array.isArray(allowed) || allowed.length !== 0) {
-      issues.push("Production Orchestrator requires agents: [] and human handoffs only");
+  const invocationDisabled = frontmatter["disable-model-invocation"];
+  if (kind === "main") {
+    if (frontmatter["user-invocable"] !== true) issues.push("Production main agents require user-invocable: true");
+    if (!Array.isArray(tools) || !tools.includes("ask_user")) {
+      issues.push("Production main agents require the native ask_user tool for direct interaction");
     }
-    if (Array.isArray(tools) && tools.some((tool) => /^(?:\*|agent(?:\/|$))|runSubagent/i.test(tool))) {
-      issues.push("Production Orchestrator cannot use delegation tools");
+  }
+  if (kind === "main" && MANUAL_ENTRY_AGENTS.has(frontmatter.name) && invocationDisabled !== true) {
+    issues.push(`Production manual-entry agents require disable-model-invocation: true (${frontmatter.name})`);
+  } else if (kind === "main" && invocationDisabled !== undefined && typeof invocationDisabled !== "boolean") {
+    issues.push("Production main agents require disable-model-invocation: a boolean when specified");
+  }
+  if (orchestrator) {
+    if (!Array.isArray(allowed) || allowed.length === 0) {
+      issues.push("Production Orchestrator requires an explicit named main-agent allowlist");
+    }
+    if (!Array.isArray(tools) || !tools.includes("agent")) {
+      issues.push("Production Orchestrator requires the agent tool for native task dispatch");
     }
   }
   if (kind === "worker") {
@@ -251,7 +285,8 @@ export function validateAgentPermissions(frontmatter, { isSubagent = false, agen
     const known = new Set([...agents.values()].map((agent) => agent.frontmatter?.name));
     if (known.size > 0) {
       for (const name of allowed) {
-        if (name !== "*" && !known.has(name)) issues.push(`unknown allowed agent: ${name}`);
+        if (name !== "*" && !BUILTIN_REVIEWERS.has(name) && !known.has(name))
+          issues.push(`unknown allowed agent: ${name}`);
       }
     }
   }
@@ -319,7 +354,7 @@ function runAgentChecks() {
 
   // Build the set of known subagent names from files under _subagents/.
   // Used by the body-vs-frontmatter declaration check below.
-  const knownSubagents = new Set();
+  const knownSubagents = new Set(BUILTIN_REVIEWERS);
   for (const [, agent] of agents) {
     if (agent.isSubagent && agent.frontmatter?.name) {
       knownSubagents.add(agent.frontmatter.name);
@@ -564,14 +599,13 @@ function runModelAlignment() {
     }
   }
 
-  // Check 3: Large Claude agents missing context_awareness
-  console.log("  Check 3: Claude large-agent context_awareness");
+  // Historical pinned prompts retain vendor-specific guidance; active agents inherit the runtime model.
+  console.log("  Check 3: Large-agent context_awareness");
   {
     const agents = getAgents();
 
     for (const [_filename, agent] of agents) {
-      if (!agent.frontmatter?.model) continue;
-      if (!modelLabels(agent.frontmatter.model).some((label) => isClaude(classifyModel(label)))) continue;
+      if (productionAgentKind(agent)) continue;
       if (agent.isSubagent) continue;
 
       const bodyLines = countBodyLines(agent.content);
@@ -584,13 +618,13 @@ function runModelAlignment() {
       if (!body.includes("<context_awareness>")) {
         r.warn(
           relPath,
-          `Claude agent has ${bodyLines} body lines but no <context_awareness> block (recommended for >350 lines)`,
+          `Agent has ${bodyLines} body lines but no <context_awareness> block (recommended for >350 lines)`,
         );
         r.record({
           ruleId: "legacy-003",
           severity: "warn",
           file: relPath,
-          message: `Claude agent has ${bodyLines} body lines but no <context_awareness> block`,
+          message: `Agent has ${bodyLines} body lines but no <context_awareness> block`,
           sourceUrl:
             "https://platform.claude.com/docs/en/build-with-claude/prompt-engineering/claude-prompting-best-practices",
         });
@@ -598,7 +632,7 @@ function runModelAlignment() {
     }
   }
 
-  // Check 4: Claude non-ONE-SHOT research agents missing investigate block
+  // Check 4: Research-oriented production agents missing the investigation block
   const INVESTIGATE_AGENTS = [
     "03-architect",
     "04-design",
@@ -613,14 +647,12 @@ function runModelAlignment() {
     "11-context-optimizer",
   ];
 
-  console.log("  Check 4: Claude investigate_before_answering");
+  console.log("  Check 4: Research-agent investigate_before_answering");
   {
     const agents = getAgents();
 
     for (const [filename, agent] of agents) {
-      if (!agent.frontmatter?.model) continue;
-      if (!modelLabels(agent.frontmatter.model).some((label) => isClaude(classifyModel(label)))) continue;
-
+      if (productionAgentKind(agent)) continue;
       const matchesKnown = INVESTIGATE_AGENTS.some((prefix) => filename.startsWith(prefix));
       if (!matchesKnown) continue;
 
@@ -629,12 +661,12 @@ function runModelAlignment() {
       const body = getBody(agent.content);
 
       if (!body.includes("<investigate_before_answering>")) {
-        r.warn(relPath, "Claude research agent missing <investigate_before_answering> block");
+        r.warn(relPath, "Research agent missing <investigate_before_answering> block");
         r.record({
           ruleId: "legacy-004",
           severity: "warn",
           file: relPath,
-          message: "Claude research agent missing <investigate_before_answering> block",
+          message: "Research agent missing <investigate_before_answering> block",
           sourceUrl:
             "https://platform.claude.com/docs/en/build-with-claude/prompt-engineering/claude-prompting-best-practices",
         });
@@ -826,7 +858,7 @@ const CLAUDE_ONLY_XML = [
   "<stop_conditions>",
 ];
 
-/** XML blocks every Claude main agent must carry with nonempty content. */
+/** Structured blocks required by the legacy XML body contract. */
 const CLAUDE_CONTRACT_BLOCKS = ["scope_fencing", "output_contract", "stop_conditions"];
 
 const BODY_CONTRACT_SECTIONS = {
@@ -886,7 +918,7 @@ function modelFamilies(model) {
   }
 }
 
-// Fallbacks share one body, so Claude and non-Claude contracts cannot both be satisfied.
+// Retained for legacy pinned fixtures; active bodies are validated by structure.
 export function hasMixedBodyContractFamilies(model) {
   const claude = modelFamilies(model).map((family) => isClaude(family));
   return claude.includes(true) && claude.includes(false);
@@ -946,21 +978,27 @@ export function validateProductionAgentBody(agent) {
   const structure = getAgentBodyStructure(agent.content);
   const titles = structure.headings.filter((heading) => heading.level === 1);
   const issues = [];
-  if (titles.length !== 1 || titles[0].nested || titles[0].title !== agent.frontmatter.name) {
+  if (titles.length !== 1 || titles[0].nested || titles[0].title !== agent.frontmatter?.name) {
     issues.push("Production body requires exactly one H1 matching the frontmatter name");
   }
-  const families = modelFamilies(agent.frontmatter?.model);
-  if (kind === "main" && hasMixedBodyContractFamilies(agent.frontmatter?.model)) {
-    issues.push("Production main agent model fallbacks must not mix Claude and non-Claude body contracts");
-  }
-  const claudeMain = kind === "main" && families.length > 0 && families.every((family) => isClaude(family));
-  const contracts = claudeMain
-    ? { Role: BODY_CONTRACT_SECTIONS.Role }
-    : kind === "main"
-      ? BODY_CONTRACT_SECTIONS
+  const body = getBody(agent.content);
+  const retired = body.match(
+    /\b(?:APEX_WORKER_HANDSHAKE|WORKER_READY(?:_ACK)?|WORKER_EXECUTE|HANDSHAKE_VERIFIED|READY_VERIFIED)\b|verify-worker-ready\.mjs/g,
+  );
+  if (retired)
+    issues.push(`Production body contains retired worker preflight contracts: ${[...new Set(retired)].join(", ")}`);
+  const contracts =
+    kind === "main"
+      ? {
+          Role: BODY_CONTRACT_SECTIONS.Role,
+          Constraints: ["constraints", "scope", "scope and constraints"],
+          Output: BODY_CONTRACT_SECTIONS.Output,
+          "Stop rules": ["stop rules", "stop conditions"],
+        }
       : {
           Role: BODY_CONTRACT_SECTIONS.Role,
           Inputs: ["inputs", "input contract"],
+          Constraints: ["constraints", "scope", "operating posture"],
           Output: BODY_CONTRACT_SECTIONS.Output,
         };
   for (const [name, aliases] of Object.entries(contracts)) {
@@ -969,7 +1007,9 @@ export function validateProductionAgentBody(agent) {
       issues.push(`Production body requires nonempty H2 ${name} sections`);
     }
   }
-  if (claudeMain) issues.push(...claudeContractBlockIssues(agent.content));
+  if (kind === "worker" && !/\b(stop|fail(?:ure|ed)?|return.*parent|blocked)\b/i.test(structure.prose)) {
+    issues.push("Production leaf body requires a bounded failure/return rule");
+  }
   return issues;
 }
 
@@ -1328,10 +1368,10 @@ export function runVendorPrompting({
   // resolve effective family and enforce prompt-model-source-001.
   const agentNameToModel = buildAgentNameToModel(agents);
 
-  function checkedLabels(raw, file, { inherited = false, handoff = false } = {}) {
+  function checkedLabels(raw, file, { inherited = false, handoff = false, optional = false } = {}) {
     try {
       const labels = modelLabels(raw);
-      if (!labels.length && !inherited) throw new TypeError("agent requires an explicit model label");
+      if (!labels.length && !inherited && !optional) throw new TypeError("agent requires an explicit model label");
       for (const label of labels) {
         if (!Object.hasOwn(catalog.models, catalogModelLabel(label, { handoff, models: catalog.models }))) {
           emit(
@@ -1353,7 +1393,7 @@ export function runVendorPrompting({
   for (const [_file, agent] of agents) {
     r.tick();
     const relPath = path.relative(process.cwd(), agent.path);
-    const labels = checkedLabels(agent.frontmatter?.model, relPath);
+    const labels = checkedLabels(agent.frontmatter?.model, relPath, { optional: productionAgentKind(agent) !== null });
     checkFrontmatterModelStyle(r, agent, relPath, "any", "agent");
     checkAbsoluteLanguageDensity(r, agent, relPath, "any");
     checkHandoffEnrichment(r, agent, relPath, "any");
@@ -1692,14 +1732,17 @@ function evaluateSubagentDispatch(
       issues.push({ entry: String(entry), message: "non-string agents[] entry" });
       continue;
     }
-    if (!knownAgentNames.has(entry) && !knownSubagentNames.has(entry)) {
+    if (!knownAgentNames.has(entry) && !knownSubagentNames.has(entry) && !BUILTIN_REVIEWERS.has(entry)) {
       issues.push({ entry, message: `unknown agent or subagent "${entry}"` });
       continue;
     }
-    if (entry === "challenger-review-subagent" && !artifactProducers.has(sourceAgentName)) {
+    if (
+      (entry === "challenger-review-subagent" || BUILTIN_REVIEWERS.has(entry)) &&
+      !artifactProducers.has(sourceAgentName)
+    ) {
       issues.push({
         entry,
-        message: `challenger-review-subagent requires artifact-producing source (got "${sourceAgentName}")`,
+        message: `${entry} requires artifact-producing source (got "${sourceAgentName}")`,
       });
     }
     if (entry === "cost-estimate-subagent" && !COST_ESTIMATE_AUTHORITATIVE_AGENTS.has(sourceAgentName)) {

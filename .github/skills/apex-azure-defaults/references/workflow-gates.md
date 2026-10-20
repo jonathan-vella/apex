@@ -14,7 +14,7 @@ Run before any `cost-estimate-subagent` invocation. Read
 `agent-output/{project}/sku-manifest.json`. Build a read-only chat
 context block listing user-pinned rows (`source: "user-pin"`) — they
 are locked and must never appear as answer options. Call
-`vscode_askQuestions` exactly once with ONLY architect-derived rows
+`ask_user` exactly once with ONLY architect-derived rows
 and three options: `Approve all` / `Revise SKUs` / `Discuss`. Wait for
 the user; do not auto-default.
 
@@ -33,7 +33,7 @@ Run after pricing receive. Three cases:
 
 **Case A — `decisions.budget_cap_known == false` (no user-supplied
 budget)**: propose `round(monthly_total × 1.2)` and call
-`vscode_askQuestions` with **one blocking** question:
+`ask_user` with **one blocking** question:
 
 - Question: "No budget cap was captured at requirements. Pricing
   estimate is ${monthly_total}/month. Proposed budget cap:
@@ -57,7 +57,7 @@ budget)**: propose `round(monthly_total × 1.2)` and call
 continue.
 
 **Case C — `monthly_total > budget_cap` (overage)**: call
-`vscode_askQuestions` with three options:
+`ask_user` with three options:
 
 1. `Approve overage` — record and continue to charts/artifact write.
 2. `Revise SKUs (loop to 6a)` — record, increment
@@ -74,7 +74,7 @@ decision, hard-stop and surface to the user — do not re-prompt.
 **Case D — a recorded owner decision cannot meet the budget** (for
 example a `deployment_note` that names a SKU whose price pushes
 `monthly_total` over `budget_cap`): never substitute the compliant
-alternative silently. Ask one blocking `vscode_askQuestions` question
+alternative silently. Ask one blocking `ask_user` question
 that shows the owner's choice and the compliant alternative, each with
 its monthly price and the resulting total. Options: `Keep owner choice`
 (then Case C applies) / `Use the compliant alternative` / `Revise
@@ -110,17 +110,17 @@ do **not** duplicate it in 02-Requirements. Source contract:
 
 After the WAF + cost summary and findings table, follow the
 [Per-Finding Decision Protocol](adversarial-review-protocol.md#per-finding-decision-protocol).
-Use one batched `vscode_askQuestions` panel with a separate question per
+Use one batched `ask_user` panel with a separate question per
 actionable finding, canonical action options, and individual free-form notes.
 Keep the protocol's ordering, panel cap, persisted decisions, and final
-proceed/revise gate. Do not combine findings into one `multiSelect` question
+proceed/revise gate. Do not combine findings into one multi-select field
 or repeat a decision already recorded for the current finding.
 
 ## Architect (Step 2) — Cost-feasibility review gate
 
 The separate cost-estimate review is mandatory in default and deep modes,
 regardless of budget utilization. Resolve the budget gate above first, then
-run `challenger-review-subagent` with `artifact_type: cost-estimate`,
+run `challenger-review-subagent` through [shared structured review](one-shot-review.md) with `artifact_type: cost-estimate`,
 `review_focus: cost-feasibility`, and
 `output_path: agent-output/{project}/challenge-findings-cost-estimate.json`.
 It does not replace architecture review or count as an architecture cascade pass.
@@ -131,7 +131,8 @@ obtain the missing review before Step 2 approval and completion. Record
 `apex-recall decide <project> --key cost_feasibility_review --value run --json`.
 
 Follow [review input finalization](adversarial-review-protocol.md#review-input-finalization) before dispatch.
-Supply the actual COMPLETE cost JSON and raw evidence via `supporting_paths`; a versioned output does not need
+Capture the actual COMPLETE cost JSON and raw evidence with metadata `--supporting-input` and pass the
+emitted `supporting_inputs` unchanged; a versioned output does not need
 a conventional filename alias. Final human approval is recorded in recall and the project index, not by rewriting
 reviewed artifact badges. On resume, verify both Step 2 review hashes before routing to Design or Governance;
 stale evidence returns to Architect for reconciliation without resetting unrelated approvals.
@@ -146,7 +147,7 @@ Honors `decisions.vnet_planning_mode ∈ {guided, fast, deferred}`
 
 **Branch by mode**:
 
-- `guided` — run Round 1 + Round 2 (full askQuestions flow).
+- `guided` — run Round 1 + Round 2 (full ask_user flow).
 - `fast` — Round 1 only; Round 2 auto-confirms the proposed subnet
   table with a Challenger-tagged informational finding
   (`subnet plan auto-confirmed in fast mode`).
@@ -154,7 +155,7 @@ Honors `decisions.vnet_planning_mode ∈ {guided, fast, deferred}`
   (`VNet planning deferred; sandbox/exploration mode`). Block when
   the inferred environment is `prod`.
 
-**Round 1 — `vscode_askQuestions` (single batched call)**:
+**Round 1 — `ask_user` (single batched call)**:
 
 - Q1 — `vnet_mode`: `create-new` (default) | `use-existing`.
 - Q2 (when `create-new`) — `vnet_address_space`: freeform CIDR
@@ -184,7 +185,7 @@ Honors `decisions.vnet_planning_mode ∈ {guided, fast, deferred}`
 
 **Round 2 — per-row askMe loop**: present the proposed subnet table
 (`purpose / size / address_prefix / delegation / NSG / route-table`)
-then run one `vscode_askQuestions` per row with three options:
+then run one `ask_user` per row with three options:
 `Apply edit (freeform diff)` / `Skip this row` / `Done`. Soft warning
 ("3 edit rounds — consider Done") after 3 consecutive edits; never
 auto-defer.
@@ -226,9 +227,9 @@ Governance — never Planner directly. Enforced by
 
 ## Challenger empty-output diagnostic + bounded retry
 
-Applies to every `challenger-review-subagent` invocation. When the
-subagent returns successfully but the expected `output_path` JSON is
-missing or empty (zero bytes):
+Applies to automatic and manual `challenger-review-subagent` invocations.
+Empty returned output is a failure, not permission to synthesize findings.
+A recording failure is distinct from empty reviewer output and grants no new worker allowance:
 
 1. **Before any retry**, append a structured failure entry to
    `agent-output/{project}/_meta/challenger-failures.json` with
@@ -237,7 +238,8 @@ missing or empty (zero bytes):
    `last_error_message`.
 2. **Retry exactly once** with identical inputs.
 3. **After the second failure**: STOP, surface the failure log to the
-  user inline and request a human handoff to `10-Challenger`. Do NOT
+  interactive parent and require a human recovery decision. `10-Challenger`
+  remains optional manual recovery. Do NOT
   advance to the Approval Gate. Do NOT invent findings. Do NOT call
   the subagent a third time or invoke `10-Challenger` as a nested wrapper.
   If `10-Challenger` is already active, request human intervention instead of a
@@ -247,7 +249,7 @@ missing or empty (zero bytes):
 ## Design (Step 3) — Phase 00: Artifact scope (one-time gate)
 
 Runs **before** Phase 0. Read `decisions.design_scope`. If set, skip
-silently. If absent, raise a single `vscode_askQuestions` with three
+silently. If absent, raise a single `ask_user` with three
 options:
 
 - **Diagrams only** — produce `03-des-diagram.py` with `.png` and `.svg`;

@@ -87,8 +87,6 @@ fi
 readonly CATEGORIES=(
   ".github/agents:Agents"
   ".github/instructions:Instructions"
-  ".github/prompts:Native prompts"
-  "tools/apex-prompts:Prompts"
   ".github/skills:Skills"
   ".github/copilot-instructions.md:Copilot instructions"
   ".github/model-catalog.json:Model catalog"

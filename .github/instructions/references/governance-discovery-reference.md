@@ -80,7 +80,7 @@ Discovered from Azure Policy assignment "JV-Inherit Multiple Tags" (effect: modi
 ### JSON (`04-governance-constraints.json`)
 
 `discover.py` writes this file; its envelope and per-finding fields
-(`discovery_status`, `azurePropertyPath`, `bicepPropertyPath`, `requiredValue`, tag-policy
+(`discovery_status`, `azurePropertyPath`, `bicepPropertyPath`, `required_value`, tag-policy
 semantics) are defined in the skill's
 [schema reference](../../skills/apex-azure-governance-discovery/references/schema.md) and
 [`governance-constraints.schema.json`](../../../tools/schemas/governance-constraints.schema.json).

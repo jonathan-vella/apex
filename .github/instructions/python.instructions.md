@@ -27,7 +27,8 @@ Python is used for:
 ## Package Management
 
 - Use `uv` (Astral) as the package manager — installed in devcontainer
-- Root dependencies in `requirements.txt`: `diagrams`, `matplotlib`, `pillow`, `pytest`, `ruff`
+- Root dependency names and pins are authoritative in `requirements.txt`; package-specific
+  dependencies belong in that package's manifest, not a duplicated prose inventory.
 
 ## Diagram Scripts
 

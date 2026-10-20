@@ -2,7 +2,7 @@
 name: apex-azure-bicep-patterns
 user-invocable: false
 disable-model-invocation: false
-description: '**UTILITY SKILL** — Reusable Azure Bicep patterns: hub-spoke, private endpoints, diagnostics, AVM composition. WHEN: "hub-spoke Bicep", "private endpoint module", "diagnostic settings", "AVM Bicep composition". USE FOR: Bicep template design, hub-spoke networking, private endpoint patterns, AVM modules. DO NOT USE FOR: Terraform code (use apex-terraform-patterns), architecture decisions (use apex-azure-adr), troubleshooting, diagrams (use apex-python-diagrams).'
+description: '**UTILITY SKILL** — Reusable Azure Bicep patterns: hub-spoke, private endpoints, diagnostics, AVM composition. WHEN: "hub-spoke Bicep", "private endpoint module", "diagnostic settings", "AVM Bicep composition". DO NOT USE FOR: Terraform code (apex-terraform-patterns), architecture decisions (apex-azure-adr), troubleshooting, diagrams (apex-python-diagrams).'
 compatibility: Requires Azure CLI with Bicep extension
 ---
 
@@ -30,6 +30,7 @@ Reusable infrastructure patterns for Azure Bicep templates. Complements
 | Managed Identity Binding | Any service-to-service authentication            | [common-patterns](references/common-patterns.md)                       |
 | Budget & Cost Monitoring | Every deployment (mandatory)                     | [budget-pattern](references/budget-pattern.md)                         |
 | Private-Registry App Service | App Service pulling from a private registry, Entra sign-in | [app-service-entra-private-registry-pattern](references/app-service-entra-private-registry-pattern.md) |
+| Parameter Files (`.bicepparam`) | Strongly typed parameter files & environment bindings | [bicepparam-pattern](references/bicepparam-pattern.md)                 |
 | What-If / AVM Pitfalls   | Pre-deployment validation & AVM gotchas          | [avm-pitfalls](references/avm-pitfalls.md)                             |
 | Batch Bicep Formatting   | After generating/editing the Bicep tree          | `npm run format:bicep -- infra/bicep/{project}` (wraps `bicep format`) |
 

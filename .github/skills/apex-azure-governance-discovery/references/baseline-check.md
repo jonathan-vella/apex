@@ -32,7 +32,7 @@ same subscription and for offline / sandboxed environments.
    - The top-level `coverage_status == "COMPLETE"` OR the target
      subscription is individually present and complete despite partial
      overall coverage.
-4. If eligible, use `askQuestions` to ask the user:
+4. If eligible, use `ask_user` to ask the user:
    _"A governance baseline from {date} is available for subscription
    {id}. Use the cached baseline or run fresh live discovery?"_
    Options: **Use baseline** (recommended) | **Run live discovery**.
@@ -78,7 +78,7 @@ tenant baseline workflow.
      .github/data/governance-policy-baseline.json.gz --get baseline_kind
    ```
 
-2. When the target subscription is not a key in `subscriptions`, use `askQuestions` with the options
+2. When the target subscription is not a key in `subscriptions`, use `ask_user` with the options
    **Run live discovery** (recommended when Azure access exists) and **Use ALZ Corp default as assumed
    governance**. Never choose the default on the user's behalf.
 3. If the user picks live discovery, proceed to Phase 0.5.

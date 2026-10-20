@@ -14,7 +14,7 @@ policy precheck).
 | ----- | -------------- | ---------------------------------------------------------------------------------- | ---------------------------------------------------------------- |
 | L0    | 04g-Governance | Discovery envelope (status, scope, page counts, signature, TTL)                    | `04-governance-constraints.json.discovery_metadata`              |
 | L1    | 05-IaC Planner | Every Deny policy mapped to a plan row                                             | `04-implementation-plan.md` → Governance Compliance Matrix       |
-| L2    | 06b / 06t      | Rendered IaC satisfies every matrix row's `requiredValue` at the declared property | `infra/{tool}/{project}/` + `*-validate-subagent` output         |
+| L2    | 06b / 06t      | Rendered IaC satisfies every matrix row's `required_value` at the declared property | `infra/{tool}/{project}/` + `*-validate-subagent` output         |
 | L3    | 07b / 07t      | Rendered ARM/TF plan vs live Azure Policy state + what-if `--validate-only`        | `az policy state list` + `Microsoft.PolicyInsights/policyStates` |
 
 ## Drift routing matrix

@@ -18,7 +18,8 @@ MCP tools, cost-query, forecast or benefit tools, and no deployment or resource 
 
 Invoke `mcp_azure_mcp_ser_pricing` directly with `command: "pricing_get"` and `learn: false`; never spend a
 turn calling `learn: true`. `pricing_get` takes `sku`, `service`, `region`, `service-family`, `price-type`,
-`currency`, `include-savings-plan` and a raw OData `filter`; at least one of the filter inputs is required.
+`currency`, `include-savings-plan` and a raw OData `filter` (always use kebab-case `"price-type"`,
+`"service-family"`, and `"include-savings-plan"` — never snake_case `price_type` or `price`); at least one of the filter inputs is required.
 Catalog field names map to it as follows:
 
 | Retail catalog field | `pricing_get` input | Purpose |

@@ -33,10 +33,13 @@ states the applicable rule.
 
 - Read the target file and its nearest analogous agent once.
 - Check `.github/skills/apex-workflow-engine/templates/workflow-graph.json` before
-  changing workflow topology.
-- Check `.github/model-catalog.json` before changing model labels.
+  changing domain prerequisites or artifact ownership; it does not supply UI routing or permissions.
+- Check `.github/model-catalog.json` before changing model metadata or legacy pins.
 - Preserve user changes and existing runtime contracts.
-- Validate every model fallback; preserve exact catalog labels and unknown metadata.
+- Keep active production agent definitions free of model and effort pins; the
+  operator and runtime control model selection. Readiness does not attest models,
+  effort or picker selection. Preserve catalog metadata and
+  test any intentionally pinned legacy fixture with the existing validators.
 - Distinguish Local prompt adapters from shared Host-compatible skills; neither
   static validation nor a catalog entry proves native model eligibility.
 
@@ -64,11 +67,11 @@ do not read the skill body as a workaround for its invocation flag.
 Keep each concern in one place:
 
 - Agent body: role, goal, workflow-specific constraints, output, stop rules.
-- Sol/Terra/Luna main bodies use concise Markdown as an APEX convention, not a
-  model-specific vendor claim. Claude (Opus/Sonnet 5.5) main bodies use the Claude
-  contract: H1, `## Role`, `<scope_fencing>`, `<output_contract>`, `<stop_conditions>`.
-  Leaf workers use bounded role contracts instead of
-  mandatory personality or main-agent sections. Preserve content when removing XML.
+- Active main bodies use concise Markdown with essential role, goal, scope, interaction,
+  outputs and stops, independently of model selection. Direct mains declare native `ask_user`;
+  delegated mains return input requests to the interactive parent.
+  Leaves use bounded input/activity/output/failure contracts without questions/delegation.
+  Preserve substantive domain content when removing duplicate XML or workflow ceremony.
 - Instruction: enforceable rules that apply automatically by file type.
 - Skill: on-demand domain workflow and decision guidance.
 - Reference: detailed examples, rationale, matrices, and troubleshooting.
@@ -80,7 +83,8 @@ Do not copy canonical tables or templates into an agent body.
 
 - Apply the limits and hand-off framework in
   [`context-optimization.instructions.md`](../../instructions/context-optimization.instructions.md).
-- Keep tool lists minimal and handoffs intentional.
+- Keep tool lists minimal and native task routing intentional. Active agents omit UI handoffs;
+  the owner observed no handoff controls with the probe agent selected in Copilot.
 - Move long templates to references or templates.
 - Prefer one compact structured example.
 - Remove prose already supplied by an auto-loaded instruction.
@@ -142,6 +146,8 @@ Return:
 ## Reference Index
 
 - [Agent fleet assessment](references/assess-agents.md): definition scorecards and a gated remediation plan.
+- [Agent scorecard rubric](references/agent-scorecard-rubric.md): preserved assessment dimensions and scoring.
+- [Agent adversarial checklist](references/agent-adversarial-checklist.md): read-only authoring review lenses.
 - [.github assessment](references/assess-github-folder.md): static authoring-asset inventory and review.
 - [Assessment design history](references/plan-four-layer-agent-assessment.md): reference-only, not executable.
 

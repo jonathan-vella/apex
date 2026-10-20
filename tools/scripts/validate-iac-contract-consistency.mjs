@@ -104,9 +104,10 @@ function main() {
       r.error(contractRel, `Invalid JSON: ${err.message}`);
       continue;
     }
+    const errorsBefore = r.errors;
     const planPath = path.resolve(path.dirname(contractPath), contract.plan_ref?.path ?? "");
     if (!contract.plan_ref?.path || !fs.existsSync(planPath)) {
-      r.warn(contractRel, `plan_ref.path missing or not on disk: ${contract.plan_ref?.path}`);
+      r.error(contractRel, `plan_ref.path missing or not on disk: ${contract.plan_ref?.path}`);
       continue;
     }
     const declaredHash = contract.plan_ref.sha256;
@@ -177,7 +178,9 @@ function main() {
         }
       }
     }
-    r.ok(contractRel, `contract ↔ plan consistent (${contract.resources.length} resources, plan_ref hash OK)`);
+    if (r.errors === errorsBefore) {
+      r.ok(contractRel, `contract ↔ plan consistent (${contract.resources.length} resources, plan_ref hash OK)`);
+    }
   }
 
   r.summary();

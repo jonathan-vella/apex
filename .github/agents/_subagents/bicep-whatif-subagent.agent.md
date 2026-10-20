@@ -1,12 +1,11 @@
 ---
 name: bicep-whatif-subagent
 description: Bicep deployment preview subagent. Runs az deployment group what-if to preview changes. Analyzes policy violations, resource changes, cost impact. Returns structured summary.
-model: ["GPT-6 Luna (copilot)"]
-reasoning-effort: max
 user-invocable: false
 disable-model-invocation: false
 agents: []
 tools: [execute, read, search]
+
 ---
 
 # bicep-whatif-subagent
@@ -38,9 +37,8 @@ prior preview cannot establish current source, parameter or governance freshness
 Allowed writes: invocation-local preview scratch only, never source, parameters,
 findings artifacts, recall state or Azure resources. `execute` is not inherently
 read-only; use only token checks and preview commands. Never create a missing RG.
-No questions, todos, delegation or model fallback. Missing essential tools/model/inputs
-return the existing FAIL shape. Local and Host callers supply the same contract;
-inline skills cannot select models or widen permissions.
+No questions, todos, delegation or model fallback. Missing essential tools/inputs
+return the existing FAIL shape. This is a VS Code Copilot worker; skill text cannot widen permissions.
 
 This subagent does not:
 
@@ -111,6 +109,13 @@ Before composing the response:
 5. If the cost section cannot be filled (no estimate provided by parent),
    write `unavailable` for each line rather than fabricating a number.
 
+## Native execution
+
+The native task prompt supplies the bounded assignment and exact allowed outputs.
+Return missing required inputs to the parent in this role's failure shape; do not ask users,
+manage parent todos or delegate. Use actual task results, not a readiness declaration.
+No role/tool metadata, task success or Autopilot answer grants operation permission.
+
 ## Inputs
 
 The parent agent supplies:
@@ -120,19 +125,19 @@ The parent agent supplies:
   `parameters.json`) file.
 - `resource_group` — target RG name (or `subscription` + `location` for
   subscription-scoped deployments).
-- `subscription` — target subscription id or name (optional; defaults to
-  the active CLI subscription, which is recorded in the output).
+- `subscription` — required owner-approved target subscription ID or name.
+  Never infer authorization from the active CLI subscription.
 - `cost_estimate_path` — optional path to the parent's cost-estimate
   artifact; consulted to fill the `Estimated Cost Impact` section.
 
-If `template_path`, `parameters_path`, or `resource_group` (or `location` for sub-scope) is
+If `template_path`, `parameters_path`, `subscription`, or `resource_group` (or `location` for sub-scope) is
 missing, return `Status: FAIL` with a `Policy Compliance.Details` entry
 naming the missing field — do not guess defaults.
 
 ## Workflow
 
 1. **Receive inputs and resolve subscription** before token validation. Resolve the
-  supplied subscription to its ID, or capture the active ID once when omitted.
+  supplied subscription to its ID; a missing target returns FAIL, not an active-account default.
   Failure returns FAIL; all subsequent commands use this bound ID.
 2. **Validate CLI token** — run
 
@@ -198,47 +203,6 @@ naming the missing field — do not guess defaults.
 ## Output
 
 See Output Contract above. Emit one block, no commentary outside it.
-
-### Example
-Input fragment (parent agent passes):
-
-```text
-template_path: infra/bicep/demo/main.bicep
-parameters_path: infra/bicep/demo/main.bicepparam
-resource_group: rg-demo-dev-swc
-```
-
-What-if JSON snippet:
-
-```json
-{
-  "changes": [
-    { "changeType": "Create", "resourceId": ".../storageAccounts/stdemo1234" },
-    { "changeType": "Delete", "resourceId": ".../storageAccounts/stlegacy" }
-  ]
-}
-```
-
-Resulting findings (abridged):
-
-```text
-WHAT-IF ANALYSIS RESULT
-Status: WARNING
-Template: infra/bicep/demo/main.bicep
-Resource Group: rg-demo-dev-swc
-
-Change Summary:
-  Create: 1
-  Modify: 0
-  Delete: 1
-  No Change: 0
-
-Resource Changes:
-  + .../storageAccounts/stdemo1234
-  - .../storageAccounts/stlegacy
-
-Recommendation: review
-```
 
 ## Boundaries
 

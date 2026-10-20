@@ -2,7 +2,7 @@
 name: apex-golden-principles
 user-invocable: false
 disable-model-invocation: false
-description: '**ANALYSIS SKILL** — The agent-first operating principles governing how agents work in this repository. WHEN: "golden principles", "agent behavior rules", "operating philosophy", "principle lookup", "governance invariants". USE FOR: agent behavior rules, operating philosophy, principle lookup, governance invariants. DO NOT USE FOR: Azure infrastructure, code generation, troubleshooting, diagram creation.'
+description: '**ANALYSIS SKILL** — The agent-first operating principles governing how agents work in this repository. WHEN: "golden principles", "agent behavior rules", "operating philosophy", "principle lookup", "governance invariants". DO NOT USE FOR: Azure infrastructure, code generation, troubleshooting, diagram creation.'
 ---
 
 # Golden Principles

@@ -25,7 +25,8 @@ file-editing tools.
 
 ## Execution Subagent Prompts
 
-Use `tools/apex-prompts/utility-prompts/execution-subagent.prompt.md`:
+Use `.github/skills/apex-workflow-engine/references/execution-subagent.md`
+with the [native worker lifecycle](../../apex-workflow-engine/references/worker-readiness.md):
 
 1. `## Inputs` identifies paths and required state.
 2. `## Activities` lists exact commands or tools.
@@ -33,15 +34,20 @@ Use `tools/apex-prompts/utility-prompts/execution-subagent.prompt.md`:
 
 ## Challenger Fallback
 
-1. If a required reviewer is unavailable, stop and request a human handoff to
-    `10-Challenger`.
+Automatic and manual review share the read-only structured leaf through
+[one-shot review](../../apex-azure-defaults/references/one-shot-review.md),
+not a worker handshake or file-output reviewer mode. Record actual independent JSON and validate
+schema, attribution and freshness before reporting success.
+
+1. If a required reviewer is unavailable, stop and return the failure to the interactive parent.
 2. Missing or empty reviewer output permits exactly one identical-input retry,
-    then stop and request a human handoff to `10-Challenger`. Report the runtime
+    then stop for a human recovery decision. Report the runtime
     error when available.
 3. Never invoke a nested main-agent wrapper or fabricate an inline review.
-    Production main agents, including `10-Challenger`, require human selection;
-    explicit caller allowlists must not override this production boundary.
-4. If `10-Challenger` is already active, stop and request human intervention
+    Only Orchestrator may dispatch authorized named main workers;
+    step-agent allowlists never authorize another main-agent wrapper.
+4. `10-Challenger` is optional, never a required automatic recovery hop.
+    If it is already active, stop and request human intervention
     rather than a self-handoff. Preserve exhausted retry status across handoffs
     and resumed sessions; human selection does not renew the retry allowance.
 

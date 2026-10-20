@@ -25,10 +25,10 @@ lean, but no validator blocks them).
 
 | Rule                     | Target           | Rationale                                                              |
 | ------------------------ | ---------------- | --------------------------------------------------------------------- |
-| Tool list size           | ≤ 30 tools       | Each tool adds ~75 tokens to prompt                                   |
+| Tool list size           | ≤ 30 tools       | Schema/context cost varies by runtime; measure rather than assume a multiplier |
 | Agent body length        | ≤ 350 lines      | Preserve role contracts and stop rules (hard cap is 600)              |
 | Inline template size     | ≤ 50 lines       | Move larger templates to skills                                       |
-| Handoff count            | ≤ 8 handoffs     | Each adds ~40 tokens; orchestrators are exempt (they route every step) |
+| Native task scope        | Bounded inputs/outputs | Active agents omit UI handoffs; preserve authorized native task routing |
 | Skill references in body | ≤ 5 "Read" lines | Progressive load, not bulk load                                       |
 
 ## Instruction File Rules
@@ -78,19 +78,19 @@ active session, not assumed model limits.
 | ------------------------------------ | ------------------------------------------ |
 | "Read ALL skills before starting"    | Read only the 2-3 needed skills            |
 | Large JSON embedded in agent body    | Move to `references/` or external file     |
-| Repeating instructions across agents | Single instruction file + `applyTo` glob   |
+| Repeating optional rationale across agents | Canonical reference; retain essential body safeguards |
 | Reading entire files when grep works | Use `grep_search` for targeted extraction  |
 | Long sessions without a boundary     | Consider a permitted handoff or checkpoint |
 | `create_file` to revise a file       | Use an available editing tool (below) |
 
 ## Targeted Edits Over Full Rewrites
 
-**Rule**: Use `create_file` only for first-time artifact creation.
-Use an available editing tool, including `apply_patch`, for existing files.
+Use an available creation/editing tool for first-time files, and targeted edits
+(including `apply_patch`) for existing files. No particular tool name is mandatory.
 
 | Situation                                       | Correct tool                    |
 | ----------------------------------------------- | ------------------------------- |
-| Initial draft of any file                       | `create_file`                   |
+| Initial draft of any file                       | Available creation/editing tool |
 | Single-spot fix                                 | Targeted edit or `apply_patch`  |
 | Multiple independent fixes                      | Batched edits or `apply_patch` |
 | Structural rewrite (≥ 50 % lines or H2 reorder) | Editing tool with logged rationale |
@@ -101,8 +101,9 @@ model, and runtime; quantify savings only from recorded, reproducible usage, not
 
 **Exception logging**: when a full rewrite is genuinely required
 (template bump, > 50 % of lines changed, H2 reordering), record the
-rationale via `apex-recall decide ... --rationale "Full rewrite: <reason>"`
-so the choice is auditable.
+rationale via `apex-recall decide ... --rationale "Full rewrite: <reason>"` for project artifacts.
+For repository-authoring maintenance, record it in the change summary rather than
+creating an unrelated Azure project state.
 
 ## Runtime Compression
 
@@ -118,8 +119,8 @@ Load the skills required by the current phase; defer optional references.
 Runtime compression tiers apply to artifacts, not alternate skill digests.
 Compaction must not prevent loading missing required guidance for a later phase.
 
-Local prompt files and configured discovery locations are not Agent Host routing
-contracts. Shared skills inherit the caller's model/tools; select the owning agent
+Archived Local prompt files are not SDK routing contracts.
+Shared skills inherit the caller's model/tools; select the owning agent
 before consequential work. Keep essential runtime rules reachable from agent bodies:
 authoring `applyTo` matches alone do not prove runtime attachment. Preview hooks
 are complementary checks, not the sole approval or security gate.

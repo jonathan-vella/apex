@@ -13,6 +13,25 @@
 import fs from "node:fs";
 import path from "node:path";
 
+/** Split instruction globs without splitting brace alternatives. */
+export function splitApplyTo(pattern) {
+  const parts = [];
+  let depth = 0;
+  let current = "";
+  for (const ch of pattern) {
+    if (ch === "{") depth++;
+    if (ch === "}") depth--;
+    if (ch === "," && depth === 0) {
+      parts.push(current.trim());
+      current = "";
+    } else {
+      current += ch;
+    }
+  }
+  if (current.trim()) parts.push(current.trim());
+  return parts.filter(Boolean);
+}
+
 /** Directories always excluded from validation walks */
 const ALWAYS_EXCLUDE = new Set([
   "node_modules",

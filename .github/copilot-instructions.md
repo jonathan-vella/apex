@@ -123,22 +123,46 @@ body explicitly points to one. There is one tier — no digest, no minimal.
 
 ## Harness And Runtime Boundaries
 
-- Local prompt files are adapters, not Agent Host entry points. On Agent Host,
-  use the shared skill and explicitly select its owning main agent before consequential work.
-  Skills inherit the caller's model/tools; they do not switch agents or confer permissions.
-- Main agents, including `10-Challenger`, use `disable-model-invocation: true`.
-  The Orchestrator routes through human handoffs only. Explicit caller allowlists
-  must not override that boundary; legacy discovery settings are not a security boundary.
-- If a required reviewer is unavailable, STOP and request a human handoff to `10-Challenger`;
-  never invoke a nested wrapper or fabricate an inline review. Missing/empty reviewer output
-  permits exactly one identical-input retry, then a human handoff under the
+- Target the GitHub Copilot SDK harness inside VS Code. Archived Local prompts are
+  historical, not entry points. Skills inherit caller model/tools and grant no permissions.
+- `01-Orchestrator` remains human-selected (`disable-model-invocation: true`).
+  Deploy, Diagnose and manual Challenger entries also disable implicit invocation;
+  this metadata is not proof of credential isolation or consequential authorization.
+  It dispatches authorized named workers through the
+  [native task lifecycle](skills/apex-workflow-engine/references/worker-readiness.md).
+  No custom readiness/execution envelope, nonce or per-worker raw-log verification is required.
+  Step agents call only authorized leaves; leaves never delegate or ask users.
+  Every directly selected main owns native `ask_user`; Requirements, Architect, Design and Governance
+  remain interactive. Delegated steps return `USER_INPUT_REQUIRED` to their interactive parent.
+  Decline never approves and cancellation stops. Static allowlists are not routing evidence.
+- Automatic and optional manual reviews use the same read-only `challenger-review-subagent` through
+  [shared structured review](skills/apex-azure-defaults/references/one-shot-review.md).
+  The leaf returns JSON; its interactive parent records actual synchronous results and validates
+  schema, provenance and freshness. Built-in prose critics are not mandatory JSON dependencies.
+  Model selection remains runtime-managed.
+  A delegated owner without nested task capability returns `REVIEW_REQUIRED`; the authorized interactive
+  Orchestrator invokes that same reviewer as a sibling automatically, preserving budgets and actual provenance.
+  Missing nested tools are not by themselves an unavailable reviewer or a reason to request manual Challenger.
+- If a required reviewer is unavailable, STOP and return the actual failure to the
+  interactive parent; never invoke a nested wrapper or fabricate an inline review.
+  `10-Challenger` remains optional manual recovery. Missing/empty reviewer output
+  permits exactly one identical-input retry within the existing budget, then a human decision under the
   [review protocol](skills/apex-azure-defaults/references/adversarial-review-protocol.md#subagent-discovery-fallback-default--deep).
 - Keep essential role, approval, security, output, and stop rules in main agent bodies.
   Authoring `applyTo` matches do not prove runtime attachment. Load required guidance
   when missing; do not automatically load vendor-authoring guidance during production work.
-- Agent frontmatter owns model assignments. Sol, Terra, and Luna labels do not prove
-  runtime cost-tier eligibility, availability, or API support. Stop on unsupported routing;
-  do not substitute models automatically. Local and Agent Host behavior needs separate verification.
+- Active agent definitions omit model and reasoning-effort pins. The operator and
+  runtime control selection, including Auto and HydraFusion; no picker identifier,
+  underlying model, effort or model-source label is a readiness requirement.
+  Missing or differing model telemetry is diagnostic only. Verify named-worker
+  actual task results without per-call model, effort or context overrides.
+  Continue the same task only when its native handle supports it; one-shot tasks need new bounded input.
+  Missing required tools or approval still blocks the affected execution. Catalog entries remain
+  descriptive metadata and legacy fixture support, not active assignments or
+  proof of runtime cost-tier eligibility.
+- Active agents have no UI handoff metadata: the owner observed no controls in the tested Copilot client.
+  Tool restrictions were not established by that probe; role metadata is not credential isolation.
+  Native Autopilot can auto-answer questions, so a form/task result is not real owner authorization.
 - Use available editing tools for existing files, preserve user work, and validate before
   dependent follow-up edits. No shared procedure requires a particular bulk-edit tool.
 - Explicit lab risk acceptance follows [the authorization contract](../tools/apex-recall/docs/risk-authorizations.md).

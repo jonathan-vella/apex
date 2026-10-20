@@ -1,35 +1,15 @@
 #!/usr/bin/env python3
-"""Validate the `/clear`-handoff contract across orchestrator + step agents.
+"""Validate native interaction, durable completion and separate human gates.
 
-Plan 01 Phase 2a (Gate-boundary `/clear` handoff) requires that the
-orchestrator's Gate-acceptance procedure documents the verbatim resume
-line. Phase 2c extends the contract to every user-facing step agent:
-each must end its completion path with the same verbatim line so that
-direct invocation (running a step agent on its own) still hands off
-cleanly via the agent picker.
-
-The line instructs the user to switch the VS Code chat agent picker
-back to `01-Orchestrator` and send `resume <project>` — VS Code custom
-agents are activated by selecting them in the picker, not by `@name`
-chat-participant syntax. See
-https://code.visualstudio.com/docs/copilot/customization/custom-agents.
-
-The verbatim contract is the only token-reduction primitive that
-actually drops main-agent input tokens, so the lint is hard-fail.
-
-Wired into:
-
-    npm run validate:agents       (via validate-agents.mjs)
-    npm run validate:orchestrator-handoff   (standalone)
-    lefthook pre-commit          (via artifact-validation hook)
-
-Exit codes: 0 on pass, 1 on a missing-or-paraphrased contract,
-2 on argparse / IO errors.
+The CLI name is a compatibility alias, not a requirement for UI handoffs.
+This source lint does not certify runtime permissions or task continuation.
+Exit codes: 0 on pass, 1 on missing/retired contracts, 2 on CLI errors.
 """
 
 from __future__ import annotations
 
 import argparse
+import re
 import sys
 from pathlib import Path
 
@@ -37,11 +17,7 @@ REPO_ROOT = Path(__file__).resolve().parents[2]
 AGENTS_DIR = REPO_ROOT / ".github" / "agents"
 DEFAULT_AGENT = AGENTS_DIR / "01-orchestrator.agent.md"
 
-# Step agents whose completion path must end with the verbatim resume
-# line (covers direct-invocation flow). Excluded: 01-orchestrator (own
-# stricter contract below), 10-challenger (subagent wrapper — no user
-# gate), 09-diagnose / 11-context-optimizer (interactive/advisory —
-# no step handoff).
+# Diagnostic and audit agents do not own a workflow-step completion.
 STEP_AGENTS = (
     "02-requirements.agent.md",
     "03-architect.agent.md",
@@ -55,79 +31,53 @@ STEP_AGENTS = (
     "08-as-built.agent.md",
 )
 
-# Verbatim primary contract line. ``<project>`` and ``N+1`` are the
-# placeholders that survive into the rendered chat; agents substitute
-# them at runtime.
-REQUIRED_LINE = (
-    "Run `/clear`, then switch the chat agent picker to `01-Orchestrator` "
-    "and send `resume <project>` to continue Step N+1."
+RETIRED_CONTRACT = re.compile(
+    r"\b(?:APEX_WORKER_HANDSHAKE|WORKER_READY(?:_ACK)?|WORKER_EXECUTE|HANDSHAKE_VERIFIED|READY_VERIFIED)\b"
+    r"|verify-worker-ready\.mjs"
+)
+ORCHESTRATOR_REQUIRED_FRAGMENTS = (
+    "00-handoff.md",
+    "ask_user",
+    "USER_INPUT_REQUIRED",
+    "apex-recall transition",
+    "apex-recall checkpoint",
+)
+STEP_REQUIRED_FRAGMENTS = (
+    "apex-recall",
+    "USER_INPUT_REQUIRED",
+    "request_id",
+    "phase",
+    "message",
+    "requestedSchema.properties",
+    "ask_user",
 )
 
-# Supporting contract fragments that must appear at least once in the
-# orchestrator file. These are deliberately small substrings so cosmetic
-# re-wording around them does not break the lint.
-ORCHESTRATOR_REQUIRED_FRAGMENTS = (
-    "apex-recall show <project> --json",   # resume path first tool call
-)
+
+def _validate(agent_path: Path, required: tuple[str, ...]) -> list[str]:
+    try:
+        body = agent_path.read_text()
+    except OSError as exc:
+        return [f"unable to read {agent_path}: {exc}"]
+    failures = [
+        f"{agent_path}: missing native contract field {fragment!r}" for fragment in required if fragment not in body
+    ]
+    for match in RETIRED_CONTRACT.finditer(body):
+        failures.append(f"{agent_path}: retired worker preflight contract {match.group()!r}")
+    if re.search(r"(?m)^handoffs\s*:", body):
+        failures.append(f"{agent_path}: production agents must omit UI handoffs")
+    if "Run `/clear`" in body or "handoff buttons only" in body:
+        failures.append(f"{agent_path}: retired Local routing requirement")
+    return failures
 
 
 def validate_orchestrator(agent_path: Path) -> list[str]:
-    """Strict contract for 01-orchestrator.agent.md."""
-    failures: list[str] = []
-    try:
-        body = agent_path.read_text()
-    except OSError as exc:
-        return [f"unable to read {agent_path}: {exc}"]
-
-    if REQUIRED_LINE not in body:
-        failures.append(
-            f"missing verbatim resume line in {agent_path}\n"
-            f"  expected exactly: {REQUIRED_LINE}",
-        )
-
-    if "Gate-acceptance procedure" not in body and "Gate Acceptance" not in body:
-        failures.append(
-            f"missing Gate-acceptance procedure subsection in {agent_path}",
-        )
-
-    if "apex-recall checkpoint" not in body:
-        failures.append(
-            f"missing apex-recall checkpoint precondition in {agent_path} — "
-            "the user's /clear destroys any state not persisted via apex-recall",
-        )
-
-    for frag in ORCHESTRATOR_REQUIRED_FRAGMENTS:
-        if frag not in body:
-            failures.append(
-                f"missing resume-path fragment in {agent_path}: {frag!r}",
-            )
-
-    return failures
+    """Check native interaction and durable, separately approved transitions."""
+    return _validate(agent_path, ORCHESTRATOR_REQUIRED_FRAGMENTS)
 
 
 def validate_step_agent(agent_path: Path) -> list[str]:
-    """Lighter contract for step agents — verbatim line only.
-
-    Orchestration logistics (Gate-acceptance procedure, apex-recall
-    checkpoint, resume-path fragment) are the orchestrator's job. Step
-    agents only need to terminate with the same verbatim handoff line
-    so direct invocation still produces a `/clear`-safe transcript.
-    """
-    failures: list[str] = []
-    try:
-        body = agent_path.read_text()
-    except OSError as exc:
-        return [f"unable to read {agent_path}: {exc}"]
-
-    if REQUIRED_LINE not in body:
-        failures.append(
-            f"missing verbatim resume line in {agent_path}\n"
-            f"  expected exactly: {REQUIRED_LINE}\n"
-            f"  fix: append a `## Completion Handoff` section ending "
-            f"with the line in a ```text fence",
-        )
-
-    return failures
+    """Check pending input fields and recoverable, non-approving completion."""
+    return _validate(agent_path, STEP_REQUIRED_FRAGMENTS)
 
 
 def main(argv: list[str] | None = None) -> int:
@@ -137,10 +87,7 @@ def main(argv: list[str] | None = None) -> int:
         nargs="?",
         type=Path,
         default=None,
-        help=(
-            "Path to a specific agent file (default: scan orchestrator + all "
-            "step agents listed in STEP_AGENTS)"
-        ),
+        help=("Path to a specific agent file (default: scan orchestrator + all step agents listed in STEP_AGENTS)"),
     )
     args = parser.parse_args(argv)
 
@@ -172,21 +119,18 @@ def main(argv: list[str] | None = None) -> int:
                 all_failures.append((path, f))
 
     if all_failures:
-        print("✗ orchestrator /clear-handoff contract check FAILED", file=sys.stderr)
-        for path, msgs in all_failures:
+        print("✗ native interaction/completion contract check FAILED", file=sys.stderr)
+        for _path, msgs in all_failures:
             for msg in msgs:
                 print(f"  - {msg}", file=sys.stderr)
         print(
-            "\nFix: restore the verbatim resume line. See "
-            ".github/skills/apex-context-management/references/compression-templates.md "
-            "for the contract.",
+            "\nFix: retain native question, checkpoint, completion and human-gate contracts; "
+            "remove retired worker preflights and UI handoff metadata.",
             file=sys.stderr,
         )
         return 1
 
-    print(
-        f"✓ orchestrator /clear-handoff contract present in {len(checked)} agent file(s)"
-    )
+    print(f"✓ native interaction/completion contract present in {len(checked)} agent file(s)")
     return 0
 
 

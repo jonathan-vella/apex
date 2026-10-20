@@ -30,11 +30,13 @@
 
 import fs from "node:fs";
 import path from "node:path";
+import { fileURLToPath } from "node:url";
 import { Reporter } from "./_lib/reporter.mjs";
 
-const PROTOCOL_PATH = ".github/skills/apex-azure-defaults/references/adversarial-review-protocol.md";
-const WORKFLOW_GRAPH_PATH = ".github/skills/apex-workflow-engine/templates/workflow-graph.json";
-const AGENT_DIRS = [".github/agents"];
+const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "../..");
+const PROTOCOL_PATH = path.join(ROOT, ".github/skills/apex-azure-defaults/references/adversarial-review-protocol.md");
+const WORKFLOW_GRAPH_PATH = path.join(ROOT, ".github/skills/apex-workflow-engine/templates/workflow-graph.json");
+const AGENT_DIRS = [path.join(ROOT, ".github/agents")];
 
 const r = new Reporter("Lens-Reference Validator");
 
@@ -77,10 +79,9 @@ function* walkAgents(dirs) {
 }
 
 const LENS_TOKEN_RE =
-  /(?:review_focus|lenses|default_lenses|review_focus_default|review_focus_value)\s*[:=]?\s*\[?\s*["'`]([a-zA-Z][\w-]+)["'`]/g;
-// Also match lenses as bare unquoted identifiers in JSON arrays:
-// `default_lenses: ["foo", "bar"]`
-const LENS_ARRAY_RE = /(?:lenses|default_lenses)\s*[:=]?\s*\[([^\]]+)\]/g;
+  /["'`]?(?:review_focus|lenses|default_lenses|review_focus_default|review_focus_value)["'`]?\s*[:=]\s*\[?\s*["'`]?([a-zA-Z][\w-]+)["'`]?/g;
+// Match lenses in JSON or prose arrays: `"default_lenses": ["foo", "bar"]` or `lenses: ["foo", "bar"]`
+const LENS_ARRAY_RE = /["'`]?(?:lenses|default_lenses)["'`]?\s*[:=]\s*\[([^\]]+)\]/g;
 
 const TOKEN_RE = /["'`]([a-zA-Z][\w-]+)["'`]/g;
 

@@ -3,23 +3,25 @@
 
 ## Owner Selection
 
-Local adapters bind the named agent in prompt frontmatter. Agent Host does not
-load Local prompt files or legacy configured prompt locations. A skill inherits
-the active session's model and tools; it cannot bind or switch an agent.
+Use the GitHub Copilot SDK harness inside VS Code. Archived Local prompts are not
+entry points. A skill inherits the active session's model/tools; it cannot switch agents.
 
-Before any consequential action, require the user to select the exact named
-owner below and its model from that agent's current frontmatter. If the owner,
-model, or required tools cannot be verified, **STOP** and request manual owner
-selection in a new session. Do not continue under an inherited picker model.
-Do not add tools to compensate for missing access. Prompt tool overrides may
-only narrow the owning agent's permissions.
-
-MAI must not invoke specialist step agents as subagents or perform their work inline.
-The Orchestrator presents a human handoff and stops. Do not enable experimental
-nesting or `context: fork`; do not infer model-tier eligibility or add fallbacks.
-An explicit caller allowlist controls worker invocation, regardless of a
-recipient's model-invocation flag. Workers return missing inputs to the parent
-without user questions, parent todo management, or nested dispatch.
+Select `01-Orchestrator` for end-to-end work only if that role is not already active.
+When it is already selected, continue the requested operation in the same conversation;
+do not ask the user to select it again, treat a loaded skill as missing role selection,
+or stop after initialization when the request was to start a project.
+It confirms graph prerequisites
+and human approval, then dispatches the exact allowlisted owner through the
+[native worker lifecycle](worker-readiness.md). Active definitions omit model and effort pins.
+The operator and runtime manage selection, including Auto and HydraFusion; model
+telemetry and picker selection are not readiness gates. Actual required task/tool failures
+block the affected execution. Continuation is used only when the tool supports it. Do not perform specialist work
+inline or introduce a fixed-model fallback.
+Direct step selection remains supported with that owner's prerequisites and tools.
+Direct Requirements, Architect, Design and Governance use native `ask_user` for real missing questions;
+delegated mode returns the form to its interactive parent. Autopilot answers do not prove human approval.
+Delegated steps return `USER_INPUT_REQUIRED` forms for the interactive parent.
+Never enable experimental skill `context: fork` or infer eligibility from labels.
 
 ## Entry Contract
 
@@ -29,7 +31,9 @@ Require a project except for `resume`; if absent for resume, follow [Resume](#re
 to discover candidates before looking up project state. A supplied project needs
 no reconfirmation. Unsupported operations stop for clarification; Git commit and
 debug-log export retain their separate manual Host commands.
-For a fresh workflow, select `01-Orchestrator`. For a direct step start, select
+For a fresh workflow, use the already selected `01-Orchestrator`, or request that selection
+only when another role is active and cannot perform the required routing.
+For a direct step start, select
 that step's owner and validate its graph prerequisites first. Selection is not
 approval to skip prior steps or gates.
 
@@ -64,6 +68,16 @@ Artifacts without another prefix are under `agent-output/{project}/`. Use the
 owner's current file contracts for concrete filenames, schema, and H2 structure.
 Update state only through `apex-recall`; a start command never marks a step done.
 
+## Startup continuation
+
+Distinguish initialization-only from start/new-project intent.
+An initialization-only request may return after creating/verifying the session record.
+An explicit start/new-project request in the selected Orchestrator continues into a bounded native
+`02-Requirements` task, then parent-mediated discovery questions, without another role-selection gate.
+An existing record with Step 1 pending is resumed, not reinitialized or force-overwritten.
+Missing workload details require discovery, not a synthetic completed requirements document.
+Report the actual session-state write; template defaults are proposals, not confirmed user decisions.
+
 ## Activities And Stop Rules
 
 - Requirements uses the owner's structured discovery, preserves partial answers
@@ -73,8 +87,8 @@ Update state only through `apex-recall`; a start command never marks a step done
 - Design remains optional. Review runs only when ADRs were produced and
   `decisions.review_depth == "deep"` or the user explicitly requested review.
   Review findings are informational for Step 3, not authority to change architecture.
-  Log execution failures through `apex-recall finding` and stop with a human Challenger
-  handoff. Missing/empty output permits exactly one identical-input retry; missing
+  Log execution failures through `apex-recall finding` and return them to the interactive
+  parent. Challenger is optional manual recovery. Missing/empty output permits exactly one identical-input retry; missing
   capability blocks immediately. Never treat an execution failure as completed review findings.
 - Governance discovers real effective policy, including inherited assignments;
   do not synthesize policies when authentication or discovery fails. Its SKU
@@ -107,18 +121,18 @@ review. A blocked worker uses the [execution contract](execution-subagent.md).
 
 ## Resume
 
-Require `01-Orchestrator`, then follow its
-[Resuming a Project](../../../agents/01-orchestrator.agent.md#resuming-a-project)
+Use the active `01-Orchestrator`, requesting selection only if another role is actually active, then follow its
+[Recovery and lessons](../../../agents/01-orchestrator.agent.md#recovery-and-lessons)
 procedure. Use an explicit project without reconfirmation; otherwise discover
 candidates and ask only when ambiguous. Empty recall is not permission to start
 fresh. Reconcile handoff, checkpoints, reviews and approvals before advancing.
-Present recovered status and the applicable gate or handoff, then stop. Do not
-ask the user to choose the next step when the graph determines it.
+Present recovered status and the applicable human gate. After approval, use verified
+dispatch for the graph-selected owner; do not ask the user to choose a step already determined by the graph.
 
 ## Harness Acceptance
 
-Native Agent Host support is manual and unverified. Static tests prove source
-contracts and names, not discovery, exact model availability, tool enforcement,
-or runtime handoff behavior. Test Local and Host fresh/resume/revision on both
-IaC tracks, unavailable owners/models, approval stops, and missing review/input
+Native custom-agent acceptance remains unverified. Static tests prove source
+contracts and names, not discovery, worker identity,
+tool enforcement, or runtime handoff behavior. Test SDK fresh/resume/revision on both
+IaC tracks, unavailable owners/tools, approval stops, and missing review/input
 recovery manually. Do not claim successful native execution from these files.

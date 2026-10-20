@@ -1,6 +1,6 @@
 # Tests
 
-Deterministic regression tests for APEX tooling, validators, hooks, and workflow contracts.
+Deterministic regression tests for APEX tooling, validators, Git hooks, and workflow contracts.
 
 ## Directory Structure
 
@@ -13,7 +13,7 @@ tools/tests/
   lib/                     # Shared helper and retirement regressions
   python-diagrams/         # Shared diagram helper tests
   scripts/                 # Node and Python tooling contract tests
-  test-hooks.sh            # Agent hooks test script
+  test-git-hooks.sh        # Lefthook Git hook configuration tests
 ```
 
 ## Quick Start

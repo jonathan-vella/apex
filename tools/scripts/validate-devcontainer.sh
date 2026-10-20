@@ -246,7 +246,7 @@ run_check "python-package-imports" "compatibility" python3 -c \
 
 # Existing repository validation gates.
 run_check "format-check" "harness" npm run format:check
-run_check "hook-tests" "harness" npm run test:hooks
+run_check "git-hook-tests" "harness" npm run test:git-hooks
 run_check "validate-all" "harness" npm run validate:all
 
 # Functional checks specific to the container runtime and public integrations.

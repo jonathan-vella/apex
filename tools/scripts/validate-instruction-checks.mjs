@@ -19,6 +19,7 @@ import path from "node:path";
 import { getInstructions } from "./_lib/workspace-index.mjs";
 import { findAllMatches } from "./_lib/regex-helpers.mjs";
 import { Reporter } from "./_lib/reporter.mjs";
+import { splitApplyTo } from "./_lib/glob-helpers.mjs";
 
 const ROOT = process.cwd();
 const r = new Reporter("Instruction Checks");
@@ -47,28 +48,6 @@ function collectFiles(dirs, extensions) {
     }
   }
   return files;
-}
-
-function splitApplyTo(pattern) {
-  const parts = [];
-  let depth = 0;
-  let current = "";
-  for (const ch of pattern) {
-    if (ch === "{") {
-      depth++;
-      current += ch;
-    } else if (ch === "}") {
-      depth--;
-      current += ch;
-    } else if (ch === "," && depth === 0) {
-      parts.push(current.trim());
-      current = "";
-    } else {
-      current += ch;
-    }
-  }
-  if (current.trim()) parts.push(current.trim());
-  return parts.filter(Boolean);
 }
 
 function globHasMatch(pattern) {
@@ -145,7 +124,7 @@ for (const [_fileName, instr] of instructions) {
 console.log(`\n${"─".repeat(60)}`);
 console.log("📄 Part 2: Instruction file references exist\n");
 
-const scanDirs = [".github/agents", ".github/skills", ".github/instructions", ".github/prompts", "tools/apex-prompts"];
+const scanDirs = [".github/agents", ".github/skills", ".github/instructions"];
 const scanExts = [".md"];
 const allMdFiles = collectFiles(scanDirs, scanExts);
 

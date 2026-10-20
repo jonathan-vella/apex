@@ -11,9 +11,14 @@ which holds the enforced rules. Official references: the
 
 | Scope        | Path                                                           |
 | ------------ | -------------------------------------------------------------- |
-| Workspace    | `.github/skills/`, `.claude/skills/`, `.agents/skills/`        |
-| User profile | `~/.copilot/skills/`, `~/.claude/skills/`, `~/.agents/skills/` |
-| Custom       | Configured via `chat.agentSkillsLocations` setting             |
+| APEX workspace | `.github/skills/` |
+| Personal Copilot skills | `~/.copilot/skills/` |
+| Additional repository roots | `skillDirectories` in `.github/copilot/settings.json` |
+
+These are APEX's supported authoring locations, not an exhaustive list of vendor formats.
+The Local-only `chat.agentSkillsLocations` setting is not read by Copilot harness sessions.
+Use the official [SDK discovery contract](https://github.com/github/copilot-sdk/blob/main/docs/features/customization-locations.md)
+for additional directory semantics; listing a root grants no general filesystem permission.
 
 ## Body Sections
 
@@ -62,7 +67,7 @@ in output, it belongs in `assets/`. Every `references/*.md` file starts with a
 Keep all current skills inline by omitting `context`. The validator accepts
 generic `inline`/`fork` syntax; production policy tests separately prohibit fork.
 `context: fork` is experimental and requires `github.copilot.chat.skillTool.enabled`;
-do not enable it or infer Local/Agent Host parity. Adoption requires a separately
+do not enable it or infer support from another harness. Adoption requires a separately
 approved, fully specified read-only experiment with bounded output, citations,
 missing-input and unavailable-tool checks, permission tests and measured context
 evidence in each intended harness. Standalone docs lookup or VM comparison may

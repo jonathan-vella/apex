@@ -4,6 +4,18 @@ When multiple instruction files apply to the same file type (via overlapping
 `applyTo` globs), this matrix defines which rules take precedence. Files under
 `references/` have no `applyTo`; they load only when an instruction or agent links
 to them, so they appear here as canonical sources, not as instruction layers.
+This is APEX's authoring ownership contract; it does not override the harness's
+instruction hierarchy or certify runtime attachment.
+
+## Entry-Point Ownership
+
+- Root `AGENTS.md`: build/contribution conventions, workflow table and concise runtime safety summary.
+- `.github/copilot-instructions.md`: canonical Azure defaults, recall usage and harness/runtime boundaries.
+- Nested IaC `AGENTS.md`: track-specific commands and layout.
+- Agent bodies: essential role, approval, output and stop constraints, even when references exist.
+
+Update the topic owner first, then reconcile summaries and tests. Do not independently
+evolve duplicate policy text; unresolved conflicts block the affected action.
 
 ## Precedence Order (highest wins)
 
@@ -35,7 +47,7 @@ to them, so they appear here as canonical sources, not as instruction layers.
 | Instruction    | Priority   | Key Rules                              |
 | -------------- | ---------- | -------------------------------------- |
 | azure-artifacts | 2         | H2 heading compliance, template-first  |
-| markdown       | 4 (lowest) | 120-char lines, ATX headings, alt text |
+| markdown       | 4 (lowest) | General style only; template headings win, Markdownlint excludes artifacts |
 
 ### Files matching `.github/agents/*.agent.md`
 
@@ -51,9 +63,8 @@ to them, so they appear here as canonical sources, not as instruction layers.
 | no-hardcoded-counts   | 3          | Descriptive counts, `count-manifest.json` as the source    |
 
 `_subagents/*.agent.md` receive the same set except `agent-operating-frame` and
-`lesson-collection`. `.prompt.md` files receive `agent-authoring`, `vendor-prompting`,
-`prompt`, `no-interactive-shell`, plus `no-hardcoded-counts` under `.github/` or `markdown`
-under `tools/apex-prompts/`.
+`lesson-collection`. Local `.prompt.md` adapters and their prompt-specific
+instruction are archived, outside active discovery.
 `SKILL.md` files receive `agent-skills`, `context-optimization`, `no-interactive-shell`,
 `docs-trigger` and `no-hardcoded-counts`.
 

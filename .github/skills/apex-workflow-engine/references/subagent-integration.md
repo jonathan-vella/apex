@@ -23,8 +23,8 @@ Discovery does not wire or authorize a call. Read the
 > (see `agent-output/model-eval-scoring.md`).
 
 Extra validation requests still require an authorized caller, suitable phase,
-available tools, and all preview/approval gates. Unknown model cost-tier
-eligibility is a blocker, not permission to substitute a model.
+available tools, and all preview/approval gates. Models and effort are diagnostic
+only; leave caller routing overrides unset.
 
 ## Interactive vs Autonomous Delegation
 
@@ -32,20 +32,33 @@ eligibility is a blocker, not permission to substitute a model.
 > Leaf workers cannot ask user questions, manage todos, or call nested agents.
 > Return missing-input diagnostics to the parent; never fabricate defaults.
 
-All production main agents, including `10-Challenger`, are human-selected
-entry points with `disable-model-invocation: true`. The Orchestrator has
-`agents: []` and uses human handoffs only. An allowlist must not override this
-boundary. This applies even when all inputs exist and no questions are needed.
+`01-Orchestrator` remains human-selected and alone dispatches approved,
+allowlisted main workers through the [native task lifecycle](worker-readiness.md).
+Direct main-agent selection retains native questions. Delegated steps return
+`USER_INPUT_REQUIRED` forms to the interactive parent, which owns `ask_user`;
+cancel stops and decline never approves. Steps call only their authorized leaves.
+An allowlist or invocation flag is not runtime routing or approval evidence.
 
-If a required reviewer is unavailable, STOP and request a human handoff to
-`10-Challenger`; never nest a main-agent wrapper or fabricate inline review.
+Automatic and optional manual reviews use `challenger-review-subagent` through
+[shared structured review](../../apex-azure-defaults/references/one-shot-review.md),
+with its own actual-result receipt/freshness contract. If a required reviewer is unavailable,
+STOP and return its failure to the interactive parent; never nest a main-agent
+wrapper or fabricate inline review. `10-Challenger` remains optional manual recovery.
 Missing or empty output permits exactly one identical-input retry, then human
 escalation under the [review protocol](../../apex-azure-defaults/references/adversarial-review-protocol.md).
+When the delegated owner cannot call nested tasks, return `REVIEW_REQUIRED` instead:
+the allowlisted interactive Orchestrator runs the same native reviewer as a sibling automatically.
+This is not a manual-wrapper fallback or review exemption. Preserve budget, actual inputs and recorder identity.
 
-## File-Mode Contract for Subagent Output (Phase 1 of Context-Window Optimization)
+## Output ownership
 
-`challenger-review-subagent` and `cost-estimate-subagent` follow a **file-mode
-contract**: the subagent writes its full structured output to a parent-supplied
+The shared review leaf returns raw structured JSON once, without writes.
+The parent runs `record-review.mjs` against the exact attributed runtime response,
+which validates and atomically persists it. The parent must not reconstruct or
+repair the independently returned findings. Summaries and downstream handoffs
+use the recorded paths, not repeated full JSON dumps.
+
+`cost-estimate-subagent` retains a **file-mode contract**: it writes its structured output to a parent-supplied
 path on disk and returns only a compact summary (≤15 lines, ≤2 KB) to the
 parent's chat context. This keeps parent agents' context windows small and
 prevents repeated JSON dumps from bloating the conversation.
@@ -72,7 +85,8 @@ but never treat a legacy filename alone as proof of a current valid review.
 
 ### Atomic write + refuse-on-exists
 
-The subagent:
+For file-mode workers, the subagent performs these operations. For all structured
+reviews, the provenance-aware recorder owns the writes and actual no-overwrite checks:
 
 1. Writes to `{output_path}.tmp` first.
 2. Renames `{output_path}.tmp` → `{output_path}` only after a successful
@@ -83,7 +97,8 @@ The subagent:
 
 ### Parent responsibilities
 
-After the subagent returns its compact summary, the parent agent MUST:
+After recording and strict freshness validation (or receiving a file-mode
+worker's compact summary), the parent agent MUST:
 
 1. Avoid pasting the full JSON inline in chat. Read `output_path` from disk
    only when full finding details are needed (e.g., Gate presentation, fix
@@ -98,12 +113,12 @@ After the subagent returns its compact summary, the parent agent MUST:
    `checkpoint` subcommand stamps the new file in session state, and the
    file index picks the new file up on the next `reindex`.
 
-3. When re-running after revisions, set `overwrite: true` explicitly.
+3. Preserve attempt accounting and history on revisions. Set `overwrite: true` only for an explicitly
+   authorized bounded replacement; a new pass uses its own canonical output path.
 
-### Why the contract was flipped
+### Historical file-output reviews
 
-Previously parents wrote the JSON, which forced the subagent to return the
-full payload via chat. On multi-pass reviews this dumped 5–10 KB of JSON
-into the parent's context per pass. The file-mode contract pushes that
-weight to disk and replaces it with a 15-line summary, cutting per-turn
-context floor on review-heavy steps (2, 4, 5).
+Earlier manual reviewers wrote their own JSON and returned a compact file pointer.
+Those receipts remain readable history. New automatic/manual reviews share one read-only leaf
+and actual-event recorder; neither parent-authored reconstruction nor a file-pointer-only result
+satisfies the current contract. Keep downstream context compact through recorded paths and summaries.

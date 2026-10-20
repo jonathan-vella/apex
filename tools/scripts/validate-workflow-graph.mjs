@@ -31,6 +31,23 @@ function getAgentFiles() {
   return agents;
 }
 
+function canReachInForwardDag(edges, startNode, targetNode) {
+  if (startNode === targetNode) return true;
+  const visited = new Set([startNode]);
+  const queue = [startNode];
+  while (queue.length > 0) {
+    const curr = queue.shift();
+    for (const edge of edges) {
+      if (edge.from === curr && !visited.has(edge.to)) {
+        if (edge.to === targetNode) return true;
+        visited.add(edge.to);
+        queue.push(edge.to);
+      }
+    }
+  }
+  return false;
+}
+
 function detectCycle(nodes, edges) {
   const adj = {};
   for (const nodeId of Object.keys(nodes)) {
@@ -356,6 +373,9 @@ if (graph.return_edges !== undefined) {
       }
       if (!nodeIds.has(re.to)) {
         r.error(`${label}: to references non-existent node`);
+      }
+      if (nodeIds.has(re.from) && nodeIds.has(re.to) && !canReachInForwardDag(graph.edges, re.to, re.from)) {
+        r.error(`${label}: target "${re.to}" is not an ancestor/self of "${re.from}" in the forward workflow DAG`);
       }
       if (typeof re.reason !== "string" || re.reason.trim() === "") {
         r.error(`${label}: reason must be a non-empty string`);

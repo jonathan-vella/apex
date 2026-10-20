@@ -43,6 +43,7 @@ const NO_REREAD_MARKERS = [
   "frozen_inputs",
   "plan_readonly",
   "plan-lock",
+  "plan_lock",
   "plan-readiness precondition",
 ];
 
@@ -50,27 +51,19 @@ function bodyMentions(content, needle) {
   return content.toLowerCase().includes(needle.toLowerCase());
 }
 
-// Helper retained for future use by the consumer-detection logic below.
-// Currently unused; the `_` prefix satisfies the no-unused-vars rule.
-function _referencesFrozen(content) {
-  return FROZEN_ARTIFACTS.some((a) => content.includes(a));
-}
-
 /**
  * The budget applies to *consumers* of frozen artifacts, not producers.
  * A consumer marks at least one frozen artifact as a hard prerequisite —
  * i.e. the body contains a line that pairs the artifact filename with
- * `**REQUIRED**`. Producers (e.g. 02-Requirements, 03-Architect,
- * 04g-Governance) reference the artifact name only as an output and are
- * exempt.
+ * `**REQUIRED**` or starts a prerequisite requirement (`Require ...`).
+ * Producers (e.g. 02-Requirements, 03-Architect, 04g-Governance)
+ * reference the artifact name only as an output and are exempt.
  */
 function isFrozenArtifactConsumer(content) {
-  return FROZEN_ARTIFACTS.some((artifact) => {
-    // Look for "`artifact` — **REQUIRED**" or "**REQUIRED**. … artifact"
-    // patterns on the same line.
-    const lines = content.split("\n");
-    return lines.some((line) => line.includes(artifact) && line.includes("**REQUIRED**"));
-  });
+  const lines = content.split("\n");
+  return FROZEN_ARTIFACTS.some((artifact) =>
+    lines.some((line) => line.includes(artifact) && (line.includes("**REQUIRED**") || /^\s*Require\b/.test(line))),
+  );
 }
 
 function hasCacheMarker(content) {

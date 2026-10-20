@@ -123,8 +123,56 @@ function Invoke-ArmRestSingle {
 }
 
 # ─── Classification (mirrors discover.py exactly) ───────────────────────────
+function Resolve-ParameterValue {
+    param($Value, [hashtable]$Parameters)
+    if ($null -eq $Value -or -not ($Value -is [string])) { return $Value }
+    $trimmed = $Value.Trim()
+    if ($trimmed -match "^\[parameters\('([^']+)'\)\]$") {
+        $key = $Matches[1].ToLower()
+        if ($Parameters.ContainsKey($key)) { return $Parameters[$key] }
+        return $Value
+    }
+    if ($trimmed -match "^\[if\(contains\(parameters\('([^']+)'\),\s*'([^']+)'\),\s*parameters\('([^']+)'\),\s*'([^']+)'\)\]$") {
+        $listKey = $Matches[1].ToLower()
+        $targetType = $Matches[2].ToLower()
+        $effectKey = $Matches[3].ToLower()
+        $fallbackEffect = $Matches[4]
+        if ($Parameters.ContainsKey($listKey) -and $Parameters.ContainsKey($effectKey)) {
+            $container = $Parameters[$listKey]
+            $chosen = $Parameters[$effectKey]
+            if ($container -is [array] -and $null -ne $chosen) {
+                $lowerItems = @($container | ForEach-Object { ([string]$_).ToLower() })
+                if ($lowerItems -contains $targetType) { return [string]$chosen }
+                return [string]$fallbackEffect
+            }
+        }
+    }
+    return $Value
+}
+
+function Get-EffectiveParameters {
+    param($Defn, $Supplied)
+    $result = @{}
+    $defaults = $Defn.properties.parameters
+    if ($defaults) {
+        foreach ($prop in $defaults.PSObject.Properties) {
+            if ($null -ne $prop.Value -and $prop.Value.PSObject.Properties['defaultValue']) {
+                $result[$prop.Name.ToLower()] = $prop.Value.defaultValue
+            }
+        }
+    }
+    if ($Supplied) {
+        foreach ($prop in $Supplied.PSObject.Properties) {
+            if ($null -ne $prop.Value -and $prop.Value.PSObject.Properties['value']) {
+                $result[$prop.Name.ToLower()] = $prop.Value.value
+            }
+        }
+    }
+    return $result
+}
+
 function Get-EffectOf {
-    param($Defn)
+    param($Defn, [hashtable]$EffectiveParameters = @{})
     $props = $Defn.properties
     if (-not $props) { return $null }
     $rule = $props.policyRule
@@ -133,16 +181,22 @@ function Get-EffectOf {
     if (-not $then) { return $null }
     $eff = $then.effect
     if (-not $eff) { return $null }
-    # Resolve parameterized effects
-    if ($eff -match '^\[parameters\(') {
-        $paramName = $eff -replace "^\[parameters\('", "" -replace "'\)\]$", ""
-        $paramDef = $props.parameters.$paramName
-        if ($paramDef -and $paramDef.defaultValue) {
-            return [string]$paramDef.defaultValue
-        }
+    $params = if ($EffectiveParameters.Count -gt 0) { $EffectiveParameters } else { Get-EffectiveParameters -Defn $Defn -Supplied $null }
+    $resolved = Resolve-ParameterValue -Value ([string]$eff) -Parameters $params
+    if (-not $resolved -or ($resolved -is [string] -and $resolved.StartsWith("["))) {
         return $null
     }
-    return [string]$eff
+    $effLower = ([string]$resolved).ToLower()
+    switch ($effLower) {
+        "deny" { return "Deny" }
+        "audit" { return "Audit" }
+        "auditifnotexists" { return "AuditIfNotExists" }
+        "deployifnotexists" { return "DeployIfNotExists" }
+        "modify" { return "Modify" }
+        "append" { return "Append" }
+        "disabled" { return "Disabled" }
+        default { return [string]$resolved }
+    }
 }
 
 function Get-Classification {
@@ -170,8 +224,8 @@ function Get-ResourceTypes {
     $rule = $Defn.properties.policyRule
     if (-not $rule) { return $types }
     $ruleJson = $rule | ConvertTo-Json -Depth 20 -Compress
-    $matches = [regex]::Matches($ruleJson, '"type"\s*:\s*"(Microsoft\.\w+/\w+(?:/\w+)?)"')
-    foreach ($m in $matches) {
+    $typeMatches = [regex]::Matches($ruleJson, '"type"\s*:\s*"(Microsoft\.\w+/\w+(?:/\w+)?)"')
+    foreach ($m in $typeMatches) {
         $t = $m.Groups[1].Value
         if ($types -notcontains $t) { $types += $t }
     }
@@ -321,6 +375,7 @@ function Process-Subscription {
     $findings = @()
     $auditCount = 0
     $disabledCount = 0
+    $unclassifiedCount = 0
 
     foreach ($a in $keptAssignments) {
         $props = $a.properties
@@ -339,31 +394,51 @@ function Process-Subscription {
 
         if (-not $policyDefId) { continue }
 
-        # Resolve members
+        # Resolve members and effective parameters
         $members = @()
         if ($policyDefId -match '/policysetdefinitions/' -and $sets.ContainsKey($policyDefId)) {
-            $setMembers = $sets[$policyDefId].properties.policyDefinitions
+            $setObj = $sets[$policyDefId]
+            $setParams = Get-EffectiveParameters -Defn $setObj -Supplied $props.parameters
+            $setMembers = $setObj.properties.policyDefinitions
             if ($setMembers) {
                 foreach ($m in $setMembers) {
                     $mid = ($m.policyDefinitionId ?? "").ToLower()
                     if ($defs.ContainsKey($mid)) {
-                        $members += @{ defn = $defs[$mid]; memberRefId = $m.policyDefinitionReferenceId }
+                        $memberDef = $defs[$mid]
+                        $memberParams = Get-EffectiveParameters -Defn $memberDef -Supplied $null
+                        if ($m.parameters) {
+                            foreach ($mp in $m.parameters.PSObject.Properties) {
+                                if ($null -ne $mp.Value -and $mp.Value.PSObject.Properties['value']) {
+                                    $resolvedVal = Resolve-ParameterValue -Value $mp.Value.value -Parameters $setParams
+                                    $memberParams[$mp.Name.ToLower()] = $resolvedVal
+                                }
+                            }
+                        }
+                        $members += @{ defn = $memberDef; memberRefId = $m.policyDefinitionReferenceId; effectiveParams = $memberParams }
+                    }
+                    else {
+                        $unclassifiedCount++
                     }
                 }
             }
         }
         elseif ($defs.ContainsKey($policyDefId)) {
-            $members += @{ defn = $defs[$policyDefId]; memberRefId = $null }
+            $defObj = $defs[$policyDefId]
+            $defParams = Get-EffectiveParameters -Defn $defObj -Supplied $props.parameters
+            $members += @{ defn = $defObj; memberRefId = $null; effectiveParams = $defParams }
+        }
+        else {
+            $unclassifiedCount++
         }
 
         foreach ($member in $members) {
             $defn = $member.defn
             $memberRefId = $member.memberRefId
-            $eff = Get-EffectOf $defn
-            if (-not $eff) { continue }
+            $eff = Get-EffectOf -Defn $defn -EffectiveParameters $member.effectiveParams
+            if (-not $eff) { $unclassifiedCount++; continue }
             if ($eff -eq "Disabled") { $disabledCount++; continue }
-            if ($eff -in @("Audit", "AuditIfNotExists")) { $auditCount++; continue }
-            if ($eff -notin $RELEVANT_EFFECTS) { continue }
+            if ($eff -in @("Audit", "AuditIfNotExists", "Append")) { $auditCount++; continue }
+            if ($eff -notin $RELEVANT_EFFECTS) { $unclassifiedCount++; continue }
 
             $rtypes = Get-ResourceTypes $defn
             $paths = Get-PropertyPaths $defn $rtypes
@@ -442,8 +517,9 @@ function Process-Subscription {
         | Where-Object { $_ }
         | Select-Object -Unique
     )
+    $subDiscoveryStatus = if ($unclassifiedCount -gt 0) { "PARTIAL" } else { "COMPLETE" }
     $discoveryMetadata = [ordered]@{
-        discovery_status = "COMPLETE"
+        discovery_status = $subDiscoveryStatus
         discovered_at = $discoveredAtIso
         scope = [ordered]@{
             subscription_id = $SubId
@@ -470,7 +546,7 @@ function Process-Subscription {
         subscription_id = $SubId
         discovered_at = $discoveredAtIso
         source = "github-actions-baseline"
-        discovery_status = "COMPLETE"
+        discovery_status = $subDiscoveryStatus
         discovery_metadata = $discoveryMetadata
         discovery_summary = [ordered]@{
             assignment_total = $assignments.Count
@@ -590,6 +666,9 @@ foreach ($subId in $subsToProcess) {
     }
 
     $subscriptions[$subId] = $envelope
+    if ($envelope.discovery_status -ne "COMPLETE") {
+        $coverageStatus = "PARTIAL"
+    }
     $totalProcessed++
 }
 

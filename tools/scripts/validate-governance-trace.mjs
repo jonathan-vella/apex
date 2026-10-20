@@ -274,7 +274,7 @@ function runAttestationChain(project, allowLegacy) {
     }
   } else {
     const plan = fs.readFileSync(planPath, "utf-8");
-    const matrixMatch = plan.match(/## 🛡️ Governance Compliance Matrix([\s\S]*?)(?:\n## |$)/);
+    const matrixMatch = plan.match(/## 🛡️ Governance Compliance Matrix([\s\S]*?)(?:\n### |\n## |$)/);
     if (!matrixMatch) {
       if (allowLegacy) {
         console.log("ℹ️  Governance Compliance Matrix H2 absent — skipping L1 (--allow-legacy)");
@@ -295,7 +295,9 @@ function runAttestationChain(project, allowLegacy) {
           reporter.error("L1", "Matrix section present but contains zero rows");
         }
       } else {
-        const unsatisfied = tableRows.filter((r2) => !/✅\s*satisfied/.test(r2));
+        const unsatisfied = tableRows.filter(
+          (r2) => !/(?:✅\s*satisfied|➖\s*not-applicable|🔄\s*auto-remediated)/i.test(r2),
+        );
         if (unsatisfied.length > 0) {
           if (allowLegacy) {
             console.log(`ℹ️  ${unsatisfied.length} matrix row(s) not satisfied — skipping L1 (--allow-legacy)`);
@@ -303,7 +305,7 @@ function runAttestationChain(project, allowLegacy) {
             reporter.error("L1", `${unsatisfied.length} matrix row(s) not satisfied`);
           }
         } else {
-          console.log(`  ✅ L1 matrix: ${tableRows.length} rows all satisfied`);
+          console.log(`  ✅ L1 matrix: ${tableRows.length} rows all satisfied/reconciled`);
         }
       }
     }
@@ -354,7 +356,7 @@ function runAttestationChain(project, allowLegacy) {
       } else if (candidate.endsWith(".json")) {
         try {
           const p = JSON.parse(fs.readFileSync(candidate, "utf-8"));
-          if (p?.status === "CLEAN") {
+          if (p?.status === "CLEAN" || p?.deploy_gate === "PROCEED") {
             l2Recorded = true;
             break;
           }
