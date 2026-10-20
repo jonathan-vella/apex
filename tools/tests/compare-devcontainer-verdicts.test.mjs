@@ -744,7 +744,7 @@ else {
     assert.deepEqual(derived.mounts, [
       `type=bind,source=${path.join(test.root, "devcontainer-evaluator")},target=/opt/apex-evaluator,readonly`,
     ]);
-    assert.deepEqual(derived.remoteEnv, { GH_TOKEN: "", GITHUB_TOKEN: "", PRESERVED: "baseline" });
+    assert.deepEqual(derived.remoteEnv, { GH_TOKEN: "${localEnv:GH_TOKEN}", GITHUB_TOKEN: "", PRESERVED: "baseline" });
     assert.notEqual(test.run(prepare).status, 0, "must not overwrite an existing evaluator/config");
   });
 

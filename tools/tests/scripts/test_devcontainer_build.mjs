@@ -1,6 +1,15 @@
 import assert from "node:assert/strict";
 import { createHash } from "node:crypto";
-import { copyFileSync, mkdirSync, mkdtempSync, readFileSync, readdirSync, rmSync, writeFileSync } from "node:fs";
+import {
+  copyFileSync,
+  existsSync,
+  mkdirSync,
+  mkdtempSync,
+  readFileSync,
+  readdirSync,
+  rmSync,
+  writeFileSync,
+} from "node:fs";
 import { tmpdir } from "node:os";
 import path from "node:path";
 import { spawnSync } from "node:child_process";
@@ -121,7 +130,9 @@ if (command === "uname") {
 }
 
 test("build uses Azure Linux 4 with explicit user prerequisites and preserves host interfaces", () => {
-  const config = parseJsonc(readFileSync(new URL("devcontainer.json", containerDir), "utf8"));
+  const activeConfig = parseJsonc(readFileSync(new URL("devcontainer.json", containerDir), "utf8"));
+  const sourceConfigPath = new URL("devcontainer.source.json", containerDir);
+  const config = existsSync(sourceConfigPath) ? parseJsonc(readFileSync(sourceConfigPath, "utf8")) : activeConfig;
   const lock = JSON.parse(readFileSync(new URL("devcontainer-lock.json", containerDir), "utf8"));
   const dockerfile = readFileSync(new URL("Dockerfile", containerDir), "utf8");
   assert.deepEqual(config.build, { dockerfile: "Dockerfile", context: "." });
@@ -143,6 +154,10 @@ test("build uses Azure Linux 4 with explicit user prerequisites and preserves ho
   assert.match(dockerfile, /COPY install-build-tools\.sh download-checksums\.json \/tmp\/apex-build-tools\//);
   assert.match(dockerfile, /bash \/tmp\/apex-build-tools\/install-build-tools\.sh/);
   assert.match(dockerfile, /install -d -m 0755 -o vscode -g vscode/);
+  assert.match(
+    readFileSync(new URL("post-create.sh", containerDir), "utf8"),
+    /sudo -n chown -R .*\/usr\/local\/python\/current/,
+  );
   assert.match(dockerfile, /\/home\/vscode\/\.terraform\.d\/plugin-cache/);
   for (const [name, value] of Object.entries({
     NPM_CONFIG_REGISTRY: "https://packagefeedproxy.microsoft.io/npm/",

@@ -21,6 +21,7 @@ fi
 npm ci --loglevel=error
 
 printf "Installing Python requirements and editable recall package...\n"
+sudo -n chown -R "$(id -u):$(id -g)" /usr/local/python/current
 uv pip install --python /usr/local/python/current/bin/python3 --quiet \
     --requirement "${PWD}/requirements.txt" --editable "${PWD}/tools/apex-recall"
 python3 -c "import diagrams, matplotlib, PIL, pytest, ruff, apex_recall"

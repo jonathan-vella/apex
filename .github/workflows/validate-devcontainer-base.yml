@@ -99,7 +99,9 @@ env:
     fs.copyFileSync("tools/scripts/_lib/parse-jsonc.mjs", path.join(evaluator, "_lib/parse-jsonc.mjs"));
     fs.cpSync("node_modules/jsonc-parser", path.join(evaluator, "node_modules/jsonc-parser"), { recursive: true });
     config.mounts = [`type=bind,source=${evaluator},target=/opt/apex-evaluator,readonly`];
-    config.remoteEnv = { ...config.remoteEnv, GH_TOKEN: "", GITHUB_TOKEN: "" };
+    // Keep VS Code host-token substitution visible for compatibility checks; the devcontainers action
+    // explicitly supplies empty GH_TOKEN/GITHUB_TOKEN values and inheritEnv is false.
+    config.remoteEnv = { ...config.remoteEnv, GITHUB_TOKEN: "" };
     config.containerEnv = { ...config.containerEnv, GH_TOKEN: "", GITHUB_TOKEN: "" };
     config.waitFor = "postCreateCommand";
     // Co-location preserves relative paths and the CLI's devcontainer-lock.json lookup.
