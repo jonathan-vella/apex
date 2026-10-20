@@ -390,7 +390,7 @@ for (const failure of [
     ]) {
       fs.writeFileSync(
         path.join(root, "bin", command),
-        `#!/bin/sh\nprintf '%s\\n' '${command}' >> "$CALL_LOG"\nif [ '${command}' = npm ] && [ "$1" = --version ]; then echo 12.1.0; exit 0; fi\nif [ '${command}' = "$FAIL_COMMAND" ]; then exit 17; fi\nexit 0\n`,
+        `#!/bin/sh\nprintf '%s\\n' '${command}' >> "$CALL_LOG"\nif [ '${command}' = npm ] && [ "$1" = --version ]; then echo 12.2.0; exit 0; fi\nif [ '${command}' = "$FAIL_COMMAND" ]; then exit 17; fi\nif [ '${command}' = npm ] && [ "$1 $2" = 'run setup:powershell' ]; then exec pwsh; fi\nexit 0\n`,
         { mode: 0o755 },
       );
     }
@@ -417,6 +417,8 @@ for (const failure of [
         "--",
         "--variant",
         "candidate",
+        "--expected-distro-id",
+        "ubuntu",
         "--expected-os",
         "26.04",
         "--expected-arch",
@@ -441,13 +443,9 @@ for (const failure of [
   });
 }
 
-test("PowerShell module installation surfaces actual installation and verification failures", () => {
-  const command = setup.match(/pwsh -NoProfile -NonInteractive -Command '([\s\S]*?)'\n/)[1];
-  for (const behavior of ["throw", "missing", "present"]) {
-    const mocks = `function Get-Module { param($Name, [switch]$ListAvailable) ${behavior === "present" ? "return @{ Name = $Name }" : ""} }\nfunction Install-Module { ${behavior === "throw" ? 'throw "fixture failure"' : ""} }\n`;
-    const result = spawnSync("pwsh", ["-NoProfile", "-NonInteractive", "-Command", mocks + command], {
-      encoding: "utf8",
-    });
-    assert.equal(result.status, behavior === "present" ? 0 : 1, result.stdout + result.stderr);
-  }
+test("setup retains pinned PowerShell analysis without installing unused Azure modules", () => {
+  assert.match(setup, /npm run setup:powershell/);
+  assert.doesNotMatch(setup, /Az\.(Accounts|Resources|Storage|Network|KeyVault|Websites)|Install-Module/);
+  assert.match(setup, /azqr is unavailable/);
+  assert.doesNotMatch(setup, /compliance scans fall back to the azqr CLI/);
 });

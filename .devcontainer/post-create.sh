@@ -15,37 +15,19 @@ for directory in "${HOME}/.cache/uv" "${HOME}/.config/gh" "${TF_PLUGIN_CACHE_DIR
 done
 
 printf "Installing workspace Node dependencies...\n"
-if [[ "$(npm --version)" != "12.1.0" ]]; then
-    npm install --global npm@12.1.0
+if [[ "$(npm --version)" != "12.2.0" ]]; then
+    npm install --global npm@12.2.0
 fi
 npm ci --loglevel=error
 
 printf "Installing Python requirements and editable recall package...\n"
-uv pip install --system --quiet --requirement "${PWD}/requirements.txt" --editable "${PWD}/tools/apex-recall"
+uv pip install --python /usr/local/python/current/bin/python3 --quiet \
+    --requirement "${PWD}/requirements.txt" --editable "${PWD}/tools/apex-recall"
 python3 -c "import diagrams, matplotlib, PIL, pytest, ruff, apex_recall"
 apex-recall --version
 
 printf "Installing pinned PowerShell script analysis tooling...\n"
 npm run setup:powershell
-
-printf "Installing required Azure PowerShell modules...\n"
-pwsh -NoProfile -NonInteractive -Command '
-    $ErrorActionPreference = "Stop"
-    try {
-        $modules = @("Az.Accounts", "Az.Resources", "Az.Storage", "Az.Network", "Az.KeyVault", "Az.Websites")
-        foreach ($module in $modules) {
-            if (-not (Get-Module -ListAvailable -Name $module)) {
-                Install-Module -Name $module -Repository PSGallery -Scope CurrentUser -Force -AllowClobber -ErrorAction Stop
-            }
-            if (-not (Get-Module -ListAvailable -Name $module)) {
-                throw "Required module unavailable: $module"
-            }
-        }
-    } catch {
-        Write-Error $_ -ErrorAction Continue
-        exit 1
-    }
-'
 
 printf "Verifying build tools and CLI configuration...\n"
 gitleaks version
@@ -60,7 +42,13 @@ elif ! az bicep version --only-show-errors; then
 fi
 
 printf "Installing pinned azqr for the Azure MCP extension_azqr tool...\n"
-bash .devcontainer/install-azqr.sh || printf "azqr install skipped; compliance scans fall back to the azqr CLI.\n"
+if ! bash .devcontainer/install-azqr.sh; then
+    if command -v azqr >/dev/null 2>&1 && azqr --version; then
+        printf "Warning: pinned azqr installation failed; an existing CLI remains available.\n" >&2
+    else
+        printf "Warning: azqr is unavailable; Quick Review scans require installing it before use.\n" >&2
+    fi
+fi
 
 printf "Adding only missing MCP defaults...\n"
 node .devcontainer/configure-mcp.mjs

@@ -178,6 +178,19 @@ test("Python CI installs diagram dependencies and renderer before running toolin
   }
 });
 
+test("Python CI preserves the minimum lane and adds the selected current interpreter", { skip: CI_SKIP }, () => {
+  const workflow = load(readFileSync(new URL("../../../.github/workflows/ci.yml", import.meta.url), "utf8"));
+  const container = parseJsonc(
+    readFileSync(new URL("../../../.devcontainer/devcontainer.json", import.meta.url), "utf8"),
+  );
+  const minimum = workflow.jobs["external-tests"].steps.find((step) => step.uses === "actions/setup-python@v7");
+  const current = workflow.jobs["python-current"].steps.find((step) => step.uses === "actions/setup-python@v7");
+  assert.equal(minimum.with["python-version"], "3.14");
+  assert.equal(current.with["python-version"], container.features["./features/python"].version);
+  const scan = workflow.jobs["secret-scan"].steps.find((step) => step.name === "Install pinned gitleaks");
+  assert.equal(scan.run, "sudo bash .devcontainer/install-build-tools.sh uv gitleaks");
+});
+
 test("Node CI provides the supported Python interpreter before executable validator tests", { skip: CI_SKIP }, () => {
   const workflow = load(readFileSync(new URL("../../../.github/workflows/ci.yml", import.meta.url), "utf8"));
   const steps = workflow.jobs.ci.steps;

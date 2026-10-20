@@ -23,12 +23,34 @@ function fixture(context, architecture = "amd64", missingMember = false) {
   writeFileSync(path.join(root, "source", `uv-${target}`, "uv"), "fixture uv");
   writeFileSync(path.join(root, "source", `uv-${target}`, "uvx"), "fixture uvx");
   writeFileSync(path.join(root, "source", "gitleaks"), "fixture gitleaks");
+  writeFileSync(path.join(root, "source", "terraform"), "fixture terraform");
+  writeFileSync(path.join(root, "source", "bicep"), "fixture bicep");
+  writeFileSync(path.join(root, "source", `azd-linux-${architecture}`), "fixture azd");
+  const ghDirectory = `gh_${manifest.gh.version}_linux_${architecture}/bin`;
+  mkdirSync(path.join(root, "source", ghDirectory), { recursive: true });
+  writeFileSync(path.join(root, "source", ghDirectory, "gh"), "fixture gh");
   writeFileSync(path.join(root, "source", "other"), "fixture missing member");
-  for (const tool of ["uv", "gitleaks"]) {
-    const archive = path.join(root, "downloads", `${tool}.tar.gz`);
-    const member = tool === "uv" ? `uv-${target}` : missingMember ? "other" : "gitleaks";
-    const packed = spawnSync("tar", ["-czf", archive, "-C", path.join(root, "source"), member], { encoding: "utf8" });
-    assert.equal(packed.status, 0, packed.stderr);
+  for (const tool of ["uv", "gitleaks", "terraform", "gh", "bicep", "azd"]) {
+    const archive = path.join(root, "downloads", `${tool}.download`);
+    if (tool === "bicep") {
+      copyFileSync(path.join(root, "source", tool), archive);
+    } else {
+      const member =
+        tool === "uv"
+          ? `uv-${target}`
+          : tool === "gh"
+            ? `${ghDirectory}/gh`
+            : missingMember === true || missingMember === tool
+              ? "other"
+              : tool === "azd"
+                ? `azd-linux-${architecture}`
+                : tool;
+      const packed =
+        tool === "terraform"
+          ? spawnSync("python3", ["-m", "zipfile", "-c", archive, member], { cwd: path.join(root, "source") })
+          : spawnSync("tar", ["-czf", archive, "-C", path.join(root, "source"), member], { encoding: "utf8" });
+      assert.equal(packed.status, 0, packed.stderr?.toString());
+    }
     localManifest[tool].artifacts[architecture].sha256 = createHash("sha256")
       .update(readFileSync(archive))
       .digest("hex");
@@ -42,23 +64,23 @@ import {spawnSync} from "node:child_process";
 const [command, ...args] = process.argv.slice(2);
 const root = process.env.FIXTURE_ROOT;
 appendFileSync(path.join(root, "commands.jsonl"), JSON.stringify({command, args}) + "\n");
-if (command === "dpkg") {
+if (command === "uname") {
   process.stdout.write(process.env.TEST_ARCH + "\n");
 } else if (command === "curl") {
   const url = args.at(-1);
-  const tool = url.includes("/gitleaks/") ? "gitleaks" : "uv";
+  const tool = url.includes("/gitleaks/") ? "gitleaks" : url.includes("/terraform/") ? "terraform" : url.includes("/cli/cli/") ? "gh" : url.includes("/Azure/bicep/") ? "bicep" : url.includes("/Azure/azure-dev/") ? "azd" : "uv";
   if (process.env.TEST_FAILURE === "download-" + tool) process.exit(22);
   const output = args[args.indexOf("--output") + 1];
   if (!output.startsWith(root + path.sep)) process.exit(98);
   if (process.env.TEST_FAILURE === "corrupt-" + tool) writeFileSync(output, "corrupt archive");
-  else copyFileSync(path.join(root, "downloads", tool + ".tar.gz"), output);
+  else copyFileSync(path.join(root, "downloads", tool + ".download"), output);
 } else if (command === "install") {
   const source = args.at(-2);
   const destination = args.at(-1);
-  if (!source.startsWith(root + path.sep) || !/^\/usr\/local\/bin\/(uv|uvx|gitleaks)$/.test(destination)) process.exit(98);
+  if (!source.startsWith(root + path.sep) || !/^\/usr\/local\/bin\/(uv|uvx|gitleaks|terraform|gh|bicep|azd)$/.test(destination)) process.exit(98);
   if (process.env.TEST_FAILURE === "install") process.exit(1);
   copyFileSync(source, path.join(root, "installed", path.basename(destination)));
-} else if (command === "tar" || command === "sha256sum") {
+} else if (command === "tar" || command === "sha256sum" || command === "unzip") {
   const result = spawnSync("/usr/bin/" + command, args, {stdio: "inherit"});
   process.exit(result.status ?? 1);
 } else {
@@ -69,7 +91,7 @@ if (command === "dpkg") {
   );
   const syntax = spawnSync(process.execPath, ["--check", path.join(root, "mock.mjs")], { encoding: "utf8" });
   assert.equal(syntax.status, 0, syntax.stderr);
-  for (const command of ["dpkg", "curl", "install", "tar", "sha256sum", "apt-get", "sudo"]) {
+  for (const command of ["uname", "curl", "install", "tar", "unzip", "sha256sum", "apt-get", "sudo"]) {
     writeFileSync(
       path.join(root, "bin", command),
       `#!/bin/sh\nexec "${process.execPath}" "${path.join(root, "mock.mjs")}" "${command}" "$@"\n`,
@@ -78,15 +100,15 @@ if (command === "dpkg") {
   }
   return {
     root,
-    run(failure = "", arch = architecture) {
-      const result = spawnSync("bash", [path.join(root, "install-build-tools.sh")], {
+    run(failure = "", arch = architecture, tools = []) {
+      const result = spawnSync("bash", [path.join(root, "install-build-tools.sh"), ...tools], {
         encoding: "utf8",
         env: {
           ...process.env,
           PATH: `${path.join(root, "bin")}:${process.env.PATH}`,
           TMPDIR: path.join(root, "temp"),
           FIXTURE_ROOT: root,
-          TEST_ARCH: arch,
+          TEST_ARCH: arch === "amd64" ? "x86_64" : arch === "arm64" ? "aarch64" : arch,
           TEST_FAILURE: failure,
         },
       });
@@ -98,27 +120,49 @@ if (command === "dpkg") {
   };
 }
 
-test("build retains Ubuntu, feature locks, host paths and host-process token forwarding", () => {
+test("build uses Azure Linux 4 with explicit user prerequisites and preserves host interfaces", () => {
   const config = parseJsonc(readFileSync(new URL("devcontainer.json", containerDir), "utf8"));
   const lock = JSON.parse(readFileSync(new URL("devcontainer-lock.json", containerDir), "utf8"));
   const dockerfile = readFileSync(new URL("Dockerfile", containerDir), "utf8");
   assert.deepEqual(config.build, { dockerfile: "Dockerfile", context: "." });
   assert.equal(config.image, undefined);
-  const expectedImage = process.env.APEX_EXPECTED_BASE_IMAGE ?? "mcr.microsoft.com/devcontainers/base:ubuntu26.04";
+  const expectedImage =
+    process.env.APEX_EXPECTED_BASE_IMAGE ??
+    "mcr.microsoft.com/azurelinux-beta/base/core:4.0@sha256:63ef5dda2fb5681ae3aa5c9597a8c4b24364da91ec459b419fa3c38160595fae";
   assert.equal(dockerfile.split("\n")[0], `FROM ${expectedImage}`);
-  assert.match(dockerfile, /DEBIAN_FRONTEND=noninteractive/);
-  assert.match(dockerfile, /apt-get install -y --no-install-recommends/);
-  assert.match(dockerfile, /graphviz dos2unix bats/);
-  assert.match(dockerfile, /rm -rf \/var\/lib\/apt\/lists\/\*/);
+  assert.match(dockerfile, /dnf install -y/);
+  assert.match(dockerfile, /graphviz bats/);
+  assert.match(dockerfile, /findutils coreutils-single\b/);
+  assert.match(dockerfile, /krb5-libs libatomic openssl-libs/);
+  assert.match(dockerfile, /\bunzip\b/);
+  assert.doesNotMatch(dockerfile, /apt-get|dos2unix|DEBIAN_FRONTEND/);
+  assert.match(dockerfile, /useradd --uid 1000 --gid vscode/);
+  assert.match(dockerfile, /NOPASSWD:ALL/);
+  assert.match(dockerfile, /visudo --check/);
   assert.match(dockerfile, /COPY install-build-tools\.sh download-checksums\.json \/tmp\/apex-build-tools\//);
   assert.match(dockerfile, /bash \/tmp\/apex-build-tools\/install-build-tools\.sh/);
   assert.match(dockerfile, /install -d -m 0755 -o vscode -g vscode/);
   assert.match(dockerfile, /\/home\/vscode\/\.terraform\.d\/plugin-cache/);
+  for (const [name, value] of Object.entries({
+    NPM_CONFIG_REGISTRY: "https://packagefeedproxy.microsoft.io/npm/",
+    PIP_INDEX_URL: "https://packagefeedproxy.microsoft.io/pypi/simple/",
+    UV_INDEX_URL: "https://packagefeedproxy.microsoft.io/pypi/simple/",
+  })) {
+    assert.ok(dockerfile.includes(`${name}=${value}`), `${name} must be available during Feature builds`);
+    assert.equal(config.containerEnv[name], undefined, `${name} must inherit its image default`);
+  }
   assert.equal(config.onCreateCommand, "az version --output none");
   assert.equal(config.postCreateCommand, "bash .devcontainer/post-create.sh");
   assert.equal(config.remoteUser, "vscode");
   assert.equal(config.remoteEnv.GH_TOKEN, "${localEnv:GH_TOKEN}");
   assert.ok(config.features["ghcr.io/devcontainers/features/node:2"]);
+  assert.equal(config.features["ghcr.io/azure/azure-dev/azd:latest"], undefined);
+  assert.equal(lock.features["ghcr.io/azure/azure-dev/azd:latest"], undefined);
+  assert.deepEqual(config.overrideFeatureInstallOrder, ["./features/python", "./features/azure-cli"]);
+  for (const [name, options] of Object.entries(config.features)) {
+    assert.ok(name.startsWith("./") || name.startsWith("ghcr.io/"), `Invalid Feature reference: ${name}`);
+    assert.ok(options && typeof options === "object" && !Array.isArray(options), name);
+  }
   for (const feature of Object.keys(config.features).filter((name) => name.startsWith("ghcr.io/"))) {
     assert.ok(lock.features[feature], `Missing feature lock: ${feature}`);
   }
@@ -128,23 +172,37 @@ test("build retains Ubuntu, feature locks, host paths and host-process token for
   assert.ok(config.mounts.some(({ source }) => source === "${localEnv:USERPROFILE}${localEnv:HOME}/.azure"));
 });
 
+test("Python Feature prepends its interpreter to the inherited Dockerfile PATH", () => {
+  const feature = JSON.parse(readFileSync(new URL("features/python/devcontainer-feature.json", containerDir), "utf8"));
+  assert.equal(feature.containerEnv.PATH, "/usr/local/python/current/bin:${PATH}");
+});
+
 test("release manifest pins both architectures to versioned upstream assets and checksum sources", () => {
-  assert.equal(manifest.uv.version, "0.12.23");
-  assert.equal(manifest.gitleaks.version, "8.30.1");
   const upstream = {
     uv: { prefix: "https://github.com/astral-sh/uv", tag: (version) => version },
     gitleaks: { prefix: "https://github.com/gitleaks/gitleaks", tag: (version) => `v${version}` },
     // The upstream azqr release tags carry a literal "v." prefix.
     azqr: { prefix: "https://github.com/Azure/azqr", tag: (version) => `v.${version}` },
+    gh: { prefix: "https://github.com/cli/cli", tag: (version) => `v${version}` },
+    bicep: { prefix: "https://github.com/Azure/bicep", tag: (version) => `v${version}` },
+    azd: { prefix: "https://github.com/Azure/azure-dev", tag: (version) => `azure-dev-cli_${version}` },
   };
   for (const [tool, release] of Object.entries(manifest)) {
+    assert.match(release.version, /^\d+\.\d+\.\d+$/);
     assert.deepEqual(Object.keys(release.artifacts).sort(), ["amd64", "arm64"]);
     for (const artifact of Object.values(release.artifacts)) {
       assert.match(artifact.sha256, /^[0-9a-f]{64}$/);
-      const { prefix, tag: toTag } = upstream[tool];
-      const tag = toTag(release.version);
+      const prefix =
+        tool === "terraform"
+          ? `https://releases.hashicorp.com/terraform/${release.version}/`
+          : `${upstream[tool].prefix}/releases/download/${upstream[tool].tag(release.version)}/`;
       for (const url of [artifact.url, artifact.checksumUrl]) {
-        assert.ok(url.startsWith(`${prefix}/releases/download/${tag}/`));
+        assert.ok(
+          url.startsWith(prefix) ||
+            (["bicep", "azd"].includes(tool) &&
+              url ===
+                `${upstream[tool].prefix.replace("https://github.com/", "https://api.github.com/repos/")}/releases/tags/${upstream[tool].tag(release.version)}`),
+        );
         assert.ok(!url.includes("latest"));
       }
     }
@@ -155,19 +213,16 @@ for (const architecture of ["amd64", "arm64"]) {
   test(`installs only verified ${architecture} archives with executable permissions`, (context) => {
     const result = fixture(context, architecture).run();
     assert.equal(result.status, 0, result.stdout + result.stderr);
-    assert.deepEqual(result.installed.sort(), ["gitleaks", "uv", "uvx"]);
+    assert.deepEqual(result.installed.sort(), ["azd", "bicep", "gh", "gitleaks", "terraform", "uv", "uvx"]);
     const operations = result.calls.map(({ command }) => command);
     assert.deepEqual(operations, [
-      "dpkg",
-      "curl",
-      "sha256sum",
-      "tar",
-      "install",
-      "install",
-      "curl",
-      "sha256sum",
-      "tar",
-      "install",
+      "uname",
+      ...["curl", "sha256sum", "tar", "install", "install"],
+      ...["curl", "sha256sum", "tar", "install"],
+      ...["curl", "sha256sum", "unzip", "install"],
+      ...["curl", "sha256sum", "tar", "install"],
+      ...["curl", "sha256sum", "install"],
+      ...["curl", "sha256sum", "tar", "install"],
     ]);
     for (const call of result.calls.filter(({ command }) => command === "curl")) {
       assert.ok(call.args.includes("--fail"));
@@ -180,15 +235,37 @@ for (const architecture of ["amd64", "arm64"]) {
   });
 }
 
-for (const failure of ["download-uv", "corrupt-uv", "download-gitleaks", "corrupt-gitleaks", "install"]) {
+const buildOrder = ["uv", "gitleaks", "terraform", "gh", "bicep", "azd"];
+for (const failure of [...buildOrder.flatMap((tool) => [`download-${tool}`, `corrupt-${tool}`]), "install"]) {
   test(`fails closed and cleans up on ${failure}`, (context) => {
     const result = fixture(context).run(failure);
     assert.notEqual(result.status, 0);
-    assert.deepEqual(result.installed.sort(), failure.endsWith("gitleaks") ? ["uv", "uvx"] : []);
+    const completed = failure === "install" ? [] : buildOrder.slice(0, buildOrder.indexOf(failure.split("-")[1]));
+    assert.deepEqual(
+      result.installed.sort(),
+      completed.flatMap((tool) => (tool === "uv" ? ["uv", "uvx"] : [tool])).sort(),
+    );
     const extractions = result.calls.filter(({ command }) => command === "tar");
-    assert.equal(extractions.length, failure.endsWith("gitleaks") || failure === "install" ? 1 : 0);
+    assert.equal(
+      extractions.length,
+      failure === "install" ? 1 : completed.filter((tool) => ["uv", "gitleaks", "gh", "azd"].includes(tool)).length,
+    );
   });
 }
+
+test("CI can install only uv and gitleaks without installing unrelated CLIs", (context) => {
+  const result = fixture(context).run("", "amd64", ["uv", "gitleaks"]);
+  assert.equal(result.status, 0, result.stderr);
+  assert.deepEqual(result.installed.sort(), ["gitleaks", "uv", "uvx"]);
+  assert.equal(result.calls.filter(({ command }) => command === "curl").length, 2);
+});
+
+test("rejects an unknown tool selection before download", (context) => {
+  const result = fixture(context).run("", "amd64", ["unknown"]);
+  assert.notEqual(result.status, 0);
+  assert.match(result.stderr, /Unsupported build tool/);
+  assert.ok(!result.calls.some(({ command }) => command === "curl"));
+});
 
 test("rejects unsupported architecture before downloading", (context) => {
   const result = fixture(context).run("", "s390x");
@@ -196,7 +273,7 @@ test("rejects unsupported architecture before downloading", (context) => {
   assert.match(result.stderr, /Unsupported build architecture/);
   assert.deepEqual(
     result.calls.map(({ command }) => command),
-    ["dpkg"],
+    ["uname"],
   );
 });
 
@@ -204,6 +281,18 @@ test("fails when a verified archive lacks the required binary", (context) => {
   const result = fixture(context, "arm64", true).run();
   assert.notEqual(result.status, 0);
   assert.deepEqual(result.installed.sort(), ["uv", "uvx"]);
+});
+
+test("fails when a verified Terraform archive lacks the standalone binary", (context) => {
+  const result = fixture(context, "arm64", "terraform").run();
+  assert.notEqual(result.status, 0);
+  assert.deepEqual(result.installed.sort(), ["gitleaks", "uv", "uvx"]);
+});
+
+test("fails when a verified azd archive lacks the standalone binary", (context) => {
+  const result = fixture(context, "arm64", "azd").run();
+  assert.notEqual(result.status, 0);
+  assert.deepEqual(result.installed.sort(), ["bicep", "gh", "gitleaks", "terraform", "uv", "uvx"]);
 });
 
 test("rejects malformed checksum before downloading", (context) => {
@@ -216,6 +305,91 @@ test("rejects malformed checksum before downloading", (context) => {
   assert.match(result.stderr, /Invalid download manifest entry/);
   assert.deepEqual(
     result.calls.map(({ command }) => command),
-    ["dpkg"],
+    ["uname"],
   );
 });
+
+for (const failure of ["", "invalid-version", "uv", "az"]) {
+  test(`local Azure CLI Feature ${failure ? `rejects ${failure}` : "uses isolated Python after the runtime Feature"}`, (context) => {
+    const root = mkdtempSync(path.join(tmpdir(), "apex-azure-cli-test-"));
+    context.after(() => rmSync(root, { recursive: true, force: true }));
+    mkdirSync(path.join(root, "bin"));
+    const log = path.join(root, "commands");
+    writeFileSync(log, "");
+    for (const command of ["uv", "ln", "az"]) {
+      writeFileSync(
+        path.join(root, "bin", command),
+        `#!/bin/sh\nprintf '%s %s\\n' '${command}' "$*" >> "$CALL_LOG"\nif [ '${command}' = "$FAIL_COMMAND" ]; then echo 'fixture install failure' >&2; exit 17; fi\n`,
+        { mode: 0o755 },
+      );
+    }
+    const feature = JSON.parse(
+      readFileSync(new URL("features/azure-cli/devcontainer-feature.json", containerDir), "utf8"),
+    );
+    assert.ok(feature.installsAfter.includes("./features/python"));
+    const result = spawnSync("bash", [new URL("features/azure-cli/install.sh", containerDir).pathname], {
+      encoding: "utf8",
+      env: {
+        ...process.env,
+        PATH: `${path.join(root, "bin")}:${process.env.PATH}`,
+        VERSION: failure === "invalid-version" ? "latest" : feature.options.version.default,
+        CALL_LOG: log,
+        FAIL_COMMAND: failure,
+      },
+    });
+    assert.equal(result.status, failure === "invalid-version" ? 1 : failure ? 17 : 0, result.stdout + result.stderr);
+    const calls = readFileSync(log, "utf8");
+    if (failure === "invalid-version") assert.equal(calls, "");
+    if (!failure) {
+      assert.match(calls, /uv venv --python \/usr\/local\/python\/current\/bin\/python3 \/opt\/azure-cli/);
+      assert.ok(calls.includes(`azure-cli==${feature.options.version.default}`));
+      assert.match(calls, /ln -s \/opt\/azure-cli\/bin\/az \/usr\/local\/bin\/az/);
+      assert.match(calls, /az version --output none/);
+    }
+
+    for (const failure of ["", "invalid-version", "uv"]) {
+      test(`local Python Feature ${failure ? `rejects ${failure}` : "keeps the managed base separate from project dependencies"}`, (context) => {
+        const root = mkdtempSync(path.join(tmpdir(), "apex-python-feature-test-"));
+        context.after(() => rmSync(root, { recursive: true, force: true }));
+        mkdirSync(path.join(root, "bin"));
+        const log = path.join(root, "commands");
+        writeFileSync(log, "");
+        for (const command of ["uv", "install", "ln", "chown"]) {
+          writeFileSync(
+            path.join(root, "bin", command),
+            `#!/bin/sh\nprintf '%s %s\\n' '${command}' "$*" >> "$CALL_LOG"\nif [ '${command}' = "$FAIL_COMMAND" ]; then echo 'fixture failure' >&2; exit 17; fi\nif [ '${command}' = uv ] && [ "$1 $2" = 'python find' ]; then echo /usr/local/share/apex-python/fixture/bin/python3; fi\n`,
+            { mode: 0o755 },
+          );
+        }
+        const feature = JSON.parse(
+          readFileSync(new URL("features/python/devcontainer-feature.json", containerDir), "utf8"),
+        );
+        const result = spawnSync("bash", [new URL("features/python/install.sh", containerDir).pathname], {
+          encoding: "utf8",
+          env: {
+            ...process.env,
+            PATH: `${path.join(root, "bin")}:${process.env.PATH}`,
+            VERSION: failure === "invalid-version" ? "latest" : feature.options.version.default,
+            PIPVERSION: feature.options.pipVersion.default,
+            CALL_LOG: log,
+            FAIL_COMMAND: failure,
+          },
+        });
+        assert.equal(
+          result.status,
+          failure === "invalid-version" ? 1 : failure ? 17 : 0,
+          result.stdout + result.stderr,
+        );
+        const calls = readFileSync(log, "utf8");
+        if (failure === "invalid-version") assert.equal(calls, "");
+        if (!failure) {
+          assert.ok(calls.includes(`uv python install ${feature.options.version.default}`));
+          assert.match(calls, /uv venv --python .* \/usr\/local\/python\/current/);
+          assert.ok(calls.includes(`pip==${feature.options.pipVersion.default}`));
+          assert.match(calls, /chown -R vscode:vscode \/usr\/local\/python\/current/);
+          assert.doesNotMatch(calls, /--system|apt-get|dnf/);
+        }
+      });
+    }
+  });
+}

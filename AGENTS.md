@@ -16,6 +16,12 @@ npm run setup                            # Azure + GitHub OIDC/secrets/RBAC
 > via the dev container's `post-create.sh`. Setup details:
 > https://apexops.pro/getting-started/azure-setup/
 
+Install only versions whose upstream artifacts are at least seven days old, through CFS-approved sources.
+Keep package managers on `packagefeedproxy.microsoft.io` for corporate laptops/dev boxes, or an approved
+team-owned Azure Artifacts feed. Automated builds and CI require an authenticated CFS-compliant feed.
+Never bypass quarantine using public registries or `ms-feed-*` browsing URLs. Verify age and feed availability
+before changing pins; missing versions or metadata are not permission to bypass these requirements.
+
 ## Build & Validation
 
 ```bash

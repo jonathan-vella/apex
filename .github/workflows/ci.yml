@@ -51,7 +51,7 @@ jobs:
       - name: Setup Terraform for executable tool tests
         uses: hashicorp/setup-terraform@v4
         with:
-          terraform_version: "1.16.5"
+          terraform_version: "1.16.6"
           terraform_wrapper: false
 
       - name: Lint Markdown
@@ -122,6 +122,33 @@ jobs:
       - name: Run Python tooling test suite
         run: npm run test:python-tools
 
+  python-current:
+    name: Current Python compatibility
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v7
+
+      - name: Setup Node
+        uses: ./.github/actions/setup-node-repo
+
+      - name: Setup current container Python
+        uses: actions/setup-python@v7
+        with:
+          python-version: "3.15.0"
+          cache: "pip"
+
+      - name: Install current Python dependencies
+        run: |
+          python -m pip install -e tools/apex-recall -r requirements.txt
+          sudo apt-get update && sudo apt-get install -y graphviz
+
+      - name: Test current Python without changing the supported minimum
+        run: |
+          npm run lint:python
+          npm run test:apex-recall
+          npm run test:python-tools
+
   secret-scan:
     name: Secret scan
     runs-on: ubuntu-latest
@@ -133,7 +160,7 @@ jobs:
 
       # Installs uv and gitleaks from the checksum-pinned devcontainer manifest.
       - name: Install pinned gitleaks
-        run: sudo bash .devcontainer/install-build-tools.sh
+        run: sudo bash .devcontainer/install-build-tools.sh uv gitleaks
 
       - name: Scan git history
         run: gitleaks git --redact --no-banner .

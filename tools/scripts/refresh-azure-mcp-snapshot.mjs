@@ -37,6 +37,16 @@ export function parseLearnReply(text) {
   return JSON.parse(text.slice(start, end + 1));
 }
 
+export function commandsFromLearnReply(toolName, reply) {
+  const text = (reply.result?.content ?? []).map((content) => content.text).join("\n");
+  try {
+    if (reply.error || reply.result?.isError) throw new Error(reply.error?.message ?? text);
+    return parseLearnReply(text);
+  } catch (error) {
+    throw new Error(`${toolName} metadata discovery failed: ${error.message}`, { cause: error });
+  }
+}
+
 export function buildSnapshot(serverVersion, listedTools, learnedByTool) {
   const tools = {};
   for (const tool of listedTools) {
@@ -116,8 +126,7 @@ async function main() {
     const learned = {};
     for (const tool of listed.filter((t) => Object.hasOwn(t.inputSchema?.properties ?? {}, "command"))) {
       const reply = await send("tools/call", { name: tool.name, arguments: { learn: true, intent: "" } });
-      const text = (reply.result?.content ?? []).map((c) => c.text).join("\n");
-      learned[tool.name] = parseLearnReply(text);
+      learned[tool.name] = commandsFromLearnReply(tool.name, reply);
     }
     const snapshot = buildSnapshot(version, listed, learned);
     const temp = `${snapshotPath}.tmp`;

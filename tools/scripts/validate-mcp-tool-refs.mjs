@@ -119,8 +119,17 @@ export function pinProblems(root, snapshot) {
   const arg = (config.mcpServers?.["azure-mcp"]?.args ?? []).find((value) => String(value).startsWith("@azure/mcp@"));
   const workspacePin = arg?.slice("@azure/mcp@".length);
   const defaultsPin = readFileSync(join(root, ".devcontainer/configure-mcp.mjs"), "utf8").match(
-    /@azure\/mcp@(\d+\.\d+\.\d+)/,
+    /["']@azure\/mcp@([^"']+)["']/,
   )?.[1];
+  for (const [source, version] of [
+    [".mcp.json", workspacePin],
+    [".devcontainer/configure-mcp.mjs", defaultsPin],
+    ["snapshot", snapshot.serverVersion],
+  ]) {
+    if (!/^(0|[1-9]\d*)\.(0|[1-9]\d*)\.(0|[1-9]\d*)$/.test(version ?? "")) {
+      problems.push(`${source} must use an exact stable @azure/mcp version, got ${version}`);
+    }
+  }
   if (workspacePin !== snapshot.serverVersion) {
     problems.push(`.mcp.json pins ${workspacePin}; snapshot is for ${snapshot.serverVersion}`);
   }

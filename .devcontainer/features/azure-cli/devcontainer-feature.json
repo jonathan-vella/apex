@@ -1,0 +1,14 @@
+{
+  "id": "azure-cli",
+  "version": "1.0.0",
+  "name": "Azure CLI",
+  "description": "Installs the pinned Azure CLI in an isolated Python environment without Debian package tooling.",
+  "installsAfter": ["./features/python"],
+  "options": {
+    "version": {
+      "type": "string",
+      "default": "2.91.0",
+      "description": "Exact stable Azure CLI release."
+    }
+  }
+}

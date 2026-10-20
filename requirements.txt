@@ -1,6 +1,6 @@
 # APEX - Core Python Dependencies
 # Install with: pip install -r requirements.txt
-# Note: graphviz system package required (apt-get install graphviz)
+# Note: the Graphviz system package is installed by the devcontainer image.
 #
 # The independently packaged recall CLI declares its dependencies in tools/apex-recall/pyproject.toml.
 #

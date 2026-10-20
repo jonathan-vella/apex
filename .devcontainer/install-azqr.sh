@@ -6,11 +6,12 @@ set -euo pipefail
 SCRIPT_DIR="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)"
 MANIFEST="${SCRIPT_DIR}/download-checksums.json"
 INSTALL_DIR="${AZQR_INSTALL_DIR:-${HOME}/.local/bin}"
-ARCHITECTURE="$(dpkg --print-architecture)"
+MACHINE="$(uname -m)"
 
-case "$ARCHITECTURE" in
-    amd64 | arm64) ;;
-    *) echo "Unsupported architecture: ${ARCHITECTURE}; expected amd64 or arm64" >&2; exit 1 ;;
+case "$MACHINE" in
+    x86_64) ARCHITECTURE="amd64" ;;
+    aarch64 | arm64) ARCHITECTURE="arm64" ;;
+    *) echo "Unsupported architecture: ${MACHINE}; expected x86_64 or aarch64" >&2; exit 1 ;;
 esac
 
 version="$(jq -er '.azqr.version' "$MANIFEST")"

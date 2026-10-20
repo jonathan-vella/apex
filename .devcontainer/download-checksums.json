@@ -1,16 +1,16 @@
 {
   "uv": {
-    "version": "0.12.23",
+    "version": "0.13.3",
     "artifacts": {
       "amd64": {
-        "url": "https://github.com/astral-sh/uv/releases/download/0.12.23/uv-x86_64-unknown-linux-gnu.tar.gz",
-        "sha256": "9167d72b3319674b6303c4cbe071854bba13ebdf3d76b1a7cbdc175471fb66d6",
-        "checksumUrl": "https://github.com/astral-sh/uv/releases/download/0.12.23/uv-x86_64-unknown-linux-gnu.tar.gz.sha256"
+        "url": "https://github.com/astral-sh/uv/releases/download/0.13.3/uv-x86_64-unknown-linux-gnu.tar.gz",
+        "sha256": "e4f169ec380f1793b898a6f1fcbacd22db25cf7ca0349a6e96ffb85b69998d04",
+        "checksumUrl": "https://github.com/astral-sh/uv/releases/download/0.13.3/sha256.sum"
       },
       "arm64": {
-        "url": "https://github.com/astral-sh/uv/releases/download/0.12.23/uv-aarch64-unknown-linux-gnu.tar.gz",
-        "sha256": "6524bd338177ed50d035d39354e12545e993bbeba2ecbddf0480c5b3a81d313f",
-        "checksumUrl": "https://github.com/astral-sh/uv/releases/download/0.12.23/uv-aarch64-unknown-linux-gnu.tar.gz.sha256"
+        "url": "https://github.com/astral-sh/uv/releases/download/0.13.3/uv-aarch64-unknown-linux-gnu.tar.gz",
+        "sha256": "611ff684f193a84d2fdad29c5f12505d02ece94984c7c982cdde950eba5c95b9",
+        "checksumUrl": "https://github.com/astral-sh/uv/releases/download/0.13.3/sha256.sum"
       }
     }
   },
@@ -30,17 +30,77 @@
     }
   },
   "azqr": {
-    "version": "4.2.0",
+    "version": "4.2.2",
     "artifacts": {
       "amd64": {
-        "url": "https://github.com/Azure/azqr/releases/download/v.4.2.0/azqr-linux-amd64.zip",
-        "sha256": "1cf2482520e9724761084eb3587100bb68f33cd98e15c065a0ec94d807821ee3",
-        "checksumUrl": "https://github.com/Azure/azqr/releases/download/v.4.2.0/azqr-linux-amd64.zip.sha256"
+        "url": "https://github.com/Azure/azqr/releases/download/v.4.2.2/azqr-linux-amd64.zip",
+        "sha256": "63bdef3ee2b9adf1f1c7125a86330861b8d5e66e191fa44fdbb0879355f51184",
+        "checksumUrl": "https://github.com/Azure/azqr/releases/download/v.4.2.2/azqr-linux-amd64.zip.sha256"
       },
       "arm64": {
-        "url": "https://github.com/Azure/azqr/releases/download/v.4.2.0/azqr-linux-arm64.zip",
-        "sha256": "f7524d77a5b85ea34a4a2230b37404d9d0383824c5a01b1ae6b1c71c883e059d",
-        "checksumUrl": "https://github.com/Azure/azqr/releases/download/v.4.2.0/azqr-linux-arm64.zip.sha256"
+        "url": "https://github.com/Azure/azqr/releases/download/v.4.2.2/azqr-linux-arm64.zip",
+        "sha256": "3ddec6abc1bf50089acffac2bcc0be768f94365743f5229337d333c0e414eef5",
+        "checksumUrl": "https://github.com/Azure/azqr/releases/download/v.4.2.2/azqr-linux-arm64.zip.sha256"
+      }
+    }
+  },
+  "terraform": {
+    "version": "1.16.6",
+    "artifacts": {
+      "amd64": {
+        "url": "https://releases.hashicorp.com/terraform/1.16.6/terraform_1.16.6_linux_amd64.zip",
+        "sha256": "38034b38d03096399a7a1264a14561a8029b2b496fd1f169452656e53968f1b7",
+        "checksumUrl": "https://releases.hashicorp.com/terraform/1.16.6/terraform_1.16.6_SHA256SUMS"
+      },
+      "arm64": {
+        "url": "https://releases.hashicorp.com/terraform/1.16.6/terraform_1.16.6_linux_arm64.zip",
+        "sha256": "a750b5a11038f165846b2658c40c88cd7070aa67a61bab431a14ba27928ea9ea",
+        "checksumUrl": "https://releases.hashicorp.com/terraform/1.16.6/terraform_1.16.6_SHA256SUMS"
+      }
+    }
+  },
+  "gh": {
+    "version": "2.102.0",
+    "artifacts": {
+      "amd64": {
+        "url": "https://github.com/cli/cli/releases/download/v2.102.0/gh_2.102.0_linux_amd64.tar.gz",
+        "sha256": "bb766f710eef8ede859c18578c72c327597cd4c8a85b06001b1f3843c6019386",
+        "checksumUrl": "https://github.com/cli/cli/releases/download/v2.102.0/gh_2.102.0_checksums.txt"
+      },
+      "arm64": {
+        "url": "https://github.com/cli/cli/releases/download/v2.102.0/gh_2.102.0_linux_arm64.tar.gz",
+        "sha256": "7862c86c72f43df3a2d93ddde6f473285b4e2af61b494849846827e513ef6484",
+        "checksumUrl": "https://github.com/cli/cli/releases/download/v2.102.0/gh_2.102.0_checksums.txt"
+      }
+    }
+  },
+  "azd": {
+    "version": "1.36.0",
+    "artifacts": {
+      "amd64": {
+        "url": "https://github.com/Azure/azure-dev/releases/download/azure-dev-cli_1.36.0/azd-linux-amd64.tar.gz",
+        "sha256": "db787bd1a0e12584d3be1e3c73e439f53ec8b850b9c714defb0ae9f0e698e650",
+        "checksumUrl": "https://api.github.com/repos/Azure/azure-dev/releases/tags/azure-dev-cli_1.36.0"
+      },
+      "arm64": {
+        "url": "https://github.com/Azure/azure-dev/releases/download/azure-dev-cli_1.36.0/azd-linux-arm64.tar.gz",
+        "sha256": "853d3c5bf1072255619890de117e578f5345fe350b698a85cffed5bc94f729ac",
+        "checksumUrl": "https://api.github.com/repos/Azure/azure-dev/releases/tags/azure-dev-cli_1.36.0"
+      }
+    }
+  },
+  "bicep": {
+    "version": "0.48.1",
+    "artifacts": {
+      "amd64": {
+        "url": "https://github.com/Azure/bicep/releases/download/v0.48.1/bicep-linux-x64",
+        "sha256": "b09ec25a9d376c1f8e33ede6ed22b587f915ad68488d5db77a6f9541748c7f6e",
+        "checksumUrl": "https://api.github.com/repos/Azure/bicep/releases/tags/v0.48.1"
+      },
+      "arm64": {
+        "url": "https://github.com/Azure/bicep/releases/download/v0.48.1/bicep-linux-arm64",
+        "sha256": "9cbf6a211137e894a863fbc842e355c2197fc2124a7bda902afe1bceffa35245",
+        "checksumUrl": "https://api.github.com/repos/Azure/bicep/releases/tags/v0.48.1"
       }
     }
   }
