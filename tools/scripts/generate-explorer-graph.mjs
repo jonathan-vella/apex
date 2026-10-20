@@ -325,15 +325,15 @@ function collectValidators() {
 }
 
 function collectMcpServers() {
-  const mcp = readJson(join(REPO_ROOT, ".vscode/mcp.json"));
-  const servers = mcp.servers || {};
+  const mcp = readJson(join(REPO_ROOT, ".mcp.json"));
+  const servers = mcp.mcpServers || mcp.servers || {};
   return Object.entries(servers).map(([name, cfg]) => ({
     id: `mcp:${slug(name)}`,
     category: "mcp",
     label: name,
     description: cfg.type === "http" ? `HTTP: ${cfg.url}` : `stdio: ${cfg.command || ""}`,
-    path: ".vscode/mcp.json",
-    links: { source: `${GITHUB_BASE}.vscode/mcp.json` },
+    path: ".mcp.json",
+    links: { source: `${GITHUB_BASE}.mcp.json` },
     meta: { type: cfg.type || "" },
   }));
 }

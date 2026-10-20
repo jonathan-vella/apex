@@ -105,12 +105,11 @@ test("learn replies are parsed from prose plus JSON and fail loudly otherwise", 
 test("pin check compares both configuration files with the snapshot version", (context) => {
   const root = mkdtempSync(join(tmpdir(), "mcp-pin-"));
   context.after(() => rmSync(root, { recursive: true, force: true }));
-  mkdirSync(join(root, ".vscode"));
   mkdirSync(join(root, ".devcontainer"));
   const write = (workspace, defaults) => {
     writeFileSync(
-      join(root, ".vscode/mcp.json"),
-      JSON.stringify({ servers: { "azure-mcp": { args: ["-y", `@azure/mcp@${workspace}`] } } }),
+      join(root, ".mcp.json"),
+      JSON.stringify({ mcpServers: { "azure-mcp": { args: ["-y", `@azure/mcp@${workspace}`] } } }),
     );
     writeFileSync(join(root, ".devcontainer/configure-mcp.mjs"), `args: ["-y", "@azure/mcp@${defaults}"]`);
   };

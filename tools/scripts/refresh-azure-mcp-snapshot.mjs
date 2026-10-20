@@ -55,9 +55,9 @@ export function buildSnapshot(serverVersion, listedTools, learnedByTool) {
 }
 
 function pinnedVersion() {
-  const config = parseJsonc(readFileSync(resolve(repoRoot, ".vscode/mcp.json"), "utf8"));
-  const arg = (config.servers?.["azure-mcp"]?.args ?? []).find((a) => String(a).startsWith("@azure/mcp@"));
-  if (!arg) throw new Error("azure-mcp has no pinned @azure/mcp@<version> argument in .vscode/mcp.json");
+  const config = parseJsonc(readFileSync(resolve(repoRoot, ".mcp.json"), "utf8"));
+  const arg = (config.mcpServers?.["azure-mcp"]?.args ?? []).find((a) => String(a).startsWith("@azure/mcp@"));
+  if (!arg) throw new Error("azure-mcp has no pinned @azure/mcp@<version> argument in .mcp.json");
   return arg.slice("@azure/mcp@".length);
 }
 

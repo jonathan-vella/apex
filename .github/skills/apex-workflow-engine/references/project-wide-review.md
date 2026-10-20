@@ -292,7 +292,7 @@ Domain report: `06-iac.md`.
 For each `tools/mcp-servers/<server>/`:
 
 1. Confirm tests pass.
-2. Confirm wired into `.vscode/mcp.json` (or documented as standalone).
+2. Confirm wired into `.mcp.json` (or documented as standalone).
 3. Confirm package version matches `pyproject.toml` / `package.json`.
 
 Domain report: `07-mcp.md`.

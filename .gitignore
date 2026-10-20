@@ -17,10 +17,9 @@ Copilot-Processing.md
 # VS Code - ignore personal settings but keep shared config
 .vscode/*
 !.vscode/extensions.json
-!.vscode/mcp.json
 !.vscode/settings.json
 
-# Root .mcp.json is deprecated. Use .vscode/mcp.json for workspace MCP servers.
+# Workspace MCP servers live in root .mcp.json (portable Copilot harness format).
 *.code-workspace
 
 # OS

@@ -60,7 +60,7 @@
   "customizations": {
     "vscode": {
       // Keep editor extensions limited to core APEX language and GitHub UX.
-      // Azure MCP runs from .vscode/mcp.json rather than an extension pack.
+      // Azure MCP runs from .mcp.json rather than an extension pack.
       "extensions": [
         "-ms-vscode.vscode-node-azure-pack",
         "-ms-azuretools.vscode-azure-github-copilot",
@@ -85,6 +85,7 @@
         "chat.useClaudeMdFile": false,
         "chat.customAgentInSubagent.enabled": true,
         "chat.useAgentSkills": true,
+        "chat.mcp.workspaceRootConfig.enabled": true,
         "github.copilot.chat.agentDebugLog.fileLogging.enabled": true,
         "editor.formatOnSave": true,
         "editor.defaultFormatter": "esbenp.prettier-vscode",

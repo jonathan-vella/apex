@@ -11,7 +11,7 @@ contain comments or trailing commas.
 
 ## JSONC (JSON with Comments)
 
-Files like `.vscode/mcp.json`, `devcontainer.json`, and `.markdownlint-cli2.jsonc`
+Files like `.mcp.json`, `devcontainer.json`, and `.markdownlint-cli2.jsonc`
 use JSONC format:
 
 - Use `//` for single-line comments explaining non-obvious configuration

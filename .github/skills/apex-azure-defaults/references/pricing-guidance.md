@@ -10,7 +10,7 @@ for unresolved public retail meters after documented MCP failure. Parent agents 
 
 ## Connection
 
-The workspace registers `azure-mcp` (pinned `@azure/mcp` release) in `.vscode/mcp.json`; the worker
+The workspace registers `azure-mcp` (pinned `@azure/mcp` release) in `.mcp.json`; the worker
 reaches it as `azure-mcp/pricing`. Retail catalog data is public. The worker uses no Azure Resource Manager
 MCP tools, cost-query, forecast or benefit tools, and no deployment or resource mutation tools.
 

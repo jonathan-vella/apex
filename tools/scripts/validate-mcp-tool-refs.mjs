@@ -115,14 +115,14 @@ export function scanText(text, snapshot) {
 
 export function pinProblems(root, snapshot) {
   const problems = [];
-  const config = parseJsonc(readFileSync(join(root, ".vscode/mcp.json"), "utf8"));
-  const arg = (config.servers?.["azure-mcp"]?.args ?? []).find((value) => String(value).startsWith("@azure/mcp@"));
+  const config = parseJsonc(readFileSync(join(root, ".mcp.json"), "utf8"));
+  const arg = (config.mcpServers?.["azure-mcp"]?.args ?? []).find((value) => String(value).startsWith("@azure/mcp@"));
   const workspacePin = arg?.slice("@azure/mcp@".length);
   const defaultsPin = readFileSync(join(root, ".devcontainer/configure-mcp.mjs"), "utf8").match(
     /@azure\/mcp@(\d+\.\d+\.\d+)/,
   )?.[1];
   if (workspacePin !== snapshot.serverVersion) {
-    problems.push(`.vscode/mcp.json pins ${workspacePin}; snapshot is for ${snapshot.serverVersion}`);
+    problems.push(`.mcp.json pins ${workspacePin}; snapshot is for ${snapshot.serverVersion}`);
   }
   if (defaultsPin !== snapshot.serverVersion) {
     problems.push(`.devcontainer/configure-mcp.mjs pins ${defaultsPin}; snapshot is for ${snapshot.serverVersion}`);
