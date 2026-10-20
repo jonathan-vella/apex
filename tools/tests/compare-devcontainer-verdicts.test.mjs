@@ -874,6 +874,12 @@ else {
     assert.ok(legs.filter(({ arch }) => arch === "arm64").every(({ runner }) => runner.endsWith("-arm")));
     assert.match(workflow.jobs.preflight.if, /head\.repo\.full_name == github\.repository/);
     const checkout = workflow.jobs.validate.steps.find((step) => step.name === "Checkout complete validation tree");
+    const evaluatorCheckout = workflow.jobs.validate.steps.find((step) => step.name === "Checkout candidate evaluator");
+    const preflightCheckout = workflow.jobs.preflight.steps.find(
+      (step) => step.name === "Checkout candidate evaluator",
+    );
+    assert.equal(evaluatorCheckout.with.ref, preflightCheckout.with.ref);
+    assert.match(evaluatorCheckout.with.ref, /github\.event\.pull_request\.head\.sha \|\| github\.sha/);
     assert.equal(checkout.with.path, "validation-source");
     assert.match(checkout.with.ref, /baseline_sha.*candidate_sha/);
     assert.equal(checkout.with["persist-credentials"], false);
