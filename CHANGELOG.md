@@ -33,7 +33,8 @@ bundle and `dos2unix`, while retaining PowerShell and pinned PSScriptAnalyzer.
 Build historical baseline and candidate from their complete source revisions, with a common isolated evaluator.
 Require explicit distro/version/architecture evidence and complete mandatory-check results.
 The user starts automated local acceptance after rebuild and attachment; lifecycle setup does not launch it.
-Native container builds remain pending because the implementation environment has no container engine.
+Native container builds run in CI for the Ubuntu baseline and the Azure Linux candidate on amd64 and arm64.
+Codespaces and Docker Desktop on Windows or macOS were not tested.
 See [the devcontainer guide](.devcontainer/README.md) for pins, manual testing, and build limitations.
 Published setup and release documentation require a separate follow-up in `jonathan-vella/apex-docs`.
 
