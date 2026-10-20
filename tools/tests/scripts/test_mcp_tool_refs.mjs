@@ -1,10 +1,18 @@
 import assert from "node:assert/strict";
-import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from "node:fs";
-import { tmpdir } from "node:os";
+import { mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
+import { fileURLToPath } from "node:url";
 import test from "node:test";
+import { azureMcpReleaseStatus } from "../../../.devcontainer/configure-mcp.mjs";
+import { parseJsonc } from "../../scripts/_lib/parse-jsonc.mjs";
 import { pinProblems, scanText } from "../../scripts/validate-mcp-tool-refs.mjs";
-import { buildSnapshot, parseLearnReply, parametersOf, sortKeys } from "../../scripts/refresh-azure-mcp-snapshot.mjs";
+import {
+  buildSnapshot,
+  commandsFromLearnReply,
+  parseLearnReply,
+  parametersOf,
+  sortKeys,
+} from "../../scripts/refresh-azure-mcp-snapshot.mjs";
 
 const snapshot = {
   schemaVersion: 1,
@@ -102,8 +110,33 @@ test("learn replies are parsed from prose plus JSON and fail loudly otherwise", 
   assert.throws(() => parseLearnReply("no commands here"));
 });
 
-test("pin check compares both configuration files with the snapshot version", (context) => {
-  const root = mkdtempSync(join(tmpdir(), "mcp-pin-"));
+test("discovery errors identify the namespace instead of accepting incomplete metadata", () => {
+  const content = [{ type: "text", text: 'Commands: [{"command":"x"}]' }];
+  assert.deepEqual(commandsFromLearnReply("local", { result: { content } }), [{ command: "x" }]);
+  assert.throws(
+    () => commandsFromLearnReply("foundry", { result: { isError: true, content } }),
+    /foundry metadata discovery failed/,
+  );
+  assert.throws(
+    () => commandsFromLearnReply("remote", { error: { code: -32603, message: "registry unavailable" } }),
+    /remote metadata discovery failed: registry unavailable/,
+  );
+  assert.throws(
+    () => commandsFromLearnReply("broken", { result: { content: [{ text: "not a command list" }] } }),
+    /broken metadata discovery failed: learn reply contains no command list/,
+  );
+});
+
+test("the committed release contract matches the current stable pin independently of historical fixtures", () => {
+  const root = fileURLToPath(new URL("../../../", import.meta.url));
+  const current = JSON.parse(readFileSync(join(root, "tools/registry/azure-mcp-tools.json"), "utf8"));
+  const config = parseJsonc(readFileSync(join(root, ".mcp.json"), "utf8"));
+  assert.deepEqual(pinProblems(root, current), []);
+  assert.equal(azureMcpReleaseStatus(config, [current.serverVersion, "9999.0.0-beta.1"]).status, "CURRENT");
+});
+
+test("historical pin fixtures detect drift and reject floating or prerelease versions", (context) => {
+  const root = mkdtempSync(join(process.cwd(), ".mcp-pin-"));
   context.after(() => rmSync(root, { recursive: true, force: true }));
   mkdirSync(join(root, ".devcontainer"));
   const write = (workspace, defaults) => {
@@ -119,4 +152,14 @@ test("pin check compares both configuration files with the snapshot version", (c
   assert.equal(pinProblems(root, snapshot).length, 1);
   write("3.0.1", "2.0.5");
   assert.equal(pinProblems(root, snapshot).length, 2);
+  for (const version of ["latest", "^3.0.0", "3.0.0-beta.1", "3.0.0+build.1", "03.0.0"]) {
+    write("3.0.0", version);
+    assert.ok(pinProblems(root, snapshot).some((problem) => problem.includes("must use an exact stable")));
+    write(version, version);
+    assert.ok(
+      pinProblems(root, { ...snapshot, serverVersion: version }).some((problem) =>
+        problem.includes("must use an exact stable"),
+      ),
+    );
+  }
 });

@@ -16,6 +16,16 @@ npm run setup                            # Azure + GitHub OIDC/secrets/RBAC
 > via the dev container's `post-create.sh`. Setup details:
 > https://apexops.pro/getting-started/azure-setup/
 
+Install only versions whose upstream artifacts are at least seven days old, through CFS-approved sources.
+Keep package managers on `packagefeedproxy.microsoft.io` for corporate laptops/dev boxes, or an approved
+team-owned Azure Artifacts feed. Automated builds and CI require an authenticated CFS-compliant feed.
+Known exception ([#794](https://github.com/jonathan-vella/apex/issues/794)): hosted GitHub Actions cannot reach the
+device-only CFS proxy and no approved CI feed exists yet, so hosted CI does not meet this requirement and may
+resolve packages from the runner's default public registries until #794 is done. The exception does not extend to
+dev boxes or local builds.
+Never bypass quarantine using public registries or `ms-feed-*` browsing URLs. Verify age and feed availability
+before changing pins; missing versions or metadata are not permission to bypass these requirements.
+
 ## Build & Validation
 
 ```bash

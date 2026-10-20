@@ -1,7 +1,5 @@
-# Dev Container Base Validation
-# Compares candidate and baseline images on native amd64 and arm64 runners.
-# Runs on same-repository pull requests and manual dispatches.
-
+# Builds complete baseline/head trees independently on native amd64 and arm64.
+# A read-only candidate evaluator is the only shared validation input.
 name: Dev Container Base Validation
 
 on:
@@ -13,78 +11,105 @@ on:
       - "tools/scripts/validate-devcontainer.sh"
       - "tools/scripts/compare-devcontainer-verdicts.mjs"
       - "tools/tests/compare-devcontainer-verdicts.test.mjs"
+      - "package.json"
+      - "package-lock.json"
+      - "pyproject.toml"
+      - "requirements.txt"
   workflow_dispatch:
     inputs:
-      candidate_image:
-        description: "Dev container base image to validate"
+      baseline_ref:
+        description: "Complete baseline Git revision (candidate is the selected workflow revision)"
         required: true
-        default: "mcr.microsoft.com/devcontainers/base:ubuntu26.04"
+        default: "origin/main"
+        type: string
+      baseline_distro_id:
+        description: "Expected baseline /etc/os-release ID (empty derives an official image tag)"
+        required: false
+        type: string
+      baseline_os:
+        description: "Expected baseline VERSION_ID (empty derives an official Ubuntu or Azure Linux image tag)"
+        required: false
+        type: string
+      candidate_distro_id:
+        description: "Expected candidate /etc/os-release ID"
+        required: true
+        default: "azurelinux"
         type: string
       candidate_os:
-        description: "Expected Ubuntu VERSION_ID inside the candidate"
+        description: "Expected candidate /etc/os-release VERSION_ID"
         required: true
-        default: "26.04"
+        default: "4.0"
         type: string
 
 permissions:
   contents: read
 
 env:
+  # Verified against the selected index and both platform manifests.
+  CANDIDATE_DIGEST: sha256:63ef5dda2fb5681ae3aa5c9597a8c4b24364da91ec459b419fa3c38160595fae
+  CANDIDATE_AMD64_DIGEST: sha256:9070b05147f01e5a4bac47723c95f2555e11b9d3324c1df1910ff3545b7ce319
+  CANDIDATE_ARM64_DIGEST: sha256:e541db83a8511c25fa1dd989161263874b7395ddd588f5caaa25453ea4e23263
   DEVCONTAINER_BASE_SCRIPT: |
     import fs from "node:fs";
     import path from "node:path";
     import { execFileSync } from "node:child_process";
-    import { modify, applyEdits } from "jsonc-parser";
     import { parseJsonc } from "./tools/scripts/_lib/parse-jsonc.mjs";
 
-    const [operation, revision] = process.argv.slice(1);
-    if (!["extract", "rewrite"].includes(operation)) throw new Error("Unknown base-image operation");
-    const readSource = (file) => revision
-      ? execFileSync("git", ["show", `${revision}:${file}`], { encoding: "utf8" })
-      : fs.readFileSync(file, "utf8");
-    const configFile = ".devcontainer/devcontainer.json";
-    const configText = readSource(configFile);
-    const config = parseJsonc(configText);
+    const [revision] = process.argv.slice(1);
+    const readSource = (file) => execFileSync("git", ["show", `${revision}:${file}`], { encoding: "utf8" });
+    const config = parseJsonc(readSource(".devcontainer/devcontainer.json"));
     if (!config || typeof config !== "object" || Array.isArray(config)) throw new Error("Invalid devcontainer config");
     if (Object.hasOwn(config, "image") === Object.hasOwn(config, "build")) {
       throw new Error("Expected exactly one of image or build");
     }
-
-    let sourceFile = configFile;
-    let sourceText = configText;
     let baseImage = config.image;
-    let from;
     if (Object.hasOwn(config, "build")) {
       const dockerfile = config.build?.dockerfile;
       if (typeof dockerfile !== "string" || !dockerfile || /[\r\n]/.test(dockerfile) || path.isAbsolute(dockerfile)) {
         throw new Error("Expected a repository-relative build.dockerfile");
       }
-      sourceFile = path.posix.normalize(path.posix.join(".devcontainer", dockerfile));
+      const sourceFile = path.posix.normalize(path.posix.join(".devcontainer", dockerfile));
       if (sourceFile.startsWith("../")) throw new Error("Dockerfile must remain in the repository");
-      sourceText = readSource(sourceFile);
-      const declarations = [...sourceText.matchAll(/^[\t ]*FROM\b[^\r\n]*/gim)];
-      from = /^([\t ]*FROM[\t ]+(?:--platform=[^\s]+[\t ]+)?)([^\s]+)(?:[\t ]+AS[\t ]+[\w.-]+)?[\t ]*$/i.exec(declarations[0]?.[0] ?? "");
+      const declarations = [...readSource(sourceFile).matchAll(/^[\t ]*FROM\b[^\r\n]*/gim)];
+      const from = /^[\t ]*FROM[\t ]+(?:--platform=[^\s]+[\t ]+)?([^\s]+)(?:[\t ]+AS[\t ]+[\w.-]+)?[\t ]*$/i.exec(declarations[0]?.[0] ?? "");
       if (declarations.length !== 1 || !from) throw new Error("Expected one literal Dockerfile FROM instruction");
-      from.index = declarations[0].index + from[1].length;
-      baseImage = from[2];
+      baseImage = from[1];
     }
-    const validImage = (image) => typeof image === "string" && /^[a-zA-Z0-9][a-zA-Z0-9._/:@-]*$/.test(image);
-    if (!validImage(baseImage)) throw new Error("Expected a literal base image, not an ARG or empty value");
-    if (operation === "extract") {
-      process.stdout.write(baseImage);
-    } else {
-      const selected = process.env.SELECTED_IMAGE;
-      if (!validImage(selected)) throw new Error("Invalid selected base image");
-      const updated = from
-        ? sourceText.slice(0, from.index) + selected + sourceText.slice(from.index + baseImage.length)
-        : applyEdits(configText, modify(configText, ["image"], selected, {}));
-      fs.writeFileSync(path.join(process.env.RUNNER_TEMP, "devcontainer-backup.json"), JSON.stringify([
-        { file: configFile, text: configText },
-        ...(from ? [{ file: sourceFile, text: sourceText }] : []),
-      ]));
-      fs.writeFileSync(sourceFile, updated);
-      if (!from && parseJsonc(updated).image !== selected) throw new Error("Base image rewrite failed");
+    if (typeof baseImage !== "string" || !/^[a-zA-Z0-9][a-zA-Z0-9._/:@-]*$/.test(baseImage)) {
+      throw new Error("Expected a literal base image, not an ARG or empty value");
     }
+    process.stdout.write(baseImage);
+  DEVCONTAINER_VALIDATION_CONFIG_SCRIPT: |
+    import fs from "node:fs";
+    import path from "node:path";
+    import * as prettier from "prettier";
+    import { parseJsonc } from "./tools/scripts/_lib/parse-jsonc.mjs";
+
+    const root = path.resolve("validation-source");
+    const configPath = path.join(root, ".devcontainer/devcontainer.json");
+    const config = parseJsonc(fs.readFileSync(configPath, "utf8"));
+    // Do not expose host credentials or reuse cache volumes between revisions.
+    const evaluator = path.resolve("devcontainer-evaluator");
+    fs.mkdirSync(evaluator);
+    for (const file of ["validate-devcontainer.sh", "compare-devcontainer-verdicts.mjs"]) {
+      fs.copyFileSync(path.join("tools/scripts", file), path.join(evaluator, file));
+    }
+    fs.mkdirSync(path.join(evaluator, "_lib"));
+    fs.copyFileSync("tools/scripts/_lib/parse-jsonc.mjs", path.join(evaluator, "_lib/parse-jsonc.mjs"));
+    fs.cpSync("node_modules/jsonc-parser", path.join(evaluator, "node_modules/jsonc-parser"), { recursive: true });
+    config.mounts = [`type=bind,source=${evaluator},target=/opt/apex-evaluator,readonly`];
+    config.remoteEnv = { ...config.remoteEnv, GH_TOKEN: "", GITHUB_TOKEN: "" };
+    config.containerEnv = { ...config.containerEnv, GH_TOKEN: "", GITHUB_TOKEN: "" };
+    config.waitFor = "postCreateCommand";
+    // Co-location preserves relative paths and the CLI's devcontainer-lock.json lookup.
+    const output = path.join(root, ".devcontainer/devcontainer.json");
+    const sourceBackup = path.join(evaluator, "source-devcontainer.json");
+    if (fs.existsSync(sourceBackup)) throw new Error("Refusing to overwrite existing validation backup");
+    fs.renameSync(configPath, sourceBackup);
+    const formatted = await prettier.format(JSON.stringify(config), {
+      ...await prettier.resolveConfig(sourceBackup), filepath: output,
+    });
+    fs.writeFileSync(output, formatted, { flag: "wx" });
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
@@ -92,66 +117,85 @@ concurrency:
 
 jobs:
   preflight:
-    name: Resolve images and manifest
+    name: Resolve trees and manifest
     if: github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository
     runs-on: ubuntu-latest
     outputs:
+      baseline_sha: ${{ steps.images.outputs.baseline_sha }}
+      candidate_sha: ${{ steps.images.outputs.candidate_sha }}
       baseline_image: ${{ steps.images.outputs.baseline_image }}
+      baseline_distro_id: ${{ steps.images.outputs.baseline_distro_id }}
       baseline_os: ${{ steps.images.outputs.baseline_os }}
       candidate_image: ${{ steps.images.outputs.candidate_image }}
+      candidate_distro_id: ${{ steps.images.outputs.candidate_distro_id }}
       candidate_os: ${{ steps.images.outputs.candidate_os }}
       candidate_digest: ${{ steps.manifest.outputs.candidate_digest }}
     steps:
-      - name: Checkout candidate source
+      - name: Checkout candidate evaluator
         uses: actions/checkout@v7
         with:
           fetch-depth: 0
+          persist-credentials: false
           ref: ${{ github.event_name == 'pull_request' && github.event.pull_request.head.sha || github.sha }}
 
       - name: Setup Node
-        uses: ./.github/actions/setup-node-repo
+        uses: actions/setup-node@v7
+        with:
+          node-version: "24"
+          package-manager-cache: false
 
-      - name: Resolve baseline and candidate images
+      - name: Install evaluator dependencies without shared caching
+        run: npm ci
+
+      - name: Resolve baseline and candidate trees
         id: images
         env:
           BASE_SHA: ${{ github.event.pull_request.base.sha }}
           EVENT_NAME: ${{ github.event_name }}
-          INPUT_CANDIDATE_IMAGE: ${{ inputs.candidate_image }}
-          INPUT_CANDIDATE_OS: ${{ inputs.candidate_os }}
+          INPUT_BASELINE_REF: ${{ inputs.baseline_ref || 'origin/main' }}
+          INPUT_BASELINE_DISTRO_ID: ${{ inputs.baseline_distro_id }}
+          INPUT_BASELINE_OS: ${{ inputs.baseline_os }}
+          INPUT_CANDIDATE_DISTRO_ID: ${{ inputs.candidate_distro_id || 'azurelinux' }}
+          INPUT_CANDIDATE_OS: ${{ inputs.candidate_os || '4.0' }}
         run: |
-          extract_image() {
-            node --input-type=module -e "$DEVCONTAINER_BASE_SCRIPT" extract "$@"
-          }
-
-          image_os() {
-            local image="${1%%@*}"
-            local version
-            case "$image" in
-              *:ubuntu-*) version="${image##*:ubuntu-}" ;;
-              *:ubuntu[0-9]*) version="${image##*:ubuntu}" ;;
-              ubuntu:*|*/ubuntu:*) version="${image##*:}" ;;
-              *) return 1 ;;
-            esac
-            [[ "$version" =~ ^[0-9]{2}\.[0-9]{2}$ ]] || return 1
-            printf '%s' "$version"
-          }
-
           if [[ "$EVENT_NAME" == "pull_request" ]]; then
-            baseline_image=$(extract_image "$BASE_SHA")
-            candidate_image=$(extract_image)
-            baseline_os=$(image_os "$baseline_image")
-            candidate_os=$(image_os "$candidate_image")
+            baseline_sha="$BASE_SHA"
           else
-            baseline_image=$(extract_image)
-            candidate_image="$INPUT_CANDIDATE_IMAGE"
-            baseline_os=$(image_os "$baseline_image")
-            candidate_os="$INPUT_CANDIDATE_OS"
+            baseline_sha=$(git rev-parse --verify --end-of-options "${INPUT_BASELINE_REF}^{commit}")
           fi
-
-          printf 'baseline_image=%s\n' "$baseline_image" >> "$GITHUB_OUTPUT"
-          printf 'baseline_os=%s\n' "$baseline_os" >> "$GITHUB_OUTPUT"
-          printf 'candidate_image=%s\n' "$candidate_image" >> "$GITHUB_OUTPUT"
-          printf 'candidate_os=%s\n' "$candidate_os" >> "$GITHUB_OUTPUT"
+          candidate_sha=$(git rev-parse HEAD)
+          baseline_image=$(node --input-type=module -e "$DEVCONTAINER_BASE_SCRIPT" "$baseline_sha")
+          candidate_image=$(node --input-type=module -e "$DEVCONTAINER_BASE_SCRIPT" "$candidate_sha")
+          [[ "$candidate_image" == "mcr.microsoft.com/azurelinux-beta/base/core:4.0@${CANDIDATE_DIGEST}" ]]
+          if [[ -z "$INPUT_BASELINE_OS" || -z "$INPUT_BASELINE_DISTRO_ID" ]]; then
+            baseline_tag="${baseline_image%%@*}"
+            case "$baseline_tag" in
+              mcr.microsoft.com/devcontainers/base:ubuntu*)
+                inferred_distro=ubuntu
+                inferred_os="${baseline_tag##*:ubuntu}"
+                inferred_os="${inferred_os#-}"
+                [[ "$inferred_os" =~ ^[0-9]{2}\.[0-9]{2}$ ]]
+                ;;
+              mcr.microsoft.com/azurelinux/base/core:*|mcr.microsoft.com/azurelinux-beta/base/core:*)
+                inferred_distro=azurelinux
+                inferred_os="${baseline_tag##*:}"
+                [[ "$inferred_os" =~ ^[0-9]+\.[0-9]+$ ]]
+                ;;
+              *)
+                printf 'Explicit baseline distro/version inputs are required for this image\n' >&2
+                exit 1
+                ;;
+            esac
+            INPUT_BASELINE_DISTRO_ID="${INPUT_BASELINE_DISTRO_ID:-$inferred_distro}"
+            INPUT_BASELINE_OS="${INPUT_BASELINE_OS:-$inferred_os}"
+          fi
+          for value in "$INPUT_BASELINE_DISTRO_ID" "$INPUT_BASELINE_OS" "$INPUT_CANDIDATE_DISTRO_ID" "$INPUT_CANDIDATE_OS"; do
+            [[ "$value" =~ ^[a-zA-Z0-9._-]+$ ]]
+          done
+          printf 'baseline_sha=%s\ncandidate_sha=%s\n' "$baseline_sha" "$candidate_sha" >> "$GITHUB_OUTPUT"
+          printf 'baseline_image=%s\ncandidate_image=%s\n' "$baseline_image" "$candidate_image" >> "$GITHUB_OUTPUT"
+          printf 'baseline_distro_id=%s\nbaseline_os=%s\n' "$INPUT_BASELINE_DISTRO_ID" "$INPUT_BASELINE_OS" >> "$GITHUB_OUTPUT"
+          printf 'candidate_distro_id=%s\ncandidate_os=%s\n' "$INPUT_CANDIDATE_DISTRO_ID" "$INPUT_CANDIDATE_OS" >> "$GITHUB_OUTPUT"
 
       - name: Verify candidate multi-architecture manifest
         id: manifest
@@ -159,14 +203,15 @@ jobs:
           CANDIDATE_IMAGE: ${{ steps.images.outputs.candidate_image }}
         run: |
           docker buildx imagetools inspect --raw "$CANDIDATE_IMAGE" > "${RUNNER_TEMP}/candidate-manifest.json"
-          jq -e '[.manifests[]? | select(.platform.os == "linux") | .platform.architecture] | index("amd64") != null' \
-            "${RUNNER_TEMP}/candidate-manifest.json" > /dev/null
-          jq -e '[.manifests[]? | select(.platform.os == "linux") | .platform.architecture] | index("arm64") != null' \
-            "${RUNNER_TEMP}/candidate-manifest.json" > /dev/null
-          candidate_digest=$(docker buildx imagetools inspect "$CANDIDATE_IMAGE" \
-            | awk '$1 == "Digest:" { print $2; exit }')
-          [[ -n "$candidate_digest" ]]
-          printf 'candidate_digest=%s\n' "$candidate_digest" >> "$GITHUB_OUTPUT"
+          actual_digest="sha256:$(sha256sum "${RUNNER_TEMP}/candidate-manifest.json" | cut -d ' ' -f 1)"
+          [[ "$actual_digest" == "$CANDIDATE_DIGEST" ]]
+          for arch in amd64 arm64; do
+            if [[ "$arch" == amd64 ]]; then expected="$CANDIDATE_AMD64_DIGEST"; else expected="$CANDIDATE_ARM64_DIGEST"; fi
+            jq -e --arg arch "$arch" --arg digest "$expected" \
+              '[.manifests[] | select(.platform.os == "linux" and .platform.architecture == $arch)] | length == 1 and .[0].digest == $digest' \
+              "${RUNNER_TEMP}/candidate-manifest.json" > /dev/null
+          done
+          printf 'candidate_digest=%s\n' "$actual_digest" >> "$GITHUB_OUTPUT"
 
       - name: Upload candidate manifest
         if: always()
@@ -193,7 +238,7 @@ jobs:
             arch: amd64
             platform: linux/amd64
             runner: ubuntu-24.04
-          # Native ARM is intentional: CPU-vendor portability is part of the contract.
+          # Native ARM is intentional: emulation is not acceptance evidence.
           - variant: baseline
             arch: arm64
             platform: linux/arm64
@@ -204,65 +249,76 @@ jobs:
             runner: ubuntu-24.04-arm
     runs-on: ${{ matrix.runner }}
     steps:
-      - name: Checkout candidate source
+      - name: Checkout candidate evaluator
         uses: actions/checkout@v7
         with:
-          fetch-depth: 0
+          persist-credentials: false
           ref: ${{ github.event_name == 'pull_request' && github.event.pull_request.head.sha || github.sha }}
 
       - name: Setup Node
-        uses: ./.github/actions/setup-node-repo
+        uses: actions/setup-node@v7
+        with:
+          node-version: "24"
+          package-manager-cache: false
 
-      - name: Create repo-relative validation config
-        env:
-          SELECTED_IMAGE: >-
-            ${{ matrix.variant == 'baseline' && needs.preflight.outputs.baseline_image || needs.preflight.outputs.candidate_image }}
-        run: |
-          node --input-type=module -e "$DEVCONTAINER_BASE_SCRIPT" rewrite
-          actual=$(node --input-type=module -e "$DEVCONTAINER_BASE_SCRIPT" extract)
-          [[ "$actual" == "$SELECTED_IMAGE" ]]
+      - name: Install evaluator dependencies without shared caching
+        run: npm ci
 
-      - name: Prepare host bind mounts
-        run: mkdir -p "$HOME/.azure"
+      - name: Checkout complete validation tree
+        uses: actions/checkout@v7
+        with:
+          path: validation-source
+          persist-credentials: false
+          ref: ${{ matrix.variant == 'baseline' && needs.preflight.outputs.baseline_sha || needs.preflight.outputs.candidate_sha }}
+
+      - name: Prepare credential-free evaluator mount
+        run: node --input-type=module -e "$DEVCONTAINER_VALIDATION_CONFIG_SCRIPT"
 
       - name: Build and validate dev container
         uses: devcontainers/ci@v0.3
         env:
           GH_TOKEN: ""
+          GITHUB_TOKEN: ""
           USERPROFILE: ""
+          APEX_EXPECTED_BASE_IMAGE: ${{ matrix.variant == 'baseline' && needs.preflight.outputs.baseline_image || needs.preflight.outputs.candidate_image }}
+          SELECTED_DISTRO_ID: ${{ matrix.variant == 'baseline' && needs.preflight.outputs.baseline_distro_id || needs.preflight.outputs.candidate_distro_id }}
+          SELECTED_OS: ${{ matrix.variant == 'baseline' && needs.preflight.outputs.baseline_os || needs.preflight.outputs.candidate_os }}
+          SELECTED_VARIANT: ${{ matrix.variant }}
+          SELECTED_ARCH: ${{ matrix.arch }}
         with:
+          # checkoutPath and configFile are action.yml inputs; paths resolve from this checkout.
+          checkoutPath: validation-source
           configFile: .devcontainer/devcontainer.json
           platform: ${{ matrix.platform }}
           useNativeRunner: true
           push: never
+          inheritEnv: false
+          env: |
+            GH_TOKEN=
+            GITHUB_TOKEN=
+            APEX_EXPECTED_BASE_IMAGE
+            SELECTED_DISTRO_ID
+            SELECTED_OS
+            SELECTED_VARIANT
+            SELECTED_ARCH
           runCmd: >-
-            env APEX_EXPECTED_BASE_IMAGE='${{ matrix.variant == 'baseline' && needs.preflight.outputs.baseline_image || needs.preflight.outputs.candidate_image }}'
-            bash tools/scripts/validate-devcontainer.sh
-            --variant ${{ matrix.variant }}
-            --expected-os ${{ matrix.variant == 'baseline' && needs.preflight.outputs.baseline_os || needs.preflight.outputs.candidate_os }}
-            --expected-arch ${{ matrix.arch }}
-            --output-dir tmp/devcontainer-validation/${{ matrix.variant }}-${{ matrix.arch }}
+            cp /opt/apex-evaluator/source-devcontainer.json .devcontainer/devcontainer.json &&
+            bash /opt/apex-evaluator/validate-devcontainer.sh
+            --workspace-root "$PWD"
+            --variant "$SELECTED_VARIANT"
+            --expected-distro-id "$SELECTED_DISTRO_ID"
+            --expected-os "$SELECTED_OS"
+            --expected-arch "$SELECTED_ARCH"
+            --output-dir "tmp/devcontainer-validation/$SELECTED_VARIANT-$SELECTED_ARCH"
 
       - name: Upload validation result
         if: always()
         uses: actions/upload-artifact@v7
         with:
           name: devcontainer-validation-${{ matrix.variant }}-${{ matrix.arch }}
-          path: tmp/devcontainer-validation/${{ matrix.variant }}-${{ matrix.arch }}/
+          path: validation-source/tmp/devcontainer-validation/${{ matrix.variant }}-${{ matrix.arch }}/
           if-no-files-found: warn
           retention-days: 14
-
-      - name: Restore original dev container config
-        if: always()
-        run: |
-          node --input-type=module -e '
-            import fs from "node:fs";
-            import path from "node:path";
-            const backup = path.join(process.env.RUNNER_TEMP, "devcontainer-backup.json");
-            if (fs.existsSync(backup)) {
-              for (const { file, text } of JSON.parse(fs.readFileSync(backup, "utf8"))) fs.writeFileSync(file, text);
-            }
-          '
 
   compare:
     name: Compare base-image verdicts
@@ -270,13 +326,20 @@ jobs:
     needs: [preflight, validate]
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout candidate source
+      - name: Checkout candidate evaluator
         uses: actions/checkout@v7
         with:
+          persist-credentials: false
           ref: ${{ github.event_name == 'pull_request' && github.event.pull_request.head.sha || github.sha }}
 
       - name: Setup Node
-        uses: ./.github/actions/setup-node-repo
+        uses: actions/setup-node@v7
+        with:
+          node-version: "24"
+          package-manager-cache: false
+
+      - name: Install evaluator dependencies without shared caching
+        run: npm ci
 
       - name: Download matrix verdicts
         continue-on-error: true

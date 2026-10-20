@@ -4,7 +4,39 @@ Entries are grouped by conventional-commit type. Breaking changes list the migra
 
 ## Unreleased
 
+### Fixes
+
+#### CFS-compatible Python setup
+
+Retain Pillow 12.3.0 and Ruff 0.17.0 instead of newer pins unavailable through the configured CFS proxy.
+Validate Python 3.15 installation, rendering and recall tests using CFS-only package downloads.
+Record the seven-day upstream artifact-age minimum and the distinction between the corporate-devbox proxy
+and authenticated CFS-compliant feeds required for automated builds and CI. Browsing URLs and direct public
+registries are not installation fallbacks. Published setup documentation needs the corresponding
+`jonathan-vella/apex-docs` update.
+
+Keep the evaluator's internal validation variant separate from the distro's `/etc/os-release` `VARIANT`
+field, preventing readonly-variable errors and empty distro/OS evidence on Azure Linux.
+Add regression coverage and document the verified CFS PowerShell endpoint for analyzer provisioning.
+
 ### Breaking changes
+
+#### Azure Linux 4 development container
+
+Replace the Ubuntu development image with the explicitly accepted Azure Linux 4 preview, pinned by manifest digest.
+Select latest stable retained tooling at the recorded execution cutoff, including Python 3.15.0 and stable
+Current Node 26.12.0. Preserve Python's supported minimum and add a current-interpreter CI lane.
+Install Terraform, GitHub CLI, and Bicep as checksum-verified binaries; install Azure CLI in an isolated Python
+environment instead of the Debian-specific upstream Feature. Remove the unused default Az PowerShell module
+bundle and `dos2unix`, while retaining PowerShell and pinned PSScriptAnalyzer.
+
+Build historical baseline and candidate from their complete source revisions, with a common isolated evaluator.
+Require explicit distro/version/architecture evidence and complete mandatory-check results.
+The user starts automated local acceptance after rebuild and attachment; lifecycle setup does not launch it.
+Native container builds run in CI for the Ubuntu baseline and the Azure Linux candidate on amd64 and arm64.
+Codespaces and Docker Desktop on Windows or macOS were not tested.
+See [the devcontainer guide](.devcontainer/README.md) for pins, manual testing, and build limitations.
+Published setup and release documentation require a separate follow-up in `jonathan-vella/apex-docs`.
 
 #### GitHub operations consolidates the manual commit entrypoint
 

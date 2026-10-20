@@ -8,24 +8,52 @@ usage() {
         printf '%s\n' \
                 'Usage: validate-devcontainer.sh \' \
                 '  --variant <baseline|candidate> \' \
+                '  --expected-distro-id <ID> \' \
                 '  --expected-os <version> \' \
                 '  --expected-arch <amd64|arm64> \' \
-                '  --output-dir <workspace-relative-path>'
+                '  --output-dir <fresh-directory> \' \
+                '  [--workspace-root <path>] \' \
+                '  [--expected-python-version <version>] [--expected-node-version <version>]' \
+                'Run once per native container; only CI compares the complete baseline/candidate matrix.'
 }
 
-VARIANT=""
+VALIDATION_VARIANT=""
+EXPECTED_DISTRO_ID=""
 EXPECTED_OS=""
 EXPECTED_ARCH=""
+EXPECTED_PYTHON=""
+EXPECTED_NODE=""
+WORKSPACE_ROOT="$PWD"
 OUTPUT_DIR=""
 
 while [[ $# -gt 0 ]]; do
+    if [[ "$1" != "-h" && "$1" != "--help" && ( $# -lt 2 || "$2" == --* || -z "$2" ) ]]; then
+        printf 'Missing value for %s\n' "$1" >&2
+        exit 2
+    fi
     case "$1" in
         --variant)
-            VARIANT="${2:-}"
+            VALIDATION_VARIANT="${2:-}"
+            shift 2
+            ;;
+        --expected-distro-id)
+            EXPECTED_DISTRO_ID="$2"
             shift 2
             ;;
         --expected-os)
             EXPECTED_OS="${2:-}"
+            shift 2
+            ;;
+        --workspace-root)
+            WORKSPACE_ROOT="$2"
+            shift 2
+            ;;
+        --expected-python-version)
+            EXPECTED_PYTHON="$2"
+            shift 2
+            ;;
+        --expected-node-version)
+            EXPECTED_NODE="$2"
             shift 2
             ;;
         --expected-arch)
@@ -48,11 +76,11 @@ while [[ $# -gt 0 ]]; do
     esac
 done
 
-if [[ "$VARIANT" != "baseline" && "$VARIANT" != "candidate" ]]; then
-    printf 'Invalid --variant: %s\n' "$VARIANT" >&2
+if [[ "$VALIDATION_VARIANT" != "baseline" && "$VALIDATION_VARIANT" != "candidate" ]]; then
+    printf 'Invalid --variant: %s\n' "$VALIDATION_VARIANT" >&2
     exit 2
 fi
-if [[ -z "$EXPECTED_OS" || -z "$EXPECTED_ARCH" || -z "$OUTPUT_DIR" ]]; then
+if [[ -z "$EXPECTED_DISTRO_ID" || -z "$EXPECTED_OS" || -z "$EXPECTED_ARCH" || -z "$OUTPUT_DIR" ]]; then
     usage >&2
     exit 2
 fi
@@ -61,7 +89,20 @@ if [[ "$EXPECTED_ARCH" != "amd64" && "$EXPECTED_ARCH" != "arm64" ]]; then
     exit 2
 fi
 
-readonly VARIANT EXPECTED_OS EXPECTED_ARCH
+readonly EVALUATOR_DIR="$(cd -- "$(dirname -- "${BASH_SOURCE[0]:-$0}")" && pwd)"
+
+if ! cd -- "$WORKSPACE_ROOT" || [[ ! -f package.json || ! -f .devcontainer/devcontainer.json ]]; then
+    printf 'Invalid --workspace-root: %s\n' "$WORKSPACE_ROOT" >&2
+    exit 2
+fi
+WORKSPACE_ROOT="$PWD"
+if [[ "$OUTPUT_DIR" != /* ]]; then OUTPUT_DIR="${WORKSPACE_ROOT}/${OUTPUT_DIR}"; fi
+if ! mkdir -p -- "$(dirname -- "$OUTPUT_DIR")" || ! mkdir -- "$OUTPUT_DIR"; then
+    printf 'Output directory must be new (existing evidence is never reused): %s\n' "$OUTPUT_DIR" >&2
+    exit 2
+fi
+
+readonly VALIDATION_VARIANT EXPECTED_DISTRO_ID EXPECTED_OS EXPECTED_ARCH EXPECTED_PYTHON EXPECTED_NODE WORKSPACE_ROOT
 readonly START_EPOCH="$(date +%s)"
 readonly OUTPUT_DIR
 readonly CHECK_LOG_DIR="${OUTPUT_DIR}/checks"
@@ -69,14 +110,14 @@ readonly CHECKS_TSV="${OUTPUT_DIR}/checks.tsv"
 readonly WARNINGS_FILE="${OUTPUT_DIR}/warnings.txt"
 readonly VERDICT_FILE="${OUTPUT_DIR}/verdict.json"
 readonly INSTALL_LOG="${HOME}/.devcontainer-install.log"
-readonly WORK_DIR="$(mktemp -d)"
+readonly WORK_DIR="${OUTPUT_DIR}/.work"
 
 cleanup() {
-    rm -rf "$WORK_DIR"
+    rm -rf -- "$WORK_DIR"
 }
 trap cleanup EXIT
 
-mkdir -p "$CHECK_LOG_DIR"
+mkdir -p "$CHECK_LOG_DIR" "$WORK_DIR"
 : > "$CHECKS_TSV"
 : > "$WARNINGS_FILE"
 
@@ -119,8 +160,47 @@ check_expected_os() {
     [[ "$OBSERVED_OS" == "$EXPECTED_OS" ]]
 }
 
+check_expected_distro() {
+    [[ "$OBSERVED_DISTRO_ID" == "$EXPECTED_DISTRO_ID" ]]
+}
+
+normalize_arch() {
+    case "$1" in
+        x86_64|amd64) printf amd64 ;;
+        aarch64|arm64) printf arm64 ;;
+        *) printf '%s' "$1"; return 1 ;;
+    esac
+}
+
 check_expected_arch() {
     [[ "$OBSERVED_ARCH" == "$EXPECTED_ARCH" ]]
+}
+
+check_azure_cli_extension() {
+    local wheel="${WORK_DIR}/apex_ci_probe-0.0.0-py3-none-any.whl"
+    python3 -c '
+import sys
+from zipfile import ZipFile
+
+with ZipFile(sys.argv[1], "w") as wheel:
+    wheel.writestr("azext_apex_ci_probe/__init__.py", "")
+    wheel.writestr("azext_apex_ci_probe/azext_metadata.json", "{}")
+    wheel.writestr("apex_ci_probe-0.0.0.dist-info/METADATA",
+                   "Metadata-Version: 2.1\nName: apex-ci-probe\nVersion: 0.0.0\n")
+    wheel.writestr("apex_ci_probe-0.0.0.dist-info/WHEEL",
+                   "Wheel-Version: 1.0\nRoot-Is-Purelib: true\nTag: py3-none-any\n")
+    wheel.writestr("apex_ci_probe-0.0.0.dist-info/RECORD", "")
+' "$wheel" || return
+    (
+        export AZURE_CONFIG_DIR="${WORK_DIR}/azure-config"
+        export AZURE_EXTENSION_DIR="${WORK_DIR}/azure-extensions"
+        export PIP_NO_INDEX=1 PIP_NO_CACHE_DIR=1 PIP_DISABLE_PIP_VERSION_CHECK=1
+        export AZURE_CORE_COLLECT_TELEMETRY=no AZURE_CORE_CHECK_LATEST_VERSION=no
+        az extension add --source "$wheel" --yes --only-show-errors || exit
+        local version
+        version=$(az extension show --name apex-ci-probe --query version --output tsv) || exit
+        [[ "$version" == "0.0.0" ]]
+    )
 }
 
 check_post_create_log() {
@@ -129,25 +209,75 @@ check_post_create_log() {
         return 1
     fi
 
-    cp "$INSTALL_LOG" "${OUTPUT_DIR}/post-create.log"
+    cp "$INSTALL_LOG" "${OUTPUT_DIR}/post-create.log" || return 1
     grep -E '^[[:space:]]*⚠️[[:space:]].* \([0-9]+s\)$' "$INSTALL_LOG" \
         | sed -E 's/^[[:space:]]*⚠️[[:space:]]+//; s/ \([0-9]+s\)$//' \
         | sort -u > "$WARNINGS_FILE" || true
 
     local summary
-    summary=$(grep -E '^Setup complete\.$|Setup complete(!| with warnings:| with errors:)' "$INSTALL_LOG" | tail -1 || true)
+    summary=$(grep -E '^Setup complete(\.|!| with (warnings|errors): [0-9]+)$' "$INSTALL_LOG" | tail -1 || true)
     if [[ -z "$summary" ]]; then
         printf 'Setup summary not found\n'
         return 1
     fi
     printf '%s\n' "$summary"
+    if [[ "$summary" =~ with\ warnings:\ [1-9][0-9]*$ && ! -s "$WARNINGS_FILE" ]]; then
+        printf 'post-create reported warnings without detailed warning records\n' >> "$WARNINGS_FILE"
+    fi
     [[ "$summary" != *"with errors"* ]]
 }
 
 prepare_test_dependencies() {
-    npm ci
-    npm ci --prefix site
-    uv pip install --system --quiet -e "${PWD}/tools/apex-recall"
+    npm ci || return
+    if [[ -f site/package.json ]]; then npm ci --prefix site || return; fi
+    uv pip install --python "$(command -v python3)" --quiet -e "${PWD}/tools/apex-recall"
+}
+
+check_runtime_contract() {
+    node "${EVALUATOR_DIR}/compare-devcontainer-verdicts.mjs" --runtime-contract \
+        "$WORKSPACE_ROOT" "$VALIDATION_VARIANT" "$EXPECTED_PYTHON" "$EXPECTED_NODE" > "${WORK_DIR}/runtime-contract.json"
+}
+
+check_python_version() {
+    python3 -c '
+import json, sys
+with open(sys.argv[1]) as source:
+    contract = json.load(source)["python"]
+expected = tuple(map(int, contract["version"].split(".")))
+actual = sys.version_info[:len(expected)]
+print(sys.version)
+assert actual >= expected if contract["mode"] == "minimum" else actual == expected, contract
+' "${WORK_DIR}/runtime-contract.json"
+}
+
+check_node_version() {
+    node --input-type=module -e '
+import fs from "node:fs";
+import { pathToFileURL } from "node:url";
+const { matchesRuntimeVersion } = await import(pathToFileURL(process.argv[2]).href);
+const contract = JSON.parse(fs.readFileSync(process.argv[1], "utf8")).node;
+console.log(process.version);
+if (!matchesRuntimeVersion(process.versions.node, contract.version, contract.mode)) process.exit(1);
+' "${WORK_DIR}/runtime-contract.json" "${EVALUATOR_DIR}/compare-devcontainer-verdicts.mjs"
+}
+
+check_tool_versions() {
+    node "${EVALUATOR_DIR}/compare-devcontainer-verdicts.mjs" --tool-version-contracts \
+        "$WORKSPACE_ROOT" "$CHECK_LOG_DIR" > "${WORK_DIR}/tool-versions.json"
+    local status=$?
+    cat "${WORK_DIR}/tool-versions.json"
+    return "$status"
+}
+
+check_optional_azqr() {
+    if command -v azqr >/dev/null 2>&1; then
+        run_check "azqr" "compatibility" azqr --version
+    else
+        local warning="optional azqr unavailable"
+        printf '%s\n' "$warning" >> "$WARNINGS_FILE"
+        printf '%s\n' "$warning" > "${CHECK_LOG_DIR}/azqr.log"
+        record_check "azqr" "WARN" "compatibility" "$warning"
+    fi
 }
 
 check_bicep_compile() {
@@ -214,35 +344,44 @@ check_diagram_render() {
 
 # Environment metadata and invariants.
 OBSERVED_OS=$(source /etc/os-release && printf '%s' "$VERSION_ID")
-OBSERVED_ARCH=$(dpkg --print-architecture)
+OBSERVED_DISTRO_ID=$(source /etc/os-release && printf '%s' "$ID")
+OBSERVED_ARCH=$(normalize_arch "$(uname -m)")
 GLIBC_VERSION=$(ldd --version 2>&1 | head -1 | sanitize_message)
 OPENSSL_VERSION=$(openssl version 2>&1 | sanitize_message)
 
-run_check "expected-ubuntu-version" "compatibility" check_expected_os
+run_check "expected-distro-id" "compatibility" check_expected_distro
+run_check "expected-os-version" "compatibility" check_expected_os
 run_check "expected-architecture" "compatibility" check_expected_arch
+run_check "nonroot-user" "compatibility" test "$(id -u)" -ne 0
+run_check "passwordless-sudo" "compatibility" sudo -n true
 run_check "post-create-summary" "compatibility" check_post_create_log
 run_check "post-start-idempotency" "compatibility" bash .devcontainer/post-start.sh
 run_check "test-dependency-setup" "network" prepare_test_dependencies
+run_check "runtime-version-contract" "compatibility" check_runtime_contract
 
 # Tool availability and basic execution.
 run_check "azure-cli" "compatibility" az version --output json
+run_check "azure-cli-extensions" "compatibility" check_azure_cli_extension
 run_check "bicep-cli" "compatibility" check_bicep_cli
 run_check "powershell" "compatibility" pwsh --version
-run_check "python-3.14" "compatibility" python3 -c \
-    'import sys; assert sys.version_info[:2] == (3, 14), sys.version'
-run_check "node" "compatibility" node --version
+run_check "powershell-analyzer" "compatibility" pwsh -NoLogo -NoProfile -NonInteractive -Command \
+    '$ErrorActionPreference = "Stop"; Import-Module PSScriptAnalyzer -ErrorAction Stop; Get-Command Invoke-ScriptAnalyzer -Module PSScriptAnalyzer -ErrorAction Stop | Out-Null'
+run_check "python-version" "compatibility" check_python_version
+run_check "node-version" "compatibility" check_node_version
+run_check "npm-version" "compatibility" npm --version
 run_check "github-cli" "compatibility" gh --version
 run_check "uv" "compatibility" uv --version
 run_check "markdownlint-cli2" "compatibility" npx --no-install markdownlint-cli2 --version
 run_check "graphviz" "compatibility" dot -V
-run_check "dos2unix" "compatibility" dos2unix --version
 run_check "gitleaks" "compatibility" gitleaks version
 run_check "terraform" "compatibility" terraform version
 run_check "azd" "compatibility" azd version
+check_optional_azqr
 run_check "ruff" "compatibility" ruff --version
 run_check "apex-recall" "compatibility" apex-recall --version
 run_check "python-package-imports" "compatibility" python3 -c \
     'import diagrams, matplotlib, PIL, pytest, ruff'
+run_check "tool-version-contracts" "compatibility" check_tool_versions
 
 # Existing repository validation gates.
 run_check "format-check" "harness" npm run format:check
@@ -259,18 +398,22 @@ readonly END_EPOCH
 
 node -e '
 const fs = require("node:fs");
-const [output, checksFile, warningsFile, variant, expectedOs, observedOs, expectedArch, observedArch, glibc, openssl, started, ended] = process.argv.slice(1);
+const [output, checksFile, warningsFile, variant, expectedDistro, observedDistro, expectedOs, observedOs, expectedArch, observedArch, glibc, openssl, started, ended, versionsFile] = process.argv.slice(1);
 const parseLines = (file) => fs.readFileSync(file, "utf8").split("\n").filter(Boolean);
 const checks = parseLines(checksFile).map((line) => {
   const [name, status, category, ...message] = line.split("\t");
   return { name, status, category, message: message.join("\t") };
 });
 const warnings = parseLines(warningsFile);
-const failures = checks.filter((check) => check.status !== "PASS");
+const failures = checks.filter((check) => check.status === "FAIL");
+let toolVersions = { status: "FAIL", checks: [], unpinned: [], error: "Version evidence unavailable" };
+try { toolVersions = JSON.parse(fs.readFileSync(versionsFile, "utf8")); } catch {}
 const verdict = {
   schema_version: 1,
   generated_at: new Date().toISOString(),
   variant,
+  expected_distro_id: expectedDistro,
+  observed_distro_id: observedDistro,
   expected_os: expectedOs,
   observed_os: observedOs,
   expected_arch: expectedArch,
@@ -283,13 +426,14 @@ const verdict = {
     glibc,
     openssl,
     elapsed_seconds: Number(ended) - Number(started),
+    tool_versions: toolVersions,
   },
 };
 fs.writeFileSync(output, `${JSON.stringify(verdict, null, 2)}\n`);
-' "$VERDICT_FILE" "$CHECKS_TSV" "$WARNINGS_FILE" "$VARIANT" "$EXPECTED_OS" "$OBSERVED_OS" \
-    "$EXPECTED_ARCH" "$OBSERVED_ARCH" "$GLIBC_VERSION" "$OPENSSL_VERSION" "$START_EPOCH" "$END_EPOCH"
+' "$VERDICT_FILE" "$CHECKS_TSV" "$WARNINGS_FILE" "$VALIDATION_VARIANT" "$EXPECTED_DISTRO_ID" "$OBSERVED_DISTRO_ID" "$EXPECTED_OS" "$OBSERVED_OS" \
+    "$EXPECTED_ARCH" "$OBSERVED_ARCH" "$GLIBC_VERSION" "$OPENSSL_VERSION" "$START_EPOCH" "$END_EPOCH" "${WORK_DIR}/tool-versions.json"
 
-FAILED_COUNT=$(awk -F '\t' '$2 != "PASS" { count += 1 } END { print count + 0 }' "$CHECKS_TSV")
+FAILED_COUNT=$(awk -F '\t' '$2 == "FAIL" { count += 1 } END { print count + 0 }' "$CHECKS_TSV")
 printf '\nVerdict: %s (%s failed checks)\n' "$([[ "$FAILED_COUNT" -eq 0 ]] && printf PASS || printf FAIL)" "$FAILED_COUNT"
 printf 'Result: %s\n' "$VERDICT_FILE"
 

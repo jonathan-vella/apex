@@ -1,5 +1,5 @@
 import assert from "node:assert/strict";
-import { cpSync, existsSync, mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";
+import { cpSync, existsSync, mkdirSync, mkdtempSync, readFileSync, rmSync, symlinkSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import path from "node:path";
 import { spawnSync } from "node:child_process";
@@ -54,11 +54,18 @@ function fixture(context) {
   return root;
 }
 
-function run(root, script, args = []) {
+function run(root, script, args = [], env = {}) {
   return spawnSync("bash", [path.join(root, "tools/scripts", script), ...args], {
     cwd: tmpdir(),
     encoding: "utf8",
+    env: { ...process.env, ...env },
   });
+}
+
+function toolPath(command) {
+  const result = spawnSync("bash", ["-c", 'command -v "$1"', "bash", command], { encoding: "utf8" });
+  assert.equal(result.status, 0, result.stderr);
+  return result.stdout.trim();
 }
 
 test("snapshot and diff use the repository root and include Copilot instructions", (context) => {
@@ -77,13 +84,59 @@ test("snapshot and diff use the repository root and include Copilot instructions
   assert.equal(unchanged.status, 0, unchanged.stderr);
   assert.match(readFileSync(path.join(baseline, "diff-report.md"), "utf8"), /No changes detected/);
   writeFileSync(path.join(root, ".github/copilot-instructions.md"), "updated runtime rules\n");
+  writeFileSync(path.join(root, ".github/agents/sample.md"), "updated agent rules\n");
   const changed = run(root, "diff-context-baseline.sh", ["--baseline", "before"]);
   assert.equal(changed.status, 0, changed.stderr);
-  assert.match(
-    readFileSync(path.join(baseline, "diff-report.md"), "utf8"),
-    /Modified: `.github\/copilot-instructions.md`/,
-  );
+  const report = readFileSync(path.join(baseline, "diff-report.md"), "utf8");
+  assert.match(report, /Modified: `.github\/copilot-instructions.md` \(\+1\/-1\)/);
+  assert.match(report, /Modified: `.github\/agents\/sample.md` \(\+1\/-1\)/);
+  assert.match(report, /\| Files modified \| 2 \|/);
+  assert.match(report, /-original\n\+updated agent rules/);
 });
+
+test("diff fails explicitly when diffutils is missing and does not write a report", (context) => {
+  const root = fixture(context);
+  assert.equal(run(root, "snapshot-agent-context.sh", ["before"]).status, 0);
+  const bin = path.join(root, "bin");
+  mkdirSync(bin);
+  for (const command of ["bash", "basename", "dirname"]) {
+    symlinkSync(toolPath(command), path.join(bin, command));
+  }
+  const result = run(root, "diff-context-baseline.sh", ["--baseline", "before"], { PATH: bin });
+  assert.notEqual(result.status, 0);
+  assert.match(result.stderr, /required command missing: diff \(install diffutils\)/);
+  assert.equal(existsSync(path.join(root, "agent-output/_baselines/before/diff-report.md")), false);
+});
+
+for (const target of [".github/agents/sample.md", ".github/copilot-instructions.md"]) {
+  for (const option of ["-q", "-u"]) {
+    test(`diff fails on ${option} comparison errors for ${target}`, (context) => {
+      const root = fixture(context);
+      assert.equal(run(root, "snapshot-agent-context.sh", ["before"]).status, 0);
+      writeFileSync(path.join(root, target), "changed\n");
+      const bin = path.join(root, "bin");
+      mkdirSync(bin);
+      writeFileSync(
+        path.join(bin, "diff"),
+        `#!/usr/bin/env bash
+if [[ "$1" == "${option}" && "$3" == *"${target}" ]]; then
+  echo "fixture comparison failure" >&2
+  exit 2
+fi
+exec "${toolPath("diff")}" "$@"
+`,
+        { mode: 0o755 },
+      );
+      const result = run(root, "diff-context-baseline.sh", ["--baseline", "before"], {
+        PATH: `${bin}:${process.env.PATH}`,
+      });
+      assert.equal(result.status, 2, result.stderr);
+      assert.match(result.stderr, /fixture comparison failure/);
+      assert.match(result.stderr, /Error: diff failed comparing/);
+      assert.equal(existsSync(path.join(root, "agent-output/_baselines/before/diff-report.md")), false);
+    });
+  }
+}
 
 test("snapshot refuses missing required inputs and does not leave a baseline", (context) => {
   const root = fixture(context);

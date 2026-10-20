@@ -12,19 +12,13 @@ echo "📦 Checking Azure CLI..."
 CURRENT_AZ=$(az version --query '"azure-cli"' -o tsv 2>/dev/null || echo "unknown")
 echo "   ℹ️  Current version: $CURRENT_AZ (managed by devcontainer feature, auto-upgrade disabled)"
 
-# Update Bicep
-echo "📦 Updating Bicep..."
-if az bicep upgrade --only-show-errors 2>/dev/null; then
-    echo "   ✅ Bicep updated"
-else
-    echo "   ⚠️  Bicep update skipped or failed"
-    FAILURES+=("Bicep")
-fi
+# Standalone Bicep shares the verified build manifest with the other native tools.
+echo "📦 Native CLI versions are pinned in download-checksums.json; review pins and rebuild to update."
 
 # Update Python packages
 echo "📦 Updating Python packages..."
 if command -v uv &>/dev/null; then
-    if uv pip install --system --quiet --requirement requirements.txt 2>/dev/null; then
+    if uv pip install --python /usr/local/python/current/bin/python3 --quiet --requirement requirements.txt; then
         echo "   ✅ Pinned Python requirements restored"
     else
         echo "   ⚠️  Python package updates had issues"

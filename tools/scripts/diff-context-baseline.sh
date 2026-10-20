@@ -66,6 +66,30 @@ if [[ -z "${OUTPUT_PATH}" ]]; then
   OUTPUT_PATH="${SNAPSHOT_DIR}/diff-report.md"
 fi
 
+if ! command -v diff >/dev/null 2>&1; then
+  echo "Error: required command missing: diff (install diffutils)" >&2
+  exit 1
+fi
+
+files_match() {
+  local status=0
+  diff -q "$1" "$2" >/dev/null || status=$?
+  if [[ "${status}" -gt 1 ]]; then
+    echo "Error: diff failed comparing $1 and $2 (exit ${status})" >&2
+    exit "${status}"
+  fi
+  return "${status}"
+}
+
+unified_diff() {
+  local status=0
+  diff -u "$1" "$2" || status=$?
+  if [[ "${status}" -gt 1 ]]; then
+    echo "Error: diff failed comparing $1 and $2 (exit ${status})" >&2
+    return "${status}"
+  fi
+}
+
 readonly MANIFEST="${SNAPSHOT_DIR}/manifest.json"
 if [[ ! -f "${MANIFEST}" ]]; then
   echo "Error: No manifest.json in baseline — snapshot may be corrupt" >&2
@@ -135,9 +159,11 @@ for entry in "${CATEGORIES[@]}"; do
       if [[ ! -f "${new_file}" ]]; then
         deleted=$((deleted + 1))
         cat_diffs+=$'\n'"#### Deleted: \`${target}/${rel_file}\`"$'\n'
-      elif ! diff -q "${old_file}" "${new_file}" > /dev/null 2>&1; then
+      elif files_match "${old_file}" "${new_file}"; then
+        unchanged=$((unchanged + 1))
+      else
         modified=$((modified + 1))
-        udiff=$(diff -u "${old_file}" "${new_file}" 2>/dev/null || true)
+        udiff=$(unified_diff "${old_file}" "${new_file}")
         lines_added=$(echo "${udiff}" | grep -c '^+[^+]' || true)
         lines_removed=$(echo "${udiff}" | grep -c '^-[^-]' || true)
         total_lines_added=$((total_lines_added + lines_added))
@@ -145,8 +171,6 @@ for entry in "${CATEGORIES[@]}"; do
 
         cat_diffs+=$'\n'"#### Modified: \`${target}/${rel_file}\` (+${lines_added}/-${lines_removed})"$'\n\n'
         cat_diffs+='```diff'$'\n'"${udiff}"$'\n''```'$'\n'
-      else
-        unchanged=$((unchanged + 1))
       fi
     done < <(cd "${baseline_path}" && find . -type f ! -name 'manifest.json' | sed 's|^\./||' | sort)
 
@@ -167,9 +191,11 @@ for entry in "${CATEGORIES[@]}"; do
     if [[ ! -f "${current_path}" ]]; then
       deleted=$((deleted + 1))
       cat_diffs+=$'\n'"#### Deleted: \`${target}\`"$'\n'
-    elif ! diff -q "${baseline_path}" "${current_path}" > /dev/null 2>&1; then
+    elif files_match "${baseline_path}" "${current_path}"; then
+      unchanged=$((unchanged + 1))
+    else
       modified=$((modified + 1))
-      udiff=$(diff -u "${baseline_path}" "${current_path}" 2>/dev/null || true)
+      udiff=$(unified_diff "${baseline_path}" "${current_path}")
       lines_added=$(echo "${udiff}" | grep -c '^+[^+]' || true)
       lines_removed=$(echo "${udiff}" | grep -c '^-[^-]' || true)
       total_lines_added=$((total_lines_added + lines_added))
@@ -177,8 +203,6 @@ for entry in "${CATEGORIES[@]}"; do
 
       cat_diffs+=$'\n'"#### Modified: \`${target}\` (+${lines_added}/-${lines_removed})"$'\n\n'
       cat_diffs+='```diff'$'\n'"${udiff}"$'\n''```'$'\n'
-    else
-      unchanged=$((unchanged + 1))
     fi
   fi
 

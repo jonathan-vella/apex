@@ -6,33 +6,25 @@
   },
 
   "features": {
-    // Tool versions are pinned to those verified in this container; bump them deliberately (update-tools.sh).
-    "ghcr.io/devcontainers/features/azure-cli:1": {
-      "installBicep": true,
-      "version": "2.90.0"
+    // Latest stable selections resolved on 2026-10-20; native AMD64 build and manual acceptance remain pending.
+    "./features/azure-cli": {
+      "version": "2.91.0"
     },
     "ghcr.io/devcontainers/features/powershell:2": {
-      "version": "7.6.6"
+      "version": "7.6.7"
     },
-    "ghcr.io/devcontainers/features/python:1": {
-      "version": "3.14",
-      "installTools": false
+    "./features/python": {
+      "version": "3.15.0",
+      "pipVersion": "26.2.1"
     },
     "ghcr.io/devcontainers/features/node:2": {
-      "version": "lts",
+      "version": "26.12.0",
       "pnpmVersion": "none"
-    },
-    "ghcr.io/devcontainers/features/github-cli:1": {
-      "version": "2.101.0"
-    },
-    "./features/terraform": {},
-    "ghcr.io/azure/azure-dev/azd:latest": {
-      "version": "1.34.1"
     }
   },
+  "overrideFeatureInstallOrder": ["./features/python", "./features/azure-cli"],
 
-  // OS tools, uv and gitleaks are installed in the image before features run.
-  // Locked Azure CLI 1.3.0 supports resolute; fail if its installation is unusable.
+  // Native tools and verified standalone CLIs are installed before features run.
   "onCreateCommand": "az version --output none",
   "postCreateCommand": "bash .devcontainer/post-create.sh",
   "postStartCommand": "bash .devcontainer/post-start.sh",
