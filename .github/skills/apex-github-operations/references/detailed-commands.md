@@ -3,7 +3,10 @@
 # GitHub CLI — Detailed Command Reference
 
 Complete `gh` CLI commands for repositories, Actions, releases, secrets, API requests,
-and authentication. Use these when MCP tools are unavailable.
+and authentication diagnostics. Use the CLI first, not only when MCP is unavailable.
+These are command examples, not authorization. Verify repository/operation scope before
+any write, including workflow dispatch, releases, secrets and repository settings.
+Pass `--repo <owner/repo>` where supported; use an explicit repository endpoint otherwise.
 
 ---
 
@@ -36,7 +39,7 @@ gh repo set-default owner/repo
 
 ```bash
 gh workflow list
-gh workflow run ci.yml --ref main
+gh workflow run <dispatch-enabled-workflow> --ref <approved-ref>
 gh workflow enable ci.yml
 gh workflow disable ci.yml
 ```
@@ -53,14 +56,13 @@ gh run download <run-id> --dir ./artifacts
 gh run cancel <run-id>
 ```
 
-### CI/CD Pattern
+### Dispatch And Run Identity
 
-```bash
-gh workflow run ci.yml --ref main
-RUN_ID=$(gh run list --workflow ci.yml --limit 1 --json databaseId --jq '.[0].databaseId')
-gh run watch "$RUN_ID"
-gh run download "$RUN_ID" --dir ./artifacts
-```
+Dispatch only a workflow that supports `workflow_dispatch`, with approved ref/inputs.
+Correlate the resulting run with repository, workflow, branch, event and head SHA.
+Do not assume the latest run belongs to your dispatch; concurrent runs can race.
+If identity is ambiguous, stop before watching, downloading, cancelling or rerunning it.
+Capture verbose logs to a file and inspect bounded sections.
 
 ---
 
@@ -86,16 +88,19 @@ gh release delete v1.0.0 --yes
 ## Secrets & Variables (gh CLI)
 
 ```bash
-# Secrets
-gh secret set MY_SECRET --body "secret_value"
+# Secrets (metadata only in agent output)
 gh secret list
-gh secret delete MY_SECRET
 
 # Variables
 gh variable set MY_VAR --body "value"
 gh variable list
 gh variable get MY_VAR
 ```
+
+Secret creation/rotation is a separately authorized, user-run private-terminal operation
+using the CLI's secure input facility. Never place secret values in chat, command
+arguments, repository files or logs. Stop when no private handoff is available.
+Deleting secrets or variables also requires explicit target-specific authorization.
 
 ---
 
@@ -120,19 +125,16 @@ gh api graphql -f query='{
 }'
 ```
 
-> **IMPORTANT**: `gh api -f` does not support object values. Use multiple
-> `-f` flags with hierarchical keys and string values instead.
+`-f` supplies string fields; `-F` supports typed/file values. Nested keys use bracket
+notation. For a complex request use `--input <approved-json-file>`; never include
+secrets in an agent-visible payload file. GraphQL is supported through `gh api graphql`
+and is not, by itself, a reason to select MCP.
 
 ---
 
 ## Auth & Search (gh CLI)
 
 ```bash
-# Auth
-gh auth login
-gh auth status
-gh auth token
-
 # Labels
 gh label create bug --color "d73a4a" --description "Bug report"
 gh label list
@@ -142,3 +144,8 @@ gh search repos "azure bicep" --language hcl
 gh search code "uniqueString" --repo owner/repo
 gh search issues "label:bug is:open" --repo owner/repo
 ```
+
+Use existing CLI credentials. Do not execute `gh auth` commands unless the user
+explicitly requests authentication troubleshooting, and never print token values.
+On a failure, report the failing layer without account switching or persistent
+credential changes. See [identity and credential failures](git-commit.md#identity-and-credential-failures).

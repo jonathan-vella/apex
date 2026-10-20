@@ -1,12 +1,11 @@
-# Branch Naming & Scope Enforcement
-# Validates branch naming convention and file scope on PRs
-
+# Local hooks and CI execute the same branch policy scripts.
 name: Branch Enforcement
 
 on:
   pull_request:
     types: [opened, synchronize, reopened]
     branches: [main]
+  workflow_dispatch:
 
 permissions:
   contents: read
@@ -20,21 +19,13 @@ jobs:
     name: Branch Naming Convention
     runs-on: ubuntu-latest
     steps:
+      - name: Checkout repository
+        uses: actions/checkout@v7
+
       - name: Validate branch name
         env:
-          BRANCH: ${{ github.head_ref }}
-        run: |
-          # ``dependabot/...`` is reserved by GitHub for Dependabot-authored
-          # PRs and cannot be renamed; allow the prefix unconditionally so
-          # version-bump PRs aren't blocked by branch naming.
-          # ``automation/...`` is the accelerator upstream-sync bot branch
-          # (automation/upstream-sync); allow it so weekly sync PRs pass.
-          ALLOWED="^(docs|agents|skills|infra|scripts|instructions|fix|chore|feat|ci|refactor|perf|test|build|revert|dependabot|automation)/"
-          if [[ ! "$BRANCH" =~ $ALLOWED ]]; then
-            echo "::error::Branch '$BRANCH' does not follow naming convention. Use an approved prefix: docs/, agents/, skills/, infra/, scripts/, instructions/, fix/, feat/, chore/, ci/, refactor/, perf/, test/, build/, revert/, dependabot/, automation/"
-            exit 1
-          fi
-          echo "✅ Branch '$BRANCH' follows naming convention"
+          BRANCH_NAME: ${{ github.head_ref || github.ref_name }}
+        run: bash tools/scripts/validate-branch-naming.sh "$BRANCH_NAME"
 
   branch-scope:
     name: Branch Scope Check
@@ -47,73 +38,6 @@ jobs:
 
       - name: Validate branch scope
         env:
-          BRANCH: ${{ github.head_ref }}
-        run: |
-          PREFIX=$(echo "$BRANCH" | cut -d'/' -f1)
-
-          # Cross-cutting prefixes are exempt
-          case "$PREFIX" in
-            feat|fix|chore|refactor|revert|perf|test|build|ci|dependabot|automation)
-              echo "ℹ️  Branch prefix '$PREFIX/' is cross-cutting — no file scope restriction"
-              exit 0
-              ;;
-          esac
-
-          # Determine allowed file patterns per domain prefix
-          case "$PREFIX" in
-            docs)
-              ALLOWED='^(README\.md|CONTRIBUTING\.md|CHANGELOG\.md|GLOSSARY\.md)'
-              LABEL="README.md, CONTRIBUTING.md, CHANGELOG.md, GLOSSARY.md"
-              ;;
-            agents)
-              ALLOWED='^(\.github/agents/|tools/registry/agent-registry\.json)'
-              LABEL=".github/agents/, tools/registry/agent-registry.json"
-              ;;
-            skills)
-              ALLOWED='^(\.github/skills/)'
-              LABEL=".github/skills/"
-              ;;
-            infra)
-              ALLOWED='^infra/'
-              LABEL="infra/"
-              ;;
-            scripts)
-              ALLOWED='^(tools/scripts/|package\.json)'
-              LABEL="tools/scripts/, package.json"
-              ;;
-            instructions)
-              ALLOWED='^\.github/instructions/'
-              LABEL=".github/instructions/"
-              ;;
-            *)
-              echo "ℹ️  Unknown prefix '$PREFIX/' — no file scope restriction"
-              exit 0
-              ;;
-          esac
-
-          # Get changed files in this PR
-          CHANGED=$(git diff --name-only origin/main...HEAD 2>/dev/null || echo "")
-          if [ -z "$CHANGED" ]; then
-            echo "ℹ️  No changed files detected"
-            exit 0
-          fi
-
-          VIOLATIONS=""
-          while IFS= read -r file; do
-            if ! echo "$file" | grep -qE "$ALLOWED"; then
-              VIOLATIONS="${VIOLATIONS}  - ${file}\n"
-            fi
-          done <<< "$CHANGED"
-
-          if [ -n "$VIOLATIONS" ]; then
-            echo "::error::Branch '$BRANCH' modifies files outside its scope ($LABEL)."
-            echo ""
-            echo "Files outside scope:"
-            echo -e "$VIOLATIONS"
-            echo ""
-            echo "💡 Use a feat/ or fix/ branch for cross-cutting changes."
-            exit 1
-          fi
-
-          TOTAL=$(echo "$CHANGED" | wc -l | tr -d ' ')
-          echo "✅ All $TOTAL file(s) are within scope for '$PREFIX/' branch"
+          BRANCH_NAME: ${{ github.head_ref || github.ref_name }}
+          BASE_BRANCH: ${{ github.base_ref || github.event.repository.default_branch }}
+        run: bash tools/scripts/validate-branch-scope.sh "$BRANCH_NAME" "origin/$BASE_BRANCH"

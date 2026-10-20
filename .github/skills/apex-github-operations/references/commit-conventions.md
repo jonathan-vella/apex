@@ -74,11 +74,15 @@ git add path/to/file1 path/to/file2
 git add *.test.*
 git add src/components/*
 
-# Interactive staging
-git add -p
+# Review exactly what is staged
+git diff --cached --check
+git diff --cached --stat
 ```
 
 **Never commit secrets** (.env, credentials.json, private keys).
+Stage only explicitly approved files/hunks; preserve partially staged files and unrelated index entries.
+For partial staging use an approved index patch, not an interactive shell prompt.
+The complete safety and authorization procedure lives in [scoped commit and push](git-commit.md).
 
 ### 3. Generate Commit Message
 
@@ -91,8 +95,12 @@ Analyze the diff to determine:
 ### 4. Execute Commit
 
 ```bash
-git commit -m "<type>[scope]: <description>"
+git commit -m "<type>(<scope>): <description>" \
+  -m "Co-authored-by: Copilot <223556219+Copilot@users.noreply.github.com>"
 ```
+
+Omit the co-author trailer only when the user explicitly requests it.
+A local commit does not authorize push, PR creation, merge or auto-merge.
 
 ## Best Practices
 
@@ -100,12 +108,14 @@ git commit -m "<type>[scope]: <description>"
 - Present tense: "add" not "added"
 - Imperative mood: "fix bug" not "fixes bug"
 - Reference issues: `Closes #123`, `Refs #456`
-- Keep description under 72 characters
+- Prefer a header under 72 characters; commitlint enforces a 100-character maximum
 
 ## Safety Protocol
 
-- NEVER update git config
-- NEVER run destructive commands (--force, hard reset) without explicit request
-- NEVER skip hooks (--no-verify) unless user asks
-- NEVER force push to main/master
-- If commit fails due to hooks, fix and create NEW commit (don't amend)
+- Do not change Git configuration or credentials implicitly.
+- Do not bypass hooks, force-push, reset, rebase or amend in this procedure.
+- Do not commit/push from `main`, the repository default branch or detached HEAD.
+- If a hook or commit fails, report the error and stop without automatic retry.
+  An authorized repair is followed by a new commit attempt, not an amend of an earlier commit.
+- Preserve unrelated hunks and other submodules during approved exclusions.
+  Mixed files require hunk edits, never whole-file restoration from a base revision.

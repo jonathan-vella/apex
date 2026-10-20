@@ -1,56 +1,91 @@
 <!-- ref:issues-and-prs-v1 -->
+# Issues And Pull Requests
 
-# Issues & Pull Requests — gh CLI + MCP Fallback
+Use `gh issue` and `gh pr` first, then `gh api` for REST/GraphQL capabilities not
+exposed by a high-level command. Discover actual MCP tools only for a required
+capability unavailable through the CLI. Do not hard-code server/tool identifiers.
+Neither fallback nor an existing PR grants write or merge authorization.
 
-> Loaded by `apex-github-operations` SKILL.md. Tool tables and creation
-> guides for issues and pull requests. Both flows are gh-CLI-first; the
-> MCP tools are reserved for operations the CLI does not cover well
-> (rich PR review threads, Copilot review requests, bulk GraphQL).
+## Repository And Issue Scope
 
-## Issues
+Verify the intended `owner/repo` against the Git remote. Pass `--repo <owner/repo>`
+to avoid a configured CLI default targeting another repository.
+For issues, identify the number and requested fields, or title/body/template for creation.
+Use the repository's issue templates and conventions; do not impose generic title prefixes.
+List/search/view is read-only. Creating, editing, commenting, closing and assigning require
+the corresponding explicit user request. Read-only review does not authorize posting it.
 
-Use `gh issue ...` by default. MCP tools are available as a fallback when `gh` cannot
-satisfy the operation (e.g., bulk GraphQL queries).
+```bash
+gh issue view <number> --repo <owner/repo>
+gh issue create --repo <owner/repo> --title "<title>" --body-file <approved-body-file>
+```
 
-| Tool                           | Purpose                |
-| ------------------------------ | ---------------------- |
-| `mcp_github_list_issues`       | List repository issues |
-| `mcp_github_issue_read`        | Fetch issue details    |
-| `mcp_github_issue_write`       | Create/update issues   |
-| `mcp_github_search_issues`     | Search issues          |
-| `mcp_github_add_issue_comment` | Add comments           |
+## PR Creation And Update
 
-**Creating issues** — Required: `owner`, `repo`, `title`, `body`. Title guidelines: prefix
-with `[Bug]`, `[Feature]`, `[Docs]`; keep under 72 chars.
+Before a write:
 
-## Pull Requests
+1. Verify repository, head branch, base branch and all commits in the proposed PR.
+   Resolve the default base from the target repository unless the user specified another;
+   do not assume `main` for every repository.
+2. Run [branch naming and scope checks](branch-strategy.md).
+   Do not commit/push from a protected/default branch or rename implicitly.
+3. Inspect `.github/PULL_REQUEST_TEMPLATE.md`, root `PULL_REQUEST_TEMPLATE.md`,
+   templates under `docs/`, and `.github/PULL_REQUEST_TEMPLATE/` as applicable.
+   Use the matching template; do not replace it with an auto-generated commit list.
+4. Verify the remote head contains the reviewed commits. If publication is needed,
+   follow [authorized push](git-commit.md#push-only-when-authorized); a PR request
+   alone does not supply missing push authorization.
+5. Look for an existing open PR with this head and base. Report it instead of creating
+   a duplicate; edit its title/body only when requested.
+6. Use a Conventional Commit title and a truthful body with scope, validation results,
+   unperformed checks and related issues. Avoid empty issue-closing placeholders.
+7. Confirm authorization covers creation or the exact update fields; then execute only
+   that action. Decline/cancellation never approves.
 
-Use `gh pr ...` by default (`gh pr create`, `gh pr merge`, `gh pr edit`, `gh pr review`,
-`gh pr list`). The MCP tools below are reserved as a fallback for operations the CLI does
-not cover well — notably rich PR review thread management and Copilot review requests.
+```bash
+gh pr list --repo <owner/repo> --head "<head>" --base "<base>" \
+  --state open --json number,url,title
+gh pr create --repo <owner/repo> --base "<base>" --head "<head>" \
+  --title "<type>(<scope>): <subject>" --body-file <approved-body-file>
+```
 
-| Tool                                   | Purpose               |
-| -------------------------------------- | --------------------- |
-| `mcp_github_create_pull_request`       | Create new PRs        |
-| `mcp_github_merge_pull_request`        | Merge PRs             |
-| `mcp_github_update_pull_request`       | Update PR details     |
-| `mcp_github_pull_request_review_write` | Create/submit reviews |
-| `mcp_github_request_copilot_review`    | Copilot code review   |
-| `mcp_github_search_pull_requests`      | Search PRs            |
-| `mcp_github_list_pull_requests`        | List PRs              |
+Verify and report the actual PR URL/state. If creation fails, report failure.
+A compare URL is a navigation aid, not evidence that a PR was created.
+Pushing to an existing PR already changes its contents; do not describe a later
+title/body decision as the approval for that earlier publication.
 
-### Creating PRs
+## Checks, Reviews And Merge
 
-**Required**: `owner`, `repo`, `title`, `head` (source branch), `base` (target branch)
+Query actual GitHub state, not local labels or deployment success:
 
-**Pre-flight checks** (mandatory before creating):
+```bash
+gh pr checks <number> --repo <owner/repo>
+gh pr view <number> --repo <owner/repo> \
+  --json url,state,isDraft,headRefOid,reviewDecision,mergeStateStatus,statusCheckRollup
+```
 
-1. Validate branch name (see [Branch Naming](./branch-strategy.md))
-2. For domain branches, verify files are in scope
-3. Search for PR templates in `.github/PULL_REQUEST_TEMPLATE/`
-4. Title must follow conventional commit format
+Pending, skipped, unavailable and failed checks are not verified success.
+Do not infer live branch protection, required approvals or auto-merge availability
+from workflow YAML or labels. Observe applicable GitHub requirements and unresolved
+review conversations. Do not approve your own work on behalf of a human.
 
-**Default merge method**: `squash` unless user specifies otherwise.
+Merge and enabling auto-merge each require an explicit request for the target PR and
+method. Default to squash only when no method was specified. Recheck current head SHA,
+checks and reviews immediately before acting; changed head/scope requires renewed approval.
+Use the reviewed head SHA to prevent merging a concurrently changed PR:
 
-📋 **Smart PR Flow**: Read [`smart-pr-flow.md`](./smart-pr-flow.md) for PR lifecycle
-states, auto-labels, and auto-merge conditions.
+```bash
+gh pr merge <number> --repo <owner/repo> --squash --match-head-commit "<reviewed-head-sha>"
+```
+
+Use `--auto` only if explicitly authorized and supported by the target repository.
+Never use admin/bypass options to override requirements. Branch deletion is a separate action.
+Afterward verify whether the PR is actually merged or merely has auto-merge enabled;
+do not report a scheduled merge as completed.
+
+## Post-Deployment Boundary
+
+APEX does not implement an automatic PR label/watchdog/merge lifecycle.
+Deployment completion neither authorizes GitHub writes nor supplies PR review approval.
+Only perform a requested PR status lookup, comment, label edit or merge under its own
+operation scope. Do not create workflow labels, polling loops or external automation implicitly.

@@ -6,6 +6,28 @@ Entries are grouped by conventional-commit type. Breaking changes list the migra
 
 ### Breaking changes
 
+#### GitHub operations consolidates the manual commit entrypoint
+
+Replace `/apex-git-commit` with `/apex-github-operations commit` and an explicit file/hunk scope.
+The canonical skill remains discoverable and inherits the caller's model/tools; fixed owner/model
+prerequisites and the separate manual wrapper are removed.
+Commit-only requests stop after the local commit. Push, PR writes, merge and auto-merge require
+their own explicit authorization; combined requests must cover each action and its scope.
+Infrastructure and generated artifacts require explicit inclusion rather than inferred staging.
+Full-index checks, partial staging, author identity, normal hooks, co-author attribution and
+credential-change approval remain part of the procedure.
+
+Retire the historical Sensei-specific merge procedure and undocumented Smart PR label/watchdog
+automation. GitHub operations use `git`/`gh`, including REST/GraphQL, before discovered MCP fallbacks.
+Token-printing authentication examples and interactive staging are removed; PR creation uses
+the actual template locations and verified head/base, and merge checks the approved head SHA.
+
+Local hooks and Branch Enforcement now share the same validators. Use `scripts/` for script branches
+(files under `tools/scripts/` or `package.json`), not `tools/scripts/`. Domain scope violations now
+block local pushes as well as CI; unavailable comparison bases fail instead of falling back silently.
+Use a cross-cutting prefix such as `fix/` for changes spanning domains. Automation prefixes remain supported.
+Published entrypoint and branch-policy documentation must be synchronized in `jonathan-vella/apex-docs`.
+
 #### Instruction audit remediation and Copilot-only discovery
 
 Remove Local-only customization-location settings from workspace and devcontainer configuration.
@@ -29,7 +51,8 @@ or headless deployment service. Local prompt roots and split-harness adapters mo
 Migration:
 
 1. Select `01-Orchestrator` and use `/apex-workflow-start` with a fresh or `resume` operation.
-2. Use `/apex-git-commit` and `/apex-debug-log-export` instead of their former prompt adapters.
+2. Use `/apex-github-operations` for scoped commit/GitHub work and `/apex-debug-log-export`
+   for log export instead of their former prompt adapters.
 3. Main workers use actual native bounded task prompts/results, not custom execution envelopes,
    readiness nonce turns or mandatory raw-log verification. Model/effort labels remain diagnostics.
    Direct owner selection remains available, with native questioning in every interactive main.

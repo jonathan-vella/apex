@@ -1,6 +1,6 @@
 {
   "$schema": "../../tools/schemas/explorer-graph.schema.json",
-  "generatedAt": "2026-10-20T07:01:39.914Z",
+  "generatedAt": "2026-10-20T08:55:36.718Z",
   "categories": [
     { "id": "agent", "key": "agents", "label": "Agent", "color": "#3b82f6", "shape": "round-rectangle", "count": 14 },
     {
@@ -11,7 +11,7 @@
       "shape": "round-diamond",
       "count": 7
     },
-    { "id": "skill", "key": "skills", "label": "Skill", "color": "#10b981", "shape": "ellipse", "count": 39 },
+    { "id": "skill", "key": "skills", "label": "Skill", "color": "#10b981", "shape": "ellipse", "count": 38 },
     {
       "id": "instruction",
       "key": "instructions",
@@ -39,8 +39,8 @@
     },
     { "id": "mcp", "key": "mcp_servers", "label": "MCP Server", "color": "#f43f5e", "shape": "barrel", "count": 3 }
   ],
-  "nodeCount": 174,
-  "edgeCount": 561,
+  "nodeCount": 173,
+  "edgeCount": 554,
   "nodes": [
     {
       "id": "agent:01-orchestrator",
@@ -844,24 +844,10 @@
       }
     },
     {
-      "id": "skill:apex-git-commit",
-      "category": "skill",
-      "label": "apex-git-commit",
-      "description": "Stage scoped changes, commit, push, and offer a PR in the VS Code Copilot SDK harness. Use /apex-git-commit after selecting the built-in agent owner and MAI-Code-1.1-Flash; normal hooks and separate push/PR authorization still apply.",
-      "path": ".github/skills/apex-git-commit/SKILL.md",
-      "links": { "source": "https://github.com/jonathan-vella/apex/blob/main/.github/skills/apex-git-commit/SKILL.md" },
-      "meta": {
-        "invocable": true,
-        "disableModelInvocation": true,
-        "argumentHint": "Optional conventional commit subject",
-        "context": null
-      }
-    },
-    {
       "id": "skill:apex-github-operations",
       "category": "skill",
       "label": "apex-github-operations",
-      "description": "**WORKFLOW SKILL** — Full GitHub contribution lifecycle: branches, conventional commits, issues, PRs, Actions, releases. gh CLI-first with MCP fallback. WHEN: \"commit\", \"push\", \"open PR\", \"create branch\", \"create issue\", \"cut release\", \"GitHub operation\". DO NOT USE FOR: Azure infrastructure, Bicep/Terraform code, architecture decisions. INVOKES: gh CLI (primary), GitHub MCP (fallback).",
+      "description": "**WORKFLOW SKILL** — Scoped Git/GitHub operations: branches, commits, push, issues, PRs, Actions, releases. WHEN: \"commit\", \"push\", \"open PR\", \"create branch\", \"create issue\", \"cut release\", \"GitHub operation\". Uses git/gh CLI first; discover MCP only for unavailable CLI capabilities. DO NOT USE FOR: Azure deployment or architecture. Loading never authorizes writes.",
       "path": ".github/skills/apex-github-operations/SKILL.md",
       "links": {
         "source": "https://github.com/jonathan-vella/apex/blob/main/.github/skills/apex-github-operations/SKILL.md"
@@ -869,7 +855,7 @@
       "meta": {
         "invocable": true,
         "disableModelInvocation": false,
-        "argumentHint": "GitHub operation and repository or branch scope",
+        "argumentHint": "Operation (commit, push, PR, issue, Actions, release) and explicit repository/file scope",
         "context": null
       }
     },
@@ -3097,12 +3083,6 @@
       "kind": "applies-to"
     },
     {
-      "id": "instruction:agent-skills--applies-to->skill:apex-git-commit",
-      "source": "instruction:agent-skills",
-      "target": "skill:apex-git-commit",
-      "kind": "applies-to"
-    },
-    {
       "id": "instruction:agent-skills--applies-to->skill:apex-github-operations",
       "source": "instruction:agent-skills",
       "target": "skill:apex-github-operations",
@@ -3454,12 +3434,6 @@
       "id": "instruction:context-optimization--applies-to->skill:apex-entra-app-registration",
       "source": "instruction:context-optimization",
       "target": "skill:apex-entra-app-registration",
-      "kind": "applies-to"
-    },
-    {
-      "id": "instruction:context-optimization--applies-to->skill:apex-git-commit",
-      "source": "instruction:context-optimization",
-      "target": "skill:apex-git-commit",
       "kind": "applies-to"
     },
     {
@@ -3820,12 +3794,6 @@
       "id": "instruction:docs-trigger--applies-to->skill:apex-entra-app-registration",
       "source": "instruction:docs-trigger",
       "target": "skill:apex-entra-app-registration",
-      "kind": "applies-to"
-    },
-    {
-      "id": "instruction:docs-trigger--applies-to->skill:apex-git-commit",
-      "source": "instruction:docs-trigger",
-      "target": "skill:apex-git-commit",
       "kind": "applies-to"
     },
     {
@@ -4339,12 +4307,6 @@
       "kind": "applies-to"
     },
     {
-      "id": "instruction:markdown--applies-to->skill:apex-git-commit",
-      "source": "instruction:markdown",
-      "target": "skill:apex-git-commit",
-      "kind": "applies-to"
-    },
-    {
       "id": "instruction:markdown--applies-to->skill:apex-github-operations",
       "source": "instruction:markdown",
       "target": "skill:apex-github-operations",
@@ -4696,12 +4658,6 @@
       "id": "instruction:no-interactive-shell--applies-to->skill:apex-entra-app-registration",
       "source": "instruction:no-interactive-shell",
       "target": "skill:apex-entra-app-registration",
-      "kind": "applies-to"
-    },
-    {
-      "id": "instruction:no-interactive-shell--applies-to->skill:apex-git-commit",
-      "source": "instruction:no-interactive-shell",
-      "target": "skill:apex-git-commit",
       "kind": "applies-to"
     },
     {
@@ -5446,18 +5402,6 @@
       "id": "skill:apex-entra-app-registration--refs->skill:apex-azure-rbac",
       "source": "skill:apex-entra-app-registration",
       "target": "skill:apex-azure-rbac",
-      "kind": "refs"
-    },
-    {
-      "id": "skill:apex-git-commit--refs->skill:apex-github-operations",
-      "source": "skill:apex-git-commit",
-      "target": "skill:apex-github-operations",
-      "kind": "refs"
-    },
-    {
-      "id": "skill:apex-github-operations--refs->skill:apex-git-commit",
-      "source": "skill:apex-github-operations",
-      "target": "skill:apex-git-commit",
       "kind": "refs"
     },
     {

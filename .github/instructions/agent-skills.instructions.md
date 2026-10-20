@@ -64,7 +64,9 @@ Keep internal `apex-azure-defaults`, `apex-azure-artifacts`,
 `apex-golden-principles`, and `apex-workflow-engine` hidden but model-loadable.
 Preserve their required agent-body loading references. Task skills are normally visible and model-loadable.
 Explicit exceptions `apex-unslop`, `apex-vendor-prompting` and `apex-terraform-search-import`
-remain visible and manual-only, as do workflow-start, git-commit and debug-log-export.
+remain visible and manual-only, as do workflow-start and debug-log-export.
+GitHub operations, including scoped commits, use the visible, model-loadable
+`apex-github-operations` skill; loading it does not authorize any write.
 Do not read a manual-only skill body automatically to bypass its flag.
 Hints do not validate arguments, confer permissions, or grant approval. Never
 request passwords, tokens, keys, or secret-bearing share links in hints. Omit

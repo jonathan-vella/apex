@@ -1,244 +1,144 @@
 <!-- ref:git-commit-v1 -->
-# Git Commit, Push & PR (CLI-only)
+# Scoped Commit And Authorized Push
 
-Local and Host share this procedure using the caller's authorized tools.
-No specific agent or model selection is required by this shared Git procedure.
-Entrypoint model preferences do not require runtime attestation here. This
-procedure neither changes the model nor widens access.
+Use the caller's authorized tools and operator/runtime-selected model.
+Commit, push and PR operations are independent. A local commit needs `git`,
+not an authenticated GitHub session. Load [issues and PRs](issues-and-prs.md)
+only when that operation is requested.
 
-Stage all changes **except** anything under `agent-output/`, `infra/`, or
-`.github/skills/sensei/` (the sensei exclusion is lifted only when the
-current branch is `feat/skills-sensei`), auto-generate a conventional
-commit, push to the current branch, then ask whether to open a new PR or
-update an existing one. Uses `git` and `gh` only — no MCP tools.
+## Inputs And Authorization
 
-## Scope
+Record the requested action, repository, branch, approved files/hunks and optional
+commit subject. For push, also record the remote and outgoing commits.
+An explicit combined request may authorize commit and push together; otherwise obtain
+push authorization separately with `ask_user` before publishing.
+Commit authorization never implies push authorization. Pushing updates any existing PR
+for that branch; disclose that effect before obtaining push approval.
 
-- Workspace must be a git repository with `origin` configured.
-- `gh` CLI must already be authenticated. Do not run `gh auth` or request secrets
-  through chat; report authentication failures without switching credentials.
-- Verify author identity with `git var GIT_AUTHOR_IDENT` and
-  `git var GIT_COMMITTER_IDENT` before staging. If either fails, restore the
-  user's intended dotfiles configuration; never invent an author or overwrite
-  their identity with repository-local defaults.
-- Git author identity and push credentials are separate. On an account mismatch,
-  compare `gh api user --jq .login` with the account in Git's denial. With explicit
-  user authorization, use the command-scoped GitHub CLI helper shown in Step 4;
-  do not change persistent credential configuration.
-- Excluded paths (always): `agent-output/`, `infra/`.
-- Excluded path (conditional): `.github/skills/sensei/` — included only
-  when `git branch --show-current` returns `feat/skills-sensei`.
-- Never commit to `main`. Never force-push.
+When delegated, return `USER_INPUT_REQUIRED` to the interactive parent for missing
+scope or approvals. Decline does not approve; cancellation stops.
 
-### Identity And Access Troubleshooting
+## Inspect Before Staging
 
-Run this sequence only when identity or access fails, not before every healthy commit:
+1. Confirm the repository root, active branch and requested file scope.
+   Refuse `main`, the repository default branch and detached HEAD.
+   Follow [branch strategy](branch-strategy.md); do not rename implicitly.
+2. Verify author and committer identity:
 
-1. Identify the environment of the failing command: Windows, WSL and the container
-  have separate paths and configuration. Confirm a file exists there before recreating it.
-2. Use the author checks above and `git config --show-origin --get-regexp '^user\.(name|email)$'`
-  to locate missing dotfiles configuration. Author identity does not authenticate a push.
-3. Test ordinary Git access with `git ls-remote <intended-private-repository> HEAD`.
-  Inspect the active credential helper and compare the denied account with the intended account;
-  a successful `gh` lookup does not establish that Git uses the same credentials.
-4. For dev containers, test host access before forwarded container access. After an authorized
-  repair, repeat the original command without overrides and verify dotfiles persistence after rebuild.
+   ```bash
+   git var GIT_AUTHOR_IDENT
+   git var GIT_COMMITTER_IDENT
+   ```
 
-Do not repeatedly reauthenticate without identifying the failing layer. Any account refresh or
-credential-route change requires explicit authorization; preserve other accounts and never expose secrets.
-A read-only lookup verifies repository access, not write permission; only the authorized push proves publication.
+   If identity is missing, stop and report the configuration source; do not invent an
+   author or repair dotfiles/configuration without approval.
+3. Inspect worktree changes and the entire existing index, including staged deletions:
 
-## Inputs
+   ```bash
+   git status --short
+   git diff --cached --name-status
+   git diff --name-status
+   ```
 
-| Variable | Source                                  | Default        |
-| -------- | --------------------------------------- | -------------- |
-| subject  | argument-hint or generated from diff    | auto           |
-| branch   | `git branch --show-current`             | current branch |
-| sensei   | derived: `branch == feat/skills-sensei` | exclude sensei |
-| pr_mode  | user choice (new / update / skip)       | ask            |
-| pr_base  | user choice                             | `main`         |
+4. Derive an explicit file/hunk list from the user's task, not from every modified file.
+   Exclude `agent-output/` and `infra/` from inferred scope unless explicitly included
+   by the user. Their existing governance/review rules remain mandatory.
+   No branch name makes unrelated files eligible.
+5. If the existing index contains unrelated or excluded changes, stop and report them.
+   Do not unstage or overwrite the user's work. Preserve partially staged files:
+   do not replace their staged content with all worktree changes.
+6. For approved removal/exclusion edits, preserve unrelated hunks and other submodules.
+   Mixed files require hunk edits; never restore a whole mixed file from a base revision.
 
-## Workflow
+## Stage And Validate
 
-### Step 0 — Compute the exclusion pathspec
-
-Resolve the active branch and build the pathspec used by every subsequent
-`git` command:
+Stage only approved files; do not use whole-worktree staging or interactive staging.
+For partial files, use an approved index patch without overwriting other staged hunks.
 
 ```bash
-BRANCH="$(git branch --show-current)"
-if [[ "$BRANCH" == "feat/skills-sensei" ]]; then
-  EXCLUDES=(':!agent-output' ':!infra')
-else
-  EXCLUDES=(':!agent-output' ':!infra' ':!.github/skills/sensei')
-fi
-```
-
-Every `git add`/`git status`/`git diff` command below uses
-`-- . "${EXCLUDES[@]}"` to apply the exclusion list consistently. If the
-user is on `feat/skills-sensei` the sensei skill files are eligible for
-staging; on every other branch they are skipped.
-
-### Step 1 — Inspect
-
-Run these in parallel and show the output:
-
-```bash
-echo "$BRANCH"
-git status --short -- . "${EXCLUDES[@]}"
-git diff --stat HEAD -- . "${EXCLUDES[@]}"
-```
-
-Stop if:
-
-- branch is `main` (refuse to commit).
-- the scoped status is empty (working tree clean within scope).
-
-Show a one-line note of any changes under the excluded folders so the user
-knows they were intentionally skipped:
-
-```bash
-if [[ "$BRANCH" == "feat/skills-sensei" ]]; then
-  git status --short -- agent-output infra
-else
-  git status --short -- agent-output infra .github/skills/sensei
-fi
-```
-
-### Step 2 — Stage scoped files
-
-First inspect the entire existing index with `git diff --cached --name-only`.
-If excluded paths are already staged, stop and report them. Do not unstage the
-user's work or commit it accidentally: pathspec exclusions on `git add` do not
-remove existing index entries. After staging, recheck the full index against
-the exclusions before committing.
-
-Stage every change **outside** the excluded folders:
-
-```bash
-git add -A -- . "${EXCLUDES[@]}"
+git add -- path/to/approved-file
 git diff --cached --stat
+git diff --cached --check
 ```
 
-### Step 3 — Compose conventional commit (auto)
+Recheck the full index against the approved list after staging. Read all relevant staged
+hunks in bounded sections, including deletions and generated/lockfile changes when material;
+the first page of a diff is not a complete review.
+If the index is empty, report no commit was created and stop.
+Run the smallest applicable repository checks and branch-scope validation.
+Do not invoke artifact markdown lint directly; existing hooks/review own that contract.
 
-If the user passed a subject via the argument-hint, use it (wrap it in
-`<type>(<scope>): <subject>` if missing the prefix).
+## Create The Local Commit
 
-Otherwise, read `.github/skills/apex-github-operations/references/commit-conventions.md`,
-inspect the staged diff:
+Use the provided subject when valid, or derive a Conventional Commit from the scoped diff.
+Follow [commit conventions](commit-conventions.md), including the required co-author trailer.
+An explicit commit request authorizes composing and creating that scoped local commit;
+do not demand a redundant message confirmation unless the meaning or scope is ambiguous.
 
 ```bash
-git diff --cached -- . ':(exclude)*.lock' ':(exclude)package-lock.json' | head -200
+git commit -m "<type>(<scope>): <subject>" \
+  -m "<body>" \
+  -m "Co-authored-by: Copilot <223556219+Copilot@users.noreply.github.com>"
 ```
 
-…and compose a message in this shape:
-
-```text
-<type>(<scope>): <short sentence-case subject>
-
-- <bullet 1>
-- <bullet 2>
-```
-
-**Do not ask for confirmation.** Commit the auto-generated message
-immediately in Step 4. The user reviews the result via the commit hash +
-summary table at the end and can amend if needed. The only remaining
-confirmation gate is the PR decision in Step 5.
-
-### Step 4 — Commit and push
+Omit the trailer only if the user explicitly requests it.
+Normal pre-commit and commit-msg hooks must run. If any hook or commit fails, capture
+the error and stop; do not retry automatically, amend an earlier commit or bypass checks.
+After success, inspect the resulting commit and worktree:
 
 ```bash
-git commit -m "<auto subject>" -m "<auto body>" &&
-git push origin "$BRANCH"
+git log -1 --format='%h %s'
+git show --stat --oneline HEAD
+git status --short
 ```
 
-Never join commit and push with `;`: a failed commit must prevent the push.
-For an explicitly authorized account-mismatch recovery, replace only the push
-command with this command-scoped helper (keep the commit-success condition):
+Hooks may generate or stage files. Verify the actual commit contains only approved changes.
+Report unexpected scope without rewriting history or pushing it. Leave post-commit
+generated work uncommitted unless separately included and authorized.
+For commit-only requests, finish here; report that no push or PR action was performed.
 
-```bash
-git -c credential.helper= -c credential.helper='!gh auth git-credential' push origin "$BRANCH"
-```
+## Push Only When Authorized
 
-If a pre-commit hook fails, capture its output, summarize the error and stop. Do not retry.
-If push is rejected, print the error and suggest `git pull --rebase` — do
-not force-push.
+1. Verify `origin` or the explicitly requested remote targets the intended repository.
+   Use existing credentials. Do not require remote access for a commit-only request.
+2. Inspect the remote branch tip and all outgoing commits, not just the newest commit.
+   Refresh the relevant remote ref when needed. If the remote branch is new, compare
+   against the verified target base. Missing/stale comparison evidence blocks publication.
+3. Confirm authorization covers this remote, branch and outgoing history, including the
+   update to any existing PR. If it does not, use `ask_user` before push.
+4. Recheck branch naming/scope and run the ordinary push with normal pre-push hooks:
 
-Show the resulting commit hash:
+   ```bash
+   git push origin "<approved-feature-branch>"
+   ```
 
-```bash
-git log -1 --pretty=format:'%h %s'
-```
+   Replace `origin` only with the explicitly approved remote. Do not chain commit and
+   push in a way that skips the intervening scope/authorization checks.
+5. Verify the remote branch tip matches the intended local commit before reporting
+   publication. If push fails, preserve the local commit, report the failed phase and stop.
+   A rejection does not authorize pull/rebase, force-push or credential changes.
 
-### Step 5 — PR decision
+## Identity And Credential Failures
 
-Detect any open PR for this branch:
+Git author identity and push credentials are separate. Only diagnose the failing layer:
 
-```bash
-gh pr list --head "$BRANCH" --state open --json number,url,title
-```
+- Identify whether the failure occurs on the host, WSL or container; their config differs.
+- Use `git config --show-origin --get-regexp '^user\.(name|email)$'` when author identity fails.
+- For an account mismatch, compare `gh api user --jq .login` with the account named
+  in Git's denial. A successful CLI lookup does not prove Git write access.
+- Never request tokens, print token values, run `gh auth` without an explicit authentication
+  troubleshooting request, or change persistent Git credential configuration.
+- Only with explicit authorization for a command-scoped credential-route change, use:
 
-Call `ask_user` with one question:
+  ```bash
+  git -c credential.helper= -c credential.helper='!gh auth git-credential' push origin "<approved-feature-branch>"
+  ```
 
-- header: `pr-action`
-- question: `What do you want to do with a pull request?`
-- options:
-  - If an existing PR was found: `Update existing PR #<number>` (recommended)
-  - `Create a new PR to main`
-  - `Skip — no PR right now`
+After an approved repair, verify the original failing operation.
+Read access is not proof of write permission. Never switch accounts or helpers implicitly.
 
-Branch on the answer:
+## Result
 
-**Update existing PR** — the push in Step 4 already updated the branch.
-Optionally refresh the PR body or title:
-
-```bash
-gh pr view <number> --json url,title,state
-# If user supplied a new title/body in their reply:
-# gh pr edit <number> --title "<title>" --body "<body>"
-```
-
-Print the PR URL.
-
-**Create a new PR** — auto-fill from the commit:
-
-```bash
-gh pr create --base main --head "$BRANCH" \
-  --title "<commit subject>" \
-  --body "$(git log origin/main..HEAD --pretty=format:'- %s')"
-```
-
-If `gh pr create` fails because the branch is not pushed or base is missing,
-print the error verbatim. Provide the compare URL as fallback:
-`https://github.com/<owner>/<repo>/compare/main...<branch>`.
-
-**Skip** — print "PR step skipped." and finish.
-
-## Output
-
-Print this summary table at the end:
-
-| Step         | Result                                                            |
-| ------------ | ----------------------------------------------------------------- |
-| Excluded     | `agent-output/`, `infra/` (+ `.github/skills/sensei/` off-branch) |
-| Files staged | N files                                                           |
-| Commit       | `<hash>` `<subject>`                                              |
-| Push         | `origin/<branch>` — pushed                                        |
-| Pull request | `<URL>` (created / updated) or `skipped`                          |
-
-## Rules
-
-- Never `git add` paths under `agent-output/` or `infra/`. Use the pathspec
-  exclude (`':!agent-output' ':!infra'`) on every staging command.
-- Always exclude `.github/skills/sensei/` **unless** the current branch is
-  `feat/skills-sensei`. The exclusion is computed once in Step 0 and reused
-  by every git command in the workflow.
-- Never commit to `main`. Stop with a warning if the current branch is `main`.
-- Never use `git push --force` or `--force-with-lease` in this procedure.
-- Step 3 is **non-interactive** — the prompt auto-generates the commit
-  message and commits without asking. The only remaining confirmation gate
-  is the PR action in Step 5.
-- Use `git` and `gh` exclusively — do not call any GitHub MCP tool.
-- Do not use interactive flags (`-i`) on `mv`/`rm`/`cp` or `read -p`. Pipe
-  long output (>50 lines) into a file under `tmp/` if needed.
+Report included/excluded files, checks, local commit hash, push status and remote,
+plus PR URL only if a separately authorized PR operation actually ran.
+Distinguish not requested, awaiting approval, failed and verified success.

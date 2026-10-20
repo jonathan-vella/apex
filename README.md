@@ -140,6 +140,8 @@ directly.
 - Runtime references, artifact templates, and architecture explorer graph metadata
 
 The [skill catalog](.github/skills/README.md) describes procedure ownership and invocation flags.
+Use [/apex-github-operations](.github/skills/apex-github-operations/SKILL.md) for scoped commits and
+GitHub work. It replaces `/apex-git-commit`; commit, push, PR and merge authorization remain separate.
 For explicit prose cleanup, use [/apex-unslop](.github/skills/apex-unslop/SKILL.md); it is manual-only,
 preserves technical content, and is not part of the automatic workflow.
 The supported target is the GitHub Copilot SDK harness **inside VS Code**.

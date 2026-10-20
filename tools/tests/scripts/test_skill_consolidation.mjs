@@ -55,8 +55,7 @@ test("active skill metadata preserves reachability and the approved inline visib
     assert.equal(metadata["user-invocable"], !hidden.has(entry.name), entry.name);
     assert.equal(
       metadata["disable-model-invocation"],
-      ["apex-workflow-start", "apex-git-commit", "apex-debug-log-export"].includes(entry.name) ||
-        manualSkills.has(entry.name),
+      ["apex-workflow-start", "apex-debug-log-export"].includes(entry.name) || manualSkills.has(entry.name),
       entry.name,
     );
     assert.equal(Object.hasOwn(metadata, "context"), false, `${entry.name}: production must remain inline`);

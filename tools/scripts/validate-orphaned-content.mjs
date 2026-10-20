@@ -31,7 +31,6 @@ const KNOWN_UNLINKED_SKILLS = new Set([
   "apex-azure-storage",
   "apex-debug-log-export",
   "apex-entra-app-registration",
-  "apex-git-commit",
   "apex-mermaid",
   "apex-microsoft-docs",
   "apex-python-diagrams",

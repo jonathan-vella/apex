@@ -38,13 +38,13 @@ test("SK-17 credential creation is additive and secret handoff stays private", (
   assert.doesNotMatch(read("apex-entra-app-registration/references/troubleshooting.md"), /az ad app credential reset/);
 });
 
-test("SK-18 exclusions preserve mixed files and unrelated submodules", () => {
-  const source = read("apex-github-operations/references/merge-sensei-free-pr.md");
+test("SK-18 scoped commits preserve mixed files and unrelated submodules", () => {
+  const source = read("apex-github-operations/references/git-commit.md");
   assert.doesNotMatch(source, /git checkout origin\/|git rm \.gitmodules|rm -rf/);
   assert.match(source, /Mixed files require hunk edits/);
-  assert.match(source, /preserve other submodule sections/);
-  assert.match(source, /verify every unrelated hunk and submodule survives/);
-  assert.match(source, /Always require user approval before `git push` and before `gh pr create`/);
+  assert.match(source, /preserve unrelated hunks and other submodules/);
+  assert.match(source, /Commit authorization never implies push authorization/);
+  assert.match(source, /separately authorized PR operation/);
 });
 
 test("SK-19 Redis keeps mixed intent, requires evidence and reconciles estimates", () => {
