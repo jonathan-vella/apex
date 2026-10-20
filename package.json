@@ -204,7 +204,8 @@
     "ip-address": "^10.7.2",
     "dompurify": ">=3.3.2",
     "nanoid": ">=3.3.8",
-    "mermaid": ">=11.4.1"
+    "mermaid": ">=11.4.1",
+    "markdown-it": "^15.0.2"
   },
   "engines": {
     "node": ">=22"

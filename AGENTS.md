@@ -19,12 +19,16 @@ npm run setup                            # Azure + GitHub OIDC/secrets/RBAC
 Install only versions whose upstream artifacts are at least seven days old, through CFS-approved sources.
 Keep package managers on `packagefeedproxy.microsoft.io` for corporate laptops/dev boxes, or an approved
 team-owned Azure Artifacts feed. Automated builds and CI require an authenticated CFS-compliant feed.
-Known exception ([#794](https://github.com/jonathan-vella/apex/issues/794)): hosted GitHub Actions cannot reach the
-device-only CFS proxy and no approved CI feed exists yet, so hosted CI does not meet this requirement and may
-resolve packages from the runner's default public registries until #794 is done. The exception does not extend to
-dev boxes or local builds.
+Known exception ([#794](https://github.com/jonathan-vella/apex/issues/794)): the device-only CFS proxy is not an
+approved CI source and no authenticated CI feed exists yet, so hosted CI does not meet this requirement. Jobs that
+install on the runner use the runner's default public registries (no workflow configures a feed). The dev container
+validation job runs `npm ci` and `uv pip install` inside the container with the proxy defaults from
+`devcontainer.json`, with no credentials configured by the repo. The exception does not extend to dev boxes or local builds.
 Never bypass quarantine using public registries or `ms-feed-*` browsing URLs. Verify age and feed availability
 before changing pins; missing versions or metadata are not permission to bypass these requirements.
+These CFS and quarantine rules are Microsoft's supply-chain policy for its own maintainers' environments. Other users
+and organizations apply their own equivalent controls and can point the dev container at their own sources; see
+[Package Sources Outside Microsoft](.devcontainer/README.md#package-sources-outside-microsoft).
 
 ## Build & Validation
 
