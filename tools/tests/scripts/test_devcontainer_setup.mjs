@@ -166,6 +166,68 @@ test("extension policy requires exclusions and rejects direct or pinned duplicat
   }
 });
 
+for (const [name, sources, expected, notice] of [
+  [
+    "public defaults",
+    ["https://registry.npmjs.org/", "https://pypi.org/simple/", "https://pypi.org/simple/"],
+    "npm: public, pip: public, uv: public",
+    /opt in to CFS/,
+  ],
+  [
+    "complete CFS opt-in",
+    Array(3).fill("https://packagefeedproxy.microsoft.io/x/"),
+    "npm: Microsoft CFS, pip: Microsoft CFS, uv: Microsoft CFS",
+    null,
+  ],
+  [
+    "npm-only CFS opt-in",
+    ["https://packagefeedproxy.microsoft.io/npm/", "https://pypi.org/simple/", "https://pypi.org/simple/"],
+    "npm: Microsoft CFS, pip: public, uv: public",
+    /CFS opt-in is incomplete/,
+  ],
+  [
+    "Python-only CFS opt-in",
+    [
+      "https://registry.npmjs.org/",
+      "https://packagefeedproxy.microsoft.io/p/",
+      "https://packagefeedproxy.microsoft.io/p/",
+    ],
+    "npm: public, pip: Microsoft CFS, uv: Microsoft CFS",
+    /CFS opt-in is incomplete/,
+  ],
+  [
+    "custom and spoofed sources",
+    ["https://user:secret@mirror.example/npm/", "", "https://packagefeedproxy.microsoft.io@evil.test/p/"],
+    "npm: custom, pip: unset, uv: custom",
+    /opt in to CFS/,
+  ],
+]) {
+  test(`startup reports each package source separately: ${name}`, (context) => {
+    const root = fixture(context);
+    const bin = path.join(root, "bin");
+    fs.mkdirSync(bin);
+    fs.writeFileSync(path.join(bin, "npm"), '#!/bin/bash\nprintf "{}\\n"\n', { mode: 0o755 });
+    fs.writeFileSync(path.join(bin, "azd"), "#!/bin/bash\nexit 0\n", { mode: 0o755 });
+    const result = spawnSync("/bin/bash", [startup], {
+      cwd: root,
+      encoding: "utf8",
+      env: {
+        ...process.env,
+        PATH: bin,
+        NPM_CONFIG_REGISTRY: sources[0],
+        PIP_INDEX_URL: sources[1],
+        UV_INDEX_URL: sources[2],
+      },
+    });
+    assert.equal(result.status, 0, result.stderr);
+    const sourceLine = result.stdout.split("\n").find((line) => line.includes("package sources"));
+    assert.ok(sourceLine?.endsWith(expected), `unexpected package sources line: ${sourceLine}`);
+    if (notice) assert.match(result.stdout, notice);
+    else assert.doesNotMatch(result.stdout, /opt in to CFS|incomplete/);
+    assert.doesNotMatch(result.stdout, /secret|mirror\.example|evil\.test|https:\/\//);
+  });
+}
+
 for (const scenario of ["current", "outdated", "offline", "timeout", "missing-npm"]) {
   test(`startup release check is advisory and read-only: ${scenario}`, (context) => {
     const root = fixture(context);
@@ -193,6 +255,9 @@ for (const scenario of ["current", "outdated", "offline", "timeout", "missing-np
         ...process.env,
         PATH: bin,
         CALL_LOG: calls,
+        NPM_CONFIG_REGISTRY: "",
+        PIP_INDEX_URL: "",
+        UV_INDEX_URL: "",
         RELEASE_RESULT: scenario === "current" ? '{"status":"CURRENT"}' : `fixture ${scenario}`,
         RELEASE_EXIT: scenario === "current" ? "0" : "1",
       },

@@ -33,10 +33,11 @@
   "containerEnv": {
     "PYTHONDONTWRITEBYTECODE": "1",
     "PYTHONUNBUFFERED": "1",
-    "NPM_CONFIG_REGISTRY": "https://${localEnv:APEX_NPM_REGISTRY_HOST_PATH:packagefeedproxy.microsoft.io/npm/}",
+    // Public registries by default; Microsoft maintainers opt in to the CFS proxy (README: Package Sources).
+    "NPM_CONFIG_REGISTRY": "https://${localEnv:APEX_NPM_REGISTRY_HOST_PATH:registry.npmjs.org/}",
     "UV_CACHE_DIR": "/home/vscode/.cache/uv",
-    "PIP_INDEX_URL": "https://${localEnv:APEX_PIP_INDEX_HOST_PATH:packagefeedproxy.microsoft.io/pypi/simple/}",
-    "UV_INDEX_URL": "https://${localEnv:APEX_PIP_INDEX_HOST_PATH:packagefeedproxy.microsoft.io/pypi/simple/}",
+    "PIP_INDEX_URL": "https://${localEnv:APEX_PIP_INDEX_HOST_PATH:pypi.org/simple/}",
+    "UV_INDEX_URL": "https://${localEnv:APEX_PIP_INDEX_HOST_PATH:pypi.org/simple/}",
     "TF_PLUGIN_CACHE_DIR": "/home/vscode/.terraform.d/plugin-cache"
   },
 

@@ -5,6 +5,25 @@ set -e
 
 printf "\n Starting container...\n"
 
+# Labels only: a custom registry URL can carry credentials, so it is never printed.
+package_source_kind() {
+    case "$1" in
+        "") printf 'unset' ;;
+        https://packagefeedproxy.microsoft.io/*) printf 'Microsoft CFS' ;;
+        "https://$2/"*) printf 'public' ;;
+        *) printf 'custom' ;;
+    esac
+}
+npm_source=$(package_source_kind "${NPM_CONFIG_REGISTRY:-}" registry.npmjs.org)
+pip_source=$(package_source_kind "${PIP_INDEX_URL:-}" pypi.org)
+uv_source=$(package_source_kind "${UV_INDEX_URL:-}" pypi.org)
+printf "    package sources       npm: %s, pip: %s, uv: %s\n" "$npm_source" "$pip_source" "$uv_source"
+if [[ "$npm_source$pip_source$uv_source" != *"Microsoft CFS"* ]]; then
+    printf "    Microsoft maintainers: opt in to CFS (see README Package Sources).\n"
+elif [[ "$npm_source" != "Microsoft CFS" || "$pip_source" != "Microsoft CFS" || "$uv_source" != "Microsoft CFS" ]]; then
+    printf "    WARNING: CFS opt-in is incomplete; set both APEX_NPM_REGISTRY_HOST_PATH and APEX_PIP_INDEX_HOST_PATH.\n"
+fi
+
 printf "    Azure MCP release     checking stable release (30s registry timeout)\n"
 if command -v npm >/dev/null 2>&1; then
     if release_status=$(npm run --silent check:mcp-release 2>&1); then

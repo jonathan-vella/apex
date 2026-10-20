@@ -149,11 +149,13 @@ test("build uses Azure Linux 4 with explicit user prerequisites and preserves ho
   );
   assert.match(dockerfile, /\/home\/vscode\/\.terraform\.d\/plugin-cache/);
   for (const [name, value] of Object.entries({
-    NPM_CONFIG_REGISTRY: "https://${localEnv:APEX_NPM_REGISTRY_HOST_PATH:packagefeedproxy.microsoft.io/npm/}",
-    PIP_INDEX_URL: "https://${localEnv:APEX_PIP_INDEX_HOST_PATH:packagefeedproxy.microsoft.io/pypi/simple/}",
-    UV_INDEX_URL: "https://${localEnv:APEX_PIP_INDEX_HOST_PATH:packagefeedproxy.microsoft.io/pypi/simple/}",
+    NPM_CONFIG_REGISTRY: "https://${localEnv:APEX_NPM_REGISTRY_HOST_PATH:registry.npmjs.org/}",
+    PIP_INDEX_URL: "https://${localEnv:APEX_PIP_INDEX_HOST_PATH:pypi.org/simple/}",
+    UV_INDEX_URL: "https://${localEnv:APEX_PIP_INDEX_HOST_PATH:pypi.org/simple/}",
   })) {
     assert.equal(config.containerEnv[name], value, `${name} must be set for the running container`);
+    // The Microsoft CFS proxy is opt-in for Microsoft maintainers; it must never be the default.
+    assert.doesNotMatch(config.containerEnv[name], /microsoft\.io/, `${name} must default to a public registry`);
     // The CLI cuts a localEnv default at its first colon, so keep the scheme outside the expression.
     assert.doesNotMatch(
       config.containerEnv[name],
