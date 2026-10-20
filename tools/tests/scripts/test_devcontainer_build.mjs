@@ -149,11 +149,17 @@ test("build uses Azure Linux 4 with explicit user prerequisites and preserves ho
   );
   assert.match(dockerfile, /\/home\/vscode\/\.terraform\.d\/plugin-cache/);
   for (const [name, value] of Object.entries({
-    NPM_CONFIG_REGISTRY: "https://packagefeedproxy.microsoft.io/npm/",
-    PIP_INDEX_URL: "https://packagefeedproxy.microsoft.io/pypi/simple/",
-    UV_INDEX_URL: "https://packagefeedproxy.microsoft.io/pypi/simple/",
+    NPM_CONFIG_REGISTRY: "https://${localEnv:APEX_NPM_REGISTRY_HOST_PATH:packagefeedproxy.microsoft.io/npm/}",
+    PIP_INDEX_URL: "https://${localEnv:APEX_PIP_INDEX_HOST_PATH:packagefeedproxy.microsoft.io/pypi/simple/}",
+    UV_INDEX_URL: "https://${localEnv:APEX_PIP_INDEX_HOST_PATH:packagefeedproxy.microsoft.io/pypi/simple/}",
   })) {
     assert.equal(config.containerEnv[name], value, `${name} must be set for the running container`);
+    // The CLI cuts a localEnv default at its first colon, so keep the scheme outside the expression.
+    assert.doesNotMatch(
+      config.containerEnv[name],
+      /\$\{localEnv:[^}]*:[^}]*:/,
+      `${name} default must not contain a colon`,
+    );
     assert.ok(!dockerfile.includes(`${name}=`), `${name} must not change image or Feature builds`);
   }
   assert.equal(config.onCreateCommand, "az version --output none");

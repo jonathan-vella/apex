@@ -3,8 +3,8 @@
 > **[Version](../VERSION.md)**
 
 This devcontainer defines the complete development toolchain for APEX on Azure Linux 4.
-Azure Linux 4 preview is intentionally accepted. The native ARM64 image builds and required CLIs pass
-startup checks as `vscode`. Native AMD64 builds and post-rebuild manual acceptance remain pending.
+Azure Linux 4 preview is intentionally accepted. CI builds the image natively on amd64 and arm64 and the required
+CLIs pass startup checks as `vscode`. Post-rebuild manual acceptance remains the user's check.
 
 **Base image:** `mcr.microsoft.com/azurelinux-beta/base/core:4.0` (`amd64` and `arm64`), pinned to the
 manifest-index digest in [Dockerfile](Dockerfile).
@@ -47,7 +47,7 @@ fails closed on download, checksum, extraction, or installation errors instead.
 The upstream Python Feature uses DNF 4 options, so the local Python Feature uses checksum-verified uv's
 managed interpreter and a separate writable environment at `/usr/local/python/current`.
 It does not modify the managed base or bypass its `EXTERNALLY-MANAGED` marker.
-Retained upstream Features passed a native ARM64 build; AMD64 verification remains pending.
+Retained upstream Features passed native amd64 and arm64 builds in CI.
 The Feature lock pins wrapper artifacts,
 not every runtime dependency.
 
@@ -106,9 +106,9 @@ Keep package managers on the proxy or that approved feed; `ms-feed-*` links are 
 Do not switch to public registries to work around quarantine or missing metadata.
 
 Known exception ([#794](https://github.com/jonathan-vella/apex/issues/794)): hosted GitHub Actions cannot reach the
-device-only proxy and no approved CI feed exists yet. Hosted CI, including its Python jobs and container-build
-validation, therefore does not use an authenticated feed and may resolve packages from the runner's default
-registries. This is a recorded gap, not compliance, and it does not apply to dev boxes or local builds.
+device-only proxy and no approved CI feed exists yet. Hosted CI jobs therefore install npm and Python packages from
+the runner's default public registries; no workflow configures a feed. This is a recorded gap, not compliance, and
+it does not apply to dev boxes or local builds.
 Only install versions whose upstream artifacts are at least seven days old, including transitive and build
 dependencies. Verify original publication dates separately: a mirror's upload timestamp can reflect later
 ingestion, and feed availability alone does not establish artifact age.
@@ -313,6 +313,39 @@ dependency selections, tests, and documentation through a reviewed change. Merel
 while retaining Azure Linux installation commands is not a rollback.
 Do not delete credential/cache volumes or use destructive Git reset/force-push operations.
 
+### Migrating a Customized Ubuntu Dev Container
+
+The base image changed from Ubuntu to the Azure Linux 4 preview. Use this section if you customized the previous
+container or receive `.devcontainer/` through the upstream sync.
+
+| Area                | Before (Ubuntu)                            | Now (Azure Linux 4)                                         |
+| ------------------- | ------------------------------------------ | ----------------------------------------------------------- |
+| Package manager     | `apt-get`                                  | `dnf` (DNF 5)                                               |
+| Azure CLI, Python   | Upstream Features                          | Local Features in `.devcontainer/features/`                 |
+| GitHub CLI, Terraform, Bicep, azd | Features or package installs | Checksum-verified binaries from `install-build-tools.sh`    |
+| `dos2unix`, Az PowerShell bundle | Preinstalled                  | Removed; install only if you have a real consumer           |
+| `vscode` user, sudo | Inherited from the base                    | Created explicitly in the `Dockerfile`                      |
+
+Port your changes:
+
+1. Replace `apt-get install` steps with `dnf install -y`. Package names differ, so check each with `dnf search`.
+2. Upstream Features that call `apt` or `dpkg` do not work on this base. Use a local Feature or a binary
+   installer instead.
+3. To add a tool, add it to `install-build-tools.sh` with a pinned version and a checksum in
+   `download-checksums.json`, or write a local Feature. Unverified downloads are not accepted.
+4. Rebuild, then run the manual acceptance in this guide.
+
+To keep the previous Ubuntu container, restore `.devcontainer/` from the commit before the migration
+(`git checkout c1755e12 -- .devcontainer`; see Validation Limits and Rollback for what a coherent rollback includes).
+Staying on Ubuntu is not tested as a supported configuration against current tooling.
+
+In a repository that receives upstream updates through the sync workflow, the sync overwrites `.devcontainer/`.
+To protect local changes, add `.devcontainer/` to `EXCLUDE_PATHS` in
+`.github/workflows/weekly-upstream-sync.yml` (one path per line, trailing slash for a directory). The sync also
+removes files that no longer exist upstream unless their path is excluded.
+
+Not tested: Codespaces, and Docker Desktop on Windows or macOS. CI builds on hosted Linux runners (amd64, arm64).
+
 ### First-Time Setup (inside container)
 
 ```bash
@@ -382,10 +415,37 @@ protection instead of changing credentials.
 | ------------------------- | ----------------------------- | -------------------------------------------------------- |
 | `AZURE_DEFAULTS_LOCATION` | `swedencentral`               | Default Azure region (EU GDPR-compliant)                 |
 | `GH_TOKEN`                | `${localEnv:GH_TOKEN}`        | Optional token inherited by the host VS Code process     |
+| `NPM_CONFIG_REGISTRY`     | `https://` + `APEX_NPM_REGISTRY_HOST_PATH` or the Microsoft proxy | npm registry for the running container |
+| `PIP_INDEX_URL`, `UV_INDEX_URL` | `https://` + `APEX_PIP_INDEX_HOST_PATH` or the Microsoft proxy | Python package index for pip and uv |
 | `PYTHONDONTWRITEBYTECODE` | `1`                           | Skip `.pyc` generation                                   |
 | `PYTHONUNBUFFERED`        | `1`                           | Unbuffered Python output                                 |
 | `UV_CACHE_DIR`            | `~/.cache/uv`                 | uv package cache                                         |
 | `TF_PLUGIN_CACHE_DIR`     | `~/.terraform.d/plugin-cache` | Terraform provider cache                                 |
+
+### Package Sources Outside Microsoft
+
+By default the running container uses the Microsoft CFS proxy (`packagefeedproxy.microsoft.io`) for npm, pip and uv.
+`post-create.sh` installs packages with these settings and stops on any failure, so a source your network
+cannot reach fails the setup. Not verified: what the proxy returns from a network outside Microsoft.
+
+To use your own registry or mirror, set these on the **host** before VS Code starts, then rebuild the container.
+Dev Containers reads them from the host VS Code process, as it does for `GH_TOKEN`:
+
+| Host variable                  | Value (host and path, no `https://`) | Example                |
+| ------------------------------ | ------------------------------------ | ---------------------- |
+| `APEX_NPM_REGISTRY_HOST_PATH`  | Your npm registry                    | `registry.npmjs.org/`  |
+| `APEX_PIP_INDEX_HOST_PATH`     | Your Python simple index             | `pypi.org/simple/`     |
+
+The `https://` prefix is fixed in `devcontainer.json`, because the Dev Containers CLI cuts a default value at its
+first colon. Unset variables keep the Microsoft proxy. The substitution was checked with the bundled Dev Containers
+CLI (`read-configuration`), not with a full rebuild.
+
+Outside the container, npm reads `NPM_CONFIG_REGISTRY`, pip reads `PIP_INDEX_URL` and uv reads `UV_INDEX_URL`.
+The `package-lock.json` URLs point at `registry.npmjs.org`, which npm replaces with the configured registry host.
+
+The seven-day minimum age and CFS-only rules in [AGENTS.md](../AGENTS.md) are Microsoft's supply-chain policy for
+its own maintainers. Overriding the source is for everyone else and does not remove the need for your own
+controls, such as a minimum release age and an allowlisted mirror.
 
 ### Azure CLI Extension Auto-Install
 
