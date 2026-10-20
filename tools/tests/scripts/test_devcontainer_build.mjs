@@ -153,8 +153,8 @@ test("build uses Azure Linux 4 with explicit user prerequisites and preserves ho
     PIP_INDEX_URL: "https://packagefeedproxy.microsoft.io/pypi/simple/",
     UV_INDEX_URL: "https://packagefeedproxy.microsoft.io/pypi/simple/",
   })) {
-    assert.ok(dockerfile.includes(`${name}=${value}`), `${name} must be available during Feature builds`);
-    assert.equal(config.containerEnv[name], undefined, `${name} must inherit its image default`);
+    assert.equal(config.containerEnv[name], value, `${name} must be set for the running container`);
+    assert.ok(!dockerfile.includes(`${name}=`), `${name} must not change image or Feature builds`);
   }
   assert.equal(config.onCreateCommand, "az version --output none");
   assert.equal(config.postCreateCommand, "bash .devcontainer/post-create.sh");

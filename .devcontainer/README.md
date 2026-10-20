@@ -97,8 +97,8 @@ The base's `coreutils-single` is retained because installing the conflicting `co
 explicitly instead of being reported as file changes.
 `libatomic` supplies `libatomic.so.1`, required by the selected Node.js binary on ARM64.
 The image explicitly creates `vscode` and noninteractive sudo, rather than inheriting them from an Ubuntu base.
-Package-feed environment defaults live in the Dockerfile so local Feature builds and running containers
-use the configured npm and Python feeds; runtime-only `containerEnv` does not configure Feature installation.
+Package-feed environment defaults are set in `devcontainer.json` `containerEnv`, so they apply to the running
+container only. Image and Feature builds do not use them; this matches the previous Ubuntu image.
 
 The default CFS proxy, `packagefeedproxy.microsoft.io`, is intended for corporate laptops and dev boxes,
 not automated builds or CI. Those workloads require an authenticated, approved team-owned Azure Artifacts feed.

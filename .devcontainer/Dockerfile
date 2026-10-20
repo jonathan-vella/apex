@@ -3,10 +3,6 @@ FROM mcr.microsoft.com/azurelinux-beta/base/core:4.0@sha256:63ef5dda2fb5681ae3aa
 USER root
 SHELL ["/bin/bash", "-o", "pipefail", "-c"]
 
-ENV NPM_CONFIG_REGISTRY=https://packagefeedproxy.microsoft.io/npm/ \
-    PIP_INDEX_URL=https://packagefeedproxy.microsoft.io/pypi/simple/ \
-    UV_INDEX_URL=https://packagefeedproxy.microsoft.io/pypi/simple/
-
 RUN dnf upgrade -y --refresh \
     && dnf install -y \
         bash ca-certificates curl jq tar gzip xz unzip graphviz bats \
