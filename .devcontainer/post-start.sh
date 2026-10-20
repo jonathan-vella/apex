@@ -5,6 +5,13 @@ set -e
 
 printf "\n Starting container...\n"
 
+printf "    package sources       "
+if [[ "${NPM_CONFIG_REGISTRY:-}${PIP_INDEX_URL:-}" == *packagefeedproxy.microsoft.io* ]]; then
+    printf "Microsoft CFS proxy (opt-in)\n"
+else
+    printf "public registries (Microsoft maintainers: opt in to CFS, see README Package Sources)\n"
+fi
+
 printf "    Azure MCP release     checking stable release (30s registry timeout)\n"
 if command -v npm >/dev/null 2>&1; then
     if release_status=$(npm run --silent check:mcp-release 2>&1); then

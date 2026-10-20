@@ -100,17 +100,16 @@ The image explicitly creates `vscode` and noninteractive sudo, rather than inher
 Package-feed environment defaults are set in `devcontainer.json` `containerEnv`, so they apply to the running
 container only. Image and Feature builds do not use them; this matches the previous Ubuntu image.
 
-The default CFS proxy, `packagefeedproxy.microsoft.io`, is intended for corporate laptops and dev boxes,
+The CFS proxy, `packagefeedproxy.microsoft.io`, is intended for Microsoft maintainers' corporate laptops and dev boxes,
 not automated builds or CI. Those workloads require an authenticated, approved team-owned Azure Artifacts feed.
-Keep package managers on the proxy or that approved feed; `ms-feed-*` links are for browsing/troubleshooting only.
-Do not switch to public registries to work around quarantine or missing metadata.
+Maintainers opt the container in to the proxy or that approved feed (see Package Sources); `ms-feed-*` links are for
+browsing/troubleshooting only. Maintainers must not switch to public registries to work around quarantine or missing
+metadata.
 
-Known exception ([#794](https://github.com/jonathan-vella/apex/issues/794)): the device-only proxy is not an approved
-CI source and no authenticated CI feed exists yet. Hosted CI installs packages in two ways: jobs that install on
-the runner use the runner's default public registries (no workflow configures a feed), and the dev container
-validation job runs `npm ci` and `uv pip install` inside the container with the proxy defaults from
-`devcontainer.json`, with no credentials configured by the repo. This is a recorded gap, not compliance, and it does
-not apply to dev boxes or local builds.
+Known exception ([#794](https://github.com/jonathan-vella/apex/issues/794)): no authenticated CI feed exists yet.
+Every hosted CI job, including the dev container validation job, installs packages from the public registries; no
+workflow configures a feed or sets the opt-in variables. This is a recorded gap, not compliance, and it does not
+apply to dev boxes or local builds.
 Only install versions whose upstream artifacts are at least seven days old, including transitive and build
 dependencies. Verify original publication dates separately: a mirror's upload timestamp can reflect later
 ingestion, and feed availability alone does not establish artifact age.
@@ -417,37 +416,41 @@ protection instead of changing credentials.
 | ------------------------- | ----------------------------- | -------------------------------------------------------- |
 | `AZURE_DEFAULTS_LOCATION` | `swedencentral`               | Default Azure region (EU GDPR-compliant)                 |
 | `GH_TOKEN`                | `${localEnv:GH_TOKEN}`        | Optional token inherited by the host VS Code process     |
-| `NPM_CONFIG_REGISTRY`     | `https://` + `APEX_NPM_REGISTRY_HOST_PATH` or the Microsoft proxy | npm registry for the running container |
-| `PIP_INDEX_URL`, `UV_INDEX_URL` | `https://` + `APEX_PIP_INDEX_HOST_PATH` or the Microsoft proxy | Python package index for pip and uv |
+| `NPM_CONFIG_REGISTRY`     | `https://` + `APEX_NPM_REGISTRY_HOST_PATH`, default `registry.npmjs.org/` | npm registry for the running container |
+| `PIP_INDEX_URL`, `UV_INDEX_URL` | `https://` + `APEX_PIP_INDEX_HOST_PATH`, default `pypi.org/simple/` | Python package index for pip and uv |
 | `PYTHONDONTWRITEBYTECODE` | `1`                           | Skip `.pyc` generation                                   |
 | `PYTHONUNBUFFERED`        | `1`                           | Unbuffered Python output                                 |
 | `UV_CACHE_DIR`            | `~/.cache/uv`                 | uv package cache                                         |
 | `TF_PLUGIN_CACHE_DIR`     | `~/.terraform.d/plugin-cache` | Terraform provider cache                                 |
 
-### Package Sources Outside Microsoft
+### Package Sources
 
-By default the running container uses the Microsoft CFS proxy (`packagefeedproxy.microsoft.io`) for npm, pip and uv.
-`post-create.sh` installs packages with these settings and stops on any failure, so a source your network
-cannot reach fails the setup. Not verified: what the proxy returns from a network outside Microsoft.
+By default the running container uses the public registries: `registry.npmjs.org` for npm and `pypi.org` for pip and
+uv. `post-create.sh` installs packages with these settings and stops on any failure, so a source your network
+cannot reach fails the setup.
 
-To use your own registry or mirror, set these on the **host** before VS Code starts, then rebuild the container.
-Dev Containers reads them from the host VS Code process, as it does for `GH_TOKEN`:
+**Microsoft maintainers opt in** to the CFS proxy, as the CFS policy in [AGENTS.md](../AGENTS.md) requires. Anyone
+else can use their own registry or mirror the same way. Set these on the **host** before VS Code starts (for example
+in your shell profile or Windows user environment), then rebuild the container. Dev Containers reads them from the
+host VS Code process, as it does for `GH_TOKEN`:
 
-| Host variable                  | Value (host and path, no `https://`) | Example                |
-| ------------------------------ | ------------------------------------ | ---------------------- |
-| `APEX_NPM_REGISTRY_HOST_PATH`  | Your npm registry                    | `registry.npmjs.org/`  |
-| `APEX_PIP_INDEX_HOST_PATH`     | Your Python simple index             | `pypi.org/simple/`     |
+| Host variable                 | Microsoft CFS value                         | Default           |
+| ----------------------------- | ------------------------------------------- | ----------------- |
+| `APEX_NPM_REGISTRY_HOST_PATH` | `packagefeedproxy.microsoft.io/npm/`        | `registry.npmjs.org/` |
+| `APEX_PIP_INDEX_HOST_PATH`    | `packagefeedproxy.microsoft.io/pypi/simple/` | `pypi.org/simple/`    |
 
-The `https://` prefix is fixed in `devcontainer.json`, because the Dev Containers CLI cuts a default value at its
-first colon. Unset variables keep the Microsoft proxy. The substitution was checked with the bundled Dev Containers
-CLI (`read-configuration`), not with a full rebuild.
+Values are host and path without `https://`. The prefix is fixed in `devcontainer.json`, because the Dev Containers
+CLI cuts a default value at its first colon. `post-start.sh` prints a "package sources" line at every start, so a
+maintainer who forgot to opt in sees the public default instead of silently installing from it. The substitution was
+checked with the bundled Dev Containers CLI (`read-configuration`), not with a full rebuild.
 
 Outside the container, npm reads `NPM_CONFIG_REGISTRY`, pip reads `PIP_INDEX_URL` and uv reads `UV_INDEX_URL`.
 The `package-lock.json` URLs point at `registry.npmjs.org`, which npm replaces with the configured registry host.
 
 The seven-day minimum age and CFS-only rules in [AGENTS.md](../AGENTS.md) are Microsoft's supply-chain policy for
-its own maintainers. Overriding the source is for everyone else and does not remove the need for your own
-controls, such as a minimum release age and an allowlisted mirror.
+its own maintainers. Other users apply their own controls, such as a minimum release age and an allowlisted mirror.
+
+### Azure CLI Extension Auto-Install
 
 ### Azure CLI Extension Auto-Install
 

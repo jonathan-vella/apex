@@ -17,18 +17,19 @@ npm run setup                            # Azure + GitHub OIDC/secrets/RBAC
 > https://apexops.pro/getting-started/azure-setup/
 
 Install only versions whose upstream artifacts are at least seven days old, through CFS-approved sources.
-Keep package managers on `packagefeedproxy.microsoft.io` for corporate laptops/dev boxes, or an approved
-team-owned Azure Artifacts feed. Automated builds and CI require an authenticated CFS-compliant feed.
-Known exception ([#794](https://github.com/jonathan-vella/apex/issues/794)): the device-only CFS proxy is not an
-approved CI source and no authenticated CI feed exists yet, so hosted CI does not meet this requirement. Jobs that
-install on the runner use the runner's default public registries (no workflow configures a feed). The dev container
-validation job runs `npm ci` and `uv pip install` inside the container with the proxy defaults from
-`devcontainer.json`, with no credentials configured by the repo. The exception does not extend to dev boxes or local builds.
+Microsoft maintainers keep package managers on `packagefeedproxy.microsoft.io` for corporate laptops/dev boxes, or an
+approved team-owned Azure Artifacts feed, and opt the dev container in with `APEX_NPM_REGISTRY_HOST_PATH` and
+`APEX_PIP_INDEX_HOST_PATH`; the dev container uses public registries otherwise. Automated builds and CI require an
+authenticated CFS-compliant feed.
+Known exception ([#794](https://github.com/jonathan-vella/apex/issues/794)): no authenticated CI feed exists yet, so
+hosted CI does not meet this requirement. Every hosted job, including the dev container validation job, installs from
+the public registries (no workflow configures a feed or sets the opt-in variables). The exception does not extend to
+dev boxes or local builds.
 Never bypass quarantine using public registries or `ms-feed-*` browsing URLs. Verify age and feed availability
 before changing pins; missing versions or metadata are not permission to bypass these requirements.
 These CFS and quarantine rules are Microsoft's supply-chain policy for its own maintainers' environments. Other users
 and organizations apply their own equivalent controls and can point the dev container at their own sources; see
-[Package Sources Outside Microsoft](.devcontainer/README.md#package-sources-outside-microsoft).
+[Package Sources](.devcontainer/README.md#package-sources).
 
 ## Build & Validation
 
