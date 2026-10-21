@@ -34,7 +34,9 @@ Build historical baseline and candidate from their complete source revisions, wi
 Require explicit distro/version/architecture evidence and complete mandatory-check results.
 The user starts automated local acceptance after rebuild and attachment; lifecycle setup does not launch it.
 Native container builds run in CI for the Ubuntu baseline and the Azure Linux candidate on amd64 and arm64.
-Codespaces and Docker Desktop on Windows or macOS were not tested.
+Docker Desktop dev containers have been manually tested and validated on x86-64 (amd64) and ARM64,
+including Windows with the WSL 2 backend. Linux hosts are supported.
+Codespaces has not been separately validated.
 See [the devcontainer guide](.devcontainer/README.md) for pins, manual testing, and build limitations.
 Published setup and release documentation require a separate follow-up in `jonathan-vella/apex-docs`.
 
