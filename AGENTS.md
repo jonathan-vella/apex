@@ -129,40 +129,16 @@ This entry-point safety summary does not replace them:
 - Native task results, essential agent-body constraints and separate human approvals remain required.
   Historical prompts are not active entry points; repository runtime hooks remain retired.
 
-The E2E launch subsystem is retired. Production lesson collection, historical
-lesson/schema compatibility, and existing evidence remain supported; historical
-`e2e` values do not authorize a runnable workflow or automatic approval.
-
 **Mandatory challenger reviews are enforced at runtime, not just at commit.**
-`apex-recall complete-step` refuses to mark Steps 1, 2, 3.5, or 4 as complete
-when the gating artifact exists but the matching `challenge-findings-*.json`
-sidecar is missing (exit code 2). Both `complete-step` and `transition --complete` also reject
-present reviews with unresolved must-fix findings, mismatched artifact/lens, or failed strict freshness validation,
-before any state mutation. This requires Node and the workspace review validator; unavailable validation fails closed.
-An accepted decision is not verified closure. Invalid present evidence cannot use a missing-review bypass.
-Explicit default-mode non-production-lab risk authorization is a separate, externally trusted contract:
-[`risk-authorizations.md`](tools/apex-recall/docs/risk-authorizations.md). It preserves NEEDS_REVISION and unresolved
-findings while reporting only listed gates as exception-authorized after separate human approval. Kit authorization
-never grants adopter deployment permission. Existing projects and rationale-only decisions gain no authorization.
-For a separately authorized later Governance review, `complete-step` and `transition --complete` accept
-`--governance-review <path>` with `--governance-review-reason "<reason>"`. Selection is explicit, Step 3.5-only,
-strictly validated and logged with its byte hash; earlier reviews remain untouched. No latest-file inference,
-review-budget reset or human approval is implied. The selected review cannot use the missing-review bypass.
-Step 4 default-mode comprehensive confirmations use `--plan-review <path>` and `--plan-review-reason "<reason>"`
-under the same strict checks and audit rules. The original Plan review stays intact. This option cannot replace
-deep-review lenses, combine with a Governance selector or waive any approval/review requirement.
-New selections are persisted as structured `review-selection-v1` records and revalidated by completion and
-`apex-recall show`; legacy audit prose is not automatically migrated. Unchanged repeat completion preserves timestamps.
-State writers reject revision conflicts. Index failure after commit returns `committed_but_index_stale` with the
-committed hash; explicitly reindex instead of repeating the mutation. Normal reads never restore backups; use the
-owner-authorized `recover-state` command. Compatibility, attempt accounting and exact view fields:
-[`show-schema.md`](tools/apex-recall/docs/show-schema.md).
-An intentional missing-review bypass requires
-`--allow-missing-challenger --challenger-skip-reason "<text>"`, which
-persists an audit entry in `decisions.challenger_skip[]`. A CI/commit
-fallback (`npm run validate:challenger-presence`, also wired into the
-lefthook `artifact-validation` hook) checks presence if session state was edited by hand;
-it does not replace the runtime validity gate or independent approval checks.
+`apex-recall complete-step` and `transition --complete` refuse to mark Steps 1, 2, 3.5, or 4
+complete when the gating `challenge-findings-*.json` sidecar is missing (exit code 2), has
+unresolved must-fix findings, mismatches the artifact/lens, or fails strict freshness validation.
+An intentional missing-review bypass requires `--allow-missing-challenger --challenger-skip-reason "<text>"`
+(invalid present evidence cannot use this bypass; `npm run validate:challenger-presence` provides
+a commit/CI fallback). Explicit later review selection (`--governance-review`, `--plan-review`),
+state/index recovery, and view schemas are documented in
+[`show-schema.md`](tools/apex-recall/docs/show-schema.md); non-production lab risk exceptions are
+documented in [`risk-authorizations.md`](tools/apex-recall/docs/risk-authorizations.md).
 
 Artifact lint is enforced by the lefthook `artifact-validation` pre-commit
 hook and the `10-Challenger` review — agents do not call
