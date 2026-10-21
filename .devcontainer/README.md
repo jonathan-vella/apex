@@ -235,7 +235,7 @@ The extension validator guards repository declarations, not personal installatio
 | Cache persistence | Terraform provider volume added; uv volume retained |
 | Additional caches | No new npm or PowerShell module volumes: measured value and portability remain unproven |
 | Git authentication | Existing credentials preserved; optional token forwarding uses the VS Code host process |
-| Validation and timing | Native ARM64 image build and non-root CLI smoke checks pass; cold/warm workspace setup and AMD64 verification remain pending |
+| Validation and timing | Native amd64 and arm64 builds, non-root CLI smoke checks, and manual Docker Desktop validation on x86-64 and ARM64 pass; cold/warm workspace setup timing is not measured |
 
 Startup performs a bounded, read-only MCP release query; `post-start.sh` does no installs or upgrades.
 No extension-removal token savings or rebuild-time improvement is claimed without measurements.
@@ -295,8 +295,10 @@ entering the selected workspace, so it cannot accidentally load helpers from the
 
 ### Validation Limits and Rollback
 
-The native ARM64 image build and non-root required-CLI smoke checks passed on 2026-10-20.
-Cold/warm workspace setup, the complete native architecture matrix, and editor attachment remain unverified.
+Native amd64 and arm64 image builds and non-root required-CLI smoke checks pass in CI, and Docker Desktop
+dev containers have been manually tested and validated on x86-64 (amd64) and ARM64, including Windows with
+the WSL 2 backend. Cold/warm workspace setup timing has not been measured, and the standalone acceptance
+script remains a manual check after rebuild.
 The Python 3.15 dependency installation now succeeds through CFS with the explicitly approved Pillow 12.3.0
 and Ruff 0.17.0 fallback pins. Runtime, transitive and build dependency publication ages were verified against
 the seven-day minimum. Rendering and recall regressions passed (385 passed, 5 skipped), along with lifecycle
@@ -345,7 +347,10 @@ To protect local changes, add `.devcontainer/` to `EXCLUDE_PATHS` in
 `.github/workflows/weekly-upstream-sync.yml` (one path per line, trailing slash for a directory). The sync also
 removes files that no longer exist upstream unless their path is excluded.
 
-Not tested: Codespaces, and Docker Desktop on Windows or macOS. CI builds on hosted Linux runners (amd64, arm64).
+Docker Desktop dev containers have been manually tested and validated on x86-64 (amd64) and ARM64,
+including Windows with the WSL 2 backend. Linux hosts are supported.
+CI builds run on hosted Linux runners (amd64, arm64); this automated build coverage is separate from
+manual Docker Desktop validation. Codespaces has not been separately validated.
 
 ### First-Time Setup (inside container)
 
@@ -450,8 +455,6 @@ The `package-lock.json` URLs point at `registry.npmjs.org`, which npm replaces w
 
 The seven-day minimum age and CFS-only rules in [AGENTS.md](../AGENTS.md) are Microsoft's supply-chain policy for
 its own maintainers. Other users apply their own controls, such as a minimum release age and an allowlisted mirror.
-
-### Azure CLI Extension Auto-Install
 
 ### Azure CLI Extension Auto-Install
 
