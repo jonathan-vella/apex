@@ -35,6 +35,7 @@ const ACTIVE_ARTIFACT_TYPES = new Set([
   "cost-estimate",
   "iac-code",
   "design-adr",
+  "deployment-preview",
 ]);
 const requireEvidence = (condition, message) => {
   if (!condition) throw new Error(message);
@@ -450,7 +451,7 @@ export function preflightReviewRequest(input, root = process.cwd()) {
   requireEvidence(object(input), "Review request must be an object");
   requireEvidence(
     /^[A-Za-z0-9_-]{1,100}$/.test(input.request_id ?? "") &&
-      ["1", "2", "3", "3_5", "3.5", "4", "5"].includes(input.step) &&
+      ["1", "2", "3", "3_5", "3.5", "4", "5", "6"].includes(input.step) &&
       ["default", "deep"].includes(input.review_depth),
     "Review request_id, step and review_depth must be explicit",
   );

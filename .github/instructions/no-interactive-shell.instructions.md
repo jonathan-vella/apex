@@ -68,6 +68,8 @@ tool, or extract the relevant lines (`grep`, `head`, `tail`, `awk`).
 
 Do not pipe a validator, review recorder or recall mutation through `head`/`tail` and
 then infer success from the display command. A later cleanup command can also hide failure.
+Capture the consequential command's immediate result, or its `|| status=$?` failure handler:
+an assignment after `echo`, `printf`, cleanup or another command captures that command's status instead.
 Capture status before bounded display, propagate it, and stop dependent operations:
 
 ```bash

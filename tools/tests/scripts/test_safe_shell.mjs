@@ -41,8 +41,26 @@ test("consequential status checks catch masked pipelines and cleanup but allow g
     0,
   );
   assert.equal(check(["cat report.log | tail -8; echo displayed"]).length, 0);
+  for (const display of ["echo done", "printf done", "rm -f log"]) {
+    assert.equal(
+      check([`node tools/scripts/record-review.mjs; ${display}; status=$?; exit "$status"`]).length,
+      1,
+      display,
+    );
+    assert.equal(
+      check(["node tools/scripts/record-review.mjs", `${display}; status=$?`, 'exit "$status"']).length,
+      1,
+      `next-line ${display}`,
+    );
+  }
+  assert.equal(
+    check(["status=0; node tools/scripts/record-review.mjs > log 2>&1 || status=$?", "tail -8 log", 'exit "$status"'])
+      .length,
+    0,
+  );
   const failed = "node -e 'process.exit(7)'";
   assert.equal(spawnSync("bash", ["-c", `${failed} | tail -8; echo done`]).status, 0);
+  assert.equal(spawnSync("bash", ["-c", `${failed}; echo done; status=$?; exit "$status"`]).status, 0);
   assert.equal(
     spawnSync("bash", ["-c", `status=0; ${failed} >/dev/null 2>&1 || status=$?; printf done; exit "$status"`]).status,
     7,

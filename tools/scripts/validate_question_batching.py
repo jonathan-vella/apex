@@ -108,6 +108,8 @@ def _validate_example(example: object, *, check_companions: bool = True) -> None
 
 
 def _supplied(value: object) -> bool:
+    if isinstance(value, str):
+        return bool(value.strip())
     return value is not None and value != "" and value != [] and value != {}
 
 

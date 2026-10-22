@@ -179,6 +179,30 @@ test("request-only CLI cannot silently invoke the recorder or accept stale input
   assert.equal(run().status, 1);
 });
 
+test("manual Step 6 deployment-preview requests pass preflight and final recording", (t) => {
+  const f = fixture(t);
+  const preview = "agent-output/example/06-deploy-approval.json";
+  const findings = "agent-output/example/challenge-findings-deployment-preview.json";
+  f.write(preview, JSON.stringify({ preview: "Synthetic preview; no apply authorized" }));
+  Object.assign(f.input, {
+    step: "6",
+    artifact_path: preview,
+    artifact_type: "deployment-preview",
+    output_path: findings,
+    cache_inputs: cacheInputs(preview, f.root, STRUCTURED_REVIEWER),
+  });
+  Object.assign(f.doc, {
+    challenged_artifact: preview,
+    artifact_type: "deployment-preview",
+    cache_inputs: structuredClone(f.input.cache_inputs),
+  });
+  f.options.output = findings;
+  assert.doesNotThrow(() => preflightReviewRequest(f.input, f.root));
+  f.record();
+  assert.equal(f.persisted().review_execution.step, "6");
+  assert.equal(f.persisted().artifact_type, "deployment-preview");
+});
+
 function addReadTurns(f, count = 7) {
   const response = f.events.find((event) => event.type === "assistant.message");
   const attribution = response.data;

@@ -86,6 +86,12 @@ export function renderHandoff(view, { owner, operation }) {
           (item) => `- Step ${inline(step)} current review: ${inline(item.path)}; input=${inline(item.artifact)}.`,
         ),
       ),
+      ...Object.entries(session.effective_reviews || {})
+        .filter(([, review]) => review.review_skip)
+        .map(
+          ([step, review]) =>
+            `- Step ${inline(step)} review intentionally skipped: ${inline((review.skip_reasons || []).join("; ") || "recorded exception")}; not review evidence.`,
+        ),
     ],
     (view.artifacts || [])
       .filter((artifact) =>

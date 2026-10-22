@@ -83,7 +83,9 @@ def reconcile_events(events_path: Path, attempts: list[dict], project: str, step
             {
                 attempt["id"]
                 for attempt in attempts
-                if attempt.get("step") == step and attempt.get("kind") == "invocation" and attempt["id"] not in requests
+                if attempt.get("step") == step
+                and attempt.get("kind") in ("invocation", "empty-output-retry")
+                and attempt["id"] not in requests
             }
         ),
     }
@@ -114,6 +116,7 @@ def run(args) -> int:
                 "input_digest",
                 "attempt_input",
                 "attempt_outcome",
+                "review_output",
                 "retry_of",
                 "complexity",
                 "passes_planned",
@@ -129,11 +132,12 @@ def run(args) -> int:
         print(json.dumps(result))
         return 0
     attempt_id = getattr(args, "attempt_id", None)
+    review_output = getattr(args, "review_output", None)
     attempt_options = [
         getattr(args, name, None) for name in ("attempt_kind", "input_digest", "attempt_outcome", "retry_of")
     ]
     attempt_inputs = getattr(args, "attempt_input", None) or []
-    if attempt_id is not None or any(attempt_options) or attempt_inputs:
+    if attempt_id is not None or any(attempt_options) or attempt_inputs or review_output is not None:
         kind, digest, outcome, retry_of = attempt_options
         if attempt_inputs:
             if digest:
@@ -147,6 +151,12 @@ def run(args) -> int:
             or outcome not in ("started", "completed", "failed", "unknown")
         ):
             raise ValueError("Attempt ID, kind, input digest and outcome are required")
+        if review_output is not None and (
+            review_output not in ("empty", "nonempty", "unknown")
+            or kind not in ("invocation", "empty-output-retry")
+            or outcome not in ("completed", "failed")
+        ):
+            raise ValueError("Reviewer output is recorded only with a completed or failed native review attempt")
         attempts = data.setdefault("review_attempts", [])
         previous = [attempt for attempt in attempts if attempt["id"] == attempt_id]
         if previous and any(
@@ -156,6 +166,8 @@ def run(args) -> int:
         ):
             raise ValueError("Attempt identity cannot be reused for different inputs, kind or step")
         if previous and previous[-1]["outcome"] == outcome:
+            if previous[-1].get("review_output") != review_output:
+                raise ValueError("Terminal reviewer output cannot be rewritten; reconcile explicitly with the owner")
             check_state_revision(data, path)
             print(json.dumps({"outcome": "already_applied", "attempt_id": attempt_id, "input_digest": digest}))
             return 0
@@ -171,8 +183,15 @@ def run(args) -> int:
                 raise ValueError(
                     "Retry must reference an original invocation in the same step; retry chains are forbidden"
                 )
-            if not originals or originals[-1]["input_digest"] != digest or originals[-1]["outcome"] != "failed":
-                raise ValueError("Retry requires failed original attempt with identical input digest")
+            original = originals[-1] if originals else {}
+            legacy_failed = original.get("outcome") == "failed" and "review_output" not in original
+            empty_output = (
+                original.get("outcome") in ("completed", "failed") and original.get("review_output") == "empty"
+            )
+            if original.get("input_digest") != digest or not (legacy_failed or empty_output):
+                raise ValueError(
+                    "Retry requires empty reviewer output from a terminal original with identical input digest"
+                )
             if not previous and any(attempt.get("retry_of") == retry_of for attempt in attempts):
                 raise ValueError("Identical-input retry already recorded; allowance cannot reset")
         elif retry_of is not None:
@@ -185,6 +204,7 @@ def run(args) -> int:
                 "kind": kind,
                 "input_digest": digest,
                 "outcome": outcome,
+                **({"review_output": review_output} if review_output is not None else {}),
                 "retry_of": retry_of,
                 "recorded_at": _iso_now(),
             }
@@ -196,6 +216,7 @@ def run(args) -> int:
                 {
                     "attempt_id": attempt_id,
                     "outcome": outcome,
+                    **({"review_output": review_output} if review_output is not None else {}),
                     "input_digest": digest,
                     "permission_granted_by_this_record": False,
                     "authorization": "not_granted",

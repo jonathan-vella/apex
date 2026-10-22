@@ -156,6 +156,12 @@ def build_parser() -> argparse.ArgumentParser:
         help="Frozen input file or directory; the digest is computed from these (repeatable, instead of --input-digest)",
     )
     p_ra.add_argument("--attempt-outcome", choices=["started", "completed", "failed", "unknown"], default=None)
+    p_ra.add_argument(
+        "--review-output",
+        choices=["empty", "nonempty", "unknown"],
+        default=None,
+        help="Observed reviewer output, separate from the completed/failed native task outcome",
+    )
     p_ra.add_argument("--retry-of", default=None, help="Original attempt ID for an identical-input empty-output retry")
 
     # transition — composite checkpoint + decide + complete-step + start next

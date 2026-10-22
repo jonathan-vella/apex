@@ -142,6 +142,13 @@ No manual Challenger selection or leading approval prompt replaces this path.
    not a recomputed digest after repairs. `completed` means the invocation completed, not that
    its result was successfully recorded or the gate approved. Preserve an explicit recording blocker
    separately; failed or interrupted invocations are `failed` or `unknown`, not invented completion.
+   Record observed reviewer output separately with `--review-output empty|nonempty|unknown` on a
+   `completed` or `failed` native review attempt. A successful task with no reviewer output remains
+   `completed --review-output empty`; do not rewrite it as a failed task to obtain a retry.
+   Only confirmed empty output makes such a completed invocation eligible for the existing single
+   identical-input `empty-output-retry`, with `--retry-of` naming the original invocation and the
+   same saved input digest. Nonempty invalid JSON, unknown output and recording failures do not
+   supply empty-output eligibility. The audit does not grant extra budget or owner approval.
    Record outcomes after failure too; never backfill a start and completion together to hide missing history.
 
    Explicit owner-scoped reconciliation is read-only:

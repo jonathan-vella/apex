@@ -346,6 +346,16 @@ def test_context_reuses_captured_values_without_treating_false_or_zero_as_missin
     assert any("already answered" in error for error in _load().validate_payload(form, context))
 
 
+@pytest.mark.parametrize("answer", ["", " ", "\t\n", "\u00a0"])
+def test_whitespace_only_answers_remain_missing_for_discovery_and_preflight(answer: str) -> None:
+    form = {
+        "message": "Provide the missing industry",
+        "requestedSchema": {"properties": {"industry": {"type": "string", "title": "Industry"}}},
+    }
+    context = {"answers": {"industry": answer}, "fields": {"industry": {"input_id": "industry", "kind": "input"}}}
+    assert _load().validate_payload(form, context, require_context=True) == []
+
+
 def test_context_checks_branch_choice_and_approval_defaults(tmp_path: Path) -> None:
     form = _form()
     form["requestedSchema"]["properties"] = {"existing": {"type": "string", "title": "Existing VNet resource"}}

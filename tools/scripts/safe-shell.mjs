@@ -326,7 +326,8 @@ function commandStatusFindings(buffer) {
     if (/\bset\s+\+[^\n;]*\bpipefail\b/.test(text)) pipefail = false;
     const consequential =
       /\b(?:node|python3?)\s+(?:tools\/scripts\/)?(?:[^\s;|]*\/)?(?:record-review|validate[-_][^\s;|]*)\.(?:mjs|py)\b|\bapex-recall\s+(?:decide|complete-step|transition|review-audit|checkpoint|start-step|finding)\b/;
-    if (!consequential.test(text) || /^\s*(?:if|elif)\s/.test(text)) continue;
+    const command = consequential.exec(text);
+    if (!command || /^\s*(?:if|elif)\s/.test(text)) continue;
     const pipeline = /\|[ \t]*(?:head|tail)\b/.test(text);
     const trailing = /;\s*(?:rm|echo|printf|true)\b/.test(text);
     const next = buffer[index + 1]?.scan.trim() ?? "";
@@ -335,7 +336,8 @@ function commandStatusFindings(buffer) {
       .slice(index)
       .map((entry) => entry.scan)
       .join("\n");
-    const captured = `${text}\n${next}`.match(/(?:^|[;\n]|\|\|)\s*([a-zA-Z_]\w*)=\$\?/);
+    const immediate = `${text.slice(command.index)}\n${next}`.split(/;|\n|\|\|/, 2)[1] ?? "";
+    const captured = immediate.match(/^\s*([a-zA-Z_]\w*)=\$\?\s*$/);
     const preserves =
       captured &&
       (!pipeline || pipefail) &&
