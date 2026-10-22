@@ -372,6 +372,14 @@ export function buildDiscoveryForm(stage, answers = {}) {
   return {
     stage,
     complete: Object.keys(properties).length === 0,
+    ...(Object.keys(properties).length
+      ? {
+          context: {
+            answers: structuredClone(answers),
+            fields: Object.fromEntries(Object.keys(properties).map((key) => [key, { input_id: key, kind: "input" }])),
+          },
+        }
+      : {}),
     form: Object.keys(properties).length
       ? {
           message: `Requirements discovery: ${stage}. Choose suggested answers or type a custom value in the same field. “Not sure” is valid; no architecture or deployment is approved.`,

@@ -64,6 +64,27 @@ tool, or extract the relevant lines (`grep`, `head`, `tail`, `awk`).
 | Capture full output for later inspection | `az <command> > tmp/<name>.json && wc -l tmp/<name>.json`   |
 | Preview deployment changes               | `az deployment ... what-if --result-format ResourceIdOnly`  |
 
+### Sub-rule 2b — Preserve consequential command status
+
+Do not pipe a validator, review recorder or recall mutation through `head`/`tail` and
+then infer success from the display command. A later cleanup command can also hide failure.
+Capture status before bounded display, propagate it, and stop dependent operations:
+
+```bash
+status=0
+node tools/scripts/record-review.mjs --help > recorder.log 2>&1 || status=$?
+tail -n 12 recorder.log
+if [ "$status" -ne 0 ]; then
+  exit "$status"
+fi
+```
+
+For pipelines, `set -e` alone is insufficient; `pipefail` is also required.
+Do not treat printed errors as a successful record or repeat a committed mutation after
+`committed_but_index_stale`: explicitly reindex instead. Use editing tools for source/artifacts
+and `apex-recall` for project state; missing information is not permission to read raw state.
+The source linter checks recognized snippets, not arbitrary live terminal control flow.
+
 ## Rule 3 — If long output already escaped
 
 If a >50-line output was produced by mistake, do **not** attempt to

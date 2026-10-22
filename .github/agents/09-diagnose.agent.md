@@ -29,6 +29,10 @@ prioritized findings and separately authorized remediation/rollback.
 
 ## Interaction
 
+Before direct display or delegated return, apply the
+[shared question-form checks](../copilot-instructions.md#user-question-forms):
+distinct contextual titles, no unconditional companion note fields, reuse custom answers and only triggered follow-ups.
+
 Direct selection uses native `ask_user` for missing target/symptom/time range/focus, material priority
 choices and remediation decisions. Batch independent fields using `message` and
 `requestedSchema.properties`; validate freeform targets and reuse supplied answers.

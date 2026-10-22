@@ -5,6 +5,9 @@
 
 Use the GitHub Copilot SDK harness inside VS Code. Archived Local prompts are not
 entry points. A skill inherits the active session's model/tools; it cannot switch agents.
+Use actual native selection/calling context for role identity; when unavailable, report unknown.
+A default coordinating chat, role name in prose or loaded skill is not selected `01-Orchestrator`.
+Do not add a role attestation, model gate or synthetic readiness handshake.
 
 Select `01-Orchestrator` for end-to-end work only if that role is not already active.
 When it is already selected, continue the requested operation in the same conversation;
@@ -42,6 +45,9 @@ Read [the workflow engine](../SKILL.md), then use
 lookup from existing handoff and artifact evidence; do not reset prior work or
 read/write session-state JSON directly. Refresh missing/stale required inputs.
 Artifact numbering never proves completion, reviews, or human approval.
+Consult current `effective_reviews` and applicable `gate_readiness` as well as historical step status.
+Changed review guidance can stale an otherwise unchanged artifact: return it to its owner without
+restamping hashes, automatically reopening steps or spending another review allowance.
 
 Use the [workflow graph](../templates/workflow-graph.json) and current owner body
 as the execution authority. The following is an entry/output map, not a second

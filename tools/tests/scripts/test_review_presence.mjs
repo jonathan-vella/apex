@@ -48,6 +48,69 @@ test("decision presentation maps canonical fields and persists schema-valid Edit
   assert.equal(validate(record("edit", null)), false);
 });
 
+test("review forms preflight redundant notes without removing conditional Edit guidance", () => {
+  const read = (file) => readFileSync(new URL(`../../../${file}`, import.meta.url), "utf8");
+  const protocol = read(".github/skills/apex-azure-defaults/references/adversarial-review-protocol.md");
+  const orchestrator = read(".github/agents/01-orchestrator.agent.md");
+  const requirements = read(".github/agents/02-requirements.agent.md");
+  const shared = read(".github/copilot-instructions.md");
+  for (const body of [protocol, orchestrator]) {
+    assert.ok(body.includes("copilot-instructions.md#user-question-forms"));
+  }
+  assert.ok(shared.includes("validate_question_batching.py --form <scoped-form.json>"));
+  assert.match(shared, /only the validated payload to `ask_user`/);
+  for (const body of [orchestrator, requirements]) {
+    assert.match(body, /unconditional (?:review )?companion note fields/);
+    assert.match(body, /literal Edit without guidance or genuine ambiguity/);
+    assert.match(body, /finding-specific follow-up/);
+  }
+  assert.match(requirements, /Preflight the pending review form/);
+  assert.match(protocol, /Decision notes are persisted data, not additional questions/);
+  assert.match(protocol, /Do not ask a follow-up when custom guidance is already present/);
+  assert.match(protocol, /Batch all dependent Edit follow-ups into one form/);
+  assert.match(protocol, /the same check from 2g/);
+  assert.match(orchestrator, /another malformed response blocks/);
+});
+
+test("architecture repairs check the complete capability before pricing and another review", () => {
+  const read = (file) => readFileSync(new URL(`../../../${file}`, import.meta.url), "utf8");
+  const checklist = read(".github/skills/apex-azure-defaults/references/architect-validation-checklist.md");
+  const closure = checklist.split("## Dependency-path closure before pricing or re-review\n")[1]?.split("\n## ")[0];
+  assert.ok(closure);
+  for (const dimension of [
+    "Consumer and owner",
+    "Identity",
+    "Network and DNS",
+    "Outbound dependencies",
+    "Observability",
+    "Recovery",
+    "Cost and handoff",
+  ]) {
+    assert.ok(closure.includes(dimension), dimension);
+  }
+  for (const regression of [
+    "no outbound path",
+    "NAT alone",
+    "TCP 1433",
+    "explicit deny-all",
+    "runtime status Unverified",
+  ]) {
+    assert.ok(closure.includes(regression), regression);
+  }
+  assert.match(closure, /freeze\s+the revised inputs/);
+  assert.match(closure, /only affected cost lines/);
+  assert.match(closure, /re-review only affected artifacts/);
+  assert.match(closure, /outside the accepted repair returns to its owner/);
+  for (const file of [
+    ".github/agents/03-architect.agent.md",
+    ".github/skills/apex-azure-defaults/references/pricing-guidance.md",
+  ]) {
+    assert.ok(
+      read(file).includes("architect-validation-checklist.md#dependency-path-closure-before-pricing-or-re-review"),
+    );
+  }
+});
+
 test("policy precheck fails closed without fresh or explicitly stale envelope evidence", (context) => {
   const contract = readFileSync(
     new URL("../../../.github/skills/apex-iac-common/references/policy-precheck-contract.md", import.meta.url),

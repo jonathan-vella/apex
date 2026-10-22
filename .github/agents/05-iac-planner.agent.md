@@ -33,6 +33,10 @@ with validated diagrams/contracts, independent review and separate current plan 
 
 ## Interaction and execution
 
+Before direct display or delegated return, apply the
+[shared question-form checks](../copilot-instructions.md#user-question-forms):
+distinct contextual titles, no unconditional companion note fields, reuse custom answers and only triggered follow-ups.
+
 Honor explicit `execution_mode: direct|delegated`; absent a flag, an actual top-level conversation
 is direct. Neither an agent name nor a projected tool list determines mode.
 Resolve genuinely ambiguous context before consequential approval.
@@ -54,6 +58,9 @@ Only native `challenger-review-subagent` is an authorized leaf, for independent 
 Give bounded Inputs/Activities/Outputs and failure rules, without routing overrides or a nested main wrapper.
 
 ## Constraints
+
+For each enabled independent review, preflight the exact request and persist `started` before native dispatch.
+Record the actual invocation outcome separately from successful publication using the shared one-shot lifecycle.
 
 - Write only Step 4 outputs, SKU reconciliation/renderer view, review decisions, recorder-persisted
   findings, README, handoff and recall. No requirements/architecture/governance edits, IaC or Azure mutations.

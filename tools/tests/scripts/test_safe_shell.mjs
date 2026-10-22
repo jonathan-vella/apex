@@ -13,11 +13,41 @@ import path from "node:path";
 import fs from "node:fs";
 import os from "node:os";
 import { fileURLToPath } from "node:url";
+import { spawnSync } from "node:child_process";
 
 import { collectFiles, lintFile, RULES } from "../../scripts/safe-shell.mjs";
 
 const HERE = path.dirname(fileURLToPath(import.meta.url));
 const FIXTURES = path.join(HERE, "fixtures/safe-shell");
+
+test("consequential status checks catch masked pipelines and cleanup but allow guarded failures", (t) => {
+  const root = fs.mkdtempSync(path.join(os.tmpdir(), "safe-shell-status-"));
+  t.after(() => fs.rmSync(root, { recursive: true, force: true }));
+  const file = path.join(root, "fixture.md");
+  const check = (lines) => {
+    fs.writeFileSync(file, ["```bash", ...lines, "```"].join("\n"));
+    return lintFile(file).filter((finding) => finding.rule === "consequential-command-status");
+  };
+  assert.equal(check(["node tools/scripts/record-review.mjs | tail -8; echo done"]).length, 1);
+  assert.equal(
+    check(["python3 tools/scripts/validate_question_batching.py --form form.json", "rm form.json"]).length,
+    1,
+  );
+  assert.equal(check(["set -e", "apex-recall complete-step example 2 | tail -3"]).length, 1);
+  assert.equal(check(['node tools/scripts/record-review.mjs | tail -8; status=$?; exit "$status"']).length, 1);
+  assert.equal(check(["set -euo pipefail", "apex-recall complete-step example 2 | tail -3"]).length, 0);
+  assert.equal(
+    check(["node tools/scripts/record-review.mjs > log; status=$?", "tail -8 log", 'exit "$status"']).length,
+    0,
+  );
+  assert.equal(check(["cat report.log | tail -8; echo displayed"]).length, 0);
+  const failed = "node -e 'process.exit(7)'";
+  assert.equal(spawnSync("bash", ["-c", `${failed} | tail -8; echo done`]).status, 0);
+  assert.equal(
+    spawnSync("bash", ["-c", `status=0; ${failed} >/dev/null 2>&1 || status=$?; printf done; exit "$status"`]).status,
+    7,
+  );
+});
 
 test("RULES exposes the grep-no-fallback-in-set-e rule", () => {
   const rule = RULES.find((r) => r.id === "grep-no-fallback-in-set-e");

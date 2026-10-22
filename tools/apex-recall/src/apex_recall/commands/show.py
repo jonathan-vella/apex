@@ -99,6 +99,12 @@ def run(args) -> int:
                 effective = {}
                 exception_bearing = bool(data.get("risk_authorizations"))
                 review_steps = set(data.get("review_selections", {}))
+                review_steps |= {
+                    step
+                    for step, (artifact, _) in _CHALLENGER_GATE.items()
+                    if (primary.parent / artifact).is_file()
+                    and data.get("steps", {}).get(step, {}).get("status") in ("complete", "in_progress", "stale")
+                }
                 if exception_bearing:
                     review_steps |= {
                         step
@@ -177,10 +183,37 @@ def run(args) -> int:
                             "error": error,
                             "input_coverage": "primary-and-review-guidance",
                         }
+                        if not error:
+                            effective[step]["reviews"] = [
+                                {
+                                    "path": str(sidecar.relative_to(primary.parent.parent.parent)),
+                                    "artifact": str(artifact.relative_to(primary.parent.parent.parent)),
+                                    "supporting_inputs": json.loads(sidecar.read_text(encoding="utf-8")).get(
+                                        "supporting_inputs", []
+                                    ),
+                                }
+                                for artifact, sidecar in _review_paths(project, step, selected)
+                            ]
+                            effective[step]["review_verdicts"] = [
+                                review_verdict(json.loads(sidecar.read_text(encoding="utf-8")))
+                                for _, sidecar in _review_paths(project, step, selected)
+                            ]
+                            effective[step]["gate_status"] = (
+                                "blocked" if "NEEDS_REVISION" in effective[step]["review_verdicts"] else "current"
+                            )
                     except (OSError, ValueError) as error:
                         effective[step] = {"status": "invalid", "error": str(error)}
                 session["effective_reviews"] = effective
-                readiness = {}
+                readiness = {
+                    f"step-{step}-complete": {
+                        "status": (
+                            "blocked" if result["status"] != "current" else result.get("gate_status", "current")
+                        ),
+                        "error": result.get("error"),
+                        "permission_granted": False,
+                    }
+                    for step, result in effective.items()
+                }
                 if exception_bearing:
                     review_cache: dict = {}
                     for action in ACTIONS:

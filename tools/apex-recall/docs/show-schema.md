@@ -45,6 +45,17 @@ Always present. When no `00-session-state.json` exists, `session` is `{}`
 | `gate_readiness`      | object  | Fresh per-action current/exception-authorized/blocked evaluation, never automatic approval. |
 | `review_attempts`     | array   | Append-only attempt lifecycle events, not a reviewer scheduler or authorization.            |
 
+For ordinary projects, `effective_reviews` also evaluates canonical required reviews for produced artifacts
+in completed, in-progress or stale steps. It does not infer future review requirements from filenames alone.
+Historical `steps[step].completed` remains unchanged when current guidance or supporting inputs become stale.
+An invalid review includes the strict validator's error; a current review can expose original `review_verdicts`
+and exact `reviews[]` paths/artifacts/supporting inputs for bounded recovery rather than newest-file inference.
+
+`gate_readiness["step-<step>-complete"]` reports current or blocked review readiness with
+`permission_granted: false`. This is not human approval. Existing action-specific risk evaluations remain
+separate: a blocked historical Plan authorization does not revoke a valid current CodeGen authorization.
+Handoff consumers check the requested action, not every historical authorization.
+
 ### Review Selection And Compatibility
 
 Each optional selection records `schema_version`, `path`, `sha256`, `pass_number`, `review_focus`, `selected_at`
@@ -114,6 +125,18 @@ the workspace, no symlinks). The digest is the SHA-256 of the compact JSON array
 changed input is rejected as a reused identity. The command prints `input_digest` and
 `permission_granted_by_this_record: false`; the older `authorization: not_granted` field remains for existing readers.
 The record is evidence only.
+
+Before dispatch, preflight the exact request with
+`node tools/scripts/record-review.mjs --preflight --request <review-request.json>`.
+Use its `attempt_inputs` paths for `review-audit --attempt-input`, record `started`, retain the
+emitted digest and then record the actual outcome with that same digest. Completion of an invocation
+does not establish successful publication or approval; recording failure remains a separate blocker.
+
+`review-audit <project> <step> --reconcile-events <authorized-events.jsonl> --json` compares a supplied
+native capture with the ledger without writing state. It reports native request/call identity, task outcome,
+recorded outcome, gaps and unmatched ledger entries. It cannot prove input equivalence, successful review
+publication or new retry allowance, and cannot combine with mutation flags.
+Missing historical starts are not backfilled. Owner-authorized recovery must preserve the original history.
 
 ### Reopening a step
 

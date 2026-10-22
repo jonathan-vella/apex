@@ -33,6 +33,10 @@ with independent architecture and cost-feasibility reviews before human approval
 
 ## Interaction and execution
 
+Before direct display or delegated return, apply the
+[shared question-form checks](../copilot-instructions.md#user-question-forms):
+distinct contextual titles, no unconditional companion note fields, reuse custom answers and only triggered follow-ups.
+
 Honor explicit `execution_mode: direct|delegated`. An actual top-level conversation defaults
 to direct; agent names and tool availability do not determine mode.
 Resolve genuinely ambiguous context before consequential approval.
@@ -101,6 +105,9 @@ Unverified claims remain gaps, not remembered facts.
   AVM-TF gaps. Do not plan HCP/cloud backends.
 - Reconcile required operator/app data paths and dependencies; mark unverified or deferred capabilities
   explicitly so later readiness contracts do not turn an absent path into a working one.
+- Before committed pricing or re-review after a repair, use the
+  [dependency-path check](../skills/apex-azure-defaults/references/architect-validation-checklist.md#dependency-path-closure-before-pricing-or-re-review)
+  on the whole affected capability, not just the reported component. Keep runtime status Unverified.
 
 Read [SKU rules](../instructions/sku-manifest.instructions.md) before mutation.
 For each genuine creative decision, form viable `candidate_sets[]` across environment shapes.
@@ -192,6 +199,8 @@ Default: independent native `challenger-review-subagent` tasks, parallel when su
 
 Use `APEX_REVIEW`, unique request IDs, captured metadata, initial `prior_findings=null`,
 `overwrite=false` and the reviewer's direct raw-JSON contract without shell/code execution.
+Before native dispatch, preflight the exact request and record `started` with its frozen inputs.
+Record the actual invocation outcome separately from recording success under the shared one-shot lifecycle.
 Record only actual attributed results with `record-review.mjs`; require strict `--verify-cache`.
 Never ask for APPROVED/no findings or author/repair the reviewer's result.
 Missing/empty output permits one identical-input retry within existing limits; unavailable capability
@@ -209,6 +218,8 @@ with renders. Review decisions go in `challenge-findings-architecture-decisions.
 Render all findings in multiline tables and merge cost findings before architecture findings.
 Run the batched Per-Finding Decision Protocol; accepted changes authorize only the stated owned
 mitigation. Validate and re-review affected inputs; retain unchanged current evidence and decisions.
+Batch compatible owned repairs, recheck identity/network/DNS/egress, monitoring and recovery dependencies,
+then freeze inputs before repricing or requesting another independent review.
 
 Keep checkpoints with `apex-recall checkpoint <project> 2 <phase> --json`.
 On resume, current evidence—not an old checkpoint or filename—determines readiness.

@@ -153,6 +153,18 @@ test("all generated forms match the actual native question surface and have no i
   }
 });
 
+test("discovery emits separate applicability context without changing the native payload", () => {
+  const answers = { company_size: "Small charity", scenario: "greenfield" };
+  const result = buildDiscoveryForm("business", answers);
+  assert.deepEqual(result.context.answers, answers);
+  assert.notEqual(result.context.answers, answers);
+  assert.deepEqual(Object.keys(result.context.fields), Object.keys(result.form.requestedSchema.properties));
+  for (const [key, field] of Object.entries(result.context.fields)) {
+    assert.deepEqual(field, { input_id: key, kind: "input" });
+  }
+  assert.deepEqual(Object.keys(result.form).sort(), ["message", "requestedSchema"]);
+});
+
 test("invalid stages and answer snapshots fail explicitly", () => {
   assert.throws(() => buildDiscoveryForm("unknown"), /Unknown discovery stage/);
   assert.throws(() => buildDiscoveryForm("migration"), /requires the captured scenario/);

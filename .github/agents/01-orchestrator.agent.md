@@ -35,6 +35,10 @@ than repeating their production to satisfy an administrative phase boundary.
 
 ## Interaction
 
+Before direct display or delegated return, apply the
+[shared question-form checks](../copilot-instructions.md#user-question-forms):
+distinct contextual titles, no unconditional companion note fields, reuse custom answers and only triggered follow-ups.
+
 Use native `ask_user` for missing material inputs and real scope, risk or approval decisions.
 Batch independent typed questions with `message` and `requestedSchema.properties`.
 Validate freeform values and reuse current answers; defaults are suggestions, not user facts.
@@ -55,6 +59,8 @@ Before displaying a returned form, omit answered/inapplicable fields and preserv
 Pass only `message` and `requestedSchema` to `ask_user`; retain request ID, phase and missing-input metadata here.
 Return malformed forms to the producer for correction before invoking `ask_user`; do not re-ask settled answers.
 Allow one schema-only correction for the same request; another malformed response blocks with its validation error.
+Custom guidance in a finding field already supplies its decision note. Ask a finding-specific follow-up only
+after literal Edit without guidance or genuine ambiguity; preserve the existing correction limit.
 Greenfield omits migration questions; native freeform replaces separate “Other — describe” fields.
 Do not turn unknown networking/monitoring design into contact/owner/principal questionnaires.
 If this role is itself delegated, return the input request to its interactive parent.
@@ -108,6 +114,8 @@ Any template region is an unconfirmed fallback until the user supplies or confir
 
 ## Native delegation
 
+Use actual native selection/calling context; if unavailable, report the role as unknown.
+Do not describe default-agent coordination as selected `01-Orchestrator` or use prose to acquire permissions.
 Resolve the next domain owner from current `session.steps`, decisions and the
 [workflow graph](../skills/apex-workflow-engine/templates/workflow-graph.json),
 using [agent registry](../../tools/registry/agent-registry.json) paths.
@@ -118,6 +126,8 @@ Pass native `task` a bounded prompt:
 
 - `execution_mode: delegated`, project, step/phase, objective and exact input paths/revisions;
 - current answers, unresolved decisions, approved side effects and allowed output paths;
+- the complete ledger or exact authorized snapshot, applicability context, changed dependency paths,
+  frozen inputs, actual review/attempt IDs and explicit current cost revision (never newest-file inference);
 - required validation/review contract, cutoff and explicit failure categories;
 - requested result: actual outputs/checks/findings, missing-input request or precise blocker.
 
@@ -137,6 +147,8 @@ Capture missing review depth once, explaining default/deep behavior; retain the 
 Compute complexity (`simple | standard | complex`) from the graph's formula rather than inventing a parallel rubric.
 
 Owners use the existing actual-result review recorder and freshness validator.
+Before each review dispatch, preflight the exact request and record `started` under its request ID.
+Follow the shared one-shot lifecycle for actual outcomes; never fabricate historical starts or reset budgets.
 If a delegated owner returns `REVIEW_REQUIRED` because nested tasks are unavailable, invoke the same
 native `challenger-review-subagent` automatically from this interactive parent as an independent sibling task.
 Use the owner's artifact/type/lens/pass/output scope, capture current metadata, preserve the existing

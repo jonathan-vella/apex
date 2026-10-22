@@ -481,8 +481,8 @@ def test_ordinary_entry_only_warns_when_plan_review_is_stale(tmp_path, capsys):
     assert "warning only" in json.loads(capsys.readouterr().out)["warnings"][0]
     assert cli.main(["show", "synthetic", "--json"]) == 0
     session = json.loads(capsys.readouterr().out)["session"]
-    assert session["effective_reviews"] == {}
-    assert session["gate_readiness"] == {}
+    assert session["effective_reviews"]["4"]["status"] == "invalid"
+    assert session["gate_readiness"]["step-4-complete"]["status"] == "blocked"
     assert "risk_authorizations" not in json.loads((project / "00-session-state.json").read_text())
 
 

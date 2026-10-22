@@ -33,6 +33,10 @@ review evidence, expanding write scope or treating decisions as verified closure
 
 ## Interaction
 
+Before direct display or delegated return, apply the
+[shared question-form checks](../copilot-instructions.md#user-question-forms):
+distinct contextual titles, no unconditional companion note fields, reuse custom answers and only triggered follow-ups.
+
 In direct use, native `ask_user` resolves missing artifact/type/lens, output paths and material
 decision/apply choices. Batch independent fields with `message` and `requestedSchema.properties`;
 validate freeform values and reuse current answers. Do not ask for another decision when the user
@@ -44,6 +48,9 @@ An unavailable question tool blocks a required decision; no terminal prompts or 
 Cancel stops; decline never approves. Autopilot answers are not independent human authority.
 
 ## Constraints
+
+For each enabled independent review, preflight the exact request and persist `started` before native dispatch.
+Record the actual invocation outcome separately from successful publication using the shared one-shot lifecycle.
 
 - Resolve verification-only/read-only before delegation. Verification-only permits no artifact edits.
   The shared leaf is read-only; recording its actual result is still a write.

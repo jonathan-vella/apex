@@ -31,6 +31,10 @@ format, initialization, validation, independent-review and provider-plan evidenc
 
 ## Interaction
 
+Before direct display or delegated return, apply the
+[shared question-form checks](../copilot-instructions.md#user-question-forms):
+distinct contextual titles, no unconditional companion note fields, reuse custom answers and only triggered follow-ups.
+
 - Direct selection uses native #tool:ask_user for material missing/conflicting inputs and decisions.
   Batch independent fields using `message` and `requestedSchema.properties`; validate freeform values,
   reuse current answers, and treat defaults as suggestions, not owner answers.
@@ -46,6 +50,9 @@ format, initialization, validation, independent-review and provider-plan evidenc
   otherwise the user selects the owner. UI handoff controls are not prerequisites or next-step approval.
 
 ## Constraints
+
+For each enabled independent review, preflight the exact request and persist `started` before native dispatch.
+Record the actual invocation outcome separately from successful publication using the shared one-shot lifecycle.
 
 - Allowed writes: `infra/terraform/{project}/`, CodeGen-owned `.terraform.lock.hcl`, isolated init
   scratch, listed outputs, project README, `00-handoff.md`, code-review decisions/recorded findings

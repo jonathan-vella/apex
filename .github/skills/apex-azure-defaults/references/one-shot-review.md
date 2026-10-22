@@ -33,7 +33,32 @@ No manual Challenger selection or leading approval prompt replaces this path.
 
    Supply each immutable supporting path with `--supporting-input`. Do not freeze
    mutable manifests, README, handoff, decisions or recall state as supporting inputs.
-3. Invoke `task` with `agent_type: challenger-review-subagent`, `mode: sync`, and model,
+3. Before invoking the reviewer, save the proposed JSON request in invocation-owned storage
+   and validate it without launching or recording a worker:
+
+   ```bash
+   node tools/scripts/record-review.mjs --preflight --request <review-request.json>
+   ```
+
+   Preflight validates the original metadata, immutable supporting inputs, request identity,
+   lens/pass and output/overwrite intent. `prior_findings` is null initially and an array on revision,
+   never an object containing a findings array. Existing output requires explicit `overwrite: true`.
+   It returns exact `attempt_inputs`, not approval or permission to exceed a budget.
+   Preserve that exact request for dispatch; input changes require a new preflight before the attempt starts.
+
+   Record `started` before native dispatch using the request ID, owning step and every returned
+   `attempt_inputs` path as a repeated `--attempt-input`. Retain the emitted `input_digest`:
+
+   ```bash
+   apex-recall review-audit <project> <step> --attempt-id <request-id> \
+     --attempt-kind invocation --attempt-input <frozen-primary-path> --attempt-outcome started --json
+   ```
+
+   A failed start blocks dispatch. Propagate each consequential command's failure before any later
+   display, cleanup or mutation; do not pipe through `head`/`tail` and infer success from the last command.
+   Audit records are evidence, not new review authorization.
+
+   Invoke `task` with `agent_type: challenger-review-subagent`, `mode: sync`, and model,
    reasoning-effort and context overrides absent. Pass `mode` as a top-level task
    argument, not inside the JSON prompt. Use the exact prompt format
    `APEX_REVIEW` followed by a newline and one JSON object:
@@ -113,6 +138,21 @@ No manual Challenger selection or leading approval prompt replaces this path.
 
    Only then checkpoint review completion and present actual findings to the
    interactive parent. A successful verdict never approves the human gate.
+   Record the actual attempt outcome with the same request ID/kind and saved `--input-digest`,
+   not a recomputed digest after repairs. `completed` means the invocation completed, not that
+   its result was successfully recorded or the gate approved. Preserve an explicit recording blocker
+   separately; failed or interrupted invocations are `failed` or `unknown`, not invented completion.
+   Record outcomes after failure too; never backfill a start and completion together to hide missing history.
+
+   Explicit owner-scoped reconciliation is read-only:
+
+   ```bash
+   apex-recall review-audit <project> <step> --reconcile-events <authorized-events.jsonl> --json
+   ```
+
+   It reports missing/incomplete ledger entries and actual native task outcomes. It does not
+   establish successful publication, input equivalence, historical approval or restore retry allowance.
+   Do not rewrite or backdate existing history; any recovery requires the owner's separate approval.
 
 ## Reviewer instructions
 

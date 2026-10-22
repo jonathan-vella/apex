@@ -20,7 +20,11 @@ export function renderHandoff(view, { owner, operation }) {
   if (!view.session?.steps || !view.project) throw new Error("Authoritative project state is required");
   const session = view.session;
   for (const result of Object.values(session.effective_reviews || {})) {
-    if (result.status !== "current") throw new Error("Selected review is invalid; return to its owner");
+    if (
+      result.status !== "current" ||
+      (result.gate_status === "blocked" && !Object.keys(session.risk_authorizations || {}).length)
+    )
+      throw new Error("Required current review is invalid or unresolved; return to its owner");
   }
   const action = /CodeGen$/.test(owner)
     ? "codegen"
@@ -63,7 +67,7 @@ export function renderHandoff(view, { owner, operation }) {
       ),
     ],
     [
-      `- Human-selected next owner: ${inline(owner)}.`,
+      `- Requested next owner: ${inline(owner)}; this label is not native selection evidence.`,
       "- This handoff grants no new approval, review allowance, deployment permission or data-plane access.",
       "- Preserve frozen inputs and current reviews; incomplete evidence returns to its owner.",
       ...(readiness?.status === "exception-authorized"
@@ -72,9 +76,17 @@ export function renderHandoff(view, { owner, operation }) {
           ]
         : []),
     ],
-    Object.entries(session.review_selections || {}).map(
-      ([step, record]) => `- Step ${inline(step)} selection: ${inline(record.path)}; ${inline(record.input_coverage)}.`,
-    ),
+    [
+      ...Object.entries(session.review_selections || {}).map(
+        ([step, record]) =>
+          `- Step ${inline(step)} selection: ${inline(record.path)}; ${inline(record.input_coverage)}.`,
+      ),
+      ...Object.entries(session.effective_reviews || {}).flatMap(([step, review]) =>
+        (review.reviews || []).map(
+          (item) => `- Step ${inline(step)} current review: ${inline(item.path)}; input=${inline(item.artifact)}.`,
+        ),
+      ),
+    ],
     (view.artifacts || [])
       .filter((artifact) =>
         /(?:04-(?:iac-contract|environment-manifest|policy-property-map)|sku-manifest|05-iac-handoff)\.json$/.test(

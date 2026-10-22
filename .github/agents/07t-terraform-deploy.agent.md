@@ -30,6 +30,10 @@ provider, governance, preview and independent operation approval checks.
 
 ## Interaction
 
+Before direct display or delegated return, apply the
+[shared question-form checks](../copilot-instructions.md#user-question-forms):
+distinct contextual titles, no unconditional companion note fields, reuse custom answers and only triggered follow-ups.
+
 Direct use asks native `ask_user` for missing material target/environment/budget and actual decisions.
 Batch independent fields with `message` and `requestedSchema.properties`, validate freeform values,
 and reuse current answers. Defaults are not owner answers.

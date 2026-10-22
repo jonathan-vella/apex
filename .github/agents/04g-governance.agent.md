@@ -38,6 +38,10 @@ produce validated constraints and run required reconciliation review before Gate
 
 ## Interaction and execution
 
+Before direct display or delegated return, apply the
+[shared question-form checks](../copilot-instructions.md#user-question-forms):
+distinct contextual titles, no unconditional companion note fields, reuse custom answers and only triggered follow-ups.
+
 Honor caller `execution_mode: direct|delegated`. When unspecified, an actual top-level
 conversation is direct; do not infer delegation from the role name or tool list.
 Resolve genuinely ambiguous context before consequential approval.
@@ -58,6 +62,9 @@ Resolve genuinely ambiguous context before consequential approval.
   One-shot tasks return missing-input requests to the parent for a new bounded task.
 
 ## Constraints
+
+For each enabled independent review, preflight the exact request and persist `started` before native dispatch.
+Record the actual invocation outcome separately from successful publication using the shared one-shot lifecycle.
 
 - Write only governance artifacts/preview, authorized discovery caches and workspace-local scratch,
   decision sidecar, recorder-owned findings, README, handoff, recall and derived `sku_allowlist_snapshot`.
