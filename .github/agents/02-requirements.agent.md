@@ -37,6 +37,10 @@ are real stopping points, not permission to fill gaps with defaults.
 
 ## Interaction and execution
 
+Before direct display or delegated return, apply the
+[shared question-form checks](../copilot-instructions.md#user-question-forms):
+distinct contextual titles, no unconditional companion note fields, reuse custom answers and only triggered follow-ups.
+
 Use the caller's explicit `execution_mode: direct|delegated`. When absent, an actual top-level
 conversation is direct; do not infer delegation from the agent name or tool list.
 If the calling context is ambiguous, resolve it before a consequential approval.
@@ -53,6 +57,8 @@ If the calling context is ambiguous, resolve it before a consequential approval.
   `tools/scripts/requirements-discovery.mjs` helper and the complete captured-answer ledger.
   `node tools/scripts/requirements-discovery.mjs --stage <stage> --answers <owned-answer-snapshot.json>`
   emits a form, not answers or permission. Use the business stage first, then only applicable branches.
+  Retain its separate `context` with the complete answer ledger for applicability preflight; forward it alongside
+  delegated forms, never inside the native `message`/`requestedSchema` payload.
   Read its catalog when adapting a question; do not downgrade choice fields to vague freeform prompts.
   Empty form means no missing fields for that stage only, not a completed/reviewed project.
 - Native choice fields already accept freeform. Never add `*_other`, “if Other, explain” or
@@ -82,6 +88,9 @@ continuation the harness actually provides; a one-shot task needing inputs retur
 which may submit a new bounded task with those answers. Do not assume universal resumability.
 
 ## Constraints
+
+For each enabled independent review, preflight the exact request and persist `started` before native dispatch.
+Record the actual invocation outcome separately from successful publication using the shared one-shot lifecycle.
 
 - Write only Step 1 outputs, `README.md`, `00-handoff.md`, review decision sidecars and
   recall-managed state in `agent-output/{project}/`, plus the authorized project-local discovery
@@ -253,7 +262,10 @@ identical-input retry within the existing budget, then a human recovery decision
 Render every finding in a multiline table: ID, severity, claim, WAF pillar (or Not supplied),
 recommendation; show actual totals and the sidecar path.
 Apply the Per-Finding Decision Protocol: one independent typed field per actionable finding,
-canonical Accept/Reject/Defer/Edit choices, per-finding notes, existing panel cap and decision reuse.
+canonical Accept/Reject/Defer/Edit choices, existing panel cap and decision reuse.
+Persist per-finding notes from that field's custom answer; never add unconditional companion note fields.
+Only literal Edit without guidance or genuine ambiguity needs a finding-specific follow-up.
+Preflight the pending review form as specified in the protocol before direct display or delegated return.
 Use namespace `requirements-pass1-{idx}`; recommend Accept for must-fix, Defer for should-fix.
 Suggestions auto-defer; skip an empty actionable panel.
 

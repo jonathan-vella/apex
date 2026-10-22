@@ -33,6 +33,10 @@ Source length is not a measurement of runtime tokens, latency or quality.
 Use explicit caller `execution_mode: direct|delegated` and actual calling context.
 Direct selection invokes `ask_user` with `message` and `requestedSchema.properties`;
 batch independent fields, validate freeform answers and reuse current decisions.
+Every question-capable main body must retain the essential
+[shared question-form checks](../copilot-instructions.md#user-question-forms):
+distinct contextual titles, no unconditional companion note fields, reuse custom answers and only triggered follow-ups.
+Apply them to every form, not just reviews; never widen a read-only role to write validation scratch.
 Delegated mains return `USER_INPUT_REQUIRED`, stable `request_id`, phase and form to the parent.
 Leaves return their role-specific input failure. No terminal questions or default owner answers.
 Cancel stops; decline never approves. Autopilot may auto-answer, so form/task output is not

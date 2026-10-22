@@ -13,6 +13,30 @@ const root = new URL("../../../", import.meta.url);
 const read = (file) => readFileSync(new URL(file, root), "utf8");
 const skill = (file) => read(`.github/skills/${file}`);
 
+test("planned resource groups do not become Governance defects or repeated review questions", () => {
+  const governance = read(".github/agents/04g-governance.agent.md");
+  const planner = read(".github/agents/05-iac-planner.agent.md");
+  const disposition = skill("apex-azure-governance-discovery/references/reconciliation-disposition.md");
+  const resolution = skill("apex-azure-governance-discovery/references/inline-resolution-gate.md");
+  const resume = skill("apex-azure-governance-discovery/references/resume-checks.md");
+  const preflight = skill("apex-iac-common/references/preflight-policy-checks.md");
+  assert.ok(governance.includes("reconciliation-disposition.md#resource-group-lifecycle"));
+  assert.ok(planner.includes("reconciliation-disposition.md#resource-group-lifecycle"));
+  for (const body of [governance, disposition]) {
+    assert.match(body, /do not require.*(?:names|existence)/i);
+    assert.match(body, /not a (?:Governance |should-fix )?(?:defect|finding)/i);
+    assert.match(body, /current review.*(?:IDs|severities)/i);
+  }
+  assert.match(disposition, /Existing groups.*unevaluated.*coverage gap/s);
+  assert.match(disposition, /TTL expiry.*separate/s);
+  assert.match(disposition, /notScopes/);
+  assert.match(disposition, /not authorize.*resource-group creation/s);
+  assert.match(resolution, /not a fourth Phase 2.7 confirmation/);
+  assert.match(resume, /TTL expiry does not erase.*planned/s);
+  assert.match(preflight, /before affected workload operations/);
+  assert.match(governance, /Do not promote.*suggestion.*actionable/s);
+});
+
 test("design-only governance trace checks L0/L1 without waiving the full chain", (context) => {
   const directory = mkdtempSync(path.join(tmpdir(), "governance-stage-"));
   context.after(() => rmSync(directory, { recursive: true, force: true }));

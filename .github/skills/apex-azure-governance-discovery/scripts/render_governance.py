@@ -358,6 +358,13 @@ def emit_preview_md(envelope: dict[str, Any], out_path: Path, arch_resources: li
     a(f"**Discovery Method**: {discovery_method}")
     a(f"**Subscription**: {envelope.get('subscription_id', 'unknown')}")
     a(f"**Scope**: Subscription + management-group inherited\n")
+    a(
+        "> **Resource-group lifecycle**: For new deployments, planned groups do not need to exist during Governance or IaC planning. "
+        "Their absence is an informational lifecycle handoff, not a should-fix finding or an approval question. "
+        "Existing target groups still require actual scope evidence; this subscription/MG collection does not attest child scopes. "
+        "Preserve inherited restrictions and check intended scopes during planning and deployment. "
+        "TTL expiry and policy/scope changes remain separate refresh triggers.\n"
+    )
     if is_assumed:
         provenance = envelope.get("provenance") or {}
         a(

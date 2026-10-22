@@ -45,6 +45,24 @@ Always present. When no `00-session-state.json` exists, `session` is `{}`
 | `gate_readiness`      | object  | Fresh per-action current/exception-authorized/blocked evaluation, never automatic approval. |
 | `review_attempts`     | array   | Append-only attempt lifecycle events, not a reviewer scheduler or authorization.            |
 
+For ordinary projects, `effective_reviews` also evaluates canonical required reviews for produced artifacts
+in completed, in-progress or stale steps. It does not infer future review requirements from filenames alone.
+Historical `steps[step].completed` remains unchanged when current guidance or supporting inputs become stale.
+An invalid review includes the strict validator's error; a current review can expose original `review_verdicts`
+and exact `reviews[]` paths/artifacts/supporting inputs for bounded recovery rather than newest-file inference.
+
+`gate_readiness["step-<step>-complete"]` reports current or blocked review readiness with
+`permission_granted: false`. This is not human approval. Existing action-specific risk evaluations remain
+separate: a blocked historical Plan authorization does not revoke a valid current CodeGen authorization.
+Handoff consumers check the requested action, not every historical authorization.
+
+An ordinary completed step with a persisted `challenger_skip` missing-review exception exposes
+`review_skip: true`, `skip_reasons` and `input_coverage: "audited-missing-review-skip"` in its effective view.
+Its completion readiness also exposes the skip. This is an intentional exception, not independent review
+evidence or a fabricated approval: an entirely missing review has no verdicts. Present invalid/stale evidence
+still blocks, and explicit replacement-review selections do not inherit the missing-review bypass.
+Handoffs identify the skipped review and recorded reason instead of claiming review coverage.
+
 ### Review Selection And Compatibility
 
 Each optional selection records `schema_version`, `path`, `sha256`, `pass_number`, `review_focus`, `selected_at`
@@ -101,12 +119,18 @@ revert source through reviewed changes, not destructive resets or automatic proj
 
 ### Durable Attempts
 
-`review-audit` accepts `--attempt-id`, `--attempt-kind`, `--input-digest`, `--attempt-outcome` and optional `--retry-of`.
+`review-audit` accepts `--attempt-id`, `--attempt-kind`, `--input-digest`, `--attempt-outcome`,
+optional `--review-output` and `--retry-of`.
 Record `started` before the operation and then its actual outcome. IDs cannot change step, kind or input digest;
 unknown and terminal outcomes cannot be rewritten. Duplicate identical records are idempotent. Empty-output retries
-must reference a failed original invocation in the same step, never another retry, and cannot be duplicated.
-The caller must establish that the failure was actually empty output and that the retry is authorized; the audit
-does not confer this permission. Legacy executed totals cannot decrease; do not equate a filename's pass with totals.
+must reference a terminal original invocation in the same step with confirmed empty reviewer output,
+never another retry, and cannot be duplicated. `--review-output empty|nonempty|unknown` records observed output
+separately on `completed` or `failed` native review attempts; it is not valid on `started`, `unknown` or repairs.
+Successful native execution with empty output remains `completed` and is retry-eligible only with
+`review_output: "empty"`. Nonempty/unknown output or task success alone is not eligible.
+Legacy failed records without this field retain compatibility, but the caller must still establish
+actual empty output and authorization; the audit does not confer permission. Terminal output evidence cannot
+be added or rewritten later. Legacy executed totals cannot decrease; filenames do not establish attempt totals.
 
 Instead of `--input-digest`, pass each frozen input with `--attempt-input <path>` (repeatable; files or directories inside
 the workspace, no symlinks). The digest is the SHA-256 of the compact JSON array of sorted
@@ -114,6 +138,19 @@ the workspace, no symlinks). The digest is the SHA-256 of the compact JSON array
 changed input is rejected as a reused identity. The command prints `input_digest` and
 `permission_granted_by_this_record: false`; the older `authorization: not_granted` field remains for existing readers.
 The record is evidence only.
+
+Before dispatch, preflight the exact request with
+`node tools/scripts/record-review.mjs --preflight --request <review-request.json>`.
+Use its `attempt_inputs` paths for `review-audit --attempt-input`, record `started`, retain the
+emitted digest and then record the actual outcome with that same digest. Completion of an invocation
+does not establish successful publication or approval; recording failure remains a separate blocker.
+
+`review-audit <project> <step> --reconcile-events <authorized-events.jsonl> --json` compares a supplied
+native capture with the ledger without writing state. It reports native request/call identity, task outcome,
+recorded outcome, gaps and unmatched ledger entries. It cannot prove input equivalence, successful review
+publication or new retry allowance, and cannot combine with mutation flags.
+Unmatched ledger entries include both invocations and empty-output retries, not repair-only operations.
+Missing historical starts are not backfilled. Owner-authorized recovery must preserve the original history.
 
 ### Reopening a step
 

@@ -250,6 +250,14 @@ def validate_state(data: dict) -> None:
         or not all(
             key in attempt for key in ("id", "step", "kind", "input_digest", "outcome", "retry_of", "recorded_at")
         )
+        or (
+            "review_output" in attempt
+            and (
+                attempt["review_output"] not in ("empty", "nonempty", "unknown")
+                or attempt["kind"] not in ("invocation", "empty-output-retry")
+                or attempt["outcome"] not in ("completed", "failed")
+            )
+        )
         for attempt in attempts
     ):
         raise ValueError("Invalid review attempt history")

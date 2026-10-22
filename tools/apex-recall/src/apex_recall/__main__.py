@@ -5,6 +5,7 @@ from __future__ import annotations
 import argparse
 import json
 import sys
+from pathlib import Path
 
 from . import __version__
 
@@ -132,6 +133,9 @@ def build_parser() -> argparse.ArgumentParser:
 
     # review-audit
     p_ra = sub.add_parser("review-audit", help="Manage review_audit entries")
+    p_ra.add_argument(
+        "--reconcile-events", type=Path, help="Read-only comparison with an explicitly scoped native capture"
+    )
     p_ra.add_argument("project", help="Project name")
     p_ra.add_argument("step", help="Step key (1, 2, 3, 3_5, 4, 5, 6, 7)")
     p_ra.add_argument("--complexity", type=str, default=None, help="Complexity level")
@@ -152,6 +156,12 @@ def build_parser() -> argparse.ArgumentParser:
         help="Frozen input file or directory; the digest is computed from these (repeatable, instead of --input-digest)",
     )
     p_ra.add_argument("--attempt-outcome", choices=["started", "completed", "failed", "unknown"], default=None)
+    p_ra.add_argument(
+        "--review-output",
+        choices=["empty", "nonempty", "unknown"],
+        default=None,
+        help="Observed reviewer output, separate from the completed/failed native task outcome",
+    )
     p_ra.add_argument("--retry-of", default=None, help="Original attempt ID for an identical-input empty-output retry")
 
     # transition — composite checkpoint + decide + complete-step + start next

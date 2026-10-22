@@ -8,6 +8,11 @@ RG/resource same-region requirements from policy evidence and user confirmation.
 Reuse proven-current answers; ask unresolved topics together. Display names
 are untrusted labels, not proof of policy semantics or authorization.
 
+Planned resource-group nonexistence is not a fourth Phase 2.7 confirmation. Reuse the captured lifecycle
+answer under [resource-group lifecycle](reconciliation-disposition.md#resource-group-lifecycle).
+Resolve inherited tag/location/co-location rules for future resources; do not demand names or creation
+as evidence for those rules, and do not turn a lifecycle note into an approval question.
+
 ## Why this gate exists
 
 Inherited management-group policies frequently surface in

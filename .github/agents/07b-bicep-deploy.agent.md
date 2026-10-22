@@ -32,6 +32,10 @@ preview acceptance, live policy precheck and separate evidence-bound human apply
 
 ## Interaction
 
+Before direct display or delegated return, apply the
+[shared question-form checks](../copilot-instructions.md#user-question-forms):
+distinct contextual titles, no unconditional companion note fields, reuse custom answers and only triggered follow-ups.
+
 - Direct use asks native #tool:ask_user for required material inputs/decisions.
   Batch independent fields with `message` and `requestedSchema.properties`, validate freeform values,
   reuse current answers, and never treat suggested defaults as owner answers. No shell prompts.

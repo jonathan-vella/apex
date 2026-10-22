@@ -5,7 +5,7 @@ import { randomUUID, createHash } from "node:crypto";
 import { spawnSync } from "node:child_process";
 import { fileURLToPath } from "node:url";
 import test from "node:test";
-import { extractReview, recordReview } from "../../scripts/record-review.mjs";
+import { extractReview, recordReview, preflightReviewRequest } from "../../scripts/record-review.mjs";
 import {
   cacheInputs,
   findingId,
@@ -139,6 +139,69 @@ function fixture(t, { batch = false, supporting = false, parent = "root", review
   };
   return state;
 }
+
+test("request preflight rejects malformed revisions before any worker or publication", (t) => {
+  const f = fixture(t, { supporting: true });
+  const before = fs.readdirSync(path.join(f.root, "agent-output/example")).sort();
+  const valid = preflightReviewRequest(f.input, f.root);
+  assert.deepEqual(valid.attempt_inputs, [artifact, f.input.supporting_inputs[0].path]);
+  assert.deepEqual(fs.readdirSync(path.join(f.root, "agent-output/example")).sort(), before);
+  assert.equal(fs.existsSync(path.join(f.root, output)), false);
+  f.input.prior_findings = { findings: [] };
+  assert.throws(() => preflightReviewRequest(f.input, f.root), /prior_findings/);
+  f.input.prior_findings = [];
+  const focus = f.input.review_focus;
+  f.input.review_focus = "invented-lens";
+  assert.throws(() => preflightReviewRequest(f.input, f.root), /lenses/);
+  f.input.review_focus = focus;
+  f.write(output, "preserved previous result");
+  assert.throws(() => preflightReviewRequest(f.input, f.root), /overwrite/);
+  f.input.overwrite = true;
+  assert.doesNotThrow(() => preflightReviewRequest(f.input, f.root));
+  f.write(f.input.supporting_inputs[0].path, "changed");
+  assert.throws(() => preflightReviewRequest(f.input, f.root), /supporting bytes changed/);
+  assert.equal(fs.readFileSync(path.join(f.root, output), "utf8"), "preserved previous result");
+});
+
+test("request-only CLI cannot silently invoke the recorder or accept stale inputs", (t) => {
+  const f = fixture(t);
+  f.write("request.json", JSON.stringify(f.input));
+  const run = () =>
+    spawnSync(process.execPath, [recorder, "--preflight", "--request", "request.json"], {
+      cwd: f.root,
+      encoding: "utf8",
+    });
+  const passing = run();
+  assert.equal(passing.status, 0, passing.stderr);
+  assert.equal(JSON.parse(passing.stdout).permission_granted, false);
+  assert.equal(fs.existsSync(path.join(f.root, output)), false);
+  f.write(artifact, "drift");
+  assert.equal(run().status, 1);
+});
+
+test("manual Step 6 deployment-preview requests pass preflight and final recording", (t) => {
+  const f = fixture(t);
+  const preview = "agent-output/example/06-deploy-approval.json";
+  const findings = "agent-output/example/challenge-findings-deployment-preview.json";
+  f.write(preview, JSON.stringify({ preview: "Synthetic preview; no apply authorized" }));
+  Object.assign(f.input, {
+    step: "6",
+    artifact_path: preview,
+    artifact_type: "deployment-preview",
+    output_path: findings,
+    cache_inputs: cacheInputs(preview, f.root, STRUCTURED_REVIEWER),
+  });
+  Object.assign(f.doc, {
+    challenged_artifact: preview,
+    artifact_type: "deployment-preview",
+    cache_inputs: structuredClone(f.input.cache_inputs),
+  });
+  f.options.output = findings;
+  assert.doesNotThrow(() => preflightReviewRequest(f.input, f.root));
+  f.record();
+  assert.equal(f.persisted().review_execution.step, "6");
+  assert.equal(f.persisted().artifact_type, "deployment-preview");
+});
 
 function addReadTurns(f, count = 7) {
   const response = f.events.find((event) => event.type === "assistant.message");

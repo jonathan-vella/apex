@@ -33,6 +33,10 @@ required lenses, human gates and existing repair caps remain authoritative; this
   Fix the finding without inventing topology. A proof establishes tested behavior, not authority to copy all its
   resources. Changed design or upstream ownership requires the named owner's approval, not automatic application.
 4. Apply coherent owned repairs, run focused validation, finalize inputs, then re-review only affected reviews.
+  For architecture changes, check the complete affected capability using the existing dependency matrix:
+  consumer/owner, identity, network/DNS/private endpoints, outbound dependencies, observability, recovery
+  and cost/handoff. A local fix must not silently break another hop. Designed remains runtime Unverified
+  until scoped execution proves otherwise; the checklist does not replace independent review.
   Reuse unchanged valid evidence and unchanged user decisions. Do not rerun successful commands for nicer timing.
   Repeated ineffective repairs or exhausted caps stop with evidence; changing filenames/sessions resets no allowance.
 5. Distinguish command retries from worker retries and repair iterations. Transient command failures follow the
@@ -490,6 +494,27 @@ for `should_fix`); omit defaults so a displayed recommendation is not an answer.
 The field supports freeform input natively; do not send retired `questions[]`,
 `header`, `options`, `recommended` or `allowFreeformInput` payload fields.
 
+Decision notes are persisted data, not additional questions. Never append unconditional
+`*_note`, `*_notes` or equivalent companion guidance fields to the disposition panel:
+custom text in the finding field already supplies its note. Give every field a distinct,
+finding-specific title; repeated generic labels such as "Clarifying answer / note" are invalid.
+
+Apply the [shared question-form checks](../../../copilot-instructions.md#user-question-forms)
+before direct display or delegated return. For an authorized scoped JSON payload file, preflight it:
+
+```bash
+python3 tools/scripts/validate_question_batching.py --form <scoped-form.json> --context <question-context.json> --require-context
+```
+
+Context identifies each finding's stable material input and kind `disposition`, or a `follow_up`
+with its captured-answer trigger. The check rejects duplicate material inputs, premature branches,
+already answered questions and approval/disposition defaults; it does not grant approval or prove
+the truth of supplied context. The interactive parent must supply actual captured answers.
+Send only the validated payload to `ask_user`; revalidate after any payload edits.
+Invalid delegated forms follow the existing single schema-only correction limit; another failure blocks.
+Never widen a read-only role to write validation scratch. Keep any owned temporary payloads
+out of shared/public logs and remove them after use.
+
 Delegated owners return this form in `USER_INPUT_REQUIRED`; only the interactive
 parent calls `ask_user` and resumes the owner with the matching request ID.
 Rejecting a `must_fix` finding records a disagreement only. It does not close the finding or accept the risk; the
@@ -512,6 +537,10 @@ Batch all dependent Edit follow-ups into one form. Ambiguous action-like freefor
 answers require clarification, not inferred acceptance. A declined panel defers
 its findings; it does not approve proceeding. Preserve previously saved decisions
 on cancellation and never mark an unresolved finding closed merely from its disposition.
+Do not ask a follow-up when custom guidance is already present in the finding answer.
+For each actual pending follow-up, use its stable finding key and a title identifying the
+finding, such as "Custom guidance: availability measurement window", not a generic note label.
+Preflight follow-up payloads with the same check from 2g.
 
 ### 2i. Persist decisions (sidecar + apex-recall)
 

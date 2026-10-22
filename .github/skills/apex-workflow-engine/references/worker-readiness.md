@@ -32,6 +32,11 @@ answers and supplies them against the same request. Leaves return their role-spe
 failure and never ask users, manage parent todos or delegate.
 Every resumed/replacement main task receives the complete captured-answer ledger, not just
 the latest form response. Preserve confirmed values, custom answers, unknowns and skipped branches.
+Carry explicit applicability context alongside forms, outside the native question payload.
+Include current phase, frozen-input references, changed dependency paths, actual review/attempt IDs,
+the explicitly selected successful cost revision and next authorized operation. Prefer a compact
+summary plus exact authorized ledger/evidence paths; recover missing content rather than rereading
+unchanged full artifacts. Never omit required security/approval evidence to meet a size target.
 Before rendering a form remove answered/inapplicable fields; don't ask migration details for Greenfield
 or create separate Other-description fields when native choices already accept freeform.
 Pass only the actual native tool's supported form fields. `requestedSchema` contains `properties`;
@@ -53,6 +58,8 @@ The actual interactive parent captures inputs and records results under its own 
 Only a real missing parent capability or failed/invalid result blocks that relay.
 Keep the existing single identical-input empty-review retry and actual invocation budget.
 New tasks/contexts never reset review accounting, findings or approvals.
+Before any reviewer dispatch, use the shared request preflight and record its attempt start.
+Use the actual task/recording outcome afterward; a completed task is not a published review or approval.
 
 After compaction/new chat, recover missing domain evidence through artifacts and `apex-recall`;
 an old task handle is not guaranteed resumable. No automatic backup restoration or approval reconstruction.
