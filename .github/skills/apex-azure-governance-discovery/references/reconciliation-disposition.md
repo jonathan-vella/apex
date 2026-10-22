@@ -12,6 +12,46 @@ that conflicts with an approved architecture decision.
 > If the user picks `Reject`, `Defer`, or `Edit`, none of the steps
 > below run — the sidecar decision is the audit trail.
 
+## Resource-group lifecycle
+
+Subscription and inherited management-group discovery precede deployment. Do not require resource-group names
+or existence at Step 3.5 when the captured scope says the groups are planned; naming belongs to IaC planning.
+Reuse the captured lifecycle answer, including explicitly undecided names. Do not ask the same material
+question again under a scope-gap or finding-disposition label.
+
+- **Planned groups:** nonexistence during Governance, Planner and CodeGen is expected, not a should-fix finding.
+  Record an informational handoff with the intended subscription and later scope-check owner. Missing names
+  alone do not make subscription/MG discovery PARTIAL or require a refresh. Do not create groups to complete it.
+- **Existing groups:** unevaluated child-scope assignments/exemptions remain a real coverage gap. Report missing
+  scope/capability or incomplete collection explicitly; never apply the planned-group exception to existing targets.
+- **Unknown lifecycle or mixed scope:** ask only the missing applicable scope facts. Separate planned groups
+  from existing targets; do not assume greenfield means every target is absent.
+- **Policy applicability:** retain inherited restrictions, `notScopes`, selectors and scoped exemptions.
+  Resolve names/locations/tags in Planner and assess intended-scope applicability when those inputs exist.
+  Do not claim nonexistent targets have been queried, assume all future child scopes are unrestricted, or
+  treat a subscription-only collector re-run as proof of child-scope coverage.
+- **Freshness:** TTL expiry and actual policy/scope changes are separate refresh triggers. A still-planned group
+  is not an expired snapshot; a decided name alone does not require repeating unchanged subscription discovery.
+  Real drift, newly existing targets or changed applicable policy require current scoped evidence even inside TTL.
+- **Deployment:** preserve live policy precheck and the approved preview/plan gates for intended scopes.
+  If a check requires an existing group, schedule it after approved group creation and before affected workload
+  operations. Do not shift that prerequisite back to Step 3.5/4 or waive it because creation is a deployment action.
+
+These distinctions do not authorize resource-group creation, change Azure, waive real policy conflicts,
+relax snapshot freshness or authorize additional reviewer invocations.
+
+### Review and question presentation
+
+Use current review IDs and severities for review-disposition questions. An owner-authored annotation may
+have an old `should-fix` label while the independent review identifies that label as overstated and records
+only a suggestion. Show both facts accurately; do not promote that suggestion or old annotation into another
+mandatory Accept/Reject/Defer/Edit field. Prior captured scope answers already settle planned nonexistence.
+
+Keep actual actionable review findings and genuinely unresolved material policy decisions separate.
+Do not silently edit historical findings, lower their severity, rewrite reviewed artifacts or restamp hashes.
+If an artifact correction is requested, preserve the normal freshness/ownership/one-pass rules; source guidance
+does not itself repair existing evidence or grant permission to rerun a spent review.
+
 ## When this rule fires
 
 All of the following must hold:

@@ -58,3 +58,9 @@ against).
 For TTL expiry or signature drift, bypass baseline selection and cached reuse;
 go directly to Phase 1 with `discover.py --refresh`, even without an explicit
 user refresh request. Obtain new confirmations against the fresh snapshot.
+
+TTL expiry does not erase the captured project fact that resource groups are planned, nor require
+them to exist before planning. Revalidate policy-bound confirmations, not already settled lifecycle
+answers, unless actual scope changes. Nonexistence alone is not a refresh trigger.
+Follow [resource-group lifecycle](reconciliation-disposition.md#resource-group-lifecycle); existing targets
+with missing child-scope evidence are not covered by this distinction.

@@ -47,6 +47,17 @@ Full schema reference:
 
 ## L3 precheck routing matrix (Step 5.6)
 
+### Planned resource groups
+
+Follow the [resource-group lifecycle](../../apex-azure-governance-discovery/references/reconciliation-disposition.md#resource-group-lifecycle).
+Groups created by the approved deployment need not exist during Governance, planning or CodeGen.
+Apply current inherited constraints and the approved preview/precheck to intended scopes. When a
+specific check needs an existing target, schedule it after separately approved group creation and
+before affected workload operations; do not demand premature creation or call the earlier snapshot expired.
+Existing target groups still require current child-scope evidence. Missing permission/coverage, policy drift,
+TTL expiry and genuine Deny conflicts retain their blocking rules. This guidance creates no resources,
+adds no deployment approval and does not make a subscription-only collection attest child scopes.
+
 Cross-reference with
 [`governance-drift-routing.md`](governance-drift-routing.md) (L3 rows)
 for the full handoff destinations.

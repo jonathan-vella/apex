@@ -106,6 +106,11 @@ Inspect `discovery_metadata` before planning: COMPLETE status, scope, API/traver
 signature, valid exemptions and TTL. Missing/stale/partial evidence blocks under the
 [drift matrix](../skills/apex-iac-common/references/governance-drift-routing.md), not a legacy status string.
 Persist the validated `discovery_signature` for downstream cross-checks.
+Apply the [resource-group lifecycle](../skills/apex-azure-governance-discovery/references/reconciliation-disposition.md#resource-group-lifecycle):
+planned groups may remain nonexistent throughout planning and CodeGen. Resolve their names, locations and tags
+from approved inputs; check inherited policy applicability for the intended scopes without creating groups.
+Require actual child-scope evidence for existing targets. Keep TTL/policy changes and deployment checks separate
+from the planned lifecycle; do not send a valid plan back to Governance merely to wait for group creation.
 Extract all Deny constraints and Modify/DINE ownership using the
 [policy effect decision tree](../skills/apex-azure-defaults/references/policy-effect-decision-tree.md).
 Deny blocks; Audit warns; verified DINE ownership avoids duplicate DNS deployment, not DNS itself.
