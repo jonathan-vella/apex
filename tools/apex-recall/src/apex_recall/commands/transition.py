@@ -124,6 +124,10 @@ def run(args) -> int:  # noqa: C901 — one CLI dispatcher, branchy by design
             return report_residue(project, residue, as_json)
 
     try:
+        if complete:
+            from ..practical import check_views
+
+            check_views(project, data, from_step)
         governance_review, selection = _select_replacement_review(project, from_step, args, data)
         explicit_selection = any(
             getattr(args, name, None) is not None
@@ -262,6 +266,10 @@ def run(args) -> int:  # noqa: C901 — one CLI dispatcher, branchy by design
     from_data = data["steps"].get(from_step, {})
     if complete:
         from_data["status"] = "complete"
+        from ..practical import enabled
+
+        if enabled(data):
+            from_data["completed_environments"] = data["decisions"]["phase_scopes"][from_step]["environments"]
         from_data["completed"] = from_data.get("completed") or now
         from_data["sub_step"] = None
         if blocked and allow_missing:

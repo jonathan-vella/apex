@@ -217,6 +217,14 @@ def record_authorization(data: dict, result: dict | None, now: str) -> None:
 def check_entry(
     project: str, data: StateDocument, step: str, args: object, *, completing_code: bool = False
 ) -> dict | None:
+    from .practical import action_readiness, enabled
+
+    if enabled(data):
+        scope = data.get("decisions", {}).get("phase_scopes", {}).get(step)
+        if scope:
+            ordinary = action_readiness(data, ENTRY_ACTIONS.get(step, f"step-{step}-complete"), scope["environments"])
+            if ordinary["status"] == "blocked":
+                raise ValueError(f"Requested environment action is blocked: {ordinary['holds']}")
     action = ENTRY_ACTIONS.get(step)
     if not action:
         return None

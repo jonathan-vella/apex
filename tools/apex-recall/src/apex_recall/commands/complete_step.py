@@ -69,7 +69,9 @@ def _review_paths(project: str, step: str, governance_review: Path | None = None
             stem = gate[1].removesuffix(".json")
             gates[0] = (gate[0], f"{stem}-pass1.json")
             complexity = decisions.get("complexity", "")
-            max_passes = 3 if (step == "2" and complexity == "complex") else (2 if complexity in ("standard", "complex") else 1)
+            max_passes = (
+                3 if (step == "2" and complexity == "complex") else (2 if complexity in ("standard", "complex") else 1)
+            )
             for pass_num in range(2, max_passes + 1):
                 extra_sidecar = f"{stem}-pass{pass_num}.json"
                 if (project_dir / extra_sidecar).is_file():
@@ -79,6 +81,9 @@ def _review_paths(project: str, step: str, governance_review: Path | None = None
     if step in ("3_5", "4") and governance_review is not None:
         return [(project_dir / gate[0], governance_review)]
     produced = any((project_dir / gating_name).is_file() for gating_name, _ in gates)
+    from ..practical import cycle_paths
+
+    gates = cycle_paths(read_state(session_state_path(project)), step, gates)
     return [
         (project_dir / gating_name, project_dir / sidecar_name)
         for gating_name, sidecar_name in gates
@@ -166,6 +171,14 @@ def _challenger_findings_invalid(
                 return f"{sidecar}: required pass-{expected_pass} review is invalid"
             if document.get("overall_assessment") in ("BLOCKED", "FAILED"):
                 return f"{sidecar}: reviewer reported blocked/failed"
+            from ..practical import enabled
+
+            if (
+                not allow_unresolved
+                and enabled(read_state(session_state_path(project)))
+                and review_verdict(document) == "NEEDS_REVISION"
+            ):
+                return f"{sidecar}: current practical review requires revision; disposition is not closure"
             if not allow_unresolved and (
                 document.get("must_fix_count") != 0
                 or any(
@@ -376,6 +389,9 @@ def run(args) -> int:
             return report_residue(project, residue, as_json)
 
     try:
+        from ..practical import check_views
+
+        check_views(project, data, step)
         governance_review, selection = _select_replacement_review(project, step, args, data)
         watch_review_inputs(data, project, step, governance_review)
         if selection and data.input_revisions[governance_review] != selection["stored"]["sha256"]:
@@ -475,6 +491,10 @@ def run(args) -> int:
     step_data["status"] = "complete"
     step_data["completed"] = step_data.get("completed") or now
     step_data["sub_step"] = None
+    from ..practical import enabled
+
+    if enabled(data):
+        step_data["completed_environments"] = data["decisions"]["phase_scopes"][step]["environments"]
     data["steps"][step] = step_data
 
     if blocked and allow_missing:

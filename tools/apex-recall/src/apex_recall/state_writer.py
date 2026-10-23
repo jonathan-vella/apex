@@ -244,6 +244,9 @@ def validate_state(data: dict) -> None:
     if any(step not in VALID_STEP_KEYS or not isinstance(value, dict) for step, value in data.get("steps", {}).items()):
         raise ValueError("State recovery required: invalid step entry")
     attempts = data.get("review_attempts", [])
+    from .practical import validate_state as validate_practical_state
+
+    validate_practical_state(data)
     if not isinstance(attempts, list) or any(
         not isinstance(attempt, dict)
         or attempt.get("schema_version") != "review-attempt-v1"

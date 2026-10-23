@@ -73,6 +73,16 @@ If a Phase A change ships and a downstream consumer fails:
 
 ## Version history
 
+### Migration: 2.x to 3.0
+
+Version 3 adds preliminary policy feasibility and the `practical-v1` decision/correction
+contract. Readers accept known 2.x and 3.0 graphs during migration; unknown versions fail.
+Existing projects without `decisions.workflow_contract` remain legacy. New project defaults
+do not reinterpret old approvals, attempts, scopes or risk authorizations.
+Use the explicit recall adoption dry-run/write path, not an automatic state rewrite.
+Rollback uses a reader supporting both contracts; reverting only the graph does not roll
+back project state or turn adopted projects into legacy. Preserve historical evidence.
+
 | Version | Date       | Change                                                                                                             |
 | ------- | ---------- | ------------------------------------------------------------------------------------------------------------------ |
 | 2.1     | (initial)  | Original schema with `nodes`, `edges`, per-node `challenger`, `metadata.version`.                                  |

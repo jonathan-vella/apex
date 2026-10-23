@@ -244,6 +244,31 @@ def run(args) -> int:
                         except (OSError, ValueError) as error:
                             readiness[action] = {"status": "blocked", "error": str(error)}
                 session["gate_readiness"] = readiness
+                from ..practical import check_views, enabled, material_inputs
+
+                if enabled(data):
+                    session["workflow_contract"] = data["decisions"]["workflow_contract"]
+                    session["material_inputs"] = material_inputs(data)
+                    session["assessment_readiness"] = {}
+                    from ..practical import action_readiness, check_feasibility
+
+                    session["environment_readiness"] = {
+                        environment: {
+                            action: action_readiness(data, action, [environment])
+                            for action in ("plan-complete", "code-complete", "deploy")
+                        }
+                        for environment in ("dev", "test", "staging", "prod", "sandbox")
+                    }
+                    try:
+                        session["policy_feasibility"] = {"status": check_feasibility(project, data)}
+                    except (OSError, ValueError) as error:
+                        session["policy_feasibility"] = {"status": "blocked", "error": str(error)}
+                    for step in data["decisions"].get("phase_scopes", {}):
+                        try:
+                            check_views(project, data, step)
+                            session["assessment_readiness"][step] = {"status": "current"}
+                        except (OSError, ValueError) as error:
+                            session["assessment_readiness"][step] = {"status": "blocked", "error": str(error)}
                 check_state_revision(data, primary)
 
         # Get all artifacts for this project

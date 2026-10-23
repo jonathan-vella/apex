@@ -203,6 +203,125 @@ test("manual Step 6 deployment-preview requests pass preflight and final recordi
   assert.equal(f.persisted().artifact_type, "deployment-preview");
 });
 
+test("editorial compatibility preserves provenance but never accepts changed material inputs", (t) => {
+  const f = fixture(t);
+  f.record();
+  const original = f.persisted();
+  const guidance = ".github/skills/apex-azure-defaults/references/adversarial-review-protocol.md";
+  f.write(guidance, "Protocol\nEditorial clarification\n");
+  assert.match(validateReview(original, { root: f.root, verifyCurrent: true }).join("\n"), /protocol_sha/);
+  const next = cacheInputs(artifact, f.root, STRUCTURED_REVIEWER);
+  const fields = ["checklists_sha", "protocol_sha", "reviewer_contract_sha", "reviewer_definition_sha"];
+  const snapshot = (cache) => Object.fromEntries(fields.map((key) => [key, cache[key] ?? null]));
+  f.write(
+    "tools/registry/review-contract.json",
+    JSON.stringify({
+      contract: "review-v1",
+      editorial_compatibility: [
+        {
+          classification: "editorial",
+          rationale: "Synthetic repository-reviewed editorial mapping",
+          from: snapshot(original.cache_inputs),
+          to: snapshot(next),
+        },
+      ],
+    }),
+  );
+  const bytes = fs.readFileSync(path.join(f.root, output), "utf8");
+  assert.deepEqual(validateReview(original, { root: f.root, verifyCurrent: true }), []);
+  assert.equal(fs.readFileSync(path.join(f.root, output), "utf8"), bytes);
+  f.write(artifact, "Materially changed requirement");
+  assert.match(validateReview(original, { root: f.root, verifyCurrent: true }).join("\n"), /artifact_sha/);
+});
+
+test("practical initial and closure evidence complete a scoped stage without a third review", (t) => {
+  const f = fixture(t);
+  const repo = path.resolve(fileURLToPath(new URL("../../../", import.meta.url)));
+  fs.symlinkSync(path.join(repo, "tools"), path.join(f.root, "tools"));
+  const recall = (...args) => {
+    const result = spawnSync("python3", ["-m", "apex_recall", ...args], {
+      cwd: f.root,
+      encoding: "utf8",
+      env: { ...process.env, APEX_ROOT: f.root, PYTHONPATH: path.join(repo, "tools/apex-recall/src") },
+    });
+    assert.equal(result.status, 0, result.stdout + result.stderr);
+    return JSON.parse(result.stdout);
+  };
+  recall("init", "example", "--json");
+  recall("decide", "example", "--adopt-workflow", "practical-v1", "--rationale", "Synthetic owner opt-in", "--json");
+  f.write(
+    "input.json",
+    JSON.stringify({
+      input_id: "scope",
+      value: "Synthetic DEV scope; production not authorized",
+      environments: ["dev"],
+      owner: "synthetic-owner",
+      request_id: "synthetic-owner-input",
+    }),
+  );
+  recall("decide", "example", "--input-record", path.join(f.root, "input.json"), "--json");
+  f.write(
+    "scope.json",
+    JSON.stringify({
+      input_ids: ["scope"],
+      environments: ["dev"],
+      request_id: "synthetic-phase-approval",
+    }),
+  );
+  recall("decide", "example", "--phase-scope", path.join(f.root, "scope.json"), "--step", "1", "--json");
+  recall("checkpoint", "example", "1", "finalize", "--sync-assessment", "--json");
+  f.input.step = "1";
+  f.input.supporting_inputs = [
+    {
+      path: "agent-output/example/assessment-step-1.json",
+      sha256: hash(fs.readFileSync(path.join(f.root, "agent-output/example/assessment-step-1.json"))),
+    },
+  ];
+  f.doc.supporting_inputs = structuredClone(f.input.supporting_inputs);
+  const requestFile = path.join(f.root, "request.json");
+  const audit = (outcome, ...extra) => {
+    f.write("request.json", JSON.stringify(f.input));
+    return recall(
+      "review-audit",
+      "example",
+      "1",
+      "--attempt-kind",
+      "invocation",
+      "--review-request",
+      requestFile,
+      "--attempt-outcome",
+      outcome,
+      ...extra,
+      "--json",
+    );
+  };
+  audit("started");
+  f.record();
+  audit("completed", "--review-result", path.join(f.root, output));
+  const original = fs.readFileSync(path.join(f.root, output), "utf8");
+  f.write(artifact, "# Requirements\nSynthetic routine correction, unchanged material scope\n");
+  const closure = "agent-output/example/challenge-findings-requirements-closure.json";
+  f.input.request_id = "request-2";
+  f.input.output_path = closure;
+  f.input.prior_findings = [];
+  f.input.cache_inputs = cacheInputs(artifact, f.root, STRUCTURED_REVIEWER);
+  f.doc.cache_inputs = structuredClone(f.input.cache_inputs);
+  f.options.output = closure;
+  audit("started", "--closure-of", "request-1");
+  f.record();
+  audit("completed", "--closure-of", "request-1", "--review-result", path.join(f.root, closure));
+  const completed = recall("complete-step", "example", "1", "--json");
+  assert.equal(completed.status, "complete");
+  const shown = recall("show", "example", "--json");
+  assert.deepEqual(shown.session.steps["1"].completed_environments, ["dev"]);
+  assert.equal(shown.session.effective_reviews["1"].status, "current");
+  assert.equal(fs.readFileSync(path.join(f.root, output), "utf8"), original);
+  const cycles = Object.values(shown.session.decisions.review_cycles);
+  assert.equal(cycles.length, 1);
+  assert.equal(cycles[0].calls, 2);
+  assert.equal(cycles[0].current_path, path.basename(closure));
+});
+
 function addReadTurns(f, count = 7) {
   const response = f.events.find((event) => event.type === "assistant.message");
   const attribution = response.data;

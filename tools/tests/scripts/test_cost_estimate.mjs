@@ -9,6 +9,7 @@ import { fileURLToPath } from "node:url";
 import { createAjv } from "../../scripts/_lib/ajv-validator.mjs";
 import {
   calculateLineCost,
+  calculateScenarios,
   normalizeCostRequest,
   publishEstimate,
   resolveWorkspacePath,
@@ -20,6 +21,79 @@ import {
 const HERE = path.dirname(fileURLToPath(import.meta.url));
 const ROOT = path.resolve(HERE, "../../..");
 const SCRIPT = path.join(ROOT, "tools/scripts/cost-estimate.mjs");
+
+test("equivalent scenarios reuse retained calculation inputs without new price queries", (t) => {
+  const dir = fs.mkdtempSync(path.join(tmpdir(), "apex-scenarios-"));
+  t.after(() => fs.rmSync(dir, { recursive: true, force: true }));
+  const outputPath = path.join(dir, "estimate.json");
+  const draftPath = path.join(dir, "draft.json");
+  const now = new Date("2026-10-23T00:00:00Z");
+  const draft = {
+    status: "COMPLETE",
+    project_name: "synthetic",
+    region: "swedencentral",
+    currency: "USD",
+    resources: [
+      {
+        name: "synthetic-meter",
+        service_name: "Synthetic service",
+        sku: "Synthetic tier",
+        region: "swedencentral",
+        quantity: 1,
+        unit_of_measure: "1 GB",
+        retail_price: 1,
+        usage_amount: 10,
+        notes: "Synthetic arithmetic fixture, not a quoted Azure price",
+      },
+    ],
+    optimization_notes: [],
+    savings_status: "NOT_APPLICABLE",
+    savings_reason: "Synthetic fixture",
+    eligible_strategies: [],
+    data_source: "Azure MCP pricing_get",
+    queried_at: "2026-10-22T00:00:00Z",
+    confidence: "High",
+    unresolved_items: [],
+    mcp_calls_used: 1,
+    budget_exceeded: false,
+  };
+  fs.writeFileSync(draftPath, JSON.stringify(draft));
+  const { estimate } = publishEstimate({ draftPath, outputPath });
+  assert.ok(estimate.resources[0].calculation_basis);
+  const before = JSON.stringify(estimate);
+  const result = calculateScenarios(
+    estimate,
+    {
+      low: { "synthetic-meter": { usage_amount: 5 } },
+      expected: {},
+      growth: { "synthetic-meter": { usage_amount: 20, quantity: 2 } },
+    },
+    { now },
+  );
+  assert.equal(result.status, "COMPARISON_ONLY");
+  assert.equal(result.mcp_calls_used + result.direct_api_calls_used, 0);
+  assert.equal(result.scenarios.low.monthly_total, 5);
+  assert.equal(result.scenarios.expected.monthly_total, 10);
+  assert.equal(result.scenarios.growth.monthly_total, 40);
+  assert.equal(result.scenarios.growth.yearly_total, 480);
+  assert.equal(result.queried_at, estimate.queried_at);
+  assert.equal(JSON.stringify(estimate), before);
+  for (const change of [{ sku: "Unpriced" }, { region: "other" }, { usage_amount: null }]) {
+    assert.throws(() => calculateScenarios(estimate, { invalid: { "synthetic-meter": change } }, { now }));
+  }
+  assert.throws(() => calculateScenarios(estimate, { expected: {} }, { now: new Date("2027-01-01") }), /stale/);
+  const tampered = structuredClone(estimate);
+  tampered.resources[0].calculation_basis.retail_price = 2;
+  assert.throws(() => calculateScenarios(tampered, { expected: {} }, { now }), /basis differs/);
+  const componentQuantities = structuredClone(estimate);
+  componentQuantities.resources[0].calculation_basis.components = [
+    { quantity: 1, unit_of_measure: "1 GB", retail_price: 1, usage_amount: 10 },
+  ];
+  assert.throws(
+    () => calculateScenarios(componentQuantities, { growth: { "synthetic-meter": { quantity: 2 } } }, { now }),
+    /Component-specific quantities/,
+  );
+});
 
 function makeManifest(overrides = {}) {
   return {

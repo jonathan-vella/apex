@@ -35,7 +35,8 @@ pulling raw Azure REST responses into LLM context.
 - **Use compact status for routing**, then targeted envelope reads for decisions; recover all required evidence and diagnostics
 - **Schema compliance is mandatory** — envelope MUST conform to `tools/schemas/governance-constraints.schema.json` (`schema_version: governance-constraints-v1`)
 - **Property paths are always strings** — use `""` for unresolvable paths, never `null`
-- **Defender filtering is narrow** — the collector retains enforcement-bearing assignments; `--include-defender-auto` retains all
+- **Full assignment coverage is the default** — Defender auto-assignments remain in collection and classification.
+  Legacy `--exclude-defender-auto` is explicit filtered coverage, never equivalent full evidence.
 - **Exit codes are contract** — `0` = COMPLETE, `1` = PARTIAL, `2` = FAILED; argparse errors also return nonzero. COMPLETE is collection status, not planning approval
 - **No artifact writing** — the script emits JSON + a `.preview.md`; the agent owns the final `04-governance-constraints.md` content and traffic-light rendering
 - **Never hand-edit the envelope** — a re-run overwrites additions and any edit breaks the recorded signature; put additions in owner-controlled artifacts
@@ -59,7 +60,9 @@ Flags:
 | `--subscription <id\|default>` | Optional. `default` uses `az account show`.                        |
 | `--arch <path>`                | Optional. Path to `02-architecture-assessment.md` for preview mapping. |
 | `--refresh`                    | Force re-discovery even if `<out>` already exists.                 |
-| `--include-defender-auto`      | Include Defender-for-Cloud auto-assignments (excluded by default). |
+| `--include-defender-auto`      | Include Defender auto-assignments (the default; retained for compatibility). |
+| `--exclude-defender-auto`      | Explicit legacy filtered coverage; cannot satisfy full-coverage feasibility. |
+| `--validate-only`              | Validate a saved full-coverage snapshot offline; requires explicit subscription. |
 | `--verbose`                    | Emit informational progress diagnostics to stderr.                 |
 
 Exit codes:

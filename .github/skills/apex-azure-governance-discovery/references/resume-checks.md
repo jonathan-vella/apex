@@ -2,6 +2,13 @@
 
 # Resume-Complete Short-Circuit (Step 3.5)
 
+For adopted practical projects, reuse the captured user preferences and target/read scope
+under the [practical contract](../../apex-workflow-engine/references/practical-workflow.md).
+Refresh expired policy evidence within existing read permission and reassess dependent facts;
+unchanged preferences are not a new question. New scope, changed policy consequences or
+unresolved extraction still require the appropriate evidence/decision. The legacy policy-bound
+confirmation rules below remain the compatibility behavior for non-adopted projects.
+
 Phase 0.4 of `04g-Governance` checks whether Step 3.5 is already complete
 before starting any discovery. Guards against cold-boot re-entry from
 subagent dispatch, resumed sessions, or challenger re-invocation where the

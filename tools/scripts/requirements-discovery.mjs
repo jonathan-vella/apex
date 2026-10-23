@@ -31,6 +31,16 @@ const patterns = [
 
 export const DISCOVERY_STAGES = ["business", "migration", "workload", "access"];
 
+export function answersFromRecall(view, environment) {
+  if (!view?.session?.material_inputs || !environment)
+    throw new Error("Actual scoped recall material inputs and environment required");
+  return Object.fromEntries(
+    Object.entries(view.session.material_inputs)
+      .filter(([, record]) => Array.isArray(record.environments) && record.environments.includes(environment))
+      .map(([key, record]) => [key, structuredClone(record.value)]),
+  );
+}
+
 export function buildDiscoveryForm(stage, answers = {}) {
   if (!DISCOVERY_STAGES.includes(stage)) throw new Error(`Unknown discovery stage: ${stage}`);
   if (!answers || typeof answers !== "object" || Array.isArray(answers)) {
@@ -398,13 +408,24 @@ export function runDiscovery(argv = process.argv.slice(2)) {
   }
   let stage;
   let answers = {};
+  let recallView;
+  let environment;
+  let answersProvided = false;
   for (let index = 0; index < argv.length; index += 2) {
     const value = argv[index + 1];
     if (!value) throw new Error(`Missing value for ${argv[index]}`);
     if (argv[index] === "--stage") stage = value;
-    else if (argv[index] === "--answers") answers = JSON.parse(fs.readFileSync(path.resolve(value), "utf8"));
+    else if (argv[index] === "--answers") {
+      answers = JSON.parse(fs.readFileSync(path.resolve(value), "utf8"));
+      answersProvided = true;
+    } else if (argv[index] === "--recall-view") recallView = JSON.parse(fs.readFileSync(path.resolve(value), "utf8"));
+    else if (argv[index] === "--environment") environment = value;
     else throw new Error(`Unknown option: ${argv[index]}`);
   }
+  if (recallView) {
+    if (answersProvided) throw new Error("Use captured answers or an authoritative recall view, not both");
+    answers = answersFromRecall(recallView, environment);
+  } else if (environment) throw new Error("--environment requires --recall-view");
   console.log(JSON.stringify(buildDiscoveryForm(stage, answers), null, 2));
   return 0;
 }

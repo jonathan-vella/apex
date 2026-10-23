@@ -4,9 +4,26 @@ import os from "node:os";
 import path from "node:path";
 import { spawnSync } from "node:child_process";
 import test from "node:test";
-import { buildDiscoveryForm, DISCOVERY_STAGES } from "../../scripts/requirements-discovery.mjs";
+import { buildDiscoveryForm, DISCOVERY_STAGES, answersFromRecall } from "../../scripts/requirements-discovery.mjs";
 
 const fields = (stage, answers) => buildDiscoveryForm(stage, answers).form?.requestedSchema.properties ?? {};
+
+test("practical discovery consumes actual scoped recall answers without asking them again", () => {
+  const view = {
+    session: {
+      material_inputs: {
+        industry: { value: "Nonprofit", environments: ["dev"] },
+        company_size: { value: "Small team", environments: ["dev", "prod"] },
+      },
+    },
+  };
+  const answers = answersFromRecall(view, "dev");
+  const form = buildDiscoveryForm("business", answers);
+  assert.ok(!("industry" in form.form.requestedSchema.properties));
+  assert.ok(!("company_size" in form.form.requestedSchema.properties));
+  assert.deepEqual(answersFromRecall(view, "prod"), { company_size: "Small team" });
+  assert.throws(() => answersFromRecall({}, "dev"), /Actual scoped/);
+});
 
 test("business discovery restores guided menus instead of bare text and duplicate other fields", () => {
   const questions = fields("business");
