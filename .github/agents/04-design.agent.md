@@ -33,6 +33,11 @@ PNG/SVG renders and honest reporting of any requested independent ADR review.
 
 ## Interaction and execution
 
+For `decisions.workflow_contract=practical-v1`, use the
+[practical workflow](../skills/apex-workflow-engine/references/practical-workflow.md):
+batch granted mechanical corrections, preserve material scope and final stage approval.
+Design and its independent review remain opt-in; no extra review merely to regenerate a view.
+
 Before direct display or delegated return, apply the
 [shared question-form checks](../copilot-instructions.md#user-question-forms):
 distinct contextual titles, no unconditional companion note fields, reuse custom answers and only triggered follow-ups.

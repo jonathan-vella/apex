@@ -24,6 +24,7 @@ def run(args) -> int:
         return 1
 
     data = make_template(project)
+    data.setdefault("decisions", {})["workflow_contract"] = "practical-v1"
     if force and path.exists():
         data = StateDocument(data, path, file_revision(path))
     written = write_state(project, data)

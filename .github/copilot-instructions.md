@@ -117,6 +117,12 @@ never complexity alone. Production handoffs and approval gates remain human-cont
 
 ## User Question Forms
 
+For explicitly adopted `practical-v1` projects, the
+[practical workflow](skills/apex-workflow-engine/references/practical-workflow.md)
+replaces administrative disposition questions with granted mechanical work and a change summary.
+Retain material decisions and final stage approvals. Legacy projects keep their existing contract
+until explicit migration; source maintenance does not rewrite their histories or allowances.
+
 Apply these checks to every agent producing a user-question form, for any workflow phase,
 before direct display or delegated return:
 

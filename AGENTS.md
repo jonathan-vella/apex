@@ -90,6 +90,12 @@ relevant validations before committing.
 
 ## Agent Workflow
 
+New recall projects use the [practical workflow](.github/skills/apex-workflow-engine/references/practical-workflow.md):
+existing stage approvals and independent lenses remain, with an initial and optional closure call
+per required artifact/lens inside actual granted scope. Legacy projects adopt explicitly; histories
+and exhausted allowances are never reset. Preliminary policy feasibility precedes final Architecture
+approval when read scope is available; it does not complete formal Governance.
+
 | Step | Phase        | Output                                                   | Review                                                    |
 | ---- | ------------ | -------------------------------------------------------- | --------------------------------------------------------- |
 | 1    | Requirements | `01-requirements.md` + `sku-manifest.{json,md}` (rev 1)  | 1× comprehensive (mandatory)                              |

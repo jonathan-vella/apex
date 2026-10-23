@@ -37,6 +37,11 @@ are real stopping points, not permission to fill gaps with defaults.
 
 ## Interaction and execution
 
+For `decisions.workflow_contract=practical-v1`, use the
+[practical workflow](../skills/apex-workflow-engine/references/practical-workflow.md):
+reuse authoritative material inputs, batch granted mechanical corrections and use the bounded
+initial/closure cycle. Legacy per-finding administrative acceptance rules do not apply.
+
 Before direct display or delegated return, apply the
 [shared question-form checks](../copilot-instructions.md#user-question-forms):
 distinct contextual titles, no unconditional companion note fields, reuse custom answers and only triggered follow-ups.

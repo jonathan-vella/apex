@@ -35,6 +35,11 @@ than repeating their production to satisfy an administrative phase boundary.
 
 ## Interaction
 
+For `decisions.workflow_contract=practical-v1`, follow the
+[practical workflow](../skills/apex-workflow-engine/references/practical-workflow.md).
+Retain stage approvals; batch granted mechanical repairs and ordinary closure verification.
+Legacy per-finding administrative questions and per-step ceiling snippets below apply only to legacy projects.
+
 Before direct display or delegated return, apply the
 [shared question-form checks](../copilot-instructions.md#user-question-forms):
 distinct contextual titles, no unconditional companion note fields, reuse custom answers and only triggered follow-ups.
@@ -113,6 +118,11 @@ Describe `apex-recall init` accurately as a filesystem/session-state write, not 
 Any template region is an unconfirmed fallback until the user supplies or confirms the actual requirement.
 
 ## Native delegation
+
+For practical projects after Gate 1, route an authorized preliminary policy-feasibility task to
+`04g-Governance` before final Architecture approval. Reuse captured target/read scope. This is
+collection only, not Step 3.5 completion or permission to change Azure. No target means provisional
+architecture, not production readiness. Reuse the current snapshot at formal Governance.
 
 Use actual native selection/calling context; if unavailable, report the role as unknown.
 Do not describe default-agent coordination as selected `01-Orchestrator` or use prose to acquire permissions.

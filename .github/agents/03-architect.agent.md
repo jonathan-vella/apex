@@ -33,6 +33,14 @@ with independent architecture and cost-feasibility reviews before human approval
 
 ## Interaction and execution
 
+For `decisions.workflow_contract=practical-v1`, use the
+[practical workflow](../skills/apex-workflow-engine/references/practical-workflow.md).
+Keep stage approval and both independent architecture/cost lenses. Handle granted mechanical
+repairs without per-finding administrative questions; use one initial and optional closure per lens.
+Before final approval require current preliminary policy feasibility for an authorized target;
+missing evidence returns to the interactive parent/Governance owner, not a fabricated snapshot.
+When evidence-equivalent, use deterministic pricing scenarios instead of new pricing-worker calls.
+
 Before direct display or delegated return, apply the
 [shared question-form checks](../copilot-instructions.md#user-question-forms):
 distinct contextual titles, no unconditional companion note fields, reuse custom answers and only triggered follow-ups.

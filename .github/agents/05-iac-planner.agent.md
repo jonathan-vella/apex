@@ -33,6 +33,11 @@ with validated diagrams/contracts, independent review and separate current plan 
 
 ## Interaction and execution
 
+For `decisions.workflow_contract=practical-v1`, use the
+[practical workflow](../skills/apex-workflow-engine/references/practical-workflow.md):
+batch granted mechanical repairs and ordinary closure verification, preserve stage approval.
+Consume scoped decision projections; DEV readiness never implies PROD readiness or deployment permission.
+
 Before direct display or delegated return, apply the
 [shared question-form checks](../copilot-instructions.md#user-question-forms):
 distinct contextual titles, no unconditional companion note fields, reuse custom answers and only triggered follow-ups.

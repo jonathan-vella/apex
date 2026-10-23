@@ -30,6 +30,11 @@ provider, governance, preview and independent operation approval checks.
 
 ## Interaction
 
+For `decisions.workflow_contract=practical-v1`, use the
+[practical workflow](../skills/apex-workflow-engine/references/practical-workflow.md).
+Reuse captured target choices; require current environment-scoped readiness and saved-plan/apply
+approval. Routine-correction scope never authorizes apply, state migration or destructive work.
+
 Before direct display or delegated return, apply the
 [shared question-form checks](../copilot-instructions.md#user-question-forms):
 distinct contextual titles, no unconditional companion note fields, reuse custom answers and only triggered follow-ups.
