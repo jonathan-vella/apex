@@ -14,6 +14,31 @@ repairs an index after a committed write; it is not a state rollback.
 
 ## Top-level shape
 
+### Practical project decisions and views
+
+New `init` projects use `decisions.workflow_contract: "practical-v1"`. Legacy absence
+keeps the old workflow. `decide --adopt-workflow practical-v1 --dry-run` reports the
+proposed adoption without writes; actual adoption requires explicit owner rationale.
+It preserves historical approvals and consumed attempts, never backfills them.
+
+`decide --input-record <JSON>` records a scoped material answer and append-only
+supersession history. `--phase-scope <JSON> --step <step>` records actual bounded
+phase scope; neither proves independent human authority or Azure permission.
+`checkpoint ... --sync-assessment` generates consumed-input views. `complete-step`
+and `transition --complete` reject stale/inconsistent views and concurrent edits.
+Completed practical steps expose `completed_environments`; it is not an all-environment approval.
+
+`show.session.material_inputs`, `assessment_readiness`, `environment_readiness`
+and `policy_feasibility` distinguish current decisions, views, scoped holds and
+preliminary discovery. A no-target provisional architecture is not tenant-verified.
+`review-audit --review-request <JSON>` derives identity/cycle from the exact preflighted
+request. Initial/closure attempts share a bounded lineage; `--closure-of` identifies
+the original. `--review-result` selects only an attributed current published result.
+An explicit `decide --review-extension <JSON>` appends a bounded increase without
+erasing consumed calls. Every actual dispatch, including empty/failed output, counts.
+See the [practical contract](../../../.github/skills/apex-workflow-engine/references/practical-workflow.md)
+for record shapes, commands, authority and migration examples.
+
 ```jsonc
 {
   "project": "<project-name>",

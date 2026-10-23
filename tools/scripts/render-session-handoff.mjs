@@ -52,7 +52,7 @@ export function renderHandoff(view, { owner, operation }) {
     Object.entries(session.steps).map(([step, value]) =>
       value.status === "stale"
         ? `- Step ${inline(step)}: stale (${inline(value.stale_because || "an upstream step was reopened")}); redo after its predecessor.`
-        : `- Step ${inline(step)}: ${inline(value.status)}.`,
+        : `- Step ${inline(step)}: ${inline(value.status)}${value.completed_environments ? ` (${value.completed_environments.map(inline).join(", ")})` : ""}.`,
     ),
     ["iac_tool", "region", "deployment_strategy", "plan_status"]
       .filter((key) => session.decisions?.[key] !== undefined)
@@ -70,6 +70,14 @@ export function renderHandoff(view, { owner, operation }) {
       `- Requested next owner: ${inline(owner)}; this label is not native selection evidence.`,
       "- This handoff grants no new approval, review allowance, deployment permission or data-plane access.",
       "- Preserve frozen inputs and current reviews; incomplete evidence returns to its owner.",
+      ...Object.entries(session.environment_readiness || {}).flatMap(([environment, actions]) =>
+        Object.entries(actions)
+          .filter(([, result]) => result.status === "blocked")
+          .map(
+            ([action, result]) =>
+              `- ${inline(environment)} ${inline(action)} held: ${result.holds.map((hold) => `${inline(hold.owner)}: ${inline(hold.release_condition)}`).join("; ")}.`,
+          ),
+      ),
       ...(readiness?.status === "exception-authorized"
         ? [
             `- ${action}: exception-authorized only for ${inline(readiness.scope.kind)} / ${inline(readiness.scope.environment)}; review verdict unchanged.`,

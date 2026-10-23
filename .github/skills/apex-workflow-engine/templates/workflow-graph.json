@@ -2,6 +2,17 @@
   "$schema": "../../../../tools/schemas/workflow-graph.schema.json",
   "description": "Multi-step Azure infrastructure workflow DAG with Bicep and Terraform tracks (governance as Step 3.5)",
   "nodes": {
+    "policy-feasibility": {
+      "id": "policy-feasibility",
+      "type": "validation",
+      "name": "Preliminary policy feasibility",
+      "agent": "04g-Governance",
+      "requires": ["gate-1"],
+      "condition": { "field": "decisions.workflow_contract", "equals": "practical-v1" },
+      "produces": ["04-policy-feasibility.json"],
+      "optional": true,
+      "description": "Governance-owned collection before final Architecture approval when target/read scope is authorized. No target is explicitly provisional. Does not complete Step 3.5 or grant Azure writes."
+    },
     "step-1": {
       "id": "step-1",
       "type": "agent-step",
@@ -323,6 +334,8 @@
   "edges": [
     { "from": "step-1", "to": "gate-1", "condition": "on_complete" },
     { "from": "gate-1", "to": "step-2", "condition": "on_complete" },
+    { "from": "gate-1", "to": "policy-feasibility", "condition": "on_complete" },
+    { "from": "policy-feasibility", "to": "step-2", "condition": "on_complete" },
     { "from": "step-2", "to": "gate-2", "condition": "on_complete" },
     { "from": "gate-2", "to": "step-3", "condition": "on_complete" },
     { "from": "gate-2", "to": "step-3_5", "condition": "on_complete" },
@@ -469,7 +482,17 @@
       "handoffs": "No active agent UI handoff metadata. ui_label_pattern remains historical fixture compatibility only.",
       "permissions": "Graph edges, names and tool lists do not prove runtime enforcement or credential isolation"
     },
-    "version": "2.5",
+    "version": "3.0",
+    "practical_workflow": {
+      "contract": "practical-v1",
+      "new_projects_only": true,
+      "initial_calls_per_artifact_lens": 1,
+      "closure_calls_per_artifact_lens": 1,
+      "retain_stage_approvals": true,
+      "migration": "explicit-owner-adoption",
+      "authority": "recall decisions and original domain evidence",
+      "reference": "../references/practical-workflow.md"
+    },
     "risk_acceptance": {
       "contract": "risk-authorization-v1",
       "eligibility": "non-production-lab",

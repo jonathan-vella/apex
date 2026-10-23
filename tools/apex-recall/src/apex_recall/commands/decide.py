@@ -5,6 +5,7 @@ from __future__ import annotations
 import json
 import sys
 
+from ..practical import CONTRACT, adoption_report, grant_phase, record_input
 from ..state_writer import (
     _iso_now,
     migrate_to_v3,
@@ -22,6 +23,52 @@ def run(args) -> int:
     decision_text = getattr(args, "decision", None)
     rationale = getattr(args, "rationale", None)
     step = getattr(args, "step", None)
+    special = [
+        getattr(args, option, None) for option in ("input_record", "phase_scope", "adopt_workflow", "review_extension")
+    ]
+    if any(value is not None for value in special):
+        if (
+            sum(value is not None for value in special) != 1
+            or key is not None
+            or value is not None
+            or decision_text is not None
+        ):
+            raise ValueError("Use exactly one structured decision mode")
+        path = session_state_path(project)
+        data = read_state(path)
+        if special[2] is not None:
+            report = adoption_report(data)
+            if getattr(args, "dry_run", False):
+                print(json.dumps(report))
+                return 0
+            if not rationale or not rationale.strip():
+                raise ValueError("Explicit owner adoption rationale required; dry-run grants nothing")
+            if not report["already_adopted"]:
+                data.setdefault("decisions", {})["workflow_contract"] = CONTRACT
+                data.setdefault("decision_log", []).append(
+                    {
+                        "decision": "Adopt practical workflow without resetting history or allowance",
+                        "rationale": rationale,
+                        "timestamp": _iso_now(),
+                    }
+                )
+        elif getattr(args, "dry_run", False):
+            raise ValueError("--dry-run is supported only for adoption")
+        elif special[0] is not None:
+            record_input(data, json.loads(special[0].read_text(encoding="utf-8")))
+        elif special[1] is not None:
+            if step not in ("1", "2", "3", "3_5", "4", "5", "6", "7"):
+                raise ValueError("A valid --step is required")
+            grant_phase(data, step, json.loads(special[1].read_text(encoding="utf-8")))
+        else:
+            from ..practical import extend_cycle
+
+            extend_cycle(data, json.loads(special[3].read_text(encoding="utf-8")))
+        write_state(project, data)
+        print(json.dumps({"project": project, "outcome": "recorded", "permission_granted": False}))
+        return 0
+    if getattr(args, "dry_run", False):
+        raise ValueError("--dry-run requires --adopt-workflow")
 
     # Validate: must provide exactly one mode
     has_kv = key is not None

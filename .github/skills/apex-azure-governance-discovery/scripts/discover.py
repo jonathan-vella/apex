@@ -732,7 +732,7 @@ def discover(
     subscription_id: str,
     *,
     project: str,
-    include_defender_auto: bool = False,
+    include_defender_auto: bool = True,
     az_rest: Callable[[str], dict[str, Any]] | None = None,
     verbose: bool = False,
 ) -> dict[str, Any]:
@@ -1129,6 +1129,7 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("--out", required=True)
     parser.add_argument("--subscription", default="default")
     parser.add_argument("--refresh", action="store_true")
+    parser.add_argument("--validate-only", action="store_true", help="Validate the exact saved full-coverage snapshot offline")
     parser.add_argument(
         "--arch",
         default=None,
@@ -1137,8 +1138,11 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument(
         "--include-defender-auto",
         action="store_true",
-        help="Retain Defender-for-Cloud auto-assignments (filtered by default).",
+        default=True,
+        help="Retain Defender-for-Cloud auto-assignments (the full-coverage default).",
     )
+    parser.add_argument("--exclude-defender-auto", dest="include_defender_auto", action="store_false",
+                        help="Legacy filtered coverage; never equivalent to full collection")
     parser.add_argument(
         "--verbose",
         action="store_true",
@@ -1148,6 +1152,21 @@ def main(argv: list[str] | None = None) -> int:
     args = parser.parse_args(argv)
 
     out_path = Path(args.out)
+    if args.validate_only:
+        cached = json.loads(out_path.read_text(encoding="utf-8"))
+        valid = (
+            args.subscription != "default"
+            and cached.get("project") == args.project
+            and cached.get("subscription_id", "").lower() == args.subscription.lower()
+            and cached.get("schema_version") == "governance-constraints-v1"
+            and cached.get("discovery_status") == "COMPLETE"
+            and cached.get("discovery_options") == {"include_defender_auto": True}
+            and _cache_is_fresh(cached)
+            and cached.get("discovery_metadata", {}).get("scope", {}).get("subscription_id", "").lower() == args.subscription.lower()
+            and cached.get("discovery_metadata", {}).get("completeness_signature") == _completeness_signature(cached.get("findings", []))
+        )
+        _emit_status({"status": "CURRENT" if valid else "INVALID", "read_only": True})
+        return 0 if valid else 1
 
     try:
         sub_id = _default_get_subscription() if args.subscription == "default" else args.subscription

@@ -131,6 +131,13 @@ def run(args) -> int:
         check_state_revision(data, path)
         print(json.dumps(result))
         return 0
+    from ..practical import prepare_cycle, select_cycle_result
+
+    prepared = (
+        prepare_cycle(project, data, args)
+        if getattr(args, "attempt_id", None) or getattr(args, "review_request", None)
+        else None
+    )
     attempt_id = getattr(args, "attempt_id", None)
     review_output = getattr(args, "review_output", None)
     attempt_options = [
@@ -196,6 +203,7 @@ def run(args) -> int:
                 raise ValueError("Identical-input retry already recorded; allowance cannot reset")
         elif retry_of is not None:
             raise ValueError("retry-of is only valid for empty-output-retry attempts")
+        select_cycle_result(project, data, args, prepared)
         attempts.append(
             {
                 "schema_version": "review-attempt-v1",
@@ -207,6 +215,7 @@ def run(args) -> int:
                 **({"review_output": review_output} if review_output is not None else {}),
                 "retry_of": retry_of,
                 "recorded_at": _iso_now(),
+                **({"cycle_id": prepared["key"]} if prepared else {}),
             }
         )
         write_state(project, data)
