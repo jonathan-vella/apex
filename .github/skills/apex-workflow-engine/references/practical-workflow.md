@@ -138,6 +138,14 @@ For closure supply `--closure-of <initial-request-id>` and a separate output pat
 preserving the original review. Empty-output retry eligibility remains separate.
 The CLI selects only validated current cycle evidence, not the newest-looking file.
 
+Recording a returned review is not another reviewer dispatch. Native parent task records
+may arrive after the worker completes; the recorder joins them by identity and uses its
+existing bounded flush wait. A recording failure does not authorize a rerun or bypass.
+If publication failed, retry recording the same attributed result once evidence is available,
+then select it with the completed attempt's `--review-result`; do not add another start,
+reset calls, refresh metadata or edit logs. If publication already succeeded, validate and
+select that existing sidecar instead of overwriting it. Missing or conflicting evidence still blocks.
+
 A further owner-approved `decide --review-extension <extension.json>` names `cycle_id`,
 the new absolute `max_calls`, the current `projection_sha256` and actual approval
 `request_id`. It appends history and cannot disguise spent calls.

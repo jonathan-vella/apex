@@ -145,14 +145,40 @@ function normalizeReviewDoc(doc, input, root) {
     }
   }
 }
+function matchesRequest(prompt, requestId) {
+  return (
+    typeof prompt === "string" &&
+    prompt.startsWith("APEX_REVIEW\n") &&
+    JSON.parse(prompt.slice("APEX_REVIEW\n".length)).request_id === requestId
+  );
+}
+
 function resolveReviewer(events, requestId) {
   const dispatches = events.filter((event) => {
     if (event.type !== "tool.execution_start" || event.data?.toolName !== "task") return false;
     const args = event.data.arguments;
-    if (!isRecordedReviewer(args?.agent_type) || !args.prompt?.startsWith("APEX_REVIEW\n")) return false;
-    const input = JSON.parse(args.prompt.slice("APEX_REVIEW\n".length));
-    return input.request_id === requestId;
+    return isRecordedReviewer(args?.agent_type) && matchesRequest(args.prompt, requestId);
   });
+  if (dispatches.length === 0) {
+    const requests = events.filter(
+      (event) => event.type === "user.message" && matchesRequest(event.data?.content, requestId),
+    );
+    const starts = events.filter(
+      (event) =>
+        event.type === "subagent.started" &&
+        isRecordedReviewer(event.data?.agentName) &&
+        event.data?.executionMode === "sync" &&
+        event.data?.resumable === false &&
+        nonempty(event.agentId) &&
+        nonempty(event.data?.toolCallId) &&
+        requests.some((request) => request.agentId === event.agentId),
+    );
+    requireEvidence(
+      requests.length === 1 && starts.length === 1,
+      "Request ID must identify exactly one review dispatch in --events",
+    );
+    return { workerId: starts[0].agentId, parentId: starts[0].data.parentId ?? "root" };
+  }
   requireEvidence(dispatches.length === 1, "Request ID must identify exactly one review dispatch in --events");
   const dispatch = dispatches[0];
   const starts = events.filter(
@@ -298,8 +324,8 @@ export function extractReview(events, workerId, parentId) {
       ),
     "Worker interaction lacks exact linked identity or final response",
   );
+  // Parent task records can be flushed after the complete worker stream.
   const ordered = [
-    dispatch,
     start,
     configured,
     user,
@@ -575,18 +601,22 @@ function checkReview(input, doc, root) {
 
 function loadEventsWithFlushWait(eventsPath, workerId) {
   let events = parseEvents(eventsPath);
-  const hasLiveSyncStart = events.some(
+  const start = events.find(
     (event) =>
       event.agentId === workerId &&
       event.type === "subagent.started" &&
       event.data?.executionMode === "sync" &&
-      event.data?.resumable === false,
+      event.data?.resumable === false &&
+      nonempty(event.data?.toolCallId),
   );
-  if (!hasLiveSyncStart) return events;
+  if (!start) return events;
   const sleepBuf = new Int32Array(new SharedArrayBuffer(4));
   const deadline = Date.now() + 25_000;
   while (
-    !events.some((event) => event.agentId === workerId && event.type === "subagent.completed") &&
+    (!events.some((event) => event.agentId === workerId && event.type === "subagent.completed") ||
+      !["tool.execution_start", "tool.execution_complete"].every((type) =>
+        events.some((event) => event.type === type && event.data?.toolCallId === start.data.toolCallId),
+      )) &&
     Date.now() < deadline
   ) {
     Atomics.wait(sleepBuf, 0, 0, 500);
@@ -618,7 +648,15 @@ export function recordReview({
     parentId = resolved.parentId;
   }
   requireEvidence(nonempty(workerId) && nonempty(parentId), "Supply --request-id or both --worker-id and --parent-id");
-  const { input, doc, execution } = extractReview(loadEventsWithFlushWait(eventsPath, workerId), workerId, parentId);
+  const ready = loadEventsWithFlushWait(eventsPath, workerId);
+  if (requestId !== undefined) {
+    const resolved = resolveReviewer(ready, requestId);
+    requireEvidence(
+      resolved.workerId === workerId && resolved.parentId === parentId,
+      "Review identity changed while waiting for native records",
+    );
+  }
+  const { input, doc, execution } = extractReview(ready, workerId, parentId);
   requireEvidence(
     execution.reviewer === STRUCTURED_REVIEWER,
     "New recordings require challenger-review-subagent; historical rubber-duck receipts are read-only compatibility",
