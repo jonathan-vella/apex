@@ -9,6 +9,16 @@ Use actual native selection/calling context for role identity; when unavailable,
 A default coordinating chat, role name in prose or loaded skill is not selected `01-Orchestrator`.
 Do not add a role attestation, model gate or synthetic readiness handshake.
 
+For an explicit start/resume, a missing role label alone is not a blocker when
+actual tools, calling constraints, scope and human approvals permit the requested coordination.
+Project `session.metadata` and generic `get_current_session`/session-list output are
+not role-selection evidence; do not query them to prove the active owner or persist a replacement role field.
+Do not dispatch a role-verification worker or repeat a selection question merely because those fields are absent.
+Report native identity as unknown without claiming that the user selected the wrong role.
+Loading a definition supplies workflow guidance, not native activation or broader permission.
+Known leaf/main restrictions, unavailable capabilities and missing approvals still apply.
+An explicit known incompatible role is a reason to request the appropriate owner, not to silently upgrade the caller.
+
 Select `01-Orchestrator` for end-to-end work only if that role is not already active.
 When it is already selected, continue the requested operation in the same conversation;
 do not ask the user to select it again, treat a loaded skill as missing role selection,

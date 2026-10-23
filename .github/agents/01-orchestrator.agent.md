@@ -126,6 +126,9 @@ architecture, not production readiness. Reuse the current snapshot at formal Gov
 
 Use actual native selection/calling context; if unavailable, report the role as unknown.
 Do not describe default-agent coordination as selected `01-Orchestrator` or use prose to acquire permissions.
+Missing role telemetry is not a workflow gate: continue otherwise-authorized coordination within this contract.
+Do not use project metadata or generic session tools to attest this role, or delegate a role-verification lookup.
+Preserve actual tool/role restrictions and human gates; absent telemetry is not evidence of a different active owner.
 Resolve the next domain owner from current `session.steps`, decisions and the
 [workflow graph](../skills/apex-workflow-engine/templates/workflow-graph.json),
 using [agent registry](../../tools/registry/agent-registry.json) paths.

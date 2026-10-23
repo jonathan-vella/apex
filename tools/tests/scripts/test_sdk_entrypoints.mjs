@@ -148,6 +148,31 @@ test("review owners preflight and record attempts without inventing root role se
   assert.match(entry, /historical step status/);
 });
 
+test("explicit resume does not turn absent role telemetry into another workflow gate", () => {
+  const entry = read(".github/skills/apex-workflow-engine/references/workflow-entry.md");
+  assert.match(entry, /missing role label alone is not a blocker/);
+  assert.ok(entry.includes("`session.metadata`"));
+  assert.ok(entry.includes("`get_current_session`"));
+  assert.match(entry, /not role-selection evidence/);
+  assert.match(entry, /Do not dispatch.*role-verification worker/);
+  assert.match(entry, /known incompatible role/);
+  assert.match(entry, /actual tools, calling constraints, scope and human approvals/);
+  assert.match(entry, /Loading a definition.*not native activation/);
+  for (const file of [
+    ".github/copilot-instructions.md",
+    ".github/agents/01-orchestrator.agent.md",
+    ".github/instructions/agent-operating-frame.instructions.md",
+  ]) {
+    const body = read(file);
+    assert.match(body, /role telemetry is not a workflow gate/, file);
+    assert.match(body, /(?:unknown|Unknown)/, file);
+  }
+  const orchestrator = parseFrontmatter(read(".github/agents/01-orchestrator.agent.md"));
+  assert.equal(orchestrator["disable-model-invocation"], true);
+  const architect = parseFrontmatter(read(".github/agents/03-architect.agent.md"));
+  assert.deepEqual(architect.agents, ["cost-estimate-subagent", "challenger-review-subagent"]);
+});
+
 test("graph runtime metadata is descriptive while domain owners remain actual main definitions", () => {
   const graph = JSON.parse(read(".github/skills/apex-workflow-engine/templates/workflow-graph.json"));
   for (const key of ["harness", "delegation", "interaction", "handoffs", "permissions"]) {
