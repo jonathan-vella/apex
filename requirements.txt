@@ -11,7 +11,7 @@ diagrams==0.25.1
 
 # Image processing (required by diagrams for PNG generation)
 matplotlib==3.11.2
-pillow==12.3.0
+pillow==13.0.0
 
 # Repository test and lint tooling
 pytest==9.1.1
