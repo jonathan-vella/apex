@@ -169,6 +169,9 @@ body explicitly points to one. There is one tier — no digest, no minimal.
   Project `session.metadata` and generic session-information tools are not role-selection evidence.
   Do not request repeated UI selection or dispatch a role-verification worker merely because a role label is absent.
   Known role restrictions, missing required capabilities and unapproved operations still block the affected action.
+- Load missing current coordinator and owner contracts before delegation; reuse available unchanged guidance.
+  Preserve approved requirements and pass the full requested phase contract, not just a list of files to draft.
+  Partial artifacts are not phase completion; follow the existing worker lifecycle for validation and continuation.
 - `01-Orchestrator` remains human-selected (`disable-model-invocation: true`).
   Deploy, Diagnose and manual Challenger entries also disable implicit invocation;
   this metadata is not proof of credential isolation or consequential authorization.

@@ -13,8 +13,9 @@ user-facing artifact MUST read this file before invocation.
 ## Model And Harness Contract
 
 Active agent definitions do not pin model or reasoning effort. The operator and
-runtime control selection, including Auto and HydraFusion. Readiness verifies the
-named worker's identity, linked dispatch, tool-free turns and same-worker ACK.
+runtime control selection, including Auto and HydraFusion. Verify the actual named
+worker result, its authorized output and pricing evidence under the native task lifecycle.
+No readiness handshake or extra acknowledgement turn is required.
 Model names, effort, picker selection and model-source labels are diagnostic only,
 not acceptance gates. Catalog model metadata remains descriptive
 and does not establish runtime cost-tier eligibility, model availability, or API

@@ -137,12 +137,27 @@ Do not increment a step number or silently skip optional Design.
 
 Pass native `task` a bounded prompt:
 
+Recover the current owner's full phase contract before framing the assignment; reuse guidance already available.
+Approved requirements are authoritative: a summary cannot downgrade a required capability
+to an optional candidate.
+Distinguish a full-phase request from an explicitly bounded research/repair slice;
+filenames alone do not define success.
+Record a pending phase's actual start through recall; resume existing progress without forced restart or backdating.
+
 - `execution_mode: delegated`, project, step/phase, objective and exact input paths/revisions;
 - current answers, unresolved decisions, approved side effects and allowed output paths;
 - the complete ledger or exact authorized snapshot, applicability context, changed dependency paths,
   frozen inputs, actual review/attempt IDs and explicit current cost revision (never newest-file inference);
 - required validation/review contract, cutoff and explicit failure categories;
 - requested result: actual outputs/checks/findings, missing-input request or precise blocker.
+
+File presence or JSON syntax is not full-phase completion. Validate required evidence before final phase approval.
+For Architecture approval, require actual pricing JSON with status `COMPLETE`,
+its existing cost validator/freshness checks,
+and both independent reviews; do not accept parent-authored dollar ranges or a success summary as substitutes.
+For a partial result, continue only the remaining authorized work through its owner using the supported task lifecycle.
+Relay genuinely missing material inputs, actual capability failures or the final human gate; do not end routine
+in-phase work merely because drafts exist. Preserve budgets and stop unchanged, ineffective retries.
 
 Consume actual tool results. For background work retain the returned handle, await its
 notification and read its result. Use `write_agent` only for supported same-task follow-up.

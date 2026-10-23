@@ -50,6 +50,10 @@ For a direct step start, select
 that step's owner and validate its graph prerequisites first. Selection is not
 approval to skip prior steps or gates.
 
+Recover missing current [coordination guidance](../../../agents/01-orchestrator.agent.md)
+and the graph-selected owner's contract before delegation; reuse them when already available.
+Pass their phase scope and completion criteria, not only filenames. A research/draft slice is not a full-phase handoff.
+
 Read [the workflow engine](../SKILL.md), then use
 `apex-recall show <project> --json` for current state. Recover an empty or failed
 lookup from existing handoff and artifact evidence; do not reset prior work or

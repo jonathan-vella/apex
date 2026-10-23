@@ -331,6 +331,33 @@ test("practical initial and closure evidence complete a scoped stage without a t
   assert.equal(cycles.length, 1);
   assert.equal(cycles[0].calls, 2);
   assert.equal(cycles[0].current_path, path.basename(closure));
+
+  recall("start-step", "example", "2", "--json");
+  f.write(
+    "architecture-scope.json",
+    JSON.stringify({
+      input_ids: ["scope"],
+      environments: ["dev"],
+      request_id: "synthetic-architecture-scope-approval",
+    }),
+  );
+  recall("decide", "example", "--phase-scope", path.join(f.root, "architecture-scope.json"), "--step", "2", "--json");
+  recall("checkpoint", "example", "2", "draft", "--sync-assessment", "--json");
+  f.write("agent-output/example/02-architecture-assessment.md", "# Architecture\nUnreviewed draft\n");
+  f.write("agent-output/example/03-des-cost-estimate.md", "# Cost\nUnpriced draft; no verified estimate\n");
+  f.write("agent-output/example/sku-manifest.json", JSON.stringify({ services: [] }));
+  const statePath = path.join(f.root, "agent-output/example/00-session-state.json");
+  const beforeDraftCompletion = fs.readFileSync(statePath, "utf8");
+  const blocked = spawnSync("python3", ["-m", "apex_recall", "complete-step", "example", "2", "--json"], {
+    cwd: f.root,
+    encoding: "utf8",
+    env: { ...process.env, APEX_ROOT: f.root, PYTHONPATH: path.join(repo, "tools/apex-recall/src") },
+  });
+  assert.equal(blocked.status, 2, blocked.stdout + blocked.stderr);
+  assert.equal(JSON.parse(blocked.stdout).error, "challenger_findings_missing");
+  assert.equal(fs.readFileSync(statePath, "utf8"), beforeDraftCompletion);
+  assert.equal(fs.existsSync(path.join(f.root, "agent-output/example/02-cost-estimate.json")), false);
+  assert.equal(recall("show", "example", "--json").session.steps["2"].status, "in_progress");
 });
 
 function addReadTurns(f, count = 7) {

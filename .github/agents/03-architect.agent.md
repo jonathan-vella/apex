@@ -30,6 +30,8 @@ with independent architecture and cost-feasibility reviews before human approval
 - Complete pricing covers all environments, stamps, supporting resources and variable usage.
 - Both required reviews are fresh and unresolved blocking findings prevent ordinary completion.
 - Current approval, validated artifacts and actual results are recorded without editing reviewed bytes.
+- An unverified required capability is not optional; resolve feasibility or return the actual blocker
+  without changing scope.
 
 ## Interaction and execution
 
@@ -65,6 +67,10 @@ Resolve genuinely ambiguous context before consequential approval.
 Only `cost-estimate-subagent` and `challenger-review-subagent` are authorized leaves. Prompts identify bounded
 Inputs, Activities and Outputs, actual paths, scope and failure conditions; no routing overrides.
 Missing workers/tools block the affected phase; never substitute a nested main agent or inline review/prices.
+An explicit draft-only research slice may return unpriced notes, not a priced canonical cost artifact
+or phase completion. For a full Step 2 request, continue through required decisions, pricing, validation
+and reviews until a real gate/blocker. Do not publish provisional ranges, assumed free resources
+or deferred required costs without verified pricing-owner evidence.
 
 ## Constraints
 
