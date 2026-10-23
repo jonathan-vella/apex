@@ -117,6 +117,12 @@ never complexity alone. Production handoffs and approval gates remain human-cont
 
 ## User Question Forms
 
+For explicitly adopted `practical-v1` projects, the
+[practical workflow](skills/apex-workflow-engine/references/practical-workflow.md)
+replaces administrative disposition questions with granted mechanical work and a change summary.
+Retain material decisions and final stage approvals. Legacy projects keep their existing contract
+until explicit migration; source maintenance does not rewrite their histories or allowances.
+
 Apply these checks to every agent producing a user-question form, for any workflow phase,
 before direct display or delegated return:
 
@@ -158,6 +164,14 @@ body explicitly points to one. There is one tier — no digest, no minimal.
 - Describe the actual selected/calling role only when native context establishes it; otherwise report it as unknown.
   A default coordinating chat is not evidence that `01-Orchestrator` was selected. General assistance remains available,
   but a role name in prose, loaded skill or returned form never supplies that role's permissions or approvals.
+- Missing role telemetry is not a workflow gate. For an explicit start/resume request, continue otherwise-authorized
+  coordination under actual tools, calling constraints, scope and human approvals; report unknown identity honestly.
+  Project `session.metadata` and generic session-information tools are not role-selection evidence.
+  Do not request repeated UI selection or dispatch a role-verification worker merely because a role label is absent.
+  Known role restrictions, missing required capabilities and unapproved operations still block the affected action.
+- Load missing current coordinator and owner contracts before delegation; reuse available unchanged guidance.
+  Preserve approved requirements and pass the full requested phase contract, not just a list of files to draft.
+  Partial artifacts are not phase completion; follow the existing worker lifecycle for validation and continuation.
 - `01-Orchestrator` remains human-selected (`disable-model-invocation: true`).
   Deploy, Diagnose and manual Challenger entries also disable implicit invocation;
   this metadata is not proof of credential isolation or consequential authorization.

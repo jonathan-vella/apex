@@ -14,6 +14,11 @@ allowed writes/commands, outputs, review/validation expectations, cutoff and fai
 Skills and frontmatter do not grant permissions, enforce credential isolation or certify model routing.
 Leave model/effort/context overrides unset unless explicitly required and supported.
 
+Read the owner's current contract before framing the task; reuse it when already available.
+Preserve approved requirements as authority, including mandatory capability and security dependencies.
+A full-phase request includes its required decisions, evidence, validations and reviews, not only document drafting.
+An explicitly bounded research/repair slice stays bounded and cannot claim completion of the whole phase.
+
 Use a synchronous bounded task when no follow-up is needed.
 For background work retain the returned handle, await the actual completion/idle notification,
 then read the result. Use `write_agent` only for same-task running/idle workers whose contract
@@ -49,6 +54,12 @@ a successful form or task result is not independent human authorization.
 
 Consume the actual result in the role's declared file/text/verdict format.
 Validate artifact/result shape, relevant input freshness and real command outcomes.
+Treat a partial result as remaining work, not a completed phase. File presence and JSON syntax do not prove readiness.
+Continue remaining authorized activities through the same owner/lifecycle, or relay genuinely missing inputs,
+an actual capability failure or the final approval gate. Do not require another user "continue" for routine in-phase work.
+Do not blindly repeat unchanged tasks; preserve actual blockers and the existing retry/review accounting.
+For final Architecture approval, inspect pricing status `COMPLETE` and run the existing cost validator;
+also require the separate Architecture and cost-feasibility review evidence. A valid FAILED cost payload is not readiness.
 Missing capability, malformed result, stale evidence or permission denial blocks the affected action.
 Never replace a missing reviewer with self-review, an arbitrary worker or a main-wrapper fallback.
 Nested task capability missing on a delegated artifact owner is not reviewer unavailability:

@@ -42,9 +42,12 @@ absolute paths, environment prerequisites, and output destinations. Use bounded
 output capture. Artifact edits use file-editing tools, never shell redirection.
 Do not widen the recipient's tool permissions through the invocation text.
 
-Workers execute only the assigned slice. They do not ask the user questions,
-manage parent todos, dispatch subagents, or edit upstream inputs. Missing or
-stale inputs require a targeted permitted read or return to the parent.
+Delegated mains and leaves execute only the assigned slice; neither asks users,
+manages parent todos or edits inputs outside its declared scope.
+Delegated mains may invoke only their declared leaves when actual nested task capability is available,
+following the named main's contract.
+Leaves never delegate. Do not apply a leaf-only prohibition to an authorized delegated main.
+Missing or stale inputs require a targeted permitted read or return to the parent.
 If the required tool, worker, approval, or input is unavailable, stop and return
 the named worker's failure shape with the missing evidence; do not replace its
 enum with a generic BLOCKED verdict. The parent owns recovery and user questions.

@@ -33,6 +33,11 @@ review evidence, expanding write scope or treating decisions as verified closure
 
 ## Interaction
 
+For `decisions.workflow_contract=practical-v1`, use the
+[practical workflow](../skills/apex-workflow-engine/references/practical-workflow.md).
+Retain original findings, granted initial/closure lineage and actual bounds; legacy per-step
+ceiling snippets below cannot override or renew the practical artifact/lens allowance.
+
 Before direct display or delegated return, apply the
 [shared question-form checks](../copilot-instructions.md#user-question-forms):
 distinct contextual titles, no unconditional companion note fields, reuse custom answers and only triggered follow-ups.

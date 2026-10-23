@@ -12,6 +12,11 @@ deployable Bicep or Terraform with human approval gates across the lifecycle.
 
 ## Workflow
 
+New projects use the [practical workflow](.github/skills/apex-workflow-engine/references/practical-workflow.md):
+reuse captured decisions, batch authorized routine repairs, bound review closure, and check policy feasibility early.
+Specialists, production support and the lifecycle approval gates shown below remain.
+Existing projects retain their legacy contract until explicitly adopted.
+
 ```mermaid
 %%{init: {'theme':'neutral'}}%%
 sequenceDiagram
