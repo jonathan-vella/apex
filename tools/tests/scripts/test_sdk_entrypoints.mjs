@@ -7,26 +7,26 @@ import { getPromptFiles } from "../../scripts/_lib/workspace-index.mjs";
 const root = new URL("../../../", import.meta.url);
 const read = (file) => readFileSync(new URL(file, root), "utf8");
 
-test("pricing leaf retains Azure MCP pricing-only scope without claiming runtime binding proof", () => {
+test("pricing leaf retains Azure MCP scope for model-agnostic deferred tool loading while enforcing pricing-only usage", () => {
   const body = read(".github/agents/_subagents/cost-estimate-subagent.agent.md");
   const metadata = parseFrontmatter(body);
-  assert.deepEqual(metadata.tools, ["execute", "read", "edit", "search", "azure-mcp/pricing"]);
+  assert.deepEqual(metadata.tools, ["execute", "read", "edit", "search", "azure-mcp/*"]);
   assert.deepEqual(metadata.agents, []);
   assert.equal(metadata["user-invocable"], false);
   const config = JSON.parse(read(".mcp.json"));
   assert.ok(config.mcpServers["azure-mcp"]);
   const snapshot = JSON.parse(read("tools/registry/azure-mcp-tools.json"));
   assert.ok(snapshot.tools.pricing.commands.pricing_get);
-  assert.match(body, /A missing printed schema is not a failure/);
-  assert.match(body, /only if the call itself is rejected/);
+  assert.match(body, /invoke ONLY the `pricing` tool/);
+  assert.match(body, /Never call any other Azure MCP tool/);
   const guidance = read(".github/skills/apex-azure-defaults/references/pricing-guidance.md");
-  assert.match(guidance, /spelling alone does not establish supported agent configuration or working invocation/);
-  assert.match(guidance, /absent schema is not evidence that the tool is unavailable/);
+  assert.match(guidance, /declares `azure-mcp\/\*` in frontmatter/);
+  assert.match(guidance, /restricts usage strictly to the `pricing` capability/);
   assert.doesNotMatch(guidance, /Invoke `mcp_azure_mcp_ser_pricing` directly/);
   const parent = read(".github/skills/apex-azure-defaults/references/cost-estimate-parent-contract.md");
   assert.match(parent, /cached session/);
   assert.match(parent, /Do not require worker self-attestation/);
-  assert.match(parent, /never broaden to all provider tools/);
+  assert.match(parent, /keep usage restricted to the pricing tool/);
 });
 
 for (const [entry, reference] of [

@@ -11,15 +11,10 @@ for unresolved public retail meters after documented MCP failure. Parent agents 
 ## Connection
 
 The workspace registers the Azure MCP server as `azure-mcp` (pinned `@azure/mcp` release) in `.mcp.json`.
-The agent restricts access to its `pricing` capability using the documented `server/tool` declaration,
-`azure-mcp/pricing`. A runtime-advertised name such as `azure-mcp-pricing` identifies a tool, not another server;
-its spelling alone does not establish supported agent configuration or working invocation.
-Find the tool with one native `tool_search_tool` query (for example `azure-mcp pricing pricing_get`). The result lists
-the tool by name (here `azure-mcp-pricing`); that reference is the handle to call. Discovery output is a name list and
-does not print a schema, so an absent schema is not evidence that the tool is unavailable. Call the handle directly
-(see the query contract); only a call the runtime actually rejects (for example "unknown tool") is a failure, and then
-record that exact error and the issued-query count. Do not infer an Azure pricing-service or authentication failure.
-Retail catalog data is public. The worker uses no Azure Resource Manager
+The agent declares `azure-mcp/*` in frontmatter so the Copilot harness materializes the deferred pricing tool's
+callable schema across all model families after native discovery (`tool_search_tool`), while the worker's contract
+restricts usage strictly to the `pricing` capability (`azure-mcp-pricing`, `command: "pricing_get"`, `learn: false`).
+Retail catalog data is public. The worker uses no other `azure-mcp` tools, no Azure Resource Manager
 MCP tools, cost-query, forecast or benefit tools, and no deployment or resource mutation tools.
 
 ## Query contract

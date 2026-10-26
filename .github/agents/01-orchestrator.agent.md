@@ -5,7 +5,7 @@ argument-hint: "Describe a project, or provide a project name and the operation 
 user-invocable: true
 disable-model-invocation: true
 agents: ["02-Requirements", "03-Architect", "04-Design", "04g-Governance", "05-IaC Planner", "06b-Bicep CodeGen", "06t-Terraform CodeGen", "07b-Bicep Deploy", "07t-Terraform Deploy", "08-As-Built", "09-Diagnose", "10-Challenger", "challenger-review-subagent"]
-tools: [execute, read, edit, search, agent, todo, ask_user]
+tools: [execute, read, edit, search, agent, web, "azure-mcp/*", todo, ask_user]
 
 ---
 

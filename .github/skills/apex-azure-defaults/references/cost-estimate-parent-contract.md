@@ -115,11 +115,10 @@ Preserve existing files, the original input contract and retry history; never la
 Recovery is permitted only within an existing retry allowance or explicit human authorization. If exhausted or the
 worker is unavailable, stop with the saved paths and error rather than bypassing the worker or resetting the allowance.
 
-Discovery returns a pricing tool name without a schema; the worker must call that name directly. If the call itself is
-rejected, preserve the exact error and query count.
+If the pricing tool is unavailable after discovery, preserve the observed tool exposure and issued-query count.
 Do not require worker self-attestation, infer an authentication failure or ask the user to restore an unverified cause.
 Source declarations and cached session configuration may differ; compare available evidence without another runtime gate.
-Do not automatically repeat a failed attempt. Preserve history and never broaden to all provider tools;
+Do not automatically repeat a failed attempt. Preserve history and keep usage restricted to the pricing tool;
 an exhausted project allowance needs separate recovery approval after the underlying capability is verified.
 
 When the canonical output exists, verify it and its source evidence read-only before reuse. When only a draft exists,

@@ -5,7 +5,7 @@ user-invocable: true
 disable-model-invocation: false
 agents: ["bicep-validate-subagent", "challenger-review-subagent"]
 tools:
-  [execute, read, agent, edit, search, web, 'azure-mcp/*', 'bicep/*', todo, ask_user]
+  [execute, read, agent, edit, search, web, 'azure-mcp/*', todo, ask_user]
 
 ---
 

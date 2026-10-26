@@ -6,7 +6,7 @@ user-invocable: true
 disable-model-invocation: false
 agents: ["challenger-review-subagent"]
 tools:
-  [execute, read, agent, edit, search, web, todo, ask_user]
+  [execute, read, agent, edit, search, web, "azure-mcp/*", todo, ask_user]
 
 ---
 

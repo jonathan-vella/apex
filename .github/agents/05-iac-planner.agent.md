@@ -4,7 +4,7 @@ description: "Expert Azure IaC planner that creates comprehensive machine-readab
 user-invocable: true
 disable-model-invocation: false
 agents: ["challenger-review-subagent"]
-tools: [execute, read, agent, edit, search, web, 'azure-mcp/*', 'bicep/*', todo, ask_user]
+tools: [execute, read, agent, edit, search, web, 'azure-mcp/*', todo, ask_user]
 
 ---
 
