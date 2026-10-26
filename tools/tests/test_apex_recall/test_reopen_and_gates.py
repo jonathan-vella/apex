@@ -3,40 +3,24 @@
 from __future__ import annotations
 
 import hashlib
-import io
 import json
-import os
-import sys
 from pathlib import Path
 
 import pytest
 
-from apex_recall.__main__ import main
 from apex_recall.reopen import DEPENDENTS
+
+from .test_write_commands import _run
 
 REPO = Path(__file__).resolve().parents[3]
 
 
 @pytest.fixture
-def workspace(tmp_path: Path) -> Path:
+def workspace(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> Path:
+    monkeypatch.delenv("APEX_ROOT", raising=False)
     (tmp_path / "agent-output").mkdir()
     (tmp_path / "tmp").mkdir()
     return tmp_path
-
-
-def _run(workspace: Path, argv: list[str]) -> tuple[int, str]:
-    old_cwd = os.getcwd()
-    os.chdir(workspace)
-    captured = io.StringIO()
-    old_stdout, sys.stdout = sys.stdout, captured
-    try:
-        rc = main(argv)
-    except SystemExit as error:
-        rc = error.code or 0
-    finally:
-        sys.stdout = old_stdout
-        os.chdir(old_cwd)
-    return rc, captured.getvalue()
 
 
 def _state(workspace: Path, project: str) -> dict:

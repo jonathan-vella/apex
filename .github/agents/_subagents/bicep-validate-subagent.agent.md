@@ -4,7 +4,7 @@ description: "Bicep validation subagent. Runs lint (bicep lint + build) first, t
 user-invocable: false
 disable-model-invocation: false
 agents: []
-tools: [execute, read, search, "bicep/*"]
+tools: [execute, read, search]
 
 ---
 

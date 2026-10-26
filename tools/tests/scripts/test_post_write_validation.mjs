@@ -108,7 +108,7 @@ test("cost worker prices only through Azure MCP pricing and no ARM MCP tools", (
   const worker = path.join(ROOT, ".github/agents/_subagents/cost-estimate-subagent.agent.md");
   const frontmatter = parseFrontmatter(fs.readFileSync(worker, "utf8"));
   const tools = [].concat(frontmatter.tools).join(" ");
-  assert.match(tools, /azure-mcp\/pricing/);
+  assert.match(tools, /azure-mcp\/\*/);
   assert.doesNotMatch(tools, /azure-resource-manager-mcp/);
   const guidance = fs.readFileSync(
     path.join(ROOT, ".github/skills/apex-azure-defaults/references/pricing-guidance.md"),
@@ -592,9 +592,10 @@ test("Planner exposes relevant tools and uses supported Terraform metadata disco
     frontmatter,
     /vscodeNotebooks|vscodeGeneral\/(?:rename|usages)|ms-azuretools.vscode-azureresourcegroups/,
   );
-  for (const capability of ["execute", "read", "agent", "edit", "search", "web", "azure-mcp/*", "bicep/*"]) {
+  for (const capability of ["execute", "read", "agent", "edit", "search", "web", "azure-mcp/*"]) {
     assert.ok(frontmatter.includes(capability));
   }
+  assert.doesNotMatch(frontmatter, /bicep\/\*/);
   assert.doesNotMatch(
     body,
     /terraform\/(?:search_modules|get_module_details|get_latest_module_version)|all 4 required tags/,

@@ -10,14 +10,18 @@ for unresolved public retail meters after documented MCP failure. Parent agents 
 
 ## Connection
 
-The workspace registers `azure-mcp` (pinned `@azure/mcp` release) in `.mcp.json`; the worker
-reaches it as `azure-mcp/pricing`. Retail catalog data is public. The worker uses no Azure Resource Manager
+The workspace registers the Azure MCP server as `azure-mcp` (pinned `@azure/mcp` release) in `.mcp.json`.
+The agent declares `azure-mcp/*` in frontmatter so the Copilot harness materializes the deferred pricing tool's
+callable schema across all model families after native discovery (`tool_search_tool`), while the worker's contract
+restricts usage strictly to the `pricing` capability (`azure-mcp-pricing`, `command: "pricing_get"`, `learn: false`).
+Retail catalog data is public. The worker uses no other `azure-mcp` tools, no Azure Resource Manager
 MCP tools, cost-query, forecast or benefit tools, and no deployment or resource mutation tools.
 
 ## Query contract
 
-Invoke `mcp_azure_mcp_ser_pricing` directly with `command: "pricing_get"` and `learn: false`; never spend a
-turn calling `learn: true`. `pricing_get` takes `sku`, `service`, `region`, `service-family`, `price-type`,
+Invoke the discovered pricing tool (`azure-mcp-pricing`) directly with `command: "pricing_get"` and `learn: false`,
+passing the inputs below under `parameters`; never spend a turn calling `learn: true`. `pricing_get` takes `sku`,
+`service`, `region`, `service-family`, `price-type`,
 `currency`, `include-savings-plan` and a raw OData `filter` (always use kebab-case `"price-type"`,
 `"service-family"`, and `"include-savings-plan"` — never snake_case `price_type` or `price`); at least one of the filter inputs is required.
 Catalog field names map to it as follows:
@@ -430,7 +434,7 @@ Prefer narrow `productName`/`meterName` filters over an unqualified service/regi
 
 | Candidate | Query shape | Select |
 | --- | --- | --- |
-| App Service Basic/Standard Linux | `serviceName` `Azure App Service`, region, `meterName` | `productName` `Azure App Service <Tier> Plan - Linux`; `meterName` `B2`, `S2 App` |
+| App Service Basic/Standard Linux | `serviceName` `Azure App Service`, region, `meterName` | `productName` `Azure App Service <Tier> Plan - Linux`; Basic Linux uses `meterName` `B1`/`B2`/`B3` (no `App` suffix — `B1 App` is Windows), while Standard uses `S1 App`/`S2 App`/`S3 App` |
 | App Service Premium v3 Linux | same | `Azure App Service Premium v3 Plan - Linux`; `meterName` `P1 v3 App` (space, not `P1v3`); the Windows row also matches |
 | Container Apps Consumption | `serviceName` `Azure Container Apps`, region | active vCPU-second and GiB-second meters plus the separate requests meter; needs monthly request count |
 | Blob Storage Hot LRS | `serviceName` `Storage`, region, `productName` `Blob Storage` | `Hot LRS Data Stored` returns multiple band rates in `pricing_get` without `tierMinimumUnits`: use `missing_tier_metadata` fallback to retrieve exact tier bands; select the read, write and other operations meters locally (per 10K) and never the Hierarchical Namespace product |
@@ -442,7 +446,7 @@ Prefer narrow `productName`/`meterName` filters over an unqualified service/regi
 | Standard Load Balancer | `serviceName` `Load Balancer`, billing region `Global` | rule hourly meter and `Standard Data Processed`; a `$0` Free meter does not establish an allowance, so the caller states the rule-count assumption |
 | Standard static public IPv4 | `serviceName` `Virtual Network`, deployment region | Standard IPv4 Static Public IP, 1 Hour |
 
-Deployment tier names such as `B2`, `P1v3` or `50 DTUs` are not catalog `meterName` values; do not retry an
+Deployment tier names such as `S2`, `P1v3` or `50 DTUs` are not catalog `meterName` values; do not retry an
 unchanged exact-name query that returned no rows.
 
 ## Failure rule

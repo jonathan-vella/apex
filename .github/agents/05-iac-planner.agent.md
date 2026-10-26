@@ -4,7 +4,7 @@ description: "Expert Azure IaC planner that creates comprehensive machine-readab
 user-invocable: true
 disable-model-invocation: false
 agents: ["challenger-review-subagent"]
-tools: [execute, read, agent, edit, search, web, 'azure-mcp/*', 'bicep/*', todo, ask_user]
+tools: [execute, read, agent, edit, search, web, 'azure-mcp/*', todo, ask_user]
 
 ---
 
@@ -32,6 +32,11 @@ with validated diagrams/contracts, independent review and separate current plan 
 - Plan-lock, hashes, manifest and readiness evidence agree before returning to CodeGen.
 
 ## Interaction and execution
+
+For `decisions.workflow_contract=practical-v1`, use the
+[practical workflow](../skills/apex-workflow-engine/references/practical-workflow.md):
+batch granted mechanical repairs and ordinary closure verification, preserve stage approval.
+Consume scoped decision projections; DEV readiness never implies PROD readiness or deployment permission.
 
 Before direct display or delegated return, apply the
 [shared question-form checks](../copilot-instructions.md#user-question-forms):

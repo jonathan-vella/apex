@@ -5,7 +5,7 @@ user-invocable: true
 disable-model-invocation: false
 agents: ["bicep-validate-subagent", "challenger-review-subagent"]
 tools:
-  [execute, read, agent, edit, search, web, 'azure-mcp/*', 'bicep/*', todo, ask_user]
+  [execute, read, agent, edit, search, web, 'azure-mcp/*', todo, ask_user]
 
 ---
 
@@ -30,6 +30,11 @@ compiler, governance, independent-validation and provider-validation evidence.
 - Implementation reference and project README report actual results, not intended success.
 
 ## Interaction
+
+For `decisions.workflow_contract=practical-v1`, use the
+[practical workflow](../skills/apex-workflow-engine/references/practical-workflow.md).
+Batch granted owned repairs; frozen upstream scope still returns to its owner.
+Keep validation gates and explicitly scoped stage/deployment permissions.
 
 Before direct display or delegated return, apply the
 [shared question-form checks](../copilot-instructions.md#user-question-forms):

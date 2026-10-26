@@ -4,7 +4,7 @@ description: Azure cost estimation subagent. Uses Azure MCP pricing (pricing_get
 user-invocable: false
 disable-model-invocation: false
 agents: []
-tools: [execute, read, edit, search, "azure-mcp/pricing"]
+tools: [execute, read, edit, search, "azure-mcp/*"]
 
 ---
 
@@ -31,7 +31,7 @@ Callers: Architect (planned estimates) | As-Built (deployed estimates).
   and unrelated user edits. No other artifact, recall or Azure writes.
 - Use editing tools for JSON and #tool:execute only for arithmetic, validation, atomic rename,
   and the documented `cost-estimate.mjs` and `fetch-retail-price-evidence.mjs` helpers. Never run inline
-  double-quoted `node -e "... !..."` commands. Never call `mcp_azure_mcp_ser_pricing` with `learn: true`;
+  double-quoted `node -e "... !..."` commands. Never call the pricing tool with `learn: true`;
   invoke `command: "pricing_get"` (`learn: false`) directly. The evidence helper alone may write its validated
   direct-API evidence output; it never writes the estimate. Terminal access is not inherently read-only.
 - No questions, todos, delegation or automatic model fallback. Missing essential
@@ -41,6 +41,11 @@ Callers: Architect (planned estimates) | As-Built (deployed estimates).
   this leaf never invokes a reviewer or changes routing. Runtime model metadata is diagnostic only.
 - Return exactly `COMPLETE` or `FAILED`; `PARTIAL` is not valid.
 - Never invent a price or choose an ambiguous meter silently.
+- Although the frontmatter enables `azure-mcp/*` so the Copilot harness exposes the deferred pricing schema across all
+  model families, invoke ONLY the `pricing` tool (`azure-mcp-pricing`, `command: "pricing_get"`, `learn: false`).
+  Never call any other Azure MCP tool. If the pricing tool is unavailable after discovery, return `FAILED` with the
+  exact observation and zero issued queries, never as an Azure service/authentication failure.
+  Do not repeat unchanged discovery.
 
 ## Native execution
 

@@ -7,6 +7,28 @@ import { getPromptFiles } from "../../scripts/_lib/workspace-index.mjs";
 const root = new URL("../../../", import.meta.url);
 const read = (file) => readFileSync(new URL(file, root), "utf8");
 
+test("pricing leaf retains Azure MCP scope for model-agnostic deferred tool loading while enforcing pricing-only usage", () => {
+  const body = read(".github/agents/_subagents/cost-estimate-subagent.agent.md");
+  const metadata = parseFrontmatter(body);
+  assert.deepEqual(metadata.tools, ["execute", "read", "edit", "search", "azure-mcp/*"]);
+  assert.deepEqual(metadata.agents, []);
+  assert.equal(metadata["user-invocable"], false);
+  const config = JSON.parse(read(".mcp.json"));
+  assert.ok(config.mcpServers["azure-mcp"]);
+  const snapshot = JSON.parse(read("tools/registry/azure-mcp-tools.json"));
+  assert.ok(snapshot.tools.pricing.commands.pricing_get);
+  assert.match(body, /invoke ONLY the `pricing` tool/);
+  assert.match(body, /Never call any other Azure MCP tool/);
+  const guidance = read(".github/skills/apex-azure-defaults/references/pricing-guidance.md");
+  assert.match(guidance, /declares `azure-mcp\/\*` in frontmatter/);
+  assert.match(guidance, /restricts usage strictly to the `pricing` capability/);
+  assert.doesNotMatch(guidance, /Invoke `mcp_azure_mcp_ser_pricing` directly/);
+  const parent = read(".github/skills/apex-azure-defaults/references/cost-estimate-parent-contract.md");
+  assert.match(parent, /cached session/);
+  assert.match(parent, /Do not require worker self-attestation/);
+  assert.match(parent, /keep usage restricted to the pricing tool/);
+});
+
 for (const [entry, reference] of [
   ["apex-workflow-start", "apex-workflow-engine/references/workflow-entry.md"],
   ["apex-debug-log-export", "apex-context-management/references/debug-log-export.md"],
@@ -146,6 +168,60 @@ test("review owners preflight and record attempts without inventing root role se
   assert.match(entry, /report unknown/);
   assert.match(entry, /default coordinating chat/);
   assert.match(entry, /historical step status/);
+});
+
+test("explicit resume does not turn absent role telemetry into another workflow gate", () => {
+  const entry = read(".github/skills/apex-workflow-engine/references/workflow-entry.md");
+  assert.match(entry, /missing role label alone is not a blocker/);
+  assert.ok(entry.includes("`session.metadata`"));
+  assert.ok(entry.includes("`get_current_session`"));
+  assert.match(entry, /not role-selection evidence/);
+  assert.match(entry, /Do not dispatch.*role-verification worker/);
+  assert.match(entry, /known incompatible role/);
+  assert.match(entry, /actual tools, calling constraints, scope and human approvals/);
+  assert.match(entry, /Loading a definition.*not native activation/);
+  for (const file of [
+    ".github/copilot-instructions.md",
+    ".github/agents/01-orchestrator.agent.md",
+    ".github/instructions/agent-operating-frame.instructions.md",
+  ]) {
+    const body = read(file);
+    assert.match(body, /role telemetry is not a workflow gate/, file);
+    assert.match(body, /(?:unknown|Unknown)/, file);
+  }
+  const orchestrator = parseFrontmatter(read(".github/agents/01-orchestrator.agent.md"));
+  assert.equal(orchestrator["disable-model-invocation"], true);
+  const architect = parseFrontmatter(read(".github/agents/03-architect.agent.md"));
+  assert.deepEqual(architect.agents, ["cost-estimate-subagent", "challenger-review-subagent"]);
+});
+
+test("full-phase coordination preserves owner contracts and rejects draft-only handoffs", () => {
+  const parent = read(".github/agents/01-orchestrator.agent.md");
+  const architect = read(".github/agents/03-architect.agent.md");
+  const lifecycle = read(".github/skills/apex-workflow-engine/references/worker-readiness.md");
+  const execution = read(".github/skills/apex-workflow-engine/references/execution-subagent.md");
+  const pricing = read(".github/skills/apex-azure-defaults/references/cost-estimate-parent-contract.md");
+  const entry = read(".github/skills/apex-workflow-engine/references/workflow-entry.md");
+  const shared = read(".github/copilot-instructions.md");
+  for (const body of [parent, lifecycle]) {
+    assert.match(body, /owner.*contract/);
+    assert.match(body, /approved requirements/i);
+    assert.match(body, /partial result/);
+  }
+  assert.match(parent, /JSON syntax.*not.*phase completion/);
+  assert.match(parent, /status.*`COMPLETE`/);
+  assert.match(parent, /continue.*remaining authorized work/);
+  assert.match(architect, /required capability.*not.*optional/);
+  assert.match(architect, /provisional ranges/);
+  assert.match(architect, /draft-only/);
+  assert.match(execution, /Delegated mains may invoke only their declared leaves/);
+  assert.match(execution, /actual nested task capability/);
+  assert.match(execution, /Leaves never delegate/);
+  assert.doesNotMatch(execution, /They do not ask the user questions,[\s\S]{0,70}dispatch subagents/);
+  assert.doesNotMatch(pricing, /same-worker ACK|tool-free turns/);
+  assert.match(pricing, /No readiness handshake/);
+  assert.ok(entry.includes("01-orchestrator.agent.md"));
+  assert.match(shared, /owner contracts.*before delegation/);
 });
 
 test("graph runtime metadata is descriptive while domain owners remain actual main definitions", () => {

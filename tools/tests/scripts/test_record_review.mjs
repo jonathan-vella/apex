@@ -2,7 +2,8 @@ import assert from "node:assert/strict";
 import fs from "node:fs";
 import path from "node:path";
 import { randomUUID, createHash } from "node:crypto";
-import { spawnSync } from "node:child_process";
+import { spawn, spawnSync } from "node:child_process";
+import { once } from "node:events";
 import { fileURLToPath } from "node:url";
 import test from "node:test";
 import { extractReview, recordReview, preflightReviewRequest } from "../../scripts/record-review.mjs";
@@ -296,8 +297,18 @@ test("practical initial and closure evidence complete a scoped stage without a t
     );
   };
   audit("started");
-  f.record();
-  audit("completed", "--review-result", path.join(f.root, output));
+  audit("completed", "--review-output", "nonempty");
+  f.flush();
+  const parentRecords = [f.events[0], f.events.at(-1)];
+  fs.writeFileSync(
+    f.options.events,
+    [...f.events.slice(1, -1), ...parentRecords].map((event) => JSON.stringify(event)).join("\n"),
+  );
+  recordReview(f.options);
+  audit("completed", "--review-output", "nonempty", "--review-result", path.join(f.root, output));
+  const recovered = recall("show", "example", "--json");
+  assert.equal(Object.values(recovered.session.decisions.review_cycles)[0].calls, 1);
+  assert.equal(recovered.session.review_attempts.length, 2);
   const original = fs.readFileSync(path.join(f.root, output), "utf8");
   f.write(artifact, "# Requirements\nSynthetic routine correction, unchanged material scope\n");
   const closure = "agent-output/example/challenge-findings-requirements-closure.json";
@@ -320,6 +331,33 @@ test("practical initial and closure evidence complete a scoped stage without a t
   assert.equal(cycles.length, 1);
   assert.equal(cycles[0].calls, 2);
   assert.equal(cycles[0].current_path, path.basename(closure));
+
+  recall("start-step", "example", "2", "--json");
+  f.write(
+    "architecture-scope.json",
+    JSON.stringify({
+      input_ids: ["scope"],
+      environments: ["dev"],
+      request_id: "synthetic-architecture-scope-approval",
+    }),
+  );
+  recall("decide", "example", "--phase-scope", path.join(f.root, "architecture-scope.json"), "--step", "2", "--json");
+  recall("checkpoint", "example", "2", "draft", "--sync-assessment", "--json");
+  f.write("agent-output/example/02-architecture-assessment.md", "# Architecture\nUnreviewed draft\n");
+  f.write("agent-output/example/03-des-cost-estimate.md", "# Cost\nUnpriced draft; no verified estimate\n");
+  f.write("agent-output/example/sku-manifest.json", JSON.stringify({ services: [] }));
+  const statePath = path.join(f.root, "agent-output/example/00-session-state.json");
+  const beforeDraftCompletion = fs.readFileSync(statePath, "utf8");
+  const blocked = spawnSync("python3", ["-m", "apex_recall", "complete-step", "example", "2", "--json"], {
+    cwd: f.root,
+    encoding: "utf8",
+    env: { ...process.env, APEX_ROOT: f.root, PYTHONPATH: path.join(repo, "tools/apex-recall/src") },
+  });
+  assert.equal(blocked.status, 2, blocked.stdout + blocked.stderr);
+  assert.equal(JSON.parse(blocked.stdout).error, "challenger_findings_missing");
+  assert.equal(fs.readFileSync(statePath, "utf8"), beforeDraftCompletion);
+  assert.equal(fs.existsSync(path.join(f.root, "agent-output/example/02-cost-estimate.json")), false);
+  assert.equal(recall("show", "example", "--json").session.steps["2"].status, "in_progress");
 });
 
 function addReadTurns(f, count = 7) {
@@ -966,6 +1004,73 @@ test("request ID resolves an exact worker in an explicit session without UUID sc
   recordReview({ ...f.options, workerId: undefined, parentId: undefined, requestId: f.input.request_id });
   assert.equal(f.persisted().review_execution.worker_id, "worker-1");
 });
+
+test("late parent task records preserve the completed review and its original metadata", (t) => {
+  const f = fixture(t);
+  f.events[1].data.resumable = false;
+  f.events[0].timestamp = "2026-10-17T15:04:00.000Z";
+  f.events.at(-1).timestamp = "2026-10-17T15:04:00.001Z";
+  f.flush();
+  const parent = [f.events[0], f.events.at(-1)];
+  fs.writeFileSync(f.options.events, [...f.events.slice(1, -1), ...parent].map(JSON.stringify).join("\n"));
+  const result = recordReview({
+    ...f.options,
+    workerId: undefined,
+    parentId: undefined,
+    requestId: f.input.request_id,
+  });
+  assert.equal(result.review_execution.worker_id, "worker-1");
+  assert.equal(result.review_execution.completed_at, "2026-10-17T15:00:00.000Z");
+  assert.deepEqual(f.persisted().cache_inputs, f.input.cache_inputs);
+  assert.equal(f.persisted().overall_assessment, "APPROVED");
+  assert.deepEqual(f.persisted().findings, []);
+  assert.deepEqual(validateReview(f.persisted(), { root: f.root, verifyCurrent: true }), []);
+});
+
+for (const ambiguous of [false, true]) {
+  test(`request lookup ${ambiguous ? "rejects ambiguous" : "waits for late"} parent records after worker completion`, async (t) => {
+    const f = fixture(t);
+    f.events[1].data.resumable = false;
+    f.flush();
+    const parent = [f.events[0], f.events.at(-1)];
+    if (ambiguous) {
+      const duplicate = structuredClone(parent[0]);
+      duplicate.data.toolCallId = "another-call";
+      parent.push(duplicate);
+    }
+    fs.writeFileSync(f.options.events, `${f.events.slice(1, -1).map(JSON.stringify).join("\n")}\n`);
+    const child = spawn(process.execPath, [
+      "-e",
+      "const fs=require('node:fs');setTimeout(()=>fs.appendFileSync(process.argv[1],process.argv[2]),100);",
+      f.options.events,
+      `${parent.map(JSON.stringify).join("\n")}\n`,
+    ]);
+    const exited = once(child, "exit");
+    const record = () =>
+      recordReview({
+        ...f.options,
+        workerId: undefined,
+        parentId: undefined,
+        requestId: f.input.request_id,
+      });
+    let result;
+    try {
+      if (ambiguous) assert.throws(record, /Request ID must identify exactly one review dispatch/);
+      else result = record();
+    } catch (error) {
+      child.kill();
+      throw error;
+    } finally {
+      await exited;
+    }
+    assert.equal(child.exitCode, 0);
+    if (ambiguous) assert.equal(fs.existsSync(path.join(f.root, output)), false);
+    else {
+      assert.equal(result.review_execution.request_id, f.input.request_id);
+      assert.equal(f.persisted().overall_assessment, "APPROVED");
+    }
+  });
+}
 
 test("request lookup rejects ambiguity, wrong identity and missing session instead of choosing newest", (t) => {
   const f = fixture(t);

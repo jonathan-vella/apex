@@ -29,6 +29,11 @@ clearly separating planned decisions, observed configuration, retail estimates a
 
 ## Interaction
 
+For `decisions.workflow_contract=practical-v1`, use the
+[practical workflow](../skills/apex-workflow-engine/references/practical-workflow.md).
+Reuse scoped captured decisions and generate summaries from actual deployed evidence;
+granted routine documentation repairs do not authorize cloud changes.
+
 Before direct display or delegated return, apply the
 [shared question-form checks](../copilot-instructions.md#user-question-forms):
 distinct contextual titles, no unconditional companion note fields, reuse custom answers and only triggered follow-ups.

@@ -1,6 +1,6 @@
 {
   "$schema": "../../tools/schemas/explorer-graph.schema.json",
-  "generatedAt": "2026-10-20T08:55:36.718Z",
+  "generatedAt": "2026-10-26T17:35:44.165Z",
   "categories": [
     { "id": "agent", "key": "agents", "label": "Agent", "color": "#3b82f6", "shape": "round-rectangle", "count": 14 },
     {
@@ -40,7 +40,7 @@
     { "id": "mcp", "key": "mcp_servers", "label": "MCP Server", "color": "#f43f5e", "shape": "barrel", "count": 3 }
   ],
   "nodeCount": 173,
-  "edgeCount": 554,
+  "edgeCount": 556,
   "nodes": [
     {
       "id": "agent:01-orchestrator",
@@ -4913,6 +4913,12 @@
       "kind": "uses-mcp"
     },
     {
+      "id": "agent:01-orchestrator--uses-mcp->mcp:azure-mcp",
+      "source": "agent:01-orchestrator",
+      "target": "mcp:azure-mcp",
+      "kind": "uses-mcp"
+    },
+    {
       "id": "agent:02-requirements--uses-mcp->mcp:github",
       "source": "agent:02-requirements",
       "target": "mcp:github",
@@ -4940,6 +4946,12 @@
       "id": "agent:04g-governance--uses-mcp->mcp:github",
       "source": "agent:04g-governance",
       "target": "mcp:github",
+      "kind": "uses-mcp"
+    },
+    {
+      "id": "agent:04g-governance--uses-mcp->mcp:azure-mcp",
+      "source": "agent:04g-governance",
+      "target": "mcp:azure-mcp",
       "kind": "uses-mcp"
     },
     {

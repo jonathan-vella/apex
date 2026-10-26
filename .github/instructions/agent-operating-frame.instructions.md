@@ -42,6 +42,9 @@ Native Autopilot can answer questions; a form return is not independent human au
 Use explicit scope, inputs, outputs and failure criteria in actual native task prompts.
 Consume actual results and only supported same-task handles; one-shot tasks are not universally resumable.
 Keep actual role selection separate from a coordinating default chat; report unknown native role context honestly.
+Missing role telemetry is not a workflow gate for otherwise-authorized coordination.
+Project metadata and generic session-information tools do not establish the selected role.
+Honor actual role/tool restrictions and human approvals; do not ask for repeated selection solely to fill a missing label.
 Before reviewer dispatch use the shared request preflight and persist its attempt start; preserve the saved
 digest and actual outcome. Do not backdate starts, infer successful publication from task completion,
 or mask consequential command failures behind display/cleanup. These checks grant no permissions.

@@ -6,7 +6,7 @@ user-invocable: true
 disable-model-invocation: false
 agents: ["challenger-review-subagent"]
 tools:
-  [execute, read, agent, edit, search, web, todo, ask_user]
+  [execute, read, agent, edit, search, web, "azure-mcp/*", todo, ask_user]
 
 ---
 
@@ -37,6 +37,12 @@ produce validated constraints and run required reconciliation review before Gate
 - Reconciliation findings and independent human approval are recorded without changing upstream artifacts.
 
 ## Interaction and execution
+
+For `decisions.workflow_contract=practical-v1`, use the
+[practical workflow](../skills/apex-workflow-engine/references/practical-workflow.md).
+The legacy one-pass and per-finding administrative acceptance rules below are replaced by
+the granted initial-plus-closure artifact/lens cycle, authoritative decisions and derived views.
+Keep Gate 2.5 and material risk/scope decisions. Never reclassify policy facts as preferences.
 
 Before direct display or delegated return, apply the
 [shared question-form checks](../copilot-instructions.md#user-question-forms):
@@ -84,6 +90,13 @@ Record the actual invocation outcome separately from successful publication usin
   Artifact Markdown lint belongs to its hook/review owners, not direct lint here.
 
 ## Prerequisites and phase guidance
+
+Practical preliminary `policy-feasibility` mode is allowed after approved requirements/read scope,
+before Architecture exists. Use only deterministic collection; write `04-policy-feasibility.json`
+and bind it with recall checkpoint's `--policy-feasibility`. Do not start/complete Step 3.5,
+ask for architecture findings dispositions or imply approval. Formal mode retains prerequisites
+below and reuses current full-coverage evidence/scope. Discovery includes Defender auto-assignments
+by default; explicit legacy exclusion is not equivalent full coverage.
 
 Recover state via `apex-recall show <project> --json`. Require approved `02-architecture-assessment.md`
 and current Step 2 completion evidence (no self-edit of upstream artifacts).
@@ -144,7 +157,8 @@ set +H && python .github/skills/apex-azure-governance-discovery/scripts/discover
   --arch agent-output/<project>/02-architecture-assessment.md
 ```
 
-Add `--refresh` when required. Add `--include-defender-auto` only on explicit request.
+Add `--refresh` when required. Defender auto-assignments are included by default.
+Legacy `--exclude-defender-auto` requires explicit filtered-coverage scope and is not full coverage.
 Use [discovery output rules](../skills/apex-azure-governance-discovery/references/discover-output.md).
 Read the first stdout JSON status line; the remaining preview is user-facing, not bulk model input.
 

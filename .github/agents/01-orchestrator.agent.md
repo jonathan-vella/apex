@@ -5,7 +5,7 @@ argument-hint: "Describe a project, or provide a project name and the operation 
 user-invocable: true
 disable-model-invocation: true
 agents: ["02-Requirements", "03-Architect", "04-Design", "04g-Governance", "05-IaC Planner", "06b-Bicep CodeGen", "06t-Terraform CodeGen", "07b-Bicep Deploy", "07t-Terraform Deploy", "08-As-Built", "09-Diagnose", "10-Challenger", "challenger-review-subagent"]
-tools: [execute, read, edit, search, agent, todo, ask_user]
+tools: [execute, read, edit, search, agent, web, "azure-mcp/*", todo, ask_user]
 
 ---
 
@@ -34,6 +34,11 @@ than repeating their production to satisfy an administrative phase boundary.
 - Missing permission or capability blocks the affected action; unfinished work is recoverable.
 
 ## Interaction
+
+For `decisions.workflow_contract=practical-v1`, follow the
+[practical workflow](../skills/apex-workflow-engine/references/practical-workflow.md).
+Retain stage approvals; batch granted mechanical repairs and ordinary closure verification.
+Legacy per-finding administrative questions and per-step ceiling snippets below apply only to legacy projects.
 
 Before direct display or delegated return, apply the
 [shared question-form checks](../copilot-instructions.md#user-question-forms):
@@ -114,8 +119,16 @@ Any template region is an unconfirmed fallback until the user supplies or confir
 
 ## Native delegation
 
+For practical projects after Gate 1, route an authorized preliminary policy-feasibility task to
+`04g-Governance` before final Architecture approval. Reuse captured target/read scope. This is
+collection only, not Step 3.5 completion or permission to change Azure. No target means provisional
+architecture, not production readiness. Reuse the current snapshot at formal Governance.
+
 Use actual native selection/calling context; if unavailable, report the role as unknown.
 Do not describe default-agent coordination as selected `01-Orchestrator` or use prose to acquire permissions.
+Missing role telemetry is not a workflow gate: continue otherwise-authorized coordination within this contract.
+Do not use project metadata or generic session tools to attest this role, or delegate a role-verification lookup.
+Preserve actual tool/role restrictions and human gates; absent telemetry is not evidence of a different active owner.
 Resolve the next domain owner from current `session.steps`, decisions and the
 [workflow graph](../skills/apex-workflow-engine/templates/workflow-graph.json),
 using [agent registry](../../tools/registry/agent-registry.json) paths.
@@ -124,12 +137,27 @@ Do not increment a step number or silently skip optional Design.
 
 Pass native `task` a bounded prompt:
 
+Recover the current owner's full phase contract before framing the assignment; reuse guidance already available.
+Approved requirements are authoritative: a summary cannot downgrade a required capability
+to an optional candidate.
+Distinguish a full-phase request from an explicitly bounded research/repair slice;
+filenames alone do not define success.
+Record a pending phase's actual start through recall; resume existing progress without forced restart or backdating.
+
 - `execution_mode: delegated`, project, step/phase, objective and exact input paths/revisions;
 - current answers, unresolved decisions, approved side effects and allowed output paths;
 - the complete ledger or exact authorized snapshot, applicability context, changed dependency paths,
   frozen inputs, actual review/attempt IDs and explicit current cost revision (never newest-file inference);
 - required validation/review contract, cutoff and explicit failure categories;
 - requested result: actual outputs/checks/findings, missing-input request or precise blocker.
+
+File presence or JSON syntax is not full-phase completion. Validate required evidence before final phase approval.
+For Architecture approval, require actual pricing JSON with status `COMPLETE`,
+its existing cost validator/freshness checks,
+and both independent reviews; do not accept parent-authored dollar ranges or a success summary as substitutes.
+For a partial result, continue only the remaining authorized work through its owner using the supported task lifecycle.
+Relay genuinely missing material inputs, actual capability failures or the final human gate; do not end routine
+in-phase work merely because drafts exist. Preserve budgets and stop unchanged, ineffective retries.
 
 Consume actual tool results. For background work retain the returned handle, await its
 notification and read its result. Use `write_agent` only for supported same-task follow-up.
