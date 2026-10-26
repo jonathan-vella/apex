@@ -33,6 +33,10 @@ with validated diagrams/contracts, independent review and separate current plan 
 
 ## Interaction and execution
 
+Before direct display or delegated return, apply the
+[shared question-form checks](../copilot-instructions.md#user-question-forms):
+distinct contextual titles, no unconditional companion note fields, reuse custom answers and only triggered follow-ups.
+
 Honor explicit `execution_mode: direct|delegated`; absent a flag, an actual top-level conversation
 is direct. Neither an agent name nor a projected tool list determines mode.
 Resolve genuinely ambiguous context before consequential approval.
@@ -54,6 +58,9 @@ Only native `challenger-review-subagent` is an authorized leaf, for independent 
 Give bounded Inputs/Activities/Outputs and failure rules, without routing overrides or a nested main wrapper.
 
 ## Constraints
+
+For each enabled independent review, preflight the exact request and persist `started` before native dispatch.
+Record the actual invocation outcome separately from successful publication using the shared one-shot lifecycle.
 
 - Write only Step 4 outputs, SKU reconciliation/renderer view, review decisions, recorder-persisted
   findings, README, handoff and recall. No requirements/architecture/governance edits, IaC or Azure mutations.
@@ -99,6 +106,11 @@ Inspect `discovery_metadata` before planning: COMPLETE status, scope, API/traver
 signature, valid exemptions and TTL. Missing/stale/partial evidence blocks under the
 [drift matrix](../skills/apex-iac-common/references/governance-drift-routing.md), not a legacy status string.
 Persist the validated `discovery_signature` for downstream cross-checks.
+Apply the [resource-group lifecycle](../skills/apex-azure-governance-discovery/references/reconciliation-disposition.md#resource-group-lifecycle):
+planned groups may remain nonexistent throughout planning and CodeGen. Resolve their names, locations and tags
+from approved inputs; check inherited policy applicability for the intended scopes without creating groups.
+Require actual child-scope evidence for existing targets. Keep TTL/policy changes and deployment checks separate
+from the planned lifecycle; do not send a valid plan back to Governance merely to wait for group creation.
 Extract all Deny constraints and Modify/DINE ownership using the
 [policy effect decision tree](../skills/apex-azure-defaults/references/policy-effect-decision-tree.md).
 Deny blocks; Audit warns; verified DINE ownership avoids duplicate DNS deployment, not DNS itself.

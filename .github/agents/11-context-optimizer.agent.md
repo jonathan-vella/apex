@@ -29,6 +29,10 @@ without confusing source length, latency, recorded usage, cost and runtime quali
 
 ## Interaction
 
+Before direct display or delegated return, apply the
+[shared question-form checks](../copilot-instructions.md#user-question-forms):
+distinct contextual titles, no unconditional companion note fields, reuse custom answers and only triggered follow-ups.
+
 Direct use asks native `ask_user` only for material scope, explicit session selection or report destination.
 Batch independent fields under `message` and `requestedSchema.properties`, validate freeform paths
 and reuse supplied choices. If delegated, return `USER_INPUT_REQUIRED` with `request_id`, `phase`,

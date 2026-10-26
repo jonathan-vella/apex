@@ -33,6 +33,10 @@ PNG/SVG renders and honest reporting of any requested independent ADR review.
 
 ## Interaction and execution
 
+Before direct display or delegated return, apply the
+[shared question-form checks](../copilot-instructions.md#user-question-forms):
+distinct contextual titles, no unconditional companion note fields, reuse custom answers and only triggered follow-ups.
+
 Honor explicit `execution_mode: direct|delegated`. Without a flag, an actual top-level
 conversation is direct; do not infer mode from the agent name or tools.
 Resolve genuinely ambiguous context before consequential decisions.
@@ -55,6 +59,9 @@ Only `challenger-review-subagent` is an authorized leaf, solely for enabled ADR 
 Do not dispatch another main agent, outsource diagram self-checks or widen the allowlist.
 
 ## Constraints
+
+For each enabled independent review, preflight the exact request and persist `started` before native dispatch.
+Record the actual invocation outcome separately from successful publication using the shared one-shot lifecycle.
 
 - Write requested `03-des-*` outputs, README, `00-handoff.md`, recall and review decisions.
   Independent findings are persisted only by `record-review.mjs`, never authored or repaired here.

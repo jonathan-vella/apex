@@ -14,6 +14,7 @@ from .complete_step import (
     _challenger_findings_missing,
     _review_paths,
     _select_replacement_review,
+    is_audited_replay,
     review_verdict,
     watch_review_inputs,
 )
@@ -99,6 +100,12 @@ def run(args) -> int:
                 effective = {}
                 exception_bearing = bool(data.get("risk_authorizations"))
                 review_steps = set(data.get("review_selections", {}))
+                review_steps |= {
+                    step
+                    for step, (artifact, _) in _CHALLENGER_GATE.items()
+                    if (primary.parent / artifact).is_file()
+                    and data.get("steps", {}).get(step, {}).get("status") in ("complete", "in_progress", "stale")
+                }
                 if exception_bearing:
                     review_steps |= {
                         step
@@ -166,9 +173,10 @@ def run(args) -> int:
                             }
                             continue
                         missing, _, _ = _challenger_findings_missing(project, step, selected)
+                        audited_skip = missing and selection is None and is_audited_replay(data, step)
                         error = (
                             "Selected review missing"
-                            if missing
+                            if missing and not audited_skip
                             else _challenger_findings_invalid(project, step, selected)
                         )
                         check_state_revision(data, primary)
@@ -177,10 +185,54 @@ def run(args) -> int:
                             "error": error,
                             "input_coverage": "primary-and-review-guidance",
                         }
+                        if not error:
+                            if audited_skip:
+                                effective[step].update(
+                                    review_skip=True,
+                                    skip_reasons=[
+                                        record["reason"]
+                                        for record in data.get("decisions", {}).get("challenger_skip", [])
+                                        if record.get("step") == step and str(record.get("reason", "")).strip()
+                                    ],
+                                    input_coverage="audited-missing-review-skip",
+                                )
+                            effective[step]["reviews"] = [
+                                {
+                                    "path": str(sidecar.relative_to(primary.parent.parent.parent)),
+                                    "artifact": str(artifact.relative_to(primary.parent.parent.parent)),
+                                    "supporting_inputs": json.loads(sidecar.read_text(encoding="utf-8")).get(
+                                        "supporting_inputs", []
+                                    ),
+                                }
+                                for artifact, sidecar in _review_paths(project, step, selected)
+                                if sidecar.is_file()
+                            ]
+                            effective[step]["review_verdicts"] = [
+                                review_verdict(json.loads(sidecar.read_text(encoding="utf-8")))
+                                for _, sidecar in _review_paths(project, step, selected)
+                                if sidecar.is_file()
+                            ]
+                            effective[step]["gate_status"] = (
+                                "blocked" if "NEEDS_REVISION" in effective[step]["review_verdicts"] else "current"
+                            )
                     except (OSError, ValueError) as error:
                         effective[step] = {"status": "invalid", "error": str(error)}
                 session["effective_reviews"] = effective
-                readiness = {}
+                readiness = {
+                    f"step-{step}-complete": {
+                        "status": (
+                            "blocked" if result["status"] != "current" else result.get("gate_status", "current")
+                        ),
+                        "error": result.get("error"),
+                        "permission_granted": False,
+                        **(
+                            {"review_skip": True, "skip_reasons": result["skip_reasons"]}
+                            if result.get("review_skip") and "skip_reasons" in result
+                            else {}
+                        ),
+                    }
+                    for step, result in effective.items()
+                }
                 if exception_bearing:
                     review_cache: dict = {}
                     for action in ACTIONS:

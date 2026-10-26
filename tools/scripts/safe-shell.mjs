@@ -253,6 +253,7 @@ function lintFile(absPath) {
         if (fenceIsShell) {
           findings.push(...portabilityFindings(fenceBuffer));
           findings.push(...agentOutputHeredocFindings(fenceBuffer));
+          findings.push(...commandStatusFindings(fenceBuffer));
         }
         inFence = false;
         fenceLang = "";
@@ -306,6 +307,50 @@ function lintFile(absPath) {
   if (inFence && fenceIsShell) {
     findings.push(...portabilityFindings(fenceBuffer));
     findings.push(...agentOutputHeredocFindings(fenceBuffer));
+    findings.push(...commandStatusFindings(fenceBuffer));
+  }
+  return findings;
+}
+
+function commandStatusFindings(buffer) {
+  const findings = [];
+  let errexit = false;
+  let pipefail = false;
+  for (const [index, line] of buffer.entries()) {
+    const text = line.scan.trim();
+    if (text.startsWith("#")) continue;
+    for (const match of text.matchAll(/\bset\s+([-+])(?:[a-zA-Z]*e[a-zA-Z]*|o\s+errexit)\b/g)) {
+      errexit = match[1] === "-";
+    }
+    if (/\bset\s+-[^\n;]*\bpipefail\b/.test(text)) pipefail = true;
+    if (/\bset\s+\+[^\n;]*\bpipefail\b/.test(text)) pipefail = false;
+    const consequential =
+      /\b(?:node|python3?)\s+(?:tools\/scripts\/)?(?:[^\s;|]*\/)?(?:record-review|validate[-_][^\s;|]*)\.(?:mjs|py)\b|\bapex-recall\s+(?:decide|complete-step|transition|review-audit|checkpoint|start-step|finding)\b/;
+    const command = consequential.exec(text);
+    if (!command || /^\s*(?:if|elif)\s/.test(text)) continue;
+    const pipeline = /\|[ \t]*(?:head|tail)\b/.test(text);
+    const trailing = /;\s*(?:rm|echo|printf|true)\b/.test(text);
+    const next = buffer[index + 1]?.scan.trim() ?? "";
+    const laterCleanup = /^(?:rm|echo|printf|true)\b/.test(next);
+    const rest = buffer
+      .slice(index)
+      .map((entry) => entry.scan)
+      .join("\n");
+    const immediate = `${text.slice(command.index)}\n${next}`.split(/;|\n|\|\|/, 2)[1] ?? "";
+    const captured = immediate.match(/^\s*([a-zA-Z_]\w*)=\$\?\s*$/);
+    const preserves =
+      captured &&
+      (!pipeline || pipefail) &&
+      new RegExp(`\\b(?:exit|return)\\s+["']?\\$\\{?${captured[1]}\\}?`).test(rest);
+    if (((pipeline && !(pipefail && errexit)) || ((trailing || laterCleanup) && !errexit)) && !preserves) {
+      findings.push({
+        rule: "consequential-command-status",
+        line: line.line,
+        snippet: text.slice(0, 160),
+        why: "display or cleanup can mask a failed validation, recording or state mutation",
+        fix: "capture and propagate the command status before display/cleanup, or use errexit with pipefail",
+      });
+    }
   }
   return findings;
 }

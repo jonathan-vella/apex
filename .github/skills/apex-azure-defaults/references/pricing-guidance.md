@@ -63,6 +63,11 @@ of global catalog billing. Empty results are not proof that the service or regio
 
 ## Evidence reuse
 
+The producing owner checks the [complete affected capability path](architect-validation-checklist.md#dependency-path-closure-before-pricing-or-re-review)
+before revising a committed estimate. Batch authorized dependency repairs first and identify the
+changed resources/usage and current estimate revision. Pricing a new gateway alone does not prove
+that identity, DNS, endpoint reachability, monitoring or recovery now works.
+
 Request accounting is invocation-local: reused meter evidence carries its original timestamps and source counts,
 but those historical requests are not added to current `mcp_calls_used` or `direct_api_calls_used`.
 An interrupted attempt retains its remaining shared budget across resume; a new invocation, output path or chat

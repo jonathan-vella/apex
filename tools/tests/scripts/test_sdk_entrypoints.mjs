@@ -99,6 +99,55 @@ test("Requirements and its interactive parent preserve the native form wrapper",
   assert.match(read(".github/agents/01-orchestrator.agent.md"), /one schema-only correction/);
 });
 
+test("every question-capable agent carries the shared form contract, including future agents", () => {
+  const questionAgents = readdirSync(new URL(".github/agents/", root))
+    .filter((file) => file.endsWith(".agent.md"))
+    .filter((file) => parseFrontmatter(read(`.github/agents/${file}`)).tools.includes("ask_user"));
+  assert.ok(questionAgents.length > 0);
+  for (const file of questionAgents) {
+    const body = read(`.github/agents/${file}`);
+    assert.ok(body.includes("copilot-instructions.md#user-question-forms"), file);
+    for (const rule of [
+      "Before direct display or delegated return",
+      "distinct contextual titles",
+      "no unconditional companion note fields",
+      "reuse custom answers",
+      "only triggered follow-ups",
+    ]) {
+      assert.ok(body.includes(rule), `${file}: ${rule}`);
+    }
+  }
+  const shared = read(".github/copilot-instructions.md").split("## User Question Forms\n")[1]?.split("\n## ")[0];
+  assert.ok(shared, "Shared runtime guidance must cover general questions, not just reviews");
+  assert.match(shared, /every agent.*form/s);
+  assert.ok(shared.includes("validate_question_batching.py --form <scoped-form.json>"));
+  assert.match(shared, /read-only roles.*in memory/);
+  assert.match(shared, /only the validated payload to `ask_user`/);
+  assert.ok(shared.includes("--context <question-context.json> --require-context"));
+  assert.ok(shared.includes("validate_payload(form, context, require_context=True)"));
+  assert.ok(shared.includes("kind: input|follow_up|approval|disposition"));
+  const frame = read(".github/instructions/agent-operating-frame.instructions.md");
+  const authoring = read(".github/instructions/agent-authoring.instructions.md");
+  for (const body of [frame, authoring]) {
+    assert.ok(body.includes("copilot-instructions.md#user-question-forms"));
+  }
+});
+
+test("review owners preflight and record attempts without inventing root role selection", () => {
+  for (const file of readdirSync(new URL(".github/agents/", root)).filter((file) => file.endsWith(".agent.md"))) {
+    const body = read(`.github/agents/${file}`);
+    const metadata = parseFrontmatter(body);
+    if (!(metadata.agents ?? []).includes("challenger-review-subagent")) continue;
+    assert.match(body, /preflight the exact request/i, file);
+    assert.match(body, /(?:record|persist) `started`/, file);
+    assert.match(body, /actual (?:invocation )?outcome/, file);
+  }
+  const entry = read(".github/skills/apex-workflow-engine/references/workflow-entry.md");
+  assert.match(entry, /report unknown/);
+  assert.match(entry, /default coordinating chat/);
+  assert.match(entry, /historical step status/);
+});
+
 test("graph runtime metadata is descriptive while domain owners remain actual main definitions", () => {
   const graph = JSON.parse(read(".github/skills/apex-workflow-engine/templates/workflow-graph.json"));
   for (const key of ["harness", "delegation", "interaction", "handoffs", "permissions"]) {

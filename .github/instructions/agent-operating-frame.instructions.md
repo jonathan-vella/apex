@@ -12,6 +12,10 @@ An authoring `applyTo` match does not prove runtime attachment. Keep essential c
 Every directly selected main can use actual `ask_user` for material missing inputs.
 Requirements, Architect, Design and Governance retain their interactive discovery/clarification role.
 Batch independent fields, validate freeform values and reuse current answers.
+Before direct display or delegated return, apply the
+[shared question-form checks](../copilot-instructions.md#user-question-forms):
+distinct contextual titles, no unconditional companion note fields, reuse custom answers and only triggered follow-ups.
+This covers every question type and phase. File-based preflight never grants scratch-write permission to read-only roles.
 Native `requestedSchema` contains only `properties`; root `type`, `required` and `additionalProperties`
 are not tool parameters. Direct `ask_user` receives only `message` and `requestedSchema`.
 Delegated envelopes keep unresolved names outside the schema in `needed_inputs`.
@@ -37,6 +41,10 @@ Native Autopilot can answer questions; a form return is not independent human au
 
 Use explicit scope, inputs, outputs and failure criteria in actual native task prompts.
 Consume actual results and only supported same-task handles; one-shot tasks are not universally resumable.
+Keep actual role selection separate from a coordinating default chat; report unknown native role context honestly.
+Before reviewer dispatch use the shared request preflight and persist its attempt start; preserve the saved
+digest and actual outcome. Do not backdate starts, infer successful publication from task completion,
+or mask consequential command failures behind display/cleanup. These checks grant no permissions.
 No worker-ready turn, custom execution envelope, per-worker log gate or handoff-button dependency.
 The graph defines domain prerequisites/owners, not permission or native UI transitions.
 Runtime hooks are retired and must not be restored.

@@ -38,6 +38,10 @@ produce validated constraints and run required reconciliation review before Gate
 
 ## Interaction and execution
 
+Before direct display or delegated return, apply the
+[shared question-form checks](../copilot-instructions.md#user-question-forms):
+distinct contextual titles, no unconditional companion note fields, reuse custom answers and only triggered follow-ups.
+
 Honor caller `execution_mode: direct|delegated`. When unspecified, an actual top-level
 conversation is direct; do not infer delegation from the role name or tool list.
 Resolve genuinely ambiguous context before consequential approval.
@@ -58,6 +62,9 @@ Resolve genuinely ambiguous context before consequential approval.
   One-shot tasks return missing-input requests to the parent for a new bounded task.
 
 ## Constraints
+
+For each enabled independent review, preflight the exact request and persist `started` before native dispatch.
+Record the actual invocation outcome separately from successful publication using the shared one-shot lifecycle.
 
 - Write only governance artifacts/preview, authorized discovery caches and workspace-local scratch,
   decision sidecar, recorder-owned findings, README, handoff, recall and derived `sku_allowlist_snapshot`.
@@ -85,6 +92,10 @@ Resolve the target project/subscription from confirmed inputs. Missing/ambiguous
 requires a question; never default to the active Azure CLI subscription.
 Scope is subscription and below, including applicable management-group inheritance.
 Honor explicit resource-type narrowing; do not ask users to choose an unnecessary scope tier.
+Apply the [resource-group lifecycle](../skills/apex-azure-governance-discovery/references/reconciliation-disposition.md#resource-group-lifecycle).
+Do not require resource-group names or existence before planning when the groups are confirmed planned.
+Reuse that captured lifecycle answer; planned absence is not a Governance defect or a TTL failure.
+Ask for existing target groups only when their actual scope is needed and not already captured.
 
 After prerequisites, load `.github/skills/apex-azure-defaults/SKILL.md`,
 `.github/skills/apex-azure-governance-discovery/SKILL.md` and its
@@ -168,6 +179,9 @@ Before authoring, form a compact structured outline; use context compression onl
    Keep `services[]` and `revisions[]` unchanged. Run
    `node tools/scripts/derive-sku-allowlist.mjs <project> --check-only`;
    invoke full projection only when SKU restrictions apply. Only the derived snapshot may change.
+5. Describe confirmed planned resource groups as an informational lifecycle handoff, not a should-fix.
+   Do not tell Planner to wait for creation or re-run subscription discovery merely because names are decided.
+   Preserve inherited constraints and require later intended-scope/deployment checks under the lifecycle contract.
 
 Checkpoint `phase_2_artifacts`.
 Use the [drift matrix](../skills/apex-iac-common/references/governance-drift-routing.md)
@@ -221,6 +235,10 @@ Do not route conflicts, auto-dispose findings or edit reviewed inputs at this ph
 ## Phase 3 — Findings, overrides and Gate 2.5
 
 Present assignment/blocker/warning/auto-remediation totals, policy-to-plan adaptations and all findings.
+Use current review IDs and severities for review-disposition fields, not old annotation labels or severities.
+Do not promote a suggestion about an overstated planned-group gap into an actionable acceptance question.
+Present such suggestions as information, preserving the actual review and its exhausted allowance.
+Separate genuine unresolved policy decisions from those findings; do not re-ask confirmed lifecycle facts.
 Apply the Per-Finding Decision Protocol to every must-fix/should-fix, including `requires_step=step-2`:
 separate batched typed fields, canonical Accept/Reject/Defer/Edit, notes and existing panel cap.
 Persist `challenge-findings-governance-constraints-decisions.json` and recall findings.

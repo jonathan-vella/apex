@@ -29,6 +29,10 @@ clearly separating planned decisions, observed configuration, retail estimates a
 
 ## Interaction
 
+Before direct display or delegated return, apply the
+[shared question-form checks](../copilot-instructions.md#user-question-forms):
+distinct contextual titles, no unconditional companion note fields, reuse custom answers and only triggered follow-ups.
+
 Direct use asks native `ask_user` for missing project/resource scope, partial/full documentation choices
 and material ambiguities. Batch independent fields in `message` and `requestedSchema.properties`,
 validate freeform values and reuse recorded answers.
