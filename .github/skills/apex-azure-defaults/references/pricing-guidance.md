@@ -434,7 +434,7 @@ Prefer narrow `productName`/`meterName` filters over an unqualified service/regi
 
 | Candidate | Query shape | Select |
 | --- | --- | --- |
-| App Service Basic/Standard Linux | `serviceName` `Azure App Service`, region, `meterName` | `productName` `Azure App Service <Tier> Plan - Linux`; `meterName` `B2`, `S2 App` |
+| App Service Basic/Standard Linux | `serviceName` `Azure App Service`, region, `meterName` | `productName` `Azure App Service <Tier> Plan - Linux`; Basic Linux uses `meterName` `B1`/`B2`/`B3` (no `App` suffix — `B1 App` is Windows), while Standard uses `S1 App`/`S2 App`/`S3 App` |
 | App Service Premium v3 Linux | same | `Azure App Service Premium v3 Plan - Linux`; `meterName` `P1 v3 App` (space, not `P1v3`); the Windows row also matches |
 | Container Apps Consumption | `serviceName` `Azure Container Apps`, region | active vCPU-second and GiB-second meters plus the separate requests meter; needs monthly request count |
 | Blob Storage Hot LRS | `serviceName` `Storage`, region, `productName` `Blob Storage` | `Hot LRS Data Stored` returns multiple band rates in `pricing_get` without `tierMinimumUnits`: use `missing_tier_metadata` fallback to retrieve exact tier bands; select the read, write and other operations meters locally (per 10K) and never the Hierarchical Namespace product |
@@ -446,7 +446,7 @@ Prefer narrow `productName`/`meterName` filters over an unqualified service/regi
 | Standard Load Balancer | `serviceName` `Load Balancer`, billing region `Global` | rule hourly meter and `Standard Data Processed`; a `$0` Free meter does not establish an allowance, so the caller states the rule-count assumption |
 | Standard static public IPv4 | `serviceName` `Virtual Network`, deployment region | Standard IPv4 Static Public IP, 1 Hour |
 
-Deployment tier names such as `B2`, `P1v3` or `50 DTUs` are not catalog `meterName` values; do not retry an
+Deployment tier names such as `S2`, `P1v3` or `50 DTUs` are not catalog `meterName` values; do not retry an
 unchanged exact-name query that returned no rows.
 
 ## Failure rule
