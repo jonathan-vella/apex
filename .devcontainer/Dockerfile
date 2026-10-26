@@ -23,3 +23,10 @@ RUN bash /tmp/apex-build-tools/install-build-tools.sh \
         /home/vscode/.config /home/vscode/.config/gh \
         /home/vscode/.local /home/vscode/.local/bin \
         /home/vscode/.terraform.d /home/vscode/.terraform.d/plugin-cache
+
+# Feature installs run during the build, before devcontainer.json's containerEnv applies.
+ARG APEX_NPM_REGISTRY_HOST_PATH=registry.npmjs.org/
+ARG APEX_PIP_INDEX_HOST_PATH=pypi.org/simple/
+ENV NPM_CONFIG_REGISTRY="https://${APEX_NPM_REGISTRY_HOST_PATH}" \
+    PIP_INDEX_URL="https://${APEX_PIP_INDEX_HOST_PATH}" \
+    UV_INDEX_URL="https://${APEX_PIP_INDEX_HOST_PATH}"

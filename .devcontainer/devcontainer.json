@@ -2,7 +2,11 @@
   "name": "APEX",
   "build": {
     "dockerfile": "Dockerfile",
-    "context": "."
+    "context": ".",
+    "args": {
+      "APEX_NPM_REGISTRY_HOST_PATH": "${localEnv:APEX_NPM_REGISTRY_HOST_PATH:registry.npmjs.org/}",
+      "APEX_PIP_INDEX_HOST_PATH": "${localEnv:APEX_PIP_INDEX_HOST_PATH:pypi.org/simple/}"
+    }
   },
 
   "features": {
@@ -38,6 +42,7 @@
     "UV_CACHE_DIR": "/home/vscode/.cache/uv",
     "PIP_INDEX_URL": "https://${localEnv:APEX_PIP_INDEX_HOST_PATH:pypi.org/simple/}",
     "UV_INDEX_URL": "https://${localEnv:APEX_PIP_INDEX_HOST_PATH:pypi.org/simple/}",
+    "APEX_POWERSHELL_REPOSITORY_URL": "${localEnv:APEX_POWERSHELL_REPOSITORY_URL}",
     "TF_PLUGIN_CACHE_DIR": "/home/vscode/.terraform.d/plugin-cache"
   },
 

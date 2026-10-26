@@ -97,8 +97,8 @@ The base's `coreutils-single` is retained because installing the conflicting `co
 explicitly instead of being reported as file changes.
 `libatomic` supplies `libatomic.so.1`, required by the selected Node.js binary on ARM64.
 The image explicitly creates `vscode` and noninteractive sudo, rather than inheriting them from an Ubuntu base.
-Package-feed environment defaults are set in `devcontainer.json` `containerEnv`, so they apply to the running
-container only. Image and Feature builds do not use them; this matches the previous Ubuntu image.
+Package-feed defaults are passed through Dockerfile build arguments and `devcontainer.json` `containerEnv`,
+so the host opt-ins apply to image and Feature builds as well as the running container.
 
 The CFS proxy, `packagefeedproxy.microsoft.io`, is intended for Microsoft maintainers' corporate laptops and dev boxes,
 not automated builds or CI. Those workloads require an authenticated, approved team-owned Azure Artifacts feed.
@@ -114,8 +114,10 @@ Only install versions whose upstream artifacts are at least seven days old, incl
 dependencies. Verify original publication dates separately: a mirror's upload timestamp can reflect later
 ingestion, and feed availability alone does not establish artifact age.
 
-Python setup retains Pillow 12.3.0 and Ruff 0.17.0 as the validated CFS-available pins.
-Do not replace them with newer releases until both the seven-day minimum and CFS availability are verified.
+Python setup pins Pillow 13.0.0 to address the reported image-decoder vulnerabilities and retains Ruff 0.17.0.
+Pillow's upstream wheels were published on 2026-10-16; CFS availability and matching upstream hashes were
+verified for Python 3.14 and 3.15 on amd64 and arm64 on 2026-10-26.
+Do not replace pins until both the seven-day minimum and CFS availability are verified.
 
 | Standalone tool | Selected version |
 | --- | --- |
@@ -299,8 +301,9 @@ Native amd64 and arm64 image builds and non-root required-CLI smoke checks pass 
 dev containers have been manually tested and validated on x86-64 (amd64) and ARM64, including Windows with
 the WSL 2 backend. Cold/warm workspace setup timing has not been measured, and the standalone acceptance
 script remains a manual check after rebuild.
-The Python 3.15 dependency installation now succeeds through CFS with the explicitly approved Pillow 12.3.0
-and Ruff 0.17.0 fallback pins. Runtime, transitive and build dependency publication ages were verified against
+The earlier Python 3.15 dependency installation succeeded through CFS with the approved Pillow 12.3.0
+and Ruff 0.17.0 fallback pins; Pillow is now security-patched as documented above.
+Runtime, transitive and build dependency publication ages were verified against
 the seven-day minimum. Rendering and recall regressions passed (385 passed, 5 skipped), along with lifecycle
 contract tests (28 passed). The complete post-create lifecycle and non-Python tool ages have not been revalidated.
 No TLS verification was disabled and no package-manager download bypassed CFS.
@@ -423,6 +426,7 @@ protection instead of changing credentials.
 | `GH_TOKEN`                | `${localEnv:GH_TOKEN}`        | Optional token inherited by the host VS Code process     |
 | `NPM_CONFIG_REGISTRY`     | `https://` + `APEX_NPM_REGISTRY_HOST_PATH`, default `registry.npmjs.org/` | npm registry for the running container |
 | `PIP_INDEX_URL`, `UV_INDEX_URL` | `https://` + `APEX_PIP_INDEX_HOST_PATH`, default `pypi.org/simple/` | Python package index for pip and uv |
+| `APEX_POWERSHELL_REPOSITORY_URL` | Optional host-process value; unset by default | HTTPS feed for the pinned analyzer; otherwise the declared PSGallery repository |
 | `PYTHONDONTWRITEBYTECODE` | `1`                           | Skip `.pyc` generation                                   |
 | `PYTHONUNBUFFERED`        | `1`                           | Unbuffered Python output                                 |
 | `UV_CACHE_DIR`            | `~/.cache/uv`                 | uv package cache                                         |
@@ -435,23 +439,62 @@ uv. `post-create.sh` installs packages with these settings and stops on any fail
 cannot reach fails the setup.
 
 **Microsoft maintainers opt in** to the CFS proxy, as the CFS policy in [AGENTS.md](../AGENTS.md) requires. Anyone
-else can use their own registry or mirror the same way. Set these on the **host** before VS Code starts (for example
-in your shell profile or Windows user environment), then rebuild the container. Dev Containers reads them from the
-host VS Code process, as it does for `GH_TOKEN`:
+else can use their own registry or mirror the same way. Use the host launchers below before opening VS Code; they
+pass the registry settings through to the image build and container. Dev Containers reads host variables from the
+VS Code process, as it does for `GH_TOKEN`:
 
-| Host variable                 | Microsoft CFS value                         | Default           |
-| ----------------------------- | ------------------------------------------- | ----------------- |
-| `APEX_NPM_REGISTRY_HOST_PATH` | `packagefeedproxy.microsoft.io/npm/`        | `registry.npmjs.org/` |
-| `APEX_PIP_INDEX_HOST_PATH`    | `packagefeedproxy.microsoft.io/pypi/simple/` | `pypi.org/simple/`    |
+| Host variable | Microsoft CFS value | Default |
+| --- | --- | --- |
+| `APEX_NPM_REGISTRY_HOST_PATH` | `packagefeedproxy.microsoft.io/npm/` | `registry.npmjs.org/` |
+| `APEX_PIP_INDEX_HOST_PATH` | `packagefeedproxy.microsoft.io/pypi/simple/` | `pypi.org/simple/` |
+| `APEX_POWERSHELL_REPOSITORY_URL` | `https://packagefeedproxy.microsoft.io/powershell/v2` | Unset (declared PSGallery repository) |
 
-Values are host and path without `https://`. The prefix is fixed in `devcontainer.json`, because the Dev Containers
-CLI cuts a default value at its first colon. `post-start.sh` prints the npm, pip and uv sources separately at every
+#### Microsoft Employees: Run This Before Starting the Container
+
+**Microsoft employees: use the launcher instead of `code .`.** Run it on the **host**, not inside a container or
+a VS Code integrated terminal. Connect to the approved corporate network/VPN as required, and fully exit every VS
+Code window first; otherwise the new window may reuse a process that does not have the feed settings.
+
+On **Windows**, from PowerShell:
+
+```powershell
+.\.devcontainer\open-microsoft.ps1
+```
+
+On **Linux, macOS, or WSL**, from the host shell:
+
+```bash
+bash .devcontainer/open-microsoft.sh
+```
+
+The launcher opens this repository with Microsoft CFS feeds for npm, Python, and PowerShell. npm and Python feed
+settings apply during image and Feature builds as well as in the running container. The launchers require no
+administrator access or host Node.js/Python; the Windows script works with PowerShell 5.1. They do not install
+packages, persist host settings, change credentials, disable TLS checks, or fall back to public registries. If an
+execution policy blocks the Windows script, use your organization's approved execution method; do not bypass it.
+Run the launcher again whenever opening a fresh VS Code process for this project.
+
+**Existing containers must be rebuilt:** when first adopting the launcher or changing host feed variables,
+run `Dev Containers: Rebuild Container` after launching VS Code. Reopening or restarting an existing container
+does not update its Dockerfile environment or `containerEnv`; it can retain the previous public registries.
+Wait for post-create to finish, then check the package-source labels in the startup output before installing packages.
+
+**Everyone else:** skip the Microsoft launchers. Public registries remain the default. Other organizations may set
+their approved registry values on the host before launching VS Code.
+
+NPM and Python values are host and path without `https://`; the PowerShell variable is a full HTTPS URL. The npm and
+Python prefixes are fixed in `devcontainer.json`, because the Dev Containers CLI cuts a default value at its first
+colon. `post-start.sh` prints the npm, pip and uv sources separately at every
 start (labels only: `Microsoft CFS`, `public`, `custom` or `unset`; URLs are never printed) and warns when the CFS
-opt-in is incomplete, so a maintainer who forgot one variable is not silently on a public source. The substitution
-was checked with the bundled Dev Containers CLI (`read-configuration`), not with a full rebuild.
+opt-in is incomplete, so a maintainer who forgot one variable is not silently on a public source.
 
 Outside the container, npm reads `NPM_CONFIG_REGISTRY`, pip reads `PIP_INDEX_URL` and uv reads `UV_INDEX_URL`.
 The `package-lock.json` URLs point at `registry.npmjs.org`, which npm replaces with the configured registry host.
+
+The security overrides pin `markdown-it` 15.0.3, `undici` 8.12.3, and `ip-address` 10.7.4.
+`get-uri` uses `basic-ftp` 6.2.3 to remove the FTP parser advisory rather than retaining its audit exception.
+These versions were available through CFS and their upstream releases were at least seven days old on 2026-10-26.
+The audit exception list is empty; unavailable or quarantined patches must remain visible, not be dismissed.
 
 The seven-day minimum age and CFS-only rules in [AGENTS.md](../AGENTS.md) are Microsoft's supply-chain policy for
 its own maintainers. Other users apply their own controls, such as a minimum release age and an allowlisted mirror.
