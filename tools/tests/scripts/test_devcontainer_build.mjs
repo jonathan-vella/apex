@@ -182,7 +182,7 @@ test("build uses Azure Linux 4 with explicit user prerequisites and preserves ho
       `${name} default must not contain a colon`,
     );
     assert.match(dockerfile, new RegExp(`ARG ${buildArg}=`, "i"));
-    const dockerfileValue = `${name}="https://` + "${" + buildArg + "}" + '"';
+    const dockerfileValue = `${name}="https://\${${buildArg}}"`;
     assert.ok(dockerfile.includes(dockerfileValue), `${name} must use its build argument`);
   }
   const powershellSource = "https://packagefeedproxy.microsoft.io/powershell/v2";
@@ -192,7 +192,10 @@ test("build uses Azure Linux 4 with explicit user prerequisites and preserves ho
   for (const launcher of [windowsLauncher, unixLauncher]) {
     assert.match(launcher, /APEX_NPM_REGISTRY_HOST_PATH/);
     assert.match(launcher, /APEX_PIP_INDEX_HOST_PATH/);
-    assert.ok(launcher.includes(powershellSource));
+    assert.equal(
+      launcher.match(/^\s*(?:export )?APEX_POWERSHELL_REPOSITORY_URL\s*=\s*'?([^\s']+)'?\s*$/m)?.[1],
+      powershellSource,
+    );
     assert.match(launcher, /Close all existing VS Code windows|All existing VS Code windows must be closed/);
   }
   assert.match(windowsLauncher, /GetEnvironmentVariable\(\$name, 'Process'\)/);

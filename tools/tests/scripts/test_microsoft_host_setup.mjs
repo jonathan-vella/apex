@@ -19,6 +19,8 @@ function fixture(context) {
   const directory = mkdtempSync(path.join(tmpdir(), "apex-microsoft-host-"));
   context.after(() => rmSync(directory, { recursive: true, force: true }));
   mkdirSync(path.join(directory, "bin"));
+  const emptyPath = path.join(directory, "empty-bin");
+  mkdirSync(emptyPath);
   const log = path.join(directory, "launch.json");
   const runner = `const { writeFileSync } = require("node:fs");
 writeFileSync(process.env.LAUNCH_LOG, JSON.stringify({args: process.argv.slice(2), env: process.env}));
@@ -40,6 +42,7 @@ process.exit(Number(process.env.CODE_EXIT ?? 0));
   }
   return {
     log,
+    emptyPath,
     env: {
       ...process.env,
       PATH: `${path.join(directory, "bin")}${path.delimiter}${process.env.PATH}`,
@@ -109,7 +112,7 @@ if (process.platform !== "win32") {
   test("Bash launcher fails explicitly when the host VS Code CLI is missing", (context) => {
     const setup = fixture(context);
     const result = spawnSync("/bin/bash", [path.join(root, ".devcontainer/open-microsoft.sh")], {
-      env: { ...setup.env, PATH: tmpdir() },
+      env: { ...setup.env, PATH: setup.emptyPath },
       encoding: "utf8",
     });
     assert.equal(result.status, 127, result.stdout + result.stderr);
@@ -118,7 +121,8 @@ if (process.platform !== "win32") {
   });
 }
 
-test("PowerShell launcher fails explicitly when the host VS Code CLI is missing", () => {
+test("PowerShell launcher fails explicitly when the host VS Code CLI is missing", (context) => {
+  const setup = fixture(context);
   const resolved = spawnSync("pwsh", [...flags, "-Command", "(Get-Process -Id $PID).Path"], {
     encoding: "utf8",
   });
@@ -126,7 +130,7 @@ test("PowerShell launcher fails explicitly when the host VS Code CLI is missing"
   const result = spawnSync(
     resolved.stdout.trim(),
     [...flags, "-File", path.join(root, ".devcontainer/open-microsoft.ps1")],
-    { env: { ...process.env, PATH: process.platform === "win32" ? tmpdir() : "/usr/bin:/bin" }, encoding: "utf8" },
+    { env: { ...setup.env, PATH: setup.emptyPath }, encoding: "utf8" },
   );
   assert.equal(result.status, 1, result.stdout + result.stderr);
   assert.match(result.stderr, /Microsoft host launcher failed:.*code/);
