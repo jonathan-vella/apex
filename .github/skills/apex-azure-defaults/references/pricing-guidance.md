@@ -10,14 +10,23 @@ for unresolved public retail meters after documented MCP failure. Parent agents 
 
 ## Connection
 
-The workspace registers `azure-mcp` (pinned `@azure/mcp` release) in `.mcp.json`; the worker
-reaches it as `azure-mcp/pricing`. Retail catalog data is public. The worker uses no Azure Resource Manager
+The workspace registers the Azure MCP server as `azure-mcp` (pinned `@azure/mcp` release) in `.mcp.json`.
+The agent restricts access to its `pricing` capability using the documented `server/tool` declaration,
+`azure-mcp/pricing`. A runtime-advertised name such as `azure-mcp-pricing` identifies a tool, not another server;
+its spelling alone does not establish supported agent configuration or working invocation.
+Find the tool with one native `tool_search_tool` query (for example `azure-mcp pricing pricing_get`). The result lists
+the tool by name (here `azure-mcp-pricing`); that reference is the handle to call. Discovery output is a name list and
+does not print a schema, so an absent schema is not evidence that the tool is unavailable. Call the handle directly
+(see the query contract); only a call the runtime actually rejects (for example "unknown tool") is a failure, and then
+record that exact error and the issued-query count. Do not infer an Azure pricing-service or authentication failure.
+Retail catalog data is public. The worker uses no Azure Resource Manager
 MCP tools, cost-query, forecast or benefit tools, and no deployment or resource mutation tools.
 
 ## Query contract
 
-Invoke `mcp_azure_mcp_ser_pricing` directly with `command: "pricing_get"` and `learn: false`; never spend a
-turn calling `learn: true`. `pricing_get` takes `sku`, `service`, `region`, `service-family`, `price-type`,
+Invoke the discovered pricing tool (`azure-mcp-pricing`) directly with `command: "pricing_get"` and `learn: false`,
+passing the inputs below under `parameters`; never spend a turn calling `learn: true`. `pricing_get` takes `sku`,
+`service`, `region`, `service-family`, `price-type`,
 `currency`, `include-savings-plan` and a raw OData `filter` (always use kebab-case `"price-type"`,
 `"service-family"`, and `"include-savings-plan"` — never snake_case `price_type` or `price`); at least one of the filter inputs is required.
 Catalog field names map to it as follows:

@@ -31,7 +31,7 @@ Callers: Architect (planned estimates) | As-Built (deployed estimates).
   and unrelated user edits. No other artifact, recall or Azure writes.
 - Use editing tools for JSON and #tool:execute only for arithmetic, validation, atomic rename,
   and the documented `cost-estimate.mjs` and `fetch-retail-price-evidence.mjs` helpers. Never run inline
-  double-quoted `node -e "... !..."` commands. Never call `mcp_azure_mcp_ser_pricing` with `learn: true`;
+  double-quoted `node -e "... !..."` commands. Never call the pricing tool with `learn: true`;
   invoke `command: "pricing_get"` (`learn: false`) directly. The evidence helper alone may write its validated
   direct-API evidence output; it never writes the estimate. Terminal access is not inherently read-only.
 - No questions, todos, delegation or automatic model fallback. Missing essential
@@ -41,6 +41,11 @@ Callers: Architect (planned estimates) | As-Built (deployed estimates).
   this leaf never invokes a reviewer or changes routing. Runtime model metadata is diagnostic only.
 - Return exactly `COMPLETE` or `FAILED`; `PARTIAL` is not valid.
 - Never invent a price or choose an ambiguous meter silently.
+- Use only the configured Azure MCP server's pricing tool. One `tool_search_tool` query returns its name
+  (`azure-mcp-pricing`) without a schema; call that name directly as the pricing guidance's query contract states.
+  A missing printed schema is not a failure. Report a capability gap only if the call itself is rejected, quoting the
+  exact error and issued-query count, never as an Azure service/authentication failure.
+  Do not broaden tool permissions or repeat unchanged discovery.
 
 ## Native execution
 
