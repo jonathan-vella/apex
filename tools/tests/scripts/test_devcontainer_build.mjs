@@ -124,12 +124,21 @@ test("build uses Azure Linux 4 with explicit user prerequisites and preserves ho
   const config = parseJsonc(readFileSync(new URL("devcontainer.json", containerDir), "utf8"));
   const lock = JSON.parse(readFileSync(new URL("devcontainer-lock.json", containerDir), "utf8"));
   const dockerfile = readFileSync(new URL("Dockerfile", containerDir), "utf8");
-  assert.deepEqual(config.build, { dockerfile: "Dockerfile", context: "." });
+  assert.deepEqual(config.build, {
+    dockerfile: "Dockerfile",
+    context: ".",
+    args: {
+      APEX_NPM_REGISTRY_HOST_PATH: "${localEnv:APEX_NPM_REGISTRY_HOST_PATH:registry.npmjs.org/}",
+      APEX_PIP_INDEX_HOST_PATH: "${localEnv:APEX_PIP_INDEX_HOST_PATH:pypi.org/simple/}",
+    },
+  });
   assert.equal(config.image, undefined);
   const expectedImage =
     process.env.APEX_EXPECTED_BASE_IMAGE ??
     "mcr.microsoft.com/azurelinux-beta/base/core:4.0@sha256:63ef5dda2fb5681ae3aa5c9597a8c4b24364da91ec459b419fa3c38160595fae";
   assert.equal(dockerfile.split("\n")[0], `FROM ${expectedImage}`);
+  assert.match(dockerfile, /ARG APEX_NPM_REGISTRY_HOST_PATH=registry\.npmjs\.org\//);
+  assert.match(dockerfile, /ARG APEX_PIP_INDEX_HOST_PATH=pypi\.org\/simple\//);
   assert.match(dockerfile, /dnf install -y/);
   assert.match(dockerfile, /graphviz bats/);
   assert.match(dockerfile, /findutils coreutils-single\b/);
@@ -148,11 +157,21 @@ test("build uses Azure Linux 4 with explicit user prerequisites and preserves ho
     /sudo -n chown -R .*\/usr\/local\/python\/current/,
   );
   assert.match(dockerfile, /\/home\/vscode\/\.terraform\.d\/plugin-cache/);
-  for (const [name, value] of Object.entries({
-    NPM_CONFIG_REGISTRY: "https://${localEnv:APEX_NPM_REGISTRY_HOST_PATH:registry.npmjs.org/}",
-    PIP_INDEX_URL: "https://${localEnv:APEX_PIP_INDEX_HOST_PATH:pypi.org/simple/}",
-    UV_INDEX_URL: "https://${localEnv:APEX_PIP_INDEX_HOST_PATH:pypi.org/simple/}",
-  })) {
+  const registrySources = {
+    NPM_CONFIG_REGISTRY: {
+      value: "https://${localEnv:APEX_NPM_REGISTRY_HOST_PATH:registry.npmjs.org/}",
+      buildArg: "APEX_NPM_REGISTRY_HOST_PATH",
+    },
+    PIP_INDEX_URL: {
+      value: "https://${localEnv:APEX_PIP_INDEX_HOST_PATH:pypi.org/simple/}",
+      buildArg: "APEX_PIP_INDEX_HOST_PATH",
+    },
+    UV_INDEX_URL: {
+      value: "https://${localEnv:APEX_PIP_INDEX_HOST_PATH:pypi.org/simple/}",
+      buildArg: "APEX_PIP_INDEX_HOST_PATH",
+    },
+  };
+  for (const [name, { value, buildArg }] of Object.entries(registrySources)) {
     assert.equal(config.containerEnv[name], value, `${name} must be set for the running container`);
     // The Microsoft CFS proxy is opt-in for Microsoft maintainers; it must never be the default.
     assert.doesNotMatch(config.containerEnv[name], /microsoft\.io/, `${name} must default to a public registry`);
@@ -162,8 +181,23 @@ test("build uses Azure Linux 4 with explicit user prerequisites and preserves ho
       /\$\{localEnv:[^}]*:[^}]*:/,
       `${name} default must not contain a colon`,
     );
-    assert.ok(!dockerfile.includes(`${name}=`), `${name} must not change image or Feature builds`);
+    assert.match(dockerfile, new RegExp(`ARG ${buildArg}=`, "i"));
+    const dockerfileValue = `${name}="https://` + "${" + buildArg + "}" + '"';
+    assert.ok(dockerfile.includes(dockerfileValue), `${name} must use its build argument`);
   }
+  const powershellSource = "https://packagefeedproxy.microsoft.io/powershell/v2";
+  assert.equal(config.containerEnv.APEX_POWERSHELL_REPOSITORY_URL, "${localEnv:APEX_POWERSHELL_REPOSITORY_URL}");
+  const windowsLauncher = readFileSync(new URL("open-microsoft.ps1", containerDir), "utf8");
+  const unixLauncher = readFileSync(new URL("open-microsoft.sh", containerDir), "utf8");
+  for (const launcher of [windowsLauncher, unixLauncher]) {
+    assert.match(launcher, /APEX_NPM_REGISTRY_HOST_PATH/);
+    assert.match(launcher, /APEX_PIP_INDEX_HOST_PATH/);
+    assert.ok(launcher.includes(powershellSource));
+    assert.match(launcher, /Close all existing VS Code windows|All existing VS Code windows must be closed/);
+  }
+  assert.match(windowsLauncher, /GetEnvironmentVariable\(\$name, 'Process'\)/);
+  assert.match(windowsLauncher, /SetEnvironmentVariable\(\$name, \$previous\[\$name\], 'Process'\)/);
+  assert.match(unixLauncher, /WSLENV/);
   assert.equal(config.onCreateCommand, "az version --output none");
   assert.equal(config.postCreateCommand, "bash .devcontainer/post-create.sh");
   assert.equal(config.remoteUser, "vscode");
