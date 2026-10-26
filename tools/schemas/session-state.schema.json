@@ -148,6 +148,44 @@
       "required": ["region", "compliance", "budget", "architecture_pattern", "deployment_strategy"],
       "additionalProperties": true,
       "properties": {
+        "workflow_contract": {
+          "type": "string",
+          "enum": ["", "practical-v1"],
+          "description": "New-project default; legacy projects require explicit owner-approved adoption."
+        },
+        "material_inputs": {
+          "type": "object",
+          "description": "Authoritative scoped human choices; domain policy/pricing facts remain in their evidence artifacts.",
+          "additionalProperties": {
+            "type": "object",
+            "required": ["input_id", "value", "environments", "owner", "request_id", "recorded_at"],
+            "properties": {
+              "input_id": { "type": "string", "minLength": 1 },
+              "value": {},
+              "environments": {
+                "type": "array",
+                "minItems": 1,
+                "items": { "enum": ["dev", "test", "staging", "prod", "sandbox"] }
+              },
+              "owner": { "type": "string", "minLength": 1 },
+              "request_id": { "type": "string", "minLength": 1 },
+              "recorded_at": { "type": "string" }
+            },
+            "additionalProperties": false
+          }
+        },
+        "phase_scopes": {
+          "type": "object",
+          "description": "Explicit consumed-input/environment scope; never Azure or deployment authorization."
+        },
+        "review_cycles": {
+          "type": "object",
+          "description": "Actual artifact/lens initial/closure accounting, preserving exhausted history."
+        },
+        "assessment_views": {
+          "type": "object",
+          "description": "Derived view bindings; completion rechecks current consumed inputs."
+        },
         "region": { "type": "string" },
         "compliance": { "type": "string" },
         "budget": { "type": "string" },

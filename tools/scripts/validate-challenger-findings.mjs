@@ -42,6 +42,7 @@ import path from "node:path";
 import { parseArgs } from "node:util";
 import { createHash } from "node:crypto";
 import { fileURLToPath } from "node:url";
+import { reviewCompatibility } from "./_lib/review-compatibility.mjs";
 import { Reporter } from "./_lib/reporter.mjs";
 import { parseFrontmatter } from "./_lib/parse-frontmatter.mjs";
 
@@ -166,8 +167,10 @@ export function cacheInputs(artifactPath, root = process.cwd(), reviewer) {
 
 function verifyCache(file, doc, root = process.cwd(), execution = doc.review_execution) {
   const expected = cacheInputs(doc.challenged_artifact, root, doc.cache_inputs?.reviewer);
+  const compatibility = reviewCompatibility(doc.cache_inputs, expected, root);
   for (const [field, value] of Object.entries(expected)) {
-    if (doc.cache_inputs?.[field] !== value) r.error(`${file}: stale cache_inputs.${field}`);
+    if (doc.cache_inputs?.[field] !== value && compatibility !== "editorial-compatible")
+      r.error(`${file}: stale cache_inputs.${field}`);
   }
   if (Object.hasOwn(doc.cache_inputs ?? {}, "model") !== Object.hasOwn(expected, "model")) {
     r.error(`${file}: cache_inputs.model must be present only for an explicitly pinned legacy reviewer`);

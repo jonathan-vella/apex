@@ -28,6 +28,13 @@ model/tools and require explicit selection of the owning agent.
 
 ## Pricing Accuracy Gate (HARD)
 
+For adopted practical projects, evidence-equivalent scenario arithmetic may use the existing
+deterministic `cost-estimate.mjs scenarios` command over the pricing owner's current verified
+output. This is not parent-authored pricing: rates and calculation bases retain provenance,
+different SKUs/meters require the pricing owner, and scenario outputs are comparison-only.
+Do not launch a worker per scenario merely to repeat equivalent arithmetic. Preserve the
+independent cost-feasibility review and actual query counts.
+
 Parent-side model evaluation found agents hallucinating Azure SKU prices
 (e.g., AKS Standard at $0.60/hr instead of $0.10/hr) when writing from
 parametric knowledge. **ALL dollar figures in user-facing artifacts MUST

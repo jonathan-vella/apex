@@ -30,6 +30,11 @@ reads instead of relying on hardcoded step logic.
 
 ## Prerequisites
 
+Graph 3.0 adds the [practical contract](references/practical-workflow.md) for new
+projects; known 2.x project semantics remain readable until explicit owner adoption.
+Specialists and stage approvals are unchanged. Preliminary policy feasibility is
+collection before Architecture approval, not early completion of Governance.
+
 Use the graph and `apex-recall show <project> --json` together. If the returned
 `session` is empty, initialize or recover the project within the active owner's scope before routing.
 The already selected Orchestrator continues explicit new-project requests into Requirements;

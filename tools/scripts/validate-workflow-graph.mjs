@@ -272,10 +272,10 @@ for (const edge of graph.edges) {
 }
 
 // Validate metadata.version
-const expectedMajor = "2";
-const knownVersions = new Set(["2.1", "2.2", "2.3", "2.4", "2.5"]);
+const expectedMajors = ["2", "3"];
+const knownVersions = new Set(["2.1", "2.2", "2.3", "2.4", "2.5", "3.0"]);
 const metaVersion = graph.metadata?.version;
-if (metaVersion === "2.5") {
+if (metaVersion === "2.5" || metaVersion === "3.0") {
   const contract = graph.metadata?.risk_acceptance;
   if (
     contract?.contract !== "risk-authorization-v1" ||
@@ -299,8 +299,20 @@ if (metaVersion === undefined) {
   r.error(
     `metadata.version "${metaVersion}" is not a known version (expected one of: ${[...knownVersions].join(", ")})`,
   );
-} else if (!metaVersion.startsWith(`${expectedMajor}.`)) {
-  r.error(`metadata.version major must be "${expectedMajor}" (got "${metaVersion}")`);
+} else if (!expectedMajors.includes(metaVersion.split(".")[0])) {
+  r.error(`Unsupported metadata.version major: ${metaVersion}`);
+}
+if (metaVersion === "3.0") {
+  const contract = graph.metadata.practical_workflow;
+  if (
+    contract?.contract !== "practical-v1" ||
+    contract.initial_calls_per_artifact_lens !== 1 ||
+    contract.closure_calls_per_artifact_lens !== 1 ||
+    contract.retain_stage_approvals !== true ||
+    contract.new_projects_only !== true ||
+    contract.migration !== "explicit-owner-adoption"
+  )
+    r.error("Practical workflow must preserve bounded review cycles, stage approvals and explicit legacy adoption");
 }
 
 // Validate top-level challenger block (introduced in 2.2)

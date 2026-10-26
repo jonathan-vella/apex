@@ -79,9 +79,10 @@ fields as informational warnings; they apply the same logic to non-null
 ## Defender Auto-Assignment Filter
 
 `properties.metadata.assignedBy == "Security Center"` indicates Microsoft
-Defender for Cloud auto-created this assignment. These are noisy and rarely
-block customer workloads. `discover.py` excludes them by default (matches EPAC
-behaviour) and logs each to stderr. Use `--include-defender-auto` to retain.
+Defender for Cloud auto-created this assignment. `discover.py` retains these by default
+and evaluates their real effects. Reduce presentation noise after analysis, never by
+claiming an unassessed assignment harmless. Legacy `--exclude-defender-auto` explicitly
+retains the old filtered scope; its snapshot is not full-coverage evidence.
 
 ## Prior Art
 

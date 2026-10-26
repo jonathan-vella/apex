@@ -23,6 +23,14 @@ def run(args) -> int:
     path = session_state_path(project)
     data = read_state(path)
     data = migrate_to_v3(data)
+    if getattr(args, "sync_assessment", False):
+        from ..practical import sync_views
+
+        sync_views(project, data, step)
+    if getattr(args, "policy_feasibility", None):
+        from ..practical import bind_feasibility
+
+        bind_feasibility(project, data, args.policy_feasibility)
 
     step_data = data["steps"].get(step, {})
     step_data["sub_step"] = sub_step

@@ -372,7 +372,7 @@ def test_empty_tenant_returns_zero_findings():
     assert env["discovery_summary"]["assignment_total"] == 0
 
 
-def test_defender_auto_assignments_filtered_by_default():
+def test_defender_auto_assignments_explicit_legacy_filter():
     defender_assignment = {
         "id": "/subscriptions/s/providers/Microsoft.Authorization/policyAssignments/defender-123",
         "name": "defender-123",
@@ -386,7 +386,7 @@ def test_defender_auto_assignments_filtered_by_default():
     mapping = {
         "policyAssignments": {"value": [defender_assignment]},
     }
-    env = discover.discover("s", project="p", az_rest=_router(mapping))
+    env = discover.discover("s", project="p", az_rest=_router(mapping), include_defender_auto=False)
     assert env["discovery_summary"]["defender_auto_filtered"] == 1
     assert env["discovery_summary"]["assignment_kept"] == 0
     assert env["findings"] == []
@@ -424,7 +424,7 @@ def test_defender_filter_is_verbose_when_opted_in(capsys):
         },
     }
     mapping = {"policyAssignments": {"value": [defender_assignment]}}
-    discover.discover("s", project="p", az_rest=_router(mapping), verbose=True)
+    discover.discover("s", project="p", az_rest=_router(mapping), verbose=True, include_defender_auto=False)
     err = capsys.readouterr().err
     matching = [line for line in err.splitlines() if line.startswith("filter: skipping")]
     assert len(matching) == 1
@@ -876,7 +876,7 @@ def test_cli_cache_hit_short_circuits(tmp_path, capsys, monkeypatch):
             {
                 "schema_version": "governance-constraints-v1",
                 "project": "p",
-                "discovery_options": {"include_defender_auto": False},
+                "discovery_options": {"include_defender_auto": True},
                 "subscription_id": "s",
                 "discovered_at": discover.datetime.now(discover.timezone.utc).isoformat(),
                 "discovery_metadata": {
@@ -962,7 +962,7 @@ def test_r1_cache_identity(tmp_path: Path, capsys: Any, monkeypatch: Any, change
     if change != "default-subscription":
         args += ["--subscription", "other" if change == "subscription" else "s"]
     if change == "filter":
-        args += ["--include-defender-auto"]
+        args += ["--exclude-defender-auto"]
     if change == "refresh":
         args += ["--refresh"]
     assert discover.main(args) == 0

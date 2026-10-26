@@ -785,6 +785,7 @@ export function publishEstimate(options = {}) {
   const estimate = JSON.parse(fs.readFileSync(draftPath, "utf8"));
   for (const res of estimate.resources ?? []) {
     if (Array.isArray(res.components) || res.unit_of_measure || res.tier_bands) {
+      res.calculation_basis = structuredClone(res);
       res.monthly_cost = calculateLineCost(res);
       delete res.components;
       delete res.unit_of_measure;
@@ -861,6 +862,72 @@ export function publishEstimate(options = {}) {
   return { estimate, summary };
 }
 
+export function calculateScenarios(estimate, scenarios, { cwd = process.cwd(), now = new Date(), ttlDays = 30 } = {}) {
+  const validation = validateEstimate(estimate, { cwd, verifyEvidenceFiles: true });
+  if (!validation.ok || estimate.status !== "COMPLETE")
+    throw new Error(`Current complete evidence required: ${validation.errors.join("; ")}`);
+  const queried = Date.parse(estimate.queried_at);
+  const age = now.getTime() - queried;
+  if (!Number.isFinite(queried) || !Number.isInteger(ttlDays) || ttlDays <= 0 || age < 0 || age > ttlDays * 86400000)
+    throw new Error("Scenario meter evidence is stale or future-dated");
+  if (!scenarios || typeof scenarios !== "object" || Array.isArray(scenarios) || !Object.keys(scenarios).length)
+    throw new Error("Named scenario overrides are required");
+  const names = new Set(estimate.resources.map((resource) => resource.name));
+  if (names.size !== estimate.resources.length) throw new Error("Scenario resource names must be unique");
+  const results = {};
+  for (const [scenario, overrides] of Object.entries(scenarios)) {
+    if (!overrides || typeof overrides !== "object" || Array.isArray(overrides))
+      throw new Error(`Invalid scenario ${scenario}`);
+    if (Object.keys(overrides).some((name) => !names.has(name))) throw new Error("Scenario names an unpriced resource");
+    const resources = estimate.resources.map((resource) => {
+      const override = overrides[resource.name] ?? {};
+      if (Object.keys(override).some((key) => !["quantity", "usage_amount"].includes(key)))
+        throw new Error("Scenario cannot change SKU, meter, price, region or commitment");
+      const basis = resource.calculation_basis;
+      if (!basis && Object.keys(override).length)
+        throw new Error("Scenario recalculation requires retained meter calculation inputs");
+      if (
+        basis &&
+        (["name", "service_name", "sku", "region", "quantity"].some((key) => basis[key] !== resource[key]) ||
+          calculateLineCost(basis) !== resource.monthly_cost)
+      )
+        throw new Error("Retained calculation basis differs from the verified resource");
+      if (!Object.keys(override).length) return { name: resource.name, monthly_cost: resource.monthly_cost };
+      const line = structuredClone(basis);
+      if (override.quantity !== undefined && line.components?.some((component) => Object.hasOwn(component, "quantity")))
+        throw new Error("Component-specific quantities require an explicit pricing request");
+      for (const key of Object.keys(override)) {
+        if (
+          typeof override[key] !== "number" ||
+          !Number.isFinite(override[key]) ||
+          override[key] < 0 ||
+          (key === "quantity" && override[key] === 0)
+        )
+          throw new Error("Scenario quantity/usage must be explicit finite nonnegative numbers");
+        if (key === "usage_amount" && Array.isArray(line.components)) {
+          if (line.components.length !== 1)
+            throw new Error("Multi-meter usage requires a new explicit pricing request");
+          line.components[0].usage_amount = override[key];
+        } else line[key] = override[key];
+      }
+      const monthly = calculateLineCost(line);
+      if (!Number.isFinite(monthly)) throw new Error("Scenario calculation is unresolved");
+      return { name: resource.name, monthly_cost: monthly };
+    });
+    const monthly = round6(resources.reduce((sum, resource) => sum + resource.monthly_cost, 0));
+    results[scenario] = { resources, monthly_total: monthly, yearly_total: round6(monthly * 12) };
+  }
+  return {
+    status: "COMPARISON_ONLY",
+    currency: estimate.currency,
+    queried_at: estimate.queried_at,
+    source_digest: createHash("sha256").update(JSON.stringify(estimate)).digest("hex"),
+    mcp_calls_used: 0,
+    direct_api_calls_used: 0,
+    scenarios: results,
+  };
+}
+
 export async function main(argv = process.argv.slice(2)) {
   try {
     const subcommand = argv[0] && !argv[0].startsWith("--") ? argv[0] : null;
@@ -891,8 +958,17 @@ export async function main(argv = process.argv.slice(2)) {
         "Usage:\n" +
           "  node tools/scripts/cost-estimate.mjs preflight --request REQUEST.json\n" +
           "  node tools/scripts/cost-estimate.mjs publish --draft DRAFT.json.tmp --output OUTPUT.json [--manifest sku-manifest.json] [--overwrite]\n" +
-          "  node tools/scripts/cost-estimate.mjs validate --input OUTPUT.json [--legacy-audit]",
+          "  node tools/scripts/cost-estimate.mjs validate --input OUTPUT.json [--legacy-audit]\n" +
+          "  node tools/scripts/cost-estimate.mjs scenarios --input ESTIMATE.json --request SCENARIOS.json",
       );
+      return 0;
+    }
+    if (mode === "scenarios") {
+      if (!values.input || !values.request)
+        throw new Error("scenarios requires --input estimate.json --request scenarios.json");
+      const estimate = JSON.parse(fs.readFileSync(resolveWorkspacePath(values.input), "utf8"));
+      const scenarios = JSON.parse(fs.readFileSync(resolveWorkspacePath(values.request), "utf8"));
+      console.log(JSON.stringify(calculateScenarios(estimate, scenarios), null, 2));
       return 0;
     }
 
