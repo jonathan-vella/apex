@@ -7,36 +7,32 @@ with the `cost-estimation` fallback rows).
 
 ## Tool preference
 
-Use Azure Resource Manager MCP (ARM MCP) first for cost, forecast and benefit operations; public retail prices use
-Azure MCP `pricing_get`. For Resource Graph, use the
-generate, validate, execute sequence.
+Use the Cost Management Query and Forecast REST APIs (`az rest`) for actual cost, forecast, and
+benefit operations; public retail prices use Azure MCP `pricing_get` (with the Azure Retail Prices
+API as fallback). For Resource Graph, use the generate, validate, execute sequence.
 
-If a required operation is unavailable, name the fallback API and use an
-already authenticated Azure CLI, Azure PowerShell, or direct REST client. Prefer
-a native command when it exposes the required fields; otherwise use `az rest`,
-`Invoke-AzRestMethod`, or authenticated REST. Do not fall back for invalid
-input, denied access, throttling, or empty data.
+Use an already authenticated Azure CLI (`az rest`), Azure PowerShell (`Invoke-AzRestMethod`), or
+native CLI command when it exposes the required fields. Do not retry or switch interfaces to
+bypass invalid input, denied access, throttling, or empty data.
 
-| Workflow | Fallback API |
-|---|---|
-| Historical cost | Cost Management Query API |
-| Existing-scope forecast | Cost Management Forecast API |
-| AKS cost | Cost Management Query API for Kubernetes cost data |
-| Public SKU or meter price | Azure Retail Prices API |
-| Negotiated rates | Cost Management Price Sheet API |
-| Resource inventory or changes | Azure Resource Graph Resources API |
-| Utilization metrics | Azure Monitor Metrics API |
+| Workflow | Primary Tool / API | Fallback API |
+|---|---|---|
+| Historical cost | Cost Management Query API (`az rest`) | `Invoke-AzRestMethod` |
+| Existing-scope forecast | Cost Management Forecast API (`az rest`) | `Invoke-AzRestMethod` |
+| AKS cost | Cost Management Query API (`az rest`) | `Invoke-AzRestMethod` |
+| Public SKU or meter price | Azure MCP `pricing_get` | Azure Retail Prices API |
+| Negotiated rates | Cost Management Price Sheet API (`az rest`) | `Invoke-AzRestMethod` |
+| Resource inventory or changes | Azure Resource Graph (`az graph query`) | Resource Graph REST API |
+| Utilization metrics | Azure Monitor Metrics (`az monitor metrics list`) | Azure Monitor Metrics API |
 
-Preserve the MCP workflow's scope, period, row limits, pagination, currency, and
-evidence labels. State which fallback was used. Never expose access tokens or
+Preserve the workflow's scope, period, row limits, pagination, currency, and
+evidence labels. State which tool or API was used. Never expose access tokens or
 pricesheet URLs. Write any `az rest` request body to the run-owned scratch
 directory from [Step 4](detailed-workflow-steps.md#step-4-query-actual-costs),
 never to a shared `temp/` folder.
 
-Do not invoke Bash, PowerShell, Python, or another local interpreter merely to
-parse or aggregate an MCP response. Request server-side grouping or sorting, or
-issue smaller bounded MCP queries. Use shell clients only for an approved API
-fallback when the required MCP operation is unavailable.
+Prefer server-side grouping, filtering, and sorting in the Cost Management request body or
+Resource Graph query rather than fetching unbounded datasets to aggregate locally.
 
 ## Evidence labels
 
@@ -50,11 +46,9 @@ These refine the [data classification labels](best-practices-notes.md#data-class
 | Negotiated price | Returned from the user's pricesheet. |
 | Estimate | Calculated from stated assumptions. |
 
-Follow Resource Graph `skipToken` pages. For cost tools without continuation
-input, increase `top` within the tool limit or narrow scope and label incomplete
-results. Preserve currencies and reporting periods. Do not turn missing data
-into zero, combine currencies, or present retail comparisons as realized
-savings.
+Follow Resource Graph `skipToken` and Cost Management `nextLink` pages. When bounded by `top`,
+narrow scope or label incomplete results. Preserve currencies and reporting periods. Do not turn
+missing data into zero, combine currencies, or present retail comparisons as realized savings.
 
 Require explicit approval before writes, purchases, tier changes, stops,
 resizes, or deletes.

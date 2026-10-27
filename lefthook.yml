@@ -48,28 +48,6 @@ pre-commit:
         /clear-handoff contract (verbatim resume line in every step agent)
         📚 Reference: .github/instructions/agent-authoring.instructions.md
 
-    model-catalog-sync:
-      glob: ".github/agents/**/*.agent.md"
-      run: |
-        STAGED_AGENTS=$(git diff --cached --name-only --diff-filter=ACM | grep -E '^\.github/agents/.*\.agent\.md$' || true)
-        if [ -n "$STAGED_AGENTS" ]; then
-          echo "🔄 Regenerating model-catalog assignments from frontmatter..."
-          node tools/scripts/generate-model-catalog.mjs
-          # Re-stage the catalog if the generator changed it
-          if ! git diff --quiet .github/model-catalog.json 2>/dev/null; then
-            git add .github/model-catalog.json
-            echo "  ↳ Re-staged .github/model-catalog.json"
-          fi
-        else
-          echo "ℹ️  No agent frontmatter staged — catalog regeneration skipped"
-        fi
-      stage_fixed: true
-      fail_text: |
-        ❌ Model catalog regeneration failed!
-
-        🔧 Manually run: node tools/scripts/generate-model-catalog.mjs
-        📚 Reference: .github/model-catalog.json governance block
-
     instructions:
       glob: "**/*.instructions.md,{.github/agents/**,.github/skills/**,.github/instructions/**}"
       run: |

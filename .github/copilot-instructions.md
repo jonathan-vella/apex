@@ -204,8 +204,8 @@ body explicitly points to one. There is one tier — no digest, no minimal.
   Missing or differing model telemetry is diagnostic only. Verify named-worker
   actual task results without per-call model, effort or context overrides.
   Continue the same task only when its native handle supports it; one-shot tasks need new bounded input.
-  Missing required tools or approval still blocks the affected execution. Catalog entries remain
-  descriptive metadata and legacy fixture support, not active assignments or
+  Missing required tools or approval still blocks the affected execution. Optional legacy model labels remain
+  descriptive fixture support, not active assignments or
   proof of runtime cost-tier eligibility.
 - Active agents have no UI handoff metadata: the owner observed no controls in the tested Copilot client.
   Tool restrictions were not established by that probe; role metadata is not credential isolation.

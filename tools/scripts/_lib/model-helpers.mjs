@@ -1,24 +1,33 @@
 /**
  * Shared Model Helpers
  *
- * Common helpers for the model-catalog / model-consistency /
- * generate-model-catalog cluster of validators.
+ * Common helpers for the model-consistency / deprecated-models /
+ * vendor-prompting validators.
  *
  * Centralises:
+ *   - DEFAULT_MODEL_CATALOG: self-contained authorized/deprecated model
+ *     labels for legacy fixture and vendor-prompting checks.
  *   - normalizeModel: strip the legacy " (copilot)" qualifier and
  *     unwrap array form (`model: ["..."]`) before string equality.
  *   - walkRegistry: yield `[label, entry]` pairs from the agent
  *     registry, expanding the `bicep` / `terraform` deploy split into
  *     two virtual entries.
- *   - buildAssignments: derive the model-catalog `assignments` block from
- *     explicit legacy agent/subagent frontmatter pins.
  */
 
-import { getAgents } from "./workspace-index.mjs";
+export const DEFAULT_MODEL_CATALOG = {
+  models: {
+    "GPT-6.1 Sol (copilot)": { deprecated: false },
+    "GPT-6 Sol (copilot)": { deprecated: false },
+    "GPT-6 Luna (copilot)": { deprecated: false },
+    "Claude Opus 5.5 (copilot)": { deprecated: false },
+    "Claude Sonnet 5.5 (copilot)": { deprecated: false },
+    "GPT-5.6 Terra (copilot)": { deprecated: false },
+    "MAI-Code-1.1-Flash": { deprecated: false },
+  },
+};
 
 /**
- * Normalize a raw `model:` value to the canonical string form used by
- * the model catalog.
+ * Normalize a raw `model:` value to the canonical string form.
  *
  * @param {string | string[] | null | undefined} raw
  * @returns {string | null}
@@ -78,35 +87,4 @@ function* expandRegistryEntry(key, entry) {
     return;
   }
   yield [key, entry];
-}
-
-/**
- * Build the model-catalog `assignments` block from explicit agent/subagent
- * frontmatter pins. Active production definitions omit model pins, so their
- * generated maps are empty. The `models` and `governance` blocks are
- * hand-maintained and not produced here.
- *
- * @returns {{generated: boolean, generated_by: string, description: string,
- *            agents: Record<string,string>, subagents: Record<string,string>}}
- */
-export function buildAssignments() {
-  const agents = getAgents();
-  const main = {};
-  const subs = {};
-  const sorted = [...agents.entries()].sort(([a], [b]) => a.localeCompare(b));
-  for (const [file, a] of sorted) {
-    const raw = a.frontmatter?.model;
-    const model = Array.isArray(raw) ? raw[0] : raw;
-    if (typeof model !== "string" || !model.trim()) continue;
-    if (a.isSubagent) subs[file] = model;
-    else main[file] = model;
-  }
-  return {
-    generated: true,
-    generated_by: "tools/scripts/generate-model-catalog.mjs",
-    description:
-      "Auto-generated inventory of explicit legacy agent → model pins. Active production definitions are unpinned, so their maps are intentionally empty. Do not edit by hand; run `node tools/scripts/generate-model-catalog.mjs`.",
-    agents: main,
-    subagents: subs,
-  };
 }

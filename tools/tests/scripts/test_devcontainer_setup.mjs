@@ -293,7 +293,7 @@ test("MCP updates preserve comments, custom values, unrelated servers and repeat
   assert.deepEqual(data.mcpServers["azure-mcp"], { command: "custom", args: ["pinned"] });
   assert.deepEqual(data.mcpServers.private, { url: "https://example.test" });
   assert.ok(data.mcpServers.github);
-  assert.ok(data.mcpServers["azure-resource-manager-mcp"]);
+  assert.equal(data.mcpServers["azure-resource-manager-mcp"], undefined);
   configureMcp(file);
   assert.equal(fs.readFileSync(file, "utf8"), once);
 });
@@ -310,7 +310,7 @@ test("MCP rejects malformed, legacy-servers and invalid configuration without al
 test("MCP initializes missing configuration without touching credentials", (context) => {
   const file = path.join(fixture(context), ".mcp.json");
   configureMcp(file);
-  assert.equal(Object.keys(parseJsonc(fs.readFileSync(file, "utf8")).mcpServers).length, 3);
+  assert.deepEqual(Object.keys(parseJsonc(fs.readFileSync(file, "utf8")).mcpServers), ["github", "azure-mcp"]);
 });
 
 test("Azure MCP release checks reject outdated, prerelease, malformed and unavailable metadata without writes", (context) => {
@@ -375,7 +375,7 @@ test("MCP validator accepts preserved commands but rejects malformed, legacy and
     { type: "http", command: "npx" },
   ])
     assert.notEqual(check({ mcpServers: { ...defaults.mcpServers, "azure-mcp": server } }), 0);
-  for (const retired of ["azure-pricing", "drawio", "astro-docs", "terraform"]) {
+  for (const retired of ["azure-pricing", "drawio", "astro-docs", "terraform", "azure-resource-manager-mcp"]) {
     assert.notEqual(check({ mcpServers: { ...defaults.mcpServers, [retired]: null } }), 0);
   }
   assert.notEqual(check({ mcpServers: [] }), 0);

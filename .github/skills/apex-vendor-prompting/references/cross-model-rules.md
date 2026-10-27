@@ -153,8 +153,7 @@ Outside these, prefer decision rules over absolutes.
 > Source: [validate-models.mjs](../../../../tools/scripts/validate-models.mjs) (`--only=deprecated`).
 
 **Rule** (`model-deprecation-001`): agents/prompts using a deprecated
-model label get warned. Cross-references the existing deprecation
-catalog metadata. New deprecations land in `.github/model-catalog.json` and are checked by
+model label get warned. New deprecations land in `DEFAULT_MODEL_CATALOG` (`tools/scripts/_lib/model-helpers.mjs`) and are checked by
 [validate-models.mjs](../../../../tools/scripts/validate-models.mjs) (`--only=deprecated`);
 this rule re-emits them as `apex-vendor-prompting` findings for unified
 audit reports.

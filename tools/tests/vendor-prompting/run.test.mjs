@@ -578,25 +578,18 @@ test("production handoff and terminology guidance cannot revive retired E2E laun
   }
 });
 
-test("agent catalog preserves descriptive metadata and operator-selected runtime policy", () => {
+test("active production agents preserve operator-selected runtime policy without model pins", () => {
   const root = path.resolve(__dirname, "../../..");
   const authoring = fs.readFileSync(path.join(root, ".github/instructions/agent-authoring.instructions.md"), "utf8");
   const runtime = fs.readFileSync(path.join(root, ".github/copilot-instructions.md"), "utf8");
-  const catalog = JSON.parse(fs.readFileSync(path.join(root, ".github/model-catalog.json"), "utf8"));
   assert.match(authoring, /Active definitions omit model\/effort pins/);
   assert.match(runtime, /operator and\s+runtime control selection/);
   assert.match(runtime, /Missing or differing model telemetry is diagnostic only/);
   const agents = getAgents();
   for (const [filename, agent] of agents) {
-    const assignments = agent.isSubagent ? catalog.assignments.subagents : catalog.assignments.agents;
     assert.equal(Object.hasOwn(agent.frontmatter, "model"), false, filename);
     assert.equal(Object.hasOwn(agent.frontmatter, "reasoning-effort"), false, filename);
-    assert.equal(Object.hasOwn(assignments, filename), false, filename);
   }
-  assert.deepEqual(catalog.assignments.agents, {});
-  assert.deepEqual(catalog.assignments.subagents, {});
-  assert.ok(catalog.models["Claude Sonnet 5.5 (copilot)"]);
-  assert.ok(catalog.models["GPT-6 Luna (copilot)"]);
   assert.match(runtime, /Archived Local prompts are\s+historical, not entry points/);
   assert.match(runtime, /Skills inherit caller model\/tools/);
   assert.match(runtime, /Static allowlists are not routing evidence/);

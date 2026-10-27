@@ -64,8 +64,7 @@ Group requests by session and analyze patterns:
   tool activity, and runtime conditions; do not infer context growth from timing alone
 - **Model mismatch**: Compare each turn's recorded model with the agent's frontmatter
   assignment and declared role; a different recorded model suggests wrong routing. Do not
-  infer capability, cost tier or "lighter" models from names — catalog tiers may be unknown
-  (`.github/model-catalog.json`); recommend a model change only from measured evidence
+  infer capability, cost tier or "lighter" models from names; recommend a model change only from measured evidence
 
 ### Step 3: Audit Agent Definitions
 

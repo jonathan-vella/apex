@@ -113,7 +113,6 @@ readonly CATEGORIES=(
   ".github/instructions:Instructions"
   ".github/skills:Skills"
   ".github/copilot-instructions.md:Copilot instructions"
-  ".github/model-catalog.json:Model catalog"
   "tools/registry/agent-registry.json:Agent registry"
   "infra/bicep/AGENTS.md:Bicep instructions"
   "infra/terraform/AGENTS.md:Terraform instructions"

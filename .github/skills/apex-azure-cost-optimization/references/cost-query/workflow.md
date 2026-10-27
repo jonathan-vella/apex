@@ -1,39 +1,43 @@
 # Cost Query Workflow
 
-Use this workflow for cost totals, breakdowns, trends, and top spenders.
+Use this workflow for cost totals, breakdowns, trends, and top spenders via the
+Azure Cost Management Query REST API (`az rest`).
 
 ## 1. Determine scope and period
 
 Use the narrowest scope from the
 [Scope Reference](../../SKILL.md#scope-reference-shared-across-all-workflows) that answers the question.
-`query_costs` defaults to month-to-date. Custom dates use `YYYY-MM-DD`, must be supplied as a
-`from`/`to` pair, and cannot exceed the rolling 92-day lookback.
+Default to month-to-date when no period is specified. Custom dates use `YYYY-MM-DD` (or ISO 8601
+timestamps in `timePeriod`), must be supplied as a `from`/`to` pair, and cannot exceed the
+rolling 92-day lookback.
 
 Supported timeframes are `MonthToDate`, `BillingMonthToDate`, `TheLastMonth`,
 `TheLastBillingMonth`, `WeekToDate`, `TheCurrentMonth`, and `Custom`.
 
-## 2. Configure the tool call
+## 2. Configure the query request
 
-| Parameter | Contract |
+| Field | Contract |
 |---|---|
-| `metric` | `PreTaxCost` (default), `Cost`, or `AmortizedCost` |
-| `granularity` | `None` (default), `Daily`, or `Monthly` |
-| `groupBy` | Up to five comma-separated supported dimensions |
-| `filterDimension` + `filterValues` | Supply both; values are comma-separated exact matches |
-| `sortBy` | Cost column or selected grouping dimension |
-| `sortDirection` | `desc` (default), `asc`, `descending`, or `ascending` |
-| `top` | 1-5000 rows; default 100 |
+| `type` | `ActualCost` (or `AmortizedCost` for commitment analysis) |
+| `dataset.granularity` | `None` (default), `Daily`, or `Monthly` |
+| `dataset.aggregation` | `PreTaxCost` (default), `Cost`, or `AmortizedCost` with `Sum` |
+| `dataset.grouping` | Up to five supported `Dimension` entries |
+| `dataset.filter` | Exact-match `In` filter on a supported dimension |
+| `dataset.sorting` | Cost column or selected grouping dimension (`ascending` or `descending`) |
+| `dataset.top` | 1-5000 rows; default 100 |
 
 Use [dimensions by scope](dimensions-by-scope.md) to select dimensions.
 Resource- and meter-level dimensions require a subscription or resource-group
-scope. Tag grouping and filtering are not supported by this MCP tool. For AKS
-cluster or namespace breakdowns, use the ARM MCP `query_aks_costs` tool at
-subscription scope.
+scope. For tag inventory, correlate Resource Graph results by resource ID rather
+than relying on Cost Management tag grouping.
 
 ## 3. Execute and interpret
 
-Call the ARM MCP `query_costs` tool. If the operation is unavailable, use the Cost
-Management Query API through the approved [fallback process](../tools-and-safety.md#tool-preference).
+Call the Cost Management Query REST API (`az rest --method post` against
+`<scope>/providers/Microsoft.CostManagement/query?api-version=2023-11-01`) with a JSON request body
+written to a run-owned scratch file as shown in
+[Step 4](../detailed-workflow-steps.md#step-4-query-actual-costs) and
+[tool and safety guidance](../tools-and-safety.md#tool-preference).
 Preserve the response column order, currency, metric, scope, and period. Keep
 different currencies separate.
 
@@ -42,20 +46,20 @@ daily rows. For weekly comparisons, issue one bounded custom-period query per
 week, with `granularity=None` and only the required grouping, rather than
 locally parsing or time-bucketing a larger response.
 
-The tool has no continuation input. If the requested data exceeds `top`, raise
-`top` to at most 5000 or narrow the scope, period, or grouping. State when the
+If the response includes `nextLink`, follow every page before using the results, or bound
+the request with `top` (up to 5000) and narrow the scope, period, or grouping. State when the
 result may be incomplete.
 
 ## Error handling
 
 | Error | Action |
 |---|---|
-| Unsupported timeframe, metric, dimension, or sort | Use a value exposed by the tool contract. |
+| Unsupported timeframe, metric, dimension, or sort | Use a value exposed by the query contract. |
 | Missing `from`/`to` or filter pair | Supply both members of the pair. |
-| Date outside 92 days | Narrow the period; fallback does not bypass this guardrail. |
-| Throttled | Honor the retry guidance returned by the tool and reduce fan-out. |
+| Date outside 92 days | Narrow the period; do not bypass this guardrail. |
+| Throttled (HTTP 429) | Honor the retry-after header and reduce fan-out. |
 | More than about 10 subscriptions | Ask the user to narrow scope. |
 
-See [examples](examples.md), [parameter contract](request-body-schema.md), and
+See [examples](examples.md), [request body schema](request-body-schema.md), and
 [guardrails](guardrails.md). Use [cost query errors](error-handling.md) for
-tool-specific remediation.
+API remediation.

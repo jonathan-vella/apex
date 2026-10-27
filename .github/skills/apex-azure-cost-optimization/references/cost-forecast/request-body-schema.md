@@ -1,21 +1,21 @@
-# Cost Forecast Tool Contract
+# Cost Forecast Request Schema
 
-`forecast_costs` accepts typed MCP parameters. Use this contract for MCP calls;
-an API fallback must use the official Cost Management Forecast API schema.
+Construct Cost Management Forecast REST API (`az rest`) payloads using the official
+`Microsoft.CostManagement/forecast` schema and these logical parameters.
 
 | Parameter | Required | Values or format |
 |---|---|---|
 | `scope` | Yes | Azure scope path |
-| `from`, `to` | Together | `YYYY-MM-DD`; defaults to current-month boundaries |
+| `from`, `to` | Together | `YYYY-MM-DD` (or ISO 8601 in `timePeriod`); defaults to current-month boundaries |
 | `granularity` | No | `Daily` (default), `Monthly` |
-| `filterDimension` | With `filterValues` | One supported cost dimension |
-| `filterValues` | With `filterDimension` | Comma-separated exact values |
+| `filterDimension` | With `filterValues` | One supported cost dimension in `dataset.filter.dimensions.name` |
+| `filterValues` | With `filterDimension` | Exact values in `dataset.filter.dimensions.values` (`operator: "In"`) |
 | `metric` | No | `PreTaxCost` (default), `Cost`, `AmortizedCost` |
 
-The server sets `timeframe=Custom`, builds the time period and aggregation, and
-uses the same dimension whitelist as `query_costs`. Callers cannot pass
-grouping, sorting, request-body JSON, or actual-cost flags.
+Set `type` (`Usage` or `ActualCost` / `AmortizedCost`), `timeframe=Custom`, `timePeriod`,
+and `dataset` (`granularity`, `aggregation`, optional `filter`) using the same dimension
+whitelist as the [cost query workflow](../cost-query/dimensions-by-scope.md).
 
-The structured response preserves upstream columns and rows. Interpret each row
+The response preserves `properties.columns` and `properties.rows`. Interpret each row
 using its matching column definition, including currency and `CostStatus` when
 returned.

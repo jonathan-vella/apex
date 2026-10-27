@@ -10,6 +10,9 @@ const { getUri } = await import(linkCheckRequire.resolve("get-uri"));
 const { Client, parseList } = await import(getUriRequire.resolve("basic-ftp"));
 const jsdomRequire = createRequire(import.meta.resolve("jsdom"));
 const { fetch } = await import(jsdomRequire.resolve("undici"));
+const ajvRequire = createRequire(import.meta.resolve("ajv"));
+const fastUri = ajvRequire("fast-uri");
+const fastUriPkg = ajvRequire("fast-uri/package.json");
 
 function probe(source) {
   const result = spawnSync(process.execPath, ["--input-type=module", "-e", source], {
@@ -101,4 +104,10 @@ test("get-uri preserves FTP not-found errors after the basic-ftp override", asyn
   const close = context.mock.method(Client.prototype, "close", () => {});
   await assert.rejects(getUri("ftp://127.0.0.1/missing.txt"), { code: "ENOTFOUND" });
   assert.equal(close.mock.callCount(), 1);
+});
+
+test("fast-uri resolves to 3.1.9 and does not decode percent-encoded scheme prefixes", () => {
+  assert.equal(fastUriPkg.version, "3.1.9");
+  const parsed = fastUri.parse("ht%74ps://example.com/path");
+  assert.notEqual(parsed.scheme, "https");
 });

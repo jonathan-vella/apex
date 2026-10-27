@@ -11,10 +11,8 @@ readiness requirement, and do not add per-call model, effort or context override
 
 `tools/registry/agent-registry.json` describes role paths and workflow steps.
 Its optional `model` mirror is retained only for legacy pinned fixtures.
-`.github/model-catalog.json` preserves descriptive model metadata; generated
-assignments include only explicit legacy pins and are normally empty for active
-production agents. Run `node tools/scripts/generate-model-catalog.mjs` after
-changing a deliberately pinned fixture.
+Active production agents omit model pins; `validate-models.mjs` checks optional
+legacy frontmatter/registry parity (`--only=consistency`) and deprecated labels (`--only=deprecated`).
 
 Readiness is model-agnostic. Model names, effort, picker selection and model-source
 labels are optional diagnostics; missing values, unknown source labels or

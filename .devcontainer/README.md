@@ -144,7 +144,6 @@ An unsuccessful CLI installation is not advertised as a CLI fallback.
 
 | Server            | Transport         | Purpose                                          |
 | ----------------- | ----------------- | ------------------------------------------------ |
-| Azure Resource Manager MCP | http      | Azure cost management (retail pricing uses Azure MCP) |
 | GitHub MCP        | http              | Copilot-provided GitHub context                  |
 | Azure MCP Server  | stdio (`npx`)      | RBAC-aware Azure context for agents              |
 
@@ -491,9 +490,9 @@ opt-in is incomplete, so a maintainer who forgot one variable is not silently on
 Outside the container, npm reads `NPM_CONFIG_REGISTRY`, pip reads `PIP_INDEX_URL` and uv reads `UV_INDEX_URL`.
 The `package-lock.json` URLs point at `registry.npmjs.org`, which npm replaces with the configured registry host.
 
-The security overrides pin `markdown-it` 15.0.3, `undici` 8.12.3, and `ip-address` 10.7.4.
+The security overrides pin `markdown-it` 15.0.3, `undici` 8.12.3, `fast-uri` 3.1.9, and `ip-address` 10.7.4.
 `get-uri` uses `basic-ftp` 6.2.3 to remove the FTP parser advisory rather than retaining its audit exception.
-These versions were available through CFS and their upstream releases were at least seven days old on 2026-10-26.
+These versions were available through CFS and their upstream releases were at least seven days old on 2026-10-27.
 The audit exception list is empty; unavailable or quarantined patches must remain visible, not be dismissed.
 
 The seven-day minimum age and CFS-only rules in [AGENTS.md](../AGENTS.md) are Microsoft's supply-chain policy for

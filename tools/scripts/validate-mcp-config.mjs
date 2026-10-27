@@ -50,25 +50,6 @@ for (const name of requiredServers) {
   }
 }
 
-// The hosted ARM MCP replaces the former in-repo pricing server.
-r.tick();
-const armMcp = mcpConfig?.mcpServers?.["azure-resource-manager-mcp"];
-const armToolsets = String(armMcp?.headers?.["x-mcp-toolset"] ?? "")
-  .split(",")
-  .map((toolset) => toolset.trim())
-  .filter(Boolean);
-if (!armMcp) {
-  r.error("Missing required MCP server: mcpServers.azure-resource-manager-mcp");
-} else if (armMcp.type !== "http") {
-  r.error(`azure-resource-manager-mcp must use type: "http", got "${armMcp.type}"`);
-} else if (armMcp.url !== "https://mcp.management.azure.com") {
-  r.error(`azure-resource-manager-mcp has unexpected URL: "${armMcp.url}"`);
-} else if (!armToolsets.includes("CostManagement")) {
-  r.error('azure-resource-manager-mcp must enable the "CostManagement" toolset');
-} else {
-  r.ok("MCP config includes valid Azure Resource Manager MCP server");
-}
-
 r.tick();
 const azureMcp = mcpConfig?.mcpServers?.["azure-mcp"];
 if (!azureMcp) {
@@ -86,7 +67,7 @@ if (!azureMcp) {
   r.ok("MCP config includes a structurally valid Azure MCP command; runtime capability is not verified");
 }
 
-const retiredServers = ["azure-pricing", "drawio", "astro-docs", "terraform"];
+const retiredServers = ["azure-pricing", "drawio", "astro-docs", "terraform", "azure-resource-manager-mcp"];
 for (const name of retiredServers) {
   r.tick();
   if (Object.hasOwn(mcpConfig.mcpServers, name)) {

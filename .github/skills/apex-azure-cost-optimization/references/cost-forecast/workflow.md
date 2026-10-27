@@ -1,38 +1,40 @@
 # Cost Forecast Workflow
 
-Use this workflow to project costs for an existing Azure scope. For historical
-cost, use the [cost query workflow](../cost-query/workflow.md); to reduce cost,
-use the [optimization workflow](../workflow-steps.md).
+Use this workflow to project costs for an existing Azure scope via the Cost Management
+Forecast REST API (`az rest`). For historical cost, use the
+[cost query workflow](../cost-query/workflow.md); to reduce cost, use the
+[optimization workflow](../workflow-steps.md).
 
 ## 1. Determine scope and period
 
-`forecast_costs` defaults to the current month: first day through last day. For
-custom dates, supply `from` and `to` together in `YYYY-MM-DD`. `from` must be
-within the rolling 92-day lookback; `to` may be in the future.
+Default to the current month (first day through last day) when no period is specified. For
+custom dates, supply `from` and `to` together in `YYYY-MM-DD` (or ISO 8601 timestamps in
+`timePeriod`). `from` must be within the rolling 92-day lookback; `to` may be in the future.
 
-## 2. Configure the tool call
+## 2. Configure the forecast request
 
-| Parameter | Contract |
+| Field | Contract |
 |---|---|
 | `scope` | Azure scope path from the [Scope Reference](../../SKILL.md#scope-reference-shared-across-all-workflows); never a tenant ID |
-| `from`, `to` | Optional pair; defaults to current month |
-| `granularity` | `Daily` (default) or `Monthly` |
-| `filterDimension` + `filterValues` | Optional pair using one exact-match dimension |
-| `metric` | `PreTaxCost` (default), `Cost`, or `AmortizedCost` |
+| `timePeriod.from`, `timePeriod.to` | Optional pair; defaults to current month |
+| `dataset.granularity` | `Daily` (default) or `Monthly` |
+| `dataset.filter` | Optional `dimensions` filter using one exact-match dimension |
+| `dataset.aggregation` | `PreTaxCost` (default), `Cost`, or `AmortizedCost` with `Sum` |
 
-The MCP tool does not expose grouping, sorting, arbitrary aggregations,
-`includeActualCost`, or `includeFreshPartialCost`.
+Keep forecast payloads bounded: avoid custom grouping or arbitrary aggregations.
 
 ## 3. Execute and interpret
 
-Call the ARM MCP `forecast_costs` tool. If it is unavailable, use the Cost
-Management Forecast API through the [fallback process](../tools-and-safety.md#tool-preference).
+Call the Cost Management Forecast REST API (`az rest --method post` against
+`<scope>/providers/Microsoft.CostManagement/forecast?api-version=2023-11-01`) with a JSON request
+body written to a run-owned scratch file, following
+[tool and safety guidance](../tools-and-safety.md#tool-preference).
 Preserve currency, date, scope, actual-versus-forecast status, and the 100-row
 response limit. Empty or unavailable forecast data is not zero.
 
 For grouped historical data, use the [cost query workflow](../cost-query/workflow.md).
 If the requested forecast cannot fit the supported contract, explain the
-limitation; fallback does not relax it.
+limitation.
 
 ## Error handling
 
@@ -42,8 +44,8 @@ limitation; fallback does not relax it.
 | Historical start older than 92 days | Move `from` inside the supported window. |
 | Unsupported metric, granularity, or dimension | Use an exposed value. |
 | Forecast unavailable | Report unavailable data and offer historical analysis. |
-| Throttled | Honor tool retry guidance and reduce fan-out. |
+| Throttled (HTTP 429) | Honor retry-after guidance and reduce fan-out. |
 
-See [examples](examples.md), [parameter contract](request-body-schema.md), and
+See [examples](examples.md), [request body schema](request-body-schema.md), and
 [guardrails](guardrails.md). Use [forecast errors](error-handling.md) for
-tool-specific remediation.
+API remediation.

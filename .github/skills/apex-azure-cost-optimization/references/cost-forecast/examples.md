@@ -1,15 +1,15 @@
 # Cost Forecast Examples
 
-Pass these parameters directly to `forecast_costs`.
+Use these parameter combinations when constructing Cost Management Forecast REST API (`az rest`)
+payloads.
 
 | Scenario | Parameters |
 |---|---|
-| Rest of current month | `scope=<scope>`; omit dates; `granularity=Daily` |
+| Rest of current month | `scope=<scope>`; default current-month dates; `granularity=Daily` |
 | Custom monthly projection | `from=<YYYY-MM-DD>`, `to=<future-YYYY-MM-DD>`, `granularity=Monthly` |
 | Resource-group forecast | `scope=/subscriptions/<id>/resourceGroups/<name>`, optional date pair |
 | Service-specific forecast | `filterDimension=ServiceName`, `filterValues=<exact-service-name>` |
 | Amortized commitment projection | `metric=AmortizedCost`, selected scope and date pair |
 
-Use only the Azure scope itself, not a
-`/providers/Microsoft.CostManagement/forecast` request URL. Do not add grouping
-or actual-cost flags because the MCP operation does not expose them.
+Target `<scope>/providers/Microsoft.CostManagement/forecast?api-version=2023-11-01` via
+`az rest --method post` with the JSON body written to a run-owned scratch file.

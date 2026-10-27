@@ -1,7 +1,7 @@
 # Cost Query Examples
 
-Pass these parameters to `query_costs`. If that operation is unavailable, use
-the official Cost Management Query API schema and preserve these constraints.
+Use these parameter combinations when constructing Cost Management Query REST API (`az rest`)
+payloads, and preserve these constraints.
 
 | Scenario | Parameters |
 |---|---|
@@ -12,11 +12,10 @@ the official Cost Management Query API schema and preserve these constraints.
 | Ten most expensive resources | subscription scope, `groupBy=ResourceId`, `top=10`, `sortDirection=desc` |
 | One service only | `filterDimension=ServiceName`, `filterValues=<exact-service-name>` |
 
-Use `list_dimensions` when an exact filter value or available dimension is
-unknown. It belongs to the opt-in `CostManagement` toolset.
+Query `<scope>/providers/Microsoft.CostManagement/dimensions?api-version=2023-11-01` via `az rest`
+when an exact filter value or available dimension is unknown.
 
-Tag queries are unsupported. For resource tag inventory, use the Resource Graph
-`generate_query`, `validate_query`, and `execute_query` sequence, then correlate
-resource IDs with cost results. Use the tag keys from `tag_contract` in
-`04-governance-constraints.json`, as in the
+For resource tag inventory, use the Resource Graph `generate_query`, `validate_query`, and
+`execute_query` sequence, then correlate resource IDs with cost results. Use the tag keys from
+`tag_contract` in `04-governance-constraints.json`, as in the
 [Resource Graph queries](../azure-resource-graph.md).

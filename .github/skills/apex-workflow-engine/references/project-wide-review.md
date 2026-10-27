@@ -35,7 +35,6 @@ This repo is APEX (Azure Agentic Platform Engineering eXperience). It contains:
 - Tests under `tools/tests/`
 - Registries: `tools/registry/agent-registry.json`,
   `tools/registry/count-manifest.json`,
-  `.github/model-catalog.json`,
   `.github/skills/apex-vendor-prompting/rules.json`,
   `.github/skills/apex-workflow-engine/templates/workflow-graph.json`
 - Pre-commit + pre-push hooks via `lefthook.yml`
@@ -194,7 +193,6 @@ Sources of truth:
 - `tools/registry/agent-registry.json` (+ schema)
 - `tools/registry/count-manifest.json` (+ generator script)
 - `tools/registry/source-freshness.json`
-- `.github/model-catalog.json` (+ generator)
 - `.github/skills/apex-vendor-prompting/rules.json`
 - `.github/skills/apex-workflow-engine/templates/workflow-graph.json`
 - `tools/schemas/*.schema.json`
