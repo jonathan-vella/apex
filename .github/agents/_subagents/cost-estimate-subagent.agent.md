@@ -23,7 +23,8 @@ Callers: Architect (planned estimates) | As-Built (deployed estimates).
 
 - Validate inputs and `output_path`, then act without asking the parent questions.
 - Azure access is read-only. Allowed filesystem writes: caller `output_path` and its
-  temporary sibling, plus the supplied manifest's price/timestamp fields only when
+  temporary sibling, plus the supplied manifest's price/timestamp fields (and the companion
+  `sku-manifest.md` rendered by `cost-estimate.mjs publish`) only when
   COMPLETE and `manifest_writeback: true`, using its temporary sibling for atomic writeback.
   For the constrained fallback, request/evidence files may be created exclusively under
   `{output_path}.retail-evidence/`; preserve existing files and use new names for each distinct query.

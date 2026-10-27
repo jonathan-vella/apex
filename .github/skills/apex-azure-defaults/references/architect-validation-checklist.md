@@ -54,6 +54,13 @@ and re-review only affected artifacts. Preserve unchanged current evidence and p
 Changed topology, upstream requirements or scope outside the accepted repair returns to its owner;
 neither acceptance nor this checklist authorizes it or guarantees reviewer approval.
 
+For single-environment `dev`/prototype workloads without existing private network transit, keep private
+delivery proportional to the prototype scope: do not require persistent `Azure Bastion Standard` +
+`NAT Gateway` unless the user explicitly selects persistent bastion infrastructure over temporary/ephemeral
+deployment-time access. Likewise, price only project-deployed billable Azure resources in `02-cost-estimate.request.json`
+(never subscription/management-group Defender plans, external policy-owned Log Analytics workspaces, email
+notification sub-meters, or free control-plane constructs).
+
 ## WAF scoring table format
 
 Illustrative structure only; compute every score and confidence from project evidence, never from examples.

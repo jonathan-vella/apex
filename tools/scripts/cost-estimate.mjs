@@ -29,6 +29,21 @@ const ALLOWED_DATA_SOURCES = new Set([
 
 const VARIABLE_SERVICE_NAMES = new Set(["Key Vault", "Log Analytics", "Azure DNS"]);
 
+const SERVICE_QUERY_GROUP_ALIASES = new Map([
+  ["azure front door", "Azure Front Door Service"],
+  ["azure front door service", "Azure Front Door Service"],
+  ["azure openai", "Foundry Models"],
+  ["microsoft foundry models", "Foundry Models"],
+  ["foundry models", "Foundry Models"],
+]);
+
+function normalizeQueryGroupService(serviceName) {
+  const key = String(serviceName ?? "")
+    .trim()
+    .toLowerCase();
+  return SERVICE_QUERY_GROUP_ALIASES.get(key) ?? String(serviceName ?? "").trim();
+}
+
 export function round6(value) {
   return Math.round((Number(value) + Number.EPSILON) * 1e6) / 1e6;
 }
@@ -313,7 +328,9 @@ export function normalizeCostRequest(rawRequest, options = {}) {
   }
 
   const queryGroups = new Set(
-    lines.map((line) => `${line.service_name}|${line.region}|${line.meter_name ?? "*"}|${currency}`),
+    lines.map(
+      (line) => `${normalizeQueryGroupService(line.service_name)}|${line.region}|${line.meter_name ?? "*"}|${currency}`,
+    ),
   );
 
   return {

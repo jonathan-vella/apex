@@ -49,11 +49,18 @@ Never write a price that did not originate from a subagent response.
    region, and independent stamp plus effective overrides and explicit usage:
    - **03-architect**: pass `manifest_path` (`agent-output/{project}/sku-manifest.json`),
      `manifest_usage` (per-service variable usage keyed by service `id` or `id:env:region`),
-     and `supplemental_resources[]` (non-manifest architecture resources such as Bastion,
+     and `supplemental_resources[]` (project-deployed non-manifest billable resources such as Bastion,
      NAT Gateway, Private Endpoints, Private DNS, Key Vault, Log Analytics, Application Insights,
-     Alert Rules, Action Groups, VM OS disk, Public IPs) in a **single** committed pricing run
+     Alert Rules, VM OS disk, Public IPs) in a **single** committed pricing run
      so `02-cost-estimate.json` holds the complete architecture cost while `manifest_writeback[]`
-     updates only manifest-owned `services[]`.
+     updates only manifest-owned `services[]` (and `cost-estimate.mjs publish` refreshes `sku-manifest.md`).
+     **Supplemental resource boundary**: include only project-deployed billable Azure resources. Never add
+     subscription/management-group `Microsoft Defender for Cloud` plans, central policy-owned DINE Log Analytics
+     workspaces in external regions, inter-region policy telemetry transfer, email/webhook notification sub-meters,
+     or free control-plane constructs (VNets, NSGs, route tables, Managed Identities, Action Groups, Consumption
+     budgets, DCRs) to `supplemental_resources[]` unless the user explicitly scopes them as project-billed deliverables.
+     Document inherited subscription/MG DINE cost exposure qualitatively in `02-architecture-assessment.md` and
+     `03-des-cost-estimate.md`.
    - **08-as-built**: pass `resource_list` from `az resource list` + Azure Resource Graph
      queries against the actual deployed environment (NOT the plan).
     For private networking, follow the
@@ -62,7 +69,7 @@ Never write a price that did not originate from a subagent response.
     Capture central/DINE zone ownership and shared-cost allocation; do not assume private traffic is zero because
     internet egress is excluded. Keep the deployment region unchanged; the worker selects the documented billing region.
     Record unknown usage as unresolved or obtain an explicit assumption before invoking; do not invent zero usage.
-    Validate the request payload before delegation:
+    Validate the request and manifest payloads with the workspace Node validators (`node tools/scripts/cost-estimate.mjs preflight --request <request.json>` and `node tools/scripts/validate-sku-manifest.mjs <manifest.json>`); do not search for a separate `cost-estimate-request.schema.json` or run Python `jsonschema`:
     `node tools/scripts/cost-estimate.mjs preflight --request <request.json>`
 2. **Check current pricing evidence**, then delegate only when needed.
    Reuse a persisted COMPLETE worker result only after the freshness and

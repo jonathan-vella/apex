@@ -251,6 +251,22 @@ test("missing_tier_metadata fallback authorizes multi-rate pricing_get rows that
   const result = await fetchRetailEvidence(input, async () => response(blobPage));
   assert.equal(result.requests_used, 1);
 
+  // Also authorizes when the MCP call used a broader product/service query or raw pricing_get parameters
+  const batchedAttemptInput = structuredClone(input);
+  batchedAttemptInput.mcp_failure.attempts = [
+    {
+      parameters: {
+        filter:
+          "serviceName eq 'Storage' and armRegionName eq 'swedencentral' and (productName eq 'Blob Storage' or productName eq 'Standard SSD Managed Disks')",
+        "price-type": "Consumption",
+        currency: "USD",
+      },
+      response: input.mcp_failure.attempts[0].response,
+    },
+  ];
+  const batchedResult = await fetchRetailEvidence(batchedAttemptInput, async () => response(blobPage));
+  assert.equal(batchedResult.requests_used, 1);
+
   // Rejects when tierMinimumUnits is already present in pricing_get response
   const alreadyHasTiers = structuredClone(input);
   alreadyHasTiers.mcp_failure.attempts[0].response.results.prices[0].tierMinimumUnits = 0;

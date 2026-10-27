@@ -103,6 +103,63 @@ function validateFailure(request) {
       matching = true;
       continue;
     }
+    if (failure.kind === "missing_tier_metadata") {
+      const rawParams = attempt?.query ?? attempt?.parameters;
+      if (!rawParams || typeof rawParams !== "object" || Array.isArray(rawParams)) {
+        throw new Error("MCP failure attempt must include query or parameters");
+      }
+      if (attempt.query) {
+        validateQuery(attempt.query);
+        if (
+          attempt.query.serviceName !== request.query.serviceName ||
+          attempt.query.currencyCode !== request.query.currencyCode
+        ) {
+          throw new Error("MCP evidence must target the same service and currency");
+        }
+        for (const key of ["armRegionName", "armSkuName", "productName", "skuName", "meterName"]) {
+          if (attempt.query[key] && request.query[key] && attempt.query[key] !== request.query[key]) {
+            throw new Error(`MCP evidence query field '${key}' does not match request.query`);
+          }
+        }
+      } else {
+        const currency = rawParams.currencyCode ?? rawParams.currency;
+        const priceType = rawParams.priceType ?? rawParams["price-type"];
+        if (currency !== request.query.currencyCode || priceType !== "Consumption") {
+          throw new Error("MCP evidence must target the same Consumption priceType and currency");
+        }
+      }
+      const prices = attempt.response?.results?.prices;
+      const matchingRows = Array.isArray(prices)
+        ? prices.filter(
+            (r) =>
+              r &&
+              typeof r === "object" &&
+              r.serviceName === request.query.serviceName &&
+              (!request.query.armRegionName || !r.region || r.region === request.query.armRegionName) &&
+              (!request.query.armSkuName || r.armSkuName === request.query.armSkuName) &&
+              (!request.query.productName || r.productName === request.query.productName) &&
+              (!request.query.skuName || r.skuName === request.query.skuName) &&
+              (!request.query.meterName || r.meterName === request.query.meterName) &&
+              Number.isFinite(r.retailPrice),
+          )
+        : [];
+      const distinctPrices = new Set(matchingRows.map((r) => r.retailPrice));
+      const omitsTierMinimum =
+        matchingRows.length >= 2 && matchingRows.every((r) => !Object.hasOwn(r, "tierMinimumUnits"));
+      if (
+        attempt.response?.status !== 200 ||
+        attempt.response?.error ||
+        attempt.response?.isError ||
+        !omitsTierMinimum ||
+        distinctPrices.size < 2
+      ) {
+        throw new Error(
+          "Missing-tier-metadata fallback requires a status-200 pricing_get response with multiple rate rows that omit tierMinimumUnits",
+        );
+      }
+      matching = true;
+      continue;
+    }
     validateQuery(attempt.query);
     if (
       attempt.query.serviceName !== request.query.serviceName ||
@@ -139,34 +196,6 @@ function validateFailure(request) {
         !attempt.error.trim()
       ) {
         throw new Error("Transient fallback requires recorded retryable HTTP errors, not authentication failures");
-      }
-    } else if (failure.kind === "missing_tier_metadata") {
-      const prices = attempt.response?.results?.prices;
-      const matchingRows = Array.isArray(prices)
-        ? prices.filter(
-            (r) =>
-              r &&
-              typeof r === "object" &&
-              r.serviceName === attempt.query.serviceName &&
-              (!attempt.query.meterName || r.meterName === attempt.query.meterName) &&
-              (!attempt.query.productName || r.productName === attempt.query.productName) &&
-              (!attempt.query.skuName || r.skuName === attempt.query.skuName) &&
-              Number.isFinite(r.retailPrice),
-          )
-        : [];
-      const distinctPrices = new Set(matchingRows.map((r) => r.retailPrice));
-      const omitsTierMinimum =
-        matchingRows.length >= 2 && matchingRows.every((r) => !Object.hasOwn(r, "tierMinimumUnits"));
-      if (
-        attempt.response?.status !== 200 ||
-        attempt.response?.error ||
-        attempt.response?.isError ||
-        !omitsTierMinimum ||
-        distinctPrices.size < 2
-      ) {
-        throw new Error(
-          "Missing-tier-metadata fallback requires a status-200 pricing_get response with multiple rate rows that omit tierMinimumUnits",
-        );
       }
     } else throw new Error("Unsupported MCP failure kind");
   }
