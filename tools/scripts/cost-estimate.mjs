@@ -873,12 +873,14 @@ export function publishEstimate(options = {}) {
     fs.writeFileSync(manifestTmp, `${JSON.stringify(manifest, null, 2)}\n`, "utf8");
     fs.renameSync(manifestTmp, manifestPath);
 
-    const manifestMdPath = path.join(path.dirname(manifestPath), "sku-manifest.md");
-    if (fs.existsSync(RENDERER) && (fs.existsSync(manifestMdPath) || manifestPath.startsWith(ROOT))) {
-      spawnSync(process.execPath, [RENDERER, "--in", manifestPath, "--out", manifestMdPath], {
-        cwd: ROOT,
-        encoding: "utf8",
-      });
+    if (options.renderMarkdown === true) {
+      const manifestMdPath = path.join(path.dirname(manifestPath), "sku-manifest.md");
+      if (fs.existsSync(RENDERER) && (fs.existsSync(manifestMdPath) || manifestPath.startsWith(ROOT))) {
+        spawnSync(process.execPath, [RENDERER, "--in", manifestPath, "--out", manifestMdPath], {
+          cwd: ROOT,
+          encoding: "utf8",
+        });
+      }
     }
   }
 
