@@ -39,10 +39,20 @@ const SCHEMA_PATH = path.join(ROOT, "tools/schemas/policy-property-map.schema.js
 function checkUniquePolicyIds(data, fileRel, r) {
   const seen = new Set();
   for (const p of data.policies ?? []) {
-    if (seen.has(p.policy_id)) {
+    const key = JSON.stringify([
+      p.policy_id ?? "",
+      p.policy_definition_reference_id ?? "",
+      p.assignment_id ?? "",
+      p.target_resource ?? "",
+      p.target_property?.resource_type ?? "",
+      p.target_property?.property_path ?? "",
+      p.target_property?.expected_value ?? null,
+      p.evidence_required ?? "",
+    ]);
+    if (seen.has(key)) {
       r.error(fileRel, `Duplicate policies[].policy_id: "${p.policy_id}"`);
     }
-    seen.add(p.policy_id);
+    seen.add(key);
   }
 }
 
