@@ -175,7 +175,11 @@ def run(args) -> int:
         if previous and previous[-1]["outcome"] == outcome:
             if previous[-1].get("review_output") != review_output:
                 raise ValueError("Terminal reviewer output cannot be rewritten; reconcile explicitly with the owner")
-            check_state_revision(data, path)
+            if getattr(args, "review_result", None) is not None:
+                select_cycle_result(project, data, args, prepared)
+                write_state(project, data)
+            else:
+                check_state_revision(data, path)
             print(json.dumps({"outcome": "already_applied", "attempt_id": attempt_id, "input_digest": digest}))
             return 0
         if previous and previous[-1]["outcome"] != "started":

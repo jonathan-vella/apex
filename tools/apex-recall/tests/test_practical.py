@@ -195,11 +195,38 @@ def test_cycle_counts_failure_and_requires_explicit_extension_not_new_worker(tmp
     request["prior_findings"] = []
     artifact.write_text("Routine correction")
     assert audit("closure", "started", "--closure-of", "initial") == 0
-    assert audit("closure", "completed", "--closure-of", "initial") == 0
+    assert audit("closure", "completed", "--closure-of", "initial", "--review-output", "nonempty") == 0
+    closure_result = project / "closure-findings.json"
+    closure_result.write_text(
+        json.dumps(
+            {
+                "challenged_artifact": "agent-output/synthetic/artifact.md",
+                "review_focus": "governance-reconciliation",
+                "pass_number": 1,
+                "overall_assessment": "APPROVED",
+                "review_execution": {"request_id": "closure"},
+            }
+        )
+    )
+    request["output_path"] = "agent-output/synthetic/closure-findings.json"
+    assert (
+        audit(
+            "closure",
+            "completed",
+            "--closure-of",
+            "initial",
+            "--review-output",
+            "nonempty",
+            "--review-result",
+            str(closure_result),
+        )
+        == 0
+    )
     assert audit("new-worker", "started", "--closure-of", "initial") == 1
     state = writer.read_state(project / "00-session-state.json")
     key = module.cycle_identity(request)
     assert state["decisions"]["review_cycles"][key]["calls"] == 2
+    assert state["decisions"]["review_cycles"][key]["current_path"] == "closure-findings.json"
     module.extend_cycle(
         state,
         {
