@@ -375,3 +375,30 @@ def test_early_feasibility_reuses_scope_without_formal_governance_completion(tmp
     snapshot.write_text(json.dumps(envelope))
     with pytest.raises(ValueError, match="incomplete"):
         module.check_feasibility("synthetic", data)
+
+
+def test_handoff_auto_selects_active_project_and_emits_deterministic_contract(tmp_path: Path, capsys):
+    project, writer, cli, _, _ = practical_project(tmp_path)
+    data = writer.read_state(project / "00-session-state.json")
+    data["decisions"]["iac_tool"] = "bicep"
+    data["decisions"]["design_artifacts"] = "skip"
+    data["steps"]["1"]["status"] = "complete"
+    data["steps"]["2"]["status"] = "complete"
+    data["steps"]["3_5"]["status"] = "complete"
+    data["steps"]["4"]["status"] = "in_progress"
+    data["steps"]["4"]["sub_step"] = "phase_iac_planner_handoff"
+    (project / "01-requirements.md").write_text("# req")
+    (project / "02-architecture-assessment.md").write_text("# arch")
+    (project / "04-governance-constraints.json").write_text("{}")
+    writer.write_state("synthetic", data)
+
+    assert cli.main(["handoff", "--json"]) == 0
+    payload = json.loads(capsys.readouterr().out)
+    assert payload["status"] == "READY"
+    assert payload["project"] == "synthetic"
+    assert payload["auto_selected"] is True
+    assert payload["active_step"] == "4"
+    assert payload["next_owner"] == "05-IaC Planner"
+    assert payload["checkpoint"] == "phase_iac_planner_handoff"
+    assert payload["resume_command"] == "/apex-workflow-start resume synthetic"
+    assert "agent-output/synthetic/02-architecture-assessment.md" in payload["frozen_artifacts"]

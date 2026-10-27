@@ -19,7 +19,10 @@ Delegated tasks return the form to their interactive parent.
 
 ## Procedure
 
-Resolve the requested operation and project. Supplied explicit values need no repeated confirmation;
+Resolve the requested operation and project. When invoked as `/apex-workflow-start`, `/apex-workflow-start resume`,
+or `/apex-workflow-start resume <project>`, run `apex-recall handoff [<project>] --json` first to auto-resolve the
+unambiguous active project, target step, `next_owner`, current `checkpoint`, frozen upstream artifacts, and settled
+material inputs without requiring a multi-line user prompt. Supplied explicit values need no repeated confirmation;
 ambiguous operation/project requires a native question. No guessed new project on an empty recall result.
 Read [workflow entry](../apex-workflow-engine/references/workflow-entry.md) and
 [workflow engine](../apex-workflow-engine/SKILL.md) only for relevant domain prerequisites.

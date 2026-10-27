@@ -143,11 +143,16 @@ review. A blocked worker uses the [execution contract](execution-subagent.md).
 
 Use the active `01-Orchestrator`, requesting selection only if another role is actually active, then follow its
 [Recovery and lessons](../../../agents/01-orchestrator.agent.md#recovery-and-lessons)
-procedure. Use an explicit project without reconfirmation; otherwise discover
-candidates and ask only when ambiguous. Empty recall is not permission to start
-fresh. Reconcile handoff, checkpoints, reviews and approvals before advancing.
-Present recovered status and the applicable human gate. After approval, use verified
-dispatch for the graph-selected owner; do not ask the user to choose a step already determined by the graph.
+procedure. Run `apex-recall handoff [<project>] --json` first to deterministically resolve the active project
+(when unambiguous), `active_step`, `next_owner`, `checkpoint`, `frozen_artifacts`, and `settled_material_input_ids`,
+followed by `apex-recall show <project> --json`. Use an explicit or auto-selected single active project without
+reconfirmation; ask only when `apex-recall handoff --json` reports `AMBIGUOUS_PROJECT`. Empty recall is not permission
+to start fresh. Reconcile handoff, checkpoints, reviews and approvals before advancing.
+When the current step is already `in_progress` (for example after an atomic `transition` to a `phase_*_handoff`
+checkpoint) and its upstream prerequisites are `complete` and `current`, immediately dispatch `next_owner` for the
+active step without asking another intermediate gate. Otherwise present recovered status and the applicable human gate.
+Whenever a turn pauses at a step boundary or blocker, end the response with a fenced `text` code block containing
+the one-line resume command (`/apex-workflow-start resume <project>`) so the user has a 1-click Copy/Insert action.
 
 ## Harness Acceptance
 
