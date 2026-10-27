@@ -380,8 +380,11 @@ def test_early_feasibility_reuses_scope_without_formal_governance_completion(tmp
 def test_handoff_auto_selects_active_project_and_emits_deterministic_contract(tmp_path: Path, capsys):
     project, writer, cli, _, _ = practical_project(tmp_path)
     data = writer.read_state(project / "00-session-state.json")
+    data["current_step"] = 4
     data["decisions"]["iac_tool"] = "bicep"
     data["decisions"]["design_artifacts"] = "skip"
+    for k in ("5", "6", "7"):
+        data["steps"][k]["status"] = "pending"
     data["steps"]["1"]["status"] = "complete"
     data["steps"]["2"]["status"] = "complete"
     data["steps"]["3_5"]["status"] = "complete"

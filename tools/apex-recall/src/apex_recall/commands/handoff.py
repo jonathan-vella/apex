@@ -118,18 +118,21 @@ def _discover_projects() -> list[tuple[str, Path, dict]]:
 
 
 def _select_active_step(steps: dict, decisions: dict, current_step: object = None) -> str:
+    skip_design = str(decisions.get("design_artifacts", "")).lower() == "skip"
     cur_key = str(current_step).replace(".", "_") if current_step is not None else ""
-    if cur_key in STEP_ORDER and steps.get(cur_key, {}).get("status") == "in_progress":
-        return cur_key
-    for key in reversed(STEP_ORDER):
+    if cur_key in STEP_ORDER and not (cur_key == "3" and skip_design):
+        if steps.get(cur_key, {}).get("status") == "in_progress":
+            return cur_key
+    for key in STEP_ORDER:
+        if key == "3" and skip_design:
+            continue
         if steps.get(key, {}).get("status") == "in_progress":
             return key
-    skip_design = str(decisions.get("design_artifacts", "")).lower() == "skip"
     for key in STEP_ORDER:
         if key == "3" and skip_design:
             continue
         status = steps.get(key, {}).get("status", "pending")
-        if status in ("pending", "stale"):
+        if status in ("pending", "stale", "not_started"):
             return key
     return "7"
 
