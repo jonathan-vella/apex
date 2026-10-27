@@ -356,6 +356,21 @@ def test_r1_cache_preview_uses_current_architecture(tmp_path: Path, monkeypatch:
     assert rendered == [{"arch_resources": [{"name": "changed.md"}]}]
 
 
+def test_r1_formal_governance_reuses_fresh_sibling_policy_feasibility_snapshot(tmp_path: Path, monkeypatch: Any) -> None:
+    feasibility = tmp_path / "04-policy-feasibility.json"
+    constraints = tmp_path / "04-governance-constraints.json"
+    feasibility.write_text(json.dumps(discover.discover("s", project="p", az_rest=_router({}))))
+    monkeypatch.setattr(discover, "_default_check_auth", lambda: pytest.fail("sibling cache hit must not authenticate"))
+    monkeypatch.setattr(discover, "_extract_arch_resources", lambda path: [{"name": path}])
+    rendered = []
+    monkeypatch.setattr(discover, "_emit_preview_md", lambda envelope, path, **kwargs: rendered.append(kwargs))
+    assert discover.main(["--project", "p", "--subscription", "s", "--out", str(constraints), "--arch", "02-arch.md"]) == 0
+    assert constraints.exists()
+    written = json.loads(constraints.read_text(encoding="utf-8"))
+    assert written["_out_path"] == str(constraints)
+    assert rendered == [{"arch_resources": [{"name": "02-arch.md"}]}]
+
+
 # --------------------------------------------------------------------------- #
 # Pure-classification tests                                                   #
 # --------------------------------------------------------------------------- #

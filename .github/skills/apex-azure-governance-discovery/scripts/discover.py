@@ -1176,41 +1176,59 @@ def main(argv: list[str] | None = None) -> int:
         return 2
 
     # Cache reuse must satisfy the same freshness clock as downstream L0 checks.
-    if out_path.exists() and not args.refresh:
-        try:
-            cached = json.loads(out_path.read_text())
-        except (OSError, UnicodeError, json.JSONDecodeError):
-            cached = None
-        if (
-            isinstance(cached, dict)
-            and cached.get("schema_version") == "governance-constraints-v1"
-            and cached.get("project") == args.project
-            and str(cached.get("subscription_id", "")).lower() == sub_id.lower()
-            and cached.get("discovery_options") == {"include_defender_auto": args.include_defender_auto}
-            and cached.get("discovery_status") == "COMPLETE"
-            and isinstance(cached.get("findings"), list)
-            and _cache_is_fresh(cached)
-            and isinstance(cached["discovery_metadata"].get("scope"), dict)
-            and str(cached["discovery_metadata"]["scope"].get("subscription_id", "")).lower() == sub_id.lower()
-        ):
-            if args.arch:
-                _emit_preview_md(cached, out_path, arch_resources=_extract_arch_resources(args.arch))
-            summary = cached.get("discovery_summary") or {}
-            status = {
-                "status": "COMPLETE",
-                "cache_hit": True,
-                "assignment_total": summary.get("assignment_total", 0),
-                "blockers": summary.get("blocker_count", 0),
-                "auto_remediate": summary.get("auto_remediate_count", 0),
-                "exempted": summary.get("exempted_count", 0),
-                "out_path": str(out_path),
-            }
-            _emit_status(status)
-            print(
-                f"cache hit: reusing {out_path} ({len(cached.get('findings', []))} findings; "
-                f"pass --refresh to re-discover)"
-            )
-            return 0
+    # Formal Step 3.5 (04-governance-constraints.json) may also seed from a current,
+    # signature-verified sibling 04-policy-feasibility.json collected in Step 2.
+    cache_candidates = [out_path]
+    if out_path.name == "04-governance-constraints.json":
+        cache_candidates.append(out_path.with_name("04-policy-feasibility.json"))
+    if not args.refresh:
+        for cache_source in cache_candidates:
+            if not cache_source.exists():
+                continue
+            try:
+                cached = json.loads(cache_source.read_text(encoding="utf-8"))
+            except (OSError, UnicodeError, json.JSONDecodeError):
+                continue
+            if (
+                isinstance(cached, dict)
+                and cached.get("schema_version") == "governance-constraints-v1"
+                and cached.get("project") == args.project
+                and str(cached.get("subscription_id", "")).lower() == sub_id.lower()
+                and cached.get("discovery_options") == {"include_defender_auto": args.include_defender_auto}
+                and cached.get("discovery_status") == "COMPLETE"
+                and isinstance(cached.get("findings"), list)
+                and _cache_is_fresh(cached)
+                and isinstance(cached.get("discovery_metadata"), dict)
+                and isinstance(cached["discovery_metadata"].get("scope"), dict)
+                and str(cached["discovery_metadata"]["scope"].get("subscription_id", "")).lower() == sub_id.lower()
+                and (
+                    cache_source == out_path
+                    or cached["discovery_metadata"].get("completeness_signature")
+                    == _completeness_signature(cached.get("findings", []))
+                )
+            ):
+                if cache_source != out_path:
+                    out_path.parent.mkdir(parents=True, exist_ok=True)
+                    cached["_out_path"] = str(out_path)
+                    out_path.write_text(json.dumps(cached, indent=2, sort_keys=False) + "\n", encoding="utf-8")
+                if args.arch:
+                    _emit_preview_md(cached, out_path, arch_resources=_extract_arch_resources(args.arch))
+                summary = cached.get("discovery_summary") or {}
+                status = {
+                    "status": "COMPLETE",
+                    "cache_hit": True,
+                    "assignment_total": summary.get("assignment_total", 0),
+                    "blockers": summary.get("blocker_count", 0),
+                    "auto_remediate": summary.get("auto_remediate_count", 0),
+                    "exempted": summary.get("exempted_count", 0),
+                    "out_path": str(out_path),
+                }
+                _emit_status(status)
+                print(
+                    f"cache hit: reusing {cache_source} ({len(cached.get('findings', []))} findings; "
+                    f"pass --refresh to re-discover)"
+                )
+                return 0
 
     try:
         _default_check_auth()
