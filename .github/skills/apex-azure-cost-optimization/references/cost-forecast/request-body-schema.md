@@ -10,9 +10,10 @@ Construct Cost Management Forecast REST API (`az rest`) payloads using the offic
 | `granularity` | No | `Daily` (default), `Monthly` |
 | `filterDimension` | With `filterValues` | One supported cost dimension in `dataset.filter.dimensions.name` |
 | `filterValues` | With `filterDimension` | Exact values in `dataset.filter.dimensions.values` (`operator: "In"`) |
-| `metric` | No | `PreTaxCost` (default), `Cost`, `AmortizedCost` |
+| `type` | No | `ActualCost` (default), `AmortizedCost` for commitment projections, or `Usage` |
+| `metric` | No | `PreTaxCost` (default) or `Cost` in `dataset.aggregation` (`function: "Sum"`) |
 
-Set `type` (`Usage` or `ActualCost` / `AmortizedCost`), `timeframe=Custom`, `timePeriod`,
+Set `type` (`ActualCost`, `AmortizedCost`, or `Usage`), `timeframe=Custom`, `timePeriod`,
 and `dataset` (`granularity`, `aggregation`, optional `filter`) using the same dimension
 whitelist as the [cost query workflow](../cost-query/dimensions-by-scope.md).
 

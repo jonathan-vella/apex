@@ -16,10 +16,11 @@ custom dates, supply `from` and `to` together in `YYYY-MM-DD` (or ISO 8601 times
 | Field | Contract |
 |---|---|
 | `scope` | Azure scope path from the [Scope Reference](../../SKILL.md#scope-reference-shared-across-all-workflows); never a tenant ID |
+| `type` | `ActualCost` (default), `AmortizedCost`, or `Usage` |
 | `timePeriod.from`, `timePeriod.to` | Optional pair; defaults to current month |
 | `dataset.granularity` | `Daily` (default) or `Monthly` |
 | `dataset.filter` | Optional `dimensions` filter using one exact-match dimension |
-| `dataset.aggregation` | `PreTaxCost` (default), `Cost`, or `AmortizedCost` with `Sum` |
+| `dataset.aggregation` | `PreTaxCost` (default) or `Cost` with `Sum` (`AmortizedCost` is selected via top-level `type`) |
 
 Keep forecast payloads bounded: avoid custom grouping or arbitrary aggregations.
 

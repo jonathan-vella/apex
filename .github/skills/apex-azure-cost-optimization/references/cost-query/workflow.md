@@ -18,13 +18,12 @@ Supported timeframes are `MonthToDate`, `BillingMonthToDate`, `TheLastMonth`,
 
 | Field | Contract |
 |---|---|
-| `type` | `ActualCost` (or `AmortizedCost` for commitment analysis) |
+| `type` | `ActualCost` (default) or `AmortizedCost` for commitment analysis |
 | `dataset.granularity` | `None` (default), `Daily`, or `Monthly` |
-| `dataset.aggregation` | `PreTaxCost` (default), `Cost`, or `AmortizedCost` with `Sum` |
-| `dataset.grouping` | Up to five supported `Dimension` entries |
+| `dataset.aggregation` | `PreTaxCost` (default) or `Cost` with `Sum` (`AmortizedCost` is selected via top-level `type`) |
+| `dataset.grouping` | Up to two supported `Dimension` entries (`2023-11-01` `QueryDataset` limit) |
 | `dataset.filter` | Exact-match `In` filter on a supported dimension |
 | `dataset.sorting` | Cost column or selected grouping dimension (`ascending` or `descending`) |
-| `dataset.top` | 1-5000 rows; default 100 |
 
 Use [dimensions by scope](dimensions-by-scope.md) to select dimensions.
 Resource- and meter-level dimensions require a subscription or resource-group
@@ -46,9 +45,8 @@ daily rows. For weekly comparisons, issue one bounded custom-period query per
 week, with `granularity=None` and only the required grouping, rather than
 locally parsing or time-bucketing a larger response.
 
-If the response includes `nextLink`, follow every page before using the results, or bound
-the request with `top` (up to 5000) and narrow the scope, period, or grouping. State when the
-result may be incomplete.
+If the response includes `properties.nextLink`, follow every page before computing totals or
+top-N rankings, or narrow the scope, period, or filter and explicitly label incomplete results.
 
 ## Error handling
 

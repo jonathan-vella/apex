@@ -10,7 +10,7 @@ following [tool and safety guidance](../tools-and-safety.md#tool-preference).
 | Subscription-only dimension | Resource or meter dimension used at a broader scope | Narrow to a subscription/resource group or choose another dimension. |
 | Missing paired parameter | Only one date or filter field supplied | Supply both `from`/`to` or `filterDimension`/`filterValues`. |
 | Date outside lookback | Start is older than 92 days, range is too long, or end is future | Narrow the historical window. |
-| Invalid `top` | Outside 1-5000 | Choose a supported row limit. |
+| Too many grouping dimensions | More than two entries in `dataset.grouping` | Limit `dataset.grouping` to at most two dimensions. |
 | Unauthorized or forbidden | Authentication or RBAC failure | Reauthenticate or request Cost Management Reader access. |
 | Throttled | Excessive Cost Management fan-out | Honor returned retry guidance and reduce calls. |
 | Service error (5xx) | Transient service failure | Retry once with backoff; if the service remains unavailable, report the error. |
