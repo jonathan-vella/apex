@@ -109,14 +109,15 @@ Skills provide domain methods, not new tool permissions or role transitions.
 
 1. Map approved resources, boundaries, dependencies and critical flows before drawing.
    Locate the source decision for every component; report absent evidence instead of inferring topology.
-2. Select the nearest pattern in the diagrams skill; use `diagrams`, `matplotlib` or `graphviz`
-   as appropriate. For large topologies use an overview and focused region/workload diagrams.
-3. Write `03-des-diagram.py` with explicit paths, readable labels/clusters and `show=False`.
-   Import `diagram_kwargs`, `save_figure` or `render_graphviz` from shared `scripts/diagram_io.py`;
-   do not bypass the helper to render directly.
-4. Run the source and verify non-empty `03-des-diagram.png` and `03-des-diagram.svg`.
-   For `diagrams`, call `embed_svg_images` after the Diagram context exits.
-   SVG images must be embedded data URIs, not package-local paths.
+2. Select the nearest pattern in the diagrams skill; prefer `dlib` (`scripts/dlib.py`) for
+   architecture, network, DNS, identity and swimlane diagrams, and `matplotlib` (`save_figure`)
+   for quantitative charts. For large topologies use an overview and focused region/workload diagrams.
+3. Write `03-des-diagram.py` with explicit paths and readable labels/boundaries.
+   Import `dlib` (`finish`) or `render_dlib`, `save_figure`, `diagram_kwargs`, `render_graphviz`
+   from shared `scripts/diagram_io.py`; do not bypass the helpers to render directly.
+4. Run the source, fix any `WARN overflow:` hints, and verify non-empty `03-des-diagram.png`
+   and `03-des-diagram.svg`. For legacy `diagrams`, call `embed_svg_images` after the Diagram
+   context exits. SVG icons must be embedded `<symbol>` definitions or data URIs, not package-local paths.
 5. Inspect both formats for rendered icons, legible labels, normal-zoom readability and correct
    boundaries/regions/flows. A PNG check or SVG header/file-size check alone does not verify SVG rendering.
 6. Correct owned rendering defects, rerun affected checks and checkpoint `phase_2_diagram`.
