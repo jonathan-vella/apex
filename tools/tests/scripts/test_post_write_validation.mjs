@@ -104,12 +104,14 @@ test("network pricing recipes use verified billing mappings without omitting var
   assert.match(parent, /do not invent zero usage/);
 });
 
-test("cost worker prices only through Azure MCP pricing and no ARM MCP tools", () => {
+test("cost worker prices only through Azure MCP pricing and no retired ARM MCP tools", () => {
   const worker = path.join(ROOT, ".github/agents/_subagents/cost-estimate-subagent.agent.md");
   const frontmatter = parseFrontmatter(fs.readFileSync(worker, "utf8"));
   const tools = [].concat(frontmatter.tools).join(" ");
   assert.match(tools, /azure-mcp\/\*/);
   assert.doesNotMatch(tools, /azure-resource-manager-mcp/);
+  const mcpConfig = JSON.parse(fs.readFileSync(path.join(ROOT, ".mcp.json"), "utf8"));
+  assert.deepEqual(Object.keys(mcpConfig.mcpServers), ["github", "azure-mcp"]);
   const guidance = fs.readFileSync(
     path.join(ROOT, ".github/skills/apex-azure-defaults/references/pricing-guidance.md"),
     "utf8",

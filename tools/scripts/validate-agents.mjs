@@ -17,7 +17,7 @@ import { fileURLToPath } from "node:url";
 import { createRequire } from "node:module";
 import { getAgents, getPromptFiles } from "./_lib/workspace-index.mjs";
 import { getBody, parseFrontmatter } from "./_lib/parse-frontmatter.mjs";
-import { modelLabels, catalogModelLabel } from "./_lib/model-helpers.mjs";
+import { DEFAULT_MODEL_CATALOG, modelLabels, catalogModelLabel } from "./_lib/model-helpers.mjs";
 import { Reporter } from "./_lib/reporter.mjs";
 import { MAX_BODY_LINES } from "./_lib/paths.mjs";
 import { STRUCTURED_REVIEWER } from "./validate-challenger-findings.mjs";
@@ -1347,14 +1347,10 @@ function emit(r, ruleId, family, file, message) {
   });
 }
 
-function loadModelCatalog() {
-  return JSON.parse(fs.readFileSync(".github/model-catalog.json", "utf8"));
-}
-
 export function runVendorPrompting({
   agents = getAgents(),
   prompts = getPromptFiles(),
-  catalog = loadModelCatalog(),
+  catalog = DEFAULT_MODEL_CATALOG,
 } = {}) {
   const r = new Reporter("Vendor Prompting Rules");
   r.header();

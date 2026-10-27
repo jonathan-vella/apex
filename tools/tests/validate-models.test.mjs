@@ -1,80 +1,33 @@
 // Smoke test for the consolidated tools/scripts/validate-models.mjs.
 //
-// Guards the --only dispatcher (catalog | consistency | deprecated) and the
-// merge of the three former model validators: each mode must exit 0 against
-// the current repository, an unknown mode must exit 2, and the npm aliases
+// Guards the --only dispatcher (consistency | deprecated): each mode must exit 0
+// against a valid workspace, an unknown mode must exit 2, and the npm aliases
 // must remain wired to the consolidated script.
 
 import { describe, it, before, after } from "node:test";
 import assert from "node:assert/strict";
 import { execFileSync } from "node:child_process";
-import { readFileSync, mkdtempSync, mkdirSync, writeFileSync, copyFileSync, rmSync } from "node:fs";
+import { readFileSync, mkdtempSync, mkdirSync, writeFileSync, rmSync } from "node:fs";
 import os from "node:os";
 import { fileURLToPath } from "node:url";
 import path from "node:path";
-import { loadValidator } from "../scripts/_lib/ajv-validator.mjs";
-import { normalizeModel, normalizeModels, modelLabels, catalogModelLabel } from "../scripts/_lib/model-helpers.mjs";
+import {
+  DEFAULT_MODEL_CATALOG,
+  normalizeModel,
+  normalizeModels,
+  modelLabels,
+  catalogModelLabel,
+} from "../scripts/_lib/model-helpers.mjs";
 
 const here = path.dirname(fileURLToPath(import.meta.url));
 const repoRoot = path.resolve(here, "..", "..");
 const script = path.join(repoRoot, "tools", "scripts", "validate-models.mjs");
 
 const fixtureRoot = mkdtempSync(path.join(os.tmpdir(), "apex-foundation-models-"));
-const fixtureCatalog = {
-  $schema: "../tools/schemas/model-catalog.schema.json",
-  description: "Isolated model contract fixture",
-  models: {
-    "gpt-5.6-sol": {
-      vendor: "OpenAI",
-      tier: null,
-      released: null,
-      deprecated: false,
-      provenance: { label_source: "user-confirmed", metadata_status: "unknown" },
-    },
-    "gpt-5.6-terra": {
-      vendor: "OpenAI",
-      tier: null,
-      released: null,
-      deprecated: false,
-      provenance: { label_source: "user-confirmed", metadata_status: "unknown" },
-    },
-    "gpt-5.6-luna": { vendor: "OpenAI", tier: "standard", released: "2026-07", deprecated: false },
-    "GPT-5.6 Sol (copilot)": {
-      vendor: "OpenAI",
-      tier: null,
-      released: null,
-      deprecated: false,
-      provenance: { label_source: "user-confirmed", metadata_status: "unknown" },
-    },
-    "GPT-5.6 Terra (copilot)": {
-      vendor: "OpenAI",
-      tier: null,
-      released: null,
-      deprecated: false,
-      provenance: { label_source: "user-confirmed", metadata_status: "unknown" },
-    },
-    "GPT-5.6 Luna (copilot)": {
-      vendor: "OpenAI",
-      tier: null,
-      released: null,
-      deprecated: false,
-      provenance: { label_source: "user-confirmed", metadata_status: "unknown" },
-    },
-    "GPT-5.4 mini": { vendor: "OpenAI", tier: "mini", released: "2026-03", deprecated: false },
-    "GPT-5.4": { vendor: "OpenAI", tier: "standard", released: "2026-03", deprecated: true },
-  },
-  governance: { source_of_truth: "frontmatter", rules: [] },
-  assignments: { generated: true, agents: {}, subagents: {} },
-};
 
 function setupFixture({ models = ["gpt-5.6-sol"], registryModels = models, prompt, handoff } = {}) {
-  for (const dir of [".github/agents", ".github/prompts", "tools/registry", "tools/schemas"])
+  for (const dir of [".github/agents", ".github/prompts", "tools/registry"])
     mkdirSync(path.join(fixtureRoot, dir), { recursive: true });
-  copyFileSync(
-    path.join(repoRoot, "tools/schemas/model-catalog.schema.json"),
-    path.join(fixtureRoot, "tools/schemas/model-catalog.schema.json"),
-  );
-  writeFileSync(path.join(fixtureRoot, ".github/model-catalog.json"), JSON.stringify(fixtureCatalog));
   const frontmatter = { name: "Fixture", tools: ["read"], agents: [], "user-invocable": true };
   if (models !== null) frontmatter.model = models;
   if (handoff !== undefined) frontmatter.handoffs = [{ agent: "Fixture", model: handoff }];
@@ -96,10 +49,6 @@ function setupFixture({ models = ["gpt-5.6-sol"], registryModels = models, promp
   const promptPath = path.join(fixtureRoot, ".github/prompts/fixture.prompt.md");
   rmSync(promptPath, { force: true });
   if (prompt !== undefined) writeFileSync(promptPath, `---\n${JSON.stringify(prompt)}\n---\nUse inputs.`);
-  execFileSync(process.execPath, [path.join(repoRoot, "tools/scripts/generate-model-catalog.mjs")], {
-    cwd: fixtureRoot,
-    stdio: "pipe",
-  });
 }
 
 function run(args) {
@@ -122,25 +71,12 @@ before(() => {
 });
 after(() => rmSync(fixtureRoot, { recursive: true, force: true }));
 
-describe("model catalog metadata", () => {
-  const catalog = fixtureCatalog;
-  const validate = loadValidator(path.join(repoRoot, "tools/schemas/model-catalog.schema.json"));
-
-  it("accepts exact Sol label with explicit unknown metadata and existing mini tier", () => {
-    assert.equal(validate(catalog), true, JSON.stringify(validate.errors));
-    assert.equal(catalog.models["gpt-5.6-sol"].released, null);
-    assert.equal(catalog.models["gpt-5.6-sol"].tier, null);
-    assert.equal(catalog.models["GPT-5.6-Sol"], undefined);
-    assert.equal(catalog.models["GPT-5.4 mini"].tier, "mini");
-  });
-
-  it("requires provenance for unknown metadata without accepting invented tiers", () => {
-    const copy = structuredClone(catalog);
-    delete copy.models["gpt-5.6-sol"].provenance;
-    assert.equal(validate(copy), false);
-    copy.models["gpt-5.6-sol"].provenance = catalog.models["gpt-5.6-sol"].provenance;
-    copy.models["gpt-5.6-sol"].tier = "expensive";
-    assert.equal(validate(copy), false);
+describe("default model catalog metadata", () => {
+  it("retains authorized family labels for legacy fixture validation", () => {
+    assert.ok(Object.hasOwn(DEFAULT_MODEL_CATALOG.models, "GPT-5.6 Terra (copilot)"));
+    assert.ok(Object.hasOwn(DEFAULT_MODEL_CATALOG.models, "Claude Sonnet 5.5 (copilot)"));
+    assert.ok(Object.hasOwn(DEFAULT_MODEL_CATALOG.models, "GPT-6 Luna (copilot)"));
+    assert.equal(Object.hasOwn(DEFAULT_MODEL_CATALOG.models, "GPT-5.6-Terra"), false);
   });
 });
 
@@ -158,7 +94,6 @@ describe("ordered model normalization", () => {
     assert.equal(models[1], "gpt-5.6-luna (copilot)");
     assert.deepEqual(normalizeModels(undefined), []);
   });
-
   it("rejects empty or malformed fallbacks instead of silently dropping them", () => {
     for (const value of [[], ["gpt-5.6-sol", false], ["gpt-5.6-sol", ""], ["gpt-5.6-sol", null]]) {
       assert.throws(() => normalizeModels(value), /non-empty/);
@@ -167,7 +102,7 @@ describe("ordered model normalization", () => {
 });
 
 describe("validate-models dispatcher", () => {
-  for (const mode of ["catalog", "consistency", "deprecated"]) {
+  for (const mode of ["consistency", "deprecated"]) {
     it(`--only=${mode} exits 0 against an isolated valid workspace`, () => {
       setupFixture();
       const { code, stdout } = run([`--only=${mode}`]);
@@ -175,19 +110,15 @@ describe("validate-models dispatcher", () => {
     });
   }
 
-  it("no flag runs all three and exits 0", () => {
+  it("no flag runs all modes and exits 0", () => {
     setupFixture();
     const { code } = run([]);
     assert.equal(code, 0);
   });
 
-  it("accepts unpinned active definitions and generates no assignments", () => {
+  it("accepts unpinned active definitions", () => {
     setupFixture({ models: null, registryModels: null });
     assert.equal(run(["--only=consistency"]).code, 0);
-    assert.equal(run(["--only=catalog"]).code, 0);
-    const generated = JSON.parse(readFileSync(path.join(fixtureRoot, ".github/model-catalog.json"), "utf8"));
-    assert.deepEqual(generated.assignments.agents, {});
-    assert.deepEqual(generated.assignments.subagents, {});
   });
 
   it("rejects a legacy model pin present in only one source", () => {
@@ -204,56 +135,16 @@ describe("validate-models dispatcher", () => {
 });
 
 describe("model CLI negatives", () => {
-  for (const [identifier, formerLabel] of [["GPT-5.6 Terra (copilot)", "GPT-5.6-Terra"]]) {
-    it(`accepts ${identifier} and rejects its former display casing`, () => {
-      setupFixture({ models: [identifier], handoff: identifier });
-      assert.equal(run(["--only=catalog"]).code, 0);
-      const generated = JSON.parse(readFileSync(path.join(fixtureRoot, ".github/model-catalog.json"), "utf8"));
-      assert.equal(generated.assignments.agents["fixture.agent.md"], identifier);
-      assert.equal(catalogModelLabel(identifier, { handoff: true, models: fixtureCatalog.models }), identifier);
-      setupFixture({ models: [formerLabel] });
-      assert.notEqual(run(["--only=catalog"]).code, 0);
-      const catalog = JSON.parse(readFileSync(path.join(repoRoot, ".github/model-catalog.json"), "utf8"));
-      assert.ok(Object.hasOwn(catalog.models, identifier));
-      assert.equal(Object.hasOwn(catalog.models, formerLabel), false);
-    });
-  }
-
-  it("validates later fallback catalog labels and deprecations", () => {
-    for (const fallback of ["unknown", "GPT-5.4", "GPT-5.6-Sol", "gpt-5.6-luna (copilot)", false]) {
-      setupFixture({ models: ["gpt-5.6-sol", fallback] });
-      const result = run(["--only=catalog"]);
-      assert.equal(result.code, 1, result.stdout);
-    }
-  });
-
   it("rejects fallback order and secondary-model registry drift", () => {
     setupFixture({ models: ["gpt-5.6-sol", "gpt-5.6-luna"], registryModels: ["gpt-5.6-sol"] });
     assert.equal(run(["--only=consistency"]).code, 1);
     setupFixture({ models: ["gpt-5.6-sol", "gpt-5.6-luna"], registryModels: ["gpt-5.6-luna", "gpt-5.6-sol"] });
     assert.equal(run(["--only=consistency"]).code, 1);
   });
-
-  it("allows unpinned agents and qualified handoffs but rejects unknown handoff overrides", () => {
-    setupFixture({ handoff: "gpt-5.6-luna (copilot)" });
-    assert.equal(run(["--only=catalog"]).code, 0);
-    setupFixture({ handoff: "unlisted (copilot)" });
-    assert.equal(run(["--only=catalog"]).code, 1);
-  });
-
-  it("rejects missing provenance through the real catalog CLI", () => {
-    setupFixture();
-    const filename = path.join(fixtureRoot, ".github/model-catalog.json");
-    const catalog = JSON.parse(readFileSync(filename, "utf8"));
-    delete catalog.models["gpt-5.6-sol"].provenance;
-    writeFileSync(filename, JSON.stringify(catalog));
-    assert.equal(run(["--only=catalog"]).code, 1);
-  });
 });
 
 describe("validate-models npm aliases", () => {
   const expected = {
-    "validate:model-catalog": "--only=catalog",
     "validate:model-consistency": "--only=consistency",
     "validate:deprecated-models": "--only=deprecated",
   };

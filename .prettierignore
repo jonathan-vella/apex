@@ -42,9 +42,8 @@ QUALITY_SCORE.md
 VERSION.md
 
 # Generated JSON — owned by their generators; Prettier must not fight them.
-# (model-catalog.json ← generate-model-catalog.mjs; azure-deprecations.json is
-# a fetched data snapshot; .mcp.json is hand-maintained with a fixed shape.)
-.github/model-catalog.json
+# (azure-deprecations.json is a fetched data snapshot; .mcp.json is
+# hand-maintained with a fixed shape.)
 .github/data/azure-deprecations.json
 .mcp.json
 

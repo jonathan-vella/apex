@@ -2,39 +2,31 @@
 /**
  * Model Validators (consolidated)
  *
- * Three read-only validators for descriptive model metadata and optional
- * legacy model pins, selectable via `--only`:
+ * Read-only validators for optional legacy model pins and deprecated model
+ * deny-list checks, selectable via `--only`:
  *
- *   --only=catalog      Catalog invariants (.github/model-catalog.json):
- *                       every explicitly pinned label is declared; the
- *                       `assignments` block matches the generator output;
- *                       deprecated models are absent from active use.
  *   --only=consistency  Explicit legacy `model` pins match across
  *                       frontmatter and registry; both may be absent.
  *   --only=deprecated   No deprecated model label reappears in agent
  *                       definitions, prompt files, or the registry.
  *
- * With no `--only` flag all three run in sequence and the process exits
- * non-zero if any failed. The generator (`generate-model-catalog.mjs`)
- * is a separate mutating tool and is intentionally NOT part of this file.
+ * With no `--only` flag both run in sequence and the process exits
+ * non-zero if any failed.
  *
  * @example
- *   node tools/scripts/validate-models.mjs                 # all three
- *   node tools/scripts/validate-models.mjs --only=catalog
+ *   node tools/scripts/validate-models.mjs                 # both modes
  *   node tools/scripts/validate-models.mjs --only=consistency
  *   node tools/scripts/validate-models.mjs --only=deprecated
  */
 import fs from "node:fs";
 import path from "node:path";
 import { Reporter } from "./_lib/reporter.mjs";
-import { getAgents, getPromptFiles } from "./_lib/workspace-index.mjs";
+import { getAgents } from "./_lib/workspace-index.mjs";
 import { REGISTRY_PATH } from "./_lib/paths.mjs";
-import { modelLabels, catalogModelLabel, walkRegistry, buildAssignments } from "./_lib/model-helpers.mjs";
+import { DEFAULT_MODEL_CATALOG, modelLabels, walkRegistry } from "./_lib/model-helpers.mjs";
 import { readJsonCached } from "./_lib/json.mjs";
-import { loadValidator } from "./_lib/ajv-validator.mjs";
 
 const ROOT = process.cwd();
-const CATALOG_PATH = path.join(ROOT, ".github", "model-catalog.json");
 
 /**
  * Print a Reporter's pass/fail message (mirroring `Reporter.exitOnError`
@@ -52,108 +44,6 @@ function finishMode(r, passMsg, failMsg) {
     console.log(`\n✅ ${passMsg}`);
   }
   return true;
-}
-
-// ── Mode: catalog ────────────────────────────────────────────────────────────
-
-function addModels(out, raw, origin, reporter, options) {
-  try {
-    for (const label of modelLabels(raw)) {
-      const model = catalogModelLabel(label, options);
-      if (!out.has(model)) out.set(model, []);
-      out.get(model).push(origin);
-    }
-  } catch (error) {
-    reporter.error(origin, error.message);
-  }
-}
-
-function collectRegistryModels(registry, reporter) {
-  const out = new Map(); // model -> [origin labels]
-  for (const [label, entry] of walkRegistry(registry)) {
-    addModels(out, entry.model, label, reporter);
-  }
-  return out;
-}
-
-function collectFrontmatterModels(reporter, models) {
-  const out = new Map();
-  for (const [file, item] of [...getAgents(), ...getPromptFiles()]) {
-    addModels(out, item.frontmatter?.model, file, reporter);
-    const handoffs = item.frontmatter?.handoffs;
-    if (!Array.isArray(handoffs)) continue;
-    for (const [index, handoff] of handoffs.entries()) {
-      addModels(out, handoff?.model, `${file} handoffs[${index}]`, reporter, { handoff: true, models });
-    }
-  }
-  return out;
-}
-
-function runCatalog() {
-  const r = new Reporter("Model Catalog Validator");
-  r.header();
-
-  if (!fs.existsSync(CATALOG_PATH)) {
-    r.error("model-catalog.json", `not found at ${CATALOG_PATH}`);
-    r.summary();
-    return finishMode(r, "Model catalog validation passed", "Model catalog validation failed — see errors above");
-  }
-  const catalog = readJsonCached(CATALOG_PATH);
-  const validate = loadValidator(path.join(ROOT, "tools/schemas/model-catalog.schema.json"));
-  if (!validate(catalog)) {
-    for (const error of validate.errors) {
-      r.error("model-catalog.json", `${error.instancePath} ${error.message}`);
-    }
-  }
-  const declared = new Set(Object.keys(catalog.models || {}));
-  const deprecated = new Set(
-    Object.entries(catalog.models || {})
-      .filter(([, v]) => v?.deprecated === true)
-      .map(([k]) => k),
-  );
-
-  console.log("  Check 1: referenced labels exist in catalog.models");
-  const fmModels = collectFrontmatterModels(r, catalog.models);
-  const registry = readJsonCached(REGISTRY_PATH);
-  const regModels = collectRegistryModels(registry, r);
-  for (const [model, origins] of fmModels) {
-    r.tick();
-    if (!declared.has(model)) {
-      r.error(`frontmatter model "${model}"`, `not declared in catalog.models — used by ${origins.join(", ")}`);
-    }
-  }
-  for (const [model, origins] of regModels) {
-    r.tick();
-    if (!declared.has(model)) {
-      r.error(`registry model "${model}"`, `not declared in catalog.models — used by ${origins.join(", ")}`);
-    }
-  }
-
-  console.log("  Check 2: assignments block matches frontmatter");
-  const expected = buildAssignments();
-  const actual = catalog.assignments;
-  r.tick();
-  if (!actual) {
-    r.error("assignments", "missing from catalog — run `node tools/scripts/generate-model-catalog.mjs`");
-  } else if (JSON.stringify(actual) !== JSON.stringify(expected)) {
-    r.error("assignments", "out of sync with frontmatter — run `node tools/scripts/generate-model-catalog.mjs`");
-  }
-
-  console.log("  Check 3: deprecated models absent from active assignments");
-  for (const dep of deprecated) {
-    r.tick();
-    const fmHits = fmModels.get(dep) || [];
-    const regHits = regModels.get(dep) || [];
-    if (fmHits.length || regHits.length) {
-      r.error(
-        `deprecated model "${dep}"`,
-        `still in active use — frontmatter: ${fmHits.join(", ") || "none"}; registry: ${regHits.join(", ") || "none"}`,
-      );
-    }
-  }
-
-  r.summary();
-  return finishMode(r, "Model catalog validation passed", "Model catalog validation failed — see errors above");
 }
 
 // ── Mode: consistency ────────────────────────────────────────────────────────
@@ -252,7 +142,6 @@ function runConsistency() {
 
 const SCAN_GLOBS = [".github/agents", "tools/tests/prompts"];
 const ALLOWED_FILES = new Set([
-  ".github/model-catalog.json",
   "CHANGELOG.md",
   "docs/CHANGELOG.md",
   "QUALITY_SCORE.md",
@@ -260,8 +149,7 @@ const ALLOWED_FILES = new Set([
 ]);
 
 function loadDeprecatedModels() {
-  const catalog = readJsonCached(CATALOG_PATH);
-  const models = catalog.models ?? {};
+  const models = DEFAULT_MODEL_CATALOG.models ?? {};
   return Object.entries(models)
     .filter(([, v]) => v?.deprecated === true)
     .map(([name]) => name);
@@ -310,11 +198,11 @@ function runDeprecated() {
   r.header();
   const deprecated = loadDeprecatedModels();
   if (deprecated.length === 0) {
-    console.log("  ℹ️  No deprecated models in catalog. Nothing to enforce.");
+    console.log("  ℹ️  No deprecated models configured. Nothing to enforce.");
     r.summary();
     return true;
   }
-  console.log(`  Deprecated labels (from catalog): ${deprecated.join(", ")}`);
+  console.log(`  Deprecated labels: ${deprecated.join(", ")}`);
 
   const files = collectDeprecatedScanFiles();
   for (const f of files) {
@@ -339,7 +227,6 @@ function runDeprecated() {
 // ── Dispatcher ───────────────────────────────────────────────────────────────
 
 const MODES = {
-  catalog: runCatalog,
   consistency: runConsistency,
   deprecated: runDeprecated,
 };

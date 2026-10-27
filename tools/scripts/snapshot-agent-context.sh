@@ -13,7 +13,6 @@ readonly BACKUP_TARGETS=(
   ".github/instructions"
   ".github/skills"
   ".github/copilot-instructions.md"
-  ".github/model-catalog.json"
   "tools/registry/agent-registry.json"
   "infra/bicep/AGENTS.md"
   "infra/terraform/AGENTS.md"
@@ -37,7 +36,6 @@ Backed-up targets:
   .github/instructions/  Instruction files
   .github/skills/        Skills (full recursive)
   .github/copilot-instructions.md  Copilot runtime instructions
-  .github/model-catalog.json       Model catalog
   tools/registry/agent-registry.json  Agent registry
   infra/{bicep,terraform}/AGENTS.md   IaC folder instructions
   AGENTS.md              Root project conventions

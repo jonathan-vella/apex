@@ -1,26 +1,28 @@
-# Cost Query Tool Contract
+# Cost Query Request Schema
 
-`query_costs` accepts typed MCP parameters. Use this contract for MCP calls; an
-API fallback must use the official Cost Management Query API schema instead of
-translating arbitrary fields.
+Construct Cost Management Query REST API (`az rest`) payloads using the official
+`Microsoft.CostManagement/query` schema and these logical parameters.
 
 | Parameter | Required | Values or format |
 |---|---|---|
 | `scope` | Yes | Azure scope path; never a tenant ID |
+| `type` | No | `ActualCost` (default) or `AmortizedCost` for commitment analysis |
 | `timeframe` | No | `MonthToDate`, `BillingMonthToDate`, `TheLastMonth`, `TheLastBillingMonth`, `WeekToDate`, `TheCurrentMonth`, `Custom` |
-| `from`, `to` | Together | `YYYY-MM-DD`; supplying both selects `Custom` |
+| `from`, `to` | Together | `YYYY-MM-DD` (or ISO 8601 in `timePeriod`); supplying both selects `Custom` |
 | `granularity` | No | `None` (default), `Daily`, `Monthly` |
-| `groupBy` | No | Up to five comma-separated dimensions |
-| `filterDimension` | With `filterValues` | One supported dimension |
-| `filterValues` | With `filterDimension` | Comma-separated exact values; upstream operator is `In` |
-| `metric` | No | `PreTaxCost` (default), `Cost`, `AmortizedCost` |
-| `sortBy` | No | Cost column or selected grouping dimension |
-| `sortDirection` | No | `desc` (default), `asc`, `descending`, `ascending` |
-| `top` | No | 1-5000; default 100 |
+| `groupBy` | No | Up to two `Dimension` entries in `dataset.grouping` (`2023-11-01` `QueryDataset` limit) |
+| `filterDimension` | With `filterValues` | One supported dimension in `dataset.filter.dimensions.name` |
+| `filterValues` | With `filterDimension` | Exact values in `dataset.filter.dimensions.values` (`operator: "In"`) |
+| `metric` | No | `PreTaxCost` (default) or `Cost` in `dataset.aggregation` (`function: "Sum"`); select amortized costs via top-level `type: "AmortizedCost"` |
+| `sortBy` | No | Cost column or selected grouping dimension in `dataset.sorting` |
+| `sortDirection` | No | `descending` (default) or `ascending` |
 
-The server creates the aggregation, grouping, filter, and sorting payload.
-Callers cannot supply compound filters, tag filters, arbitrary aggregation
-columns, request-body fields, or continuation URLs.
+Map these parameters into the `type`, `timeframe`, `timePeriod`, and `dataset`
+(`granularity`, `aggregation`, `grouping`, `filter`, `sorting`) JSON request body
+shown in [Step 4](../detailed-workflow-steps.md#step-4-query-actual-costs).
+`QueryDataset` (`2023-11-01`) does not support a `dataset.top` field; follow
+`properties.nextLink` across all pages before computing totals or top-N rankings,
+or explicitly label partial results.
 
-The structured response preserves the upstream `columns` and `rows`. Read each
+The response preserves `properties.columns` and `properties.rows`. Read each
 row using the corresponding column index rather than assuming a fixed order.

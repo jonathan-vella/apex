@@ -306,17 +306,17 @@ test("imported prepare guides are linked and carry the APEX network baseline", (
   assert.match(read(`${services}/container-apps/terraform.md`), /APEX Terraform CodeGen is AVM-first/);
 });
 
-test("cost query and forecast use ARM MCP without temp folders or attribution headers", () => {
+test("cost query and forecast use Cost Management REST APIs without temp folders or attribution headers", () => {
   const cost = "apex-azure-cost-optimization";
-  for (const [workflow, tool] of [
-    ["cost-query", "query_costs"],
-    ["cost-forecast", "forecast_costs"],
+  for (const [workflow, endpoint] of [
+    ["cost-query", "Microsoft\\.CostManagement/query"],
+    ["cost-forecast", "Microsoft\\.CostManagement/forecast"],
   ]) {
     for (const file of markdownFiles(`${cost}/references/${workflow}/`)) {
       const source = read(file);
       assert.doesNotMatch(source, /ClientType=|New-Item -ItemType Directory -Path "temp"|@temp\//, file);
     }
-    assert.match(read(`${cost}/references/${workflow}/workflow.md`), new RegExp(`ARM MCP \`${tool}\``));
+    assert.match(read(`${cost}/references/${workflow}/workflow.md`), new RegExp(`az rest[\\s\\S]*${endpoint}`));
   }
   const skill = read(`${cost}/SKILL.md`);
   assert.match(skill, /## Scope Reference \(Shared Across All Workflows\)/);

@@ -6,14 +6,12 @@ Steps for cost query execution, pricing validation, metrics collection, report g
 
 ## Step 4: Query Actual Costs
 
-Get actual cost data for the last 30 days with the ARM MCP `query_costs` tool: `from`/`to` as `YYYY-MM-DD`,
-`granularity=None`, `groupBy=ResourceId`, `top=5000`, at subscription or resource-group scope. Follow the
-[cost query guardrails](cost-query/guardrails.md) and label partial results.
+Get actual cost data for the last 30 days with the Cost Management Query REST API (`az rest`) at subscription
+or resource-group scope: `from`/`to` in ISO 8601 format, `granularity=None`, and `grouping` by `ResourceId`.
+Follow the [cost query guardrails](cost-query/guardrails.md) and
+[tool and safety guidance](tools-and-safety.md#tool-preference), and label partial results.
 
-Use the Cost Management Query API below only when `query_costs` is unavailable, as defined in the
-[tool and safety guidance](tools-and-safety.md#tool-preference).
-
-**Create cost query file (fallback):**
+**Create cost query file:**
 
 Create a unique run-owned scratch directory before creating the query:
 
@@ -53,7 +51,7 @@ Use the file editing tool to create `$queryPath` with:
 
 > **Action Required**: Calculate `<START_DATE>` (30 days ago) and `<END_DATE>` (today) in ISO 8601 format (e.g., `2025-11-03T00:00:00Z`).
 
-**Execute cost query (fallback):**
+**Execute cost query:**
 
 ```powershell
 az rest --method post `
@@ -61,8 +59,7 @@ az rest --method post `
   --body "@$queryPath"
 ```
 
-If the response has a `nextLink`, follow every page before using the results; the fallback is not bounded by the
-`query_costs` row limit.
+If the response has a `nextLink`, follow every page before using the results.
 
 **Important:** Save the query results to `agent-output/{project}/cost-query-result<timestamp>.json` for audit trail.
 

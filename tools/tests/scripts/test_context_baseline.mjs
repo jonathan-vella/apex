@@ -8,12 +8,7 @@ import { test } from "node:test";
 
 const ROOT = fileURLToPath(new URL("../../../", import.meta.url));
 const TARGETS = [".github/agents", ".github/instructions", ".github/skills"];
-const FILE_TARGETS = [
-  ".github/model-catalog.json",
-  "tools/registry/agent-registry.json",
-  "infra/bicep/AGENTS.md",
-  "infra/terraform/AGENTS.md",
-];
+const FILE_TARGETS = ["tools/registry/agent-registry.json", "infra/bicep/AGENTS.md", "infra/terraform/AGENTS.md"];
 
 function fixture(context) {
   const root = mkdtempSync(path.join(tmpdir(), "apex baseline-"));

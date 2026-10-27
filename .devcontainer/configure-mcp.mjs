@@ -7,12 +7,6 @@ import { parseJsonc } from "../tools/scripts/_lib/parse-jsonc.mjs";
 
 const defaults = {
   github: { type: "http", url: "https://api.githubcopilot.com/mcp/", tools: ["*"] },
-  "azure-resource-manager-mcp": {
-    type: "http",
-    url: "https://mcp.management.azure.com",
-    headers: { "x-mcp-toolset": "CostManagement" },
-    tools: ["*"],
-  },
   "azure-mcp": {
     type: "stdio",
     command: "npx",

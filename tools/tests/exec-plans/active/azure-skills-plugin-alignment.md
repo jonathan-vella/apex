@@ -71,8 +71,7 @@ Checked 2026-09-23: `v1.2.51` is still the latest tag, `main` is unchanged since
   holds the defaults and release check, [validate-mcp-config.mjs](../../../../tools/scripts/validate-mcp-config.mjs)
   requires `mcpServers.azure-mcp`, and
   [test_devcontainer_setup.mjs](../../../../tools/tests/scripts/test_devcontainer_setup.mjs) asserts the environment
-  variable. Agents 03, 05, 06b, 06t, 07b, 07t, 08 and 09 use `azure-mcp/*`. The cost worker uses
-  `azure-resource-manager-mcp`, which the plugin doesn't provide.
+  variable. Agents 03, 05, 06b, 06t, 07b, 07t, 08, 09 and the cost worker use `azure-mcp/*`.
 - **Validator friction**: verbatim upstream files fail the 500-character description cap in
   [validate-skills.mjs](../../../../tools/scripts/validate-skills.mjs), canary markers in
   [validate-skill-checks.mjs](../../../../tools/scripts/validate-skill-checks.mjs), the Reference Index check in
@@ -295,8 +294,8 @@ safety rule gets a focused test.
 - [x] prepare: App Service (SKU selection, networking, custom domains), Container Apps (networking, revisions, day-2
       operations, Terraform) and Functions (hosting plans, cold start) guides, each checked against the
       private-endpoint baseline.
-- [x] cost: query and forecast workflows with guardrails and 429 handling, mapped to the ARM MCP `query_costs`,
-      `forecast_costs` and `list_dimensions` tools; the total bill shown with savings; storage tier guidance without
+- [x] cost: query and forecast workflows with guardrails and 429 handling, mapped to the Cost Management Query and
+      Forecast REST APIs (`az rest`); the total bill shown with savings; storage tier guidance without
       deletion rules of thumb.
 - [x] cloud-migrate: App Service and Container Apps assessment and mapping guides and the Kubernetes DNS rule,
       without the CLI deployment guides.
@@ -419,10 +418,10 @@ standalone `azure-cost` plugin and split it into `cost-analysis`, `cost-estimati
 - [x] Repoint `apex-azure-cost-optimization` (now `apex-merge` over `cost-analysis`, `cost-estimation` and
       `cost-optimization`) and SK-08, SK-19 and SK-20. SK-08 and SK-19 are fixed upstream at v1.2.70; SK-20 is
       still present. The local fixes stay.
-- [x] Port the imported changes: `cost-query/` and `cost-forecast/` now follow the ARM MCP `query_costs` and
-      `forecast_costs` contracts (92-day lookback, five `groupBy` dimensions, no tags or continuation), add
+- [x] Port the imported changes: `cost-query/` and `cost-forecast/` follow the Cost Management Query and
+      Forecast REST API (`az rest`) contracts (92-day lookback, five `groupBy` dimensions), add
       `tools-and-safety.md`, and make the storage review Advisor-first with no age-based tiering. Step 4 of the
-      optimization workflow is MCP-first with the REST body as fallback. The `azure-prepare` and
+      optimization workflow uses the Cost Management Query REST API directly. The `azure-prepare` and
       `azure-resource-lookup` changes only rename upstream cost-skill cross-references; nothing to port.
 - [x] Move the reviewed tag to `v1.2.70`; a live run reports no drift.
 - [x] Merge as #712 (`516c745e`). A manual drift workflow run after the merge reported no drift and closed #711.

@@ -66,6 +66,6 @@ manual checklist items at their listed severity.
 3. Add a `families[]` entry in [rules.json](../rules.json), add the family to
    `FAMILY_STATUS` in the validator, and extend the family enums in
    `tools/schemas/vendor-prompting-rules.schema.json`.
-4. Add a row to the matrix above and the model to `.github/model-catalog.json`.
+4. Add a row to the matrix above and update `DEFAULT_MODEL_CATALOG` in `tools/scripts/_lib/model-helpers.mjs`.
 5. (Optional) Add a `family_overrides` entry to specific rules where
    the new family needs different severity.

@@ -1,6 +1,6 @@
 {
   "$schema": "../../tools/schemas/explorer-graph.schema.json",
-  "generatedAt": "2026-10-26T17:35:44.165Z",
+  "generatedAt": "2026-10-27T08:22:50.539Z",
   "categories": [
     { "id": "agent", "key": "agents", "label": "Agent", "color": "#3b82f6", "shape": "round-rectangle", "count": 14 },
     {
@@ -27,7 +27,7 @@
       "label": "Validator",
       "color": "#8b5cf6",
       "shape": "hexagon",
-      "count": 78
+      "count": 77
     },
     {
       "id": "workflow",
@@ -37,9 +37,9 @@
       "shape": "cut-rectangle",
       "count": 7
     },
-    { "id": "mcp", "key": "mcp_servers", "label": "MCP Server", "color": "#f43f5e", "shape": "barrel", "count": 3 }
+    { "id": "mcp", "key": "mcp_servers", "label": "MCP Server", "color": "#f43f5e", "shape": "barrel", "count": 2 }
   ],
-  "nodeCount": 173,
+  "nodeCount": 171,
   "edgeCount": 556,
   "nodes": [
     {
@@ -1794,16 +1794,6 @@
       "parent": "group:validator-orphans"
     },
     {
-      "id": "validator:validate-model-catalog",
-      "category": "validator",
-      "label": "validate:model-catalog",
-      "description": "node tools/scripts/validate-models.mjs --only=catalog",
-      "path": "package.json",
-      "links": { "source": "https://github.com/jonathan-vella/apex/blob/main/package.json" },
-      "meta": { "command": "node tools/scripts/validate-models.mjs --only=catalog", "orphan": true },
-      "parent": "group:validator-orphans"
-    },
-    {
       "id": "validator:validate-explorer-graph",
       "category": "validator",
       "label": "validate:explorer-graph",
@@ -2177,15 +2167,6 @@
       "meta": { "type": "http" }
     },
     {
-      "id": "mcp:azure-resource-manager-mcp",
-      "category": "mcp",
-      "label": "azure-resource-manager-mcp",
-      "description": "HTTP: https://mcp.management.azure.com",
-      "path": ".mcp.json",
-      "links": { "source": "https://github.com/jonathan-vella/apex/blob/main/.mcp.json" },
-      "meta": { "type": "http", "orphan": true }
-    },
-    {
       "id": "mcp:azure-mcp",
       "category": "mcp",
       "label": "azure-mcp",
@@ -2197,10 +2178,10 @@
     {
       "id": "group:validator-orphans",
       "category": "validator",
-      "label": "Validator (unlinked, 71)",
-      "description": "71 validator nodes with no cross-references in the current graph.",
+      "label": "Validator (unlinked, 70)",
+      "description": "70 validator nodes with no cross-references in the current graph.",
       "isGroup": true,
-      "meta": { "groupSize": 71 }
+      "meta": { "groupSize": 70 }
     },
     {
       "id": "group:workflow-orphans",

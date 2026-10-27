@@ -533,7 +533,7 @@ Raw schema validation and semantic validation are different checks; sharing a co
 | `explorer-graph.schema.json`                                                                      | Explorer generator and client; dedicated semantic validation               |
 | `governance-baseline.schema.json`, `governance-constraints.schema.json`                           | Baseline/discovery outputs; AJV and artifact checks                        |
 | `iteration-log.schema.json`, `lesson-log.schema.json`                                             | E2E and retrospective records; mappings, benchmark and lesson consumers    |
-| `model-catalog.schema.json`                                                                       | Maintained metadata/generated assignments; model checks                    |
+| `npm-audit-exceptions.schema.json`                                                                | Audit exception registry; schema and expiry validation                     |
 | `retirement-scan.schema.json`                                                                     | Scanner output; scanner AJV and regression tests                           |
 | `session-state.schema.json`                                                                       | recall/workflow state contract; semantic state checks                      |
 | `sku-manifest.schema.json`, `subnet-plan.schema.json`                                             | SKU owners and Architect network planning; dedicated AJV checks            |

@@ -34,7 +34,7 @@ extending the challenger schema.
 - **L1 Mechanical** (deterministic, existing validators): `validate:agents`
   (frontmatter / structural / model-alignment / apex-vendor-prompting / workflow-handoffs),
   `validate:agent-registry`, `validate:model-consistency`, `validate:deprecated-models`,
-  `validate:model-catalog`, `validate:workflow-graph`, `lint:workflow-table-sync`,
+  `validate:workflow-graph`, `lint:workflow-table-sync`,
   `lint:glob-audit`, `lint:orphaned-content`, `check:context-redundancy`,
   `lint:safe-shell`, `snapshot:baseline` / `diff:baseline`.
 - **L2 Static rubric** (mechanical + judgment). ENFORCED limits (`tools/scripts/_lib/paths.mjs`):

@@ -34,14 +34,13 @@ states the applicable rule.
 - Read the target file and its nearest analogous agent once.
 - Check `.github/skills/apex-workflow-engine/templates/workflow-graph.json` before
   changing domain prerequisites or artifact ownership; it does not supply UI routing or permissions.
-- Check `.github/model-catalog.json` before changing model metadata or legacy pins.
+- Check `tools/registry/agent-registry.json` before changing legacy pins or role mappings.
 - Preserve user changes and existing runtime contracts.
 - Keep active production agent definitions free of model and effort pins; the
   operator and runtime control model selection. Readiness does not attest models,
-  effort or picker selection. Preserve catalog metadata and
-  test any intentionally pinned legacy fixture with the existing validators.
-- Distinguish Local prompt adapters from shared Host-compatible skills; neither
-  static validation nor a catalog entry proves native model eligibility.
+  effort or picker selection. Test any intentionally pinned legacy fixture with the existing validators.
+- Distinguish Local prompt adapters from shared Host-compatible skills; static
+  validation does not prove native model eligibility.
 
 ## Workflow
 
@@ -120,8 +119,7 @@ npm run validate:skills
 npm run lint:md
 ```
 
-For model changes also run `npm run validate:model-catalog` and
-`npm run validate:deprecated-models`.
+For model changes also run `npm run validate:deprecated-models`.
 
 ## Output Expectations
 

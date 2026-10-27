@@ -3,15 +3,9 @@
     "github": {
       "type": "http",
       "url": "https://api.githubcopilot.com/mcp/",
-      "tools": ["*"]
-    },
-    "azure-resource-manager-mcp": {
-      "type": "http",
-      "url": "https://mcp.management.azure.com",
-      "headers": {
-        "x-mcp-toolset": "CostManagement"
-      },
-      "tools": ["*"]
+      "tools": [
+        "*"
+      ]
     },
     "azure-mcp": {
       "type": "stdio",
@@ -25,7 +19,9 @@
       "env": {
         "NPM_CONFIG_ALLOW_REMOTE": "all"
       },
-      "tools": ["*"]
+      "tools": [
+        "*"
+      ]
     }
   }
 }

@@ -22,8 +22,8 @@ IDs are not Cost Management scopes.
    access tier, location, attachment state and ownership tags.
 3. Join recommendations to inventory by resource ID. Preserve the Advisor
    recommendation text, impact, savings fields, currency, and period.
-4. Use access, capacity, and transaction metrics only when an ARM MCP monitoring
-   operation (or the Azure Monitor Metrics API fallback) returns them for the
+4. Use access, capacity, and transaction metrics only when Azure Monitor Metrics
+   (`az monitor metrics list` or the Azure Monitor Metrics API) returns them for the
    same resource and period.
 
 An unattached disk, missing policy, SKU, redundancy choice, or resource tag is
@@ -71,8 +71,8 @@ rules and never delete as part of the assessment.
 ## Lifecycle Policy Template (Tiering Only)
 
 Lifecycle policy contents are not queryable through Resource Graph. Read them
-with the applicable ARM MCP storage operation, or the Storage Resource Provider
-API through the [fallback process](tools-and-safety.md#tool-preference).
+with the Storage Resource Provider API (`az storage account management-policy show` or `az rest`),
+following [tool and safety guidance](tools-and-safety.md#tool-preference).
 
 The day values below are placeholders, not recommendations. Derive them from
 observed access evidence and the owner's retention requirements.
