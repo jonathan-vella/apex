@@ -7,6 +7,27 @@ import { parseArgs } from "node:util";
 const ENDPOINT = "https://prices.azure.com/api/retail/prices";
 const FILTERS = ["serviceName", "armSkuName", "armRegionName", "productName", "skuName", "meterName", "priceType"];
 const QUERY_KEYS = [...FILTERS, "currencyCode"];
+const SERVICE_FAMILY_PARSER_KINDS = new Set([
+  "service_family_unsupported",
+  "mcp_catalog_parser_error",
+  "mcp_deserialization_error",
+]);
+const AI_SERVICE_ALIASES = new Set(["Foundry Models", "Azure OpenAI", "Cognitive Services"]);
+
+function isServiceFamilyParserError(attempt) {
+  const response = attempt?.response ?? attempt;
+  if (!response || typeof response !== "object") return false;
+  const status = response.status ?? attempt?.http_status;
+  const errType = response.results?.type ?? response.type ?? attempt?.type ?? "";
+  const errMessage = [response.message, response.results?.message, response.error, attempt?.error]
+    .filter((part) => typeof part === "string")
+    .join("\n");
+  return (
+    status === 400 &&
+    (errType === "ArgumentOutOfRangeException" || /ArgumentOutOfRangeException/i.test(errMessage)) &&
+    /Unknown ServiceFamily value/i.test(errMessage)
+  );
+}
 
 function validateQuery(query) {
   if (!query || typeof query !== "object" || Array.isArray(query)) throw new Error("query must be an object");
@@ -50,6 +71,38 @@ function validateFailure(request) {
   }
   let matching = false;
   for (const attempt of failure.attempts) {
+    if (SERVICE_FAMILY_PARSER_KINDS.has(failure.kind)) {
+      if (!isServiceFamilyParserError(attempt)) {
+        throw new Error(
+          "Service-family parser fallback requires a status-400 ArgumentOutOfRangeException ('Unknown ServiceFamily value') from pricing_get",
+        );
+      }
+      const rawParams = attempt?.query ?? attempt?.parameters;
+      if (!rawParams || typeof rawParams !== "object" || Array.isArray(rawParams)) {
+        throw new Error("MCP failure attempt must include query or parameters");
+      }
+      const currency = rawParams.currencyCode ?? rawParams.currency;
+      const priceType = rawParams.priceType ?? rawParams["price-type"];
+      if (currency !== request.query.currencyCode || priceType !== "Consumption") {
+        throw new Error("MCP evidence must target the same Consumption priceType and currency");
+      }
+      const service = rawParams.serviceName ?? rawParams.service;
+      if (
+        service &&
+        service !== request.query.serviceName &&
+        !(AI_SERVICE_ALIASES.has(service) && AI_SERVICE_ALIASES.has(request.query.serviceName))
+      ) {
+        throw new Error("MCP evidence must target the same service and currency");
+      }
+      const regionMatch =
+        typeof rawParams.filter === "string" ? rawParams.filter.match(/armRegionName\s+eq\s+'([^']+)'/) : null;
+      const attemptRegion = rawParams.armRegionName ?? rawParams.region ?? regionMatch?.[1];
+      if (attemptRegion && request.query.armRegionName && attemptRegion !== request.query.armRegionName) {
+        throw new Error("MCP evidence must target the same region");
+      }
+      matching = true;
+      continue;
+    }
     validateQuery(attempt.query);
     if (
       attempt.query.serviceName !== request.query.serviceName ||

@@ -436,7 +436,7 @@ function computeComponentCost(component, defaultQuantity = 1) {
       throw new Error(`Tiered component requires finite usage_amount`);
     }
     const rawUnits = Math.max(0, Number(usageAmount) * multiplier - freeGrant);
-    const unitScale = /^10k\b/i.test(unit) ? 10000 : /^1m\b/i.test(unit) ? 1000000 : 1;
+    const unitScale = /^10k\b/i.test(unit) ? 10000 : /^1k\b/i.test(unit) ? 1000 : /^1m\b/i.test(unit) ? 1000000 : 1;
     return computeTieredCharge(rawUnits / unitScale, component.tier_bands);
   }
 
@@ -462,6 +462,13 @@ function computeComponentCost(component, defaultQuantity = 1) {
       throw new Error(`Unit '${unit}' requires explicit usage_amount`);
     }
     return rate * Math.max(0, Number(usageAmount) * multiplier - freeGrant);
+  }
+  if (/^1k\b|^1,000\b/i.test(unit)) {
+    if (!Number.isFinite(Number(usageAmount)) || Number(usageAmount) < 0) {
+      throw new Error(`Unit '${unit}' requires explicit usage_amount`);
+    }
+    const billableOps = Math.max(0, Number(usageAmount) * multiplier - freeGrant);
+    return rate * (billableOps / 1000);
   }
   if (/^10k\b|^10,000\b/i.test(unit)) {
     if (!Number.isFinite(Number(usageAmount)) || Number(usageAmount) < 0) {
