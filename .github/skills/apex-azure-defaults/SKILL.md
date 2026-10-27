@@ -74,9 +74,20 @@ always overrides repository defaults.
 ## Azure MCP tool names
 
 Skills and agents write Azure MCP tools as `mcp_azure-mcp_<tool>` (for example `mcp_azure-mcp_documentation`). The client may
-show the same tool with a shortened prefix such as `mcp_azure_mcp_ser_<tool>`; the server reports its name as "Azure MCP
+show the same tool with a shortened prefix such as `mcp_azure_mcp_ser_<tool>` or `azure-mcp-<tool>`; the server reports its name as "Azure MCP
 Server", and VS Code derives the prefix from it. Match on `<tool>` and call whichever name the client lists. Both prefixes
 are accepted by `npm run validate:mcp-tool-refs`.
+
+Always pass the explicit `command` and `learn: false` when calling known Azure MCP router tools — calling an `azure-mcp`
+router tool with `learn: true` (or without `command`) causes `@azure/mcp` to emit a reverse MCP `sampling/createMessage`
+request that fails in the Copilot runtime (`Sampling for azure-mcp did not complete`):
+
+- `azure-mcp-documentation`: `command: "microsoft_docs_search"` (`parameters: { "query": "<terms>" }`),
+  `command: "microsoft_docs_fetch"` (`parameters: { "url": "<https-url>" }`), or
+  `command: "microsoft_code_sample_search"` (`parameters: { "query": "<terms>", "language": "<lang>" }`), with `learn: false`.
+- `azure-mcp-wellarchitectedframework`: `command: "wellarchitectedframework_serviceguide_get"` (`parameters: {}` or
+  `parameters: { "service": "<name>" }`), with `learn: false`.
+- `azure-mcp-pricing`: `command: "pricing_get"`, with `learn: false` (`cost-estimate-subagent` only).
 
 ## Validation
 

@@ -34,6 +34,10 @@
 
 ## Bounded Tool Results
 
+- Call `azure-mcp-documentation` (`mcp_azure-mcp_documentation`) directly with `learn: false` and an explicit `command`:
+   `command: "microsoft_docs_search"` (`parameters: {"query": "<search terms>"}`) or `command: "microsoft_docs_fetch"`
+   (`parameters: {"url": "<https-url>"}`). Never call `azure-mcp-documentation` or `azure-mcp-wellarchitectedframework`
+   with `learn: true` or without `command`, which triggers a failing reverse MCP sampling call (`Sampling for azure-mcp did not complete`).
 - Once a shared MCP server returns a process-start failure, do not fan out more calls to that server in the
    same research phase. Use an available authorized fallback or report the missing capability.
 - Prefer targeted documentation search and the specific section needed for a claim. Avoid multi-page full-content
