@@ -441,7 +441,12 @@ def prepare_cycle(project: str, data: dict, args: object) -> dict | None:
             prior = [item for item in history if item["id"] == parent]
             if not prior or prior[-1]["outcome"] not in ("completed", "failed"):
                 raise ValueError("Original attempt is unfinished or unknown")
-            if getattr(args, "closure_of", None) and not isinstance(request.get("prior_findings"), list):
+            canonical_published = (root / cycle["canonical_path"]).is_file() or bool(cycle.get("current_path"))
+            if (
+                getattr(args, "closure_of", None)
+                and canonical_published
+                and not isinstance(request.get("prior_findings"), list)
+            ):
                 raise ValueError("Closure requires prior findings, not an inferred approval")
         else:
             if any(

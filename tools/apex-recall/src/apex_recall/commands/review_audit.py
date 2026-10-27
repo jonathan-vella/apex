@@ -205,7 +205,7 @@ def run(args) -> int:
                 )
             if not previous and any(attempt.get("retry_of") == retry_of for attempt in attempts):
                 raise ValueError("Identical-input retry already recorded; allowance cannot reset")
-        elif retry_of is not None:
+        elif retry_of is not None and not prepared:
             raise ValueError("retry-of is only valid for empty-output-retry attempts")
         select_cycle_result(project, data, args, prepared)
         attempts.append(
