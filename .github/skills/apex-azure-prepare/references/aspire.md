@@ -169,7 +169,7 @@ azd env get-values
 
 ### Error: "no default response for prompt 'Enter a unique environment name:'"
 
-**Cause:** Missing `-e` flag when running `azd init --from-code` in non-interactive environment  
+**Cause:** Missing `-e` flag when running `azd init --from-code` in non-interactive environment
 **Solution:** Always include the `-e <environment-name>` flag
 
 ```bash
@@ -189,7 +189,7 @@ azd init --from-code -e "$ENV_NAME"
 
 ### Error: "no default response for prompt 'How do you want to initialize your app?'"
 
-**Cause:** Missing `--from-code` flag  
+**Cause:** Missing `--from-code` flag
 **Solution:** Add `--from-code` to the `azd init` command
 
 ```bash

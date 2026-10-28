@@ -52,7 +52,7 @@ resource "azurerm_servicebus_namespace" "main" {
   location            = var.location
   resource_group_name = var.resource_group_name
   sku                 = "Standard"
-  
+
   local_auth_enabled  = false  # RBAC-only, no connection strings or SAS keys
   minimum_tls_version = "1.2"
 

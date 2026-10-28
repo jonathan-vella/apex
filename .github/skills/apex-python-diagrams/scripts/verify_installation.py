@@ -71,15 +71,15 @@ def test_diagram_generation():
     try:
         from diagrams import Diagram
         from diagrams.azure.integration import LogicApps
-        
+
         import tempfile
         import os
-        
+
         with tempfile.TemporaryDirectory() as tmpdir:
             output_path = os.path.join(tmpdir, "test")
             with Diagram("Test", show=False, filename=output_path):
                 logic = LogicApps("Test")
-            
+
             # Check file was created
             if os.path.exists(f"{output_path}.png"):
                 print("✅ Successfully generated test diagram")
@@ -122,32 +122,32 @@ def main():
     print("Azure Architecture Diagrams - Installation Verification")
     print("=" * 60)
     print()
-    
+
     results = []
-    
+
     results.append(("Python 3.9+", check_python_version()))
     results.append(("dlib SVG/PNG engine", check_dlib_svg_engine()))
     results.append(("Graphviz", check_graphviz()))
     results.append(("Diagrams library", check_diagrams_library()))
-    
+
     # Only check these if diagrams is installed
     if results[-1][1]:
         results.append(("Azure providers", check_azure_providers()))
         results.append(("Diagram generation", test_diagram_generation()))
-    
+
     print()
     print("=" * 60)
     print("Summary")
     print("=" * 60)
-    
+
     all_passed = all(r[1] for r in results)
-    
+
     for name, passed in results:
         status = "✅ PASS" if passed else "❌ FAIL"
         print(f"  {name}: {status}")
-    
+
     print()
-    
+
     if all_passed:
         print("🎉 All checks passed! You're ready to create Azure diagrams.")
         print()
@@ -159,7 +159,7 @@ def main():
         print("Quick install commands:")
         print("  brew install graphviz     # macOS")
         print("  pip install diagrams      # Python library")
-    
+
     print()
     return 0 if all_passed else 1
 

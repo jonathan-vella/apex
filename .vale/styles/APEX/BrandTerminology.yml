@@ -1,0 +1,13 @@
+extends: substitution
+message: "Use '%s' instead of '%s'."
+level: error
+ignorecase: false
+action:
+  name: replace
+swap:
+  Agentic InfraOps: APEX
+  Agentic PlatformOps: APEX
+  InfraOps Conductor: 01-Orchestrator
+  01-Conductor: 01-Orchestrator
+  Azure Active Directory: Microsoft Entra ID
+  Azure AD: Microsoft Entra ID

@@ -94,6 +94,13 @@
       "replacement": "orchestrator",
       "severity": "error",
       "reason": "Slug renamed from infraops-conductor to orchestrator"
+    },
+    {
+      "id": "vale-vocab-infraops",
+      "pattern": "Vocab = InfraOps",
+      "replacement": "Vocab = APEX",
+      "severity": "error",
+      "reason": "Vale vocabulary renamed from InfraOps to APEX"
     }
   ],
   "excludePatterns": [
@@ -106,7 +113,9 @@
     ".archive/",
     "agent-output/_baselines/",
     "tools/tests/exec-plans/completed/",
-    ".github/terminology-blocklist.json"
+    ".github/terminology-blocklist.json",
+    ".vale/styles/APEX/BrandTerminology.yml",
+    ".vale/styles/Vocab/APEX/reject.txt"
   ],
   "excludeLinePatterns": [
     "apex",
@@ -122,7 +131,6 @@
     "my-infraops-project",
     "apex-microhack",
     "agentic-infraops.PPTX",
-    "Vocab = InfraOps",
     "InfraOps / SRE"
   ],
   "fileExtensions": [

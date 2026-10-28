@@ -90,7 +90,7 @@ output fullyQualifiedNamespace string = '${eventHubNamespace.name}.servicebus.wi
 // ============================================================================
 // IMPORTANT: Always use this output instead of manually constructing app settings.
 // Pass the UAMI clientId from the base template's identity module.
-// 
+//
 // Usage in main.bicep:
 //   var eventHubsAppSettings = eventhubs.outputs.appSettings
 //   // Then merge: union(baseAppSettings, eventHubsAppSettings)
