@@ -92,9 +92,9 @@ development efforts.
 
 ### 2.1 Architecture Diagram
 
-![System Context Diagram - {project-name}](./03-des-diagram.png)
+![System Context Diagram - {project-name}](./assets/03-des-diagram.png)
 
-Source: [03-des-diagram.py](./03-des-diagram.py)
+Source: [03-des-diagram.py](./assets/03-des-diagram.py)
 
 > Replace with the generated Python architecture diagram for the project.
 
@@ -111,9 +111,9 @@ Source: [03-des-diagram.py](./03-des-diagram.py)
 
 ## 🌐 3. Networking
 
-![Network Topology - {project-name}](./03-des-network-diagram.png)
+![Network Topology - {project-name}](./assets/03-des-network-diagram.png)
 
-Source: [03-des-network-diagram.py](./03-des-network-diagram.py)
+Source: [03-des-network-diagram.py](./assets/03-des-network-diagram.py)
 
 > Replace with actual network topology.
 

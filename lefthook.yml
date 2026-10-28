@@ -90,20 +90,21 @@ pre-commit:
         🔧 Run: npm run validate:skill-checks
 
     sku-manifest-render:
-      glob: "agent-output/*/sku-manifest.json"
+      glob: "agent-output/**/sku-manifest.json"
       run: |
         STAGED_SKU=$(git diff --cached --name-only --diff-filter=ACM \
-          | grep -E '^agent-output/[^/]+/sku-manifest\.json$' || true)
+          | grep -E '^agent-output/[^/]+/(contracts/)?sku-manifest\.json$' || true)
         if [ -n "$STAGED_SKU" ]; then
           COUNT=$(echo "$STAGED_SKU" | wc -l | tr -d ' ')
           echo "📦 Re-rendering $COUNT SKU manifest MD view(s) from JSON..."
           echo "$STAGED_SKU" | while IFS= read -r json_path; do
-            project=$(basename "$(dirname "$json_path")")
+            project=$(echo "$json_path" | cut -d/ -f2)
             node tools/scripts/render-sku-manifest-md.mjs "$project" || exit 1
           done
           # Re-stage rendered MD if changed
           echo "$STAGED_SKU" | while IFS= read -r json_path; do
-            md_path="${json_path%.json}.md"
+            project=$(echo "$json_path" | cut -d/ -f2)
+            md_path="agent-output/$project/sku-manifest.md"
             if [ -f "$md_path" ]; then
               git add "$md_path"
             fi

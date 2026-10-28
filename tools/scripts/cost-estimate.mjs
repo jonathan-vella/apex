@@ -14,6 +14,7 @@ import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { parseArgs } from "node:util";
+import { isLayoutV2, projectDirFromPath, resolveContractPath, resolveProjectFile } from "./_lib/project-paths.mjs";
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "../..");
 const RENDERER = path.join(ROOT, "tools/scripts/render-sku-manifest-md.mjs");
@@ -256,6 +257,10 @@ export function normalizeCostRequest(rawRequest, options = {}) {
 
   if (mode === "manifest_path") {
     manifestPath = resolveWorkspacePath(rawRequest.manifest_path, cwd);
+    if (!fs.existsSync(manifestPath)) {
+      const pdir = projectDirFromPath(manifestPath);
+      if (isLayoutV2(pdir)) manifestPath = resolveContractPath(pdir, path.basename(manifestPath));
+    }
     const manifest = JSON.parse(fs.readFileSync(manifestPath, "utf8"));
     manifestServiceIds = manifest.services.map((s) => s.id);
     const manifestIdSet = new Set(manifestServiceIds);
@@ -559,7 +564,11 @@ function validateEvidenceReferences(estimate, cwd) {
     if (typeof entry.calculation !== "string" || !entry.calculation.trim()) {
       errors.push(`${label}: calculation is required`);
     }
-    const evidenceFile = resolveWorkspacePath(entry.evidence_path, cwd);
+    let evidenceFile = resolveWorkspacePath(entry.evidence_path, cwd);
+    if (!fs.existsSync(evidenceFile)) {
+      const pdir = projectDirFromPath(evidenceFile);
+      if (isLayoutV2(pdir)) evidenceFile = resolveProjectFile(pdir, entry.evidence_path);
+    }
     if (!fs.existsSync(evidenceFile)) {
       errors.push(`${label}: evidence file does not exist: ${entry.evidence_path}`);
       continue;
@@ -800,7 +809,11 @@ export function publishEstimate(options = {}) {
   const cwd = options.cwd ?? process.cwd();
   const draftPath = resolveWorkspacePath(options.draftPath, cwd);
   const outputPath = resolveWorkspacePath(options.outputPath, cwd);
-  const manifestPath = options.manifestPath ? resolveWorkspacePath(options.manifestPath, cwd) : null;
+  let manifestPath = options.manifestPath ? resolveWorkspacePath(options.manifestPath, cwd) : null;
+  if (manifestPath && !fs.existsSync(manifestPath)) {
+    const pdir = projectDirFromPath(manifestPath);
+    if (isLayoutV2(pdir)) manifestPath = resolveContractPath(pdir, path.basename(manifestPath));
+  }
   const overwrite = Boolean(options.overwrite);
 
   assertNotSymlink(draftPath, "draftPath");

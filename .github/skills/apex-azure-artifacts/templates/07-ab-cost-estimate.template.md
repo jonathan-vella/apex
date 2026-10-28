@@ -67,9 +67,9 @@
 | Monthly Estimate | ${X}            | ${X}     | {+$X / -$X} | ✅ / ⚠️ / ❌ |
 | Annual Estimate  | ${X}            | ${X}     | {+$X / -$X} | ✅ / ⚠️ / ❌ |
 
-![Design vs As-Built Cost Comparison](./07-ab-cost-comparison.png)
+![Design vs As-Built Cost Comparison](./assets/07-ab-cost-comparison.png)
 
-> Generate `07-ab-cost-comparison.png` using the pattern in `apex-python-diagrams` skill →
+> Generate `assets/07-ab-cost-comparison.png` using the pattern in `apex-python-diagrams` skill →
 > `references/waf-cost-charts.md` → **Chart 4 – Design vs As-Built Cost Comparison**.
 > Replace placeholder costs with actual design estimate and as-built actuals.
 
@@ -118,13 +118,13 @@
 | 💾 Data Services |                466 |   34% |
 | 🌐 Networking    |                376 |   27% |
 
-![Monthly Cost Distribution](./07-ab-cost-distribution.png)
+![Monthly Cost Distribution](./assets/07-ab-cost-distribution.png)
 
 ### Month-over-Month Projection
 
-![6-Month Cost Projection](./07-ab-cost-projection.png)
+![6-Month Cost Projection](./assets/07-ab-cost-projection.png)
 
-> Generate `07-ab-cost-projection.png` using the pattern in `apex-python-diagrams` skill →
+> Generate `assets/07-ab-cost-projection.png` using the pattern in `apex-python-diagrams` skill →
 > `references/waf-cost-charts.md` → **Chart 3 – Monthly Cost Projection**.
 > Replace placeholder costs and months with actual as-built projected values.
 

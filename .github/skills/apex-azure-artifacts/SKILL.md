@@ -36,7 +36,12 @@ and completion; templates never advance a step or authorize an operation.
 
 - **DO**: Read the step-specific template before generating
 - **DO**: Copy H2 text character-for-character (including emoji)
-- **DO**: Save all output to `agent-output/{project}/`
+- **DO**: Keep `agent-output/{project}/` root Markdown-only (`layout_version: 2`): write `.md` deliverables to root,
+  canonical JSON contracts (`sku-manifest.json`, `02-cost-estimate.json`, `04-policy-feasibility.json`,
+  `04-governance-constraints.json`, `04-iac-contract.json`, `04-policy-property-map.json`,
+  `04-environment-manifest.json`, `05-iac-handoff.json`, `09-lessons-learned.json`) to `contracts/`, challenger
+  reviews (`challenge-findings-*.json`) to `reviews/`, diagrams (`*.py`, `*.png`, `*.svg`) to `assets/`, and session
+  state / inputs / pricing requests / scratch to `_meta/`
 - **DON'T**: Reorder H2 headings from the listed sequence
 - **DON'T**: Use placeholder text like "TBD" or "Insert here"
 - **DON'T**: Add custom H2 sections BEFORE the last required H2
