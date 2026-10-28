@@ -1,0 +1,10 @@
+extends: existence
+message: "Avoid leaving placeholder text ('%s') in committed prose."
+level: warning
+ignorecase: true
+tokens:
+  - '\bTBD\b'
+  - '\bTODO\b'
+  - '\bFIXME\b'
+  - '\bXXX\b'
+  - '\binsert here\b'
