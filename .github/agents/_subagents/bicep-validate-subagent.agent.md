@@ -77,7 +77,9 @@ Read only linked domain sections needed for resources actually present; reuse cu
 - **AVM (HIGH):** verify AVM-first composition, `br/public:avm/res/*` module sources
   and approved pinned versions. Report unsupported native-resource exceptions.
 - **Naming/tags (HIGH):** validate CAF names and tag keys, values and casing against
-  effective policy; use the canonical greenfield fallback only when no tag policy applies.
+  effective policy; use the canonical greenfield fallback only when no tag policy applies
+  and the approved plan does not confirm an empty policy tag contract (`tag_contract.source == "policy"`
+  with `required_tag_keys: []`) and explicit project operational tags.
   `ManagedBy` is optional provenance. Check a single stable unique suffix passed to modules.
 - **Security (CRITICAL):** TLS 1.2+, HTTPS-only, no public blob or shared-key access,
   Entra-only SQL, managed identities and no hardcoded secrets. Verify private data
@@ -90,8 +92,10 @@ Read only linked domain sections needed for resources actually present; reuse cu
   templates and parameter bindings. For Container Registry with non-Premium SKU,
   flag emitted `networkRuleSet`, `networkRuleBypassOptions`, `dataEndpointEnabled: true`
   or `zoneRedundancy: 'Enabled'`. Also flag non-null module properties documented as
-  Premium-only when the selected SKU is not Premium. Cite resource type, JSON property
-  path, SKU and source binding; recommend the `SKU-Default Mismatch` guidance in
+  Premium-only when the selected SKU is not Premium, except explicit `false` / `'Disabled'`
+  opt-out booleans (such as `zoneRedundant: false` on non-Premium App Service Plans) that
+  disable the feature and are accepted by the ARM resource provider. Cite resource type, JSON
+  property path, SKU and source binding; recommend the `SKU-Default Mismatch` guidance in
   [AVM pitfalls](../../skills/apex-azure-bicep-patterns/references/avm-pitfalls.md).
   Unresolved deployment-time expressions cannot count as passed render checks.
 - **Governance/L2:** with project context, translate every constraint
@@ -99,6 +103,14 @@ Read only linked domain sections needed for resources actually present; reuse cu
   SKU restrictions, networking and tags against actual values, not counts.
   Check actual `publicNetworkAccess` and private endpoint/DNS bindings; an unrelated flag
   cannot satisfy private-only policy.
+  For child resources, subresources, role assignments, diagnostic associations, or inline
+  VM OS disks (`properties.storageProfile.osDisk`) that inherit location from their parent
+  resource or have no standalone ARM `location` property, evaluate location constraints using
+  the owning parent resource's location (`verdict=satisfied` when the parent satisfies the
+  location rule, never `avm-gap`). Likewise, when a matrix row specifies `"omitted"` or `null`
+  for an optional property (such as `sku.capacityReservationLevel` on a `PerGB2018` workspace)
+  and the AVM module's conditional ARM expression evaluates to `null()` when that SKU feature
+  is inactive, treat `null()` and `"omitted"` as equivalent (`verdict=satisfied`).
   Record per-row expected/actual evidence. Missing evidence fails the affected check.
   Mechanical mismatch, absent matrix (`matrix-missing`) or property unavailable in
   the AVM/schema (`avm-gap`) is CRITICAL and forces FAILED.
