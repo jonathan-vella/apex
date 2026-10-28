@@ -281,6 +281,44 @@ def test_practical_needs_revision_is_not_approved_by_a_disposition(tmp_path: Pat
     assert "disposition is not closure" in error
 
 
+def test_practical_closure_receipt_with_zero_must_fix_is_gate_ready_without_mutating_verdict(tmp_path: Path):
+    project, writer, _, _, _ = practical_project(tmp_path)
+    document = _seed_review(project, "challenge-findings-plan-closure1.json")
+    document["overall_assessment"] = "NEEDS_REVISION"
+    document["should_fix_count"] = 1
+    finding = {
+        "severity": "should_fix",
+        "category": "waf_blind_spot",
+        "claim": "Non-blocking closure should_fix",
+        "evidence": "Evidence",
+        "impact": "Impact",
+        "artifact_section": "Section",
+        "traces_to": [],
+    }
+    import hashlib
+
+    identity = f"{finding['category']}\0{finding['claim']}\0{finding['artifact_section']}"
+    finding["id"] = hashlib.sha256(identity.encode()).hexdigest()[:8]
+    document["findings"] = [finding]
+    (project / "challenge-findings-plan-closure1.json").write_text(json.dumps(document))
+    state = writer.read_state(project / "00-session-state.json")
+    state["decisions"].setdefault("review_cycles", {})["plan-cycle"] = {
+        "step": "4",
+        "artifact": "agent-output/synthetic/04-implementation-plan.md",
+        "lens": "comprehensive",
+        "pass_number": 1,
+        "canonical_path": "agent-output/synthetic/challenge-findings-plan.json",
+        "current_path": "challenge-findings-plan-closure1.json",
+        "initial_id": "plan-r1",
+        "projection": "0" * 64,
+        "calls": 2,
+        "max_calls": 2,
+    }
+    writer.write_state("synthetic", state)
+    completion = importlib.import_module("apex_recall.commands.complete_step")
+    assert completion._challenger_findings_invalid("synthetic", "4") is None
+
+
 def test_scoped_holds_preserve_prod_and_account_for_shared_dependencies(tmp_path: Path):
     project, writer, _, module, _ = practical_project(tmp_path)
     data = writer.read_state(project / "00-session-state.json")

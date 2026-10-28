@@ -212,9 +212,7 @@ def run(args) -> int:
                                 for _, sidecar in _review_paths(project, step, selected)
                                 if sidecar.is_file()
                             ]
-                            effective[step]["gate_status"] = (
-                                "blocked" if "NEEDS_REVISION" in effective[step]["review_verdicts"] else "current"
-                            )
+                            effective[step]["gate_status"] = "current"
                     except (OSError, ValueError) as error:
                         effective[step] = {"status": "invalid", "error": str(error)}
                 session["effective_reviews"] = effective

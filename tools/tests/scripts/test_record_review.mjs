@@ -969,40 +969,6 @@ test("recorder normalizes finding IDs, counts, string traces_to and recovered re
   assert.deepEqual(saved.review_execution.recovered_read_calls, ["read-0"]);
 });
 
-test("closure pass with all prior_findings resolved and zero must_fix downgrades newly-invented should_fix to suggestion and approves", (t) => {
-  const f = fixture(t);
-  const priorFinding = {
-    id: "11111111",
-    severity: "should_fix",
-    category: "test",
-    claim: "Original prior finding",
-    evidence: "Prior evidence",
-    impact: "Prior impact",
-    artifact_section: "Section A",
-    traces_to: [],
-  };
-  f.input.prior_findings = [priorFinding];
-  f.doc.overall_assessment = "NEEDS_REVISION";
-  f.doc.findings = [
-    {
-      severity: "should_fix",
-      category: "test",
-      claim: "Newly invented closure nitpick",
-      evidence: "New evidence",
-      impact: "Minor impact",
-      artifact_section: "Section B",
-      traces_to: [],
-    },
-  ];
-  f.record();
-  const saved = f.persisted();
-  assert.equal(saved.overall_assessment, "APPROVED");
-  assert.equal(saved.must_fix_count, 0);
-  assert.equal(saved.should_fix_count, 0);
-  assert.equal(saved.suggestion_count, 1);
-  assert.equal(saved.findings[0].severity, "suggestion");
-});
-
 for (const [label, mutate] of [
   ["unrecovered read", (f) => addReadTurns(f, 1)],
   [

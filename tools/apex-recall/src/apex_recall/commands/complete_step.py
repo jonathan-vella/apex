@@ -173,10 +173,20 @@ def _challenger_findings_invalid(
                 return f"{sidecar}: reviewer reported blocked/failed"
             from ..practical import enabled
 
+            state_data = read_state(session_state_path(project))
+            is_closure_receipt = any(
+                isinstance(cycle, dict)
+                and cycle.get("step") == step
+                and cycle.get("current_path") == sidecar.name
+                and Path(cycle.get("canonical_path", "")).name != sidecar.name
+                and int(cycle.get("calls", 0)) >= 2
+                for cycle in (state_data.get("decisions", {}).get("review_cycles") or {}).values()
+            )
             if (
                 not allow_unresolved
-                and enabled(read_state(session_state_path(project)))
+                and enabled(state_data)
                 and review_verdict(document) == "NEEDS_REVISION"
+                and (_has_must_fix(document) or not is_closure_receipt)
             ):
                 return f"{sidecar}: current practical review requires revision; disposition is not closure"
             if not allow_unresolved and (
