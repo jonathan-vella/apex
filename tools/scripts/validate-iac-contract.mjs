@@ -40,6 +40,7 @@ import { globSync } from "node:fs";
 import { loadValidator } from "./_lib/ajv-validator.mjs";
 import { Reporter } from "./_lib/reporter.mjs";
 import { readJson, sha256File } from "./_lib/json.mjs";
+import { projectDirFromPath, resolveProjectFile } from "./_lib/project-paths.mjs";
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "../..");
 const SCHEMA_PATH = path.join(ROOT, "tools/schemas/iac-contract.schema.json");
@@ -221,6 +222,68 @@ function checkBicepOutputLimit(data, fileRel, r) {
   }
 }
 
+function validateSecurityRuleNames(rules, ownerLabel, fileRel, r) {
+  if (!Array.isArray(rules)) return;
+  const seen = new Set();
+  for (const rule of rules) {
+    const rawName = typeof rule?.name === "string" ? rule.name.trim() : "";
+    if (!rawName) continue;
+    const key = rawName.toLowerCase();
+    if (seen.has(key)) {
+      r.error(
+        fileRel,
+        `${ownerLabel} has duplicate NSG securityRules[].name "${rawName}" (Azure ARM requires unique rule names across both Inbound and Outbound rules within an NSG)`,
+      );
+    }
+    seen.add(key);
+  }
+}
+
+function checkNsgRuleUniqueness(data, fileRel, r) {
+  for (const res of data.resources ?? []) {
+    const rules = res.inputs?.securityRules ?? res.properties?.securityRules ?? res.parameters?.securityRules;
+    validateSecurityRuleNames(rules, `resources["${res.logical_name}"]`, fileRel, r);
+  }
+  const contractDir = projectDirFromPath(path.join(ROOT, fileRel));
+  for (const candidateRel of [
+    "04-resource-specifications.json",
+    "_meta/04-resource-specifications.json",
+    "_meta/scratch/04-resource-specifications.json",
+  ]) {
+    const specPath = path.join(contractDir, candidateRel);
+    if (!fs.existsSync(specPath)) continue;
+    try {
+      const spec = readJson(specPath);
+      for (const res of spec.resources ?? []) {
+        const rules = res.inputs?.securityRules ?? res.properties?.securityRules ?? res.parameters?.securityRules;
+        validateSecurityRuleNames(rules, `${candidateRel} resources["${res.logical_name}"]`, fileRel, r);
+      }
+    } catch {
+      // Malformed companion files are reported by their own validators.
+    }
+  }
+  const planRef = data.plan_ref?.path;
+  if (planRef) {
+    let planPath = path.resolve(path.dirname(path.join(ROOT, fileRel)), planRef);
+    if (!fs.existsSync(planPath)) planPath = resolveProjectFile(contractDir, planRef);
+    if (fs.existsSync(planPath)) {
+      const planText = fs.readFileSync(planPath, "utf8");
+      const regex = /`securityRules`\s*—\s*`array`\s*—\s*`(\[[^\n`]+\])`/g;
+      let match;
+      let idx = 0;
+      while ((match = regex.exec(planText)) !== null) {
+        idx += 1;
+        try {
+          const parsed = JSON.parse(match[1]);
+          validateSecurityRuleNames(parsed, `${planRef} securityRules[${idx}]`, fileRel, r);
+        } catch {
+          // Ignore non-JSON expressions in Markdown prose.
+        }
+      }
+    }
+  }
+}
+
 function checkDependsOn(data, fileRel, r) {
   const names = new Set((data.resources ?? []).map((res) => res.logical_name));
   const graph = new Map();
@@ -306,10 +369,13 @@ function detectCycles(graph, fileRel, r) {
 }
 
 function checkRefHashes(data, fileRel, r) {
+  const fileDir = path.dirname(path.join(ROOT, fileRel));
+  const pdir = projectDirFromPath(fileDir);
   for (const refKey of ["plan_ref", "l1m_ref"]) {
     const ref = data[refKey];
     if (!ref || !ref.sha256) continue;
-    const refPath = path.resolve(path.dirname(path.join(ROOT, fileRel)), ref.path);
+    let refPath = path.resolve(fileDir, ref.path);
+    if (!fs.existsSync(refPath)) refPath = resolveProjectFile(pdir, ref.path);
     if (!fs.existsSync(refPath)) {
       r.warn(fileRel, `${refKey}.path not found on disk: ${ref.path} (skipping hash check)`);
       continue;
@@ -325,7 +391,7 @@ function checkRefHashes(data, fileRel, r) {
 }
 
 function defaultGlobs() {
-  return ["agent-output/*/04-iac-contract.json"];
+  return ["agent-output/*/04-iac-contract.json", "agent-output/*/contracts/04-iac-contract.json"];
 }
 
 function main() {
@@ -393,6 +459,7 @@ function main() {
     checkCapabilityReadiness(data, fileRel, r, readiness, stage);
     checkPhaseParameter(data, fileRel, r);
     checkBicepOutputLimit(data, fileRel, r);
+    checkNsgRuleUniqueness(data, fileRel, r);
     checkDependsOn(data, fileRel, r);
     checkPrivatePaths(data, fileRel, r);
     checkRefHashes(data, fileRel, r);

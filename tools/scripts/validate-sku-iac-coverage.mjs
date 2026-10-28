@@ -36,6 +36,7 @@ import { Reporter } from "./_lib/reporter.mjs";
 import { findArtifactFiles } from "./_lib/artifact-index.mjs";
 import { lookupAvmDefault } from "./_lib/avm-default-skus.mjs";
 import { readJson } from "./_lib/json.mjs";
+import { resolveContractPath } from "./_lib/project-paths.mjs";
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "../..");
 
@@ -263,7 +264,7 @@ function hasIacSource(dir, extension) {
 
 function validateProject(project, r) {
   const projectDir = path.join(ROOT, "agent-output", project);
-  const manifestPath = path.join(projectDir, "sku-manifest.json");
+  const manifestPath = resolveContractPath(projectDir, "sku-manifest.json");
   const skipPath = path.join(projectDir, ".sku-manifest.skip");
   const bicepDir = path.join(ROOT, "infra/bicep", project);
   const tfDir = path.join(ROOT, "infra/terraform", project);
@@ -358,7 +359,7 @@ function validateProject(project, r) {
 
 function findProjects() {
   const out = new Set();
-  for (const p of findArtifactFiles((file) => /^agent-output\/[^/]+\/sku-manifest\.json$/.test(file))) {
+  for (const p of findArtifactFiles((file) => /^agent-output\/[^/]+\/(?:contracts\/)?sku-manifest\.json$/.test(file))) {
     out.add(p.split("/")[1]);
   }
   for (const p of globSync("infra/bicep/*", { cwd: ROOT })) {

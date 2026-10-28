@@ -147,3 +147,30 @@ test("a contract without phase, consumes or target is unchanged", (context) => {
   const plain = run(contractScript, [fixture(context)]);
   assert.equal(plain.status, 0, output(plain));
 });
+
+test("duplicate NSG securityRules names across Inbound and Outbound are rejected (LL-006)", (context) => {
+  const dupPlan =
+    '# Plan\n- **Required parameters:** `securityRules` — `array` — `[{"name": "bastion-control", "properties": {"direction": "Inbound"}}, {"name": "bastion-control", "properties": {"direction": "Outbound"}}]`\n';
+  const bad = run(contractScript, [fixture(context, { plan: dupPlan })]);
+  assert.notEqual(bad.status, 0);
+  assert.match(output(bad), /duplicate NSG securityRules\[\]\.name "bastion-control"/);
+
+  const distinctPlan =
+    '# Plan\n- **Required parameters:** `securityRules` — `array` — `[{"name": "bastion-control-inbound", "properties": {"direction": "Inbound"}}, {"name": "bastion-control-outbound", "properties": {"direction": "Outbound"}}]`\n';
+  const good = run(contractScript, [fixture(context, { plan: distinctPlan })]);
+  assert.equal(good.status, 0, output(good));
+});
+
+test("Bicep output_contract exceeding 64 outputs is rejected (LL-007)", (context) => {
+  const file = fixture(context);
+  const data = JSON.parse(fs.readFileSync(file, "utf8"));
+  data.output_contract = Array.from({ length: 65 }, (_, i) => ({
+    name: `out_${i}`,
+    type: "string",
+    purpose: "Synthetic output for limit test",
+  }));
+  fs.writeFileSync(file, JSON.stringify(data, null, 2));
+  const bad = run(contractScript, [file]);
+  assert.notEqual(bad.status, 0);
+  assert.match(output(bad), /exceeding Azure ARM\/Bicep's hard limit of 64 outputs/);
+});

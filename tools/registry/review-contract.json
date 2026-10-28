@@ -33,5 +33,13 @@
         "reviewer_definition_sha": "e714de1a61d227de38093bc7b45081dd7375c4598b2e2b1b092f1824f8ade87f"
       }
     }
+  ],
+  "supporting_input_compatibility": [
+    {
+      "path": ".github/skills/apex-azure-governance-discovery/scripts/discover.py",
+      "from_sha256": "d8902159cae9eb1b5033e0842d3950f15cf8dab207124f55a0f63bba083f845c",
+      "to_sha256": "3da890e2bf8b61693730a2810c762197d1ec90be6e69d83014df42fc89852f27",
+      "rationale": "LL-004 and layout_version 2 support in discover.py; L0 completeness_signature and project governance findings are unchanged."
+    }
   ]
 }

@@ -71,6 +71,13 @@ def build_parser() -> argparse.ArgumentParser:
     p_init.add_argument("project", help="Project name")
     p_init.add_argument("--json", action="store_true", help="Output as JSON")
     p_init.add_argument("--force", action="store_true", help="Overwrite existing session state")
+    p_init.add_argument(
+        "--layout",
+        type=int,
+        choices=(1, 2),
+        default=2,
+        help="Directory layout version (default: 2 with assets/, contracts/, reviews/, _meta/)",
+    )
 
     # start-step
     p_start = sub.add_parser("start-step", help="Mark a step as in_progress")

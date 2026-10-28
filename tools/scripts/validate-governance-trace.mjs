@@ -39,6 +39,7 @@
 import fs from "node:fs";
 import path from "node:path";
 import { Reporter } from "./_lib/reporter.mjs";
+import { resolveContractPath, resolveProjectFile, resolveSessionStatePath } from "./_lib/project-paths.mjs";
 
 const args = process.argv.slice(2);
 const projectIdx = args.indexOf("--project");
@@ -208,14 +209,15 @@ function runAttestationChain(project, allowLegacy) {
   reporter.header();
 
   const root = process.cwd();
-  const constraintsPath = path.join(root, "agent-output", project, "04-governance-constraints.json");
-  const planPath = path.join(root, "agent-output", project, "04-implementation-plan.md");
-  const handoffPath = path.join(root, "agent-output", project, "05-iac-handoff.json");
+  const projDir = path.join(root, "agent-output", project);
+  const constraintsPath = resolveContractPath(projDir, "04-governance-constraints.json");
+  const planPath = path.join(projDir, "04-implementation-plan.md");
+  const handoffPath = resolveContractPath(projDir, "05-iac-handoff.json");
   const validatorSummaryCandidates = [
-    path.join(root, "agent-output", project, "05-implementation-reference.md"),
-    path.join(root, "agent-output", project, "06-policy-precheck.json"),
+    path.join(projDir, "05-implementation-reference.md"),
+    resolveProjectFile(projDir, "06-policy-precheck.json"),
   ];
-  const sessionStatePath = path.join(root, "agent-output", project, "00-session-state.json");
+  const sessionStatePath = resolveSessionStatePath(projDir);
 
   if (!fs.existsSync(constraintsPath)) {
     if (allowLegacy) {

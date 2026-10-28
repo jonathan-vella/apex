@@ -48,6 +48,7 @@ import { loadValidator } from "./_lib/ajv-validator.mjs";
 import { findArtifactFiles } from "./_lib/artifact-index.mjs";
 import { Reporter } from "./_lib/reporter.mjs";
 import { readJson } from "./_lib/json.mjs";
+import { projectDirFromPath, resolveContractPath, resolveSessionStatePath } from "./_lib/project-paths.mjs";
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "../..");
 const SCHEMA_PATH = path.join(ROOT, "tools/schemas/sku-manifest.schema.json");
@@ -234,11 +235,15 @@ function checkFreshness(data, fileRel, r, now = new Date()) {
 }
 
 function checkMdSync(filePath, data, fileRel, r) {
-  // Sibling .md companion. Required to exist and to declare a Current
+  // Sibling or project-root .md companion. Required to exist and to declare a Current
   // revision cell matching JSON `current_revision`. The MD is the
   // deterministic output of tools/scripts/render-sku-manifest-md.mjs;
   // any mismatch indicates a stale rendering or hand-edit.
-  const mdPath = filePath.replace(/\.json$/, ".md");
+  let mdPath = filePath.replace(/\.json$/, ".md");
+  if (!fs.existsSync(mdPath)) {
+    const rootMd = path.join(projectDirFromPath(filePath), "sku-manifest.md");
+    if (fs.existsSync(rootMd)) mdPath = rootMd;
+  }
   const mdRel = path.relative(ROOT, mdPath);
   if (!fs.existsSync(mdPath)) {
     r.error(fileRel, `Companion MD missing: ${mdRel} — run 'node tools/scripts/render-sku-manifest-md.mjs <project>'`);
@@ -304,7 +309,7 @@ function loadVnetAttachedWhitelist() {
  * (sibling of the sku-manifest). Returns the value or undefined.
  */
 function readVnetMode(manifestPath) {
-  const statePath = path.join(path.dirname(manifestPath), "00-session-state.json");
+  const statePath = resolveSessionStatePath(manifestPath);
   if (!fs.existsSync(statePath)) return undefined;
   try {
     const state = JSON.parse(fs.readFileSync(statePath, "utf-8"));
@@ -377,28 +382,28 @@ function validateFile(filePath, validate, r, vnetWhitelist) {
 }
 
 function findManifests() {
-  return findArtifactFiles((file) => /^agent-output\/[^/]+\/sku-manifest\.json$/.test(file)).map((file) =>
-    path.join(ROOT, file),
+  return findArtifactFiles((file) => /^agent-output\/[^/]+\/(?:contracts\/)?sku-manifest\.json$/.test(file)).map(
+    (file) => path.join(ROOT, file),
   );
 }
 
 /**
  * Resolve a CLI arg into a manifest file path. Accepts:
  *   - a direct file path (absolute or relative to repo root)
- *   - a directory containing sku-manifest.json
- *   - a bare project name → agent-output/<project>/sku-manifest.json
+ *   - a directory containing sku-manifest.json (or contracts/sku-manifest.json)
+ *   - a bare project name → agent-output/<project>/(contracts/)?sku-manifest.json
  * Falls back to path.resolve so non-existent inputs surface as "File not found".
  */
 function resolveTarget(arg) {
   const abs = path.resolve(ROOT, arg);
   if (fs.existsSync(abs)) {
     const stat = fs.statSync(abs);
-    if (stat.isDirectory()) return path.join(abs, "sku-manifest.json");
+    if (stat.isDirectory()) return resolveContractPath(abs, "sku-manifest.json");
     return abs;
   }
   // Bare project name (no path separator, no .json extension) → agent-output/<arg>/sku-manifest.json
   if (!arg.includes(path.sep) && !arg.includes("/") && !arg.endsWith(".json")) {
-    const projectGuess = path.join(ROOT, "agent-output", arg, "sku-manifest.json");
+    const projectGuess = resolveContractPath(path.join(ROOT, "agent-output", arg), "sku-manifest.json");
     if (fs.existsSync(projectGuess)) return projectGuess;
   }
   return abs;

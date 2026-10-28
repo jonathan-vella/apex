@@ -33,6 +33,7 @@ import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { globSync } from "node:fs";
 import { readJson } from "./_lib/json.mjs";
+import { projectDirFromPath } from "./_lib/project-paths.mjs";
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "../..");
 const OUT_JSON = path.join(ROOT, "tmp/workflow-baseline.json");
@@ -42,10 +43,13 @@ const METRICS = ["elapsed_ms", "input_tokens", "output_tokens", "subagent_count"
 
 export function gather(filterTier, root = ROOT) {
   const records = [];
-  const states = globSync("agent-output/*/00-session-state.json", { cwd: root });
+  const states = [
+    ...globSync("agent-output/*/00-session-state.json", { cwd: root }),
+    ...globSync("agent-output/*/_meta/00-session-state.json", { cwd: root }),
+  ];
   for (const relativePath of states) {
     const statePath = path.resolve(root, relativePath);
-    const project = path.basename(path.dirname(statePath));
+    const project = path.basename(projectDirFromPath(statePath));
     let data;
     try {
       data = readJson(statePath);

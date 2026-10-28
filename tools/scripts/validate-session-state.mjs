@@ -14,12 +14,12 @@ import fs from "node:fs";
 import path from "node:path";
 import { Reporter } from "./_lib/reporter.mjs";
 import { AGENT_OUTPUT_DIR } from "./_lib/paths.mjs";
+import { resolveSessionStatePath } from "./_lib/project-paths.mjs";
 
 const TEMPLATE_PATH = ".github/skills/apex-azure-artifacts/templates/00-session-state.template.json";
-const STATE_FILENAME = "00-session-state.json";
 
 const VALID_STATUSES = ["pending", "in_progress", "complete", "skipped", "stale"];
-const VALID_IAC_TOOLS = ["", "Bicep", "Terraform"];
+const VALID_IAC_TOOLS = ["", "Bicep", "Terraform", "bicep", "terraform"];
 const REQUIRED_TOP_LEVEL = [
   "schema_version",
   "project",
@@ -311,7 +311,7 @@ if (fs.existsSync(AGENT_OUTPUT_DIR)) {
     .map((d) => d.name);
 
   for (const project of projects) {
-    const stateFile = path.join(AGENT_OUTPUT_DIR, project, STATE_FILENAME);
+    const stateFile = resolveSessionStatePath(path.join(AGENT_OUTPUT_DIR, project));
     if (fs.existsSync(stateFile)) {
       validateStateFile(stateFile, false);
     }

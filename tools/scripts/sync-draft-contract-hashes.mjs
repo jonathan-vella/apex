@@ -5,6 +5,7 @@ import crypto from "node:crypto";
 import { spawnSync } from "node:child_process";
 import { parseArgs } from "node:util";
 import { fileURLToPath } from "node:url";
+import { projectDirFromPath, resolveContractPath, resolveProjectFile } from "./_lib/project-paths.mjs";
 
 const hash = (bytes) => crypto.createHash("sha256").update(bytes).digest("hex");
 
@@ -22,6 +23,7 @@ export function syncDraft(contractPath, { expectedSha, reason, state }) {
   if (hash(original) !== expectedSha) throw new Error("Contract revision changed");
   const contract = JSON.parse(original);
   const directory = path.dirname(contractPath);
+  const pdir = projectDirFromPath(contractPath);
   if (path.basename(contractPath) !== "04-iac-contract.json")
     throw new Error("Only the draft IaC contract is supported");
   const inputs = new Map();
@@ -29,8 +31,9 @@ export function syncDraft(contractPath, { expectedSha, reason, state }) {
   for (const key of ["plan_ref", "l1m_ref"]) {
     const reference = contract[key];
     if (!reference?.path) throw new Error(`Missing ${key} reference`);
-    const source = path.resolve(directory, reference.path);
-    if (path.dirname(source) !== path.resolve(directory) || fs.lstatSync(source).isSymbolicLink()) {
+    let source = path.resolve(directory, reference.path);
+    if (!fs.existsSync(source)) source = resolveProjectFile(pdir, reference.path);
+    if (projectDirFromPath(source) !== path.resolve(pdir) || fs.lstatSync(source).isSymbolicLink()) {
       throw new Error("Hash references must be same-project regular files");
     }
     const digest = hash(fs.readFileSync(source));
@@ -80,7 +83,7 @@ export function main(argv = process.argv.slice(2)) {
   const root = process.env.APEX_ROOT || path.resolve(path.dirname(fileURLToPath(import.meta.url)), "../..");
   const result = spawnSync("apex-recall", ["show", values.project, "--json"], { cwd: root, encoding: "utf8" });
   if (result.status !== 0) throw new Error("Authoritative project state unavailable");
-  const contractPath = path.join(root, "agent-output", values.project, "04-iac-contract.json");
+  const contractPath = resolveContractPath(path.join(root, "agent-output", values.project), "04-iac-contract.json");
   const output = syncDraft(contractPath, {
     expectedSha: values["expected-sha"],
     reason: values.reason,

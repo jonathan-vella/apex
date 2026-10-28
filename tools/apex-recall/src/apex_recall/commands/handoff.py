@@ -6,7 +6,7 @@ import json
 from pathlib import Path
 
 from ..config import get_agent_output_dir
-from ..state_writer import read_state, session_state_path
+from ..state_writer import project_dir, read_state, resolve_project_file, session_state_path, workspace_root_for
 
 STEP_ORDER = ("1", "2", "3", "3_5", "4", "5", "6", "7")
 
@@ -106,7 +106,7 @@ def _discover_projects() -> list[tuple[str, Path, dict]]:
     for child in sorted(out_dir.iterdir()):
         if not child.is_dir() or child.name.startswith(("_", ".")):
             continue
-        state_file = child / "00-session-state.json"
+        state_file = session_state_path(child.name)
         if state_file.is_file():
             try:
                 data = read_state(state_file)
@@ -120,9 +120,12 @@ def _discover_projects() -> list[tuple[str, Path, dict]]:
 def _select_active_step(steps: dict, decisions: dict, current_step: object = None) -> str:
     skip_design = str(decisions.get("design_artifacts", "")).lower() == "skip"
     cur_key = str(current_step).replace(".", "_") if current_step is not None else ""
-    if cur_key in STEP_ORDER and not (cur_key == "3" and skip_design):
-        if steps.get(cur_key, {}).get("status") == "in_progress":
-            return cur_key
+    if (
+        cur_key in STEP_ORDER
+        and not (cur_key == "3" and skip_design)
+        and steps.get(cur_key, {}).get("status") == "in_progress"
+    ):
+        return cur_key
     for key in STEP_ORDER:
         if key == "3" and skip_design:
             continue
@@ -153,20 +156,28 @@ def build_handoff_payload(project: str, data: dict, auto_selected: bool = False)
 
     completed_steps = [k for k in STEP_ORDER if steps.get(k, {}).get("status") == "complete"]
 
-    project_dir = session_state_path(project).parent
+    pdir = project_dir(project)
+    root = workspace_root_for()
     frozen_artifacts: list[str] = []
     seen: set[str] = set()
     for comp_step in completed_steps:
         for rel_name in CANONICAL_STEP_ARTIFACTS.get(comp_step, []):
-            candidate = project_dir / rel_name
-            rel_path = f"agent-output/{project}/{rel_name}"
-            if candidate.is_file() and rel_path not in seen:
-                seen.add(rel_path)
-                frozen_artifacts.append(rel_path)
+            candidate = resolve_project_file(pdir, rel_name)
+            if candidate.is_file():
+                rel_path = str(candidate.resolve().relative_to(root))
+                if rel_path not in seen:
+                    seen.add(rel_path)
+                    frozen_artifacts.append(rel_path)
         for art in steps.get(comp_step, {}).get("artifacts", []) or []:
-            if isinstance(art, str) and (project_dir.parent.parent / art).is_file() and art not in seen:
-                seen.add(art)
-                frozen_artifacts.append(art)
+            if isinstance(art, str):
+                art_path = root / art
+                if not art_path.is_file():
+                    art_path = resolve_project_file(pdir, Path(art).name)
+                if art_path.is_file():
+                    rel_art = str(art_path.resolve().relative_to(root))
+                    if rel_art not in seen:
+                        seen.add(rel_art)
+                        frozen_artifacts.append(rel_art)
 
     material_inputs = decisions.get("material_inputs", {}) if isinstance(decisions.get("material_inputs"), dict) else {}
     settled_ids = sorted(material_inputs.keys())

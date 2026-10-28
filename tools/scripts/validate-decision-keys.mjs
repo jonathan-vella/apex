@@ -30,6 +30,7 @@ import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { findArtifactFiles } from "./_lib/artifact-index.mjs";
 import { loadValidator } from "./_lib/ajv-validator.mjs";
+import { projectDirFromPath, resolveContractPath } from "./_lib/project-paths.mjs";
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "../..");
 const AGENTS_DIR = path.join(ROOT, ".github/agents");
@@ -162,7 +163,7 @@ function validateProjectSubnetPlans() {
   let errors = 0;
   let warnings = 0;
 
-  const states = findArtifactFiles((file) => /^agent-output\/[^/]+\/00-session-state\.json$/.test(file));
+  const states = findArtifactFiles((file) => /^agent-output\/[^/]+\/(?:_meta\/)?00-session-state\.json$/.test(file));
   for (const rel of states) {
     const stateAbs = path.join(ROOT, rel);
     let state;
@@ -197,8 +198,8 @@ function validateProjectSubnetPlans() {
 
     // Trigger-contract warning when subnet_plan absent.
     if (subnetPlan === undefined && whitelist) {
-      const projectDir = path.dirname(stateAbs);
-      const manifestPath = path.join(projectDir, "sku-manifest.json");
+      const projectDir = projectDirFromPath(stateAbs);
+      const manifestPath = resolveContractPath(projectDir, "sku-manifest.json");
       if (!fs.existsSync(manifestPath)) continue;
       let manifest;
       try {

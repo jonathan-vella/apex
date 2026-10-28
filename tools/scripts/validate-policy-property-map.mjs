@@ -32,6 +32,7 @@ import { globSync } from "node:fs";
 import { loadValidator } from "./_lib/ajv-validator.mjs";
 import { Reporter } from "./_lib/reporter.mjs";
 import { readJson, sha256File } from "./_lib/json.mjs";
+import { projectDirFromPath, resolveContractPath, resolveProjectFile } from "./_lib/project-paths.mjs";
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "../..");
 const SCHEMA_PATH = path.join(ROOT, "tools/schemas/policy-property-map.schema.json");
@@ -57,7 +58,9 @@ function checkUniquePolicyIds(data, fileRel, r) {
 }
 
 function checkDenyCoverage(data, fileRel, r) {
-  const sibling = path.join(path.dirname(path.join(ROOT, fileRel)), "04-governance-constraints.json");
+  const fileDir = path.dirname(path.join(ROOT, fileRel));
+  let sibling = path.join(fileDir, "04-governance-constraints.json");
+  if (!fs.existsSync(sibling)) sibling = resolveContractPath(fileDir, "04-governance-constraints.json");
   if (!fs.existsSync(sibling)) {
     r.info(fileRel, "(no sibling 04-governance-constraints.json — skipping Deny coverage check)");
     return;
@@ -137,7 +140,9 @@ function checkPolicyStatus(data, fileRel, r) {
 function checkConstraintsRefHash(data, fileRel, r) {
   const ref = data.constraints_ref;
   if (!ref || !ref.sha256) return;
-  const refPath = path.resolve(path.dirname(path.join(ROOT, fileRel)), ref.path);
+  const fileDir = path.dirname(path.join(ROOT, fileRel));
+  let refPath = path.resolve(fileDir, ref.path);
+  if (!fs.existsSync(refPath)) refPath = resolveProjectFile(projectDirFromPath(fileDir), ref.path);
   if (!fs.existsSync(refPath)) {
     // Hard fail — the L0 governance constraints file is the basis for the
     // L1 policy-property-map; if missing the chain is broken.
@@ -157,7 +162,7 @@ function checkConstraintsRefHash(data, fileRel, r) {
 }
 
 function defaultGlobs() {
-  return ["agent-output/*/04-policy-property-map.json"];
+  return ["agent-output/*/04-policy-property-map.json", "agent-output/*/contracts/04-policy-property-map.json"];
 }
 
 function main() {

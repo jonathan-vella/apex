@@ -4,27 +4,32 @@ from __future__ import annotations
 
 import json
 
-from .state_writer import session_state_path
+from .state_writer import project_dir
 
 _COST_PATTERNS = ("02-cost-estimate*.json", "02-cost-candidates*.json", "03-des-cost-estimate*.json")
 
 
 def step2_residue(project: str) -> list[str]:
-    """List leftover files in the project folder (top level only; ``_meta/`` is the archive)."""
-    directory = session_state_path(project).parent
+    """List leftover files in the project folder (top level and ``contracts/``; ``_meta/`` is the archive)."""
+    directory = project_dir(project)
     found = [f"{path.name}: scratch file" for path in sorted(directory.glob("*.tmp.md")) if path.is_file()]
     seen: set[str] = set()
-    for pattern in _COST_PATTERNS:
-        for path in sorted(directory.glob(pattern)):
-            if path.name in seen or not path.is_file():
-                continue
-            seen.add(path.name)
-            try:
-                document = json.loads(path.read_text(encoding="utf-8"))
-            except OSError, UnicodeError, json.JSONDecodeError:
-                continue
-            if isinstance(document, dict) and document.get("status") == "FAILED":
-                found.append(f"{path.name}: cost estimate with status FAILED")
+    search_dirs = [directory, directory / "contracts"]
+    for sdir in search_dirs:
+        if not sdir.is_dir():
+            continue
+        for pattern in _COST_PATTERNS:
+            for path in sorted(sdir.glob(pattern)):
+                rel_key = str(path.relative_to(directory))
+                if rel_key in seen or not path.is_file():
+                    continue
+                seen.add(rel_key)
+                try:
+                    document = json.loads(path.read_text(encoding="utf-8"))
+                except OSError, UnicodeError, json.JSONDecodeError:
+                    continue
+                if isinstance(document, dict) and document.get("status") == "FAILED":
+                    found.append(f"{path.name}: cost estimate with status FAILED")
     return found
 
 

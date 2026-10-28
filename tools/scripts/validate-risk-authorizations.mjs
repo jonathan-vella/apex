@@ -4,9 +4,10 @@ import path from "node:path";
 import { spawnSync } from "node:child_process";
 import { fileURLToPath } from "node:url";
 import { Reporter } from "./_lib/reporter.mjs";
+import { resolveSessionStatePath } from "./_lib/project-paths.mjs";
 
 export function validateProject(root, project, invoke = spawnSync) {
-  const statePath = path.join(root, "agent-output", project, "00-session-state.json");
+  const statePath = resolveSessionStatePath(path.join(root, "agent-output", project));
   const state = JSON.parse(fs.readFileSync(statePath, "utf8"));
   const exceptionMarker =
     state.decisions?.plan_status === "EXCEPTION_AUTHORIZED" ||
@@ -65,7 +66,7 @@ export function main(argv = process.argv.slice(2)) {
           .filter(
             (name) =>
               fs.lstatSync(path.join(directory, name)).isDirectory() &&
-              fs.existsSync(path.join(directory, name, "00-session-state.json")),
+              fs.existsSync(resolveSessionStatePath(path.join(directory, name))),
           )
       : [];
   for (const project of projects) {

@@ -271,7 +271,13 @@ def emit_preview_md(envelope: dict[str, Any], out_path: Path, arch_resources: li
     pre-populated policy→architecture resource mapping table under
     "Plan Adaptations → Architectural Changes".
     """
-    preview_path = out_path.with_suffix(".preview.md")
+    pdir = out_path.parent.parent if out_path.parent.name == "contracts" else out_path.parent
+    if (pdir / "_meta").is_dir() or out_path.parent.name == "contracts":
+        preview_dir = pdir / "_meta" / "previews"
+        preview_dir.mkdir(parents=True, exist_ok=True)
+        preview_path = preview_dir / out_path.with_suffix(".preview.md").name
+    else:
+        preview_path = out_path.with_suffix(".preview.md")
     project = envelope.get("project") or _infer_project_from_path(out_path)
     summary = envelope.get("discovery_summary", {})
     findings = envelope.get("findings", [])

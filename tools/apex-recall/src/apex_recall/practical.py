@@ -9,7 +9,18 @@ import subprocess
 import sys
 from pathlib import Path
 
-from .state_writer import _iso_now, check_state_revision, file_revision, session_state_path
+from .state_writer import (
+    _iso_now,
+    check_state_revision,
+    file_revision,
+    project_dir,
+    resolve_contract_path,
+    resolve_meta_path,
+    resolve_project_file,
+    resolve_review_path,
+    session_state_path,
+    workspace_root_for,
+)
 
 CONTRACT = "practical-v1"
 MECHANICAL_REPAIRS = frozenset({"render", "cross-reference", "schema", "count"})
@@ -235,9 +246,13 @@ def pending_questions(data: dict, step: str, candidates: list[dict]) -> list[dic
 def sync_views(project: str, data: dict, step: str) -> dict:
     """Generate consumed-decision JSON and a Markdown block; no state file is directly edited."""
     view = projection(data, step)
-    directory = session_state_path(project).parent
-    target = directory / f"assessment-step-{step}.json"
-    markdown = directory / ("04-governance-constraints.md" if step == "3_5" else f"assessment-step-{step}.md")
+    directory = project_dir(project)
+    target = resolve_meta_path(directory, f"assessment-step-{step}.json")
+    markdown = (
+        directory / "04-governance-constraints.md"
+        if step == "3_5"
+        else resolve_meta_path(directory, f"assessment-step-{step}.md")
+    )
     text = assessment_text(view)
     existing = markdown.read_text(encoding="utf-8") if markdown.exists() else ""
     pattern = rf"<!-- recall-assessment:{re.escape(step)} -->[\s\S]*?<!-- /recall-assessment -->"
@@ -247,12 +262,12 @@ def sync_views(project: str, data: dict, step: str) -> dict:
         else existing.rstrip() + "\n\n" + text + "\n"
     )
     outputs = [(target, json.dumps(view, indent=2, ensure_ascii=True) + "\n"), (markdown, rendered)]
-    governance = directory / "04-governance-constraints.json"
+    governance = resolve_contract_path(directory, "04-governance-constraints.json")
     if step == "3_5" and governance.exists():
         envelope = json.loads(governance.read_text(encoding="utf-8"))
         envelope["project_assessment"] = view
         outputs.append((governance, json.dumps(envelope, indent=2, ensure_ascii=True) + "\n"))
-        decisions_path = directory / "challenge-findings-governance-constraints-decisions.json"
+        decisions_path = resolve_review_path(directory, "challenge-findings-governance-constraints-decisions.json")
         if decisions_path.exists() and "projection_sha256" not in json.loads(
             decisions_path.read_text(encoding="utf-8")
         ):
@@ -269,6 +284,7 @@ def sync_views(project: str, data: dict, step: str) -> dict:
         data.input_revisions[file] = file_revision(file)
     check_state_revision(data, session_state_path(project))
     for file, contents in outputs:
+        file.parent.mkdir(parents=True, exist_ok=True)
         scratch = file.with_suffix(file.suffix + ".recall-scratch")
         with scratch.open("x", encoding="utf-8") as stream:
             stream.write(contents)
@@ -287,10 +303,11 @@ def check_views(project: str, data: dict, step: str) -> None:
     if not binding or binding["projection_sha256"] != digest(view):
         raise ValueError("Assessment views are missing or stale against consumed decisions")
     expected_markdown = "04-governance-constraints.md" if step == "3_5" else f"assessment-step-{step}.md"
-    if binding["path"] != f"assessment-step-{step}.json" or binding["markdown"] != expected_markdown:
+    if Path(binding["path"]).name != f"assessment-step-{step}.json" or Path(binding["markdown"]).name != expected_markdown:
         raise ValueError("Assessment bindings must use their project-local canonical paths")
-    directory = session_state_path(project).parent
-    target, markdown = directory / binding["path"], directory / binding["markdown"]
+    directory = project_dir(project)
+    target = resolve_project_file(directory, binding["path"])
+    markdown = resolve_project_file(directory, binding["markdown"])
     for file in (target, markdown):
         if file.is_symlink():
             raise ValueError("Assessment view cannot be a symlink")
@@ -299,12 +316,12 @@ def check_views(project: str, data: dict, step: str) -> None:
         encoding="utf-8"
     ):
         raise ValueError("Assessment views are inconsistent; regenerate within authorized scope")
-    governance = directory / "04-governance-constraints.json"
+    governance = resolve_contract_path(directory, "04-governance-constraints.json")
     if step == "3_5" and governance.exists():
         data.input_revisions[governance] = file_revision(governance)
         if json.loads(governance.read_text(encoding="utf-8")).get("project_assessment") != view:
             raise ValueError("Canonical Governance JSON assessment is inconsistent")
-        decisions_path = directory / "challenge-findings-governance-constraints-decisions.json"
+        decisions_path = resolve_review_path(directory, "challenge-findings-governance-constraints-decisions.json")
         data.input_revisions[decisions_path] = file_revision(decisions_path)
         if not decisions_path.is_file() or json.loads(decisions_path.read_text(encoding="utf-8")) != decision_sidecar(
             view
@@ -406,14 +423,21 @@ def prepare_cycle(project: str, data: dict, args: object) -> dict | None:
     cycle = cycles.get(key)
     if args.attempt_outcome == "started" and not previous:
         binding = data["decisions"]["assessment_views"][step]
-        expected_path = f"agent-output/{project}/{binding['path']}"
+        pdir = project_dir(project)
+        binding_file = resolve_project_file(pdir, binding["path"])
+        binding_name = Path(binding["path"]).name
+        expected_paths = {
+            f"agent-output/{project}/{binding['path']}",
+            f"agent-output/{project}/{binding_name}",
+            f"agent-output/{project}/_meta/{binding_name}",
+        }
         if not any(
-            item.get("path") == expected_path
-            and item.get("sha256") == file_revision(session_state_path(project).parent / binding["path"])
+            item.get("path") in expected_paths
+            and item.get("sha256") == file_revision(binding_file)
             for item in request.get("supporting_inputs", [])
         ):
             raise ValueError("Review request must freeze the consumed decision projection")
-        root = session_state_path(project).parent.parent.parent
+        root = workspace_root_for()
         result = subprocess.run(
             [
                 "node",
@@ -441,7 +465,11 @@ def prepare_cycle(project: str, data: dict, args: object) -> dict | None:
             prior = [item for item in history if item["id"] == parent]
             if not prior or prior[-1]["outcome"] not in ("completed", "failed"):
                 raise ValueError("Original attempt is unfinished or unknown")
-            canonical_published = (root / cycle["canonical_path"]).is_file() or bool(cycle.get("current_path"))
+            canonical_published = (
+                (root / cycle["canonical_path"]).is_file()
+                or resolve_review_path(project, Path(cycle["canonical_path"]).name).is_file()
+                or bool(cycle.get("current_path"))
+            )
             if (
                 getattr(args, "closure_of", None)
                 and canonical_published
@@ -484,10 +512,10 @@ def select_cycle_result(project: str, data: dict, args: object, prepared: dict |
         return
     if not prepared or args.attempt_outcome != "completed":
         raise ValueError("Only a completed attributed practical invocation can select a result")
-    root = session_state_path(project).parent.parent.parent
+    root = workspace_root_for()
     target = result_path.resolve()
-    directory = session_state_path(project).parent.resolve()
-    if result_path.is_symlink() or target.parent != directory or target.suffix != ".json":
+    directory = project_dir(project).resolve()
+    if result_path.is_symlink() or target.parent not in (directory, directory / "reviews") or target.suffix != ".json":
         raise ValueError("Review result must be a regular project JSON file")
     document = json.loads(target.read_text(encoding="utf-8"))
     request = prepared["request"]
@@ -564,7 +592,7 @@ def _feasibility_validation(project: str, data: dict, snapshot: Path) -> None:
         or record["value"].get("policy_read_scope") != "subscription-and-inherited"
     ):
         raise ValueError("Explicit target/read scope is required before policy discovery")
-    root = session_state_path(project).parent.parent.parent
+    root = workspace_root_for()
     target = snapshot.resolve()
     if snapshot.is_symlink() or not target.is_relative_to(root.resolve()):
         raise ValueError("Policy evidence must remain in the workspace")
@@ -595,7 +623,7 @@ def _feasibility_validation(project: str, data: dict, snapshot: Path) -> None:
 
 def bind_feasibility(project: str, data: dict, snapshot: Path) -> None:
     _feasibility_validation(project, data, snapshot)
-    root = session_state_path(project).parent.parent.parent
+    root = workspace_root_for()
     data.setdefault("metadata", {})["policy_feasibility"] = {
         "path": str(snapshot.resolve().relative_to(root.resolve())),
         "sha256": file_revision(snapshot),
@@ -609,7 +637,10 @@ def check_feasibility(project: str, data: dict) -> str:
     record = data.get("metadata", {}).get("policy_feasibility")
     if not record or record["read_scope"] != digest(material_inputs(data)["azure_read_scope"]):
         raise ValueError("Early policy feasibility is missing or target/read scope changed")
-    snapshot = session_state_path(project).parent.parent.parent / record["path"]
+    root = workspace_root_for()
+    snapshot = root / record["path"]
+    if not snapshot.exists():
+        snapshot = resolve_contract_path(project, Path(record["path"]).name)
     _feasibility_validation(project, data, snapshot)
     if file_revision(snapshot) != record["sha256"]:
         raise ValueError("Policy evidence changed; explicit owner refresh binding required")

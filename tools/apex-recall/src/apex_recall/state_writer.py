@@ -12,7 +12,18 @@ from contextlib import contextmanager
 from datetime import UTC
 from pathlib import Path
 
-from .config import find_workspace_root, get_agent_output_dir
+from .config import find_workspace_root as find_workspace_root
+from .config import get_agent_output_dir as get_agent_output_dir
+from .project_paths import ensure_layout_v2_dirs as ensure_layout_v2_dirs
+from .project_paths import is_layout_v2 as is_layout_v2
+from .project_paths import project_dir as project_dir
+from .project_paths import resolve_asset_path as resolve_asset_path
+from .project_paths import resolve_contract_path as resolve_contract_path
+from .project_paths import resolve_meta_path as resolve_meta_path
+from .project_paths import resolve_project_file as resolve_project_file
+from .project_paths import resolve_review_path as resolve_review_path
+from .project_paths import resolve_session_state_path
+from .project_paths import workspace_root_for as workspace_root_for
 
 # Canonical step keys matching the v3.0 template
 VALID_STEP_KEYS = {"1", "2", "3", "3_5", "4", "5", "6", "7"}
@@ -179,9 +190,8 @@ def _iso_now() -> str:
 
 
 def session_state_path(project: str, workspace_root: Path | None = None) -> Path:
-    """Return the path to a project's 00-session-state.json."""
-    root = workspace_root or find_workspace_root()
-    return get_agent_output_dir(root) / project / "00-session-state.json"
+    """Return the path to a project's 00-session-state.json (v2 _meta/ or legacy root)."""
+    return resolve_session_state_path(project, workspace_root)
 
 
 class StateConflict(ValueError):

@@ -287,10 +287,16 @@ async function main() {
       .map((p) => path.resolve(ROOT, p))
       .filter((p) => fs.existsSync(p));
   } else {
-    contractPaths = globSync("agent-output/*/04-iac-contract.json", {
-      cwd: ROOT,
-      absolute: true,
-    });
+    contractPaths = [
+      ...globSync("agent-output/*/04-iac-contract.json", {
+        cwd: ROOT,
+        absolute: true,
+      }),
+      ...globSync("agent-output/*/contracts/04-iac-contract.json", {
+        cwd: ROOT,
+        absolute: true,
+      }),
+    ];
     bicepPaths = globSync("infra/bicep/**/*.bicep", { cwd: ROOT, absolute: true });
     tfPaths = globSync("infra/terraform/**/*.tf", { cwd: ROOT, absolute: true });
   }

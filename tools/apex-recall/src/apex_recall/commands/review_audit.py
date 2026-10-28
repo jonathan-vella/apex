@@ -15,6 +15,7 @@ from ..state_writer import (
     read_state,
     session_state_path,
     validate_step_key,
+    workspace_root_for,
     write_state,
 )
 
@@ -149,7 +150,7 @@ def run(args) -> int:
         if attempt_inputs:
             if digest:
                 raise ValueError("Use --input-digest or --attempt-input, not both")
-            digest = inputs_digest(path.parent.parent.parent, attempt_inputs)
+            digest = inputs_digest(workspace_root_for(), attempt_inputs)
         if (
             not attempt_id
             or not re.fullmatch(r"[A-Za-z0-9_-]{1,100}", attempt_id)

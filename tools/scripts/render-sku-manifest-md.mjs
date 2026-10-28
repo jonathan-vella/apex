@@ -31,6 +31,7 @@
 import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
+import { resolveContractPath } from "./_lib/project-paths.mjs";
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "../..");
 
@@ -55,7 +56,7 @@ function resolvePaths(args) {
   }
   const projDir = path.join(ROOT, "agent-output", args.project);
   return {
-    inPath: path.join(projDir, "sku-manifest.json"),
+    inPath: resolveContractPath(projDir, "sku-manifest.json"),
     outPath: path.join(projDir, "sku-manifest.md"),
   };
 }

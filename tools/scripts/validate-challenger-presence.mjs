@@ -30,6 +30,7 @@
 import fs from "node:fs";
 import path from "node:path";
 import { Reporter } from "./_lib/reporter.mjs";
+import { LAYOUT_SUBDIRS, resolveReviewPath, resolveSessionStatePath } from "./_lib/project-paths.mjs";
 import { validateProject } from "./validate-risk-authorizations.mjs";
 
 const ROOT = "agent-output";
@@ -159,12 +160,35 @@ if (projects.length === 0) {
 
 for (const project of projects) {
   const projectDir = path.join(ROOT, project);
-  const sessionState = path.join(projectDir, "00-session-state.json");
+  const sessionState = resolveSessionStatePath(projectDir);
+  let stateObj = null;
   if (fs.existsSync(sessionState)) {
+    try {
+      stateObj = JSON.parse(fs.readFileSync(sessionState, "utf-8"));
+    } catch {
+      stateObj = null;
+    }
     try {
       for (const error of validateProject(path.resolve("."), project)) r.warn(project, `${error} (warning only)`);
     } catch (error) {
       r.warn(project, `Risk authorization check unavailable (warning only): ${error.message}`);
+    }
+  }
+  if (stateObj?.layout_version === 2) {
+    const allowedDirs = new Set(LAYOUT_SUBDIRS);
+    for (const entry of fs.readdirSync(projectDir, { withFileTypes: true })) {
+      if (entry.name.startsWith(".")) continue;
+      if (entry.isDirectory() && !allowedDirs.has(entry.name)) {
+        r.error(
+          `${project}/Layout v2`,
+          `Unexpected root directory "${entry.name}" in ${projectDir} (allowed: ${LAYOUT_SUBDIRS.join(", ")})`,
+        );
+      } else if (entry.isFile() && !entry.name.endsWith(".md")) {
+        r.error(
+          `${project}/Layout v2`,
+          `Non-Markdown file "${entry.name}" at ${projectDir} root — move to contracts/, reviews/, assets/, or _meta/`,
+        );
+      }
     }
   }
   for (const [stepKey, gate] of Object.entries(GATES)) {
@@ -177,7 +201,7 @@ for (const project of projects) {
       ? reviewSidecar(sessionState, gate.requiredSidecar)
       : gate.requiredSidecar;
     const missingSidecars = [requiredSidecar, gate.additionalSidecar].filter(
-      (sidecar) => sidecar && !sidecarOk(path.join(projectDir, sidecar)),
+      (sidecar) => sidecar && !sidecarOk(resolveReviewPath(projectDir, sidecar)),
     );
     if (missingSidecars.length === 0) continue;
 

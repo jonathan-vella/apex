@@ -951,6 +951,8 @@ def discover(
                 finding["assignment_parameters"] = effective_parameters
             if paths.get("pathSemantics"):
                 finding["pathSemantics"] = paths["pathSemantics"]
+            if condition is not None and finding.get("required_value") is None:
+                finding["policy_rule_if"] = condition
             # For Tags-category policies, extract enforced tag keys from the
             # policyRule body. Deny-style tag policies often hard-code keys
             # in `policyRule.if.allOf[*].anyOf[*].field` rather than exposing
@@ -1180,7 +1182,14 @@ def main(argv: list[str] | None = None) -> int:
     # signature-verified sibling 04-policy-feasibility.json collected in Step 2.
     cache_candidates = [out_path]
     if out_path.name == "04-governance-constraints.json":
-        cache_candidates.append(out_path.with_name("04-policy-feasibility.json"))
+        pdir = out_path.parent.parent if out_path.parent.name == "contracts" else out_path.parent
+        for candidate in (
+            out_path.with_name("04-policy-feasibility.json"),
+            pdir / "contracts" / "04-policy-feasibility.json",
+            pdir / "04-policy-feasibility.json",
+        ):
+            if candidate not in cache_candidates:
+                cache_candidates.append(candidate)
     if not args.refresh:
         for cache_source in cache_candidates:
             if not cache_source.exists():
