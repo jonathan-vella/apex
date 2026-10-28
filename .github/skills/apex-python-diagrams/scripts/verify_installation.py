@@ -91,6 +91,32 @@ def test_diagram_generation():
         print(f"❌ Error: {e}")
         return False
 
+def check_dlib_svg_engine():
+    """Check dlib 1920x1080 SVG + 3840x2160 PNG engine and Azure v23 icons"""
+    print("Checking dlib SVG/PNG engine & Azure v23 icons...", end=" ")
+    try:
+        from pathlib import Path
+        import tempfile
+
+        scripts_dir = str(Path(__file__).resolve().parent)
+        if scripts_dir not in sys.path:
+            sys.path.insert(0, scripts_dir)
+        import dlib
+
+        with tempfile.TemporaryDirectory() as tmpdir:
+            out_base = Path(tmpdir) / "dlib-test"
+            dlib.reset()
+            dlib.add(dlib.card(50, 120, 280, 64, "app", [("App Service", 1)], dlib.TLF, dlib.TL))
+            written = dlib.finish(out_base, "Verification Test")
+            if all(p.exists() and p.stat().st_size > 0 for p in written):
+                print(f"✅ Rendered SVG+PNG ({len(dlib.P)} curated keys)")
+                return True
+            print("❌ Output files missing")
+            return False
+    except Exception as e:
+        print(f"❌ Error: {e}")
+        return False
+
 def main():
     print("=" * 60)
     print("Azure Architecture Diagrams - Installation Verification")
@@ -100,6 +126,7 @@ def main():
     results = []
     
     results.append(("Python 3.9+", check_python_version()))
+    results.append(("dlib SVG/PNG engine", check_dlib_svg_engine()))
     results.append(("Graphviz", check_graphviz()))
     results.append(("Diagrams library", check_diagrams_library()))
     

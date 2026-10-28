@@ -1,15 +1,17 @@
 """diagram_io — single source of truth for diagram output formats.
 
-All Python diagram generators in this repo (matplotlib charts, `diagrams`
-library architectures, graphviz process flows) save outputs in BOTH PNG
-and SVG via the helpers below. PNG remains the default raster preview;
-SVG is the scalable, accessible, diff-reviewable sibling.
+All Python diagram generators in this repo (`dlib` SVG architecture
+diagrams, matplotlib charts, legacy `diagrams` library architectures,
+and graphviz process flows) save outputs in BOTH PNG and SVG via the
+helpers below. PNG remains the default raster preview; SVG is the
+scalable, accessible, diff-reviewable sibling.
 
 Why centralize? Every agent-generated `.py` (`02-waf-scores.py`,
 `03-des-cost-distribution.py`, `04-*-diagram.py`, `07-ab-*.py`) used to
 re-author its own `plt.savefig(...)` / `Diagram(..., outformat=...)`
-boilerplate. Drift was inevitable. With `diagram_io`, the output-format
-contract toggles in one place and every call site inherits SVG for free.
+boilerplate. Drift was inevitable. With `diagram_io` and `dlib.finish`,
+the output-format contract toggles in one place and every call site
+inherits SVG + PNG siblings automatically.
 
 This module uses only the Python standard library. matplotlib,
 `diagrams`, and graphviz are only touched by call sites that already
@@ -175,11 +177,41 @@ def render_graphviz(
     return saved
 
 
+def render_dlib(
+    base_path: str | Path,
+    title: str,
+    *,
+    footer: str | None = "APEX",
+    formats: Iterable[str] = FORMATS,
+) -> list[Path]:
+    """Render the current `dlib` canvas buffer to `<base>.svg` + `<base>.png` siblings.
+
+    Delegates to `dlib.finish(...)` while preserving `diagram_io.FORMATS`
+    ordering (`png`, `svg`).
+    """
+    import importlib.util
+    import sys
+
+    dlib_mod = sys.modules.get("dlib")
+    if dlib_mod is None:
+        dlib_path = Path(__file__).resolve().parent / "dlib.py"
+        spec = importlib.util.spec_from_file_location("dlib", dlib_path)
+        if spec is None or spec.loader is None:
+            raise RuntimeError(f"Cannot load dlib from {dlib_path}")
+        dlib_mod = importlib.util.module_from_spec(spec)
+        sys.modules["dlib"] = dlib_mod
+        spec.loader.exec_module(dlib_mod)
+
+    base = _strip_known_suffix(base_path)
+    return dlib_mod.finish(base, title, footer=footer, formats=formats)
+
+
 __all__ = [
     "FORMATS",
     "DEFAULT_DPI",
     "save_figure",
     "diagram_kwargs",
     "render_graphviz",
+    "render_dlib",
     "embed_svg_images",
 ]

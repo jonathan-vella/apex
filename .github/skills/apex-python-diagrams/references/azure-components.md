@@ -2,9 +2,31 @@
 
 # Azure Components Reference
 
-Complete list of 700+ Azure components available in the `diagrams` library with official Microsoft icons.
+Complete reference for the **705 official Microsoft Azure Public Service Icons (v23)**
+vendored under `.github/skills/apex-python-diagrams/assets/az/`
+(used by `scripts/dlib.py`) as well as legacy `diagrams.azure.*` classes.
 
-## Quick Import Examples
+## `dlib.py` Curated Short Icon Keys (`dlib.P`)
+
+Use these short keys with `ic(key, x, y, size)` or `card(x, y, w, h, key, lines, fill, stroke)`:
+
+| Category | Short keys (`dlib.P`) |
+| --- | --- |
+| **Hierarchy & Governance** | `ten` (Tenant), `mg` (Management Groups), `sub` (Subscriptions), `rg` (Resource Groups), `pol` (Policy), `bud` (Cost Budgets), `arc` (Azure Arc), `rsv` (Recovery Services Vault), `bvault` (Backup Vault) |
+| **Networking & Edge** | `vnet` (Virtual Networks), `subnet` (Subnet), `fw` (Azure Firewall), `fwp` (Firewall Policy), `waf` (WAF Policy), `dns` (DNS Zones), `bas` (Bastion), `nat` (NAT Gateway), `peer` (Peerings), `rt` (Route Tables), `pe` (Private Endpoints), `pip` (Public IP), `nsg` (NSG), `afd` (Front Door & CDN), `agw` (Application Gateway), `lb` (Load Balancer), `vpngw` (VPN Gateway), `er` (ExpressRoute) |
+| **Compute, Containers & Web** | `vm` (Virtual Machine), `disk` (Disks), `app` (App Services), `asp` (App Service Plans), `func` (Function Apps), `swa` (Static Web Apps), `aks` (Kubernetes Services), `acr` (Container Registries), `aci` (Container Instances), `aca` (Container Apps Environments), `signalr` (SignalR) |
+| **Databases & Cache** | `sqlmi` (SQL Managed Instance), `sqls` (SQL Server), `sqldb` (SQL Database), `arcsql` (Arc SQL Server), `cosmos` (Azure Cosmos DB), `postgres` (Azure Database for PostgreSQL), `mysql` (Azure Database for MySQL), `redis` (Cache Redis) |
+| **Storage** | `blob` / `st` (Storage Accounts), `cont` (Storage Container), `queue` (Storage Queue) |
+| **Integration & Analytics** | `apim` (API Management), `sb` (Service Bus), `evg` (Event Grid Topics), `evh` (Event Hubs), `logic` (Logic Apps), `adf` (Data Factories), `databricks` (Azure Databricks) |
+| **Security & Identity** | `kv` (Key Vaults), `mi` (Managed Identities), `user` (Users), `entra` (Entra Roles & Admins), `appreg` (App Registrations), `entapp` (Enterprise Applications) |
+| **Monitoring & AI** | `mon` (Monitor), `law` (Log Analytics Workspaces), `ai` (Application Insights), `openai` (Azure OpenAI), `foundry` (AI Studio / Foundry), `search` (Cognitive Search), `cog` (Cognitive Services), `ml` (Machine Learning) |
+| **Developer & GitHub** | `code` (Code), `cli` (Cloud Shell), `dev` (Dev Box), `gh` (GitHub Octicon via `gh(x, y, s)` or `ic("gh", ...)`) |
+
+Any of the **705 SVG icons** in `assets/az/` can also be passed by service slug (for example `"iot-hub"`, `"front-door-and-cdn-profiles"`, `"digital-twins"`) — `dlib.resolve_icon_path()` resolves it automatically.
+
+---
+
+## Legacy `diagrams` Library Import Examples
 
 ```python
 # Most common services
