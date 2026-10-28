@@ -109,6 +109,21 @@ function parseReviewJson(content) {
 
 function normalizeReviewDoc(doc, input, root) {
   const entries = Array.isArray(doc.batch_results) ? doc.batch_results : [doc];
+  const priorIds =
+    Array.isArray(input?.prior_findings) && input.prior_findings.length > 0
+      ? new Set(
+          input.prior_findings
+            .map((f) =>
+              object(f)
+                ? (f.id ??
+                  (nonempty(f.category) && nonempty(f.claim) && nonempty(f.artifact_section) ? findingId(f) : null))
+                : typeof f === "string"
+                  ? f
+                  : null,
+            )
+            .filter(Boolean),
+        )
+      : null;
   for (const entry of entries) {
     if (!object(entry)) continue;
     if (
@@ -134,6 +149,20 @@ function normalizeReviewDoc(doc, input, root) {
       }
       if (nonempty(finding.category) && nonempty(finding.claim) && nonempty(finding.artifact_section)) {
         finding.id = findingId(finding);
+      }
+    }
+    if (priorIds) {
+      const hasMustFix = entry.findings.some((f) => object(f) && f.severity === "must_fix");
+      const hasUnclosedPrior = entry.findings.some((f) => object(f) && priorIds.has(f.id));
+      if (!hasMustFix && !hasUnclosedPrior) {
+        for (const finding of entry.findings) {
+          if (object(finding) && finding.severity === "should_fix") {
+            finding.severity = "suggestion";
+          }
+        }
+        if (entry.overall_assessment === "NEEDS_REVISION") {
+          entry.overall_assessment = "APPROVED";
+        }
       }
     }
     for (const [field, severity] of [
