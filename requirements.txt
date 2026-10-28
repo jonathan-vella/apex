@@ -15,5 +15,5 @@ pillow==13.0.0
 
 # Repository test and lint tooling
 pytest==9.1.1
-ruff==0.17.0
+ruff==0.17.1
 yamllint==1.38.0
