@@ -23,7 +23,8 @@ Callers: Architect (planned estimates) | As-Built (deployed estimates).
 
 - Validate inputs and `output_path`, then act without asking the parent questions.
 - Azure access is read-only. Allowed filesystem writes: caller `output_path` and its
-  temporary sibling, plus the supplied manifest's price/timestamp fields only when
+  temporary sibling, plus the supplied manifest's price/timestamp fields (and the companion
+  `sku-manifest.md` rendered by `cost-estimate.mjs publish`) only when
   COMPLETE and `manifest_writeback: true`, using its temporary sibling for atomic writeback.
   For the constrained fallback, request/evidence files may be created exclusively under
   `{output_path}.retail-evidence/`; preserve existing files and use new names for each distinct query.
@@ -105,8 +106,9 @@ Markdown report templates (`03-des-cost-estimate.template.md`) — this worker e
    `"include-savings-plan"` — never snake_case `price_type` or `price`, which the MCP server rejects).
   Express meter filters through its OData `filter`; it has no `meterName` input and a bare `service` can be rejected.
   Keep a query ledger including empty/error results; do not repeat successful or empty identical requests.
-  After documented empty-result discovery, an exhausted transient retry, or a status-200 multi-band response that
-  omits `tierMinimumUnits` (`missing_tier_metadata`), use the
+  After documented empty-result discovery, an exhausted transient retry, a status-200 multi-band response that
+  omits `tierMinimumUnits` (`missing_tier_metadata`), or a status-400 `ArgumentOutOfRangeException`
+  (`Unknown ServiceFamily value`, `service_family_unsupported`), use the
   [constrained fallback](../../skills/apex-azure-defaults/references/pricing-guidance.md#constrained-direct-api-fallback)
   only for unresolved meters and within the remaining shared request budget.
 4. Select only rows matching the requested product, meter, unit, OS, and price

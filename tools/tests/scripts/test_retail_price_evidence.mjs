@@ -251,6 +251,22 @@ test("missing_tier_metadata fallback authorizes multi-rate pricing_get rows that
   const result = await fetchRetailEvidence(input, async () => response(blobPage));
   assert.equal(result.requests_used, 1);
 
+  // Also authorizes when the MCP call used a broader product/service query or raw pricing_get parameters
+  const batchedAttemptInput = structuredClone(input);
+  batchedAttemptInput.mcp_failure.attempts = [
+    {
+      parameters: {
+        filter:
+          "serviceName eq 'Storage' and armRegionName eq 'swedencentral' and (productName eq 'Blob Storage' or productName eq 'Standard SSD Managed Disks')",
+        "price-type": "Consumption",
+        currency: "USD",
+      },
+      response: input.mcp_failure.attempts[0].response,
+    },
+  ];
+  const batchedResult = await fetchRetailEvidence(batchedAttemptInput, async () => response(blobPage));
+  assert.equal(batchedResult.requests_used, 1);
+
   // Rejects when tierMinimumUnits is already present in pricing_get response
   const alreadyHasTiers = structuredClone(input);
   alreadyHasTiers.mcp_failure.attempts[0].response.results.prices[0].tierMinimumUnits = 0;
@@ -267,6 +283,140 @@ test("missing_tier_metadata fallback authorizes multi-rate pricing_get rows that
   await assert.rejects(
     fetchRetailEvidence(singleRate, () => assert.fail("must not fetch")),
     /multiple rate rows/,
+  );
+});
+
+test("service_family_unsupported fallback authorizes pricing_get status-400 Unknown ServiceFamily ArgumentOutOfRangeException", async () => {
+  const foundryQuery = {
+    serviceName: "Foundry Models",
+    armRegionName: "swedencentral",
+    productName: "Azure OpenAI GPT5",
+    priceType: "Consumption",
+    currencyCode: "USD",
+  };
+  const mcpParserError = {
+    status: 400,
+    message:
+      "Unknown ServiceFamily value. (Parameter 'value')\nActual value was AI + Machine Learning.. To mitigate this issue, please refer to the troubleshooting guidelines here at https://aka.ms/azmcp/troubleshooting.",
+    results: {
+      message: "Unknown ServiceFamily value. (Parameter 'value')\nActual value was AI + Machine Learning.",
+      type: "ArgumentOutOfRangeException",
+    },
+    duration: 0,
+  };
+  const foundryPage = {
+    BillingCurrency: "USD",
+    Items: [
+      {
+        ...row,
+        serviceName: "Foundry Models",
+        armRegionName: "swedencentral",
+        productName: "Azure OpenAI GPT5",
+        skuName: "GPT 5 Nano Inpt Glbl",
+        armSkuName: "GPT 5 Nano Inpt Glbl",
+        meterName: "GPT 5 Nano Inpt Glbl 1M Tokens",
+        meterId: "ac0a59fc-d6c3-5115-80fd-dc0bb8afb871",
+        unitOfMeasure: "1M",
+        retailPrice: 0.05,
+        tierMinimumUnits: 0,
+      },
+    ],
+    NextPageLink: null,
+  };
+
+  for (const kind of ["service_family_unsupported", "mcp_catalog_parser_error", "mcp_deserialization_error"]) {
+    const input = {
+      query: { ...foundryQuery },
+      remaining_requests: 19,
+      mcp_failure: {
+        kind,
+        recorded_at: new Date(Date.now() - 1000).toISOString(),
+        attempts: [
+          {
+            parameters: {
+              filter: "armRegionName eq 'swedencentral' and contains(meterName, 'nano')",
+              "price-type": "Consumption",
+              currency: "USD",
+            },
+            response: mcpParserError,
+          },
+        ],
+      },
+    };
+    const result = await fetchRetailEvidence(input, async () => response(foundryPage));
+    assert.equal(result.requests_used, 1);
+  }
+
+  // Rejects non-ServiceFamily 400 errors under service_family_unsupported
+  await assert.rejects(
+    fetchRetailEvidence(
+      {
+        query: { ...foundryQuery },
+        remaining_requests: 19,
+        mcp_failure: {
+          kind: "service_family_unsupported",
+          recorded_at: new Date(Date.now() - 1000).toISOString(),
+          attempts: [
+            {
+              query: { ...foundryQuery },
+              response: { status: 400, message: "must specify sku", results: { type: "ArgumentException" } },
+            },
+          ],
+        },
+      },
+      () => assert.fail("must not fetch"),
+    ),
+    /Unknown ServiceFamily value/,
+  );
+
+  // Rejects conflicting serviceName in parameters.filter or unrelated non-AI request.query.serviceName
+  await assert.rejects(
+    fetchRetailEvidence(
+      {
+        query: { ...foundryQuery },
+        remaining_requests: 19,
+        mcp_failure: {
+          kind: "service_family_unsupported",
+          recorded_at: new Date(Date.now() - 1000).toISOString(),
+          attempts: [
+            {
+              parameters: {
+                filter: "serviceName eq 'Storage' and armRegionName eq 'swedencentral'",
+                "price-type": "Consumption",
+                currency: "USD",
+              },
+              response: mcpParserError,
+            },
+          ],
+        },
+      },
+      () => assert.fail("must not fetch"),
+    ),
+    /same service and currency/,
+  );
+  await assert.rejects(
+    fetchRetailEvidence(
+      {
+        query: { ...foundryQuery, serviceName: "Storage" },
+        remaining_requests: 19,
+        mcp_failure: {
+          kind: "service_family_unsupported",
+          recorded_at: new Date(Date.now() - 1000).toISOString(),
+          attempts: [
+            {
+              parameters: {
+                filter: "serviceName eq 'Foundry Models' and armRegionName eq 'swedencentral'",
+                "price-type": "Consumption",
+                currency: "USD",
+              },
+              response: mcpParserError,
+            },
+          ],
+        },
+      },
+      () => assert.fail("must not fetch"),
+    ),
+    /same service and currency/,
   );
 });
 

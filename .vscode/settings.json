@@ -70,10 +70,5 @@
     "editor.tabSize": 4
   },
   "python.terminal.useEnvFile": true,
-  "chat.mcp.workspaceRootConfig.enabled": true,
-  "chat.mcp.serverSampling": {
-    "apex/.mcp.json: azure-mcp": {
-      "allowedDuringChat": true
-    }
-  }
+  "chat.mcp.workspaceRootConfig.enabled": true
 }

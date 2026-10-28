@@ -15,6 +15,7 @@ from ..state_writer import (
     read_state,
     session_state_path,
     validate_step_key,
+    workspace_root_for,
     write_state,
 )
 
@@ -149,7 +150,7 @@ def run(args) -> int:
         if attempt_inputs:
             if digest:
                 raise ValueError("Use --input-digest or --attempt-input, not both")
-            digest = inputs_digest(path.parent.parent.parent, attempt_inputs)
+            digest = inputs_digest(workspace_root_for(), attempt_inputs)
         if (
             not attempt_id
             or not re.fullmatch(r"[A-Za-z0-9_-]{1,100}", attempt_id)
@@ -175,7 +176,11 @@ def run(args) -> int:
         if previous and previous[-1]["outcome"] == outcome:
             if previous[-1].get("review_output") != review_output:
                 raise ValueError("Terminal reviewer output cannot be rewritten; reconcile explicitly with the owner")
-            check_state_revision(data, path)
+            if getattr(args, "review_result", None) is not None:
+                select_cycle_result(project, data, args, prepared)
+                write_state(project, data)
+            else:
+                check_state_revision(data, path)
             print(json.dumps({"outcome": "already_applied", "attempt_id": attempt_id, "input_digest": digest}))
             return 0
         if previous and previous[-1]["outcome"] != "started":
@@ -201,7 +206,7 @@ def run(args) -> int:
                 )
             if not previous and any(attempt.get("retry_of") == retry_of for attempt in attempts):
                 raise ValueError("Identical-input retry already recorded; allowance cannot reset")
-        elif retry_of is not None:
+        elif retry_of is not None and not prepared:
             raise ValueError("retry-of is only valid for empty-output-retry attempts")
         select_cycle_result(project, data, args, prepared)
         attempts.append(

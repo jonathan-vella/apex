@@ -26,7 +26,7 @@
 **Generated**: {YYYY-MM-DD}
 **Workflow Mode**: {production | e2e}
 **Total Lessons**: {count}
-**Source**: [09-lessons-learned.json](09-lessons-learned.json)
+**Source**: [09-lessons-learned.json](contracts/09-lessons-learned.json)
 
 ## 📋 Summary
 

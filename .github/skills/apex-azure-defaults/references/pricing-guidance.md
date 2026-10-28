@@ -136,12 +136,13 @@ Use the service names returned by the Retail Prices API. Common APEX services:
 | Azure Firewall | `Azure Firewall` |
 | Azure Functions | `Functions` |
 | Azure Monitor | `Azure Monitor` |
+| Azure OpenAI / Microsoft Foundry Models | `Foundry Models` |
 | Container Apps | `Azure Container Apps` |
 | Container Instances | `Container Instances` |
 | Container Registry | `Container Registry` |
 | Cosmos DB | `Azure Cosmos DB` |
 | Data Factory | `Azure Data Factory v2` |
-| Front Door | `Azure Front Door` |
+| Front Door | `Azure Front Door Service` |
 | Key Vault | `Key Vault` |
 | Log Analytics | `Log Analytics` |
 | MySQL Flexible Server | `Azure Database for MySQL` |
@@ -351,9 +352,11 @@ a separate workflow when such analysis is required.
 
 This is a first-party evidence fallback, not permission to estimate from memory, scraped prices or a calculator.
 Only the pricing worker may run it, after the existing bounded MCP discovery returned no rows (`kind: "empty_result"`),
-the original transient HTTP failure plus its single retry both failed (`kind: "transient_exhausted"`), or a status-200
+the original transient HTTP failure plus its single retry both failed (`kind: "transient_exhausted"`), a status-200
 `pricing_get` response returned multiple rate rows for a tiered meter with `tierMinimumUnits` stripped
-(`kind: "missing_tier_metadata"`). Reuse verified current meters for unaffected lines.
+(`kind: "missing_tier_metadata"`), or `pricing_get` returned `status: 400` with `ArgumentOutOfRangeException: Unknown ServiceFamily value`
+(`kind: "service_family_unsupported"`, also accepted as `"mcp_catalog_parser_error"` or `"mcp_deserialization_error"`,
+which occurs on `@azure/mcp@3.0.0` for `AI + Machine Learning` rows such as `Foundry Models`). Reuse verified current meters for unaffected lines.
 Authentication/authorization failures, missing usage, ambiguous meter selection, missing worker capability,
 unverified source equivalence and an exhausted budget remain blockers; fallback must not bypass them.
 
@@ -399,8 +402,12 @@ Copy actual MCP responses, not the example. Record the failed `pricing_get` call
 (`serviceName`, `armSkuName`, `armRegionName`, `productName`, `skuName`, `meterName`, `priceType`, `currencyCode`) and keep its real response, either
 `{ "status": 200, "results": { "prices": [...] } }` or the retail-page shape shown. Include the relevant discovery attempts; the helper requires a matching
 failed query, the same service/currency, and a real timestamp within 24 hours. Never restamp old failure evidence.
-For `kind: "missing_tier_metadata"`, record the single status-200 `pricing_get` attempt whose `results.prices` contains
-multiple rate rows for that meter without `tierMinimumUnits`.
+For `kind: "missing_tier_metadata"`, record the status-200 `pricing_get` attempt (using either `query` or raw `parameters`)
+whose `results.prices` contains multiple rate rows for that meter without `tierMinimumUnits`; a single service/product-level
+MCP query may authorize narrowed direct-API `missing_tier_metadata` lookups for any multi-band meter present in that response.
+For `kind: "service_family_unsupported"` (or `"mcp_catalog_parser_error"` / `"mcp_deserialization_error"`), record the
+single status-400 `pricing_get` attempt whose `results.type` is `ArgumentOutOfRangeException` (`Unknown ServiceFamily value`);
+do not issue a second MCP retry for that parser exception.
 For `kind: "transient_exhausted"`, record both attempts with `query`, actual `http_status` and `error` text;
 only 408, 429, 500, 502, 503 and 504 are eligible. Unknown statuses do not authorize fallback.
 `remaining_requests` is the actual unused shared budget, not an extra allowance. Identical requests share evidence;
@@ -437,9 +444,13 @@ Prefer narrow `productName`/`meterName` filters over an unqualified service/regi
 | App Service Basic/Standard Linux | `serviceName` `Azure App Service`, region, `meterName` | `productName` `Azure App Service <Tier> Plan - Linux`; Basic Linux uses `meterName` `B1`/`B2`/`B3` (no `App` suffix — `B1 App` is Windows), while Standard uses `S1 App`/`S2 App`/`S3 App` |
 | App Service Premium v3 Linux | same | `Azure App Service Premium v3 Plan - Linux`; `meterName` `P1 v3 App` (space, not `P1v3`); the Windows row also matches |
 | Container Apps Consumption | `serviceName` `Azure Container Apps`, region | active vCPU-second and GiB-second meters plus the separate requests meter; needs monthly request count |
-| Blob Storage Hot LRS | `serviceName` `Storage`, region, `productName` `Blob Storage` | `Hot LRS Data Stored` returns multiple band rates in `pricing_get` without `tierMinimumUnits`: use `missing_tier_metadata` fallback to retrieve exact tier bands; select the read, write and other operations meters locally (per 10K) and never the Hierarchical Namespace product |
-| Log Analytics ingestion | `serviceName` `Log Analytics`, region | `Analytics Logs Data Ingestion` returns `$0` and paid rows in `pricing_get` without `tierMinimumUnits`: use `missing_tier_metadata` fallback to retrieve the 5 GB/month free band and paid band boundaries; retention beyond the included period is the separate `Analytics Logs Data Retention` meter |
+| Blob Storage Hot LRS | `serviceName` `Storage`, region, `productName` `Blob Storage`, `skuName` `Hot LRS` | `Hot LRS Data Stored` returns multiple band rates in `pricing_get` without `tierMinimumUnits`: use `missing_tier_metadata` fallback to retrieve exact tier bands (`0`, `51200`, `512000` GB/Month); select exact operation meters `Hot LRS Write Operations`, `Hot Read Operations`, `LRS List and Create Container Operations`, and `All Other Operations` locally (all `unitOfMeasure: "10K"`, never `"Other Operations"` or Hierarchical Namespace) |
+| Standard SSD Managed Disks | `serviceName` `Storage`, region, `productName` `Standard SSD Managed Disks`, `skuName` `E<n> LRS` (e.g. `E6 LRS` for 64 GiB) | Select `E<n> LRS Disk` (`1/Month`) and `E<n> LRS Disk Operations` (`10K`); exclude `E<n> LRS Disk Mount` unless shared multi-attach disk mounting (`maxShares > 1`) is explicitly configured |
+| Azure Front Door Standard / Premium | `serviceName` `Azure Front Door Service` (never `Azure Front Door`), `productName` `Azure Front Door`, `armRegionName` `Zone 1` (covers Europe and North America), `skuName` `Standard` or `Premium` | Select `<Tier> Base Fees` (`unitOfMeasure: "1/Month"`, `$35` Standard / `$330` Premium; Premium base includes managed WAF and Private Link origin connections), `<Tier> Requests` (`10K`), `<Tier> Data Transfer Out` (`1 GB`), and `<Tier> Data Transfer In` (`1 GB`). Because `<Tier> Requests` and `<Tier> Data Transfer Out` are tiered, use `missing_tier_metadata` fallback when `pricing_get` strips `tierMinimumUnits` |
+| Azure Bastion Standard / Basic | `serviceName` `Azure Bastion`, deployment region, `skuName` `Standard` or `Basic` | Select `<Tier> Gateway` (`unitOfMeasure: "1 Hour"`, which includes the mandatory 2 base scale units — include `<Tier> Additional Gateway` only when `scale_units > 2`) and `<Tier> Data Transfer Out` (`1 GB`, first 5 GB/month band is `$0`; use `missing_tier_metadata` fallback when `pricing_get` strips `tierMinimumUnits`) |
+| Log Analytics ingestion | `serviceName` `Log Analytics`, region | `Analytics Logs Data Ingestion` returns `$0` (0–5 GB/month) and paid (`>= 5` GB/month) rows in `pricing_get` without `tierMinimumUnits`: use `missing_tier_metadata` fallback to retrieve the 5 GB/month free band and paid band boundaries; retention beyond the included 30-day period is the separate `Analytics Logs Data Retention` meter |
 | Azure Monitor alert rules | `serviceName` `Azure Monitor`, region, `skuName` `Alerts` | Resource-scoped metric alert rules bill on `Alerts Resource Monitored` (`unitOfMeasure: "1/Month"`) matched to the caller's `evaluation_frequency` (`1m` → `1 Minute Frequency`, `5m` → `5 Minute Frequency`, `10m` → `10 Minute Frequency`, `15m` → `15 Minute Frequency`) times monitored-resource count; log or custom time-series alert rules require their own explicit meters |
+| Microsoft Foundry / Azure OpenAI models | `serviceName` `Foundry Models`, region, `productName` `Azure OpenAI GPT5` (or `Azure OpenAI` for GPT-4.1) | On `@azure/mcp@3.0.0`, `pricing_get` fails with status 400 `ArgumentOutOfRangeException` (`Unknown ServiceFamily value ... AI + Machine Learning`); record that single failed MCP attempt and run `fetch-retail-price-evidence.mjs` with `kind: "service_family_unsupported"` and `query: { "serviceName": "Foundry Models", "armRegionName": "<region>", "productName": "Azure OpenAI GPT5", "priceType": "Consumption", "currencyCode": "USD" }`. For Global Standard PAYG, select `GPT 5 Nano Inpt Glbl 1M Tokens` + `GPT 5 Nano outpt Glbl 1M Tokens` (`gpt-5-nano`) or `5.4 nano Inp Gl 1M Tokens` + `5.4 nano Opt Gl 1M Tokens` (`gpt-5.4-nano`), `unitOfMeasure: "1M"`, excluding cached (`cd`/`cchd`), Batch, Flex and Data Zone (`Dz`/`DZone`) rows |
 | SQL DTU tiers | `serviceName` `SQL Database`, region, `productName` | `SQL Database Single Standard`; `meterName` `S2 DTUs`; per-day unit; add `SQL Database Standard - Storage` `Data Stored` |
 | SQL vCore GP | same | `Single/Elastic Pool General Purpose - Compute Gen5`; `armSkuName` `SQLDB_GP_Compute_Gen5_<n>`, `meterName` `vCore` |
 | NAT Gateway | `serviceName` `NAT Gateway`, billing region `Global` | `Standard Gateway` (hourly) and `Standard Data Processed` (per GB) |

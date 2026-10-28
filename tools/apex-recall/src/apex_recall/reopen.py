@@ -17,6 +17,32 @@ DEPENDENTS: dict[str, tuple[str, ...]] = {
 _PLAN_INPUT_STEPS = ("1", "2", "3_5", "4")
 _STALE_KEYS = ("previous_completed", "stale_since", "stale_because")
 
+PLAN_LOCK_FROZEN_ARTIFACTS = [
+    "04-implementation-plan.md",
+    "04-iac-contract.json",
+    "04-policy-property-map.json",
+    "04-environment-manifest.json",
+    "04-governance-constraints.md",
+    "04-governance-constraints.json",
+]
+
+
+def set_plan_lock(data: dict, now: str) -> None:
+    """Populate session metadata.plan_lock and decisions.plan_status when Step 4 completes."""
+    decisions = data.setdefault("decisions", {})
+    if decisions.get("plan_status") not in ("APPROVED", "EXCEPTION_AUTHORIZED"):
+        decisions["plan_status"] = "APPROVED"
+    meta = data.setdefault("metadata", {})
+    if not isinstance(meta, dict):
+        meta = {}
+        data["metadata"] = meta
+    if not meta.get("plan_lock"):
+        meta["plan_lock"] = {
+            "locked": True,
+            "locked_at": now,
+            "frozen_artifacts": list(PLAN_LOCK_FROZEN_ARTIFACTS),
+        }
+
 
 def invalidate_dependents(data, step: str, now: str) -> dict:
     """Mark dependent steps stale and supersede the Plan approval; return what changed.
@@ -45,6 +71,8 @@ def invalidate_dependents(data, step: str, now: str) -> dict:
     if step in _PLAN_INPUT_STEPS and decisions.get("plan_status") in ("APPROVED", "EXCEPTION_AUTHORIZED"):
         superseded = decisions["plan_status"]
         decisions["plan_status"] = "SUPERSEDED"
+    if step in _PLAN_INPUT_STEPS and isinstance(data.get("metadata"), dict):
+        data["metadata"].pop("plan_lock", None)
 
     if stale or superseded:
         parts = []

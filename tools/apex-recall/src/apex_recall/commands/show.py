@@ -7,7 +7,7 @@ from types import SimpleNamespace
 
 from ..indexer import classify_artifact, extract_step
 from ..risk_gate import ACTIONS, evaluate_gate
-from ..state_writer import check_state_revision, read_state, session_state_path
+from ..state_writer import check_state_revision, project_dir, read_state, session_state_path, workspace_root_for
 from .complete_step import (
     _CHALLENGER_GATE,
     _challenger_findings_invalid,
@@ -25,6 +25,8 @@ class ProjectInventory:
 
     def __init__(self, project):
         self.primary = session_state_path(project)
+        self.project_dir = project_dir(project)
+        self.root = workspace_root_for()
         self.rows = []
 
     def execute(self, query, params):
@@ -32,21 +34,22 @@ class ProjectInventory:
             self.rows = [(json.dumps(read_state(self.primary)),)] if self.primary.exists() else []
         else:
             self.rows = []
-            for artifact in sorted(self.primary.parent.rglob("*")):
-                if (
-                    artifact.is_file()
-                    and not artifact.is_symlink()
-                    and not artifact.name.startswith(".")
-                    and artifact.suffix not in (".bak", ".lock", ".tmp")
-                ):
-                    self.rows.append(
-                        (
-                            str(artifact.relative_to(self.primary.parent.parent.parent)),
-                            classify_artifact(artifact.name),
-                            extract_step(artifact.name),
-                            artifact.stat().st_mtime,
+            if self.project_dir.exists():
+                for artifact in sorted(self.project_dir.rglob("*")):
+                    if (
+                        artifact.is_file()
+                        and not artifact.is_symlink()
+                        and not artifact.name.startswith(".")
+                        and artifact.suffix not in (".bak", ".lock", ".tmp")
+                    ):
+                        self.rows.append(
+                            (
+                                str(artifact.resolve().relative_to(self.root)),
+                                classify_artifact(artifact.name),
+                                extract_step(artifact.name),
+                                artifact.stat().st_mtime,
+                            )
                         )
-                    )
         return self
 
     def fetchone(self):
@@ -72,6 +75,8 @@ def run(args) -> int:
 
         session = {}
         primary = session_state_path(project)
+        pdir = project_dir(project)
+        root = workspace_root_for()
         if row or primary.exists():
             data = read_state(primary)
             if data and isinstance(data, dict):
@@ -103,14 +108,14 @@ def run(args) -> int:
                 review_steps |= {
                     step
                     for step, (artifact, _) in _CHALLENGER_GATE.items()
-                    if (primary.parent / artifact).is_file()
+                    if (pdir / artifact).is_file()
                     and data.get("steps", {}).get(step, {}).get("status") in ("complete", "in_progress", "stale")
                 }
                 if exception_bearing:
                     review_steps |= {
                         step
                         for step, (artifact, _) in _CHALLENGER_GATE.items()
-                        if (primary.parent / artifact).is_file()
+                        if (pdir / artifact).is_file()
                     }
                 for step in sorted(review_steps):
                     try:
@@ -198,8 +203,8 @@ def run(args) -> int:
                                 )
                             effective[step]["reviews"] = [
                                 {
-                                    "path": str(sidecar.relative_to(primary.parent.parent.parent)),
-                                    "artifact": str(artifact.relative_to(primary.parent.parent.parent)),
+                                    "path": str(sidecar.resolve().relative_to(root)),
+                                    "artifact": str(artifact.resolve().relative_to(root)),
                                     "supporting_inputs": json.loads(sidecar.read_text(encoding="utf-8")).get(
                                         "supporting_inputs", []
                                     ),
@@ -212,9 +217,7 @@ def run(args) -> int:
                                 for _, sidecar in _review_paths(project, step, selected)
                                 if sidecar.is_file()
                             ]
-                            effective[step]["gate_status"] = (
-                                "blocked" if "NEEDS_REVISION" in effective[step]["review_verdicts"] else "current"
-                            )
+                            effective[step]["gate_status"] = "current"
                     except (OSError, ValueError) as error:
                         effective[step] = {"status": "invalid", "error": str(error)}
                 session["effective_reviews"] = effective

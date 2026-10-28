@@ -31,6 +31,7 @@ import { globSync } from "node:fs";
 import { Reporter } from "./_lib/reporter.mjs";
 import { readJson, sha256File } from "./_lib/json.mjs";
 import { createAvmBicepReferenceRegex, createAvmTerraformReferenceRegex } from "./_lib/avm-patterns.mjs";
+import { projectDirFromPath, resolveProjectFile } from "./_lib/project-paths.mjs";
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "../..");
 
@@ -64,7 +65,7 @@ function rawExceptionsSection(plan) {
 }
 
 function defaultGlobs() {
-  return ["agent-output/*/04-iac-contract.json"];
+  return ["agent-output/*/04-iac-contract.json", "agent-output/*/contracts/04-iac-contract.json"];
 }
 
 function main() {
@@ -105,7 +106,10 @@ function main() {
       continue;
     }
     const errorsBefore = r.errors;
-    const planPath = path.resolve(path.dirname(contractPath), contract.plan_ref?.path ?? "");
+    let planPath = path.resolve(path.dirname(contractPath), contract.plan_ref?.path ?? "");
+    if (!fs.existsSync(planPath) && contract.plan_ref?.path) {
+      planPath = resolveProjectFile(projectDirFromPath(contractPath), contract.plan_ref.path);
+    }
     if (!contract.plan_ref?.path || !fs.existsSync(planPath)) {
       r.error(contractRel, `plan_ref.path missing or not on disk: ${contract.plan_ref?.path}`);
       continue;

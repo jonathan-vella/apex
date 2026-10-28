@@ -1,10 +1,24 @@
 <!-- ref:python-charts-v1 -->
 
-# Python Charts (WAF / Cost / Compliance)
+# Python Charts & Architecture Design Tokens
 
-For WAF bar charts, cost donuts, and compliance visualizations, use Python `matplotlib`.
+Use [`scripts/dlib.py`](../scripts/dlib.py) for architecture, network, DNS,
+identity, and swimlane diagrams (`1920×1080` SVG + `3840×2160` 4K PNG), and
+Python `matplotlib` via [`scripts/diagram_io.py`](../scripts/diagram_io.py)
+for quantitative WAF bar charts, cost donuts, and compliance visualizations.
 
-## Execution
+## Architecture Canvas Tokens (`dlib.py`)
+
+* **Canvas**: `width="3840" height="2160" viewBox="0 0 1920 1080"`, background `#FFFFFF`, font `Segoe UI, Arial, sans-serif`, default footer `"APEX"` at `(960, 1058)`.
+* **Palette**:
+  * Shared platform (`BL` / `BLF`): `#0078D4` stroke, `#E6F1FB` / `#F5FAFF` fill
+  * Workload (`TL` / `TLF`): `#008272` stroke, `#E3F4F1` / `#F2FAF8` fill
+  * Legacy / management (`SL` / `GRF`): `#5B6B7B` stroke, `#EEF2F6` fill
+  * Migration / notes / policy (`AM` / `AMB` / `AMF`): `#D18B00` / `#F2A900` stroke, `#FFF6DD` fill
+  * Identity (`PU` / `PUF`): `#7B3FA0` stroke, `#F3ECF8` fill
+  * Text: Navy `#0B1F3A` (`NAVY`) for primary/bold labels, `#3A4A5A` (`GR`) for secondary subtitles.
+
+## Quantitative Chart Execution (`matplotlib`)
 
 Save `.py` source in `agent-output/{project}/`, then run with `python3` to
 produce **both `.png` and `.svg` siblings** via the shared

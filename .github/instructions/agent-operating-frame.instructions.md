@@ -36,6 +36,9 @@ Native Autopilot can answer questions; a form return is not independent human au
   Name the path and exact blocking requirement when relevant.
 - Validate written non-Markdown shapes and actual commands before passing results.
   Markdown artifact validation follows the designated Git/review owner.
+- Keep temporary validation or helper scripts inside `agent-output/<project>/_meta/` and remove them
+  when no longer needed; never leave ad-hoc `.py` helper scripts at the root of `agent-output/<project>/`
+  alongside deliverable diagram scripts.
 
 ## Native tasks
 

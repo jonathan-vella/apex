@@ -42,9 +42,10 @@ import path from "node:path";
 import { parseArgs } from "node:util";
 import { createHash } from "node:crypto";
 import { fileURLToPath } from "node:url";
-import { reviewCompatibility } from "./_lib/review-compatibility.mjs";
+import { reviewCompatibility, supportingInputCompatible } from "./_lib/review-compatibility.mjs";
 import { Reporter } from "./_lib/reporter.mjs";
 import { parseFrontmatter } from "./_lib/parse-frontmatter.mjs";
+import { isLayoutV2, projectDirFromPath, resolveProjectFile } from "./_lib/project-paths.mjs";
 
 const ROOT = "agent-output";
 const REQUIRED_TOP_LEVEL = [
@@ -122,7 +123,13 @@ export function cacheInputs(artifactPath, root = process.cwd(), reviewer) {
   const mode = reviewerMode(reviewer);
   const read = (relative) => fs.readFileSync(path.resolve(root, relative));
   const hash = (bytes) => createHash("sha256").update(bytes).digest("hex");
-  const artifact = path.resolve(root, artifactPath);
+  let artifact = path.resolve(root, artifactPath);
+  if (!fs.existsSync(artifact)) {
+    const pdir = projectDirFromPath(artifact);
+    if (isLayoutV2(pdir)) {
+      artifact = resolveProjectFile(pdir, artifactPath);
+    }
+  }
   const entries = [];
   const ignored = new Set([".git", ".terraform", "node_modules", ".venv", "__pycache__"]);
   const visit = (target) => {
@@ -207,7 +214,8 @@ function verifyCache(file, doc, root = process.cwd(), execution = doc.review_exe
           seen.add(resolved);
           const mutable = mutableInputProblem(input.path);
           if (mutable) throw new Error(mutable);
-          if (cacheInputs(input.path, root, doc.cache_inputs?.reviewer).artifact_sha !== input.sha256)
+          const actualSha = cacheInputs(input.path, root, doc.cache_inputs?.reviewer).artifact_sha;
+          if (!supportingInputCompatible(input.path, input.sha256, actualSha, root))
             throw new Error("supporting bytes changed");
         } catch (error) {
           r.error(`${file}: invalid supporting input: ${error.message}`);

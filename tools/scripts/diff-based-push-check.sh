@@ -40,7 +40,7 @@ while IFS= read -r file; do
       ;;
   esac
   case "$file" in
-    agent-output/*/sku-manifest.json)
+    agent-output/*/sku-manifest.json|agent-output/*/contracts/sku-manifest.json)
       SKU_MANIFEST_COUNT=$((SKU_MANIFEST_COUNT + 1))
       SKU_COVERAGE_COUNT=$((SKU_COVERAGE_COUNT + 1))
       ;;

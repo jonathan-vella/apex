@@ -30,3 +30,25 @@ export function reviewCompatibility(original, current, root = process.cwd()) {
   );
   return matches.length === 1 ? "editorial-compatible" : "unknown";
 }
+
+export function supportingInputCompatible(inputPath, recordedSha, actualSha, root = process.cwd()) {
+  if (recordedSha === actualSha) return true;
+  if (typeof inputPath !== "string" || inputPath.startsWith("agent-output/")) return false;
+  const registry = path.join(root, "tools/registry/review-contract.json");
+  if (!fs.existsSync(registry)) return false;
+  try {
+    const policy = JSON.parse(fs.readFileSync(registry, "utf8"));
+    const entries = policy?.supporting_input_compatibility;
+    if (!Array.isArray(entries)) return false;
+    return entries.some(
+      (entry) =>
+        entry.path === inputPath &&
+        entry.from_sha256 === recordedSha &&
+        entry.to_sha256 === actualSha &&
+        typeof entry.rationale === "string" &&
+        entry.rationale.trim().length > 0,
+    );
+  } catch {
+    return false;
+  }
+}

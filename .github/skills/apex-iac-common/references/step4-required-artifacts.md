@@ -31,7 +31,8 @@ Before `apex-recall complete-step <project> 4 --json`, every file below MUST exi
 If a `.py` diagram source exists but its `.png` sibling does not, render it **before** completing the step. Do not defer to Step 5 — the plan references the PNG and `validate-artifacts.mjs` will hard-fail on the dangling reference.
 
 ```bash
-for py in agent-output/<project>/04-*-diagram.py; do
+for py in agent-output/<project>/04-*-diagram.py agent-output/<project>/assets/04-*-diagram.py; do
+  [ -f "$py" ] || continue
   [ -f "${py%.py}.png" ] || python3 "$py"
 done
 ```
@@ -41,10 +42,14 @@ done
 ```bash
 project=<project>
 missing=0
-for f in 04-implementation-plan.md 04-iac-contract.json 04-policy-property-map.json \
-         04-governance-constraints.json 04-governance-constraints.md \
-         04-dependency-diagram.png 04-runtime-diagram.png; do
+for f in 04-implementation-plan.md 04-governance-constraints.md; do
   [ -f "agent-output/$project/$f" ] || { echo "MISSING: $f"; missing=1; }
+done
+for c in 04-iac-contract.json 04-policy-property-map.json 04-governance-constraints.json; do
+  [ -f "agent-output/$project/contracts/$c" ] || [ -f "agent-output/$project/$c" ] || { echo "MISSING: $c"; missing=1; }
+done
+for d in 04-dependency-diagram.png 04-runtime-diagram.png; do
+  [ -f "agent-output/$project/assets/$d" ] || [ -f "agent-output/$project/$d" ] || { echo "MISSING: $d"; missing=1; }
 done
 [ $missing -eq 0 ] && echo "all required Step 4 artifacts present"
 ```

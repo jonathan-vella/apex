@@ -62,7 +62,7 @@ function redactManifest(data) {
 }
 
 function defaultGlobs() {
-  return ["agent-output/*/04-environment-manifest.json"];
+  return ["agent-output/*/04-environment-manifest.json", "agent-output/*/contracts/04-environment-manifest.json"];
 }
 
 function main() {

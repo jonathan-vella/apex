@@ -251,6 +251,11 @@ def run(args) -> int:  # noqa: C901 — one CLI dispatcher, branchy by design
             for result in (risk_result, entry_result)
         )
     ):
+        if complete and from_step == "4" and not (data.get("metadata") or {}).get("plan_lock"):
+            from ..reopen import set_plan_lock
+
+            set_plan_lock(data, _iso_now())
+            write_state(project, data)
         print(
             json.dumps({"project": project, "from_step": from_step, "to_step": to_step, "outcome": "already_applied"})
             if as_json
@@ -274,6 +279,10 @@ def run(args) -> int:  # noqa: C901 — one CLI dispatcher, branchy by design
         from_data["sub_step"] = None
         if blocked and allow_missing:
             _record_skip(data, from_step, skip_reason, now)
+        if from_step == "4":
+            from ..reopen import set_plan_lock
+
+            set_plan_lock(data, now)
     data["steps"][from_step] = from_data
 
     # 2. Record decisions in the decisions{} map.

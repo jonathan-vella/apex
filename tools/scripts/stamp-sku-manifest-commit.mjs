@@ -51,7 +51,7 @@ function main() {
   const manifests = changedRaw
     .split("\n")
     .map((s) => s.trim())
-    .filter((p) => /^agent-output\/[^/]+\/sku-manifest\.json$/.test(p));
+    .filter((p) => /^agent-output\/[^/]+\/(?:contracts\/)?sku-manifest\.json$/.test(p));
 
   if (manifests.length === 0) {
     return;

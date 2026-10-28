@@ -203,6 +203,13 @@ At a boundary:
 4. Use `apex-recall checkpoint <project> <step> <phase> --json`.
 5. Obtain any required actual human gate. Owner-delegated engineering progression may proceed
    when its explicit criteria pass; record it as delegated, not a fresh human sign-off.
+   In step approval gates (`ask_user`), offer two distinct approval choices alongside revision/stop:
+   - `approve_and_continue` ("Approve <Step>; complete and run Step <Next> (<Next Owner>) now in this chat"):
+     executes atomic `apex-recall transition` and immediately dispatches `<Next Owner>` via native `task` in the
+     same turn without stopping at the handoff checkpoint.
+   - `approve_and_pause` ("Approve <Step>; complete, transition to Step <Next>, and pause at handoff (for a fresh chat)"):
+     executes atomic `apex-recall transition`, updates `00-handoff.md` and `README.md`, prints the fenced
+     `/apex-workflow-start resume <project>` copy block, and ends the turn.
 6. Prefer atomic `apex-recall transition <project> --from-step <s> --to-step <t> --complete --json`
    when completing, recording decisions and starting the next graph-selected phase.
    Do not split that boundary into competing state writes or bypass completion validation.
@@ -247,6 +254,9 @@ there is no `apex-recall lessons` command. Generate the narrative only at actual
 
 Return actual artifact paths, check results, unresolved findings/decisions, current phase,
 next owner/action and any independently required human decision.
+Whenever a turn pauses at a step handoff or blocker rather than continuing in-turn, end the response
+with a fenced `text` code block containing `/apex-workflow-start resume <project>` (matching
+`apex-recall handoff <project>`) so the user can resume in the same or a fresh chat with one click.
 Update recall and the recovery summary only within this role's scope.
 Do not mark future steps or application/private connectivity accepted from provisioning alone.
 

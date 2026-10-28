@@ -41,12 +41,14 @@ All operations go through the Azure MCP `documentation` router
 {
   "intent": "find AKS private cluster guidance",
   "command": "microsoft_docs_search",
+  "learn": false,
   "parameters": { "query": "AKS private cluster best practices" }
 }
 ```
 
 ## Rules
 
+- **Always pass `command` and `learn: false`** — never call `mcp_azure-mcp_documentation` (`azure-mcp-documentation`) with `learn: true` or without `command`, which triggers a failing MCP sampling request in the Copilot runtime
 - **Search first, fetch second** — always start with `microsoft_docs_search`; only fetch the full page when the search excerpt is insufficient
 - **Be specific** — include version (`.NET 8`, `EF Core 8`), task intent (`quickstart`, `tutorial`, `overview`, `limits`), and platform (`Linux`, `Windows`) where relevant
 - **Live docs over training data** — prefer this skill over model knowledge for accuracy and freshness

@@ -274,8 +274,8 @@ test("practical initial and closure evidence complete a scoped stage without a t
   f.input.step = "1";
   f.input.supporting_inputs = [
     {
-      path: "agent-output/example/assessment-step-1.json",
-      sha256: hash(fs.readFileSync(path.join(f.root, "agent-output/example/assessment-step-1.json"))),
+      path: "agent-output/example/_meta/assessment-step-1.json",
+      sha256: hash(fs.readFileSync(path.join(f.root, "agent-output/example/_meta/assessment-step-1.json"))),
     },
   ];
   f.doc.supporting_inputs = structuredClone(f.input.supporting_inputs);
@@ -346,7 +346,7 @@ test("practical initial and closure evidence complete a scoped stage without a t
   f.write("agent-output/example/02-architecture-assessment.md", "# Architecture\nUnreviewed draft\n");
   f.write("agent-output/example/03-des-cost-estimate.md", "# Cost\nUnpriced draft; no verified estimate\n");
   f.write("agent-output/example/sku-manifest.json", JSON.stringify({ services: [] }));
-  const statePath = path.join(f.root, "agent-output/example/00-session-state.json");
+  const statePath = path.join(f.root, "agent-output/example/_meta/00-session-state.json");
   const beforeDraftCompletion = fs.readFileSync(statePath, "utf8");
   const blocked = spawnSync("python3", ["-m", "apex_recall", "complete-step", "example", "2", "--json"], {
     cwd: f.root,
@@ -528,6 +528,30 @@ test("direct reviewer JSON needs no executable draft and retains literal text du
     f.events.some((event) => event.agentId === "worker-1" && event.type === "tool.execution_start"),
     false,
   );
+});
+
+test("closure review with zero must_fix preserves native NEEDS_REVISION and should_fix severity verbatim (LL-009)", (t) => {
+  const f = fixture(t);
+  f.input.prior_findings = [{ id: "prior001", disposition: "fixed", summary: "Fixed prior must_fix" }];
+  const finding = {
+    severity: "should_fix",
+    category: "operations",
+    claim: "Log Analytics workspace omits self-diagnostics",
+    evidence: "workspace diagnosticSettings omitted",
+    impact: "Platform audit gap",
+    artifact_section: "Module Configuration",
+    traces_to: ["Logging checklist"],
+  };
+  f.doc.findings = [finding];
+  f.doc.overall_assessment = "NEEDS_REVISION";
+  for (const key of ["must_fix_count", "should_fix_count", "suggestion_count"]) delete f.doc[key];
+  f.record();
+  const saved = f.persisted();
+  assert.equal(saved.overall_assessment, "NEEDS_REVISION");
+  assert.equal(saved.must_fix_count, 0);
+  assert.equal(saved.should_fix_count, 1);
+  assert.equal(saved.suggestion_count, 0);
+  assert.equal(saved.findings[0].severity, "should_fix");
 });
 
 test("direct reviewer JSON with malformed substantive fields still fails recording", (t) => {

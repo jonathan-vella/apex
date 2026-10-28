@@ -33,7 +33,8 @@ def _run(workspace: Path, argv: list[str], *, legacy: bool = True) -> tuple[int,
     old_stdout = sys.stdout
     sys.stdout = captured
     try:
-        rc = main(argv)
+        effective_argv = [*argv, "--layout", "1"] if legacy and argv and argv[0] == "init" and "--layout" not in argv else argv
+        rc = main(effective_argv)
         if legacy and argv[0] == "init" and rc == 0:
             from apex_recall.state_writer import read_state, session_state_path, write_state
 
@@ -59,10 +60,13 @@ class TestInit:
         assert data["created"] is True
         assert data["project"] == "my-proj"
 
-        state_path = workspace / "agent-output" / "my-proj" / "00-session-state.json"
+        state_path = workspace / "agent-output" / "my-proj" / "_meta" / "00-session-state.json"
         assert state_path.exists()
+        for sub in ("assets", "contracts", "reviews", "_meta"):
+            assert (workspace / "agent-output" / "my-proj" / sub).is_dir()
         state = json.loads(state_path.read_text())
         assert state["schema_version"] == "3.0"
+        assert state["layout_version"] == 2
         assert state["decisions"]["workflow_contract"] == "practical-v1"
         assert set(state["steps"].keys()) == {"1", "2", "3", "3_5", "4", "5", "6", "7"}
         rc, _ = _run(workspace, ["complete-step", "my-proj", "1", "--json"])

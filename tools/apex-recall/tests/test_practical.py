@@ -195,11 +195,38 @@ def test_cycle_counts_failure_and_requires_explicit_extension_not_new_worker(tmp
     request["prior_findings"] = []
     artifact.write_text("Routine correction")
     assert audit("closure", "started", "--closure-of", "initial") == 0
-    assert audit("closure", "completed", "--closure-of", "initial") == 0
+    assert audit("closure", "completed", "--closure-of", "initial", "--review-output", "nonempty") == 0
+    closure_result = project / "closure-findings.json"
+    closure_result.write_text(
+        json.dumps(
+            {
+                "challenged_artifact": "agent-output/synthetic/artifact.md",
+                "review_focus": "governance-reconciliation",
+                "pass_number": 1,
+                "overall_assessment": "APPROVED",
+                "review_execution": {"request_id": "closure"},
+            }
+        )
+    )
+    request["output_path"] = "agent-output/synthetic/closure-findings.json"
+    assert (
+        audit(
+            "closure",
+            "completed",
+            "--closure-of",
+            "initial",
+            "--review-output",
+            "nonempty",
+            "--review-result",
+            str(closure_result),
+        )
+        == 0
+    )
     assert audit("new-worker", "started", "--closure-of", "initial") == 1
     state = writer.read_state(project / "00-session-state.json")
     key = module.cycle_identity(request)
     assert state["decisions"]["review_cycles"][key]["calls"] == 2
+    assert state["decisions"]["review_cycles"][key]["current_path"] == "closure-findings.json"
     module.extend_cycle(
         state,
         {
@@ -252,6 +279,44 @@ def test_practical_needs_revision_is_not_approved_by_a_disposition(tmp_path: Pat
     error = completion._challenger_findings_invalid("synthetic", "1")
     assert "requires revision" in error
     assert "disposition is not closure" in error
+
+
+def test_practical_closure_receipt_with_zero_must_fix_is_gate_ready_without_mutating_verdict(tmp_path: Path):
+    project, writer, _, _, _ = practical_project(tmp_path)
+    document = _seed_review(project, "challenge-findings-plan-closure1.json")
+    document["overall_assessment"] = "NEEDS_REVISION"
+    document["should_fix_count"] = 1
+    finding = {
+        "severity": "should_fix",
+        "category": "waf_blind_spot",
+        "claim": "Non-blocking closure should_fix",
+        "evidence": "Evidence",
+        "impact": "Impact",
+        "artifact_section": "Section",
+        "traces_to": [],
+    }
+    import hashlib
+
+    identity = f"{finding['category']}|{finding['claim']}|{finding['artifact_section']}"
+    finding["id"] = hashlib.sha256(identity.encode()).hexdigest()[:8]
+    document["findings"] = [finding]
+    (project / "challenge-findings-plan-closure1.json").write_text(json.dumps(document))
+    state = writer.read_state(project / "00-session-state.json")
+    state["decisions"].setdefault("review_cycles", {})["plan-cycle"] = {
+        "step": "4",
+        "artifact": "agent-output/synthetic/04-implementation-plan.md",
+        "lens": "comprehensive",
+        "pass_number": 1,
+        "canonical_path": "agent-output/synthetic/challenge-findings-plan.json",
+        "current_path": "challenge-findings-plan-closure1.json",
+        "initial_id": "plan-r1",
+        "projection": "0" * 64,
+        "calls": 2,
+        "max_calls": 2,
+    }
+    writer.write_state("synthetic", state)
+    completion = importlib.import_module("apex_recall.commands.complete_step")
+    assert completion._challenger_findings_invalid("synthetic", "4") is None
 
 
 def test_scoped_holds_preserve_prod_and_account_for_shared_dependencies(tmp_path: Path):
@@ -348,3 +413,33 @@ def test_early_feasibility_reuses_scope_without_formal_governance_completion(tmp
     snapshot.write_text(json.dumps(envelope))
     with pytest.raises(ValueError, match="incomplete"):
         module.check_feasibility("synthetic", data)
+
+
+def test_handoff_auto_selects_active_project_and_emits_deterministic_contract(tmp_path: Path, capsys):
+    project, writer, cli, _, _ = practical_project(tmp_path)
+    data = writer.read_state(project / "00-session-state.json")
+    data["current_step"] = 4
+    data["decisions"]["iac_tool"] = "bicep"
+    data["decisions"]["design_artifacts"] = "skip"
+    for k in ("5", "6", "7"):
+        data["steps"][k]["status"] = "pending"
+    data["steps"]["1"]["status"] = "complete"
+    data["steps"]["2"]["status"] = "complete"
+    data["steps"]["3_5"]["status"] = "complete"
+    data["steps"]["4"]["status"] = "in_progress"
+    data["steps"]["4"]["sub_step"] = "phase_iac_planner_handoff"
+    (project / "01-requirements.md").write_text("# req")
+    (project / "02-architecture-assessment.md").write_text("# arch")
+    (project / "04-governance-constraints.json").write_text("{}")
+    writer.write_state("synthetic", data)
+
+    assert cli.main(["handoff", "--json"]) == 0
+    payload = json.loads(capsys.readouterr().out)
+    assert payload["status"] == "READY"
+    assert payload["project"] == "synthetic"
+    assert payload["auto_selected"] is True
+    assert payload["active_step"] == "4"
+    assert payload["next_owner"] == "05-IaC Planner"
+    assert payload["checkpoint"] == "phase_iac_planner_handoff"
+    assert payload["resume_command"] == "/apex-workflow-start resume synthetic"
+    assert "agent-output/synthetic/02-architecture-assessment.md" in payload["frozen_artifacts"]

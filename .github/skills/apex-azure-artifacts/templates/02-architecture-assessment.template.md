@@ -101,9 +101,9 @@ flowchart TB
 **Primary Pillar Optimized**: {pillar}
 **Trade-offs Accepted**: {trade-offs}
 
-![WAF Pillar Scores](./02-waf-scores.png)
+![WAF Pillar Scores](./assets/02-waf-scores.png)
 
-> Generate `02-waf-scores.png` using the pattern in `apex-python-diagrams` skill →
+> Generate `assets/02-waf-scores.png` using the pattern in `apex-python-diagrams` skill →
 > `references/waf-cost-charts.md` → **Chart 1 – WAF Pillar Scores**.
 > Replace placeholder scores with the actual pillar values before running.
 
@@ -295,9 +295,9 @@ or Governance directly. Never route directly to implementation planning.
 > **Confidence Level**: {High / Medium / Low}
 >
 > Current status: [project workflow progress](README.md#-workflow-progress) and recall Step 2 decisions.
-> Review evidence: [architecture findings](challenge-findings-architecture.json) and
-> [cost-feasibility findings](challenge-findings-cost-estimate.json); use actual pass paths in deep mode.
-> Per-finding dispositions: [decision sidecar](challenge-findings-architecture-decisions.json), when findings exist.
+> Review evidence: [architecture findings](reviews/challenge-findings-architecture.json) and
+> [cost-feasibility findings](reviews/challenge-findings-cost-estimate.json); use actual pass paths in deep mode.
+> Per-finding dispositions: [decision sidecar](reviews/challenge-findings-architecture-decisions.json), when findings exist.
 >
 > Request approval only after required review evidence is ready. Otherwise record
 > the blocked state and return to the owning agent; do not mark Step 2 complete.

@@ -34,6 +34,7 @@ import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { globSync } from "node:fs";
 import { readJson, writeJson } from "./_lib/json.mjs";
+import { resolveContractPath } from "./_lib/project-paths.mjs";
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "../..");
 
@@ -121,8 +122,9 @@ function snapshotsEqual(a, b) {
 }
 
 function processProject(project) {
-  const governancePath = path.join(ROOT, "agent-output", project, "04-governance-constraints.json");
-  const manifestPath = path.join(ROOT, "agent-output", project, "sku-manifest.json");
+  const projDir = path.join(ROOT, "agent-output", project);
+  const governancePath = resolveContractPath(projDir, "04-governance-constraints.json");
+  const manifestPath = resolveContractPath(projDir, "sku-manifest.json");
 
   if (!fs.existsSync(governancePath)) {
     console.log(`  ℹ️  ${project}: no 04-governance-constraints.json — nothing to derive`);
@@ -183,10 +185,14 @@ function main() {
 
   let projects;
   if (cliArgs.includes("--all")) {
-    projects = globSync("agent-output/*/04-governance-constraints.json", {
-      cwd: ROOT,
-      nodir: true,
-    }).map((p) => p.split("/")[1]);
+    projects = [
+      ...new Set(
+        [
+          ...globSync("agent-output/*/04-governance-constraints.json", { cwd: ROOT, nodir: true }),
+          ...globSync("agent-output/*/contracts/04-governance-constraints.json", { cwd: ROOT, nodir: true }),
+        ].map((p) => p.split("/")[1]),
+      ),
+    ];
   } else if (cliArgs[0]) {
     projects = [cliArgs[0]];
   } else {
@@ -204,7 +210,10 @@ function main() {
     // summary line per project that has SKU-restriction policies.
     // No banners, no per-project bookkeeping noise.
     for (const project of projects) {
-      const governancePath = path.join(ROOT, "agent-output", project, "04-governance-constraints.json");
+      const governancePath = resolveContractPath(
+        path.join(ROOT, "agent-output", project),
+        "04-governance-constraints.json",
+      );
       if (!fs.existsSync(governancePath)) continue;
       const governance = readJson(governancePath);
       const projection = deriveProjection(governance);

@@ -113,13 +113,13 @@ Finalize this document before review; do not change its status text afterward me
 | 💾 Data Services |                466 |   34% |
 | 🌐 Networking    |                376 |   27% |
 
-![Monthly Cost Distribution](./03-des-cost-distribution.png)
+![Monthly Cost Distribution](./assets/03-des-cost-distribution.png)
 
 ### Month-over-Month Projection
 
-![6-Month Cost Projection](./03-des-cost-projection.png)
+![6-Month Cost Projection](./assets/03-des-cost-projection.png)
 
-> Generate `03-des-cost-projection.png` using the pattern in `apex-python-diagrams` skill →
+> Generate `assets/03-des-cost-projection.png` using the pattern in `apex-python-diagrams` skill →
 > `references/waf-cost-charts.md` → **Chart 3 – Monthly Cost Projection**.
 > Replace placeholder costs and months with actual projected values before running.
 

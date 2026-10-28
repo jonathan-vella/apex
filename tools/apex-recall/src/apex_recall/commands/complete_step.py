@@ -35,9 +35,12 @@ from ..state_writer import (
     check_state_revision,
     file_revision,
     migrate_to_v3,
+    project_dir,
     read_state,
+    resolve_review_path,
     session_state_path,
     validate_step_key,
+    workspace_root_for,
     write_state,
 )
 from ..step2_gate import report_residue, step2_residue
@@ -61,7 +64,7 @@ def _review_paths(project: str, step: str, governance_review: Path | None = None
     if not gate:
         return []
     gates = [gate]
-    project_dir = session_state_path(project).parent
+    pdir = project_dir(project)
     if step in ("2", "4"):
         state = read_state(session_state_path(project))
         decisions = state.get("decisions")
@@ -74,20 +77,20 @@ def _review_paths(project: str, step: str, governance_review: Path | None = None
             )
             for pass_num in range(2, max_passes + 1):
                 extra_sidecar = f"{stem}-pass{pass_num}.json"
-                if (project_dir / extra_sidecar).is_file():
+                if resolve_review_path(pdir, extra_sidecar).is_file():
                     gates.append((gate[0], extra_sidecar))
     if step == "2":
         gates.append(("03-des-cost-estimate.md", "challenge-findings-cost-estimate.json"))
     if step in ("3_5", "4") and governance_review is not None:
-        return [(project_dir / gate[0], governance_review)]
-    produced = any((project_dir / gating_name).is_file() for gating_name, _ in gates)
+        return [(pdir / gate[0], governance_review)]
+    produced = any((pdir / gating_name).is_file() for gating_name, _ in gates)
     from ..practical import cycle_paths
 
     gates = cycle_paths(read_state(session_state_path(project)), step, gates)
     return [
-        (project_dir / gating_name, project_dir / sidecar_name)
+        (pdir / gating_name, resolve_review_path(pdir, sidecar_name))
         for gating_name, sidecar_name in gates
-        if (project_dir / gating_name).is_file() or (step == "2" and produced)
+        if (pdir / gating_name).is_file() or (step == "2" and produced)
     ]
 
 
@@ -128,7 +131,7 @@ def _challenger_findings_invalid(
     project: str, step: str, governance_review: Path | None = None, allow_unresolved: bool = False
 ) -> str | None:
     """Validate present reviews before mutation; missing-review bypass cannot waive these checks."""
-    root = session_state_path(project).parent.parent.parent.resolve()
+    root = workspace_root_for()
     validator = root / "tools/scripts/validate-challenger-findings.mjs"
     for artifact, sidecar in _review_paths(project, step, governance_review):
         if not sidecar.is_file():
@@ -173,10 +176,20 @@ def _challenger_findings_invalid(
                 return f"{sidecar}: reviewer reported blocked/failed"
             from ..practical import enabled
 
+            state_data = read_state(session_state_path(project))
+            is_closure_receipt = any(
+                isinstance(cycle, dict)
+                and cycle.get("step") == step
+                and cycle.get("current_path") == sidecar.name
+                and Path(cycle.get("canonical_path", "")).name != sidecar.name
+                and int(cycle.get("calls", 0)) >= 2
+                for cycle in (state_data.get("decisions", {}).get("review_cycles") or {}).values()
+            )
             if (
                 not allow_unresolved
-                and enabled(read_state(session_state_path(project)))
+                and enabled(state_data)
                 and review_verdict(document) == "NEEDS_REVISION"
+                and (_has_must_fix(document) or not is_closure_receipt)
             ):
                 return f"{sidecar}: current practical review requires revision; disposition is not closure"
             if not allow_unresolved and (
@@ -293,16 +306,19 @@ def _select_replacement_review(
             )
     if getattr(args, "allow_missing_challenger", False):
         raise ValueError("A selected review cannot use the missing-review bypass")
-    project_dir = session_state_path(project).parent.resolve()
+    pdir = project_dir(project).resolve()
+    root = workspace_root_for()
     candidate = Path(selected)
     if not candidate.is_absolute():
-        candidate = project_dir.parent.parent / candidate
-    if candidate.is_symlink() or candidate.parent.resolve() != project_dir or not candidate.is_file():
+        candidate = root / candidate
+    if not candidate.exists():
+        candidate = resolve_review_path(pdir, candidate.name)
+    if candidate.is_symlink() or candidate.parent.resolve() not in (pdir, pdir / "reviews") or not candidate.is_file():
         raise ValueError("Selected review must be a regular, non-symlink file in the current project")
     match = re.fullmatch(rf"challenge-findings-{stem}-pass([2-9][0-9]*|1[0-9]+)\.json", candidate.name)
     if not match:
         raise ValueError(f"Select an explicitly authorized later {label} pass using its canonical filename")
-    original = project_dir / _CHALLENGER_GATE[expected_step][1]
+    original = resolve_review_path(pdir, _CHALLENGER_GATE[expected_step][1])
     if not original.is_file():
         raise ValueError(f"Preserve the original {label} review before selecting a replacement")
     digest = hashlib.sha256(candidate.read_bytes()).hexdigest()
@@ -313,7 +329,7 @@ def _select_replacement_review(
     }
     entry["stored"] = {
         "schema_version": "review-selection-v1",
-        "path": str(candidate.resolve().relative_to(project_dir.parent.parent)),
+        "path": str(candidate.resolve().relative_to(root)),
         "sha256": digest,
         "pass_number": int(match[1]),
         "review_focus": "comprehensive" if plan else "governance-reconciliation",
@@ -327,7 +343,8 @@ def _select_governance_review(project: str, step: str, args) -> tuple[Path | Non
 
 
 def watch_review_inputs(data, project: str, step: str, selected: Path | None) -> None:
-    root = session_state_path(project).parent.parent.parent
+    root = workspace_root_for()
+    pdir = project_dir(project)
     paths = [path for pair in _review_paths(project, step, selected) for path in pair]
     for _, sidecar in _review_paths(project, step, selected):
         if sidecar.is_file():
@@ -339,11 +356,12 @@ def watch_review_inputs(data, project: str, step: str, selected: Path | None) ->
             except ValueError, TypeError, KeyError, AttributeError:
                 pass
     if step in _CHALLENGER_GATE:
-        paths += [session_state_path(project).parent / name for name in _CHALLENGER_GATE[step]]
+        gating_name, sidecar_name = _CHALLENGER_GATE[step]
+        paths += [pdir / gating_name, resolve_review_path(pdir, sidecar_name)]
     if step == "2":
         paths += [
-            session_state_path(project).parent / name
-            for name in ("03-des-cost-estimate.md", "challenge-findings-cost-estimate.json")
+            pdir / "03-des-cost-estimate.md",
+            resolve_review_path(pdir, "challenge-findings-cost-estimate.json"),
         ]
     paths += [
         root / name
@@ -470,6 +488,11 @@ def run(args) -> int:
         or data.get("risk_authorizations", {}).get(risk_result["action"]) == risk_result["record"]
     )
     if data.get("steps", {}).get(step, {}).get("status") == "complete" and same_selection and same_risk:
+        if step == "4" and not (data.get("metadata") or {}).get("plan_lock"):
+            from ..reopen import set_plan_lock
+
+            set_plan_lock(data, _iso_now())
+            write_state(project, data)
         print(
             json.dumps(
                 {
@@ -496,6 +519,10 @@ def run(args) -> int:
     if enabled(data):
         step_data["completed_environments"] = data["decisions"]["phase_scopes"][step]["environments"]
     data["steps"][step] = step_data
+    if step == "4":
+        from ..reopen import set_plan_lock
+
+        set_plan_lock(data, now)
 
     if blocked and allow_missing:
         _record_skip(data, step, skip_reason, now)

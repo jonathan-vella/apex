@@ -7,7 +7,16 @@ import subprocess
 from pathlib import Path
 from types import SimpleNamespace
 
-from .state_writer import StateDocument, check_state_revision, file_revision, read_state, session_state_path
+from .state_writer import (
+    StateDocument,
+    check_state_revision,
+    file_revision,
+    project_dir,
+    read_state,
+    resolve_review_path,
+    session_state_path,
+    workspace_root_for,
+)
 
 ACTIONS = ("plan-complete", "codegen", "code-complete", "deploy", "deployment-complete", "teardown-complete")
 COMPLETION_ACTIONS = {"4": "plan-complete", "5": "code-complete", "6": "deployment-complete"}
@@ -45,7 +54,7 @@ def evaluate_gate(
     )
 
     args = args or SimpleNamespace()
-    root = session_state_path(project).parent.parent.parent
+    root = workspace_root_for()
     explicit = getattr(args, "risk_authorization", None)
     stored = _stored_record(data, action)
     authorization = explicit or (stored or {}).get("authorization", {}).get("path")
@@ -111,7 +120,7 @@ def evaluate_gate(
         "approval": approval,
         "context": context,
         "reviews": [str(sidecar) for _, sidecar in _review_paths(project, "4", selected)],
-        "preserved_reviews": [str(root / "agent-output" / project / "challenge-findings-plan.json")]
+        "preserved_reviews": [str(resolve_review_path(project, "challenge-findings-plan.json"))]
         if selected
         else [],
         "preserved_execution": (data.get("risk_authorizations", {}).get("deployment-complete") or {}).get("execution"),
@@ -242,7 +251,7 @@ def ordinary_entry_warning(project: str, data: StateDocument, step: str) -> str 
     """Warn-only freshness note for projects without a lab exception; never blocks."""
     if step not in ("5", "6") or data.get("risk_authorizations"):
         return None
-    if not (session_state_path(project).parent / "04-implementation-plan.md").exists():
+    if not (project_dir(project) / "04-implementation-plan.md").exists():
         return None
     watched = dict(data.input_revisions)
     try:

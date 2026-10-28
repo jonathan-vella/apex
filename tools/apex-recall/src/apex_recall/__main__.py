@@ -43,6 +43,14 @@ def build_parser() -> argparse.ArgumentParser:
     p_show.add_argument("project", help="Project name")
     p_show.add_argument("--json", action="store_true", help="Output as JSON")
 
+    # handoff
+    p_handoff = sub.add_parser(
+        "handoff",
+        help="Deterministic next-step handoff contract and copyable resume command",
+    )
+    p_handoff.add_argument("project", nargs="?", default=None, help="Project name (auto-selects when unambiguous)")
+    p_handoff.add_argument("--json", action="store_true", help="Output as JSON")
+
     # decisions
     p_decisions = sub.add_parser("decisions", help="Query decision logs across projects")
     p_decisions.add_argument("--json", action="store_true", help="Output as JSON")
@@ -63,6 +71,13 @@ def build_parser() -> argparse.ArgumentParser:
     p_init.add_argument("project", help="Project name")
     p_init.add_argument("--json", action="store_true", help="Output as JSON")
     p_init.add_argument("--force", action="store_true", help="Overwrite existing session state")
+    p_init.add_argument(
+        "--layout",
+        type=int,
+        choices=(1, 2),
+        default=2,
+        help="Directory layout version (default: 2 with assets/, contracts/, reviews/, _meta/)",
+    )
 
     # start-step
     p_start = sub.add_parser("start-step", help="Mark a step as in_progress")
@@ -290,6 +305,8 @@ def main(argv: list[str] | None = None) -> int:
         from .commands.search import run
     elif args.command == "show":
         from .commands.show import run
+    elif args.command == "handoff":
+        from .commands.handoff import run
     elif args.command == "decisions":
         from .commands.decisions import run
     elif args.command == "reindex":

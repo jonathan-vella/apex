@@ -72,7 +72,8 @@ All session state flows through `apex-recall`. Do not read or write
 ```bash
 # Lifecycle
 apex-recall init <project> --json                                    # new project
-apex-recall show <project> --json                                    # context: step, decisions, findings, artifacts
+apex-recall show <project> --json                                    # context: all state lives under .session (e.g. jq '.session | {current_step, steps, decisions, policy_feasibility, review_attempts, effective_reviews, gate_readiness}')
+apex-recall handoff [<project>] --json                               # deterministic next-step owner, checkpoint, frozen artifacts, settled inputs, and resume command
 apex-recall checkpoint <project> <step> <phase> --json               # after each phase
 apex-recall complete-step <project> <step> --json                    # on step completion
 apex-recall review-audit <project> <step> ... --json                 # after challenger reviews

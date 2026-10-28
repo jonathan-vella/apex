@@ -173,7 +173,8 @@ and preserve `phase_1.6_compacted`.
   Use verified outputs or explicit prerequisites for RG, network, DNS, identity and diagnostics.
   Verify both `all` and separate phases; omitted prerequisites must already exist.
 - Single deployment has no invented phase input. Phased uses approved `@allowed` `phase`
-  with `if phase == 'all' || phase == '{name}'` and phase-safe dependency wiring.
+  with `if phase == 'all' || phase == '{name}'`, phase-safe dependency wiring, and phase-scoped
+  input resolution so foundation preview/deploy requires only foundation-phase bindings.
 - Read `sku-manifest.json` programmatically. Map each `services[].iac_logical_names.bicep`
   exactly once; apply environment overrides, fixed/autoscale capacity and zonal posture.
   Non-manifest resources follow the plan, not creative SKU inference.

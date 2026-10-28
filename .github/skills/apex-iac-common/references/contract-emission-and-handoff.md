@@ -246,8 +246,11 @@ An unexecuted provider command has no observed exit code; never borrow parameter
 network / HTTP errors. Persistent template/provider errors are NOT
 retried — they return to Phase 2.
 
-Record `exit_code` and `stdout_sha256` in the upcoming
-`05-iac-handoff.json#validation_summary.validate_gate`.
+Record `exit_code` and `stdout_sha256` (plus optional `phase_scope` and `binding_mode`: `syntactic_fixture` vs
+`live_bindings` when validation uses phase-scoped or non-live parameter fixtures) in the upcoming
+`05-iac-handoff.json#validation_summary.validate_gate`. For phased deployments (`phase` / `deploymentPhase`),
+parameter resolution and `preprovision` helpers must enforce required external bindings per active phase so
+`foundation` preview/deploy does not block on later-phase (`data`, `compute`, `edge`) inputs.
 
 ## Phase 6 — IaC Handoff Emission (MANDATORY, Wave 3+)
 

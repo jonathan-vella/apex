@@ -60,3 +60,48 @@ test("a row without a status keeps the earlier behaviour", (context) => {
   const result = check(context, {});
   assert.equal(result.status, 0, result.text);
 });
+
+test("distinct initiative members or target resources may share policy_id while identical duplicate rows fail", (context) => {
+  const directory = fs.mkdtempSync(path.join(os.tmpdir(), "policy-dup-"));
+  context.after(() => fs.rmSync(directory, { recursive: true, force: true }));
+  const file = path.join(directory, "04-policy-property-map.json");
+  const baseRow = {
+    policy_id: "virtual-machine-sku-deny",
+    display_name: "Block VM SKU sizes",
+    effect: "Deny",
+    target_property: {
+      resource_type: "Microsoft.Compute/virtualMachines",
+      property_path: "properties.hardwareProfile.vmSize",
+    },
+    evidence_required: "member=BlockVMSKUs_H",
+  };
+  fs.writeFileSync(
+    file,
+    JSON.stringify({
+      schema_version: "policy-property-map-v1",
+      project: "synthetic",
+      generated_at: "2026-10-15T00:00:00Z",
+      governance_depth: "light",
+      policies: [
+        baseRow,
+        { ...baseRow, policy_definition_reference_id: "BlockVMSKUs_M", evidence_required: "member=BlockVMSKUs_M" },
+      ],
+    }),
+  );
+  const okResult = spawnSync(process.execPath, [validator, file], { cwd: repo, encoding: "utf8" });
+  assert.equal(okResult.status, 0, okResult.stdout + okResult.stderr);
+
+  fs.writeFileSync(
+    file,
+    JSON.stringify({
+      schema_version: "policy-property-map-v1",
+      project: "synthetic",
+      generated_at: "2026-10-15T00:00:00Z",
+      governance_depth: "light",
+      policies: [baseRow, { ...baseRow }],
+    }),
+  );
+  const dupResult = spawnSync(process.execPath, [validator, file], { cwd: repo, encoding: "utf8" });
+  assert.notEqual(dupResult.status, 0);
+  assert.match(dupResult.stdout + dupResult.stderr, /Duplicate policies\[\]\.policy_id/);
+});

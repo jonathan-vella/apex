@@ -14,6 +14,7 @@ import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { parseArgs } from "node:util";
+import { isLayoutV2, projectDirFromPath, resolveContractPath, resolveProjectFile } from "./_lib/project-paths.mjs";
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "../..");
 const RENDERER = path.join(ROOT, "tools/scripts/render-sku-manifest-md.mjs");
@@ -28,6 +29,21 @@ const ALLOWED_DATA_SOURCES = new Set([
 ]);
 
 const VARIABLE_SERVICE_NAMES = new Set(["Key Vault", "Log Analytics", "Azure DNS"]);
+
+const SERVICE_QUERY_GROUP_ALIASES = new Map([
+  ["azure front door", "Azure Front Door Service"],
+  ["azure front door service", "Azure Front Door Service"],
+  ["azure openai", "Foundry Models"],
+  ["microsoft foundry models", "Foundry Models"],
+  ["foundry models", "Foundry Models"],
+]);
+
+function normalizeQueryGroupService(serviceName) {
+  const key = String(serviceName ?? "")
+    .trim()
+    .toLowerCase();
+  return SERVICE_QUERY_GROUP_ALIASES.get(key) ?? String(serviceName ?? "").trim();
+}
 
 export function round6(value) {
   return Math.round((Number(value) + Number.EPSILON) * 1e6) / 1e6;
@@ -241,6 +257,10 @@ export function normalizeCostRequest(rawRequest, options = {}) {
 
   if (mode === "manifest_path") {
     manifestPath = resolveWorkspacePath(rawRequest.manifest_path, cwd);
+    if (!fs.existsSync(manifestPath)) {
+      const pdir = projectDirFromPath(manifestPath);
+      if (isLayoutV2(pdir)) manifestPath = resolveContractPath(pdir, path.basename(manifestPath));
+    }
     const manifest = JSON.parse(fs.readFileSync(manifestPath, "utf8"));
     manifestServiceIds = manifest.services.map((s) => s.id);
     const manifestIdSet = new Set(manifestServiceIds);
@@ -313,7 +333,9 @@ export function normalizeCostRequest(rawRequest, options = {}) {
   }
 
   const queryGroups = new Set(
-    lines.map((line) => `${line.service_name}|${line.region}|${line.meter_name ?? "*"}|${currency}`),
+    lines.map(
+      (line) => `${normalizeQueryGroupService(line.service_name)}|${line.region}|${line.meter_name ?? "*"}|${currency}`,
+    ),
   );
 
   return {
@@ -431,12 +453,22 @@ function computeComponentCost(component, defaultQuantity = 1) {
   const multiplier = scope === "aggregate" ? 1 : quantity;
   const freeGrant = Number(component.free_grant_units ?? 0);
 
+  const isMillionUnit = /^(?:1m\b|1,000,000(?!,\d))/i;
+  const isTenThousandUnit = /^(?:10k\b|10,000(?!,\d))/i;
+  const isThousandUnit = /^(?:1k\b|1,000(?!,\d))/i;
+
   if (Array.isArray(component.tier_bands) && component.tier_bands.length > 0) {
     if (!Number.isFinite(Number(usageAmount)) || Number(usageAmount) < 0) {
       throw new Error(`Tiered component requires finite usage_amount`);
     }
     const rawUnits = Math.max(0, Number(usageAmount) * multiplier - freeGrant);
-    const unitScale = /^10k\b/i.test(unit) ? 10000 : /^1m\b/i.test(unit) ? 1000000 : 1;
+    const unitScale = isTenThousandUnit.test(unit)
+      ? 10000
+      : isThousandUnit.test(unit)
+        ? 1000
+        : isMillionUnit.test(unit)
+          ? 1000000
+          : 1;
     return computeTieredCharge(rawUnits / unitScale, component.tier_bands);
   }
 
@@ -463,14 +495,21 @@ function computeComponentCost(component, defaultQuantity = 1) {
     }
     return rate * Math.max(0, Number(usageAmount) * multiplier - freeGrant);
   }
-  if (/^10k\b|^10,000\b/i.test(unit)) {
+  if (isThousandUnit.test(unit)) {
+    if (!Number.isFinite(Number(usageAmount)) || Number(usageAmount) < 0) {
+      throw new Error(`Unit '${unit}' requires explicit usage_amount`);
+    }
+    const billableOps = Math.max(0, Number(usageAmount) * multiplier - freeGrant);
+    return rate * (billableOps / 1000);
+  }
+  if (isTenThousandUnit.test(unit)) {
     if (!Number.isFinite(Number(usageAmount)) || Number(usageAmount) < 0) {
       throw new Error(`Unit '${unit}' requires explicit usage_amount`);
     }
     const billableOps = Math.max(0, Number(usageAmount) * multiplier - freeGrant);
     return rate * (billableOps / 10000);
   }
-  if (/^1m\b|^1,000,000\b/i.test(unit)) {
+  if (isMillionUnit.test(unit)) {
     if (!Number.isFinite(Number(usageAmount)) || Number(usageAmount) < 0) {
       throw new Error(`Unit '${unit}' requires explicit usage_amount`);
     }
@@ -525,7 +564,11 @@ function validateEvidenceReferences(estimate, cwd) {
     if (typeof entry.calculation !== "string" || !entry.calculation.trim()) {
       errors.push(`${label}: calculation is required`);
     }
-    const evidenceFile = resolveWorkspacePath(entry.evidence_path, cwd);
+    let evidenceFile = resolveWorkspacePath(entry.evidence_path, cwd);
+    if (!fs.existsSync(evidenceFile)) {
+      const pdir = projectDirFromPath(evidenceFile);
+      if (isLayoutV2(pdir)) evidenceFile = resolveProjectFile(pdir, entry.evidence_path);
+    }
     if (!fs.existsSync(evidenceFile)) {
       errors.push(`${label}: evidence file does not exist: ${entry.evidence_path}`);
       continue;
@@ -766,7 +809,11 @@ export function publishEstimate(options = {}) {
   const cwd = options.cwd ?? process.cwd();
   const draftPath = resolveWorkspacePath(options.draftPath, cwd);
   const outputPath = resolveWorkspacePath(options.outputPath, cwd);
-  const manifestPath = options.manifestPath ? resolveWorkspacePath(options.manifestPath, cwd) : null;
+  let manifestPath = options.manifestPath ? resolveWorkspacePath(options.manifestPath, cwd) : null;
+  if (manifestPath && !fs.existsSync(manifestPath)) {
+    const pdir = projectDirFromPath(manifestPath);
+    if (isLayoutV2(pdir)) manifestPath = resolveContractPath(pdir, path.basename(manifestPath));
+  }
   const overwrite = Boolean(options.overwrite);
 
   assertNotSymlink(draftPath, "draftPath");
@@ -849,12 +896,14 @@ export function publishEstimate(options = {}) {
     fs.writeFileSync(manifestTmp, `${JSON.stringify(manifest, null, 2)}\n`, "utf8");
     fs.renameSync(manifestTmp, manifestPath);
 
-    const manifestMdPath = path.join(path.dirname(manifestPath), "sku-manifest.md");
-    if (fs.existsSync(RENDERER) && (fs.existsSync(manifestMdPath) || manifestPath.startsWith(ROOT))) {
-      spawnSync(process.execPath, [RENDERER, "--in", manifestPath, "--out", manifestMdPath], {
-        cwd: ROOT,
-        encoding: "utf8",
-      });
+    if (options.renderMarkdown === true) {
+      const manifestMdPath = path.join(path.dirname(manifestPath), "sku-manifest.md");
+      if (fs.existsSync(RENDERER) && (fs.existsSync(manifestMdPath) || manifestPath.startsWith(ROOT))) {
+        spawnSync(process.execPath, [RENDERER, "--in", manifestPath, "--out", manifestMdPath], {
+          cwd: ROOT,
+          encoding: "utf8",
+        });
+      }
     }
   }
 

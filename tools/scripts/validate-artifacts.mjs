@@ -434,7 +434,10 @@ function validateDiagramArtifactReferences(filePath, artifactName, text, reportF
   const expectedReferences = DIAGRAM_ARTIFACT_EXPECTATIONS[artifactName] ?? [];
 
   function refPresent(ref) {
-    return text.includes(ref) || text.includes(ref.replace(/^\.\//, ""));
+    const bare = ref.replace(/^\.\//, "");
+    return (
+      text.includes(ref) || text.includes(bare) || text.includes(`assets/${bare}`) || text.includes(`./assets/${bare}`)
+    );
   }
 
   for (const expected of expectedReferences) {
@@ -451,16 +454,20 @@ function validateDiagramArtifactReferences(filePath, artifactName, text, reportF
 function validateDiagramArtifactFiles(filePath, artifactName, reportFn = warn) {
   const expectedReferences = DIAGRAM_ARTIFACT_EXPECTATIONS[artifactName] ?? [];
   const artifactDir = path.dirname(filePath);
+  const existsInDirOrAssets = (rel) => {
+    const bare = rel.replace(/^\.\//, "");
+    return (
+      exists(path.normalize(path.join(artifactDir, bare))) ||
+      exists(path.normalize(path.join(artifactDir, "assets", bare)))
+    );
+  };
 
   for (const expected of expectedReferences) {
-    const imagePath = path.normalize(path.join(artifactDir, expected.image.replace(/^\.\//, "")));
-    const sourcePath = path.normalize(path.join(artifactDir, expected.source.replace(/^\.\//, "")));
-
-    if (!exists(imagePath)) {
+    if (!existsInDirOrAssets(expected.image)) {
       reportFn(`${filePath} requires diagram image artifact: ${expected.image}`, { filePath, line: 1 });
     }
 
-    if (!exists(sourcePath)) {
+    if (!existsInDirOrAssets(expected.source)) {
       reportFn(`${filePath} requires diagram source artifact: ${expected.source}`, { filePath, line: 1 });
     }
 
@@ -468,8 +475,7 @@ function validateDiagramArtifactFiles(filePath, artifactName, reportFn = warn) {
     // (issue #421 — emitted automatically by `scripts/diagram_io.py`).
     if (expected.image.endsWith(".png")) {
       const svgSibling = expected.image.replace(/\.png$/, ".svg");
-      const svgPath = path.normalize(path.join(artifactDir, svgSibling.replace(/^\.\//, "")));
-      if (!exists(svgPath)) {
+      if (!existsInDirOrAssets(svgSibling)) {
         warn(`${filePath} is missing recommended SVG sibling: ${svgSibling} (generate via scripts/diagram_io.py)`, {
           filePath,
           line: 1,
@@ -950,8 +956,8 @@ function findGovernanceJsonArtifacts() {
       if (!entry.isFile()) return false;
       if (entry.name !== GOVERNANCE_JSON_BASENAME) return false;
       const dir = entry.parentPath ?? entry.path;
-      const rel = path.relative(baseDir, dir);
-      if (rel.startsWith("_baselines")) return false;
+      const rel = path.relative(baseDir, dir).split(path.sep).join("/");
+      if (rel.startsWith("_baselines") || /(?:^|\/)_meta(?:\/|$)/.test(rel)) return false;
       return true;
     })
     .map((entry) => {
@@ -1015,9 +1021,9 @@ function findArtifacts() {
       const dir = entry.parentPath ?? entry.path;
       // Skip the top-level agent-output/README.md
       if (entry.name === "README.md" && dir === baseDir) return false;
-      // Skip historical baseline snapshots
-      const rel = path.relative(baseDir, dir);
-      if (rel.startsWith("_baselines")) return false;
+      // Skip historical baseline snapshots and _meta/ subfolders
+      const rel = path.relative(baseDir, dir).split(path.sep).join("/");
+      if (rel.startsWith("_baselines") || /(?:^|\/)_meta(?:\/|$)/.test(rel)) return false;
       return true;
     })
     .map((entry) => {

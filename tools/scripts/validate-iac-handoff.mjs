@@ -34,6 +34,7 @@ import { parseArgs } from "node:util";
 import { loadValidator } from "./_lib/ajv-validator.mjs";
 import { Reporter } from "./_lib/reporter.mjs";
 import { readJson, sha256File } from "./_lib/json.mjs";
+import { projectDirFromPath, resolveProjectFile } from "./_lib/project-paths.mjs";
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "../..");
 const SCHEMA_PATH = path.join(ROOT, "tools/schemas/iac-handoff.schema.json");
@@ -151,7 +152,9 @@ function checkValidationVerdict(data, fileRel, r) {
 function checkL1mRefHash(data, fileRel, r) {
   const ref = data.governance_attestation?.l1m_ref;
   if (!ref || !ref.sha256) return;
-  const refPath = path.resolve(path.dirname(path.join(ROOT, fileRel)), ref.path);
+  const fileDir = path.dirname(path.join(ROOT, fileRel));
+  let refPath = path.resolve(fileDir, ref.path);
+  if (!fs.existsSync(refPath)) refPath = resolveProjectFile(projectDirFromPath(fileDir), ref.path);
   assertRepositoryPath(refPath);
   if (!fs.existsSync(refPath)) {
     // Hard fail — the L1m artifact is the bridge between the policy plan and
@@ -195,7 +198,7 @@ function checkEntrypointExists(data, fileRel, r) {
 }
 
 function defaultGlobs() {
-  return ["agent-output/*/05-iac-handoff.json"];
+  return ["agent-output/*/05-iac-handoff.json", "agent-output/*/contracts/05-iac-handoff.json"];
 }
 
 export function main(argv = process.argv.slice(2)) {
