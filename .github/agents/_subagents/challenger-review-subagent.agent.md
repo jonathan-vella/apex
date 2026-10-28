@@ -52,6 +52,11 @@ Preserve exact scope, pass, prior findings and metadata. Never invent paths, has
    [adversarial checklists](../../skills/apex-azure-defaults/references/adversarial-checklists.md).
    Use [artifact categories](../../skills/apex-azure-defaults/references/artifact-type-categories.md)
    when needed; no full artifact-template/skill-library preload.
+   Always pass `view_range` (for example `[1, 200]`) when reading `one-shot-review.md`,
+   `adversarial-checklists.md`, or any artifact/JSON over 8 KB. If `view` returns
+   `"File too large to read at once..."`, that is a normal size-limit hint (`success: true`),
+   NOT a failed tool call — immediately read the file in bounded `view_range` slices or with `grep`
+   rather than returning `status: "FAILED"`.
    Never call `view` on guessed or unverified paths (for example, there is no
    `tools/schemas/challenger-findings.schema.json`); any failed tool call invalidates recording.
 2. Preserve supplied `cache_inputs`/`supporting_inputs` unchanged. The parent captures them before dispatch.
@@ -65,6 +70,10 @@ Preserve exact scope, pass, prior findings and metadata. Never invent paths, has
    Each finding cites concrete evidence and every applicable affected location in `verification_anchors`.
    For unchanged lens passes deduplicate prior issues; for changed artifacts verify every closure and
    retain unresolved prior findings rather than assuming dispositions fixed them.
+   On a closure pass (`prior_findings` is a non-empty array), verify closure of `prior_findings` and
+   check only for regressions introduced by the repair; do not invent new `should_fix` findings on
+   unchanged sections, and return `overall_assessment: "APPROVED"` when all `prior_findings` are
+   closed and `must_fix_count == 0`.
 5. Calibrate severity:
    - `must_fix`: likely deployment failure or security breach, fixable in the current artifact.
    - `should_fix`: material operational/WAF risk addressable in the current artifact.

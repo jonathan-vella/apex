@@ -1,4 +1,37 @@
 {
   "contract": "review-v1",
-  "editorial_compatibility": []
+  "editorial_compatibility": [
+    {
+      "classification": "editorial",
+      "rationale": "Clarify bounded view_range reads and closure-pass should_fix scoping in challenger-review-subagent without changing review checklists or schema.",
+      "from": {
+        "checklists_sha": "edf3077a1c99d3025891542c6158c5ff529bd7f7e35a9cff61968d84a5bc14e1",
+        "protocol_sha": "ee62e6840d6b4e331bf39fc6ae1a617ae17bebe795a5a9d8587cb8c5ab988182",
+        "reviewer_contract_sha": "d77ecfd53a8c1f69ad5e7088a458314776eb41cbc7f29ca4477226762ac2daa5",
+        "reviewer_definition_sha": "28735de5f6c5abb397b095fe341a4cd71bbd36207309eb24851abe454b45dac7"
+      },
+      "to": {
+        "checklists_sha": "edf3077a1c99d3025891542c6158c5ff529bd7f7e35a9cff61968d84a5bc14e1",
+        "protocol_sha": "ee62e6840d6b4e331bf39fc6ae1a617ae17bebe795a5a9d8587cb8c5ab988182",
+        "reviewer_contract_sha": "5b6d929b6c7bae2ad054b343e5627eb17349fb6fd4d4b94a76a9bc90973ee21a",
+        "reviewer_definition_sha": "e714de1a61d227de38093bc7b45081dd7375c4598b2e2b1b092f1824f8ade87f"
+      }
+    },
+    {
+      "classification": "editorial",
+      "rationale": "Clarify bounded view_range reads and closure-pass should_fix scoping in challenger-review-subagent without changing review checklists or schema.",
+      "from": {
+        "checklists_sha": "edf3077a1c99d3025891542c6158c5ff529bd7f7e35a9cff61968d84a5bc14e1",
+        "protocol_sha": "ee62e6840d6b4e331bf39fc6ae1a617ae17bebe795a5a9d8587cb8c5ab988182",
+        "reviewer_contract_sha": "5b6d929b6c7bae2ad054b343e5627eb17349fb6fd4d4b94a76a9bc90973ee21a",
+        "reviewer_definition_sha": "28735de5f6c5abb397b095fe341a4cd71bbd36207309eb24851abe454b45dac7"
+      },
+      "to": {
+        "checklists_sha": "edf3077a1c99d3025891542c6158c5ff529bd7f7e35a9cff61968d84a5bc14e1",
+        "protocol_sha": "ee62e6840d6b4e331bf39fc6ae1a617ae17bebe795a5a9d8587cb8c5ab988182",
+        "reviewer_contract_sha": "5b6d929b6c7bae2ad054b343e5627eb17349fb6fd4d4b94a76a9bc90973ee21a",
+        "reviewer_definition_sha": "e714de1a61d227de38093bc7b45081dd7375c4598b2e2b1b092f1824f8ade87f"
+      }
+    }
+  ]
 }
