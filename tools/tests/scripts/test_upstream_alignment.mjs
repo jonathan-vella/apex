@@ -183,6 +183,25 @@ test("deploy pre-flight and SKU escalation use the SKU availability contract", (
   const manifestRules = readFileSync(new URL("instructions/sku-manifest.instructions.md", github), "utf8");
   assert.match(manifestRules, /apex-azure-quotas\/references\/sku-availability\.md/);
   assert.match(manifestRules, /`RESTRICTED`/);
+});
+
+test("synced upstream directories contain no trailing whitespace that would fail git diff --cached --check", () => {
+  const result = spawnSync(
+    "git",
+    [
+      "diff",
+      "--check",
+      "4b825dc642cb6eb9a060e54bf8d69288fbee4904..HEAD",
+      "--",
+      ".github/agents",
+      ".github/instructions",
+      ".github/workflows",
+      ".github/skills/apex-python-diagrams",
+      "tools",
+    ],
+    { encoding: "utf8" },
+  );
+  assert.equal(result.status, 0, result.stdout + result.stderr);
   assert.match(read("apex-azure-quotas/SKILL.md"), /\| `references\/sku-availability\.md`/);
   assert.match(read("apex-azure-quotas/references/sku-availability.md"), /^<!-- ref:sku-availability-v1 -->/);
 });
