@@ -480,6 +480,11 @@ def run(args) -> int:
         or data.get("risk_authorizations", {}).get(risk_result["action"]) == risk_result["record"]
     )
     if data.get("steps", {}).get(step, {}).get("status") == "complete" and same_selection and same_risk:
+        if step == "4" and not (data.get("metadata") or {}).get("plan_lock"):
+            from ..reopen import set_plan_lock
+
+            set_plan_lock(data, _iso_now())
+            write_state(project, data)
         print(
             json.dumps(
                 {
@@ -506,6 +511,10 @@ def run(args) -> int:
     if enabled(data):
         step_data["completed_environments"] = data["decisions"]["phase_scopes"][step]["environments"]
     data["steps"][step] = step_data
+    if step == "4":
+        from ..reopen import set_plan_lock
+
+        set_plan_lock(data, now)
 
     if blocked and allow_missing:
         _record_skip(data, step, skip_reason, now)
