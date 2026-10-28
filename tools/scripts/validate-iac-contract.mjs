@@ -210,6 +210,17 @@ function checkPhaseParameter(data, fileRel, r) {
   }
 }
 
+function checkBicepOutputLimit(data, fileRel, r) {
+  if (data.iac_tool !== "Bicep") return;
+  const count = Array.isArray(data.output_contract) ? data.output_contract.length : 0;
+  if (count > 64) {
+    r.error(
+      fileRel,
+      `output_contract[] has ${count} entries, exceeding Azure ARM/Bicep's hard limit of 64 outputs per template. Group resource IDs into structured object outputs (e.g. phaseOutputs / resourceIds) so output_contract[] has at most 64 entries.`,
+    );
+  }
+}
+
 function checkDependsOn(data, fileRel, r) {
   const names = new Set((data.resources ?? []).map((res) => res.logical_name));
   const graph = new Map();
@@ -381,6 +392,7 @@ function main() {
     checkScheduledActions(data, fileRel, r);
     checkCapabilityReadiness(data, fileRel, r, readiness, stage);
     checkPhaseParameter(data, fileRel, r);
+    checkBicepOutputLimit(data, fileRel, r);
     checkDependsOn(data, fileRel, r);
     checkPrivatePaths(data, fileRel, r);
     checkRefHashes(data, fileRel, r);
