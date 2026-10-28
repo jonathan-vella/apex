@@ -86,19 +86,28 @@ function validateFailure(request) {
       if (currency !== request.query.currencyCode || priceType !== "Consumption") {
         throw new Error("MCP evidence must target the same Consumption priceType and currency");
       }
-      const service = rawParams.serviceName ?? rawParams.service;
+      const filterText = typeof rawParams.filter === "string" ? rawParams.filter : "";
+      const filterService = filterText.match(/serviceName\s+eq\s+'([^']+)'/)?.[1];
+      const service = rawParams.serviceName ?? rawParams.service ?? filterService;
       if (
-        service &&
-        service !== request.query.serviceName &&
-        !(AI_SERVICE_ALIASES.has(service) && AI_SERVICE_ALIASES.has(request.query.serviceName))
+        !AI_SERVICE_ALIASES.has(request.query.serviceName) ||
+        (service &&
+          service !== request.query.serviceName &&
+          !(AI_SERVICE_ALIASES.has(service) && AI_SERVICE_ALIASES.has(request.query.serviceName)))
       ) {
         throw new Error("MCP evidence must target the same service and currency");
       }
-      const regionMatch =
-        typeof rawParams.filter === "string" ? rawParams.filter.match(/armRegionName\s+eq\s+'([^']+)'/) : null;
+      const regionMatch = filterText ? filterText.match(/armRegionName\s+eq\s+'([^']+)'/) : null;
       const attemptRegion = rawParams.armRegionName ?? rawParams.region ?? regionMatch?.[1];
       if (attemptRegion && request.query.armRegionName && attemptRegion !== request.query.armRegionName) {
         throw new Error("MCP evidence must target the same region");
+      }
+      for (const field of ["productName", "skuName", "meterName", "armSkuName"]) {
+        const filterVal = filterText ? filterText.match(new RegExp(`${field}\\s+eq\\s+'([^']+)'`))?.[1] : undefined;
+        const attemptVal = rawParams[field] ?? filterVal;
+        if (attemptVal && request.query[field] && attemptVal !== request.query[field]) {
+          throw new Error(`MCP evidence field '${field}' does not match request.query`);
+        }
       }
       matching = true;
       continue;

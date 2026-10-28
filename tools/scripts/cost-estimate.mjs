@@ -448,12 +448,22 @@ function computeComponentCost(component, defaultQuantity = 1) {
   const multiplier = scope === "aggregate" ? 1 : quantity;
   const freeGrant = Number(component.free_grant_units ?? 0);
 
+  const isMillionUnit = /^(?:1m\b|1,000,000(?!,\d))/i;
+  const isTenThousandUnit = /^(?:10k\b|10,000(?!,\d))/i;
+  const isThousandUnit = /^(?:1k\b|1,000(?!,\d))/i;
+
   if (Array.isArray(component.tier_bands) && component.tier_bands.length > 0) {
     if (!Number.isFinite(Number(usageAmount)) || Number(usageAmount) < 0) {
       throw new Error(`Tiered component requires finite usage_amount`);
     }
     const rawUnits = Math.max(0, Number(usageAmount) * multiplier - freeGrant);
-    const unitScale = /^10k\b/i.test(unit) ? 10000 : /^1k\b/i.test(unit) ? 1000 : /^1m\b/i.test(unit) ? 1000000 : 1;
+    const unitScale = isTenThousandUnit.test(unit)
+      ? 10000
+      : isThousandUnit.test(unit)
+        ? 1000
+        : isMillionUnit.test(unit)
+          ? 1000000
+          : 1;
     return computeTieredCharge(rawUnits / unitScale, component.tier_bands);
   }
 
@@ -480,21 +490,21 @@ function computeComponentCost(component, defaultQuantity = 1) {
     }
     return rate * Math.max(0, Number(usageAmount) * multiplier - freeGrant);
   }
-  if (/^1k\b|^1,000\b/i.test(unit)) {
+  if (isThousandUnit.test(unit)) {
     if (!Number.isFinite(Number(usageAmount)) || Number(usageAmount) < 0) {
       throw new Error(`Unit '${unit}' requires explicit usage_amount`);
     }
     const billableOps = Math.max(0, Number(usageAmount) * multiplier - freeGrant);
     return rate * (billableOps / 1000);
   }
-  if (/^10k\b|^10,000\b/i.test(unit)) {
+  if (isTenThousandUnit.test(unit)) {
     if (!Number.isFinite(Number(usageAmount)) || Number(usageAmount) < 0) {
       throw new Error(`Unit '${unit}' requires explicit usage_amount`);
     }
     const billableOps = Math.max(0, Number(usageAmount) * multiplier - freeGrant);
     return rate * (billableOps / 10000);
   }
-  if (/^1m\b|^1,000,000\b/i.test(unit)) {
+  if (isMillionUnit.test(unit)) {
     if (!Number.isFinite(Number(usageAmount)) || Number(usageAmount) < 0) {
       throw new Error(`Unit '${unit}' requires explicit usage_amount`);
     }

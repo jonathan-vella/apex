@@ -368,6 +368,56 @@ test("service_family_unsupported fallback authorizes pricing_get status-400 Unkn
     ),
     /Unknown ServiceFamily value/,
   );
+
+  // Rejects conflicting serviceName in parameters.filter or unrelated non-AI request.query.serviceName
+  await assert.rejects(
+    fetchRetailEvidence(
+      {
+        query: { ...foundryQuery },
+        remaining_requests: 19,
+        mcp_failure: {
+          kind: "service_family_unsupported",
+          recorded_at: new Date(Date.now() - 1000).toISOString(),
+          attempts: [
+            {
+              parameters: {
+                filter: "serviceName eq 'Storage' and armRegionName eq 'swedencentral'",
+                "price-type": "Consumption",
+                currency: "USD",
+              },
+              response: mcpParserError,
+            },
+          ],
+        },
+      },
+      () => assert.fail("must not fetch"),
+    ),
+    /same service and currency/,
+  );
+  await assert.rejects(
+    fetchRetailEvidence(
+      {
+        query: { ...foundryQuery, serviceName: "Storage" },
+        remaining_requests: 19,
+        mcp_failure: {
+          kind: "service_family_unsupported",
+          recorded_at: new Date(Date.now() - 1000).toISOString(),
+          attempts: [
+            {
+              parameters: {
+                filter: "serviceName eq 'Foundry Models' and armRegionName eq 'swedencentral'",
+                "price-type": "Consumption",
+                currency: "USD",
+              },
+              response: mcpParserError,
+            },
+          ],
+        },
+      },
+      () => assert.fail("must not fetch"),
+    ),
+    /same service and currency/,
+  );
 });
 
 test("CLI refuses existing output before reading request or making network calls", (context) => {

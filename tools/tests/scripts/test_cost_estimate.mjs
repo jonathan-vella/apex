@@ -367,6 +367,57 @@ test("calculateLineCost computes deterministic unit and tiered band totals witho
     }),
     round6(2 * 2.99),
   );
+
+  // Thousand-unit ("1K" and "1,000") and million-unit ("1M" and "1,000,000") flat and tiered parity
+  const zeroStartTier = [{ tierMinimumUnits: 0, retailPrice: 1 }];
+  for (const unit of ["1K", "1,000"]) {
+    assert.equal(
+      calculateLineCost({
+        name: `flat-${unit}`,
+        quantity: 1,
+        unit_of_measure: unit,
+        retail_price: 1,
+        usage_amount: 1000000,
+        usage_scope: "aggregate",
+      }),
+      1000,
+    );
+    assert.equal(
+      calculateLineCost({
+        name: `tier-${unit}`,
+        quantity: 1,
+        unit_of_measure: unit,
+        usage_amount: 1000000,
+        usage_scope: "aggregate",
+        tier_bands: zeroStartTier,
+      }),
+      1000,
+    );
+  }
+  for (const unit of ["1M", "1,000,000"]) {
+    assert.equal(
+      calculateLineCost({
+        name: `flat-${unit}`,
+        quantity: 1,
+        unit_of_measure: unit,
+        retail_price: 0.4,
+        usage_amount: 2500000,
+        usage_scope: "aggregate",
+      }),
+      1,
+    );
+    assert.equal(
+      calculateLineCost({
+        name: `tier-${unit}`,
+        quantity: 1,
+        unit_of_measure: unit,
+        usage_amount: 2500000,
+        usage_scope: "aggregate",
+        tier_bands: [{ tierMinimumUnits: 0, retailPrice: 0.4 }],
+      }),
+      1,
+    );
+  }
 });
 
 test("publishEstimate normalizes totals, writes back only manifest services, and handles !name notes via CLI", (context) => {
