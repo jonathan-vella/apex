@@ -297,7 +297,7 @@ def test_practical_closure_receipt_with_zero_must_fix_is_gate_ready_without_muta
     }
     import hashlib
 
-    identity = f"{finding['category']}\0{finding['claim']}\0{finding['artifact_section']}"
+    identity = f"{finding['category']}|{finding['claim']}|{finding['artifact_section']}"
     finding["id"] = hashlib.sha256(identity.encode()).hexdigest()[:8]
     document["findings"] = [finding]
     (project / "challenge-findings-plan-closure1.json").write_text(json.dumps(document))
