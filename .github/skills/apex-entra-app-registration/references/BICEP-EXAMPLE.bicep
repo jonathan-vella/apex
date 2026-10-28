@@ -70,7 +70,7 @@ resource appRegistration 'Microsoft.Graph/applications@v1.0' = {
     ]
   }
 
-  // API definition (expose an API) 
+  // API definition (expose an API)
   api: {
     // Version of the access token affects the values present in the token claims
     requestedAccessTokenVersion: 2
