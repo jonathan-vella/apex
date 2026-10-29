@@ -19,6 +19,113 @@ from dlib import *  # noqa: E402, F403
 
 ---
 
+## 0. End-to-End Architecture Overview (`gen02` Style — Primary Pattern)
+
+Wraps the canvas in an outer `tenant()` boundary with a top-left visual `legend()`,
+shared platform / edge band at the top, workload subscription below with left-to-right
+spatial columns (`rg-datacenter` / operator estate → `rg-spoke` VNet with compact
+`snet-*` cards → `rg-workload` with compact 1-line `h=44` service cards grouped by
+`vbracket()` to `snet-pe` and `snet-app`), inline `chip()` connector labels, and a
+bottom 5-stage `chevron()` lifecycle strip + centered summary pill.
+
+```python
+import sys
+from pathlib import Path
+
+sys.path.insert(0, str(Path(".github/skills/apex-python-diagrams/scripts").resolve()))
+from dlib import *  # noqa: E402, F403
+
+reset()
+
+# Outer Microsoft Entra tenant frame + top-left visual connector legend
+add(tenant(30, 80, 1860, 940, "Microsoft Entra tenant"))
+add(
+    legend(
+        60,
+        172,
+        [
+            ("peer", "VNet peering"),
+            ("net", "HTTPS / Private Link"),
+            ("dns", "Private DNS link"),
+            ("id", "Entra ID / RBAC"),
+            ("tel", "Diagnostics / OTel"),
+        ],
+    )
+)
+
+# Shared platform / edge subscription
+add(sub(300, 132, 1320, 225, "Shared platform subscription", BL, "#F5FAFF", "SHARED PLATFORM", 220))
+add(rg(320, 180, 800, 167, "rg-hub", BL))
+add(box(335, 222, 500, 118, BLF, BL, sw=1.8) + ic("vnet", 347, 226, 28) + t(383, 247, "vnet-hub  10.100.0.0/16", 20, "700", BL))
+add(card(355, 254, 460, 70, "fw", [("Azure Firewall Standard", 1), ("DNS proxy & east-west inspection", 0)], "#FFFFFF", BL, 44))
+add(box(880, 222, 225, 118, TLF, TL, sw=1.8) + ic("dns", 892, 232, 40) + t(940, 252, "Central private", 18, "700") + t(940, 274, "DNS zones", 18, "700") + t(892, 320, "Linked to vnet-hub", 15, fill=GR))
+add(arr("M880 281H835", "dns"))
+
+add(rg(1140, 180, 460, 167, "rg-management", BL))
+add(card(1155, 222, 430, 54, "law", [("Central Log Analytics", 1)], BLF, BL, 36))
+add(card(1155, 284, 430, 54, "mi", [("id-platform-directory", 1)], BLF, BL, 36))
+
+# Workload subscription (3 spatial columns inside)
+add(sub(60, 410, 1800, 505, "Workload subscription (swedencentral)", TL, "#F2FAF8", "WORKLOAD SPOKE", 220))
+
+# Column 1: Operator & private runner estate
+add(rg(75, 470, 600, 430, "rg-operations", TL))
+add(box(90, 515, 570, 345, "#FFFFFF", TL, sw=1.8) + ic("vnet", 102, 520, 30) + t(140, 543, "vnet-ops  10.10.0.0/24", 20, "700", TL))
+add(card(105, 575, 265, 115, "vm", [("vm-runner-01", 1), ("Ubuntu 24.04", 0), ("Private release runner", 0)], TLF, TL, 44))
+add(card(385, 575, 265, 115, "dev", [("Operator workstation", 1), ("SSH / SFTP via Bastion", 0), ("Zero public VM IPs", 0)], GRF, SL, 44))
+add(card(105, 715, 265, 105, "bas", [("Bastion Standard", 1), ("Native SSH tunnel", 0)], TLF, TL, 44))
+add(card(385, 715, 265, 105, "nat", [("NAT Gateway", 1), ("Outbound HTTPS egress", 0)], TLF, TL, 44))
+
+# Column 2: Spoke VNet & Subnets
+add(rg(760, 470, 330, 430, "rg-spoke", TL, 110))
+add(box(775, 515, 300, 355, "#FFFFFF", TL, sw=1.8) + ic("vnet", 787, 520, 30) + t(825, 543, "vnet-spoke", 20, "700", TL))
+for y, n, c in [
+    (578, "snet-data", "Delegated data subnet"),
+    (680, "snet-pe", "Private endpoints"),
+    (782, "snet-app", "App Service integration"),
+]:
+    add(card(790, y, 270, 84, "subnet", [(n, 1), (c, 0)], TLF, TL, 40))
+
+# Column 3: Compact 1-line workload services + vbracket fan-out
+add(rg(1330, 470, 510, 430, "rg-workload-prod", TL))
+items = [
+    ("sqldb", "Azure SQL Database"),
+    ("acr", "Container Registry"),
+    ("blob", "Blob Storage"),
+    ("sb", "Service Bus"),
+    ("kv", "Key Vault"),
+    ("app", "App Service Linux"),
+    ("ai", "Application Insights"),
+]
+for i, (k, l) in enumerate(items):
+    cy = 552 + 52 * i
+    add(card(1372, cy - 22, 350, 44, k, [(l, 1)], TLF, TL, 32))
+
+# Cross-boundary connectors, bracket fan-out & inline chips
+add(arr("M560 340V515", "net", True, True) + chip(632, 392, 120, "VNet peering", BL, size=15))
+add(arr("M800 340V515", "net", True, True) + chip(872, 392, 120, "VNet peering", BL, size=15))
+add(arr("M1372 552H1262V620H1060", "net") + t(1105, 611, "VNet injection", 16, "700"))
+add(vbracket(1358, 582, 782) + arr("M1358 682H1262V722H1060", "net", end=False) + t(1105, 714, "4 private endpoints", 16, "700"))
+add(arr("M1372 812H1060", "net") + t(1105, 803, "Outbound VNet integration", 16, "700"))
+add(chip(1215, 496, 200, "Uses the vended spoke", BL, BLF, 15))
+
+# Bottom 5-stage chevron bar + centered summary pill
+steps = [
+    ("Phase 1", "Foundation & DNS"),
+    ("Phase 2", "Security & Bastion"),
+    ("Phase 3", "Private Data & AI"),
+    ("Phase 4", "App Compute & RBAC"),
+    ("Phase 5", "Global Edge & Verify"),
+]
+for i, (c, s) in enumerate(steps):
+    add(chevron(60 + i * 360, 937, 352, 44, c, s))
+add(chip(960, 1003, 640, "All PaaS data services disable public network access and resolve via Private Link", AM, AMF, 16))
+
+finish("agent-output/my-project/03-des-diagram", "End-to-end architecture overview")
+```
+
+---
+
 ## 1. Hub-and-Spoke Routing & Private Endpoints
 
 Shows shared hub firewall inspection, spoke VNet peering, UDR route tables,
