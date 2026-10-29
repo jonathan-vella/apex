@@ -91,6 +91,14 @@ Record the actual invocation outcome separately from successful publication usin
 
 ## Prerequisites and phase guidance
 
+For existing workloads or multi-subscription read scope, load
+[existing-workload intake](../skills/apex-azure-defaults/references/existing-workload-intake.md).
+Resolve every confirmed `subscription_ids[]` entry; run deterministic discovery separately with distinct snapshots.
+Bind all snapshots with the recall feasibility contract; missing/stale/partial/failed coverage blocks full-scope readiness.
+Preserve the single-subscription path and never hand-merge generated policy envelopes.
+ARG inventory is resource evidence, not policy authority. Preliminary feasibility does not complete Step 3.5;
+formal multi-subscription collection retains the existing review and human approval requirements.
+
 Practical preliminary `policy-feasibility` mode is allowed after approved requirements/read scope,
 before Architecture exists. Use only deterministic collection; write `04-policy-feasibility.json`
 and bind it with recall checkpoint's `--policy-feasibility`. Do not start/complete Step 3.5,

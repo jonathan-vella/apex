@@ -32,6 +32,9 @@ Apply the following questions at the artifact's actual workflow stage. Requireme
 constraints and measurable outcomes; Architecture selects designs, Governance discovers policy,
 and Planning/CodeGen resolve implementation details. Do not demand a later stage's deliverables
 as Requirements prerequisites when the dependency and consuming stage are honestly recorded.
+For existing-workload Assessment, evaluate the evidenced current state and whether gaps are accurately
+reported. Do not require a future design, rollback plan, SKU decision or remediation readiness just to
+approve the assessment artifact.
 
 ### Governance & Compliance
 
@@ -43,9 +46,11 @@ as Requirements prerequisites when the dependency and consuming stage are honest
 
 ### Architecture & WAF
 
+- [ ] For an existing-workload Assessment, are unknown targets and controls reported as evidence gaps with
+      appropriate confidence, rather than treated as missing design decisions?
 - [ ] Are all 5 WAF pillars addressed, or are some hand-waved?
-- [ ] Is the SLA target achievable with the proposed architecture (single-region vs multi-region)?
-- [ ] Are RTO/RPO targets backed by actual backup/replication configuration?
+- [ ] When an SLA target is supplied, is it achievable with the proposed architecture (single-region vs multi-region)?
+- [ ] When RTO/RPO targets are supplied, are they backed by actual backup/replication configuration?
 - [ ] Is the cost estimate realistic, or does it assume lowest-tier SKUs for production workloads?
 - [ ] Are managed identities used everywhere, or do some resources still rely on keys/passwords?
 
@@ -59,6 +64,8 @@ as Requirements prerequisites when the dependency and consuming stage are honest
 
 ### Missing Pieces
 
+For an existing-workload Assessment, these are current-state checks: an absent capability may be an
+assessment finding, not an artifact defect, when its evidence limits and impact are clear.
 - [ ] What happens if the deployment partially fails (rollback strategy)?
 - [ ] Are Private Endpoints planned for all data-plane resources?
 - [ ] Is monitoring/alerting defined, or just "planned for later"?
@@ -87,8 +94,13 @@ as Requirements prerequisites when the dependency and consuming stage are honest
 
 ### Requirements-Specific (`artifact_type` = `requirements`)
 
-- [ ] Are NFRs specific and measurable, or vague ("high availability")?
-- [ ] Is the budget realistic for the stated requirements?
+- [ ] For an existing-workload Assessment, are missing targets, controls and dependencies explicitly marked
+      unknown/not assessed with evidence limits? Do not flag them solely because the user cannot supply a
+      target or the assessment cannot remediate the workload; verify that scope and unknowns are represented
+      accurately.
+- [ ] Are NFRs specific and measurable, or vague ("high availability")? In Assessment, unknown targets are
+      acceptable when accurately marked unknown/not assessed and treated as evidence gaps.
+- [ ] Is the budget realistic for the stated requirements, when a budget was supplied?
 - [ ] Are there contradictory requirements (e.g., lowest cost + 99.99% SLA)?
 - [ ] Are data residency and sovereignty requirements addressed?
 - [ ] Are hosting/image delivery, workload identity/grants, authentication and monitoring acceptance consistent

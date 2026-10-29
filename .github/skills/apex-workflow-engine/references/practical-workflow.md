@@ -26,6 +26,35 @@ Record scope once through the existing stage/start interaction. A request ID rec
 provenance; it does not prove owner authority, enlarge role permissions or authorize
 Azure operations. Cancel stops and decline never approves.
 
+## Input request provenance
+
+For material-input records, `request_id` is an APEX correlation key, not a required SDK-issued ID.
+Native `ask_user` may return answers without an interaction ID; that absence alone is not a workflow blocker.
+This does not relax actual-answer evidence, owner/environment scope, independent reviews or human gates.
+Reviewer invocation IDs and signed risk-authorization provenance retain their separate contracts.
+
+- **New questions:** `requirements-discovery.mjs` emits an APEX-local `request_id` and
+  `request_id_source: "apex-local"` outside `form`. Persist the envelope in authorized project `_meta/` scratch
+  before display. Validate `form` with its separate `context`; send only `form.message` and
+  `form.requestedSchema` to `ask_user`. Keep the saved ID through delegation, retries and continuation;
+  regenerating a form creates a new request, not the identity of an earlier response.
+- **Returned answers:** retain a project-local receipt with that ID, its local origin, the actual response,
+  respondent, applicable environments and source locator where available. Record only explicitly supplied
+  material values with `decide --input-record`, using the same ID. Preserve custom answers and explicit unknowns.
+  Do not fill omitted fields from defaults/evidence, treat decline as an answer, or record cancellation as consent.
+  A receipt records what was returned; Autopilot output still does not establish independent human authority.
+- **Recovery:** when real earlier answers exist but no request ID was retained, allocate a new local capture ID
+  in a receipt labelled `capture_mode: "recovered"`. Cite the existing conversation response and/or owned
+  answer snapshot, preserve original values, owner and environment scope, and record the recovery time now.
+  This ID identifies recovery of those actual answers; never call it a native ID, claim the receipt predated
+  the response or attach answers to a newly generated but unasked form. Do not re-question settled inputs
+  solely to manufacture an ID. Missing/conflicting answers or unknown owner/scope still block affected records.
+- **Approvals:** a capture ID or receipt is not a stage/start approval, Azure read/write permission, signed
+  authorization or review result. Record actual approvals separately; input recovery cannot grant or widen them.
+
+The receipt stays outside the exact recall input-record schema below. Recall receives its existing
+`input_id`, `value`, `environments`, `owner` and `request_id` fields; no schema bypass or state-file edit is needed.
+
 ## Ordinary review cycle
 
 Each required artifact/lens has one initial and at most one closure dispatch within
@@ -60,6 +89,10 @@ Keep existing final stage gates. Ask only for missing material choices, scope ch
 or operations beyond permission. Do not ask users to approve synchronizing records,
 fixing counts/cross-references, or an already granted ordinary closure call.
 Independent findings remain visible; suggestions are not automatically new questions.
+For existing-workload Assessment, follow the intake contract: ask only about material ambiguity in scope,
+read authorization or business intent. Missing targets, controls and implementation details remain explicit
+gaps; do not require per-finding dispositions or imply approval of remediation. Gate 1 approves the recorded
+assessment requirements and scope only.
 
 After requirements scope is authorized, Governance may collect preliminary policy
 feasibility before Architecture approval, without completing Step 3.5. No target means

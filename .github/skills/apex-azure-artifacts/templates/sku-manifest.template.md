@@ -9,6 +9,8 @@
 
 - [Overview](#overview)
 - [Environments](#environments)
+- [Subscriptions](#subscriptions)
+- [Stamps](#stamps)
 - [Services](#services)
 - [Revision History](#revision-history)
 - [Open Substitutions](#open-substitutions)
@@ -48,14 +50,41 @@ vnet, subnet, NSG, route table, public IP, diagnostics. See
 | test        | ✅ / ❌  | {test environment notes} |
 | prod        | ✅ / ❌  | {prod environment notes} |
 
+## Subscriptions
+
+> Optional: omit this section and its TOC entry when `subscriptions[]` is empty or absent.
+> Logical IDs are unique; optional Azure GUIDs are unique ignoring case.
+
+| `id` | Display name | Azure subscription GUID | Role |
+| ---- | ------------ | ----------------------- | ---- |
+| `{subscription-logical-id}` | {display-name} | `{subscription_id}` | {role} |
+
+## Stamps
+
+> Optional: omit this section and its TOC entry when `stamps[]` is empty or absent.
+> Each stamp deploys every service. Subscription inherits the service attribution when absent;
+> simultaneous stamp/service declarations must agree.
+
+| `id` | Label | Subscription | Environments | Regions | Service overrides | Notes |
+| ---- | ----- | ------------ | ------------ | ------- | ----------------- | ----- |
+| `{stamp-id}` | {label} | `{subscription-logical-id}` / Per service | `{environments[]}` | `{regions[]}` | {service-overrides} | {notes} |
+
 ## Services
 
 > Rendered from `sku-manifest.json` `services[]`. Per-environment values
 > reflect `environment_overrides` on top of the base entry.
+> `Observed SKU` preserves intake evidence while `Size (base)` may become the
+> Architect's recommendation. Omit the Observed SKU column when no service has
+> `observed_sku`; omit Subscription when no service, stamp or inventory declares subscription context.
+> An unspecified service subscription renders as "Per stamp / unspecified".
 
-| `id`   | Service   | Size (base) | Capacity                                  | Zonal | Regions                 | SLA target / achieved             | Commitment                  | Source                                                   | Rev                   |
-| ------ | --------- | ----------- | ----------------------------------------- | ----- | ----------------------- | --------------------------------- | --------------------------- | -------------------------------------------------------- | --------------------- |
-| `{id}` | {service} | `{size}`    | `{mode}: {min}-{max} (default {default})` | ✅/❌ | `{primary}, {failover}` | `{sla_target}` / `{sla_achieved}` | `{type}` (`{term_years}yr`) | `user-pin` \| `architect-derived` \| `deploy-substitute` | `{last_modified_rev}` |
+| `id` | Service | Size (base) | Observed SKU | Subscription | Capacity | Zonal | Regions | SLA target / achieved | Commitment | Source | Rev |
+| ---- | ------- | ----------- | ------------ | ------------ | -------- | ----- | ------- | --------------------- | ---------- | ------ | --- |
+| `{id}` | {service} | `{size}` | `{observed_sku}` / — | `{subscription-logical-id}` | `{mode}: {min}-{max} (default {default})` | ✅/❌ | `{primary}, {failover}` | `{sla_target}` / `{sla_achieved}` | `{type}` (`{term_years}yr`) | `user-pin` \| `observed-current` \| `architect-derived` \| `deploy-substitute` | `{last_modified_rev}` |
+
+`observed-current` at rev 1 uses `source_step: "1"` and required `observed_sku`.
+Architect may change `size` and `source` to `architect-derived`, retaining
+`observed_sku` and the original creation step. Explicit `user-pin` choices remain locks.
 
 ### Per-environment overrides
 
@@ -96,7 +125,7 @@ Only services with non-empty `environment_overrides` appear below.
 
 | `rev` | Step | Agent             | Created (UTC) | Summary                                | Changed `id`s | Commit  | Checkpoint |
 | ----- | ---- | ----------------- | ------------- | -------------------------------------- | ------------- | ------- | ---------- |
-| `1`   | `1`  | `02-Requirements` | `{ts}`        | User-pinned constraints (if any)       | `{ids}`       | `{sha}` | `{ckpt}`   |
+| `1`   | `1`  | `02-Requirements` | `{ts}`        | User pins / observed-current inventory (if any) | `{ids}` | `{sha}` | `{ckpt}` |
 | `2`   | `2`  | `03-Architect`    | `{ts}`        | Full SKU authoring from candidate sets | `{ids}`       | `{sha}` | `{ckpt}`   |
 | `3`   | `4`  | `05-IaC Planner`  | `{ts}`        | Reconciled with governance findings    | `{ids}`       | `{sha}` | `{ckpt}`   |
 
@@ -119,7 +148,7 @@ Only services with non-empty `environment_overrides` appear below.
 - Schema: [`tools/schemas/sku-manifest.schema.json`](../../tools/schemas/sku-manifest.schema.json)
 - Authoring rules: [`.github/instructions/sku-manifest.instructions.md`](../../.github/instructions/sku-manifest.instructions.md)
 - Validators: `npm run validate:sku-manifest` + `npm run validate:sku-iac-coverage`
-- Lifecycle: `01-Orchestrator` → Step 1 user pins → Step 2 Architect authoring →
+- Lifecycle: `01-Orchestrator` → Step 1 user pins / observed-current inventory → Step 2 Architect authoring →
   Step 3.5 governance findings → Step 4 reconciliation + `requires[]` check →
   Step 5 CodeGen reads JSON → Step 6 Deploy escalates on conflict →
   Step 7 As-Built drift detection.

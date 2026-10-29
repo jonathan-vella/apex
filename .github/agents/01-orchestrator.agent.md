@@ -62,6 +62,10 @@ Never send only the latest form answers and make the specialist rediscover earli
 Before displaying a returned form, omit answered/inapplicable fields and preserve guided options.
 `requestedSchema` contains only `properties`, without root `type`, `required` or `additionalProperties`.
 Pass only `message` and `requestedSchema` to `ask_user`; retain request ID, phase and missing-input metadata here.
+The request ID is an APEX correlation key, not a required SDK return value. Preserve the producer's ID and
+actual answer receipt; recover existing answers through
+[input request provenance](../skills/apex-workflow-engine/references/practical-workflow.md#input-request-provenance).
+Do not block solely on absent native IDs, repeat settled questions or infer approval from a local capture ID.
 Return malformed forms to the producer for correction before invoking `ask_user`; do not re-ask settled answers.
 Allow one schema-only correction for the same request; another malformed response blocks with its validation error.
 Custom guidance in a finding field already supplies its decision note. Ask a finding-specific follow-up only

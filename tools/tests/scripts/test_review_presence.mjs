@@ -20,7 +20,7 @@ test("native resume delegates recovery and routing without extra mode questions"
   assert.match(entry, /01-orchestrator.agent.md#/);
   assert.ok(entry.includes("approval"));
   const paths = readFileSync(new URL("../../scripts/_lib/paths.mjs", import.meta.url), "utf8");
-  assert.match(paths, /PROMPT_SOURCE_DIRS = \[\]/);
+  assert.match(paths, /PROMPT_SOURCE_DIRS = \["\.github\/prompts"\]/);
   const agent = readFileSync(new URL("../../../.github/agents/01-orchestrator.agent.md", import.meta.url), "utf8");
   assert.match(agent, /supplied project name without redundant confirmation/);
   assert.match(agent, /If recall is empty[\s\S]{0,120}existing artifacts/);

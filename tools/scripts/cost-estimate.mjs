@@ -142,6 +142,7 @@ function expandManifestServices(manifest, manifestUsage = {}) {
             source_kind: "manifest",
             environment: env,
             stamp: stamp?.id ?? null,
+            subscription: stamp?.subscription ?? service.subscription ?? null,
             service_name: effective.service,
             sku: effective.size,
             region,

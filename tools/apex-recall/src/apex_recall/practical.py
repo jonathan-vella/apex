@@ -303,7 +303,10 @@ def check_views(project: str, data: dict, step: str) -> None:
     if not binding or binding["projection_sha256"] != digest(view):
         raise ValueError("Assessment views are missing or stale against consumed decisions")
     expected_markdown = "04-governance-constraints.md" if step == "3_5" else f"assessment-step-{step}.md"
-    if Path(binding["path"]).name != f"assessment-step-{step}.json" or Path(binding["markdown"]).name != expected_markdown:
+    if (
+        Path(binding["path"]).name != f"assessment-step-{step}.json"
+        or Path(binding["markdown"]).name != expected_markdown
+    ):
         raise ValueError("Assessment bindings must use their project-local canonical paths")
     directory = project_dir(project)
     target = resolve_project_file(directory, binding["path"])
@@ -432,8 +435,7 @@ def prepare_cycle(project: str, data: dict, args: object) -> dict | None:
             f"agent-output/{project}/_meta/{binding_name}",
         }
         if not any(
-            item.get("path") in expected_paths
-            and item.get("sha256") == file_revision(binding_file)
+            item.get("path") in expected_paths and item.get("sha256") == file_revision(binding_file)
             for item in request.get("supporting_inputs", [])
         ):
             raise ValueError("Review request must freeze the consumed decision projection")
@@ -581,53 +583,109 @@ def action_readiness(data: dict, action: str, environments: list[str]) -> dict:
     }
 
 
-def _feasibility_validation(project: str, data: dict, snapshot: Path) -> None:
+def _feasibility_validation(project: str, data: dict, snapshot: Path) -> dict[str, str]:
     record = material_inputs(data).get("azure_read_scope")
     if (
         not enabled(data)
         or not record
         or not isinstance(record["value"], dict)
-        or not isinstance(record["value"].get("subscription_id"), str)
-        or not record["value"]["subscription_id"].strip()
         or record["value"].get("policy_read_scope") != "subscription-and-inherited"
     ):
         raise ValueError("Explicit target/read scope is required before policy discovery")
+    scope = record["value"]
+    multiple = "subscription_ids" in scope
+    subscriptions = scope.get("subscription_ids") if multiple else [scope.get("subscription_id")]
+    if (
+        (multiple and "subscription_id" in scope)
+        or not isinstance(subscriptions, list)
+        or not subscriptions
+        or any(not isinstance(item, str) or not item.strip() or item != item.strip() for item in subscriptions)
+        or len({item.lower() for item in subscriptions}) != len(subscriptions)
+    ):
+        raise ValueError("Explicit target/read scope requires unique nonempty subscription IDs")
     root = workspace_root_for()
-    target = snapshot.resolve()
-    if snapshot.is_symlink() or not target.is_relative_to(root.resolve()):
-        raise ValueError("Policy evidence must remain in the workspace")
+
+    def evidence_path(candidate: Path) -> Path:
+        target = candidate.resolve()
+        if candidate.is_symlink() or not target.is_relative_to(root.resolve()):
+            raise ValueError("Policy evidence must remain in the workspace")
+        if not target.is_file():
+            raise ValueError(f"Preliminary policy evidence is missing: {candidate}")
+        return target
+
+    target = evidence_path(snapshot)
+    snapshots = {subscriptions[0]: target}
+    if multiple:
+        index = json.loads(target.read_text(encoding="utf-8"))
+        entries = index.get("subscriptions") if isinstance(index, dict) else None
+        if not isinstance(entries, list) or not entries:
+            raise ValueError("Multi-subscription policy evidence requires a subscriptions index")
+        snapshots = {}
+        for entry in entries:
+            if (
+                not isinstance(entry, dict)
+                or not isinstance(entry.get("subscription_id"), str)
+                or not isinstance(entry.get("path"), str)
+                or not entry["path"].strip()
+                or Path(entry["path"]).is_absolute()
+            ):
+                raise ValueError("Policy subscription index requires subscription_id and index-relative path")
+            identity = entry["subscription_id"].lower()
+            if identity in snapshots:
+                raise ValueError("Duplicate policy subscription snapshot")
+            snapshots[identity] = target.parent / entry["path"]
+        if set(snapshots) != {item.lower() for item in subscriptions}:
+            raise ValueError("Policy snapshots must cover exactly every subscription in the authorized read scope")
+        if len({item.resolve() for item in snapshots.values()}) != len(snapshots):
+            raise ValueError("Each subscription requires a distinct policy snapshot")
+
     script = root / ".github/skills/apex-azure-governance-discovery/scripts/discover.py"
-    result = subprocess.run(
-        [
-            sys.executable,
-            str(script),
-            "--project",
-            project,
-            "--subscription",
-            record["value"]["subscription_id"],
-            "--out",
-            str(target),
-            "--validate-only",
-        ],
-        cwd=root,
-        capture_output=True,
-        text=True,
-        check=False,
-    )
-    if result.returncode:
-        raise ValueError(
-            f"Preliminary policy evidence is incomplete, stale or differently scoped: {result.stdout} {result.stderr}"
+    revisions = {}
+    failures = []
+    for subscription, candidate in snapshots.items():
+        try:
+            candidate = evidence_path(candidate)
+        except ValueError as error:
+            failures.append(f"{subscription}: {error}")
+            continue
+        result = subprocess.run(
+            [
+                sys.executable,
+                str(script),
+                "--project",
+                project,
+                "--subscription",
+                subscription,
+                "--out",
+                str(candidate),
+                "--validate-only",
+            ],
+            cwd=root,
+            capture_output=True,
+            text=True,
+            check=False,
         )
+        if result.returncode:
+            failures.append(f"{subscription}: {result.stdout} {result.stderr}")
+        revisions[str(candidate.relative_to(root.resolve()))] = file_revision(candidate)
+    if failures:
+        raise ValueError(
+            f"Preliminary policy evidence is incomplete, stale or differently scoped: {'; '.join(failures)}"
+        )
+    for name, revision in revisions.items():
+        data.input_revisions[root / name] = revision
     data.input_revisions[target] = file_revision(target)
+    return revisions if multiple else {}
 
 
 def bind_feasibility(project: str, data: dict, snapshot: Path) -> None:
-    _feasibility_validation(project, data, snapshot)
+    snapshots = _feasibility_validation(project, data, snapshot)
     root = workspace_root_for()
     data.setdefault("metadata", {})["policy_feasibility"] = {
         "path": str(snapshot.resolve().relative_to(root.resolve())),
         "sha256": file_revision(snapshot),
         "read_scope": digest(material_inputs(data)["azure_read_scope"]),
+        **({"snapshots": snapshots} if snapshots else {}),
     }
 
 
@@ -641,7 +699,9 @@ def check_feasibility(project: str, data: dict) -> str:
     snapshot = root / record["path"]
     if not snapshot.exists():
         snapshot = resolve_contract_path(project, Path(record["path"]).name)
-    _feasibility_validation(project, data, snapshot)
+    snapshots = _feasibility_validation(project, data, snapshot)
     if file_revision(snapshot) != record["sha256"]:
         raise ValueError("Policy evidence changed; explicit owner refresh binding required")
+    if snapshots != record.get("snapshots", {}):
+        raise ValueError("Policy subscription evidence changed; explicit owner refresh binding required")
     return "current"

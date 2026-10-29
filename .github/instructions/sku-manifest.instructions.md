@@ -73,6 +73,11 @@ checkpoints — **not** a free-form changelog.
 - `architect-derived` — Step 2 (Architecture). Chosen by `03-Architect`
   from priced `candidate_sets[]`. May be revised at Step 4 (Planner)
   for governance reconciliation; revision keeps `source: architect-derived`.
+- `observed-current` — Step 1 existing-workload intake, with `source_step: "1"`
+  and required `observed_sku`. Set `size` to the observed SKU initially.
+  This is evidence, **not a lock**: Architect may recommend a new `size` and
+  change `source` to `architect-derived`, preserving `observed_sku` and the
+  original `source_step`. Explicit `user-pin` choices remain locks.
 - `deploy-substitute` — Step 6 (Deploy). Substituted by `07b`/`07t`
   during the block-with-escalation pre-flight when quota/region capacity
   forces a change. Always paired with an entry in
@@ -80,12 +85,31 @@ checkpoints — **not** a free-form changelog.
 
 `source_step` records when the entry was first created.
 
+## Subscription and Stamp Attribution
+
+Optional `subscriptions[]` entries require unique logical `id` and a `display_name`,
+with optional Azure GUID `subscription_id` (unique ignoring case) and `role`
+(`hub`, `spoke`, `shared`, `data`, `management`, `workload`). Display names need not be unique.
+These are topology metadata, not subscription resources in `services[]`.
+
+Set `services[].subscription` for a service deployed in one subscription.
+For cross-subscription deployments, omit that field and set `stamps[].subscription`.
+Every reference must resolve to `subscriptions[].id`; GUIDs are not references.
+Every stamp expands every service, so simultaneous service/stamp attribution must agree;
+service attribution does not filter stamps. Environment/service overrides cannot change subscription.
+Cost lines use `stamp?.subscription ?? service.subscription ?? null`.
+Manifests without subscriptions remain valid; unknown attribution stays unknown.
+
+Re-render markdown after changing JSON. Optional `## Subscriptions` and `## Stamps`
+show deployment context; `Observed SKU` compares intake evidence against recommended `size`,
+distinct from Step 7 `actual_sku`.
+
 ## Lifecycle (per `00-session-state.json` `decisions.sku_manifest_status`)
 
 | Status      | Set by            | Meaning                                                                                                |
 | ----------- | ----------------- | ------------------------------------------------------------------------------------------------------ |
 | (empty)     | —                 | Manifest not yet created                                                                               |
-| `draft`     | `02-Requirements` | Rev 1 written. Phase 3j SKU/sizing elicitation complete; `decisions.sku_preferences_captured = true`. |
+| `draft`     | `02-Requirements` | Rev 1 records user pins / observed-current inventory. Phase 3j complete for implementation planning, or assessment-only observed evidence recorded. |
 | `reviewed`  | `03-Architect`    | Rev 2 written with architect-derived entries                                                           |
 | `locked`    | `05-IaC Planner`  | Rev 3 reconciled with governance findings                                                              |
 | `deploying` | `07b`/`07t`       | Pre-flight quota/region check started                                                                  |
@@ -95,8 +119,12 @@ checkpoints — **not** a free-form changelog.
 ## Mandatory Elicitation at Step 1
 
 `02-Requirements` MUST elicit SKU and sizing preferences from the user
-for every project, regardless of complexity, workload pattern, or whether
-the user has any pins. Explicit preferences or "no preference" supplied in the brief satisfy
+for implementation-planning projects, regardless of complexity, workload pattern, or whether
+the user has any pins. Existing-workload Assessment scenarios skip future SKU/commitment elicitation:
+the manifest records evidence-backed current SKUs as `observed-current`, and the Architect assesses or
+recommends without converting silence into a preference. An empty `services[]` is valid for an assessment
+when no creative SKU is observed or in scope; no `sku_preferences_captured` flag is required for that path.
+Explicit preferences or "no preference" supplied in the brief satisfy
 their applicable classes; never reconfirm them or infer unanswered preferences.
 Ask only for missing/conflicting classes via the Phase 3j batched `ask_user` call defined in
 [`service-class-menu.md` § 3j](../skills/apex-azure-defaults/references/service-class-menu.md#3j-sku-and-sizing-preferences-mandatory-for-every-project).
@@ -114,8 +142,9 @@ Outcomes:
   `apex-recall decide`. This flag distinguishes "user opted out of every
   pin" (valid) from "agent skipped the elicitation" (validator-blocked).
 
-An empty `services[]` at rev 1 is valid **only** when
-`decisions.sku_preferences_captured = true` is set. The validator may be
+For implementation planning, an empty `services[]` at rev 1 is valid **only** when
+`decisions.sku_preferences_captured = true` is set. Assessment-only observed manifests do not require this
+preference flag. The validator may be
 tightened to enforce this; until then, missing flags trigger a WARN.
 
 ## Block-with-Escalation Pattern (Step 6)

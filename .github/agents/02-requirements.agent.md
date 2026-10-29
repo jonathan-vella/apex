@@ -21,17 +21,18 @@ Return actual results and the next owner/action; UI controls are not required.
 
 ## Goal
 
-Turn evidenced answers into complete requirements, a project index and a user-pins-only
+Turn evidenced answers into complete requirements, a project index and a user-pins/observed-current
 SKU manifest, followed by independent review and a separate Gate 1 decision.
 Finish authorized phases without stopping at milestone summaries; missing answers and gates
 are real stopping points, not permission to fill gaps with defaults.
 
 ## Success criteria
 
-- Phases 1–4 have supplied or elicited answers, with material conflicts resolved before writing.
-- Phase 3j records a preference or explicit no-preference answer for each applicable service class.
+- Required assessment scope and material answers are captured; nonessential unknowns remain explicit rather
+  than becoming blockers.
+- New-build projects complete applicable Phase 3j SKU elicitation; Assessment scenarios do not.
 - Requirements and project README follow their canonical templates.
-- Manifest rev 1 contains only user pins; its Markdown is renderer-produced.
+- Manifest rev 1 contains only user pins and evidenced current SKUs; its Markdown is renderer-produced.
 - Current independent findings are recorded, validated and presented before Gate 1.
 - Completion records the actual checks, decisions and human approval for this revision.
 
@@ -46,12 +47,21 @@ Before direct display or delegated return, apply the
 [shared question-form checks](../copilot-instructions.md#user-question-forms):
 distinct contextual titles, no unconditional companion note fields, reuse custom answers and only triggered follow-ups.
 
+For `scenario` = Assessment, follow the
+[existing-workload assessment contract](../skills/apex-azure-defaults/references/existing-workload-intake.md#assessment-questions-and-unresolved-gaps).
+Ask only when scope, read authorization, or business intent needed to interpret the assessment is genuinely
+ambiguous. Do not gate on absent service/hosting choices, future SKU or reservation preferences, a hard/soft
+budget classification, cost-alert recipients, or undefined performance/SLA/recovery targets. Preserve supplied
+answers; describe absent evidence or targets as unknowns in the artifact, not invented or empty material inputs.
+This exception does not weaken scope approval, independent review, security/governance requirements, or Gate 1.
+
 Use the caller's explicit `execution_mode: direct|delegated`. When absent, an actual top-level
 conversation is direct; do not infer delegation from the agent name or tool list.
 If the calling context is ambiguous, resolve it before a consequential approval.
 
-- **Direct:** invoke native #tool:ask_user for material missing inputs, scoped choices,
-  finding dispositions and Gate 1. Batch independent fields under `message` and
+- **Direct:** invoke native #tool:ask_user for applicable material missing inputs, scoped choices
+  and Gate 1. Per-finding dispositions apply only to legacy workflows; Assessment gaps are reported,
+  not individually dispositioned. Batch independent fields under `message` and
   `requestedSchema.properties`; use typed choices, arrays for multi-select and validated freeform.
   Ask sequentially only when an answer changes a later question.
 - `requestedSchema` contains only `properties`. Never add root `type`, `required`,
@@ -66,6 +76,11 @@ If the calling context is ambiguous, resolve it before a consequential approval.
   delegated forms, never inside the native `message`/`requestedSchema` payload.
   Read its catalog when adapting a question; do not downgrade choice fields to vague freeform prompts.
   Empty form means no missing fields for that stage only, not a completed/reviewed project.
+- Persist the helper's APEX-local `request_id` before display and retain it with actual returned answers;
+  `ask_user` need not return an SDK-issued ID. Follow
+  [input request provenance](../skills/apex-workflow-engine/references/practical-workflow.md#input-request-provenance)
+  for response receipts, recall input records and transparent recovery of existing answers without redundant questions.
+  Missing real answers/owner/scope still block; local IDs never supply approvals or Azure permission.
 - Native choice fields already accept freeform. Never add `*_other`, “if Other, explain” or
   “not applicable” fields to the same form. Ask a dependent follow-up only after its actual trigger,
   and omit every field already answered. Never ask company category and employee count as separate inputs.
@@ -97,8 +112,8 @@ which may submit a new bounded task with those answers. Do not assume universal 
 For each enabled independent review, preflight the exact request and persist `started` before native dispatch.
 Record the actual invocation outcome separately from successful publication using the shared one-shot lifecycle.
 
-- Write only Step 1 outputs, `README.md`, `00-handoff.md`, review decision sidecars and
-  recall-managed state in `agent-output/{project}/`, plus the authorized project-local discovery
+- Write only Step 1 outputs (including `_meta/01-discovered-evidence.json`), `README.md`, `00-handoff.md`,
+  review decision sidecars and recall-managed state in `agent-output/{project}/`, plus the authorized project-local discovery
   answer snapshot/scratch. Reviewer findings are recorder-owned.
   `execute` permits recall, rendering and checks, not arbitrary filesystem or Azure changes.
 - No architecture/SKU derivation, Bicep/Terraform snippets, deployment or upstream edits.
@@ -117,6 +132,17 @@ Record the actual invocation outcome separately from successful publication usin
   for current context reuse and post-write validation. Do not run Markdown lint directly
   against `agent-output/**`; artifact lint belongs to its hook and review owners.
 
+## Phase 0 — Existing-workload evidence (conditional)
+
+For Assessment/existing/brownfield requests, load
+[existing-workload intake](../skills/apex-azure-defaults/references/existing-workload-intake.md)
+before discovery. Read supplied static IaC/diagrams and only explicitly authorized Azure scope.
+Write redacted `_meta/01-discovered-evidence.json`; retain per-subscription completeness and unknowns.
+Use `requirements-discovery.mjs --evidence <path>` for proposed defaults, never captured answers.
+Explicit owner confirmation is required before recall material-input adoption.
+Observed SKUs use `observed-current`/`observed_sku`; only explicit user locks use `user-pin`.
+Do not execute supplied files, deploy resources or treat ARG as authoritative policy discovery.
+
 ## Phase 1 — Business discovery
 
 Build a compact captured/missing/conflicting summary from the brief before questioning.
@@ -124,8 +150,8 @@ Collect missing guided business choices without mixing in their dependent follow
 
 - Supplied project name; industry menu, Startup/Mid-market/Enterprise company category,
   common project/workload descriptions and concrete business-outcome choices.
-- Scenario: greenfield, migration, modernization or extension; target environments and timeline.
-- Only after Migration/Modernization is selected: current platform, pain points and preserved parts.
+- Scenario: greenfield, migration, modernization, extension or assessment; target environments and timeline.
+- Only after Migration/Modernization/Assessment is selected: current platform, pain points and preserved parts.
   Greenfield never receives those fields, not even with “enter not applicable” guidance.
 
 Use enums with a freeform route where appropriate; validate project folder and custom values.
@@ -146,8 +172,14 @@ unexplained numeric blanks. Infer a likely workload pattern and recommend it alo
 alternatives; preserve service selection and SKU preference menus from Phase 3.
 Explicit “not sure” values are carried to Architect as unresolved planning inputs, not fabricated numbers.
 
-Capture `cost_alert_emails` as a validated multi-email list; a known Git email may be offered,
-not assumed. For environments including dev/sandbox and excluding prod/staging, offer:
+For Assessment, reuse supplied scale, budget, sensitivity, performance, availability and recovery information.
+If a target or current measurement is absent, mark it unknown for the WAF assessment instead of asking the user
+to invent a target. Do not ask for a hard/soft budget classification or cost-alert recipient list solely to
+complete assessment requirements; distinguish a stated planning target from a hard cap and keep alert routing
+unverified unless evidence establishes it.
+
+For implementation-planning workflows, capture `cost_alert_emails` as a validated multi-email list; a known Git
+email may be offered, not assumed. For environments including dev/sandbox and excluding prod/staging, offer:
 
 - `enforced`: budget, cost Action Group and anomaly alert.
 - `minimal`: budget only for cost monitoring; operational alerts remain. Explain that budget
@@ -159,37 +191,53 @@ not the Architect-owned alert-routing narrative.
 Unknown recipient role membership is not a repeated Step 1 interrogation; record it for Planner
 to verify before the actual budget/notification binding. Ask deferral rationale/expiry only
 after deferred is selected, never as unconditional blank fields alongside the mode question.
-Persist `iac_tool`, `cost_alert_emails` and applicable monitoring decisions through recall.
+Persist `iac_tool`, `cost_alert_emails` and applicable monitoring decisions through recall only when that
+implementation-planning input is in scope. For Assessment, do not turn an unknown alert recipient into a
+question or a claim about the existing alert configuration.
 Checkpoint `phase_2_workload`.
 
 ## Phase 3 — Service scope and SKU preferences
 
-Load and follow the applicable batches in
+For an Assessment scenario, do not run implementation service-selection, tier/NFR-profile or Phase 3j
+preference interviews. Record only services and SKUs supported by scoped evidence, using `observed-current` for
+known deployed SKUs. A missing SKU remains unknown; it is not a request for a future platform choice. The
+Architect may make recommendations in the WAF assessment without interpreting silence as a user pin. Continue
+to Phase 4.
+
+For new-build, migration, modernization, and extension workflows, load and follow the applicable batches in
 [service-class-menu.md](../skills/apex-azure-defaults/references/service-class-menu.md):
-A → B → C → 3i confirmation → **3j SKU/sizing preferences**.
-The menu guides questions; it does not supply user answers.
+A → B → C → 3i confirmation → 3j SKU/sizing preferences.
+
+For those implementation-planning workflows, the menu guides questions; it does not supply user answers.
 Do not reopen settled service choices or add optional resources to populate a menu.
 
-- Record service requirements and `relational_db`, distinguishing intent from architecture selection.
-- Cover every applicable SKU/sizing class. Supplied pins count; ask for uncovered classes.
+- For implementation planning, record service requirements and `relational_db`, distinguishing intent from
+  architecture selection. Cover every applicable SKU/sizing class. Supplied pins count; ask for uncovered classes.
   Capture explicit tier floors, reserved commitments and environment overrides.
   Do not exhaustively enumerate SKUs or derive a recommendation here.
-- Empty `services[]` is valid only after explicit no-preference answers for every applicable class.
-  Missing elicitation is not no preference.
-- Set `decisions.sku_preferences_captured = true` only when elicitation is complete.
+- Empty `services[]` is valid only after explicit no-preference answers for every applicable class in
+  implementation planning. Missing elicitation is not no preference. Assessment has the separate observed-only
+  manifest rule above.
+- For implementation-planning workflows, set `decisions.sku_preferences_captured = true` only when elicitation
+  is complete. Assessment does not require that preference flag.
 
 Checkpoint `phase_3_nfr`.
 
 ## Phase 4 — Security, compliance and operations
 
-Capture compliance applicability (explicit none/not regulated is valid), frameworks, residency,
-authentication, target region and security measures beyond the mandatory baseline.
+For implementation planning, capture compliance applicability (explicit none/not regulated is valid),
+frameworks, residency, authentication, target region and security measures beyond the mandatory baseline.
+For Assessment, use the known requirements and observed regions; mark unavailable intent or evidence unknown
+instead of asking the user to define a future design.
 Distinguish public-facing web applications from private APIs and identify private-client access.
 Private DNS is required; its eventual owner is verified in Governance, not presumed here.
 
-Ask user-facing access intent with guided choices: existing corporate/VPN access, a new secure path,
-application-only access, private runners, or help designing it.
-Capture authentication/compliance scope and known operational constraints, not detailed network design.
+For implementation planning, ask user-facing access intent with guided choices: existing corporate/VPN access,
+a new secure path, application-only access, private runners, or help designing it.
+For Assessment, reuse known authentication/compliance/access constraints and record unverified details as
+assessment gaps; do not require future network design, exact identities, recipients or technical bindings to
+complete requirements. For implementation planning, capture authentication/compliance scope and known
+operational constraints, not detailed network design.
 Never require monitoring handoff contacts, accountable teams, principal IDs/actions, exact API caller
 runtime, SQL administrator object IDs or fallback tag values just to finish discovery.
 If another team handles monitoring, record that scope once without an interrogation about who/how to reach them.
@@ -205,9 +253,11 @@ not a deprecated service. Checkpoint `phase_4_technical`.
 
 ## Phase 5 — Generate and validate
 
-Enter when the business/workload/service scope is coherent and material discovery questions are answered,
-including explicit “not sure / recommend” answers. Record unresolved technical bindings and their consuming
-phase rather than blocking Step 1 on an implementation questionnaire or demanding an accountable contact.
+For implementation planning, enter when business/workload/service scope is coherent and material discovery
+questions are answered, including explicit “not sure / recommend” answers. For Assessment, a clear evidence
+boundary and objective are sufficient; unresolved targets, controls and implementation details are recorded as
+gaps, not blockers. Record their possible consuming phase without demanding an implementation questionnaire or
+an accountable contact.
 Load `.github/skills/apex-azure-defaults/SKILL.md`,
 `.github/skills/apex-azure-artifacts/SKILL.md`, its
 `01-requirements.template.md` and `PROJECT-README.template.md`, and
@@ -221,7 +271,8 @@ Ask about any material resulting scope choice rather than inventing a replacemen
 
 1. Write `01-requirements.md` with exact template H2s, answers and constraints; no IaC code.
 2. Write `README.md` with Step 1 in progress and later steps pending.
-3. Create `sku-manifest.json` rev 1: entries use `source: "user-pin"`, `source_step: "1"`,
+3. Create `sku-manifest.json` rev 1: explicit locks use `source: "user-pin"`; evidenced current
+   SKUs use `source: "observed-current"` with `observed_sku`. Both use `source_step: "1"`,
    `last_modified_rev: 1`. No architect-derived entries or invented prices.
 4. Render `sku-manifest.md` with `node tools/scripts/render-sku-manifest-md.mjs <project>`.
    Do not hand-edit that view.
@@ -266,7 +317,12 @@ identical-input retry within the existing budget, then a human recovery decision
 
 Render every finding in a multiline table: ID, severity, claim, WAF pillar (or Not supplied),
 recommendation; show actual totals and the sidecar path.
-Apply the Per-Finding Decision Protocol: one independent typed field per actionable finding,
+For `practical-v1`, do not request administrative Accept/Reject/Defer/Edit dispositions for routine findings.
+Batch mechanical corrections within this owner's artifact scope when they only restore already-captured facts,
+run focused checks, and use the bounded closure review. Preserve assessment gaps as reported findings; do not
+try to resolve them by inventing targets or asking the user to approve a remediation. Ask only when a proposed
+change alters a material answer/scope or needs new authority. Legacy projects retain the
+Per-Finding Decision Protocol: one independent typed field per actionable finding,
 canonical Accept/Reject/Defer/Edit choices, existing panel cap and decision reuse.
 Persist per-finding notes from that field's custom answer; never add unconditional companion note fields.
 Only literal Edit without guidance or genuine ambiguity needs a finding-specific follow-up.
@@ -302,8 +358,10 @@ Environment switches, unattended operation and task success waive none of these.
 Out-of-scope writes return to their owner.
 
 Once current findings are shown and blockers resolved, present Gate 1: Proceed or Revise.
-Revise means capture the change, validate and re-review affected inputs. Proceed needs evidenced human
-approval, then `apex-recall complete-step <project> 1 --json`; update README only after success.
+In Assessment mode this approves the documented requirements and assessment scope only; it does not approve
+compliance, close gaps, accept remediation, or authorize deployment. Revise means capture the change, validate
+and re-review affected inputs. Proceed needs evidenced human approval, then
+`apex-recall complete-step <project> 1 --json`; update README only after success.
 
 ## Completion Handoff
 

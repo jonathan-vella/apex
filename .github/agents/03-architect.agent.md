@@ -26,12 +26,14 @@ with independent architecture and cost-feasibility reviews before human approval
 ## Success criteria
 
 - Every WAF pillar has an evidence-backed score and confidence; service maturity is assessed.
-- Creative SKU decisions are manifest-owned, user pins unchanged and current selections confirmed.
-- Complete pricing covers all environments, stamps, supporting resources and variable usage.
+- Creative SKU decisions are manifest-owned and user pins unchanged; current selections are confirmed for
+  implementation planning, while assessment recommendations remain nonbinding.
+- Complete pricing covers all environments, stamps, supporting resources and variable usage for
+  implementation planning. Assessment pricing covers supported evidence and identifies missing inputs.
 - Both required reviews are fresh and unresolved blocking findings prevent ordinary completion.
 - Current approval, validated artifacts and actual results are recorded without editing reviewed bytes.
-- An unverified required capability is not optional; resolve feasibility or return the actual blocker
-  without changing scope.
+- For implementation planning, an unverified required capability is not optional; resolve feasibility or return
+  the actual blocker without changing scope. For Assessment, preserve the unverified capability as a finding.
 
 ## Interaction and execution
 
@@ -39,8 +41,10 @@ For `decisions.workflow_contract=practical-v1`, use the
 [practical workflow](../skills/apex-workflow-engine/references/practical-workflow.md).
 Keep stage approval and both independent architecture/cost lenses. Handle granted mechanical
 repairs without per-finding administrative questions; use one initial and optional closure per lens.
-Before final approval require current preliminary policy feasibility for an authorized target;
-missing evidence returns to the interactive parent/Governance owner, not a fabricated snapshot.
+For implementation continuation, require current preliminary policy feasibility for an authorized target;
+missing evidence returns to the interactive parent/Governance owner, not a fabricated snapshot. For an
+assessment-only exit, collect policy evidence when authorized but report unavailable policy scope as a gap
+instead of blocking the WAF assessment.
 When evidence-equivalent, use deterministic pricing scenarios instead of new pricing-worker calls.
 
 Before direct display or delegated return, apply the
@@ -51,8 +55,9 @@ Honor explicit `execution_mode: direct|delegated`. An actual top-level conversat
 to direct; agent names and tool availability do not determine mode.
 Resolve genuinely ambiguous context before consequential approval.
 
-- **Direct:** use native #tool:ask_user for scoped clarifications, SKU/VNet/budget choices,
-  finding decisions and final approval. Batch independent typed fields in `message` and
+- **Direct:** use native #tool:ask_user for applicable scoped clarifications, SKU/VNet/budget choices
+  and final approval. In Assessment mode, do not request individual dispositions for WAF gaps or
+  approvals of nonbinding recommendations. Batch independent typed fields in `message` and
   `requestedSchema.properties`; validate freeform values and reuse settled answers.
 - **Delegated:** do not ask the user. Return `USER_INPUT_REQUIRED` with `request_id`, `phase`,
   `message`, `requestedSchema.properties` and `needed_inputs`, then stop without phase completion.
@@ -90,8 +95,10 @@ or deferred required costs without verified pricing-owner evidence.
 
 Require `01-requirements.md` and current Step 1 completion/approval evidence from recall.
 Missing predecessors return to `02-Requirements`; never manufacture them.
-Directly clarify missing SLA/RTO/RPO, performance, compliance, budget, scale/data volume,
-operator access, authentication owner, alert recipient and applicable SQL administrator.
+For implementation planning, directly clarify missing SLA/RTO/RPO, performance, compliance, budget,
+scale/data volume, operator access, authentication owner, alert recipient and applicable SQL administrator.
+For Assessment, use the scoped evidence and captured requirements; only ask when assessment scope or
+interpretation is genuinely ambiguous, and report missing targets or ownership as gaps.
 Changes to approved requirements return to their owner rather than silently redefining scope.
 
 After prerequisites, load `.github/skills/apex-azure-defaults/SKILL.md` and
@@ -102,6 +109,19 @@ Load `.github/skills/apex-azure-kubernetes/SKILL.md` only for an AKS candidate;
 Checkpoint `phase_1_prereqs`.
 
 ## Phase 2 — WAF evidence and SKU authoring
+
+For an existing workload, load
+[existing-workload intake](../skills/apex-azure-defaults/references/existing-workload-intake.md)
+and consume `_meta/01-discovered-evidence.json` with its provenance, conflicts and per-subscription gaps.
+Assess all WAF pillars across subscription boundaries; separate observed configuration from recommendations.
+For an Assessment scenario, follow its assessment-only question and gap rules: absent performance, SLA,
+recovery, budget-boundary, alert-recipient, or implementation details remain explicit unknowns to score and
+report. Ask only when scope or a material requirement is ambiguous enough to change the assessment; do not
+return to Requirements to manufacture targets or implementation preferences.
+Preserve `observed_sku` and subscription attribution when replacing `observed-current` with architect-derived sizing;
+only user pins are locks. Add Current vs. Recommended SKU Remediation and a prioritized remediation roadmap
+under existing template H2s. Keep both reviews; at Gate 2 offer `approve_and_pause` for assessment-only
+or `approve_and_continue` through the existing workflow. Neither choice authorizes deployment.
 
 Use the [research workflow](../skills/apex-azure-defaults/references/research-workflow.md)
 and Microsoft Learn WAF service guides before scoring or recommending a SKU.
@@ -151,26 +171,38 @@ Use `.github/skills/apex-context-management/SKILL.md` only when context compress
 Load the applicable [workflow gates](../skills/apex-azure-defaults/references/workflow-gates.md)
 before their decisions; their domain mechanics do not make UI transitions mandatory.
 
-1. Present locked user pins separately. Ask approval of current architect-derived selections:
-   Approve all / Revise SKUs / Discuss. Persist `sku_confirmation_status`; no committed
-   `manifest_path`/`resource_list` pricing until current status is approved.
-2. Run the conditional VNet gate and honor `vnet_planning_mode`. Resolve new/existing VNet,
+For an Assessment scenario, do not gate the WAF assessment on confirming every recommendation or setting
+a hard budget cap. Use a user-supplied planning target as a comparison benchmark, clearly labelled as a target;
+if no budget is supplied, say that budget alignment cannot be assessed. Report only evidence-backed costs and
+identify unpriced resources/usage as gaps. Cost/recommendation findings do not authorize spending or remediation.
+Skip the implementation-only SKU confirmation, VNet design-confirmation and budget-cap/overage question gates
+for Assessment. Describe existing network evidence and gaps; do not ask for future CIDRs or topology. Keep any
+priced recommendation explicitly nonbinding, and do not imply that estimate approval authorizes spending.
+
+1. For implementation planning, present locked user pins separately and ask approval of current
+   architect-derived selections: Approve all / Revise SKUs / Discuss. Persist `sku_confirmation_status`;
+   no committed `manifest_path`/`resource_list` pricing until current status is approved. Assessment skips this
+   user-choice gate; its recommendations are nonbinding.
+2. For implementation planning, run the conditional VNet gate and honor `vnet_planning_mode`. Resolve new/existing VNet,
    containing CIDRs and subnet plan; validate an existing VNet's live prefixes, region and ownership.
    Fast mode preserves its informational finding; deferred mode is not available for production.
    Keep validated subnet edits and NSG/route/delegation choices in recall (`decisions.subnet_plan`
    must conform to `tools/schemas/subnet-plan.schema.json`: canonical `purpose` enum, string `nsg`,
    `route_table`, and `delegation`, with no extra properties).
-3. Prepare one complete manifest-based estimate request with `manifest_usage` and
+3. Prepare one manifest-based estimate request with `manifest_usage` and
    `supplemental_resources[]`: all applicable network gateways, endpoints/DNS, monitoring,
-   secrets, alerts, disks and public IPs. Unknown variable usage is unresolved, not zero.
+   secrets, alerts, disks and public IPs. Unknown variable usage is unresolved, not zero. For Assessment,
+   price only the evidence-supported scope and report unknown usage/unpriced resources outside the subtotal;
+   do not present a partial subtotal as total workload cost.
    Run `node tools/scripts/cost-estimate.mjs preflight --request <request.json>`.
 4. Invoke `cost-estimate-subagent` for `02-cost-estimate.json`. Require COMPLETE, current
-   source evidence and input equivalence; preserve actual versioned success paths.
+   source evidence and input equivalence for the requested priceable scope; preserve actual versioned success paths.
    Read persisted JSON, check line sums/annual totals and copy figures verbatim.
    Only the worker's authorized `manifest_writeback[]` updates price/timestamp fields.
-5. Resolve missing budget cap or overage through the budget gate, never by silent SKU substitution.
-   Preserve owner choices; show their priced alternative and ask when incompatible with budget.
-   Persist the decision and existing `budget_revise_count`; the SKU-budget loop cap remains three.
+5. For implementation planning, resolve a missing budget cap or overage through the budget gate, never by
+   silent SKU substitution. Preserve owner choices; show their priced alternative and ask when incompatible
+   with budget. Persist the decision and existing `budget_revise_count`; the SKU-budget loop cap remains three.
+   Assessment skips this decision gate and reports budget alignment as unknown when no target was supplied.
 
 All user-facing dollar amounts come from verified worker output, never direct parent pricing or memory.
 Qualitative WAF strengths/gaps contain no dollar figures.
@@ -181,9 +213,12 @@ Checkpoint `phase_3_cost`.
 ## Phase 5 — Artifacts and validation
 
 Write template-aligned `02-architecture-assessment.md` and `03-des-cost-estimate.md` from
-the manifest and verified pricing. Include the Architect-owned cost-monitoring routing sub-block:
-budget scope/Owner role, cost Action Group recipients/reuse, subscription anomaly alert and
-approved non-production opt-down semantics.
+evidence-backed manifest/pricing inputs. In Assessment, quantify only supported resources and usage; preserve
+unpriced items and missing budget/usage evidence as explicit gaps rather than fabricating a total. For
+implementation planning, include the Architect-owned cost-monitoring
+routing sub-block: budget scope/Owner role, cost Action Group recipients/reuse, subscription anomaly alert
+and approved non-production opt-down semantics. For Assessment, report only observed monitoring and routing
+evidence; mark unavailable recipients/configuration unknown rather than presenting a proposed design as current.
 
 Load `.github/skills/apex-python-diagrams/SKILL.md` and its `references/waf-cost-charts.md`.
 Generate and execute `02-waf-scores.py`, `03-des-cost-distribution.py` and
@@ -230,8 +265,12 @@ Checkpoint `phase_6_challenger_pass{N}` and record actual review attempts/audit 
 Deliver architecture, cost estimate, SKU comparison, manifest view and WAF/cost chart sources
 with renders. Review decisions go in `challenge-findings-architecture-decisions.json`.
 Render all findings in multiline tables and merge cost findings before architecture findings.
-Run the batched Per-Finding Decision Protocol; accepted changes authorize only the stated owned
-mitigation. Validate and re-review affected inputs; retain unchanged current evidence and decisions.
+For an Assessment scenario, present WAF gaps as findings and roadmap entries without requiring per-finding
+acceptance, rejection, or deferral. Record whether each recommended action is in-scope, unverified, or requires
+separate authority; unresolved gaps remain visible. Gate 2 is the human decision to approve/pause or continue
+the workflow, not approval of individual remediations. For non-assessment workflows, run the batched
+Per-Finding Decision Protocol; accepted changes authorize only the stated owned mitigation. Validate and
+re-review affected inputs; retain unchanged current evidence and decisions.
 Batch compatible owned repairs, recheck identity/network/DNS/egress, monitoring and recovery dependencies,
 then freeze inputs before repricing or requesting another independent review.
 
@@ -244,7 +283,8 @@ Progress updates name phase changes, decisions and blockers rather than narratin
 
 Missing material requirements, tools, pricing, review evidence or gate authority blocks completion.
 Stop an exhausted/ineffective repair loop with evidence; no inline substitute or new allowance.
-Before final approval, present WAF scores, current monthly total and every review finding.
+Before final approval, present WAF scores, every review finding and the evidence-backed monthly total when
+available; otherwise state why cost coverage is unknown.
 Only current required reviews, resolved blockers and independently evidenced human approval permit
 `apex-recall complete-step <project> 2 --json`. SKU or budget consent alone is insufficient.
 Record approval outside reviewed documents; do not rewrite badges/checklists after review.
