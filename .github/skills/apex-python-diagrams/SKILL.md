@@ -84,25 +84,24 @@ Draw the approved specification faithfully; never redesign or invent unapproved 
   * **Migration / notes / policy / exceptions (`AM` / `AMB` / `AMF`)**: Stroke `#D18B00` / `#F2A900` on fill `#FFF6DD`
   * **Identity (`PU` / `PUF`)**: Stroke `#7B3FA0`, fill `#F3ECF8`
 * **Distinct Boundaries** (containment = boundary, relationship = arrow):
-  * **Tenant**: Heavy navy solid border (`NAVY`, `sw=2.5`)
+  * **Tenant**: `tenant(x=30, y=80, w=1860, h=940, name="Microsoft Entra tenant")` — heavy navy solid border (`NAVY`, `sw=3`, `rx=14`) + `ten` icon
   * **Management group**: Filled rounded box with `mg` icon
   * **Subscription**: `sub(x, y, w, h, name, col, fill, badgetxt, bw)` — solid `2.5px` border + `sub` icon + top-right scope badge
   * **Resource group**: `rg(x, y, w, h, name, col)` — dashed `1.8px` border (`stroke-dasharray="7 4"`) + `rg` icon
   * **VNet / Subnet**: Solid box inside RG with `vnet` / `subnet` icon and CIDR block in the header
-* **Semantic Connectors (`arr(d, kind=...)`)**:
+* **Semantic Connectors (`arr(d, kind=...)`, `vbracket(...)`, `legend(...)`, `chevron(...)`)**:
   * `net` (solid blue `#0078D4`): network/request traffic
   * `id` (dashed purple `#7B3FA0`): identity, RBAC, token/secret authorization
   * `dns` (dotted teal `#008272`): private DNS resolution
   * `tel` (dashed slate `#5B6B7B`): diagnostics and OpenTelemetry/Log Analytics
   * `mig` (solid amber `#D18B00`): replication / migration cutover path
   * `off` (dashed grey `#8A98A8`): disabled / decommissioned path
-* **Typography & Anti-Crowding**:
-  * Body `17–22px`, headers `20–26px`, badges `15px` bold, nothing below `~12px`.
-  * Keep text inside boxes (`~0.52em/char` regular, `~0.56em/char` bold). XML-escape `<`, `>`, and `&` (`&lt;`, `&gt;`, `&amp;`).
-  * Keep a `20px+` gap between sibling boxes and leave dedicated routing corridors for orthogonal connectors (`M...H...V...`).
-  * Order subnets/cards so arrows land without crossing unrelated cards.
-  * Prefer numbered/lettered callout badges (`circ(x, y, "A", BL)`) with a bottom "Example paths / Key facts" panel over crowded inline connector labels.
-  * Place legends and callout panels in free space, never overlapping the title or top-left tenant header (`x=30..480, y=92..121`). List only used connector types in the legend.
+* **Typography & Anti-Crowding (`gen02` / `gen08` / `gen09` Visual Standard)**:
+  * Body `16–22px`, headers `20–26px`, badges `15px` bold, nothing below `~12px`.
+  * Keep service cards compact (`1–2` lines, `h=44..84`) with concise titles (`"Blob Storage"`, `"Azure OpenAI"`, `"snet-pe / Private endpoints"`). Never pack 3–4 lines of spec-sheet prose into wide full-width text blocks.
+  * Group stacked Private Endpoint or VNet-integrated targets with `vbracket(x, y1, y2)` and label connectors directly with inline `chip()` / `chip2()` pills.
+  * Anchor end-to-end overview diagrams with an outer `tenant()` frame, a top-left visual `legend(60, 172, ...)` listing only used connector kinds, and a bottom 5-stage `chevron()` bar + summary `chip()`.
+  * Keep a `20px+` gap between sibling boxes, leave dedicated routing corridors for orthogonal connectors (`M...H...V...`), and use Unicode `→` (`\u2192`) rather than ASCII `->` in text labels.
 
 ## Official Azure SVG Icons (`assets/`)
 

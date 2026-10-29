@@ -140,3 +140,29 @@ def test_render_dlib_via_diagram_io(dlib: ModuleType, diagram_io: ModuleType, tm
     written = diagram_io.render_dlib(base, "AKS Topology", footer="APEX Custom Footer")
     assert {p.suffix for p in written} == {".svg", ".png"}
     assert "APEX Custom Footer" in (tmp_path / "03-des-diagram.svg").read_text(encoding="utf-8")
+
+
+def test_gen02_helpers_tenant_legend_vbracket_and_chevron(
+    dlib: ModuleType, capsys: pytest.CaptureFixture[str], tmp_path: Path
+) -> None:
+    dlib.reset()
+    dlib.add(dlib.tenant(30, 80, 1860, 940, "Microsoft Entra tenant"))
+    dlib.add(
+        dlib.legend(
+            60,
+            172,
+            [
+                ("net", "Public HTTPS / PE"),
+                ("id", "Entra OIDC / MI"),
+                ("dns", "Private DNS link"),
+                ("tel", "Diagnostics & alerts"),
+                ("attach", "Subnet attachment"),
+            ],
+        )
+    )
+    dlib.add(dlib.vbracket(1358, 635, 805))
+    dlib.add(dlib.chevron(60, 937, 352, 44, "Phase 1", "Foundation & DNS"))
+    assert capsys.readouterr().out == ""
+
+    dlib.chevron(60, 937, 90, 44, "Phase 1", "This chevron label is far too wide for ninety pixels")
+    assert "WARN overflow:" in capsys.readouterr().out

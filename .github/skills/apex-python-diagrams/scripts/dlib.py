@@ -202,7 +202,7 @@ def add(s: str) -> None:
 def est(s: str, size: float, bold: bool = False) -> float:
     """Estimate rendered pixel width of text `s` at `size` px."""
     clean = re.sub(r"<[^>]+>", "", s).replace("&lt;", "<").replace("&gt;", ">").replace("&amp;", "&")
-    return len(clean) * size * (0.56 if bold else 0.52)
+    return len(clean) * size * (0.60 if bold else 0.55)
 
 
 def ic(k: str, x: float, y: float, s: float = 36) -> str:
@@ -229,6 +229,13 @@ def box(
     return f'<rect x="{x}" y="{y}" width="{w}" height="{h}" rx="{rx}" fill="{fill}" stroke="{stroke}" stroke-width="{sw}" {ext}/>'
 
 
+def _xml_escape_text(s: str) -> str:
+    """Escape bare `&` and `<` while preserving intentional inline `<tspan>` tags and XML entities."""
+    escaped = re.sub(r"&(?!(?:amp|lt|gt|quot|apos|#\d+|#x[0-9a-fA-F]+);)", "&amp;", str(s))
+    escaped = re.sub(r"<(?!(?:/?tspan\b))", "&lt;", escaped)
+    return escaped
+
+
 def t(
     x: float,
     y: float,
@@ -242,7 +249,7 @@ def t(
     """Draw a `<text>` element and emit a `WARN overflow:` hint if estimated width exceeds `mw`."""
     if mw and est(s, size, w == "700") > mw:
         print("WARN overflow:", s[:50], round(est(s, size, w == "700")), ">", mw)
-    return f'<text x="{x}" y="{y}" font-size="{size}" font-weight="{w}" fill="{fill}" text-anchor="{anchor}">{s}</text>'
+    return f'<text x="{x}" y="{y}" font-size="{size}" font-weight="{w}" fill="{fill}" text-anchor="{anchor}">{_xml_escape_text(s)}</text>'
 
 
 def rg(
@@ -380,6 +387,87 @@ def sub(
     if badgetxt:
         r += badge(x + w - bw - 14, y + 10, bw, badgetxt, col)
     return r
+
+
+def tenant(
+    x: float = 30,
+    y: float = 80,
+    w: float = 1860,
+    h: float = 940,
+    name: str = "Microsoft Entra tenant",
+) -> str:
+    """Draw an outer Microsoft Entra tenant frame (`gen02` style)."""
+    return (
+        box(x, y, w, h, "none", NAVY, sw=3, rx=14)
+        + ic("ten", x + 20, y + 12, 40)
+        + t(x + 70, y + 41, name, 26, "700", NAVY)
+    )
+
+
+def legend(
+    x: float,
+    y: float,
+    items: list[tuple[str, str]],
+    *,
+    title: str = "Legend",
+    row_h: float = 34,
+    line_w: float = 68,
+) -> str:
+    """Draw a vertical connector legend (`gen02` top-left style)."""
+    out = t(x, y, title, 18, "700", NAVY) if title else ""
+    y0 = y + (26 if title else 0)
+    for i, (kind, label) in enumerate(items):
+        cy = y0 + i * row_h
+        if kind == "peer":
+            out += arr(f"M{x+4} {cy}H{x+4+line_w}", "net", start=True, end=True)
+        elif kind == "attach":
+            out += f'<path d="M{x+4} {cy}H{x+4+line_w}" stroke="{BL}" stroke-width="2.5" fill="none"/>'
+        else:
+            out += arr(f"M{x+4} {cy}H{x+4+line_w}", kind, start=False, end=(kind != "dns"))
+        out += t(x + 16 + line_w, cy + 6, label, 16, "400", NAVY)
+    return out
+
+
+def vbracket(
+    x: float,
+    y1: float,
+    y2: float,
+    tick: float = 8,
+    stroke: str = BL,
+    sw: float = 2.5,
+) -> str:
+    """Draw a vertical grouping bracket from `(x, y1)` to `(x, y2)` with horizontal ticks."""
+    return (
+        f'<path d="M{x} {y1}V{y2}M{x} {y1}H{x+tick}M{x} {y2}H{x+tick}" '
+        f'stroke="{stroke}" stroke-width="{sw}" fill="none"/>'
+    )
+
+
+def chevron(
+    x: float,
+    y: float,
+    w: float,
+    h: float,
+    code: str,
+    label: str,
+    stroke: str = BL,
+    fill: str = BLF,
+    tip: float = 22,
+    size: float = 17,
+) -> str:
+    """Draw a process chevron step (`gen02` bottom bar style)."""
+    ym = y + h / 2
+    pts = f"{x},{y} {x+w-tip},{y} {x+w},{ym} {x+w-tip},{y+h} {x},{y+h}"
+    combined = f"{code}  {label}"
+    est_w = est(code, size, True) + est(f"  {label}", size, False)
+    max_w = w - tip - 20
+    if est_w > max_w:
+        print("WARN overflow:", combined[:50], round(est_w), ">", round(max_w))
+    txt = f'<tspan font-weight="700" fill="{stroke}">{_xml_escape_text(code)}</tspan>  {_xml_escape_text(label)}'
+    return (
+        f'<polygon points="{pts}" fill="{fill}" stroke="{stroke}" stroke-width="1.8"/>'
+        f'<text x="{x+16}" y="{ym+6}" font-size="{size}" font-weight="400" fill="{NAVY}">{txt}</text>'
+    )
 
 
 def folder(x: float, y: float, s: float = 30) -> str:
