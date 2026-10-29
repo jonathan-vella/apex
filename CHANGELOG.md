@@ -11,6 +11,7 @@ Entries are grouped by conventional-commit type. Breaking changes list the migra
 Add `/waf-assess-existing` for evidence-based WAF assessment from IaC, diagrams, or scoped multi-subscription
 Azure inventory. Preserve missing evidence, targets, budgets, and implementation preferences as assessment gaps;
 keep observed SKUs distinct from user-locked choices. Gate 1 approves assessment requirements and scope only.
+Store discovered evidence under `_meta/` to preserve the layout-v2 Markdown-only project root.
 
 ### Fixes
 

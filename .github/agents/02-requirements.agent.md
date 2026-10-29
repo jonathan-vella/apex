@@ -112,7 +112,7 @@ which may submit a new bounded task with those answers. Do not assume universal 
 For each enabled independent review, preflight the exact request and persist `started` before native dispatch.
 Record the actual invocation outcome separately from successful publication using the shared one-shot lifecycle.
 
-- Write only Step 1 outputs (including `01-discovered-evidence.json`), `README.md`, `00-handoff.md`,
+- Write only Step 1 outputs (including `_meta/01-discovered-evidence.json`), `README.md`, `00-handoff.md`,
   review decision sidecars and recall-managed state in `agent-output/{project}/`, plus the authorized project-local discovery
   answer snapshot/scratch. Reviewer findings are recorder-owned.
   `execute` permits recall, rendering and checks, not arbitrary filesystem or Azure changes.
@@ -137,7 +137,7 @@ Record the actual invocation outcome separately from successful publication usin
 For Assessment/existing/brownfield requests, load
 [existing-workload intake](../skills/apex-azure-defaults/references/existing-workload-intake.md)
 before discovery. Read supplied static IaC/diagrams and only explicitly authorized Azure scope.
-Write redacted `01-discovered-evidence.json`; retain per-subscription completeness and unknowns.
+Write redacted `_meta/01-discovered-evidence.json`; retain per-subscription completeness and unknowns.
 Use `requirements-discovery.mjs --evidence <path>` for proposed defaults, never captured answers.
 Explicit owner confirmation is required before recall material-input adoption.
 Observed SKUs use `observed-current`/`observed_sku`; only explicit user locks use `user-pin`.

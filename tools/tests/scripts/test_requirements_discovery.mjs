@@ -381,6 +381,19 @@ test("existing-workload entrypoint and owners share the local provenance and rec
   assert.match(contract, /Autopilot output still does not establish independent human authority/);
 });
 
+test("existing-workload evidence uses the layout-v2 input directory", () => {
+  for (const relative of [
+    ".github/agents/02-requirements.agent.md",
+    ".github/agents/03-architect.agent.md",
+    ".github/skills/apex-azure-defaults/references/existing-workload-intake.md",
+    ".github/skills/apex-azure-artifacts/templates/01-requirements.template.md",
+  ]) {
+    const contents = fs.readFileSync(new URL(`../../../${relative}`, import.meta.url), "utf8");
+    assert.match(contents, /_meta\/01-discovered-evidence\.json/, relative);
+    assert.doesNotMatch(contents, /agent-output\/\{project\}\/01-discovered-evidence\.json/, relative);
+  }
+});
+
 test("existing-workload assessments preserve unknowns instead of requiring implementation answers", () => {
   const contracts = [
     [".github/prompts/waf-assess-existing.prompt.md", /assessment-only, not implementation planning/],

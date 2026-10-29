@@ -92,7 +92,7 @@ Graph** alongside interactive gap-filling Q&A:
      (`.png`/`.jpg` via multimodal `view`, `.py` `sub()`/`mg()`/`rg()`/`vnet()` boundaries, `.md` Mermaid,
      `.drawio`/`.svg`), and optionally executes read-only cross-subscription
      `az graph query --subscriptions <id1> <id2>` with strict property allowlisting and secret/tag-value redaction.
-   - Writes `agent-output/{project}/01-discovered-evidence.json` recording per-item `provenance`
+   - Writes `agent-output/{project}/_meta/01-discovered-evidence.json` recording per-item `provenance`
      (`"iac" | "diagram" | "azure-arg"`), `confidence` (`"observed" | "inferred"`), and per-subscription
      access/completeness status (`"complete" | "partial"`).
    - Feeds `01-discovered-evidence.json` via `--evidence` into `tools/scripts/requirements-discovery.mjs` to present

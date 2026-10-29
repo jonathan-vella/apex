@@ -112,7 +112,7 @@ Checkpoint `phase_1_prereqs`.
 
 For an existing workload, load
 [existing-workload intake](../skills/apex-azure-defaults/references/existing-workload-intake.md)
-and consume `01-discovered-evidence.json` with its provenance, conflicts and per-subscription gaps.
+and consume `_meta/01-discovered-evidence.json` with its provenance, conflicts and per-subscription gaps.
 Assess all WAF pillars across subscription boundaries; separate observed configuration from recommendations.
 For an Assessment scenario, follow its assessment-only question and gap rules: absent performance, SLA,
 recovery, budget-boundary, alert-recipient, or implementation details remain explicit unknowns to score and

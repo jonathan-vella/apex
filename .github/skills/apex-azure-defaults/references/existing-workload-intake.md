@@ -97,7 +97,7 @@ Record that edge as an unverified external dependency.
 
 ## Evidence, confirmation and SKU handoff
 
-Write `agent-output/{project}/01-discovered-evidence.json` as `{items: [...], subscriptions: [...]}` with:
+Write `agent-output/{project}/_meta/01-discovered-evidence.json` as `{items: [...], subscriptions: [...]}` with:
 
 - Per-item stable material-input ID and proposed value where applicable, `provenance: iac|diagram|azure-arg`,
   `confidence: observed|inferred`, source locator (file/line or resource/query), observation timestamp and subscription.

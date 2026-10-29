@@ -71,7 +71,7 @@ Optional for existing or multi-subscription workloads; omit when inapplicable.
 
 ### Discovered Evidence Provenance
 
-Optional for evidence-led intake. Link redacted `01-discovered-evidence.json`; do not copy raw resource properties.
+Optional for evidence-led intake. Link redacted `_meta/01-discovered-evidence.json`; do not copy raw resource properties.
 Discovered defaults require explicit owner confirmation before becoming requirements.
 
 | Fact / material input | Provenance / source | Confidence | Subscription / observed date | Coverage / conflicts / confirmation |
