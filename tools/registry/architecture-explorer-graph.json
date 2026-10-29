@@ -1,6 +1,6 @@
 {
   "$schema": "../../tools/schemas/explorer-graph.schema.json",
-  "generatedAt": "2026-10-27T08:22:50.539Z",
+  "generatedAt": "2026-10-29T18:46:11.851Z",
   "categories": [
     { "id": "agent", "key": "agents", "label": "Agent", "color": "#3b82f6", "shape": "round-rectangle", "count": 14 },
     {
@@ -20,7 +20,7 @@
       "shape": "rectangle",
       "count": 26
     },
-    { "id": "prompt", "key": "prompts", "label": "Prompt", "color": "#ec4899", "shape": "tag", "count": 0 },
+    { "id": "prompt", "key": "prompts", "label": "Prompt", "color": "#ec4899", "shape": "tag", "count": 1 },
     {
       "id": "validator",
       "key": "validators",
@@ -39,8 +39,8 @@
     },
     { "id": "mcp", "key": "mcp_servers", "label": "MCP Server", "color": "#f43f5e", "shape": "barrel", "count": 2 }
   ],
-  "nodeCount": 171,
-  "edgeCount": 556,
+  "nodeCount": 172,
+  "edgeCount": 560,
   "nodes": [
     {
       "id": "agent:01-orchestrator",
@@ -1322,6 +1322,17 @@
         "source": "https://github.com/jonathan-vella/apex/blob/main/.github/instructions/vendor-prompting.instructions.md"
       },
       "meta": { "applyTo": "**/*.agent.md, **/*.prompt.md" }
+    },
+    {
+      "id": "prompt:waf-assess-existing",
+      "category": "prompt",
+      "label": "waf-assess-existing",
+      "description": "Assess an existing Azure workload from IaC, architecture diagrams and optional read-only multi-subscription inventory.",
+      "path": ".github/prompts/waf-assess-existing.prompt.md",
+      "links": {
+        "source": "https://github.com/jonathan-vella/apex/blob/main/.github/prompts/waf-assess-existing.prompt.md"
+      },
+      "meta": { "agent": "01-Orchestrator" }
     },
     {
       "id": "validator:validate-artifacts",
@@ -2662,6 +2673,12 @@
       "kind": "uses-skill"
     },
     {
+      "id": "prompt:waf-assess-existing--invokes->agent:01-orchestrator",
+      "source": "prompt:waf-assess-existing",
+      "target": "agent:01-orchestrator",
+      "kind": "invokes"
+    },
+    {
       "id": "instruction:agent-authoring--applies-to->agent:01-orchestrator",
       "source": "instruction:agent-authoring",
       "target": "agent:01-orchestrator",
@@ -2785,6 +2802,12 @@
       "id": "instruction:agent-authoring--applies-to->subagent:terraform-validate-subagent",
       "source": "instruction:agent-authoring",
       "target": "subagent:terraform-validate-subagent",
+      "kind": "applies-to"
+    },
+    {
+      "id": "instruction:agent-authoring--applies-to->prompt:waf-assess-existing",
+      "source": "instruction:agent-authoring",
+      "target": "prompt:waf-assess-existing",
       "kind": "applies-to"
     },
     {
@@ -4852,6 +4875,12 @@
       "kind": "applies-to"
     },
     {
+      "id": "instruction:vendor-prompting--applies-to->prompt:waf-assess-existing",
+      "source": "instruction:vendor-prompting",
+      "target": "prompt:waf-assess-existing",
+      "kind": "applies-to"
+    },
+    {
       "id": "workflow:ci--runs->validator:lint-powershell",
       "source": "workflow:ci",
       "target": "validator:lint-powershell",
@@ -5449,6 +5478,12 @@
       "id": "skill:apex-mermaid--refs->skill:apex-python-diagrams",
       "source": "skill:apex-mermaid",
       "target": "skill:apex-python-diagrams",
+      "kind": "refs"
+    },
+    {
+      "id": "skill:apex-python-diagrams--refs->skill:apex-azure-adr",
+      "source": "skill:apex-python-diagrams",
+      "target": "skill:apex-azure-adr",
       "kind": "refs"
     },
     {

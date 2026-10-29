@@ -310,6 +310,82 @@ test("manifest expansion preserves sparse environment overrides and rejects supp
   );
 });
 
+test("manifest expansion propagates stamp subscription, service fallback, or null without changing pricing inputs", (context) => {
+  const dir = fs.mkdtempSync(path.join(HERE, ".cost-subscriptions-"));
+  context.after(() => fs.rmSync(dir, { recursive: true, force: true }));
+  const manifestPath = path.join(dir, "sku-manifest.json");
+  const scenarios = [
+    { serviceSubscription: undefined, stampSubscription: undefined, stamped: false, expected: null },
+    { serviceSubscription: "hub", stampSubscription: undefined, stamped: false, expected: "hub" },
+    { serviceSubscription: undefined, stampSubscription: undefined, stamped: true, expected: null },
+    { serviceSubscription: "hub", stampSubscription: undefined, stamped: true, expected: "hub" },
+    { serviceSubscription: undefined, stampSubscription: "spoke", stamped: true, expected: "spoke" },
+    { serviceSubscription: "hub", stampSubscription: "hub", stamped: true, expected: "hub" },
+    // The validator rejects conflicting declarations; expansion still has deterministic precedence.
+    { serviceSubscription: "hub", stampSubscription: "spoke", stamped: true, expected: "spoke" },
+  ];
+  for (const { serviceSubscription, stampSubscription, stamped, expected } of scenarios) {
+    const manifest = makeManifest({ environments: ["dev", "prod"] });
+    for (const service of manifest.services) {
+      service.subscription = serviceSubscription;
+      service.observed_sku = "Original";
+      service.environment_overrides = { dev: { size: "Smaller", capacity: { mode: "fixed", default: 2 } } };
+    }
+    if (stamped) {
+      manifest.stamps = [
+        { id: "eu", regions: ["swedencentral", "germanywestcentral"], subscription: stampSubscription },
+      ];
+    }
+    fs.writeFileSync(manifestPath, JSON.stringify(manifest));
+    const normalized = normalizeCostRequest({
+      project_name: "demo",
+      region: "swedencentral",
+      output_path: path.join(dir, "out.json"),
+      manifest_path: manifestPath,
+    });
+    assert.equal(normalized.lines.length, stamped ? 12 : 6);
+    for (const line of normalized.lines) {
+      assert.equal(line.subscription, expected);
+      assert.equal(line.stamp, stamped ? "eu" : null);
+      assert.equal(
+        line.sku,
+        line.environment === "dev" ? "Smaller" : manifest.services.find((s) => s.id === line.manifest_service_id).size,
+      );
+      assert.equal(line.quantity, line.environment === "dev" ? 2 : 1);
+      assert.notEqual(line.sku, "Original", "pricing uses recommended size, not intake evidence");
+    }
+    assert.deepEqual(JSON.parse(fs.readFileSync(manifestPath, "utf8")), JSON.parse(JSON.stringify(manifest)));
+  }
+});
+
+test("manifest expansion retains distinct subscription attribution across multi-region stamps", (context) => {
+  const dir = fs.mkdtempSync(path.join(HERE, ".cost-stamps-"));
+  context.after(() => fs.rmSync(dir, { recursive: true, force: true }));
+  const manifestPath = path.join(dir, "sku-manifest.json");
+  const manifest = makeManifest({
+    stamps: [
+      { id: "shared", subscription: "hub", regions: ["swedencentral"], environments: ["dev"] },
+      {
+        id: "workload",
+        subscription: "spoke",
+        regions: ["swedencentral", "germanywestcentral"],
+        environments: ["dev"],
+      },
+    ],
+  });
+  fs.writeFileSync(manifestPath, JSON.stringify(manifest));
+  const normalized = normalizeCostRequest({
+    project_name: "demo",
+    region: "swedencentral",
+    output_path: path.join(dir, "out.json"),
+    manifest_path: manifestPath,
+  });
+  assert.equal(normalized.lines.length, 9);
+  assert.equal(normalized.lines.filter((line) => line.subscription === "hub").length, 3);
+  assert.equal(normalized.lines.filter((line) => line.subscription === "spoke").length, 6);
+  assert.equal(new Set(normalized.lines.map((line) => line.name)).size, 9);
+});
+
 test("calculateLineCost computes deterministic unit and tiered band totals without double-multiplying aggregate usage", () => {
   // Hourly meter: 0.036 * 730 = 26.28
   assert.equal(calculateLineCost({ name: "app", quantity: 1, unit_of_measure: "1 Hour", retail_price: 0.036 }), 26.28);

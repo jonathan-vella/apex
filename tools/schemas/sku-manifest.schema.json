@@ -2,7 +2,7 @@
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "https://github.com/jonathan-vella/apex/schemas/sku-manifest.schema.json",
   "title": "APEX SKU Manifest",
-  "description": "Shape of agent-output/{project}/sku-manifest.json — the single source of truth for creative SKU decisions (App Service, VM, SQL, Cosmos, AKS pools, Redis, APIM, App Gateway, Storage replication) across environments (dev/test/prod) and regions (primary + failover). Created at Step 1 (user-pins only), populated at Step 2 (Architect), reconciled at Step 3.5/Step 4, blocked-on-conflict at Step 6, drift-detected at Step 7. Enforced by tools/scripts/validate-sku-manifest.mjs. Out of scope (must not appear in services[]): bandwidth, Log Analytics, vnet, subnet, NSG, route table, public IP, diagnostics — see .github/instructions/sku-manifest.instructions.md exclude list.",
+  "description": "Shape of agent-output/{project}/sku-manifest.json — the single source of truth for creative SKU decisions (App Service, VM, SQL, Cosmos, AKS pools, Redis, APIM, App Gateway, Storage replication) across environments (dev/test/prod) and regions (primary + failover). Created at Step 1 (user-pins and observed-current inventory), populated at Step 2 (Architect), reconciled at Step 3.5/Step 4, blocked-on-conflict at Step 6, drift-detected at Step 7. Enforced by tools/scripts/validate-sku-manifest.mjs. Out of scope (must not appear in services[]): bandwidth, Log Analytics, vnet, subnet, NSG, route table, public IP, diagnostics — see .github/instructions/sku-manifest.instructions.md exclude list.",
   "type": "object",
   "required": [
     "schema_version",
@@ -102,6 +102,11 @@
       "description": "Creative SKU decisions only. Excludes infrastructure-default resources (bandwidth, Log Analytics, vnet, subnet, NSG, route table, public IP, diagnostics) — see .github/instructions/sku-manifest.instructions.md.",
       "items": { "$ref": "#/$defs/service" }
     },
+    "subscriptions": {
+      "type": "array",
+      "description": "Optional subscription inventory. Service and stamp subscription fields reference these logical IDs, not Azure GUIDs.",
+      "items": { "$ref": "#/$defs/subscription" }
+    },
     "stamps": {
       "type": "array",
       "description": "Optional multi-stamp / multi-deployment overlay. Each stamp represents an independent deployment of the same workload (e.g. per-tenant, per-region instance) and may override SKUs, regions, and environments for a subset of services[]. Stamps are additive: when absent, the manifest behaves as a single-stamp project. When present, the validator and consumers MUST apply per-stamp overrides on top of base services[] and environment_overrides.",
@@ -147,8 +152,35 @@
     },
     "source": {
       "type": "string",
-      "enum": ["user-pin", "architect-derived", "deploy-substitute"],
-      "description": "Provenance of this SKU choice. user-pin = locked by user at Step 1; architect-derived = chosen by Architect at Step 2; deploy-substitute = substituted at Step 6 due to quota/region conflict."
+      "enum": ["user-pin", "observed-current", "architect-derived", "deploy-substitute"],
+      "description": "Provenance of this SKU choice. user-pin = explicit user lock at Step 1; observed-current = existing SKU observed at Step 1, not a lock; architect-derived = chosen by Architect at Step 2 while preserving observed_sku; deploy-substitute = substituted at Step 6 due to quota/region conflict."
+    },
+    "subscriptionReference": {
+      "type": "string",
+      "minLength": 1,
+      "description": "Logical subscriptions[].id. Must reference a declared subscription."
+    },
+    "subscription": {
+      "type": "object",
+      "required": ["id", "display_name"],
+      "additionalProperties": false,
+      "properties": {
+        "id": {
+          "type": "string",
+          "pattern": "^[a-z0-9]([a-z0-9-]{0,62}[a-z0-9])?$",
+          "description": "Unique lowercase kebab logical ID."
+        },
+        "display_name": { "type": "string", "minLength": 1 },
+        "subscription_id": {
+          "type": "string",
+          "pattern": "^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$",
+          "description": "Optional Azure subscription GUID; unique ignoring case."
+        },
+        "role": {
+          "type": "string",
+          "enum": ["hub", "spoke", "shared", "data", "management", "workload"]
+        }
+      }
     },
     "commitmentType": {
       "type": "string",
@@ -260,6 +292,12 @@
           "minLength": 1,
           "description": "Base SKU/tier (e.g. 'P1v3', 'GP_S_Gen5_2', 'Standard_D4s_v5'). Per-env overrides in environment_overrides."
         },
+        "observed_sku": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Existing SKU captured during intake. Preserve when size changes to the Architect's recommendation; not a user lock or Step 7 actual_sku."
+        },
+        "subscription": { "$ref": "#/$defs/subscriptionReference" },
         "iac_logical_names": {
           "type": "object",
           "required": ["bicep", "terraform"],
@@ -337,7 +375,16 @@
           "description": "Timestamp of the last cost-estimate-subagent writeback for this service. Used by validate-sku-manifest.mjs to flag stale pricing (>30 days)."
         },
         "actual_sku": { "$ref": "#/$defs/actualSku" }
-      }
+      },
+      "allOf": [
+        {
+          "if": {
+            "properties": { "source": { "const": "observed-current" } },
+            "required": ["source"]
+          },
+          "then": { "required": ["observed_sku"] }
+        }
+      ]
     },
     "stamp": {
       "type": "object",
@@ -351,6 +398,7 @@
           "description": "Stamp identifier (e.g. 'tenant-acme', 'geo-eu', 'wave-1'). Unique within stamps[]."
         },
         "label": { "type": "string", "description": "Human-readable label for the stamp." },
+        "subscription": { "$ref": "#/$defs/subscriptionReference" },
         "regions": {
           "type": "array",
           "items": { "type": "string", "minLength": 1 },

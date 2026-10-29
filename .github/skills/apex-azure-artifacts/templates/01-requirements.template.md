@@ -1,5 +1,9 @@
 # 📋 Step 1: Requirements - {project-name}
 
+> For an existing-workload Assessment, record supplied requirements and constraints faithfully. Mark missing
+> targets and evidence as `Not supplied`, `Unknown`, or `Not assessed`; do not invent values or treat an
+> unresolved WAF gap as a prerequisite to approve the assessment scope.
+
 ![Step](https://img.shields.io/badge/Step-1-blue?style=for-the-badge)
 ![Status](https://img.shields.io/badge/Status-Draft-orange?style=for-the-badge)
 ![Agent](https://img.shields.io/badge/Agent-Requirements-purple?style=for-the-badge)
@@ -56,6 +60,23 @@ flowchart LR
     A["🏢 Current State<br/>{current-state}"] -->|"Migration Path"| B["☁️ Desired State<br/>{desired-state}"]
     B --> C["✅ Success Criteria<br/>{success-criteria}"]
 ```
+
+### Subscription & Landing Zone Topology
+
+Optional for existing or multi-subscription workloads; omit when inapplicable.
+
+| Logical subscription | Display name / Azure ID | Landing-zone role | Workload boundaries / dependencies |
+| --- | --- | --- | --- |
+| {id} | {name / subscription GUID} | {hub / spoke / shared / data / management / workload} | {scope and known links} |
+
+### Discovered Evidence Provenance
+
+Optional for evidence-led intake. Link redacted `01-discovered-evidence.json`; do not copy raw resource properties.
+Discovered defaults require explicit owner confirmation before becoming requirements.
+
+| Fact / material input | Provenance / source | Confidence | Subscription / observed date | Coverage / conflicts / confirmation |
+| --- | --- | --- | --- | --- |
+| {fact} | {iac / diagram / azure-arg, locator} | {observed / inferred} | {scope / timestamp} | {complete / partial, gaps and owner response} |
 
 ## 🚀 Functional Requirements
 
@@ -220,6 +241,9 @@ Table of recommended controls based on workload pattern and compliance requireme
 > [!NOTE]
 > Azure MCP pricing provides retail pricing for detailed estimates during
 > architecture assessment (Step 2). Provide an approximate budget here.
+>
+> For Assessment, record only a supplied planning budget. If none exists, state `Not supplied`; do not require
+> a hard/soft cap decision or imply spend authorization.
 
 | Field              | Value                                               |
 | ------------------ | --------------------------------------------------- |
@@ -274,6 +298,9 @@ Table of recommended controls based on workload pattern and compliance requireme
 | Required tag values                      | {values the policy requires, or none enforced}                |
 
 ## 🌍 Regional Preferences
+
+For an existing-workload Assessment, record observed regions and mark unknown locations explicitly. The
+repository default below is not evidence of the workload's current region or a user-selected target.
 
 | Preference         | Value                               | Justification                    |
 | ------------------ | ----------------------------------- | -------------------------------- |

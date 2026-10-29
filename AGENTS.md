@@ -163,8 +163,9 @@ hook and the `10-Challenger` review — agents do not call
 `agent-output/**` (see
 [`.github/instructions/agent-authoring.instructions.md`](.github/instructions/agent-authoring.instructions.md#no-direct-markdownlint-on-agent-output-rule)).
 
-`sku-manifest.{json,md}` is created at Step 1 (user pins only — empty
-`services[]` is the common case) and mutated through Step 7: Step 2
+`sku-manifest.{json,md}` is created at Step 1 (user pins and, for existing workloads,
+evidenced `observed-current` SKUs — empty `services[]` remains valid after preference capture)
+and mutated through Step 7: Step 2
 authoring, Step 3.5 read-only findings, Step 4 reconciliation +
 `requires[]` cross-check, Step 6 substitution on quota/region conflict
 (via the block-with-escalation pattern), Step 7 bidirectional drift

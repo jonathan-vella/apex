@@ -4,6 +4,14 @@ Entries are grouped by conventional-commit type. Breaking changes list the migra
 
 ## Unreleased
 
+### Added
+
+#### Existing-workload WAF assessment
+
+Add `/waf-assess-existing` for evidence-based WAF assessment from IaC, diagrams, or scoped multi-subscription
+Azure inventory. Preserve missing evidence, targets, budgets, and implementation preferences as assessment gaps;
+keep observed SKUs distinct from user-locked choices. Gate 1 approves assessment requirements and scope only.
+
 ### Fixes
 
 #### CFS-compatible Python setup

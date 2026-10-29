@@ -72,14 +72,14 @@ The `<step>` suffix is the integer step number (`1`, `2`, `3_5`, `4`).
 
 | Key                       | Valid values                                                              | Default behaviour if absent        | Set by          | Read by                                  |
 | ------------------------- | ------------------------------------------------------------------------- | ---------------------------------- | --------------- | ---------------------------------------- |
-| `sku_confirmation_status` | `approved` \| `revising`                                                  | Architect raises 6a gate           | 03-Architect    | 03-Architect step 7 pricing precondition |
-| `budget_cap_known`        | `true` \| `false`                                                         | `false` (skip budget gate)         | 02-Requirements | 03-Architect step 9a budget gate         |
+| `sku_confirmation_status` | `approved` \| `revising` | 03-Architect raises 6a for implementation planning; Assessment skips | 03-Architect | 03-Architect pricing precondition |
+| `budget_cap_known`        | `true` \| `false` | `false` (Assessment skips; implementation planning applies 9a) | 02-Requirements | 03-Architect step 9a budget gate |
 | `budget_decision`         | `approve_overage` \| `revise_sku` \| `revise_reqs`                        | n/a (only set when 9a fires)       | 03-Architect    | 03-Architect routing                     |
 | `budget_revise_count`     | integer 0..3                                                              | `0`                                | 03-Architect    | 03-Architect 3-iteration cap             |
 | `cost_feasibility_review` | `run` \| `skip`                                                           | n/a (only set after lens decision) | 03-Architect    | 03-Architect challenger invocation       |
 | `sku_manifest_status`     | `draft` \| `reviewed` \| `locked` \| `deploying` \| `deployed` \| `drift` | n/a                                | various         | 05/06/07 agents                          |
 | `sku_manifest_revision`   | integer ≥ 1                                                               | `1`                                | various         | sku-manifest validators                  |
-| `sku_preferences_captured`| `true` \| `false`                                                         | `false` (Phase 3j elicitation skipped) | 02-Requirements | 03-Architect, sku-manifest validators    |
+| `sku_preferences_captured`| `true` \| `false`                                                         | `false` (elicitation skipped; not required for Assessment) | 02-Requirements | 03-Architect, sku-manifest validators    |
 
 ### Step 3 (Design) keys — new in this plan
 

@@ -130,6 +130,8 @@ function renderHeader(json) {
     "",
     "- [Overview](#overview)",
     "- [Environments](#environments)",
+    ...((json.subscriptions ?? []).length ? ["- [Subscriptions](#subscriptions)"] : []),
+    ...((json.stamps ?? []).length ? ["- [Stamps](#stamps)"] : []),
     "- [Services](#services)",
     "- [Revision History](#revision-history)",
     "- [Open Substitutions](#open-substitutions)",
@@ -184,7 +186,45 @@ function renderEnvironments(json) {
   return lines;
 }
 
-function renderServiceRow(svc) {
+function renderSubscriptions(json) {
+  const subscriptions = [...(json.subscriptions ?? [])].sort((a, b) => a.id.localeCompare(b.id));
+  if (!subscriptions.length) return [];
+  return [
+    "## Subscriptions",
+    "",
+    "| `id` | Display name | Azure subscription GUID | Role |",
+    "| ---- | ------------ | ----------------------- | ---- |",
+    ...subscriptions.map(
+      (s) =>
+        `| \`${mdEscape(s.id)}\` | ${mdEscape(s.display_name)} | ${s.subscription_id ? `\`${mdEscape(s.subscription_id)}\`` : "—"} | ${mdEscape(s.role ?? "—")} |`,
+    ),
+    "",
+  ];
+}
+
+function renderStamps(json) {
+  const stamps = [...(json.stamps ?? [])].sort((a, b) => a.id.localeCompare(b.id));
+  if (!stamps.length) return [];
+  return [
+    "## Stamps",
+    "",
+    "> Each stamp deploys every service. Subscription inherits the service attribution when absent.",
+    "",
+    "| `id` | Label | Subscription | Environments | Regions | Service overrides | Notes |",
+    "| ---- | ----- | ------------ | ------------ | ------- | ----------------- | ----- |",
+    ...stamps.map((s) => {
+      const environments = (s.environments?.length ? s.environments : json.environments) ?? [];
+      const overrides = Object.entries(s.service_overrides ?? {})
+        .sort(([a], [b]) => a.localeCompare(b))
+        .map(([id, override]) => `\`${mdEscape(id)}\`: \`${mdEscape(JSON.stringify(override))}\``)
+        .join("; ");
+      return `| \`${mdEscape(s.id)}\` | ${mdEscape(s.label ?? "—")} | ${s.subscription ? `\`${mdEscape(s.subscription)}\`` : "Per service"} | ${fmtRegions(environments)} | ${fmtRegions(s.regions)} | ${overrides || "—"} | ${mdEscape(s.notes ?? "—")} |`;
+    }),
+    "",
+  ];
+}
+
+function renderServiceRow(svc, { showObserved, showSubscription }) {
   const id = `\`${svc.id}\``;
   const service = mdEscape(svc.service ?? "—");
   const size = `\`${mdEscape(svc.size ?? "—")}\``;
@@ -195,24 +235,35 @@ function renderServiceRow(svc) {
   const commitment = fmtCommitment(svc.commitment);
   const source = `\`${svc.source ?? "—"}\``;
   const rev = `\`${svc.last_modified_rev ?? "—"}\``;
-  return `| ${id} | ${service} | ${size} | ${capacity} | ${zonal} | ${regions} | ${sla} | ${commitment} | ${source} | ${rev} |`;
+  const observed = showObserved ? ` ${svc.observed_sku ? `\`${mdEscape(svc.observed_sku)}\`` : "—"} |` : "";
+  const subscription = showSubscription
+    ? ` ${svc.subscription ? `\`${mdEscape(svc.subscription)}\`` : "Per stamp / unspecified"} |`
+    : "";
+  return `| ${id} | ${service} | ${size} |${observed}${subscription} ${capacity} | ${zonal} | ${regions} | ${sla} | ${commitment} | ${source} | ${rev} |`;
 }
 
 function renderServices(json) {
   const services = [...(json.services ?? [])].sort((a, b) => (a.id < b.id ? -1 : a.id > b.id ? 1 : 0));
+  const showObserved = services.some((s) => s.observed_sku !== undefined);
+  const showSubscription =
+    (json.subscriptions ?? []).length > 0 ||
+    services.some((s) => s.subscription !== undefined) ||
+    (json.stamps ?? []).some((s) => s.subscription !== undefined);
   const lines = [
     "## Services",
     "",
     "> Rendered from `sku-manifest.json` `services[]`. Per-environment values",
     "> reflect `environment_overrides` on top of the base entry.",
     "",
-    "| `id` | Service | Size (base) | Capacity | Zonal | Regions | SLA target / achieved | Commitment | Source | Rev |",
-    "| ---- | ------- | ----------- | -------- | ----- | ------- | --------------------- | ---------- | ------ | --- |",
+    `| \`id\` | Service | Size (base) |${showObserved ? " Observed SKU |" : ""}${showSubscription ? " Subscription |" : ""} Capacity | Zonal | Regions | SLA target / achieved | Commitment | Source | Rev |`,
+    `| ---- | ------- | ----------- |${showObserved ? " ------------ |" : ""}${showSubscription ? " ------------ |" : ""} -------- | ----- | ------- | --------------------- | ---------- | ------ | --- |`,
   ];
   if (services.length === 0) {
-    lines.push("| _none_ | — | — | — | — | — | — | — | — | — |");
+    lines.push(
+      `| _none_ | — | — |${showObserved ? " — |" : ""}${showSubscription ? " — |" : ""} — | — | — | — | — | — | — |`,
+    );
   } else {
-    for (const svc of services) lines.push(renderServiceRow(svc));
+    for (const svc of services) lines.push(renderServiceRow(svc, { showObserved, showSubscription }));
   }
   lines.push("");
   return { lines, services };
@@ -412,6 +463,8 @@ export function renderManifest(json) {
     ...renderHeader(json),
     ...renderOverview(json),
     ...renderEnvironments(json),
+    ...renderSubscriptions(json),
+    ...renderStamps(json),
     ...serviceLines,
     ...renderOverrides(sorted),
     ...renderRequires(sorted),
