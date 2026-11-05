@@ -235,6 +235,81 @@ test("editorial compatibility preserves provenance but never accepts changed mat
   assert.match(validateReview(original, { root: f.root, verifyCurrent: true }).join("\n"), /artifact_sha/);
 });
 
+function supportingAssetFixture(t, extension) {
+  const f = fixture(t, { supporting: true });
+  const inputPath = `agent-output/example/03-des-diagram.${extension}`;
+  const recorded = "Original diagram bytes\n";
+  const current = "Editorial diagram layout correction\n";
+  f.write(inputPath, recorded);
+  f.input.supporting_inputs = [{ path: inputPath, sha256: hash(recorded) }];
+  f.doc.supporting_inputs = structuredClone(f.input.supporting_inputs);
+  f.record();
+  const original = f.persisted();
+  const reviewBytes = fs.readFileSync(path.join(f.root, output), "utf8");
+  f.write(inputPath, current);
+  const mapping = {
+    path: inputPath,
+    from_sha256: hash(recorded),
+    to_sha256: hash(current),
+    rationale: "Synthetic reviewed layout correction; architecture and review findings are unchanged",
+  };
+  return {
+    ...f,
+    mapping,
+    validate: () => validateReview(original, { root: f.root, verifyCurrent: true }),
+    register(entries) {
+      f.write(
+        "tools/registry/review-contract.json",
+        JSON.stringify({
+          contract: "review-v1",
+          editorial_compatibility: [],
+          supporting_input_compatibility: entries,
+        }),
+      );
+    },
+    assertHistoryUnchanged() {
+      assert.equal(fs.readFileSync(path.join(f.root, output), "utf8"), reviewBytes);
+    },
+  };
+}
+
+for (const extension of ["py", "png", "svg"]) {
+  test(`supporting .${extension} freshness accepts only the exact registry mapping without rewriting history`, (t) => {
+    const f = supportingAssetFixture(t, extension);
+    assert.match(f.validate().join("\n"), /supporting bytes changed/);
+    f.register([f.mapping]);
+    assert.deepEqual(f.validate(), []);
+    f.assertHistoryUnchanged();
+  });
+
+  for (const [label, mutate] of [
+    ["unmapped asset", () => []],
+    ["wrong path", (entry) => [{ ...entry, path: `agent-output/other/03-des-diagram.${extension}` }]],
+    ["wrong recorded hash", (entry) => [{ ...entry, from_sha256: hash("Unrelated original bytes") }]],
+    ["wrong current hash", (entry) => [{ ...entry, to_sha256: hash("Unrelated current bytes") }]],
+    ["reversed hashes", (entry) => [{ ...entry, from_sha256: entry.to_sha256, to_sha256: entry.from_sha256 }]],
+    ["missing rationale", ({ rationale: _rationale, ...entry }) => [entry]],
+    ["empty rationale", (entry) => [{ ...entry, rationale: "" }]],
+    ["whitespace rationale", (entry) => [{ ...entry, rationale: " \n\t " }]],
+  ]) {
+    test(`supporting .${extension} freshness rejects ${label}`, (t) => {
+      const f = supportingAssetFixture(t, extension);
+      f.register(mutate(f.mapping));
+      assert.match(f.validate().join("\n"), /supporting bytes changed/);
+      f.assertHistoryUnchanged();
+    });
+  }
+}
+
+for (const extension of ["md", "json"]) {
+  test(`supporting .${extension} material input stays stale even with an exact registry mapping`, (t) => {
+    const f = supportingAssetFixture(t, extension);
+    f.register([f.mapping]);
+    assert.match(f.validate().join("\n"), /supporting bytes changed/);
+    f.assertHistoryUnchanged();
+  });
+}
+
 test("practical initial and closure evidence complete a scoped stage without a third review", (t) => {
   const f = fixture(t);
   const repo = path.resolve(fileURLToPath(new URL("../../../", import.meta.url)));

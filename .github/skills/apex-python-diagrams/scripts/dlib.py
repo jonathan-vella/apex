@@ -361,9 +361,7 @@ def arr(
 
 def circ(x: float, y: float, n: str, col: str = BL) -> str:
     """Draw a numbered/lettered circular callout badge centered at `(x, y)`."""
-    return f'<circle cx="{x}" cy="{y}" r="13" fill="{col}"/>' + t(
-        x, y + 6, n, 16, "700", "#FFFFFF", "middle"
-    )
+    return f'<circle cx="{x}" cy="{y}" r="13" fill="{col}"/>' + t(x, y + 6, n, 16, "700", "#FFFFFF", "middle")
 
 
 def badge(x: float, y: float, w: float, s: str, col: str) -> str:
@@ -419,11 +417,11 @@ def legend(
     for i, (kind, label) in enumerate(items):
         cy = y0 + i * row_h
         if kind == "peer":
-            out += arr(f"M{x+4} {cy}H{x+4+line_w}", "net", start=True, end=True)
+            out += arr(f"M{x + 4} {cy}H{x + 4 + line_w}", "net", start=True, end=True)
         elif kind == "attach":
-            out += f'<path d="M{x+4} {cy}H{x+4+line_w}" stroke="{BL}" stroke-width="2.5" fill="none"/>'
+            out += f'<path d="M{x + 4} {cy}H{x + 4 + line_w}" stroke="{BL}" stroke-width="2.5" fill="none"/>'
         else:
-            out += arr(f"M{x+4} {cy}H{x+4+line_w}", kind, start=False, end=(kind != "dns"))
+            out += arr(f"M{x + 4} {cy}H{x + 4 + line_w}", kind, start=False, end=(kind != "dns"))
         out += t(x + 16 + line_w, cy + 6, label, 16, "400", NAVY)
     return out
 
@@ -438,7 +436,7 @@ def vbracket(
 ) -> str:
     """Draw a vertical grouping bracket from `(x, y1)` to `(x, y2)` with horizontal ticks."""
     return (
-        f'<path d="M{x} {y1}V{y2}M{x} {y1}H{x+tick}M{x} {y2}H{x+tick}" '
+        f'<path d="M{x} {y1}V{y2}M{x} {y1}H{x + tick}M{x} {y2}H{x + tick}" '
         f'stroke="{stroke}" stroke-width="{sw}" fill="none"/>'
     )
 
@@ -457,7 +455,7 @@ def chevron(
 ) -> str:
     """Draw a process chevron step (`gen02` bottom bar style)."""
     ym = y + h / 2
-    pts = f"{x},{y} {x+w-tip},{y} {x+w},{ym} {x+w-tip},{y+h} {x},{y+h}"
+    pts = f"{x},{y} {x + w - tip},{y} {x + w},{ym} {x + w - tip},{y + h} {x},{y + h}"
     combined = f"{code}  {label}"
     est_w = est(code, size, True) + est(f"  {label}", size, False)
     max_w = w - tip - 20
@@ -466,14 +464,14 @@ def chevron(
     txt = f'<tspan font-weight="700" fill="{stroke}">{_xml_escape_text(code)}</tspan>  {_xml_escape_text(label)}'
     return (
         f'<polygon points="{pts}" fill="{fill}" stroke="{stroke}" stroke-width="1.8"/>'
-        f'<text x="{x+16}" y="{ym+6}" font-size="{size}" font-weight="400" fill="{NAVY}">{txt}</text>'
+        f'<text x="{x + 16}" y="{ym + 6}" font-size="{size}" font-weight="400" fill="{NAVY}">{txt}</text>'
     )
 
 
 def folder(x: float, y: float, s: float = 30) -> str:
     """Draw a vector folder glyph."""
     return (
-        f'<path d="M{x} {y+6}h{s*0.4}l{s*0.12} {s*0.14}h{s*0.48}v{s*0.7}h{-s}z" '
+        f'<path d="M{x} {y + 6}h{s * 0.4}l{s * 0.12} {s * 0.14}h{s * 0.48}v{s * 0.7}h{-s}z" '
         f'fill="#F2C94C" stroke="#B8901C" stroke-width="1.2"/>'
     )
 
@@ -563,9 +561,7 @@ def _render_png(svg_text: str, svg_path: Path, png_path: Path, width: int = 3840
     ]
     browser = next((b for b in browser_candidates if b and Path(b).exists()), None)
     if not browser:
-        raise RuntimeError(
-            "Neither 'cairosvg' nor a headless Chromium/Edge browser is available to render PNG output."
-        )
+        raise RuntimeError("Neither 'cairosvg' nor a headless Chromium/Edge browser is available to render PNG output.")
 
     tmp_dir = Path(tempfile.gettempdir())
     tmp_png = tmp_dir / f"r_{png_path.stem}_{os.getpid()}.png"
@@ -698,6 +694,10 @@ __all__ = [
     "circ",
     "badge",
     "sub",
+    "tenant",
+    "legend",
+    "vbracket",
+    "chevron",
     "folder",
     "gh",
     "symbols",

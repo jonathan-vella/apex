@@ -166,3 +166,65 @@ def test_gen02_helpers_tenant_legend_vbracket_and_chevron(
 
     dlib.chevron(60, 937, 90, 44, "Phase 1", "This chevron label is far too wide for ninety pixels")
     assert "WARN overflow:" in capsys.readouterr().out
+
+
+def test_wildcard_import_exposes_overview_helpers(dlib: ModuleType) -> None:
+    namespace: dict[str, object] = {}
+    exec(
+        "from dlib import *\n"
+        "reset()\n"
+        "add(tenant())\n"
+        "add(legend(60, 172, [('net', 'Private Link')]))\n"
+        "add(vbracket(1358, 530, 782))\n"
+        "add(chevron(60, 937, 352, 44, 'Phase 1', 'Foundation & DNS'))\n"
+        "svg = build_svg('Wildcard import overview')\n",
+        namespace,
+    )
+    root = ElementTree.fromstring(namespace["svg"])
+    text = " ".join(root.itertext())
+    assert "Microsoft Entra tenant" in text
+    assert "Private Link" in text
+    assert "Foundation & DNS" in text
+    assert any(element.get("d") == "M1358 530V782M1358 530H1366M1358 782H1366" for element in root.iter())
+    assert len(list(root.iter("{http://www.w3.org/2000/svg}polygon"))) == 1
+
+
+def test_documented_overview_renders_sql_via_private_endpoints(
+    dlib: ModuleType, monkeypatch: pytest.MonkeyPatch, tmp_path: Path, capsys: pytest.CaptureFixture[str]
+) -> None:
+    from PIL import Image
+
+    reference = REPO_ROOT / ".github/skills/apex-python-diagrams/references/common-patterns.md"
+    overview = reference.read_text(encoding="utf-8").split("## 0. ", 1)[1].split("## 1. ", 1)[0]
+    source = overview.split("```python\n", 1)[1].split("\n```", 1)[0]
+    monkeypatch.chdir(tmp_path)
+    monkeypatch.syspath_prepend(str(SCRIPTS_DIR))
+    github = tmp_path / ".github"
+    github.symlink_to(REPO_ROOT / ".github", target_is_directory=True)
+    # Execute our maintained example unchanged, with its documented paths isolated to the fixture.
+    try:
+        exec(compile(source, str(reference), "exec"), {"__name__": "__main__"})
+    finally:
+        github.unlink()
+    assert "WARN overflow:" not in capsys.readouterr().out
+
+    base = tmp_path / "agent-output/my-project/03-des-diagram"
+    svg_path = base.with_suffix(".svg")
+    png_path = base.with_suffix(".png")
+    assert svg_path.stat().st_size > 0
+    assert png_path.stat().st_size > 0
+    root = ElementTree.parse(svg_path).getroot()
+    assert root.get("viewBox") == "0 0 1920 1080"
+    text = " ".join(root.itertext())
+    assert "Azure SQL Database" in text
+    assert "5 private endpoints" in text
+    assert "snet-pe" in text
+    assert "VNet injection" not in text
+    assert "snet-data" not in text
+    paths = {element.get("d") for element in root.iter("{http://www.w3.org/2000/svg}path")}
+    assert "M1358 530V782M1358 530H1366M1358 782H1366" in paths
+    assert "M1358 656H1300V722H1060" in paths
+    assert "M1372 552H1262V620H1060" not in paths
+    with Image.open(png_path) as image:
+        image.load()
+        assert image.size == (3840, 2160)

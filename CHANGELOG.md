@@ -6,6 +6,13 @@ Entries are grouped by conventional-commit type. Breaking changes list the migra
 
 ### Fixes
 
+#### Diagram overview exports and private connectivity
+
+Export the overview helpers through `from dlib import *` and test the documented example with actual SVG/PNG rendering.
+Show Azure SQL Database through a private endpoint rather than unsupported VNet injection, and remove the unused
+delegated subnet. Add positive and negative freshness regressions for explicitly mapped diagram assets without
+rewriting review history or allowing material Markdown/JSON inputs through the exception.
+
 #### CFS-compatible Python setup
 
 Retain Pillow 12.3.0 and Ruff 0.17.0 instead of newer pins unavailable through the configured CFS proxy.

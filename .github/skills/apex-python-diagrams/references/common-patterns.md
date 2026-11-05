@@ -28,6 +28,10 @@ spatial columns (`rg-datacenter` / operator estate → `rg-spoke` VNet with comp
 `vbracket()` to `snet-pe` and `snet-app`), inline `chip()` connector labels, and a
 bottom 5-stage `chevron()` lifecycle strip + centered summary pill.
 
+Azure SQL Database stays outside the VNet and uses a private endpoint in `snet-pe`,
+alongside Container Registry, Blob Storage, Service Bus, and Key Vault. App Service
+uses `snet-app` for outbound VNet integration; no delegated data subnet is needed.
+
 ```python
 import sys
 from pathlib import Path
@@ -45,10 +49,8 @@ add(
         172,
         [
             ("peer", "VNet peering"),
-            ("net", "HTTPS / Private Link"),
+            ("net", "Private network"),
             ("dns", "Private DNS link"),
-            ("id", "Entra ID / RBAC"),
-            ("tel", "Diagnostics / OTel"),
         ],
     )
 )
@@ -71,8 +73,8 @@ add(sub(60, 410, 1800, 505, "Workload subscription (swedencentral)", TL, "#F2FAF
 # Column 1: Operator & private runner estate
 add(rg(75, 470, 600, 430, "rg-operations", TL))
 add(box(90, 515, 570, 345, "#FFFFFF", TL, sw=1.8) + ic("vnet", 102, 520, 30) + t(140, 543, "vnet-ops  10.10.0.0/24", 20, "700", TL))
-add(card(105, 575, 265, 115, "vm", [("vm-runner-01", 1), ("Ubuntu 24.04", 0), ("Private release runner", 0)], TLF, TL, 44))
-add(card(385, 575, 265, 115, "dev", [("Operator workstation", 1), ("SSH / SFTP via Bastion", 0), ("Zero public VM IPs", 0)], GRF, SL, 44))
+add(card(105, 575, 265, 115, "vm", [("vm-runner-01", 1), ("Ubuntu 24.04", 0), ("Private runner", 0)], TLF, TL, 44))
+add(card(385, 575, 265, 115, "dev", [("Operator desktop", 1), ("Bastion SSH / SFTP", 0), ("Zero public VM IPs", 0)], GRF, SL, 44))
 add(card(105, 715, 265, 105, "bas", [("Bastion Standard", 1), ("Native SSH tunnel", 0)], TLF, TL, 44))
 add(card(385, 715, 265, 105, "nat", [("NAT Gateway", 1), ("Outbound HTTPS egress", 0)], TLF, TL, 44))
 
@@ -80,9 +82,8 @@ add(card(385, 715, 265, 105, "nat", [("NAT Gateway", 1), ("Outbound HTTPS egress
 add(rg(760, 470, 330, 430, "rg-spoke", TL, 110))
 add(box(775, 515, 300, 355, "#FFFFFF", TL, sw=1.8) + ic("vnet", 787, 520, 30) + t(825, 543, "vnet-spoke", 20, "700", TL))
 for y, n, c in [
-    (578, "snet-data", "Delegated data subnet"),
     (680, "snet-pe", "Private endpoints"),
-    (782, "snet-app", "App Service integration"),
+    (782, "snet-app", "VNet integration"),
 ]:
     add(card(790, y, 270, 84, "subnet", [(n, 1), (c, 0)], TLF, TL, 40))
 
@@ -104,8 +105,7 @@ for i, (k, l) in enumerate(items):
 # Cross-boundary connectors, bracket fan-out & inline chips
 add(arr("M560 340V515", "net", True, True) + chip(632, 392, 120, "VNet peering", BL, size=15))
 add(arr("M800 340V515", "net", True, True) + chip(872, 392, 120, "VNet peering", BL, size=15))
-add(arr("M1372 552H1262V620H1060", "net") + t(1105, 611, "VNet injection", 16, "700"))
-add(vbracket(1358, 582, 782) + arr("M1358 682H1262V722H1060", "net", end=False) + t(1105, 714, "4 private endpoints", 16, "700"))
+add(vbracket(1358, 530, 782) + arr("M1358 656H1300V722H1060", "net", end=False) + t(1105, 714, "5 private endpoints", 16, "700"))
 add(arr("M1372 812H1060", "net") + t(1105, 803, "Outbound VNet integration", 16, "700"))
 add(chip(1215, 496, 200, "Uses the vended spoke", BL, BLF, 15))
 
@@ -119,7 +119,7 @@ steps = [
 ]
 for i, (c, s) in enumerate(steps):
     add(chevron(60 + i * 360, 937, 352, 44, c, s))
-add(chip(960, 1003, 640, "All PaaS data services disable public network access and resolve via Private Link", AM, AMF, 16))
+add(chip(960, 1003, 640, "PaaS data: public access disabled; private endpoints + DNS", AM, AMF, 16))
 
 finish("agent-output/my-project/03-des-diagram", "End-to-end architecture overview")
 ```
