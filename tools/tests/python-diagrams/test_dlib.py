@@ -140,3 +140,115 @@ def test_render_dlib_via_diagram_io(dlib: ModuleType, diagram_io: ModuleType, tm
     written = diagram_io.render_dlib(base, "AKS Topology", footer="APEX Custom Footer")
     assert {p.suffix for p in written} == {".svg", ".png"}
     assert "APEX Custom Footer" in (tmp_path / "03-des-diagram.svg").read_text(encoding="utf-8")
+
+
+def test_gen02_helpers_tenant_legend_vbracket_and_chevron(
+    dlib: ModuleType, capsys: pytest.CaptureFixture[str], tmp_path: Path
+) -> None:
+    dlib.reset()
+    dlib.add(dlib.tenant(30, 80, 1860, 940, "Microsoft Entra tenant"))
+    dlib.add(
+        dlib.legend(
+            60,
+            172,
+            [
+                ("net", "Public HTTPS / PE"),
+                ("id", "Entra OIDC / MI"),
+                ("dns", "Private DNS link"),
+                ("tel", "Diagnostics & alerts"),
+                ("attach", "Subnet attachment"),
+            ],
+        )
+    )
+    dlib.add(dlib.vbracket(1358, 635, 805))
+    dlib.add(dlib.chevron(60, 937, 352, 44, "Phase 1", "Foundation & DNS"))
+    assert capsys.readouterr().out == ""
+
+    dlib.chevron(60, 937, 90, 44, "Phase 1", "This chevron label is far too wide for ninety pixels")
+    assert "WARN overflow:" in capsys.readouterr().out
+
+
+def test_wildcard_import_exposes_overview_helpers(dlib: ModuleType) -> None:
+    namespace: dict[str, object] = {}
+    exec(
+        "from dlib import *\n"
+        "reset()\n"
+        "add(tenant())\n"
+        "add(legend(60, 172, [('net', 'Private Link')]))\n"
+        "add(vbracket(1358, 530, 782))\n"
+        "add(chevron(60, 937, 352, 44, 'Phase 1', 'Foundation & DNS'))\n"
+        "svg = build_svg('Wildcard import overview')\n",
+        namespace,
+    )
+    root = ElementTree.fromstring(namespace["svg"])
+    text = " ".join(root.itertext())
+    assert "Microsoft Entra tenant" in text
+    assert "Private Link" in text
+    assert "Foundation & DNS" in text
+    assert any(element.get("d") == "M1358 530V782M1358 530H1366M1358 782H1366" for element in root.iter())
+    assert len(list(root.iter("{http://www.w3.org/2000/svg}polygon"))) == 1
+
+
+@pytest.fixture
+def documented_overview_svg(
+    dlib: ModuleType,
+    monkeypatch: pytest.MonkeyPatch,
+    tmp_path: Path,
+    capsys: pytest.CaptureFixture[str],
+    request: pytest.FixtureRequest,
+) -> Path:
+    if getattr(request, "param", False):
+        monkeypatch.setitem(sys.modules, "cairosvg", None)
+        monkeypatch.setattr(dlib.shutil, "which", lambda _: None)
+
+    finish = dlib.finish
+
+    def finish_svg(name: str | Path, title: str) -> list[Path]:
+        return finish(name, title, formats=("svg",))
+
+    # Topology and SVG validation must not depend on optional rasterizers.
+    monkeypatch.setattr(dlib, "finish", finish_svg)
+    reference = REPO_ROOT / ".github/skills/apex-python-diagrams/references/common-patterns.md"
+    overview = reference.read_text(encoding="utf-8").split("## 0. ", 1)[1].split("## 1. ", 1)[0]
+    source = overview.split("```python\n", 1)[1].split("\n```", 1)[0]
+    monkeypatch.chdir(tmp_path)
+    monkeypatch.syspath_prepend(str(SCRIPTS_DIR))
+    github = tmp_path / ".github"
+    github.symlink_to(REPO_ROOT / ".github", target_is_directory=True)
+    # Execute our maintained example unchanged, with its documented paths isolated to the fixture.
+    try:
+        exec(compile(source, str(reference), "exec"), {"__name__": "__main__"})
+    finally:
+        github.unlink()
+    assert "WARN overflow:" not in capsys.readouterr().out
+    return tmp_path / "agent-output/my-project/03-des-diagram.svg"
+
+
+@pytest.mark.parametrize("documented_overview_svg", [False, True], indirect=True, ids=["svg", "svg-without-renderer"])
+def test_documented_overview_renders_sql_via_private_endpoints(documented_overview_svg: Path) -> None:
+    assert documented_overview_svg.stat().st_size > 0
+    assert not documented_overview_svg.with_suffix(".png").exists()
+    root = ElementTree.parse(documented_overview_svg).getroot()
+    assert root.get("viewBox") == "0 0 1920 1080"
+    text = " ".join(root.itertext())
+    assert "Azure SQL Database" in text
+    assert "5 private endpoints" in text
+    assert "snet-pe" in text
+    assert "VNet injection" not in text
+    assert "snet-data" not in text
+    paths = {element.get("d") for element in root.iter("{http://www.w3.org/2000/svg}path")}
+    assert "M1358 530V782M1358 530H1366M1358 782H1366" in paths
+    assert "M1358 656H1300V722H1060" in paths
+    assert "M1372 552H1262V620H1060" not in paths
+
+
+def test_documented_overview_renders_4k_png(dlib: ModuleType, documented_overview_svg: Path) -> None:
+    pytest.importorskip("cairosvg", reason="Optional CairoSVG renderer is not installed")
+    from PIL import Image
+
+    png_path = documented_overview_svg.with_suffix(".png")
+    dlib._render_png(documented_overview_svg.read_text(encoding="utf-8"), documented_overview_svg, png_path)
+    assert png_path.stat().st_size > 0
+    with Image.open(png_path) as image:
+        image.load()
+        assert image.size == (3840, 2160)
