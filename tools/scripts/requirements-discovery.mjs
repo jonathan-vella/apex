@@ -1,6 +1,7 @@
 #!/usr/bin/env node
 import fs from "node:fs";
 import path from "node:path";
+import { randomUUID } from "node:crypto";
 import { fileURLToPath } from "node:url";
 
 const choice = (title, description, options) => ({
@@ -28,6 +29,20 @@ const patterns = [
   "Development / test platform",
   "Not sure — guide me",
 ];
+const scenarioTerm =
+  "(?:(?:a|an|any)\\s+)?(?:greenfield|migrat\\w*|moderni[sz]\\w*|lift[\\s-]and[\\s-]shift|assess\\w*|existing|brownfield)\\b";
+const negatedScenarioTypes = new RegExp(
+  `\\b(?:no|not|without)\\s+${scenarioTerm}(?:\\s*(?:,|and|or|nor)\\s*${scenarioTerm})*`,
+  "gi",
+);
+
+function positiveScenarioText(value) {
+  return String(value ?? "").replace(negatedScenarioTypes, "");
+}
+
+function isAssessmentScenario(value) {
+  return /\bassess\w*\b/i.test(positiveScenarioText(value));
+}
 
 export const DISCOVERY_STAGES = ["business", "migration", "workload", "access"];
 
@@ -41,16 +56,92 @@ export function answersFromRecall(view, environment) {
   );
 }
 
-export function buildDiscoveryForm(stage, answers = {}) {
+function evidenceDefaults(evidence) {
+  if (evidence === undefined) return {};
+  if (!evidence || typeof evidence !== "object" || !Array.isArray(evidence.items)) {
+    throw new Error("Evidence must be an object containing an items array");
+  }
+  const defaults = {};
+  for (const item of evidence.items) {
+    if (
+      !item ||
+      typeof item.input_id !== "string" ||
+      !/^[A-Za-z0-9_.-]+$/.test(item.input_id) ||
+      !supplied(item.value) ||
+      !["iac", "diagram", "azure-arg"].includes(item.provenance) ||
+      !["observed", "inferred"].includes(item.confidence)
+    ) {
+      throw new Error("Evidence items require input_id, value, provenance and confidence");
+    }
+    if (Object.hasOwn(defaults, item.input_id)) {
+      throw new Error(`Ambiguous evidence: duplicate input_id ${item.input_id}`);
+    }
+    Object.defineProperty(defaults, item.input_id, { value: structuredClone(item.value), enumerable: true });
+  }
+  return defaults;
+}
+
+export function buildDiscoveryForm(stage, answers = {}, evidence) {
   if (!DISCOVERY_STAGES.includes(stage)) throw new Error(`Unknown discovery stage: ${stage}`);
   if (!answers || typeof answers !== "object" || Array.isArray(answers)) {
     throw new Error("Answers must be an object containing the complete captured answer ledger");
   }
+  const defaults = evidenceDefaults(evidence);
+  const assessmentFromAnswers = isAssessmentScenario(answers.scenario);
+  const assessmentSuggestedByEvidence = !supplied(answers.scenario) && isAssessmentScenario(defaults.scenario);
   const properties = {};
   const add = (key, field) => {
-    if (!supplied(answers[key])) properties[key] = field;
+    if (supplied(answers[key])) return;
+    if (Object.hasOwn(defaults, key)) {
+      const value = defaults[key];
+      if (
+        (field.type === "string" && typeof value !== "string") ||
+        (field.type === "array" && (!Array.isArray(value) || !value.every((item) => typeof item === "string")))
+      ) {
+        throw new Error(`Evidence value for ${key} does not match question type ${field.type}`);
+      }
+      field.default = value;
+      field.description += " Suggested from discovered evidence; explicitly confirm or correct this value.";
+    }
+    properties[key] = field;
   };
-  if (stage === "business") {
+  if (assessmentFromAnswers && stage !== "business") {
+    return { stage, complete: true, form: null };
+  }
+  if (stage === "business" && (assessmentFromAnswers || assessmentSuggestedByEvidence)) {
+    add(
+      "system_description",
+      choice("Workload in scope", "Describe the existing service or workload being assessed.", patterns),
+    );
+    add(
+      "business_objective",
+      choice("Assessment objective", "What should this assessment clarify?", [
+        "Understand current Well-Architected posture and evidence gaps",
+        "Compare current state with organizational objectives",
+        "Investigate a known reliability, security or cost concern",
+        "Identify a prioritized improvement roadmap",
+        "Not sure — help define the assessment scope",
+      ]),
+    );
+    add(
+      "scenario",
+      choice("Project scenario", "Confirm that this is an assessment of an existing workload.", [
+        "Assessment — evaluate an existing workload",
+        "Not sure — guide me",
+      ]),
+    );
+    add(
+      "target_environments",
+      multiple("In-scope environments", "Which existing environments are included in this assessment?", [
+        "dev",
+        "test",
+        "staging",
+        "prod",
+        "sandbox",
+        "Not sure yet",
+      ]),
+    );
+  } else if (stage === "business") {
     add(
       "industry",
       choice("Industry", "Which sector best matches the organization?", [
@@ -101,6 +192,7 @@ export function buildDiscoveryForm(stage, answers = {}) {
         "Greenfield — new workload",
         "Migration — move an existing workload",
         "Modernization — improve an existing workload",
+        "Assessment — evaluate an existing workload",
         "Extension — add to an existing platform",
         "Not sure — guide me",
       ]),
@@ -131,15 +223,16 @@ export function buildDiscoveryForm(stage, answers = {}) {
     if (!supplied(answers.scenario)) {
       throw new Error("Migration discovery requires the captured scenario; restore the business answer ledger first");
     }
-    const scenario = String(answers.scenario).trim();
-    const scenarioTerm = "(?:(?:a|an|any)\\s+)?(?:greenfield|migrat\\w*|moderni[sz]\\w*|lift[\\s-]and[\\s-]shift)\\b";
-    const negatedTypes = new RegExp(
-      `\\b(?:no|not|without)\\s+${scenarioTerm}(?:\\s*(?:,|and|or|nor)\\s*${scenarioTerm})*`,
-      "gi",
-    );
-    const changes = scenario.replace(negatedTypes, "");
+    const changes = positiveScenarioText(answers.scenario);
     const isGreenfield = /\bgreenfield\b/i.test(changes);
-    if (!isGreenfield && /\b(?:migrat\w*|moderni[sz]\w*|lift[\s-]and[\s-]shift)\b/i.test(changes)) {
+    const extensionOnly =
+      /\b(?:extend\w*|extension)\b/i.test(changes) &&
+      !/\b(?:migrat\w*|moderni[sz]\w*|lift[\s-]and[\s-]shift|assess\w*|brownfield)\b/i.test(changes);
+    if (
+      !isGreenfield &&
+      !extensionOnly &&
+      /\b(?:migrat\w*|moderni[sz]\w*|lift[\s-]and[\s-]shift|assess\w*|existing|brownfield)\b/i.test(changes)
+    ) {
       add(
         "current_platform",
         choice("Current platform", "Where does the existing workload run?", [
@@ -153,7 +246,7 @@ export function buildDiscoveryForm(stage, answers = {}) {
       );
       add(
         "pain_points",
-        multiple("What needs to improve?", "Select the reasons for this migration or modernization.", [
+        multiple("What needs to improve?", "Select the reasons for this migration, modernization or assessment.", [
           "Cost",
           "Reliability / downtime",
           "Performance / scale",
@@ -384,6 +477,8 @@ export function buildDiscoveryForm(stage, answers = {}) {
     complete: Object.keys(properties).length === 0,
     ...(Object.keys(properties).length
       ? {
+          request_id: `requirements-${randomUUID()}`,
+          request_id_source: "apex-local",
           context: {
             answers: structuredClone(answers),
             fields: Object.fromEntries(Object.keys(properties).map((key) => [key, { input_id: key, kind: "input" }])),
@@ -402,7 +497,7 @@ export function buildDiscoveryForm(stage, answers = {}) {
 export function runDiscovery(argv = process.argv.slice(2)) {
   if (argv.includes("--help")) {
     console.log(
-      "Usage: requirements-discovery.mjs --stage business|migration|workload|access [--answers <captured-answers.json>]",
+      "Usage: requirements-discovery.mjs --stage business|migration|workload|access [--answers <captured-answers.json> | --recall-view <view.json> --environment <env>] [--evidence <01-discovered-evidence.json>]\nPersist the envelope and its APEX-local request_id before displaying only form through ask_user; retain the ID with the actual response. No SDK-issued request ID is required.\nEvidence: {items:[{input_id,value,provenance:iac|diagram|azure-arg,confidence:observed|inferred}]}. Suggestions require explicit owner confirmation before recording material inputs.",
     );
     return 0;
   }
@@ -410,6 +505,7 @@ export function runDiscovery(argv = process.argv.slice(2)) {
   let answers = {};
   let recallView;
   let environment;
+  let evidence;
   let answersProvided = false;
   for (let index = 0; index < argv.length; index += 2) {
     const value = argv[index + 1];
@@ -420,13 +516,14 @@ export function runDiscovery(argv = process.argv.slice(2)) {
       answersProvided = true;
     } else if (argv[index] === "--recall-view") recallView = JSON.parse(fs.readFileSync(path.resolve(value), "utf8"));
     else if (argv[index] === "--environment") environment = value;
+    else if (argv[index] === "--evidence") evidence = JSON.parse(fs.readFileSync(path.resolve(value), "utf8"));
     else throw new Error(`Unknown option: ${argv[index]}`);
   }
   if (recallView) {
     if (answersProvided) throw new Error("Use captured answers or an authoritative recall view, not both");
     answers = answersFromRecall(recallView, environment);
   } else if (environment) throw new Error("--environment requires --recall-view");
-  console.log(JSON.stringify(buildDiscoveryForm(stage, answers), null, 2));
+  console.log(JSON.stringify(buildDiscoveryForm(stage, answers, evidence), null, 2));
   return 0;
 }
 

@@ -113,6 +113,13 @@ sequenceDiagram
   Note over U,W: AI orchestrated. Human governed. Azure ready.
 ```
 
+## Assess an Existing Workload
+
+Use `/waf-assess-existing` with `01-Orchestrator` to assess supplied IaC, diagrams, or explicitly scoped
+read-only Azure inventory. The workflow preserves unknowns and missing evidence as assessment gaps rather than
+requiring implementation decisions. Its reviews and Gate 1 cover assessment scope and findings—not remediation,
+compliance approval, or deployment.
+
 ## Start Here
 
 For new projects, start from the Accelerator template rather than cloning this repository

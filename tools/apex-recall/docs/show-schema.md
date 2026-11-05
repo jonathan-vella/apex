@@ -24,6 +24,9 @@ It preserves historical approvals and consumed attempts, never backfills them.
 `decide --input-record <JSON>` records a scoped material answer and append-only
 supersession history. `--phase-scope <JSON> --step <step>` records actual bounded
 phase scope; neither proves independent human authority or Azure permission.
+For material inputs, `request_id` may be an APEX-local correlation key retained with the actual response receipt;
+it need not be returned by `ask_user`. Source-linked recovery receipts preserve earlier real answers without
+inventing native IDs. See [input request provenance](../../../.github/skills/apex-workflow-engine/references/practical-workflow.md#input-request-provenance).
 `checkpoint ... --sync-assessment` generates consumed-input views. `complete-step`
 and `transition --complete` reject stale/inconsistent views and concurrent edits.
 Completed practical steps expose `completed_environments`; it is not an all-environment approval.

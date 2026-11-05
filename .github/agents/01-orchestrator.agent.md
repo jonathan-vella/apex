@@ -62,6 +62,10 @@ Never send only the latest form answers and make the specialist rediscover earli
 Before displaying a returned form, omit answered/inapplicable fields and preserve guided options.
 `requestedSchema` contains only `properties`, without root `type`, `required` or `additionalProperties`.
 Pass only `message` and `requestedSchema` to `ask_user`; retain request ID, phase and missing-input metadata here.
+The request ID is an APEX correlation key, not a required SDK return value. Preserve the producer's ID and
+actual answer receipt; recover existing answers through
+[input request provenance](../skills/apex-workflow-engine/references/practical-workflow.md#input-request-provenance).
+Do not block solely on absent native IDs, repeat settled questions or infer approval from a local capture ID.
 Return malformed forms to the producer for correction before invoking `ask_user`; do not re-ask settled answers.
 Allow one schema-only correction for the same request; another malformed response blocks with its validation error.
 Custom guidance in a finding field already supplies its decision note. Ask a finding-specific follow-up only
@@ -155,6 +159,13 @@ File presence or JSON syntax is not full-phase completion. Validate required evi
 For Architecture approval, require actual pricing JSON with status `COMPLETE`,
 its existing cost validator/freshness checks,
 and both independent reviews; do not accept parent-authored dollar ranges or a success summary as substitutes.
+The sole no-pricing exception is an explicit assessment-only exit with
+`assessment_cost_status=not_assessed`: validate the NOT_ASSESSED contract and gap-only report
+under the [unpriced assessment contract](../skills/apex-azure-defaults/references/cost-estimate-parent-contract.md#unpriced-assessment-only-exit),
+retain both current independent reviews, and show cost as unknown without numeric charts.
+Persist the owner's `assessment_exit=assessment_only` choice before completing Step 2.
+Implementation continuation must select `assessment_exit=implementation` and revalidate policy
+feasibility and actual COMPLETE pricing; assessment-only acceptance supplies neither.
 For a partial result, continue only the remaining authorized work through its owner using the supported task lifecycle.
 Relay genuinely missing material inputs, actual capability failures or the final human gate; do not end routine
 in-phase work merely because drafts exist. Preserve budgets and stop unchanged, ineffective retries.

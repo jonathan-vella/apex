@@ -281,7 +281,7 @@ export function collectPrompts(root = REPO_ROOT) {
       description: fm.description || "",
       path: relative(root, path),
       links: { source: GITHUB_BASE + relative(root, path) },
-      meta: {},
+      meta: { agent: fm.agent || null },
     };
   });
 }
@@ -424,10 +424,10 @@ function buildEdges(nodes) {
     }
   }
 
-  // Prompt -> Agent (by slug match, e.g. 02-requirements prompt -> 02-Requirements agent)
+  // Explicit native targets take precedence over the historical filename convention.
   for (const n of nodes) {
     if (n.category !== "prompt") continue;
-    const promptSlug = n.id.replace(/^prompt:/, "");
+    const promptSlug = slug(n.meta.agent || n.label);
     const target = nodes.find((m) => m.category === "agent" && slug(m.label) === promptSlug);
     if (target) {
       edges.push({

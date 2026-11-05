@@ -10,8 +10,8 @@ export const SUBAGENTS_DIR = ".github/agents/_subagents";
 export const SKILLS_DIR = ".github/skills";
 export const INSTRUCTIONS_DIR = ".github/instructions";
 export const AGENT_OUTPUT_DIR = "agent-output";
-// Retain the shared scanner API for fixtures; archived Local prompts are never active inputs.
-export const PROMPT_SOURCE_DIRS = [];
+// Native workspace shortcuts are active; archived Local and test prompts stay excluded.
+export const PROMPT_SOURCE_DIRS = [".github/prompts"];
 
 export const REGISTRY_PATH = "tools/registry/agent-registry.json";
 export const COUNT_MANIFEST_PATH = "tools/registry/count-manifest.json";

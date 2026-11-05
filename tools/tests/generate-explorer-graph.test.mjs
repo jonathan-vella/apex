@@ -37,6 +37,14 @@ test("graph CLI generates and validates an explicit output without a site direct
   assert.equal(reviewer.path, ".github/agents/_subagents/challenger-review-subagent.agent.md");
   assert.ok(!graph.nodes.some((node) => node.id === "subagent:rubber-duck"));
   assert.ok(graph.edges.some((edge) => edge.target === reviewer.id && edge.kind === "delegates"));
+  assert.ok(
+    graph.edges.some(
+      (edge) =>
+        edge.source === "prompt:waf-assess-existing" &&
+        edge.target === "agent:01-orchestrator" &&
+        edge.kind === "invokes",
+    ),
+  );
   const invalid = spawnSync(process.execPath, [generator.pathname, "--unknown"], { cwd: directory, encoding: "utf8" });
   assert.notEqual(invalid.status, 0);
 });
@@ -126,7 +134,7 @@ test("explorer schema validates invocation metadata without constraining unrelat
   }
 });
 
-test("retired prompt roots stay undiscovered even when nested files still exist", (context) => {
+test("native workspace prompts are discovered while retired roots stay excluded", (context) => {
   const root = fs.mkdtempSync(path.join(os.tmpdir(), "apex-prompt-"));
   context.after(() => fs.rmSync(root, { recursive: true, force: true }));
   for (const file of [
@@ -139,7 +147,11 @@ test("retired prompt roots stay undiscovered even when nested files still exist"
     fs.writeFileSync(path.join(root, file), '---\nagent: "01-Orchestrator"\n---\n# Resume\n');
   }
   const nodes = collectPrompts(root);
-  assert.deepEqual(nodes, []);
+  assert.deepEqual(
+    nodes.map((node) => node.path),
+    [".github/prompts/same.prompt.md"],
+  );
+  assert.equal(nodes[0].meta.agent, "01-Orchestrator");
   const indexUrl = new URL("../scripts/_lib/workspace-index.mjs", import.meta.url).href;
   const child = spawnSync(
     process.execPath,
@@ -151,12 +163,13 @@ test("retired prompt roots stay undiscovered even when nested files still exist"
     { cwd: root, encoding: "utf8" },
   );
   assert.equal(child.status, 0, child.stderr);
-  assert.deepEqual(JSON.parse(child.stdout), []);
+  assert.deepEqual(JSON.parse(child.stdout), [".github/prompts/same.prompt.md"]);
 });
 
 test("manual SDK entry skills never become prompt-discovery nodes", () => {
   const prompts = collectPrompts();
-  assert.deepEqual(prompts, []);
+  assert.ok(prompts.some((node) => node.id === "prompt:waf-assess-existing"));
+  assert.ok(prompts.every((node) => node.path.startsWith(".github/prompts/")));
 });
 
 test("preserves generatedAt when graph content is unchanged", () => {

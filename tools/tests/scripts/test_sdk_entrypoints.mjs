@@ -50,16 +50,22 @@ for (const [entry, reference] of [
   });
 }
 
-test("Local roots are archived and never active prompt sources", () => {
-  assert.equal(getPromptFiles().size, 0);
+test("only native workspace shortcuts are active; retired Local roots remain excluded", () => {
+  const prompts = getPromptFiles();
+  assert.ok(prompts.has(".github/prompts/waf-assess-existing.prompt.md"));
+  for (const [file, prompt] of prompts) {
+    assert.ok(file.startsWith(".github/prompts/"), file);
+    assert.equal(prompt.frontmatter.agent, "01-Orchestrator", file);
+    assert.equal(Object.hasOwn(prompt.frontmatter, "model"), false, file);
+  }
   for (const [retired, archived] of [
-    [".github/prompts", "github-prompts"],
     ["tools/apex-prompts", "apex-prompts"],
     [".github/instructions/prompt.instructions.md", "prompt.instructions.md"],
   ]) {
     assert.equal(existsSync(new URL(retired, root)), false, retired);
     assert.equal(existsSync(new URL(`.archive/pre-cpharness/${archived}`, root)), false, archived);
   }
+  assert.equal(existsSync(new URL(".archive/pre-cpharness/github-prompts", root)), false);
   assert.equal(Object.hasOwn(JSON.parse(read("tools/registry/agent-registry.json")), "prompts"), false);
 });
 

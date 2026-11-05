@@ -19,6 +19,8 @@
  *   7. source ↔ source_step coherence (user-pin → 1; deploy-substitute → 6).
  *   8. stamps[].id unique; stamps[].service_overrides refer to real services[].id.
  *   9. stamps[].environments subset of top-level environments[].
+ *      Subscription logical IDs and Azure GUIDs are unique; service/stamp
+ *      references must resolve and cannot disagree for the same deployment.
  *  10. Governance allowlist cross-check (when sku_allowlist_snapshot present):
  *      services[].size must match an allowed pattern OR fail.
  *  11. Pricing freshness — WARN when cost_estimated_at > PRICING_TTL_DAYS old.
@@ -61,6 +63,7 @@ const VNET_REQUIRES_TOKENS = new Set(["vnet-integration", "private-endpoints"]);
 
 const SOURCE_TO_STEP = {
   "user-pin": "1",
+  "observed-current": "1",
   "architect-derived": "2",
   "deploy-substitute": "6",
 };
@@ -145,8 +148,8 @@ function checkSourceStepCoherence(data, fileRel, r) {
     const expected = SOURCE_TO_STEP[svc.source];
     if (!expected) continue;
     // architect-derived entries may legitimately be revised at later steps
-    // (Planner reconciliation keeps source unchanged); only user-pin and
-    // deploy-substitute must match source_step strictly.
+    // (Planner reconciliation keeps source unchanged); intake observations,
+    // user pins and deploy substitutions must match their creation step.
     if (svc.source === "architect-derived") continue;
     if (svc.source_step !== expected) {
       r.error(
@@ -174,6 +177,46 @@ function checkStamps(data, fileRel, r) {
     for (const overrideId of Object.keys(stamp.service_overrides ?? {})) {
       if (!serviceIds.has(overrideId)) {
         r.error(fileRel, `stamps[${stamp.id}].service_overrides references unknown services[].id "${overrideId}"`);
+      }
+    }
+  }
+}
+
+function checkSubscriptions(data, fileRel, r) {
+  const ids = new Set();
+  const azureIds = new Set();
+  for (const subscription of data.subscriptions ?? []) {
+    if (ids.has(subscription.id)) r.error(fileRel, `Duplicate subscriptions[].id: "${subscription.id}"`);
+    ids.add(subscription.id);
+    if (subscription.subscription_id) {
+      const azureId = subscription.subscription_id.toLowerCase();
+      if (azureIds.has(azureId)) {
+        r.error(fileRel, `Duplicate subscriptions[].subscription_id: "${subscription.subscription_id}"`);
+      }
+      azureIds.add(azureId);
+    }
+  }
+  for (const [collection, entries] of [
+    ["services", data.services ?? []],
+    ["stamps", data.stamps ?? []],
+  ]) {
+    for (const entry of entries) {
+      if (entry.subscription && !ids.has(entry.subscription)) {
+        r.error(
+          fileRel,
+          `${collection}[${entry.id}].subscription references unknown subscriptions[].id "${entry.subscription}"`,
+        );
+      }
+    }
+  }
+  // Every stamp expands every service; a service attribution is not a filter.
+  for (const stamp of data.stamps ?? []) {
+    for (const service of data.services ?? []) {
+      if (stamp.subscription && service.subscription && stamp.subscription !== service.subscription) {
+        r.error(
+          fileRel,
+          `stamps[${stamp.id}].subscription "${stamp.subscription}" conflicts with services[${service.id}].subscription "${service.subscription}"; omit the service subscription for cross-subscription stamps`,
+        );
       }
     }
   }
@@ -373,6 +416,7 @@ function validateFile(filePath, validate, r, vnetWhitelist) {
   checkRegionInfo(data, rel, r);
   checkSourceStepCoherence(data, rel, r);
   checkStamps(data, rel, r);
+  checkSubscriptions(data, rel, r);
   checkAllowlist(data, rel, r);
   if (!isTemplateOrFixture) checkFreshness(data, rel, r);
   if (!isTemplateOrFixture) checkMdSync(filePath, data, rel, r);

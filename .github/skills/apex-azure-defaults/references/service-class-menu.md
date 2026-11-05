@@ -10,8 +10,11 @@ Referenced by [`02-Requirements`](../../../agents/02-requirements.agent.md)
 Phase 3. Externalised from the agent body to keep per-turn system-prompt
 replay small (per `tmp/plan-input-token-reduction-v3.md` Phase 8).
 
-This phase is required. Explicit supplied answers satisfy the corresponding fields;
-ask only for missing/conflicting choices. Do not reopen a settled service list or
+For implementation-planning scenarios, this phase is required. For an existing-workload Assessment, skip
+future service, tier/NFR-profile, SKU and commitment elicitation; record observed services/SKUs and let the WAF
+assessment report unknowns and recommendations without treating them as missing Step 1 answers.
+Explicit supplied answers satisfy the corresponding fields; ask only for missing/conflicting choices.
+Do not reopen a settled service list or
 add optional platform resources without a stated need. Use **batched `ask_user` calls** to gather
 service-class decisions. Use `message` and `requestedSchema.properties`, with one
 stable typed field per decision. Group fields whose choices/default suggestions
@@ -36,9 +39,9 @@ Required batching (saves ~10 turns per Phase 3):
   a container host was selected in Batch B.
 - **Confirm step** (Step 3i): present the consolidated service list; ask only
   when inferred additions or scope conflicts require a decision.
-- **Batch D — SKU & sizing preferences** (Step 3j): one batched call per
+- **Batch D — SKU & sizing preferences** (Step 3j, implementation planning only): one batched call per
   service class confirmed at 3i, asking for pinned SKU/size, tier floor,
-  or explicit "no preference". Mandatory for every project (see
+  or explicit "no preference". Mandatory for implementation planning (see
   [`sku-manifest.instructions.md`](../../../instructions/sku-manifest.instructions.md#mandatory-elicitation-at-step-1)).
 
 Use business-friendly descriptions with Azure service names in parentheses.
@@ -151,9 +154,10 @@ Summarize the captured service list without reconfirming explicit choices.
 Use `ask_user` only for inferred additions or scope conflicts; resolve dependent
 hosting, identity, monitoring and private-access implications together.
 
-## 3j. SKU and sizing preferences (mandatory for every project)
+## 3j. SKU and sizing preferences (mandatory for implementation planning)
 
-This step is **required** for every project. Reuse explicit supplied preferences;
+This step is **required** for implementation-planning projects. It does not apply to existing-workload
+Assessment scenarios. Reuse explicit supplied preferences;
 ask for every uncovered class, never infer "no preference". The goal is to capture **hard
 preferences** the user already knows so Architect treats them as locked
 user-pins; everything else is left for Architect to evaluate at Step 2.
@@ -193,8 +197,10 @@ After the batch returns, persist outcomes:
    `services[]` entry to `agent-output/{project}/sku-manifest.json` with
    `source: "user-pin"`, `source_step: "1"`, `last_modified_rev: 1`. Use
    tier-floor answers as a `notes` field plus a representative `size`.
-2. For **No preference** answers, do **not** add a manifest entry — the
-   elicitation is recorded by the decision flag below.
+2. For **No preference** answers, do **not** add a user-pin entry — the
+   elicitation is recorded by the decision flag below. Existing-workload observations may still use
+   `observed-current` with `observed_sku`; they are not preferences or locks. Follow
+   [existing-workload intake](existing-workload-intake.md) when evidence is supplied.
 3. Record the mandatory elicitation flag (always, regardless of pins):
 
 ```bash

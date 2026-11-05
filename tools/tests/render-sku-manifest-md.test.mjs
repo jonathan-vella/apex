@@ -10,7 +10,6 @@
 import { describe, it } from "node:test";
 import assert from "node:assert/strict";
 import fs from "node:fs";
-import os from "node:os";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 
@@ -163,11 +162,83 @@ describe("renderManifest", () => {
     assert.ok(out.endsWith("\n"), "must end with newline");
     assert.ok(!out.endsWith("\n\n"), "must not double-trail");
   });
+
+  it("preserves the legacy service table without observed SKU or subscription metadata", () => {
+    const out = renderManifest(BASE_FIXTURE);
+    assert.ok(
+      out.includes(
+        "| `id` | Service | Size (base) | Capacity | Zonal | Regions | SLA target / achieved | Commitment | Source | Rev |",
+      ),
+    );
+    assert.ok(!out.includes("## Subscriptions"));
+    assert.ok(!out.includes("## Stamps"));
+    assert.ok(!out.includes("Observed SKU"));
+  });
+
+  it("renders sorted subscription/stamp context and observed vs recommended SKUs deterministically", () => {
+    const manifest = structuredClone(BASE_FIXTURE);
+    manifest.subscriptions = [
+      { id: "spoke", display_name: "Workload", role: "spoke" },
+      {
+        id: "hub",
+        display_name: "Shared | services",
+        subscription_id: "aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa",
+        role: "hub",
+      },
+    ];
+    manifest.services[0].observed_sku = "GP_S_Gen5_4";
+    manifest.stamps = [
+      { id: "tenant-zz", subscription: "spoke", regions: ["germanywestcentral"], environments: ["prod"] },
+      {
+        id: "tenant-aa",
+        label: "Primary",
+        subscription: "hub",
+        regions: ["swedencentral"],
+        service_overrides: { "sql-db-core": { size: "GP_S_Gen5_8" } },
+      },
+    ];
+    const before = JSON.stringify(manifest);
+    const out = renderManifest(manifest);
+    assert.equal(JSON.stringify(manifest), before, "rendering must not mutate evidence");
+    assert.equal(out, renderManifest(manifest));
+    assert.ok(out.includes("- [Subscriptions](#subscriptions)"));
+    assert.ok(out.includes("- [Stamps](#stamps)"));
+    assert.ok(out.indexOf("| `hub` |") < out.indexOf("| `spoke` |"));
+    assert.ok(out.indexOf("| `tenant-aa` |") < out.indexOf("| `tenant-zz` |"));
+    assert.ok(out.includes("| `hub` | Shared \\| services | `aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa` | hub |"));
+    assert.ok(out.includes("| `tenant-aa` | Primary | `hub` | `dev`, `prod` | `swedencentral` |"));
+    assert.ok(out.includes('`sql-db-core`: `{"size":"GP_S_Gen5_8"}`'));
+    assert.ok(out.includes("| `tenant-zz` | — | `spoke` | `prod` | `germanywestcentral` |"));
+    assert.ok(out.includes("| Size (base) | Observed SKU | Subscription |"));
+    assert.ok(
+      out.includes("| `sql-db-core` | SQL Database | `GP_S_Gen5_2` | `GP_S_Gen5_4` | Per stamp / unspecified |"),
+    );
+    assert.ok(out.includes("| `app-plan-web` | App Service Plan | `P1v3` | — | Per stamp / unspecified |"));
+  });
+
+  it("renders single-subscription attribution and legacy stamps without requiring observations", () => {
+    const manifest = structuredClone(BASE_FIXTURE);
+    manifest.services[0].subscription = "workload";
+    manifest.stamps = [{ id: "legacy-stamp", regions: ["swedencentral"] }];
+    const out = renderManifest(manifest);
+    assert.ok(out.includes("| Size (base) | Subscription | Capacity |"));
+    assert.ok(out.includes("| `sql-db-core` | SQL Database | `GP_S_Gen5_2` | `workload` |"));
+    assert.ok(out.includes("| `legacy-stamp` | — | Per service | `dev`, `prod` |"));
+    assert.ok(!out.includes("Observed SKU"));
+  });
+
+  it("keeps an empty service table aligned when subscriptions exist", () => {
+    const manifest = { ...BASE_FIXTURE, services: [], subscriptions: [{ id: "hub", display_name: "Hub" }] };
+    const out = renderManifest(manifest);
+    const header = out.split("\n").find((line) => line.startsWith("| `id` | Service |"));
+    const empty = out.split("\n").find((line) => line.startsWith("| _none_ |"));
+    assert.equal(empty.split("|").length, header.split("|").length);
+  });
 });
 
 describe("render-sku-manifest-md.mjs CLI", () => {
   it("writes file and respects --in/--out", async () => {
-    const tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), "sku-render-"));
+    const tmpDir = fs.mkdtempSync(path.join(HERE, ".sku-render-"));
     const inPath = path.join(tmpDir, "in.json");
     const outPath = path.join(tmpDir, "out.md");
     fs.writeFileSync(inPath, JSON.stringify(BASE_FIXTURE), "utf-8");

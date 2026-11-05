@@ -43,6 +43,10 @@ Preserve exact scope, pass, prior findings and metadata. Never invent paths, has
 - A parent's accepted/deferred finding is not remediation evidence. Preserve unresolved findings and budget history.
 - No theoretical style objections, future-step operational details promoted into blockers, or predetermined
   APPROVED/zero-findings request. Review real risks against current artifacts.
+- For existing-workload Assessment artifacts, an unresolved control, target or dependency is not itself a
+  requirements defect when accurately identified as unknown/not assessed. Review the evidence boundary,
+  captured constraints, gap description and confidence; do not require remediation readiness or turn an
+  out-of-scope WAF gap into a Step 1 blocker.
 
 ## Activities
 

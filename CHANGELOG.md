@@ -4,7 +4,25 @@ Entries are grouped by conventional-commit type. Breaking changes list the migra
 
 ## Unreleased
 
+### Added
+
+#### Existing-workload WAF assessment
+
+Add `/waf-assess-existing` for evidence-based WAF assessment from IaC, diagrams, or scoped multi-subscription
+Azure inventory. Preserve missing evidence, targets, budgets, and implementation preferences as assessment gaps;
+keep observed SKUs distinct from user-locked choices. Gate 1 approves assessment requirements and scope only.
+Store discovered evidence under `_meta/` to preserve the layout-v2 Markdown-only project root.
+
 ### Fixes
+
+#### Assessment evidence and completion contracts
+
+Honor explicit assessment-only exits without requiring deployment policy feasibility; implementation
+continuation retains the strict gate. Support independently reviewed gap-only cost reports when no evidence
+is priceable, without numeric charts or fabricated pricing. Preserve partial observed SKUs without invented
+capacity, zoning, commitment or IaC names, and reject implicit pricing assumptions for those observations.
+Retain subscription attribution in schema-conforming cost outputs. Align native prompt tests with the active
+workspace shortcut while continuing to reject retired prompt roots.
 
 #### Diagram overview exports and private connectivity
 

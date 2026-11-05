@@ -59,6 +59,9 @@ Continue remaining authorized activities through the same owner/lifecycle, or re
 an actual capability failure or the final approval gate. Do not require another user "continue" for routine in-phase work.
 Do not blindly repeat unchanged tasks; preserve actual blockers and the existing retry/review accounting.
 For final Architecture approval, inspect pricing status `COMPLETE` and run the existing cost validator;
+the explicit no-priceable-evidence assessment-only exception instead requires the
+[NOT_ASSESSED contract](../../apex-azure-defaults/references/cost-estimate-parent-contract.md#unpriced-assessment-only-exit)
+and a gap-only cost report, with no fabricated numeric estimate or cost chart.
 also require the separate Architecture and cost-feasibility review evidence. A valid FAILED cost payload is not readiness.
 Missing capability, malformed result, stale evidence or permission denial blocks the affected action.
 Never replace a missing reviewer with self-review, an arbitrary worker or a main-wrapper fallback.
