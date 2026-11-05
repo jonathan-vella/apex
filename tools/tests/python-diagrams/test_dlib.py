@@ -189,11 +189,25 @@ def test_wildcard_import_exposes_overview_helpers(dlib: ModuleType) -> None:
     assert len(list(root.iter("{http://www.w3.org/2000/svg}polygon"))) == 1
 
 
-def test_documented_overview_renders_sql_via_private_endpoints(
-    dlib: ModuleType, monkeypatch: pytest.MonkeyPatch, tmp_path: Path, capsys: pytest.CaptureFixture[str]
-) -> None:
-    from PIL import Image
+@pytest.fixture
+def documented_overview_svg(
+    dlib: ModuleType,
+    monkeypatch: pytest.MonkeyPatch,
+    tmp_path: Path,
+    capsys: pytest.CaptureFixture[str],
+    request: pytest.FixtureRequest,
+) -> Path:
+    if getattr(request, "param", False):
+        monkeypatch.setitem(sys.modules, "cairosvg", None)
+        monkeypatch.setattr(dlib.shutil, "which", lambda _: None)
 
+    finish = dlib.finish
+
+    def finish_svg(name: str | Path, title: str) -> list[Path]:
+        return finish(name, title, formats=("svg",))
+
+    # Topology and SVG validation must not depend on optional rasterizers.
+    monkeypatch.setattr(dlib, "finish", finish_svg)
     reference = REPO_ROOT / ".github/skills/apex-python-diagrams/references/common-patterns.md"
     overview = reference.read_text(encoding="utf-8").split("## 0. ", 1)[1].split("## 1. ", 1)[0]
     source = overview.split("```python\n", 1)[1].split("\n```", 1)[0]
@@ -207,13 +221,14 @@ def test_documented_overview_renders_sql_via_private_endpoints(
     finally:
         github.unlink()
     assert "WARN overflow:" not in capsys.readouterr().out
+    return tmp_path / "agent-output/my-project/03-des-diagram.svg"
 
-    base = tmp_path / "agent-output/my-project/03-des-diagram"
-    svg_path = base.with_suffix(".svg")
-    png_path = base.with_suffix(".png")
-    assert svg_path.stat().st_size > 0
-    assert png_path.stat().st_size > 0
-    root = ElementTree.parse(svg_path).getroot()
+
+@pytest.mark.parametrize("documented_overview_svg", [False, True], indirect=True, ids=["svg", "svg-without-renderer"])
+def test_documented_overview_renders_sql_via_private_endpoints(documented_overview_svg: Path) -> None:
+    assert documented_overview_svg.stat().st_size > 0
+    assert not documented_overview_svg.with_suffix(".png").exists()
+    root = ElementTree.parse(documented_overview_svg).getroot()
     assert root.get("viewBox") == "0 0 1920 1080"
     text = " ".join(root.itertext())
     assert "Azure SQL Database" in text
@@ -225,6 +240,15 @@ def test_documented_overview_renders_sql_via_private_endpoints(
     assert "M1358 530V782M1358 530H1366M1358 782H1366" in paths
     assert "M1358 656H1300V722H1060" in paths
     assert "M1372 552H1262V620H1060" not in paths
+
+
+def test_documented_overview_renders_4k_png(dlib: ModuleType, documented_overview_svg: Path) -> None:
+    pytest.importorskip("cairosvg", reason="Optional CairoSVG renderer is not installed")
+    from PIL import Image
+
+    png_path = documented_overview_svg.with_suffix(".png")
+    dlib._render_png(documented_overview_svg.read_text(encoding="utf-8"), documented_overview_svg, png_path)
+    assert png_path.stat().st_size > 0
     with Image.open(png_path) as image:
         image.load()
         assert image.size == (3840, 2160)
