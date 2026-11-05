@@ -33,7 +33,8 @@ export function reviewCompatibility(original, current, root = process.cwd()) {
 
 export function supportingInputCompatible(inputPath, recordedSha, actualSha, root = process.cwd()) {
   if (recordedSha === actualSha) return true;
-  if (typeof inputPath !== "string" || inputPath.startsWith("agent-output/")) return false;
+  if (typeof inputPath !== "string") return false;
+  if (inputPath.startsWith("agent-output/") && !/\.(?:py|png|svg)$/i.test(inputPath)) return false;
   const registry = path.join(root, "tools/registry/review-contract.json");
   if (!fs.existsSync(registry)) return false;
   try {
