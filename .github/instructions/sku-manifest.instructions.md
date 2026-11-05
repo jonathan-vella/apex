@@ -75,6 +75,9 @@ checkpoints — **not** a free-form changelog.
   for governance reconciliation; revision keeps `source: architect-derived`.
 - `observed-current` — Step 1 existing-workload intake, with `source_step: "1"`
   and required `observed_sku`. Set `size` to the observed SKU initially.
+  Omit unobserved capacity, zoning, commitment, regions, SLA target and IaC logical names;
+  omission means unknown, not one instance, no zones or on-demand. Pricing requires explicit
+  quantity/commitment evidence. Other provenance types retain complete configuration requirements.
   This is evidence, **not a lock**: Architect may recommend a new `size` and
   change `source` to `architect-derived`, preserving `observed_sku` and the
   original `source_step`. Explicit `user-pin` choices remain locks.

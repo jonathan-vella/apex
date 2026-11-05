@@ -261,20 +261,7 @@
     },
     "service": {
       "type": "object",
-      "required": [
-        "id",
-        "service",
-        "size",
-        "iac_logical_names",
-        "capacity",
-        "zonal",
-        "regions",
-        "sla_target",
-        "commitment",
-        "source",
-        "source_step",
-        "last_modified_rev"
-      ],
+      "required": ["id", "service", "size", "source", "source_step", "last_modified_rev"],
       "additionalProperties": false,
       "properties": {
         "id": {
@@ -382,7 +369,10 @@
             "properties": { "source": { "const": "observed-current" } },
             "required": ["source"]
           },
-          "then": { "required": ["observed_sku"] }
+          "then": { "required": ["observed_sku"] },
+          "else": {
+            "required": ["iac_logical_names", "capacity", "zonal", "regions", "sla_target", "commitment"]
+          }
         }
       ]
     },

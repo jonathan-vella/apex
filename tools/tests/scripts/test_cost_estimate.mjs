@@ -40,6 +40,7 @@ test("equivalent scenarios reuse retained calculation inputs without new price q
         sku: "Synthetic tier",
         region: "swedencentral",
         quantity: 1,
+        subscription: "workload",
         unit_of_measure: "1 GB",
         retail_price: 1,
         usage_amount: 10,
@@ -60,6 +61,8 @@ test("equivalent scenarios reuse retained calculation inputs without new price q
   fs.writeFileSync(draftPath, JSON.stringify(draft));
   const { estimate } = publishEstimate({ draftPath, outputPath });
   assert.ok(estimate.resources[0].calculation_basis);
+  assert.equal(estimate.resources[0].subscription, "workload");
+  assert.equal(JSON.parse(fs.readFileSync(outputPath, "utf8")).resources[0].subscription, "workload");
   const before = JSON.stringify(estimate);
   const result = calculateScenarios(
     estimate,
@@ -343,6 +346,7 @@ test("manifest expansion propagates stamp subscription, service fallback, or nul
       output_path: path.join(dir, "out.json"),
       manifest_path: manifestPath,
     });
+
     assert.equal(normalized.lines.length, stamped ? 12 : 6);
     for (const line of normalized.lines) {
       assert.equal(line.subscription, expected);
@@ -355,6 +359,30 @@ test("manifest expansion propagates stamp subscription, service fallback, or nul
       assert.notEqual(line.sku, "Original", "pricing uses recommended size, not intake evidence");
     }
     assert.deepEqual(JSON.parse(fs.readFileSync(manifestPath, "utf8")), JSON.parse(JSON.stringify(manifest)));
+  }
+});
+
+test("unknown observed capacity or commitment cannot become implicit pricing assumptions", (context) => {
+  const dir = fs.mkdtempSync(path.join(HERE, ".observed-pricing-"));
+  context.after(() => fs.rmSync(dir, { recursive: true, force: true }));
+  const file = path.join(dir, "sku-manifest.json");
+  for (const missing of ["capacity", "commitment"]) {
+    const manifest = makeManifest();
+    manifest.services = [manifest.services[0]];
+    manifest.services[0].source = "observed-current";
+    manifest.services[0].observed_sku = manifest.services[0].size;
+    delete manifest.services[0][missing];
+    fs.writeFileSync(file, JSON.stringify(manifest));
+    assert.throws(
+      () =>
+        normalizeCostRequest({
+          project_name: "demo",
+          region: "swedencentral",
+          output_path: path.join(dir, "out.json"),
+          manifest_path: file,
+        }),
+      /requires explicit capacity.default and commitment.type/,
+    );
   }
 });
 
@@ -678,7 +706,7 @@ test("validateEstimate verifies retail_api_evidence SHA-256 and meterIds and fla
   assert.match(bad.errors[0], /not found in/);
 });
 
-test("cost-estimate.schema.json compiles with Ajv and validates fixture and published estimates", () => {
+test("cost-estimate.schema.json compiles with Ajv and validates fixture and published estimates", (context) => {
   const ajv = createAjv();
   const schema = JSON.parse(fs.readFileSync(path.join(ROOT, "tools/schemas/cost-estimate.schema.json"), "utf8"));
   const validate = ajv.compile(schema);
@@ -686,4 +714,26 @@ test("cost-estimate.schema.json compiles with Ajv and validates fixture and publ
     fs.readFileSync(path.join(ROOT, "tools/tests/fixtures/subagent-file-contract/cost-estimate.findings.json"), "utf8"),
   );
   assert.equal(validate(fixture), true, JSON.stringify(validate.errors));
+  for (const subscription of ["workload", null]) {
+    const attributed = structuredClone(fixture);
+    attributed.resources[0].subscription = subscription;
+    assert.equal(validate(attributed), true, JSON.stringify(validate.errors));
+  }
+  for (const subscription of [42, "", {}]) {
+    const invalid = structuredClone(fixture);
+    invalid.resources[0].subscription = subscription;
+    assert.equal(validate(invalid), false);
+  }
+  const dir = fs.mkdtempSync(path.join(tmpdir(), "published-subscription-"));
+  context.after(() => fs.rmSync(dir, { recursive: true, force: true }));
+  fixture.resources[0].subscription = "workload";
+  fixture.resources[1].subscription = null;
+  const draftPath = path.join(dir, "draft.json");
+  const outputPath = path.join(dir, "published.json");
+  fs.writeFileSync(draftPath, JSON.stringify(fixture));
+  publishEstimate({ draftPath, outputPath });
+  const published = JSON.parse(fs.readFileSync(outputPath, "utf8"));
+  assert.equal(validate(published), true, JSON.stringify(validate.errors));
+  assert.equal(published.resources[0].subscription, "workload");
+  assert.equal(published.resources[1].subscription, null);
 });

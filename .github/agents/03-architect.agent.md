@@ -45,6 +45,9 @@ For implementation continuation, require current preliminary policy feasibility 
 missing evidence returns to the interactive parent/Governance owner, not a fabricated snapshot. For an
 assessment-only exit, collect policy evidence when authorized but report unavailable policy scope as a gap
 instead of blocking the WAF assessment.
+Before assessment-only completion or pause, persist the owner's explicit
+`assessment_exit=assessment_only`; implementation continuation uses `assessment_exit=implementation`
+and retains the current policy-feasibility requirement. Missing choice does not waive that requirement.
 When evidence-equivalent, use deterministic pricing scenarios instead of new pricing-worker calls.
 
 Before direct display or delegated return, apply the
@@ -195,7 +198,13 @@ priced recommendation explicitly nonbinding, and do not imply that estimate appr
    price only the evidence-supported scope and report unknown usage/unpriced resources outside the subtotal;
    do not present a partial subtotal as total workload cost.
    Run `node tools/scripts/cost-estimate.mjs preflight --request <request.json>`.
-4. Invoke `cost-estimate-subagent` for `02-cost-estimate.json`. Require COMPLETE, current
+4. If no resource has evidence-supported SKU/quantity/usage sufficient for pricing, do not invoke pricing.
+   For an assessment-only exit, record `assessment_cost_status=not_assessed` and write
+   `contracts/02-assessment-cost-status.json` using the
+   [unpriced assessment contract](../skills/apex-azure-defaults/references/cost-estimate-parent-contract.md#unpriced-assessment-only-exit).
+   Produce a gap-only cost Markdown report, not a zero-cost estimate or fabricated COMPLETE JSON.
+   Failed pricing is a failure, not this no-priceable-evidence path; retain failed attempts in `_meta/`.
+   Otherwise invoke `cost-estimate-subagent` for `02-cost-estimate.json`. Require COMPLETE, current
    source evidence and input equivalence for the requested priceable scope; preserve actual versioned success paths.
    Read persisted JSON, check line sums/annual totals and copy figures verbatim.
    Only the worker's authorized `manifest_writeback[]` updates price/timestamp fields.
@@ -221,8 +230,10 @@ and approved non-production opt-down semantics. For Assessment, report only obse
 evidence; mark unavailable recipients/configuration unknown rather than presenting a proposed design as current.
 
 Load `.github/skills/apex-python-diagrams/SKILL.md` and its `references/waf-cost-charts.md`.
-Generate and execute `02-waf-scores.py`, `03-des-cost-distribution.py` and
-`03-des-cost-projection.py` using shared `scripts/diagram_io.py` `save_figure`;
+Generate and execute `02-waf-scores.py`; with COMPLETE pricing also generate
+`03-des-cost-distribution.py` and `03-des-cost-projection.py`. When pricing is not assessed,
+omit numeric cost charts and monetary totals and explain the evidence gaps.
+Use shared `scripts/diagram_io.py` `save_figure`;
 verify non-empty PNG and SVG siblings. Preserve template attribution/navigation.
 
 Validate applicable JSON and renders, reconcile each amount to successful pricing evidence,
@@ -236,6 +247,9 @@ Load [one-shot review](../skills/apex-azure-defaults/references/one-shot-review.
 [review lifecycle](../skills/apex-azure-defaults/references/adversarial-review-protocol.md).
 Finalize both documents and immutable supporting inputs before metadata capture.
 Include actual COMPLETE pricing JSON and its consumed evidence via `--supporting-input`;
+for the unpriced assessment-only path include the NOT_ASSESSED cost-status contract and source
+evidence instead. Both architecture and cost-feasibility reviews remain mandatory, including
+the gap-only cost report; neither review may treat unknown cost as zero.
 do not freeze mutable manifest, recall, README or decision sidecars.
 Do not edit reviewed inputs while either reviewer runs.
 
@@ -281,7 +295,8 @@ Progress updates name phase changes, decisions and blockers rather than narratin
 
 ## Stop rules
 
-Missing material requirements, tools, pricing, review evidence or gate authority blocks completion.
+Missing material requirements, tools, applicable pricing, review evidence or gate authority blocks completion.
+The documented no-priceable-evidence assessment-only path needs no pricing task or COMPLETE estimate.
 Stop an exhausted/ineffective repair loop with evidence; no inline substitute or new allowance.
 Before final approval, present WAF scores, every review finding and the evidence-backed monthly total when
 available; otherwise state why cost coverage is unknown.

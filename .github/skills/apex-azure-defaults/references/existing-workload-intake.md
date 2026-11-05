@@ -128,6 +128,10 @@ Declare logical `subscriptions[]` and attribute services or deployment stamps wi
 Keep distinct resources identifiable when identical service types exist in different subscriptions.
 Do not treat incomplete inventory as a complete service list.
 Render the manifest through the existing renderer; never hand-edit its Markdown.
+Observation-only entries may omit unknown capacity, zoning, commitment, regions, SLA target and
+IaC logical names. Do not invent these fields; the renderer preserves unknowns. Implementation
+selections retain their full schema requirements, and observed entries cannot be priced from
+implicit one-instance/on-demand defaults.
 
 Step 2 may replace an observed selection with `source: "architect-derived"` and recommended `size`,
 preserving `observed_sku`, subscription attribution and revision history. User pins remain unchanged.
@@ -177,3 +181,10 @@ At Gate 2 retain both independent reviews and evidenced human approval. Offer `a
 with the standalone assessment and remediation roadmap, or `approve_and_continue` to follow the existing
 optional Design → Governance → IaC Planning workflow. These are owner choices, not new recall decision keys.
 Pausing does not approve later phases; continuing does not authorize deployment.
+Persist `assessment_exit=assessment_only` for an explicitly selected assessment-only completion
+or pause before calling recall completion. Without this choice, Step 2 retains strict policy
+feasibility when read scope exists. Implementation continuation selects `assessment_exit=implementation`
+and revalidates the normal prerequisites; an assessment-only exit cannot complete implementation steps.
+With no priceable evidence, follow the
+[unpriced assessment contract](cost-estimate-parent-contract.md#unpriced-assessment-only-exit)
+instead of fabricating pricing JSON or numeric cost charts.

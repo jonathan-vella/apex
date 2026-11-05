@@ -356,6 +356,103 @@ def test_proceed_rechecks_view_revision_and_never_waives_stale_projection(tmp_pa
     assert (project / "00-session-state.json").read_bytes() == before
 
 
+@pytest.mark.parametrize("command", ["complete-step", "transition"])
+@pytest.mark.parametrize("exit_choice", [None, "implementation", "assessment_only"])
+def test_step2_policy_gate_requires_explicit_assessment_only_exit(tmp_path: Path, command: str, exit_choice):
+    project, writer, cli, module, record = practical_project(tmp_path)
+    data = writer.read_state(project / "00-session-state.json")
+    _read_scope(module, data, {"subscription_id": "synthetic-subscription"})
+    module.grant_phase(
+        data, "2", {"request_id": "assessment-scope", "input_ids": [record["input_id"]], "environments": ["dev"]}
+    )
+    if exit_choice:
+        data["decisions"]["assessment_exit"] = exit_choice
+    data["steps"]["1"]["status"] = "complete"
+    data["steps"]["2"]["status"] = "in_progress"
+    module.sync_views("synthetic", data, "2")
+    writer.write_state("synthetic", data)
+    before = (project / "00-session-state.json").read_bytes()
+    args = (
+        ["complete-step", "synthetic", "2", "--json"]
+        if command == "complete-step"
+        else ["transition", "synthetic", "--from-step", "2", "--to-step", "3", "--complete", "--json"]
+    )
+    result = cli.main(args)
+    assert result == (0 if exit_choice == "assessment_only" else 2)
+    if exit_choice != "assessment_only":
+        assert (project / "00-session-state.json").read_bytes() == before
+
+
+@pytest.mark.parametrize("evidence_state", ["missing", "partial", "stale"])
+def test_assessment_exit_preserves_implementation_policy_validation(tmp_path: Path, evidence_state: str):
+    project, writer, module, data, index, snapshots = _multi_feasibility_project(tmp_path)
+    module.bind_feasibility("synthetic", data, index)
+    module.grant_phase(
+        data, "2", {"request_id": "assessment-scope", "input_ids": ["azure_read_scope"], "environments": ["dev"]}
+    )
+    data["decisions"]["assessment_exit"] = "assessment_only"
+    module.sync_views("synthetic", data, "2")
+    writer.write_state("synthetic", data)
+    if evidence_state == "missing":
+        snapshots[1].unlink()
+    else:
+        snapshot = json.loads(snapshots[1].read_text())
+        if evidence_state == "partial":
+            snapshot["discovery_metadata"]["discovery_status"] = "PARTIAL"
+        else:
+            snapshot["discovery_metadata"]["discovered_at"] = "2000-01-01T00:00:00Z"
+        snapshots[1].write_text(json.dumps(snapshot))
+    data = writer.read_state(project / "00-session-state.json")
+    module.check_views("synthetic", data, "2")
+    data["decisions"]["assessment_exit"] = "implementation"
+    with pytest.raises(ValueError):
+        module.check_views("synthetic", data, "2")
+
+
+def test_gap_only_cost_contract_never_becomes_zero_or_implementation_approval(tmp_path: Path):
+    project, writer, cli, module, record = practical_project(tmp_path)
+    data = writer.read_state(project / "00-session-state.json")
+    module.grant_phase(
+        data, "2", {"request_id": "assessment-scope", "input_ids": [record["input_id"]], "environments": ["dev"]}
+    )
+    data["decisions"].update(assessment_exit="assessment_only", assessment_cost_status="not_assessed")
+    report = project / "03-des-cost-estimate.md"
+    report.write_text("# Cost not assessed\n\nUnknown SKUs and usage; no monetary total.\n")
+    status_path = project / "02-assessment-cost-status.json"
+    status = {"status": "NOT_ASSESSED", "reason": "Unknown SKU and usage", "evidence": ["diagram.svg"]}
+    status_path.write_text(json.dumps(status))
+    module.sync_views("synthetic", data, "2")
+    writer.write_state("synthetic", data)
+    module.check_views("synthetic", writer.read_state(project / "00-session-state.json"), "2")
+    assert not (project / "02-cost-estimate.json").exists()
+    before = (project / "00-session-state.json").read_bytes()
+    assert cli.main(["complete-step", "synthetic", "2", "--json"]) == 2
+    assert (project / "00-session-state.json").read_bytes() == before
+    for field, value in [("status", "COMPLETE"), ("reason", " "), ("evidence", [])]:
+        invalid = {**status, field: value}
+        status_path.write_text(json.dumps(invalid))
+        with pytest.raises(ValueError, match="Cost-status artifact"):
+            module.check_views("synthetic", writer.read_state(project / "00-session-state.json"), "2")
+    status_path.write_text(json.dumps(status))
+    estimate = project / "02-cost-estimate.json"
+    estimate.write_text('{"status":"FAILED"}')
+    with pytest.raises(ValueError, match="cannot hide a pricing result"):
+        module.check_views("synthetic", writer.read_state(project / "00-session-state.json"), "2")
+    estimate.unlink()
+    data = writer.read_state(project / "00-session-state.json")
+    data["decisions"]["assessment_exit"] = "implementation"
+    with pytest.raises(ValueError, match="Unpriced assessment"):
+        module.check_views("synthetic", data, "2")
+    data["decisions"]["assessment_exit"] = "assessment_only"
+    module.grant_phase(
+        data, "4", {"request_id": "plan-scope", "input_ids": [record["input_id"]], "environments": ["dev"]}
+    )
+    module.sync_views("synthetic", data, "4")
+    writer.write_state("synthetic", data)
+    with pytest.raises(ValueError, match="does not authorize implementation"):
+        module.check_views("synthetic", writer.read_state(project / "00-session-state.json"), "4")
+
+
 def _feasibility_snapshot(tmp_path: Path, snapshot: Path, subscription: str) -> dict:
     source = Path(__file__).resolve().parents[3] / ".github/skills/apex-azure-governance-discovery/scripts"
     scripts = tmp_path / ".github/skills/apex-azure-governance-discovery/scripts"

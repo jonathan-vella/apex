@@ -338,7 +338,43 @@ def check_views(project: str, data: dict, step: str) -> None:
     if readiness["status"] == "blocked":
         raise ValueError(f"Scoped readiness blocked: {readiness['holds']}")
     if step == "2":
-        check_feasibility(project, data)
+        assessment_only = data.get("decisions", {}).get("assessment_exit") == "assessment_only"
+        if not assessment_only:
+            check_feasibility(project, data)
+        if data.get("decisions", {}).get("assessment_cost_status") == "not_assessed":
+            if not assessment_only:
+                raise ValueError("Unpriced assessment cannot authorize implementation continuation")
+            check_unpriced_assessment(project, data)
+    elif step in ("4", "5", "6") and data.get("decisions", {}).get("assessment_exit") == "assessment_only":
+        raise ValueError("Assessment-only exit does not authorize implementation continuation")
+
+
+def check_unpriced_assessment(project: str, data: dict) -> None:
+    directory = project_dir(project)
+    status_path = resolve_contract_path(directory, "02-assessment-cost-status.json")
+    if status_path.is_symlink() or not status_path.is_file():
+        raise ValueError("Unpriced assessment requires a project-local cost-status artifact")
+    data.input_revisions[status_path] = file_revision(status_path)
+    status = json.loads(status_path.read_text(encoding="utf-8"))
+    if (
+        not isinstance(status, dict)
+        or set(status) != {"status", "reason", "evidence"}
+        or status["status"] != "NOT_ASSESSED"
+        or not isinstance(status["reason"], str)
+        or not status["reason"].strip()
+        or not isinstance(status["evidence"], list)
+        or not status["evidence"]
+        or any(not isinstance(item, str) or not item.strip() for item in status["evidence"])
+    ):
+        raise ValueError("Cost-status artifact requires NOT_ASSESSED, a reason and nonempty evidence locators")
+    estimate = resolve_contract_path(directory, "02-cost-estimate.json")
+    data.input_revisions[estimate] = file_revision(estimate)
+    if estimate.exists():
+        raise ValueError("Unpriced assessment cannot hide a pricing result; preserve prior attempts in _meta/")
+    report = directory / "03-des-cost-estimate.md"
+    if not report.is_file():
+        raise ValueError("Unpriced assessment requires the gap-only cost report and its independent review")
+    data.input_revisions[report] = file_revision(report)
 
 
 def adoption_report(data: dict) -> dict:

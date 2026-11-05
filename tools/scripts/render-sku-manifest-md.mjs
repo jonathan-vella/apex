@@ -69,11 +69,11 @@ const CROSS = "❌";
 function fmtZonal(zonal) {
   if (zonal === true) return CHECK;
   if (zonal === false) return CROSS;
-  return "—";
+  return "Unknown";
 }
 
 function fmtCapacity(cap) {
-  if (!cap || typeof cap !== "object") return "—";
+  if (!cap || typeof cap !== "object") return "Unknown";
   const mode = cap.mode ?? "—";
   if (mode === "autoscale") {
     const min = cap.min ?? "—";
@@ -86,7 +86,7 @@ function fmtCapacity(cap) {
 }
 
 function fmtCommitment(c) {
-  if (!c || typeof c !== "object") return "`on-demand`";
+  if (!c || typeof c !== "object") return "Unknown";
   if (c.type === "on-demand") return "`on-demand`";
   if (c.term_years) return `\`${c.type}\` (\`${c.term_years}yr\`)`;
   return `\`${c.type}\``;

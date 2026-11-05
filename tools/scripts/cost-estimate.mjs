@@ -119,6 +119,14 @@ function expandManifestServices(manifest, manifestUsage = {}) {
       for (const env of stampEnvs) {
         const envOverride = service.environment_overrides?.[env] ?? {};
         const effective = mergeSparseService(service, envOverride, stampSvcOverride);
+        if (
+          effective.source === "observed-current" &&
+          (effective.capacity?.default === undefined || !effective.commitment?.type)
+        ) {
+          throw new Error(
+            `Observed service '${service.id}' requires explicit capacity.default and commitment.type before pricing; unknown values cannot default to one instance or on-demand`,
+          );
+        }
         const regions =
           stamp && Array.isArray(stamp.regions) && stamp.regions.length > 0
             ? stamp.regions

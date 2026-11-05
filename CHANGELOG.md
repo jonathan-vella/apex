@@ -15,6 +15,15 @@ Store discovered evidence under `_meta/` to preserve the layout-v2 Markdown-only
 
 ### Fixes
 
+#### Assessment evidence and completion contracts
+
+Honor explicit assessment-only exits without requiring deployment policy feasibility; implementation
+continuation retains the strict gate. Support independently reviewed gap-only cost reports when no evidence
+is priceable, without numeric charts or fabricated pricing. Preserve partial observed SKUs without invented
+capacity, zoning, commitment or IaC names, and reject implicit pricing assumptions for those observations.
+Retain subscription attribution in schema-conforming cost outputs. Align native prompt tests with the active
+workspace shortcut while continuing to reject retired prompt roots.
+
 #### CFS-compatible Python setup
 
 Retain Pillow 12.3.0 and Ruff 0.17.0 instead of newer pins unavailable through the configured CFS proxy.

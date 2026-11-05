@@ -166,6 +166,11 @@
         "stamp": {
           "type": ["string", "null"]
         },
+        "subscription": {
+          "type": ["string", "null"],
+          "minLength": 1,
+          "description": "Effective logical subscription ID from the source service/stamp or explicit resource attribution; preserve it in published estimates."
+        },
         "service_name": {
           "type": "string",
           "minLength": 1

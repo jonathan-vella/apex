@@ -136,6 +136,28 @@ describe("SKU Manifest existing-workload subscriptions and provenance", () => {
     });
   }
 
+  it("retains partial observed SKUs without inventing configuration or IaC names", (context) => {
+    const manifest = existingWorkloadManifest();
+    const service = manifest.services[0];
+    for (const key of ["capacity", "zonal", "commitment", "regions", "sla_target", "iac_logical_names"]) {
+      delete service[key];
+    }
+    const { exitCode, stdout } = validateManifest(manifest, context);
+    assert.equal(exitCode, 0, stdout);
+    const row = renderManifest(manifest)
+      .split("\n")
+      .find((line) => line.startsWith(`| \`${service.id}\``));
+    assert.match(row, /Unknown \| Unknown/);
+    assert.match(row, /Unknown \| `observed-current`/);
+    assert.doesNotMatch(row, /on-demand/);
+    for (const source of ["user-pin", "architect-derived", "deploy-substitute"]) {
+      const selected = structuredClone(manifest);
+      selected.services[0].source = source;
+      const result = validateManifest(selected, context);
+      assert.notEqual(result.exitCode, 0, `${source} must still require complete configuration`);
+    }
+  });
+
   const invalidCases = [
     ["duplicate logical IDs", (m) => (m.subscriptions[1].id = "hub"), /Duplicate subscriptions\[\]\.id/],
     [
