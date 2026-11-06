@@ -33,6 +33,15 @@ Store discovered evidence under `_meta/` to preserve the layout-v2 Markdown-only
 
 ### Fixes
 
+#### Assessment Action Register review corrections
+
+Apply captured billing/utilization permissions and reporting plans to every imported cost report,
+and validate ARM prefixes case-insensitively. Compare structured usage, units and component/line regions
+before reporting like-for-like savings. Extend the existing pricing producer, preflight and schema with
+optional register attribution/basis metadata. Confine and consistently hash nested pricing evidence
+without rewriting it. Refresh all fixture provenance from its injected clock and permit explicit overwrite
+of dead export leases after source edits while preserving live-process locks.
+
 #### Workbook contract validation
 
 Install the canonical Python tooling requirements in the Node CI job before executable workbook

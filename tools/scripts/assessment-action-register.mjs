@@ -9,7 +9,7 @@ import { isDeepStrictEqual, parseArgs } from "node:util";
 import { loadValidator } from "./_lib/ajv-validator.mjs";
 import { readJson, writeJson } from "./_lib/json.mjs";
 import { sumCosts, validateAssessmentCost, validateScopes } from "./assessment-cost.mjs";
-import { validateEstimate } from "./cost-estimate.mjs";
+import { comparableLineUsage, resolveWorkspacePath, validateEstimate } from "./cost-estimate.mjs";
 
 const HERE = path.dirname(fileURLToPath(import.meta.url));
 const SCHEMA = path.resolve(HERE, "../schemas/assessment-action-register.schema.json");
@@ -37,6 +37,7 @@ const TOOL_FILES = [
   "_lib/project-paths.mjs",
   "../schemas/assessment-action-register.schema.json",
   "../schemas/assessment-cost.schema.json",
+  "../schemas/cost-estimate.schema.json",
 ];
 const CATEGORIES = new Set([
   "Retirements and lifecycle",
@@ -104,6 +105,17 @@ function reader(root) {
     requireValue(stat.isFile() && stat.size <= 32 * 1024 * 1024, "Evidence must be a bounded regular file");
     return fs.readFileSync(target);
   };
+}
+
+function nestedEvidencePath(root, relative) {
+  const project = fs.realpathSync(root);
+  const cwd =
+    relative.startsWith("agent-output/") && path.basename(path.dirname(project)) === "agent-output"
+      ? path.dirname(path.dirname(project))
+      : project;
+  const resolved = resolveWorkspacePath(relative, cwd);
+  const confined = projectPath(root, path.relative(project, resolved).split(path.sep).join("/"));
+  return path.relative(project, confined).split(path.sep).join("/");
 }
 
 function pointer(value, locator) {
@@ -257,7 +269,7 @@ function calculateInternal(data, { root, asOf }) {
         (resource.count === null || original.count === resource.count),
       `Unsupported resource identity/count: ${resource.id}`,
     );
-    if (resource.id.startsWith("/subscriptions/"))
+    if (resource.id.toLowerCase().startsWith("/subscriptions/"))
       requireValue(
         data.scopes.some((scope) => resource.id.toLowerCase().startsWith(`${scope.toLowerCase()}/`)),
         "Resource outside captured scope",
@@ -296,7 +308,7 @@ function calculateInternal(data, { root, asOf }) {
       );
       // The existing validator verifies this family when file IO is enabled. Keep IO inside our project reader.
       for (const entry of leaf.retail_api_evidence ?? []) {
-        const captured = JSON.parse(readEvidence(entry.evidence_path));
+        const captured = JSON.parse(readEvidence(nestedEvidencePath(root, entry.evidence_path)));
         requireValue(
           captured.schema_version === "retail-price-evidence-v1" &&
             captured.pages?.length > 0 &&
@@ -323,7 +335,11 @@ function calculateInternal(data, { root, asOf }) {
   const cost = (id) => {
     if (!costCache.has(id)) {
       const report = document(id, "cost");
-      const result = validateAssessmentCost(report, { asOf, readEvidence, approvedScopes: data.scopes });
+      const result = validateAssessmentCost(report, {
+        asOf,
+        readEvidence: (relative) => readEvidence(nestedEvidencePath(root, relative)),
+        approvedScopes: data.scopes,
+      });
       requireValue(result.valid, `Invalid cost opportunity source: ${result.errors.join("; ")}`);
       costCache.set(id, report);
     }
@@ -489,10 +505,10 @@ function calculateInternal(data, { root, asOf }) {
         const proposedLeaf = document(finance.proposed_ref, "retail");
         requireValue(
           isDeepStrictEqual(
-            leaf.resources.map((r) => [r.resource_id, r.charge_id, String(r.quantity)]).sort(),
-            proposedLeaf.resources.map((r) => [r.resource_id, r.charge_id, String(r.quantity)]).sort(),
+            leaf.resources.map((r) => [r.resource_id, r.charge_id, comparableLineUsage(r)]).sort(),
+            proposedLeaf.resources.map((r) => [r.resource_id, r.charge_id, comparableLineUsage(r)]).sort(),
           ) && isDeepStrictEqual(leaf.assumptions, proposedLeaf.assumptions),
-          "Replacement current/proposed charge slices, usage quantities or assumptions differ",
+          "Replacement current/proposed charge slices, usage quantities, regions or assumptions differ",
         );
       }
     }
@@ -699,7 +715,8 @@ function sourceHashes(payload, root) {
   const hashes = Object.fromEntries(payload.register.evidence_refs.map((ref) => [ref.path, ref.sha256]));
   // Cost-report provenance and captured retail pages are transitive sources, not extra contributions.
   const track = (relative) => {
-    hashes[relative] = digest(reader(root)(relative));
+    const normalized = nestedEvidencePath(root, relative);
+    hashes[normalized] = digest(reader(root)(normalized));
   };
   for (const ref of payload.register.evidence_refs) {
     const doc = JSON.parse(reader(root)(ref.path));
@@ -797,7 +814,10 @@ export function renderAssessmentActionRegister({ root, input, asOf, overwrite = 
     } catch (error) {
       if (error.code === "ESRCH") alive = false;
     }
-    requireValue(!alive && lease.source_sha256 === payload.source_sha256, "Export is locked by another process");
+    requireValue(
+      !alive && (lease.source_sha256 === payload.source_sha256 || overwrite),
+      "Export is locked by another process or stale inputs require explicit --overwrite",
+    );
     fs.unlinkSync(lock);
   }
   const handle = fs.openSync(lock, "wx");

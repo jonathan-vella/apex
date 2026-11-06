@@ -7,7 +7,7 @@ import json
 import shutil
 import struct
 import subprocess
-from datetime import UTC, datetime
+from datetime import UTC
 from pathlib import Path
 
 import pytest
@@ -141,7 +141,7 @@ def analysis(directory: Path, req: dict) -> None:
             {
                 "schema_version": "1.0",
                 "as_of": req["reporting"]["as_of"],
-                "generated_at": datetime.now(UTC).isoformat(timespec="milliseconds"),
+                "generated_at": module.datetime.now(UTC).isoformat(timespec="milliseconds"),
                 "status": "not_assessed",
                 "scopes": req["scope"]["azure_scopes"],
                 "periods": periods,
@@ -169,7 +169,7 @@ def register(directory: Path, req: dict, *, finance: bool = False) -> None:
             str(directory),
             json.dumps(req),
             module.datetime.now(UTC).isoformat(timespec="milliseconds"),
-            *(["finance"] if finance else []),
+            *(["finance", json.dumps(module.cost_plan(req))] if finance else []),
         ],
         cwd=REPO,
         capture_output=True,

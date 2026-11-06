@@ -59,6 +59,17 @@ Use the existing actual-cost contract for validated historical spend and support
 and the retail pricing leaf for proposed service estimates. Neither source permits new tenant reads.
 New configuration, billing, utilization or pricing collection needs its actual granted scope.
 Never type a rate from model memory or substitute a retail subtotal for actual workload cost.
+Every referenced cost report is checked against the run's billing/utilization categories and captured
+reporting plan, not only the main Cost Management contract.
+
+For quantified retail actions, send the existing pricing leaf a `resource_list` with stable
+`resource_id`/`charge_id`, structured usage and per-line/component regions, plus nonempty `assumptions`
+and `assessment_basis:{period,normalization,cost_view:"Retail",tax,licensing}` copied from the comparison basis.
+The producer/preflight/schema preserve these optional fields in its ordinary COMPLETE result;
+retain those original bytes. Without evidenced attribution or consumption, keep the action unquantified.
+Comparisons normalize quantities, units, hours/days and component usage/regions while allowing price/SKU changes.
+Nested fallback paths may use existing absolute/workspace-relative conventions only when confined to this
+project; source reads and receipt hashes use the same normalized project-relative identity.
 
 The Node register calculator is the sole arithmetic authority. It derives a signed
 `monthly_contribution` from validated source inputs:
@@ -160,6 +171,8 @@ Rendering is deterministic for the same source/evidence/tool versions and input 
 Existing mismatched outputs need explicit `render --overwrite` only after confirming they are owned
 generated snapshots; it is not permission to overwrite someone else's workbook.
 An interrupted export is recoverable under the ownership journal, not a successful receipt.
+After a killed exporter and a source edit, explicit `--overwrite` may reclaim a dead lease;
+a live process remains blocking even with overwrite.
 Re-run actual validation after any source/export repair; no automatic review refresh or budget reset.
 
 ## Tooling and dependency boundary

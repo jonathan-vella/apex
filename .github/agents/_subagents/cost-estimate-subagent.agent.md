@@ -78,6 +78,15 @@ Preserve each normalized line's effective `subscription` (logical string or null
 published `resources[]` entry, including manifest/stamp expansion and supplemental resources.
 Never drop subscription attribution when grouping identical pricing queries.
 
+For assessment `resource_list` pricing, the parent supplies `assessment_basis`
+(`period`, `normalization`, `cost_view: "Retail"`, `tax`, `licensing`), nonempty `assumptions`,
+and stable `resource_id`/`charge_id` on each line. Preflight preserves this optional context.
+Copy it unchanged into the result, together with structured consumption inputs, units,
+hours/days, component usage and each line/component's effective region.
+Keep SKU/rate changes separate from consumption; missing material usage fails the line.
+Do not invent attribution, basis or assumptions to satisfy the register; return the missing inputs.
+Ordinary estimates without this assessment context retain their existing contract.
+
 Optional `recovery` supplies `draft_path`, `evidence_paths`, `remaining_requests` and `prior_attempt` context
 for a parent-authorized interrupted attempt, while retaining exactly one original pricing input mode.
 It authorizes validating and publishing that exact draft, not replacing arbitrary existing files.
@@ -232,6 +241,9 @@ cost_estimated_at }]`; persist it to the supplied manifest only on COMPLETE with
 choose the lowest complete estimate and break ties alphabetically. The winner is
 comparison advice only; it is not SKU approval and never changes the manifest.
 `resource_list` mode emits the base shape without either mode-specific field.
+When assessment context was supplied, also emit its exact `assessment_basis`, `assumptions`
+and per-line `resource_id`, `charge_id`, `usage` and applicable calculation/component fields.
+These are supported by the canonical cost-estimate schema and consumed without rewriting the retained result.
 
 When fallback is used, also emit `direct_api_calls_used` and `retail_api_evidence[]` entries with
 `evidence_path`, `resource_names`, `selected_meters` (meter ID, SKU, billing region and tier), and `calculation`.

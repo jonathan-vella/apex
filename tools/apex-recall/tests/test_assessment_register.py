@@ -9,6 +9,7 @@ import os
 import shutil
 import subprocess
 import zipfile
+from datetime import UTC, datetime, timedelta
 from hashlib import sha256
 from pathlib import Path
 from unittest.mock import patch
@@ -348,10 +349,28 @@ def test_known_old_reader_rejects_register_capable_serialized_run_without_rewrit
     assert writer.session_state_path("synthetic").read_bytes() == before
 
 
-def test_all_validated_export_and_transitive_finance_sources_are_watched_before_commit(assessment_project):
-    directory, writer, module, cli = assessment_project
+def finance_request() -> dict:
     req = request("azure")
     req["scope"]["azure_scopes"] = ["/subscriptions/00000000-0000-4000-8000-000000000001/resourceGroups/synthetic"]
+    req["scope"]["categories"] += ["billing", "utilization"]
+    req["reporting"]["periods"][0]["kind"] = "closed_month"
+    return req
+
+
+@pytest.mark.parametrize("days_later", [0, 21])
+def test_all_validated_export_and_transitive_finance_sources_are_watched_before_commit(
+    assessment_project, monkeypatch, days_later
+):
+    directory, writer, module, cli = assessment_project
+    clock = datetime(2026, 11, 6, 12, tzinfo=UTC) + timedelta(days=days_later)
+
+    class FixtureDatetime(datetime):
+        @classmethod
+        def now(cls, tz=None):
+            return clock.astimezone(tz)
+
+    monkeypatch.setattr(module, "datetime", FixtureDatetime)
+    req = finance_request()
     assert invoke(cli, "start", req) == 0
     evidence(directory, req)
     assert invoke(cli, "advance", phase="evidence") == 0
@@ -373,3 +392,33 @@ def test_all_validated_export_and_transitive_finance_sources_are_watched_before_
             writer.check_state_revision(data, writer.session_state_path("synthetic"))
         path.write_bytes(original)
     writer.write_state("synthetic", data)
+
+
+@pytest.mark.parametrize(
+    ("violation", "message"),
+    [
+        ("billing", "Actual billing evidence was not authorized"),
+        ("utilization", "Cost opportunities require authorized"),
+        ("period", "periods differ from authorized"),
+        ("plan", "Cost requests/metrics/currencies differ from approved plan"),
+    ],
+)
+def test_every_imported_cost_report_obeys_captured_authorization(assessment_project, violation, message):
+    directory, writer, module, cli = assessment_project
+    req = finance_request()
+    if violation in ("billing", "utilization"):
+        req["scope"]["categories"].remove(violation)
+    assert invoke(cli, "start", req) == 0
+    evidence(directory, req)
+    assert invoke(cli, "advance", phase="evidence") == 0
+    analysis(directory, req)
+    imported_request = copy.deepcopy(req)
+    if violation == "period":
+        imported_request["reporting"]["periods"][0]["id"] = "unapproved-period"
+    if violation == "plan":
+        imported_request["reporting"]["group_by"] = ["ResourceId"]
+    register(directory, imported_request, finance=True)
+    before = writer.session_state_path("synthetic").read_bytes()
+    assert invoke(cli, "advance", phase="analysis") != 0
+    assert message in module.readiness("synthetic", state(writer))["error"]
+    assert writer.session_state_path("synthetic").read_bytes() == before

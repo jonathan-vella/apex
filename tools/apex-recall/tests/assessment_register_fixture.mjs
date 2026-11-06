@@ -1,9 +1,12 @@
 import { exampleFixture, fixture } from "../../tests/scripts/fixtures/action-register/fixture.mjs";
 import { renderAssessmentActionRegister } from "../../scripts/assessment-action-register.mjs";
 
-const [root, encodedRequest, asOf, finance] = process.argv.slice(2);
+const [root, encodedRequest, asOf, finance, encodedPlan] = process.argv.slice(2);
 const request = JSON.parse(encodedRequest);
-const { data, action, save } = (finance ? exampleFixture : fixture)(root);
+const { data, action, save } = (finance ? exampleFixture : fixture)(root, {
+  asOf,
+  ...(finance ? { reporting: JSON.parse(encodedPlan) } : {}),
+});
 data.source = request.source;
 data.scopes = request.scope.azure_scopes;
 data.as_of = request.reporting.as_of;

@@ -7,6 +7,7 @@ import {
   buildCostRequest,
   deriveReportingWindows,
   normalizeCostCollection,
+  planCostQueries,
 } from "../../../../scripts/assessment-cost.mjs";
 
 export const AS_OF = "2026-11-06T10:00:00.000Z";
@@ -14,15 +15,15 @@ export const SCOPE = "/subscriptions/00000000-0000-4000-8000-000000000001/resour
 export const ACTUAL_RESOURCE = `${SCOPE}/providers/Microsoft.Compute/virtualMachines/actual`;
 export const RETAIL_RESOURCE = `${SCOPE}/providers/Microsoft.Compute/virtualMachines/reference`;
 
-export function fixture(root) {
+export function fixture(root, { asOf = AS_OF, reporting } = {}) {
   fs.mkdirSync(path.join(root, "contracts"), { recursive: true });
   fs.mkdirSync(path.join(root, "evidence"), { recursive: true });
   const sources = new Map();
   const data = {
     schema_version: "action-register-v1",
     project: "synthetic",
-    generated_at: AS_OF,
-    as_of: AS_OF,
+    generated_at: asOf,
+    as_of: reporting?.as_of ?? asOf,
     source: "azure",
     scopes: [SCOPE],
     evidence_refs: [],
@@ -59,7 +60,7 @@ export function fixture(root) {
       id,
       path: relative,
       sha256: createHash("sha256").update(bytes).digest("hex"),
-      collected_at: AS_OF,
+      collected_at: asOf,
       kind,
     };
     const existing = data.evidence_refs.findIndex((r) => r.id === id);
@@ -147,7 +148,7 @@ export function fixture(root) {
       savings_reason: "Synthetic test",
       eligible_strategies: [],
       data_source: "Azure MCP pricing_get",
-      queried_at: AS_OF,
+      queried_at: asOf,
       confidence: "Medium",
       unresolved_items: [],
       mcp_calls_used: 1,
@@ -187,35 +188,44 @@ export function fixture(root) {
     );
   };
   const addActual = (id = "actual-saving") => {
-    const period = deriveReportingWindows(AS_OF)[0];
-    const request = {
-      id: "actual",
-      scope: SCOPE,
-      operation: "query",
-      period,
-      cost_type: "ActualCost",
-      metric: "PreTaxCost",
-      granularity: "None",
-      group_by: ["ServiceName", "ResourceId"],
-      expected_currency: "USD",
-    };
+    const period = reporting ? reporting.periods[0] : deriveReportingWindows(asOf)[0];
+    const request = reporting
+      ? planCostQueries({ ...reporting, scopes: [SCOPE] }).requests[0].request
+      : {
+          id: "actual",
+          scope: SCOPE,
+          operation: "query",
+          period,
+          cost_type: "ActualCost",
+          metric: "PreTaxCost",
+          granularity: "None",
+          group_by: ["ServiceName", "ResourceId"],
+          expected_currency: "USD",
+        };
     const collection = {
       source: "azure-cost-management",
-      collected_at: AS_OF,
+      collected_at: asOf,
       request,
       pages: [
         {
-          request_path: buildCostRequest(request, { approvedScopes: [SCOPE], asOf: AS_OF }).request_path,
+          request_path: buildCostRequest(request, { approvedScopes: [SCOPE], asOf }).request_path,
           status_code: 200,
           body: {
             properties: {
               columns: [
                 { name: "PreTaxCost", type: "Number" },
                 { name: "Currency", type: "String" },
-                { name: "ServiceName", type: "String" },
-                { name: "ResourceId", type: "String" },
+                ...request.group_by.map((name) => ({ name, type: "String" })),
+                ...(request.granularity === "Daily" ? [{ name: "UsageDate", type: "Number" }] : []),
               ],
-              rows: [["1000", "USD", "Compute", ACTUAL_RESOURCE]],
+              rows: [
+                [
+                  "1000",
+                  "USD",
+                  ...request.group_by.map((name) => (name === "ResourceId" ? ACTUAL_RESOURCE : "Compute")),
+                  ...(request.granularity === "Daily" ? [Number(period.from.slice(0, 10).replaceAll("-", ""))] : []),
+                ],
+              ],
               nextLink: null,
             },
           },
@@ -226,25 +236,25 @@ export function fixture(root) {
     const provenance = {
       path: actualRef.path,
       sha256: actualRef.sha256,
-      collected_at: AS_OF,
+      collected_at: asOf,
       source: "azure-cost-management",
     };
-    const evidence = normalizeCostCollection(collection, { approvedScopes: [SCOPE], asOf: AS_OF, provenance });
+    const evidence = normalizeCostCollection(collection, { approvedScopes: [SCOPE], asOf, provenance });
     const observedRef = retain("advisor-observed", {
       source: "azure-advisor",
-      collected_at: AS_OF,
+      collected_at: asOf,
       scope: SCOPE,
       observations: [{ resource_id: ACTUAL_RESOURCE, data: { recommendation: "Synthetic rightsizing observation." } }],
     });
     const observed = {
       path: observedRef.path,
       sha256: observedRef.sha256,
-      collected_at: AS_OF,
+      collected_at: asOf,
       source: "azure-advisor",
     };
     const savingsRef = retain("advisor-saving", {
       source: "azure-advisor",
-      collected_at: AS_OF,
+      collected_at: asOf,
       scope: SCOPE,
       period,
       cost_type: "ActualCost",
@@ -258,18 +268,18 @@ export function fixture(root) {
     const opportunity = {
       id: "OP1",
       description: "Synthetic estimate only",
-      baseline_evidence_id: "actual",
+      baseline_evidence_id: request.id,
       resource_ids: [ACTUAL_RESOURCE],
       currency: "USD",
       reduction_fraction: "0.15",
       amount: "150",
       method: "baseline_fraction",
-      provenance: { path: savingsRef.path, sha256: savingsRef.sha256, collected_at: AS_OF, source: "azure-advisor" },
+      provenance: { path: savingsRef.path, sha256: savingsRef.sha256, collected_at: asOf, source: "azure-advisor" },
     };
     const costReport = {
       schema_version: "1.0",
-      as_of: AS_OF,
-      generated_at: AS_OF,
+      as_of: data.as_of,
+      generated_at: asOf,
       status: "complete",
       scopes: [SCOPE],
       periods: [period],
@@ -304,8 +314,8 @@ export function fixture(root) {
   return { data, sources, retain, retail, action, addRetail, addActual, save };
 }
 
-export function exampleFixture(root) {
-  const result = fixture(root);
+export function exampleFixture(root, options) {
+  const result = fixture(root, options);
   result.addRetail("addition-a", "1000");
   result.addRetail("addition-b", "200");
   result.addActual();

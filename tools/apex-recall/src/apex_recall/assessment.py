@@ -520,40 +520,13 @@ def check_outputs(project: str, data: dict, phase: str, graph: dict) -> dict:
                 ):
                     raise ValueError("Action register project/source/scopes/as_of differ from authorized assessment")
                 revisions.update(validate_register_export(directory, data, path))
+                for reference in document["evidence_refs"]:
+                    if reference["kind"] == "cost":
+                        imported = safe_path(directory, reference["path"])
+                        revisions[reference["path"]] = _watch(data, imported)
+                        revisions.update(validate_cost_report(directory, data, imported, run))
             if relative == "contracts/03-cost-management.json":
-                validate_cost_scope(document, run)
-                if hasattr(data, "input_revisions"):
-                    for dependency in (
-                        "tools/scripts/assessment-cost.mjs",
-                        "tools/schemas/assessment-cost.schema.json",
-                    ):
-                        target = workspace_root_for() / dependency
-                        _watch(data, target)
-                _node_check(
-                    workspace_root_for(),
-                    "assessment-cost.mjs",
-                    "validate",
-                    "--input",
-                    str(path),
-                    "--as-of",
-                    datetime.now(UTC).isoformat(timespec="milliseconds"),
-                    "--root",
-                    str(directory),
-                    *[argument for scope in run["scope"]["azure_scopes"] for argument in ("--scope", scope)],
-                    *(["--approved-plan", json.dumps(cost_plan(run))] if run["scope"]["azure_scopes"] else []),
-                )
-                for item in [
-                    *document.get("evidence", []),
-                    *document.get("estimates", []),
-                    *document.get("opportunities", []),
-                ]:
-                    provenance = item.get("provenance")
-                    if provenance:
-                        source = safe_path(directory, provenance["path"])
-                        relative_source = source.relative_to(directory).as_posix()
-                        revisions[relative_source] = _watch(data, source)
-                        if revisions[relative_source] != provenance["sha256"]:
-                            raise ValueError("Cost source bytes changed during readiness validation")
+                revisions.update(validate_cost_report(directory, data, path, run))
         if path.suffix == ".png":
             raw = path.read_bytes()
             if len(raw) < 33 or raw[:8] != b"\x89PNG\r\n\x1a\n" or raw[12:16] != b"IHDR":
@@ -564,6 +537,37 @@ def check_outputs(project: str, data: dict, phase: str, graph: dict) -> dict:
             svg = ET.fromstring(path.read_text(encoding="utf-8"))
             if svg.tag != "{http://www.w3.org/2000/svg}svg" or not list(svg):
                 raise ValueError("Assessment SVG must be a nonempty SVG document")
+    return revisions
+
+
+def validate_cost_report(directory: Path, data: dict, path: Path, run: dict) -> dict:
+    document = json.loads(path.read_text(encoding="utf-8"))
+    validate_cost_scope(document, run)
+    if hasattr(data, "input_revisions"):
+        for dependency in ("tools/scripts/assessment-cost.mjs", "tools/schemas/assessment-cost.schema.json"):
+            _watch(data, workspace_root_for() / dependency)
+    _node_check(
+        workspace_root_for(),
+        "assessment-cost.mjs",
+        "validate",
+        "--input",
+        str(path),
+        "--as-of",
+        datetime.now(UTC).isoformat(timespec="milliseconds"),
+        "--root",
+        str(directory),
+        *[argument for scope in run["scope"]["azure_scopes"] for argument in ("--scope", scope)],
+        *(["--approved-plan", json.dumps(cost_plan(run))] if run["scope"]["azure_scopes"] else []),
+    )
+    revisions = {}
+    for item in [*document.get("evidence", []), *document.get("estimates", []), *document.get("opportunities", [])]:
+        provenance = item.get("provenance")
+        if provenance:
+            source = safe_path(directory, provenance["path"])
+            relative = source.relative_to(directory).as_posix()
+            revisions[relative] = _watch(data, source)
+            if revisions[relative] != provenance["sha256"]:
+                raise ValueError("Cost source bytes changed during readiness validation")
     return revisions
 
 

@@ -6,6 +6,8 @@ import path from "node:path";
 import test from "node:test";
 import { fileURLToPath } from "node:url";
 import { normalizeCostCollection } from "../../scripts/assessment-cost.mjs";
+import { createAjv } from "../../scripts/_lib/ajv-validator.mjs";
+import { normalizeCostRequest, publishEstimate } from "../../scripts/cost-estimate.mjs";
 import {
   ACTION_REGISTER_OUTPUTS,
   calculateAssessmentActionRegister,
@@ -218,6 +220,183 @@ test("retail upgrade quantities and assumptions must be like-for-like, not mixed
   f.retain("migration-proposed", leaf, "retail");
   fails(f, root, /assumptions differ/);
 });
+
+test("ARM prefixes and authorized scopes are case-insensitive, including out-of-scope inventory", (t) => {
+  const { root, f } = setup(t);
+  const inventory = f.sources.get("inventory");
+  const resource = inventory.resources[0];
+  resource.id = resource.id.toUpperCase();
+  f.data.resources[0].id = resource.id;
+  f.retain("inventory", inventory, "inventory");
+  assert.equal(calculate(f, root).valid, true);
+  resource.id = resource.id.replace("000000000001", "000000000002");
+  f.data.resources[0].id = resource.id;
+  f.retain("inventory", inventory, "inventory");
+  fails(f, root, /outside captured scope/);
+});
+
+for (const driver of [
+  "usage",
+  "usage_amount",
+  "unit",
+  "hours",
+  "region",
+  "component_usage",
+  "component_region",
+  "calculation_basis",
+]) {
+  test(`like-for-like retail comparison rejects changed ${driver}`, (t) => {
+    const { root, f } = setup(t);
+    f.addRetail("upgrade", "50", "100");
+    const current = f.sources.get("upgrade-current");
+    const proposed = f.sources.get("upgrade-proposed");
+    for (const leaf of [current, proposed]) {
+      Object.assign(leaf.resources[0], {
+        usage: { amount: 1000, unit: "GB", scope: "aggregate" },
+        usage_amount: 1000,
+        unit_of_measure: "1 GB",
+        hours_per_month: 730,
+        components: [{ region: leaf.region, unit_of_measure: "1 GB", usage_amount: 1000 }],
+        calculation_basis: { region: leaf.region, quantity: 1, unit_of_measure: "1 GB", usage_amount: 1000 },
+      });
+    }
+    const line = proposed.resources[0];
+    if (driver === "usage") line.usage.amount = 100;
+    if (driver === "usage_amount") line.usage_amount = 100;
+    if (driver === "unit") line.unit_of_measure = "1 TB";
+    if (driver === "hours") line.hours_per_month = 100;
+    if (driver === "region") line.region = "another-region";
+    if (driver === "component_usage") line.components[0].usage_amount = 100;
+    if (driver === "component_region") line.components[0].region = "another-region";
+    if (driver === "calculation_basis") line.calculation_basis.usage_amount = 100;
+    f.retain("upgrade-current", current, "retail");
+    f.retain("upgrade-proposed", proposed, "retail");
+    fails(f, root, /usage quantities, regions/);
+    current.resources[0] = { ...structuredClone(line), sku: "Current SKU", hourly_rate: 2, monthly_cost: "100" };
+    line.sku = "Proposed SKU";
+    line.hourly_rate = 1;
+    f.retain("upgrade-current", current, "retail");
+    f.retain("upgrade-proposed", proposed, "retail");
+    assert.equal(calculate(f, root).valid, true);
+  });
+}
+
+test("consumption normalization preserves exact decimal distinctions", (t) => {
+  const { root, f } = setup(t);
+  f.addRetail("usage", "50", "100");
+  const current = f.sources.get("usage-current");
+  const proposed = f.sources.get("usage-proposed");
+  current.resources[0].usage = { amount: "1000.000", unit: "GB", scope: "aggregate" };
+  proposed.resources[0].usage = { amount: 1000, unit: "GB", scope: "aggregate" };
+  f.retain("usage-current", current, "retail");
+  f.retain("usage-proposed", proposed, "retail");
+  assert.equal(calculate(f, root).valid, true);
+  current.resources[0].usage.amount = "9007199254740993";
+  proposed.resources[0].usage.amount = "9007199254740992";
+  f.retain("usage-current", current, "retail");
+  f.retain("usage-proposed", proposed, "retail");
+  fails(f, root, /usage quantities/);
+});
+
+test("the normalized producer context and standard published pricing output quantify a register action", (t) => {
+  const { root, f } = setup(t);
+  const action = f.addRetail("standard", "10");
+  const retained = f.sources.get("standard-proposed");
+  const original = retained.resources[0];
+  const request = normalizeCostRequest({
+    project_name: "synthetic",
+    region: retained.region,
+    output_path: path.join(root, "evidence/published.json"),
+    assessment_basis: retained.assessment_basis,
+    assumptions: retained.assumptions,
+    resource_list: [
+      {
+        ...original,
+        usage: { amount: 1000, unit: "GB", scope: "aggregate" },
+      },
+    ],
+  });
+  assert.equal(request.lines[0].charge_id, original.charge_id);
+  const draft = {
+    ...retained,
+    assessment_basis: request.assessment_basis,
+    assumptions: request.assumptions,
+    savings_status: "NOT_APPLICABLE",
+    resources: [
+      {
+        ...original,
+        usage: request.lines[0].usage,
+        unit_of_measure: "1 GB",
+        retail_price: 0.01,
+      },
+    ],
+  };
+  const draftPath = path.join(root, "evidence/draft.json");
+  fs.writeFileSync(draftPath, JSON.stringify(draft));
+  const leaf = publishEstimate({ draftPath, outputPath: request.output_path }).estimate;
+  const schema = JSON.parse(fs.readFileSync(path.join(ROOT, "tools/schemas/cost-estimate.schema.json")));
+  const valid = createAjv().compile(schema);
+  assert.equal(valid(leaf), true, JSON.stringify(valid.errors));
+  f.retain("standard-proposed", leaf, "retail");
+  const result = calculate(f, root);
+  assert.equal(result.valid, true, result.errors.join("; "));
+  assert.equal(result.derived.actions[0].id, action.id);
+  assert.equal(result.derived.actions[0].monthly_contribution, "10");
+  assert.throws(
+    () =>
+      normalizeCostRequest({
+        project_name: request.project_name,
+        region: request.region,
+        output_path: request.output_path,
+        assessment_basis: request.assessment_basis,
+        assumptions: request.assumptions,
+        resource_list: [{ ...original, charge_id: undefined }],
+      }),
+    /Assessment pricing requires/,
+  );
+});
+
+for (const kind of ["project", "absolute", "workspace"]) {
+  test(`retail fallback ${kind} paths remain confined and normalized in the export receipt`, (t) => {
+    const { root, f } = setup(t);
+    f.addRetail("fallback", "10");
+    const raw = JSON.stringify({ Items: [{ meterId: "synthetic-meter" }] });
+    const catalog = f.retain("catalog", {
+      schema_version: "retail-price-evidence-v1",
+      pages: [{ raw_response: raw, response_sha256: digest(raw) }],
+    });
+    f.data.evidence_refs = f.data.evidence_refs.filter((ref) => ref.id !== "catalog");
+    const absolute = path.join(root, catalog.path);
+    const leaf = f.sources.get("fallback-proposed");
+    const suppliedPath =
+      kind === "absolute" ? absolute : kind === "workspace" ? path.relative(ROOT, absolute) : catalog.path;
+    leaf.retail_api_evidence = [
+      {
+        evidence_path: suppliedPath,
+        resource_names: [leaf.resources[0].name],
+        selected_meters: [{ meterId: "synthetic-meter" }],
+        calculation: "Synthetic evidence only.",
+      },
+    ];
+    leaf.data_source = "Azure MCP pricing_get + Azure Retail Prices API (direct fallback)";
+    leaf.direct_api_calls_used = 1;
+    const ref = f.retain("fallback-proposed", leaf, "retail");
+    const before = fs.readFileSync(path.join(root, ref.path));
+    const opts = options(root, f);
+    const result = renderAssessmentActionRegister(opts);
+    assert.equal(result.valid, true);
+    assert.equal(result.receipt.evidence_hashes[catalog.path], digest(fs.readFileSync(absolute)));
+    assert.ok(Object.keys(result.receipt.evidence_hashes).every((file) => !path.isAbsolute(file)));
+    assert.deepEqual(fs.readFileSync(path.join(root, ref.path)), before);
+    fs.symlinkSync("catalog.json", path.join(root, "evidence/catalog-link.json"));
+    leaf.retail_api_evidence[0].evidence_path = path.join(root, "evidence/catalog-link.json");
+    f.retain("fallback-proposed", leaf, "retail");
+    fails(f, root, /Symlink forbidden/);
+    leaf.retail_api_evidence[0].evidence_path = path.join(root, "../outside.json");
+    f.retain("fallback-proposed", leaf, "retail");
+    fails(f, root, /project-relative/);
+  });
+}
 
 test("negative billing corrections remain actual charges, never a second remediation benefit", (t) => {
   const { root, f } = setup(t);
@@ -456,6 +635,29 @@ test("interrupted owned publication recovers, unowned files and active locks do 
   assert.throws(() => renderAssessmentActionRegister(opts), /unowned/);
 });
 
+test("explicit overwrite reclaims a dead lease after changed inputs but never a live lease", (t) => {
+  const { root, f } = setup(t);
+  f.addRetail("recovery", "10");
+  const opts = options(root, f);
+  const receipt = renderAssessmentActionRegister(opts).receipt;
+  const child = spawnSync(process.execPath, ["-e", "process.exit(0)"]);
+  assert.equal(child.status, 0);
+  assert.throws(() => process.kill(child.pid, 0), { code: "ESRCH" });
+  const lock = path.join(root, "_meta/action-register-export.lock");
+  const pending = path.join(root, "_meta/action-register-export.pending.json");
+  fs.writeFileSync(pending, JSON.stringify(receipt));
+  fs.writeFileSync(lock, JSON.stringify({ pid: child.pid, source_sha256: receipt.source_sha256 }));
+  f.data.actions[0].comments = "Explicitly revised source after interrupted export.";
+  f.save();
+  assert.throws(() => renderAssessmentActionRegister(opts), /--overwrite/);
+  assert.equal(renderAssessmentActionRegister({ ...opts, overwrite: true }).valid, true);
+  assert.equal(fs.existsSync(lock), false);
+  assert.equal(fs.existsSync(pending), false);
+  f.data.actions[0].comments = "Another owned revision.";
+  f.save();
+  fs.writeFileSync(lock, JSON.stringify({ pid: process.pid, source_sha256: receipt.source_sha256 }));
+  assert.throws(() => renderAssessmentActionRegister({ ...opts, overwrite: true }), /locked by another process/);
+});
 test("CLI argument failures are explicit nonzero JSON, never silent defaults", (t) => {
   const { root, f } = setup(t);
   for (const args of [
