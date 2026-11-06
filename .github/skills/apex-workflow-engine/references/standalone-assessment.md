@@ -87,6 +87,20 @@ request containing `{"refresh_inputs":true}` only after edits and focused checks
 This reseals current inputs for the next authorized review; it neither advances the phase,
 refreshes old reviewer hashes nor resets allowance. New/stale reviews still require actual attributed results.
 
+If the run is already at `acceptance`, first record the actual Revise response with its own
+positive owner receipt and return through the explicit assessment repair edge:
+
+```bash
+apex-recall assessment example --action revise --phase acceptance \
+  --request agent-output/example/_meta/assessment-revise.json --json
+```
+
+That return preserves authorized scope, material inputs, original review cycles and consumed
+allowances even when current bundle evidence is stale. It does not reopen an accepted terminal run.
+Then perform only the requested repairs, refreeze with `advance --phase review` and
+`{"refresh_inputs":true}`, and run current reviews within remaining allowance. Exhaustion still
+requires a separately authorized extension; the Revise receipt grants no new calls or wider reads.
+
 Existing projects use `--action adopt --request <path> --dry-run --json` first.
 The adoption request names `review_links` from each required lens to its original cycle ID.
 Dry-run and actual adoption preserve numeric step history and show any freshness or allowance blocker.

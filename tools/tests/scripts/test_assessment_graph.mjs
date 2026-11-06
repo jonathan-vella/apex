@@ -27,6 +27,8 @@ for (const [label, change] of [
   ["formal governance owner", (profile) => (profile.nodes.evidence.agent = "04g-Governance")],
   ["extra approval", (profile) => (profile.nodes.diagram.type = "gate")],
   ["missing mandatory render", (profile) => (profile.nodes.diagram.produces = ["assets/03-des-diagram.py"])],
+  ["terminal repair reopening", (profile) => (profile.return_edges[0].from = "terminal")],
+  ["missing bounded repair return", (profile) => delete profile.return_edges],
 ]) {
   test(`assessment profile rejects ${label}`, () => {
     const profile = structuredClone(graph.profiles.assessment);

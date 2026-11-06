@@ -135,71 +135,113 @@
         }
       ]
     },
+    "assessmentRun": {
+      "type": "object",
+      "required": [
+        "schema_version",
+        "scenario",
+        "source",
+        "scope",
+        "reporting",
+        "receipt",
+        "phase",
+        "status",
+        "completed_phases",
+        "scope_digest",
+        "review_links",
+        "frozen_inputs",
+        "coverage",
+        "started_at"
+      ],
+      "additionalProperties": false,
+      "allOf": [
+        { "$ref": "#/$defs/assessmentSourceScopes" },
+        {
+          "if": { "properties": { "status": { "const": "accepted" } }, "required": ["status"] },
+          "then": {
+            "required": ["acceptance", "accepted_at", "reviews"],
+            "properties": {
+              "phase": { "const": "terminal" },
+              "frozen_inputs": { "minProperties": 1 },
+              "completed_phases": {
+                "allOf": [
+                  { "contains": { "const": "diagram" } },
+                  { "contains": { "const": "review" } },
+                  { "contains": { "const": "acceptance" } }
+                ]
+              },
+              "reviews": {
+                "minItems": 2,
+                "maxItems": 2,
+                "allOf": [
+                  { "contains": { "properties": { "lens": { "const": "comprehensive" } }, "required": ["lens"] } },
+                  { "contains": { "properties": { "lens": { "const": "cost-feasibility" } }, "required": ["lens"] } }
+                ]
+              }
+            }
+          },
+          "else": { "properties": { "phase": { "not": { "const": "terminal" } } } }
+        }
+      ],
+      "properties": {
+        "schema_version": { "const": "assessment-run-v1" },
+        "scenario": { "enum": ["evidence_only", "requirements_led"] },
+        "source": { "enum": ["iac", "azure", "combined"] },
+        "scope": { "$ref": "#/$defs/assessmentScope" },
+        "reporting": { "$ref": "#/$defs/assessmentReporting" },
+        "receipt": { "$ref": "#/$defs/assessmentReceipt" },
+        "phase": {
+          "enum": ["scope", "requirements", "evidence", "analysis", "diagram", "review", "acceptance", "terminal"]
+        },
+        "status": { "enum": ["in_progress", "accepted"] },
+        "coverage": { "enum": ["complete", "partial", "not_assessed"] },
+        "scope_digest": { "type": "string", "pattern": "^[a-f0-9]{64}$" },
+        "started_at": { "type": "string", "format": "date-time" },
+        "accepted_at": { "type": "string", "format": "date-time" },
+        "acceptance": { "$ref": "#/$defs/assessmentReceipt" },
+        "completed_phases": { "type": "array", "uniqueItems": true, "items": { "type": "string" } },
+        "frozen_inputs": {
+          "type": "object",
+          "propertyNames": { "$ref": "#/$defs/assessmentPath" },
+          "additionalProperties": { "type": "string", "pattern": "^[a-f0-9]{64}$" }
+        },
+        "review_links": {
+          "type": "object",
+          "propertyNames": { "enum": ["comprehensive", "cost-feasibility"] },
+          "additionalProperties": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["cycle_id", "artifact", "original_artifact", "original_projection", "linked_at"],
+            "properties": {
+              "cycle_id": { "type": "string", "pattern": "^[a-f0-9]{64}$" },
+              "artifact": { "$ref": "#/$defs/assessmentPath" },
+              "original_artifact": { "type": "string", "minLength": 1 },
+              "original_projection": { "type": "string", "pattern": "^[a-f0-9]{64}$" },
+              "linked_at": { "type": "string", "format": "date-time" }
+            }
+          }
+        },
+        "reviews": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["lens", "cycle_id", "path", "sha256"],
+            "properties": {
+              "lens": { "enum": ["comprehensive", "cost-feasibility"] },
+              "cycle_id": { "type": "string", "pattern": "^[a-f0-9]{64}$" },
+              "path": { "$ref": "#/$defs/assessmentPath" },
+              "sha256": { "type": "string", "pattern": "^[a-f0-9]{64}$" }
+            }
+          }
+        }
+      }
+    },
     "riskReference": {
       "type": "object",
       "additionalProperties": false,
       "required": ["path", "sha256"],
       "properties": {
-        "assessment_run": {
-          "type": "object",
-          "required": [
-            "schema_version",
-            "scenario",
-            "source",
-            "scope",
-            "reporting",
-            "receipt",
-            "phase",
-            "status",
-            "completed_phases",
-            "scope_digest",
-            "review_links",
-            "frozen_inputs",
-            "coverage",
-            "started_at"
-          ],
-          "additionalProperties": false,
-          "properties": {
-            "schema_version": { "const": "assessment-run-v1" },
-            "scenario": { "enum": ["evidence_only", "requirements_led"] },
-            "source": { "enum": ["iac", "azure", "combined"] },
-            "scope": { "$ref": "#/$defs/assessmentScope" },
-            "reporting": { "$ref": "#/$defs/assessmentReporting" },
-            "receipt": { "$ref": "#/$defs/assessmentReceipt" },
-            "phase": {
-              "enum": ["scope", "requirements", "evidence", "analysis", "diagram", "review", "acceptance", "terminal"]
-            },
-            "status": { "enum": ["in_progress", "accepted"] },
-            "coverage": { "enum": ["complete", "partial", "not_assessed"] },
-            "scope_digest": { "type": "string", "pattern": "^[a-f0-9]{64}$" },
-            "started_at": { "type": "string", "format": "date-time" },
-            "accepted_at": { "type": "string", "format": "date-time" },
-            "acceptance": { "$ref": "#/$defs/assessmentReceipt" },
-            "completed_phases": { "type": "array", "uniqueItems": true, "items": { "type": "string" } },
-            "frozen_inputs": {
-              "type": "object",
-              "propertyNames": { "$ref": "#/$defs/assessmentPath" },
-              "additionalProperties": { "type": "string", "pattern": "^[a-f0-9]{64}$" }
-            },
-            "review_links": {
-              "type": "object",
-              "propertyNames": { "enum": ["comprehensive", "cost-feasibility"] },
-              "additionalProperties": {
-                "type": "object",
-                "additionalProperties": false,
-                "required": ["cycle_id", "artifact", "original_artifact", "original_projection", "linked_at"],
-                "properties": {
-                  "cycle_id": { "type": "string", "pattern": "^[a-f0-9]{64}$" },
-                  "artifact": { "$ref": "#/$defs/assessmentPath" },
-                  "original_artifact": { "type": "string", "minLength": 1 },
-                  "original_projection": { "type": "string", "pattern": "^[a-f0-9]{64}$" },
-                  "linked_at": { "type": "string", "format": "date-time" }
-                }
-              }
-            },
-            "reviews": { "type": "array", "items": { "type": "object" } }
-          }
-        },
         "path": { "type": "string", "minLength": 1 },
         "sha256": { "type": "string", "pattern": "^[a-f0-9]{64}$" },
         "id": { "type": "string", "minLength": 1 }
@@ -257,16 +299,6 @@
               "decision_log": {
                 "contains": {
                   "type": "object",
-                  "allOf": [
-                    { "$ref": "#/$defs/assessmentSourceScopes" },
-                    {
-                      "if": { "properties": { "status": { "const": "accepted" } }, "required": ["status"] },
-                      "then": {
-                        "required": ["acceptance", "accepted_at", "reviews"],
-                        "properties": { "phase": { "const": "terminal" } }
-                      }
-                    }
-                  ],
                   "required": ["choice"],
                   "properties": { "choice": { "const": "EXCEPTION_AUTHORIZED" } }
                 }
@@ -279,6 +311,7 @@
     }
   ],
   "properties": {
+    "assessment_run": { "$ref": "#/$defs/assessmentRun" },
     "risk_authorizations": {
       "type": "object",
       "additionalProperties": false,

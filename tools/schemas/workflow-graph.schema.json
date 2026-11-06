@@ -17,7 +17,17 @@
         "assessment": {
           "type": "object",
           "additionalProperties": false,
-          "required": ["workflow_mode", "entry", "terminal", "scenarios", "sources", "nodes", "edges", "reviews"],
+          "required": [
+            "workflow_mode",
+            "entry",
+            "terminal",
+            "scenarios",
+            "sources",
+            "nodes",
+            "edges",
+            "return_edges",
+            "reviews"
+          ],
           "properties": {
             "workflow_mode": { "const": "assessment" },
             "entry": { "const": "scope" },
@@ -26,6 +36,7 @@
             "sources": { "const": ["iac", "azure", "combined"] },
             "nodes": { "$ref": "#/properties/nodes" },
             "edges": { "$ref": "#/properties/edges" },
+            "return_edges": { "$ref": "#/properties/return_edges" },
             "reviews": {
               "const": {
                 "comprehensive": {

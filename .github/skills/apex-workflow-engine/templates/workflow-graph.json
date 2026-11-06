@@ -85,6 +85,14 @@
         { "from": "review", "to": "acceptance", "condition": "on_complete" },
         { "from": "acceptance", "to": "terminal", "condition": "on_complete" }
       ],
+      "return_edges": [
+        {
+          "from": "acceptance",
+          "to": "review",
+          "condition": "on_refine",
+          "reason": "Explicit owner-approved report repair; retain scope, original review cycles and consumed allowance"
+        }
+      ],
       "reviews": {
         "comprehensive": {
           "step": "2",

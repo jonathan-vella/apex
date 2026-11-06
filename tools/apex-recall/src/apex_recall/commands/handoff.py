@@ -244,8 +244,6 @@ def run(args) -> int:
             payload = {"status": "AMBIGUOUS_PROJECT", "candidates": candidates}
             if as_json:
                 print(json.dumps(payload, indent=2))
-            elif payload.get("workflow_mode") == "assessment":
-                print(f"Assessment {project}: {payload['phase']} · {payload['next_owner'] or 'TERMINAL'}")
             else:
                 print(f"Multiple projects found ({', '.join(candidates)}); specify `apex-recall handoff <project>`.")
             return 1
@@ -260,6 +258,8 @@ def run(args) -> int:
     payload = build_handoff_payload(project, data, auto_selected=auto_selected)
     if as_json:
         print(json.dumps(payload, indent=2))
+    elif payload.get("workflow_mode") == "assessment":
+        print(f"Assessment {project}: {payload['phase']} · {payload['next_owner'] or 'TERMINAL'}")
     else:
         print(
             f"▶ Next Step — Step {payload['active_step']} ({payload['step_name']} · {payload['next_owner']})\n"

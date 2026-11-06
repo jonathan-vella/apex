@@ -356,15 +356,18 @@ export function normalizeCostCollection(collection, { approvedScopes, asOf, prov
       bodies.add(bodyKey);
       const names = properties.columns.map((column) => column.name);
       const dates = names.filter((name) => DATE_COLUMNS.has(name));
-      const permitted = new Set([request.metric, "Currency", "CostStatus", ...request.group_by, ...DATE_COLUMNS]);
+      const monetaryNames =
+        request.operation === "forecast" && request.metric === "Cost" ? ["Cost", "PreTaxCost"] : [request.metric];
+      const monetaryColumns = names.filter((name) => monetaryNames.includes(name));
+      assert(monetaryColumns.length === 1, "Required monetary column missing or ambiguous");
+      const monetaryColumn = monetaryColumns[0];
+      const permitted = new Set([...monetaryNames, "Currency", "CostStatus", ...request.group_by, ...DATE_COLUMNS]);
       assert(
         new Set(names).size === names.length && names.every((name) => permitted.has(name)),
         "Duplicate or unsupported response columns; prune sensitive columns",
       );
       assert(
-        names.includes(request.metric) &&
-          names.includes("Currency") &&
-          request.group_by.every((name) => names.includes(name)),
+        names.includes("Currency") && request.group_by.every((name) => names.includes(name)),
         "Required cost/currency/group columns missing",
       );
       assert(
@@ -376,7 +379,7 @@ export function normalizeCostCollection(collection, { approvedScopes, asOf, prov
         "Forecast evidence requires CostStatus; never infer a projection",
       );
       assert(
-        properties.columns.find((c) => c.name === request.metric).type === "Number" &&
+        properties.columns.find((c) => c.name === monetaryColumn).type === "Number" &&
           properties.columns.find((c) => c.name === "Currency").type === "String" &&
           properties.columns
             .filter((c) => request.group_by.includes(c.name) || c.name === "CostStatus")
@@ -416,7 +419,7 @@ export function normalizeCostCollection(collection, { approvedScopes, asOf, prov
         const key = JSON.stringify([currency, costStatus, dimensions]);
         assert(!rowKeys.has(key), "Duplicate cost row would double count charges");
         rowKeys.add(key);
-        const amount = sumCosts([values[request.metric]]);
+        const amount = sumCosts([values[monetaryColumn]]);
         const seriesKey = `${currency}:${costStatus}`;
         if (!series.has(seriesKey))
           series.set(seriesKey, { currency, cost_status: costStatus, amount: "0", groups: [] });

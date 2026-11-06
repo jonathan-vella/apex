@@ -82,7 +82,7 @@ def build_parser() -> argparse.ArgumentParser:
     # start-step
     p_assessment = sub.add_parser("assessment", help="Standalone assessment lifecycle (not delivery steps)")
     p_assessment.add_argument("project")
-    p_assessment.add_argument("--action", required=True, choices=("start", "advance", "accept", "adopt"))
+    p_assessment.add_argument("--action", required=True, choices=("start", "advance", "accept", "adopt", "revise"))
     p_assessment.add_argument(
         "--request",
         default="{}",

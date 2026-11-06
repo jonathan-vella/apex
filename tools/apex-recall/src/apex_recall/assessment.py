@@ -148,14 +148,8 @@ def validate_scope(request: dict, *, require_approval: bool = True) -> None:
         raise ValueError("Evidence scopes do not match selected source")
     for relative in scope["iac_paths"]:
         safe_path(workspace_root_for(), relative)
-    for arm in scope["azure_scopes"]:
-        if not re.fullmatch(
-            r"/subscriptions/[a-fA-F0-9]{8}(?:-[a-fA-F0-9]{4}){3}-[a-fA-F0-9]{12}"
-            r"(?:/resourceGroups/[A-Za-z0-9_.()-]{1,90})?",
-            arm,
-            re.IGNORECASE,
-        ):
-            raise ValueError("Azure evidence scope must be an exact subscription or resource group ARM ID")
+    if scope["azure_scopes"]:
+        validate_billing_scopes(scope["azure_scopes"])
     reporting = request.get("reporting")
     if (
         not isinstance(reporting, dict)
@@ -257,6 +251,27 @@ def cost_plan(run: dict) -> dict:
         "group_by": reporting.get("group_by", ["ServiceName", "ResourceId"]),
         **({"expected_currency": reporting["currency"]} if reporting["currency"] is not None else {}),
     }
+
+
+def validate_billing_scopes(scopes: list[str]) -> None:
+    root = workspace_root_for()
+    helper = (root / "tools/scripts/assessment-cost.mjs").resolve().as_uri()
+    checked = subprocess.run(
+        [
+            "node",
+            "--input-type=module",
+            "--eval",
+            "const {validateScopes}=await import(process.argv[1]);validateScopes(JSON.parse(process.argv[2]));",
+            helper,
+            json.dumps(scopes),
+        ],
+        cwd=root,
+        capture_output=True,
+        text=True,
+        check=False,
+    )
+    if checked.returncode:
+        raise ValueError(f"Assessment billing scope validation failed: {checked.stderr.strip()}")
 
 
 def validate_state(data: dict) -> None:
@@ -411,10 +426,6 @@ def validate_cost_scope(document: dict, run: dict) -> None:
     for item in document.get("evidence", []):
         if item.get("provenance") and "billing" not in run["scope"]["categories"]:
             raise ValueError("Actual billing evidence was not authorized")
-        if run["reporting"]["currency"] is not None and any(
-            series.get("currency") != run["reporting"]["currency"] for series in item.get("series", [])
-        ):
-            raise ValueError("Cost report currency differs from captured reporting currency")
     if document.get("opportunities") and not set(run["scope"]["categories"]) & {"utilization", "operations"}:
         raise ValueError("Cost opportunities require authorized utilization/operations evidence")
 
@@ -710,6 +721,8 @@ def mutate(
     graph_path = workspace_root_for() / ".github/skills/apex-workflow-engine/templates/workflow-graph.json"
     if hasattr(data, "input_revisions"):
         data.input_revisions[graph_path] = file_revision(graph_path)
+        helper = workspace_root_for() / "tools/scripts/assessment-cost.mjs"
+        data.input_revisions[helper] = file_revision(helper)
     graph = profile()
     for node in graph["nodes"].values():
         for relative in node.get("produces", []):
@@ -769,6 +782,32 @@ def mutate(
         raise ValueError("Assessment is terminal")
     if phase is not None and phase != run["phase"]:
         raise ValueError("Assessment phase is out of order")
+    if action == "revise":
+        if set(request) - {"receipt", "expected_revision"}:
+            raise ValueError("Revise cannot change authorized scope, material inputs or review accounting")
+        _receipt(request.get("receipt"))
+        if request["receipt"]["request_id"] == run["receipt"]["request_id"]:
+            raise ValueError("Revise requires its own actual owner response, not upfront scope approval")
+        returns = [
+            edge
+            for edge in graph.get("return_edges", [])
+            if edge["from"] == run["phase"] and edge["to"] == "review" and edge["condition"] == "on_refine"
+        ]
+        if len(returns) != 1:
+            raise ValueError("No authorized assessment repair return from the current graph phase")
+        data.setdefault("decision_log", []).append(
+            {
+                "decision": "Owner-approved assessment repair return; preserve scope and spent review allowance",
+                "receipt": request["receipt"],
+                "from": run["phase"],
+                "to": "review",
+                "completed_phases": list(run["completed_phases"]),
+                "timestamp": _iso_now(),
+            }
+        )
+        run["phase"] = "review"
+        run["completed_phases"] = phases[: phases.index("review")]
+        return {"status": run["status"], "phase": run["phase"], "revised": True}
     if action == "accept":
         if run["phase"] != "acceptance":
             raise ValueError("Assessment cannot be accepted before its final graph gate")

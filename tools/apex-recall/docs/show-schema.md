@@ -27,6 +27,9 @@ do not derive approval from the cost report itself.
 Initialize a new project normally, then use `apex-recall assessment <project> --action start`
 with `--request <scope.json>`. `advance --phase <current>` validates the current graph phase and outputs.
 `accept --request <acceptance.json>` needs a distinct actual final response and a complete reviewed bundle.
+At acceptance, `revise --request <revise-receipt.json>` returns to review for authorized report repairs,
+even when current evidence is stale. It preserves scope and spent allowances; an accepted terminal run
+cannot be reopened by this action.
 `adopt --request <scope-and-review-links.json> --dry-run` inspects existing history without rewriting it.
 Request may be a JSON file or inline object; persisted project-local files are preferred.
 See the [standalone contract](../../../.github/skills/apex-workflow-engine/references/standalone-assessment.md)
@@ -36,6 +39,10 @@ Accepted assessment handoff is terminal with `next_owner: null`, even if all num
 Invalid assessment state does not fall back to Requirements or Governance.
 Existing projects without explicit adoption keep their previous route and practical-view schemas below.
 The reserved `assessment-step-*` names remain consumed-input projections, not standalone run-state files.
+Live scope lists are validated before start/adopt against the same billing helper constraints:
+unique case-insensitive identifiers, no subscription/child-RG overlaps and bounded scope count.
+Requested currency is an expectation, not a mandate to alter returned billing currency; mismatches
+remain truthful partial evidence with a gap and unchanged request provenance.
 Review path/type aliases preserve the original cycle ID and consumed allowance; source maintenance
 cannot manufacture a fresh review cycle, approval or live Azure scope.
 

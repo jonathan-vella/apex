@@ -485,6 +485,50 @@ function forecastCollection(rows = [], includeStatus = true) {
   return collection(req, [first]);
 }
 
+test("forecast Cost requests accept the documented PreTaxCost response without changing metric provenance", () => {
+  const source = forecastCollection();
+  source.request.metric = "Cost";
+  source.pages[0].body.properties.columns = [
+    { name: "UsageDate", type: "Number" },
+    { name: "CostStatus", type: "String" },
+    { name: "PreTaxCost", type: "Number" },
+    { name: "Currency", type: "String" },
+  ];
+  source.pages[0].body.properties.rows = [
+    [20260314, "Actual", 10, "USD"],
+    [20260316, "Forecast", 20, "USD"],
+  ];
+  const saved = normalized(source, "_meta/cost/forecast.json");
+  assert.equal(saved.evidence.status, "complete");
+  assert.equal(saved.evidence.request.metric, "Cost");
+  assert.deepEqual(
+    saved.evidence.series.map((series) => [series.cost_status, series.amount]),
+    [
+      ["Actual", "10"],
+      ["Forecast", "20"],
+    ],
+  );
+  assert.equal(validate(report([saved.evidence]), new Map([[saved.provenance.path, saved.bytes]])).valid, true);
+  const exact = structuredClone(source);
+  exact.pages[0].body.properties.columns[2].name = "Cost";
+  assert.equal(normalized(exact).evidence.status, "complete");
+  const ambiguous = structuredClone(source);
+  ambiguous.pages[0].body.properties.columns.push({ name: "Cost", type: "Number" });
+  ambiguous.pages[0].body.properties.rows.forEach((row) => row.push(999));
+  assert.match(normalized(ambiguous).evidence.gaps.join(" "), /monetary column.*ambiguous/);
+  const wrongType = structuredClone(source);
+  wrongType.pages[0].body.properties.columns[2].type = "String";
+  assert.match(normalized(wrongType).evidence.gaps.join(" "), /column types invalid/);
+  const wrongOperation = structuredClone(source);
+  wrongOperation.request.operation = "query";
+  wrongOperation.request.period = WINDOWS[0];
+  wrongOperation.pages[0].request_path = buildCostRequest(wrongOperation.request, {
+    approvedScopes: [RG],
+    asOf: AS_OF,
+  }).request_path;
+  assert.match(normalized(wrongOperation).evidence.gaps.join(" "), /monetary column missing/);
+});
+
 test("forecast evidence retains Actual/Forecast partitions and never fabricates unavailable projections", () => {
   const source = forecastCollection([
     [10, "USD", 20260314, "Actual"],

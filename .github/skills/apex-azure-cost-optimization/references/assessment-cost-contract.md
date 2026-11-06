@@ -166,13 +166,17 @@ Persist a pruned owner-operation envelope:
 
 Replace `request: {}` with the validated complete request above. Do not save raw CLI headers, credentials,
 error messages, personal dimensions, tags or unrelated response metadata. Successful bodies retain only
-`properties.columns`, `properties.rows` and `properties.nextLink`. Preserve original requested metric columns,
+`properties.columns`, `properties.rows` and `properties.nextLink`. Preserve original returned monetary columns,
 their order/types, dates, currency, grouping and forecast row status. Retain all authorized pages.
 Opaque API continuation values are not credentials; retain them only in scoped evidence, not in the Markdown report.
 
 Normalize attaches provenance `{path,sha256,collected_at,source}`, where the SHA-256 covers the exact saved envelope
 bytes. Validation rereads those bytes and recomputes normalization; editing an amount, request, status, collection time,
 scope or referenced artifact cannot be hidden behind a report-only assertion. Pruning must occur before hashing/review.
+
+Forecast requests for `Cost` may return either `Cost` or the documented `PreTaxCost` monetary column.
+Resolve exactly one supported column while retaining the original requested metric in provenance;
+both columns together are ambiguous and rejected. Query responses retain exact metric matching.
 
 API row values are interpreted using declared columns, not fixed indices. Decimal amounts are strings in normalized
 `series[]`, each partitioned by `{currency,cost_status}`, with exact sums and attributed `groups[]`.

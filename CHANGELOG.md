@@ -23,6 +23,14 @@ Store discovered evidence under `_meta/` to preserve the layout-v2 Markdown-only
 
 ### Fixes
 
+#### Standalone assessment review corrections
+
+Validate billing scope lists before persisting an assessment and permit an explicit acceptance-to-review
+repair return without changing scope or review allowance. Preserve actual billing currency and mismatch
+gaps rather than requiring conversion. Fix plain-text active/terminal handoff output and validate
+assessment runs at the session schema root. Support the documented Forecast Cost-to-PreTaxCost response
+mapping while rejecting ambiguous monetary columns.
+
 #### Stricter consumer workflow guards
 
 Consumer workflow tests accept narrowly appended repository exclusions while retaining every

@@ -346,6 +346,17 @@ export function validateAssessmentProfile(profile) {
   }
   if (edges.some((edge) => edge.from === "terminal") || nodes.terminal?.terminal !== true)
     errors.push("Assessment must terminate without delivery routing");
+  const returns = profile.return_edges;
+  if (
+    !Array.isArray(returns) ||
+    returns.length !== 1 ||
+    returns[0].from !== "acceptance" ||
+    returns[0].to !== "review" ||
+    returns[0].condition !== "on_refine" ||
+    typeof returns[0].reason !== "string" ||
+    !returns[0].reason.trim()
+  )
+    errors.push("Assessment repair return must be owner-approved acceptance to review without reopening terminal");
   if (
     Object.entries(nodes)
       .filter(([, node]) => node.type === "gate")
