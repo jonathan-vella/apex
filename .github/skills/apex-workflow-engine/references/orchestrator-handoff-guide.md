@@ -7,6 +7,12 @@ for the Orchestrator agent.
 
 ## Approval Gates
 
+Standalone WAF assessment uses the
+[assessment profile](standalone-assessment.md), not the numeric gate templates below.
+Present the full report/diagram/cost bundle once, after actual independent reviews and render checks.
+The handoff distinguishes accepted partial coverage from failed collection, preserves evidence dates
+and has no next Governance or implementation owner. Keep its final acceptance separate from change authority.
+
 ### IaC Routing Logic
 
 Read `iac_tool` from `agent-output/{project}/01-requirements.md` before routing Steps 4-6:

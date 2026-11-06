@@ -30,6 +30,12 @@ reads instead of relying on hardcoded step logic.
 
 ## Prerequisites
 
+Explicit WAF-only requests use the graph's standalone assessment profile and
+[standalone assessment contract](references/standalone-assessment.md). Its scope authorization
+and final bundle acceptance replace intermediate delivery gates; mandatory diagram and both reviews
+remain. Recall's assessment lifecycle enforces order and terminal handoff before numeric-step routing.
+Do not automatically adopt existing projects or treat assessment acceptance as deployment authority.
+
 Graph 3.0 adds the [practical contract](references/practical-workflow.md) for new
 projects; known 2.x project semantics remain readable until explicit owner adoption.
 Specialists and stage approvals are unchanged. Preliminary policy feasibility is

@@ -38,9 +38,14 @@ independent cost-feasibility review and actual query counts.
 
 Parent-side model evaluation found agents hallucinating Azure SKU prices
 (e.g., AKS Standard at $0.60/hr instead of $0.10/hr) when writing from
-parametric knowledge. **ALL dollar figures in user-facing artifacts MUST
+parametric knowledge. **ALL retail-price estimates in user-facing artifacts MUST
 come from `cost-estimate-subagent` (Azure MCP `pricing_get` primary; constrained first-party API evidence fallback).**
-Never write a price that did not originate from a subagent response.
+Never write a retail price that did not originate from a subagent response.
+Standalone assessments may report actual spend and forecast returned by the authorized official
+Cost Management Query/Forecast APIs under
+`.github/skills/apex-azure-cost-optimization/SKILL.md`; preserve that source's scope, period, metric
+and currency. This is actual billing evidence, not parent-authored retail pricing. Do not send those
+queries to the retail leaf or substitute a retail estimate for an unavailable bill.
 
 ## Delegation Procedure (5 steps)
 

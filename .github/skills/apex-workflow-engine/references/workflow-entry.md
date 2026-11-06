@@ -38,6 +38,13 @@ Never enable experimental skill `context: fork` or infer eligibility from labels
 
 ## Entry Contract
 
+For explicit WAF-only work select `workflow_mode=assessment` using
+[standalone assessment](standalone-assessment.md), not the numeric delivery entry/output map below.
+Evidence-only has no Requirements predecessor; requirements-led captures known business context.
+Scope/access authorization starts the route; report, mandatory diagram and cost report are reviewed
+before one final acceptance. Resume an accepted assessment as terminal, never Requirements or Governance.
+Existing projects need explicit adoption; preserve all prior review allowance and approvals.
+
 Input: explicit requested operation, project, and any supplied scope or revision request.
 If no operation is supplied, ask which operation; do not infer authorization.
 Require a project except for `resume`; if absent for resume, follow [Resume](#resume)

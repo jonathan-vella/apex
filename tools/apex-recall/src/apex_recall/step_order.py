@@ -30,6 +30,10 @@ def check_order(
     data: dict, step: str, override: str | None, now: str, *, completing: bool, completed_now: tuple[str, ...] = ()
 ) -> None:
     """Raise ValueError on an out-of-order step unless an override reason is given; log the override."""
+    from .assessment import enabled
+
+    if enabled(data):
+        raise ValueError("Assessment mode cannot enter numeric delivery steps; use apex-recall assessment")
     problem = order_problem(data, step, completing=completing, completed_now=completed_now)
     if problem is None:
         return

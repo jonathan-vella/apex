@@ -101,7 +101,16 @@ def run(args) -> int:
                     "metadata": data.get("metadata", {}),
                     "review_attempts": data.get("review_attempts", []),
                     "risk_authorizations": data.get("risk_authorizations", {}),
+                    "assessment_run": data.get("assessment_run"),
                 }
+                from ..assessment import enabled as assessment_enabled
+                from ..assessment import readiness as assessment_readiness
+
+                if assessment_enabled(data):
+                    session["assessment_readiness"] = assessment_readiness(project, data)
+                    from ..assessment import cost_plan
+
+                    session["assessment_cost_plan"] = cost_plan(data["assessment_run"])
                 effective = {}
                 exception_bearing = bool(data.get("risk_authorizations"))
                 review_steps = set(data.get("review_selections", {}))
@@ -113,9 +122,7 @@ def run(args) -> int:
                 }
                 if exception_bearing:
                     review_steps |= {
-                        step
-                        for step, (artifact, _) in _CHALLENGER_GATE.items()
-                        if (pdir / artifact).is_file()
+                        step for step, (artifact, _) in _CHALLENGER_GATE.items() if (pdir / artifact).is_file()
                     }
                 for step in sorted(review_steps):
                     try:

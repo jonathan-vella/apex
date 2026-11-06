@@ -8,6 +8,11 @@ short pointer rather than inlining the protocols, keeping each agent
 body within the 500-line budget. **Always-read** when an agent
 implements one of the gates below.
 
+For explicit `workflow_mode=assessment`, use
+[standalone scope and final bundle acceptance](../../apex-workflow-engine/references/standalone-assessment.md)
+instead. The delivery SKU, budget, VNet, optional Design and intermediate approval gates below do not
+apply to that profile. Do not silently adopt a legacy project or waive its recorded review allowance.
+
 ## Architect (Step 2) — Phase 6a: SKU confirmation gate
 
 This implementation-planning gate does not apply to existing-workload Assessment scenarios. Assessment-only

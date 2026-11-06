@@ -1,0 +1,294 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://apexops.pro/schemas/assessment-cost.schema.json",
+  "title": "Standalone assessment cost evidence",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "as_of",
+    "generated_at",
+    "status",
+    "scopes",
+    "periods",
+    "evidence",
+    "estimates",
+    "opportunities",
+    "exclusions",
+    "allocation_notes",
+    "gaps"
+  ],
+  "properties": {
+    "schema_version": { "const": "1.0" },
+    "as_of": { "$ref": "#/$defs/timestamp" },
+    "generated_at": { "$ref": "#/$defs/timestamp" },
+    "status": { "$ref": "#/$defs/status" },
+    "scopes": {
+      "type": "array",
+      "maxItems": 10,
+      "uniqueItems": true,
+      "items": { "$ref": "#/$defs/scope" }
+    },
+    "periods": {
+      "type": "array",
+      "minItems": 1,
+      "maxItems": 12,
+      "items": { "$ref": "#/$defs/period" }
+    },
+    "evidence": {
+      "type": "array",
+      "maxItems": 240,
+      "items": { "$ref": "#/$defs/evidence" }
+    },
+    "estimates": {
+      "type": "array",
+      "maxItems": 20,
+      "items": { "$ref": "#/$defs/estimate" }
+    },
+    "opportunities": {
+      "type": "array",
+      "maxItems": 100,
+      "items": { "$ref": "#/$defs/opportunity" }
+    },
+    "exclusions": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["resource_id", "reason"],
+        "properties": {
+          "resource_id": { "type": "string", "minLength": 1 },
+          "reason": { "$ref": "#/$defs/note" }
+        }
+      }
+    },
+    "allocation_notes": { "$ref": "#/$defs/notes" },
+    "gaps": { "$ref": "#/$defs/notes" }
+  },
+  "$defs": {
+    "timestamp": { "type": "string", "format": "date-time" },
+    "note": { "type": "string", "minLength": 1, "maxLength": 2000, "pattern": "\\S" },
+    "notes": { "type": "array", "uniqueItems": true, "items": { "$ref": "#/$defs/note" } },
+    "status": { "enum": ["complete", "partial", "not_assessed"] },
+    "decimal": { "type": "string", "pattern": "^-?(0|[1-9][0-9]*)(\\.[0-9]+)?$", "maxLength": 100 },
+    "currency": { "type": "string", "pattern": "^[A-Z]{3}$" },
+    "scope": {
+      "type": "string",
+      "pattern": "^/subscriptions/[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}(/resourceGroups/[a-zA-Z0-9_().-]{1,90})?$"
+    },
+    "period": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "kind", "from", "to"],
+      "properties": {
+        "id": { "type": "string", "pattern": "^[a-z][a-z0-9_-]{0,63}$" },
+        "kind": { "enum": ["closed_month", "month_to_date", "custom", "forecast"] },
+        "from": { "$ref": "#/$defs/timestamp" },
+        "to": { "$ref": "#/$defs/timestamp" }
+      }
+    },
+    "request": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "scope", "operation", "period", "cost_type", "metric", "granularity", "group_by"],
+      "properties": {
+        "id": { "type": "string", "pattern": "^[a-zA-Z0-9_-]{1,100}$" },
+        "scope": { "$ref": "#/$defs/scope" },
+        "operation": { "enum": ["query", "forecast"] },
+        "period": { "$ref": "#/$defs/period" },
+        "cost_type": { "enum": ["ActualCost", "AmortizedCost"] },
+        "metric": { "enum": ["PreTaxCost", "Cost"] },
+        "granularity": { "enum": ["None", "Daily", "Monthly"] },
+        "group_by": {
+          "type": "array",
+          "maxItems": 2,
+          "uniqueItems": true,
+          "items": {
+            "enum": [
+              "ServiceName",
+              "ResourceId",
+              "ResourceGroupName",
+              "ResourceType",
+              "ResourceLocation",
+              "ChargeType",
+              "PricingModel",
+              "MeterCategory"
+            ]
+          }
+        },
+        "expected_currency": { "$ref": "#/$defs/currency" }
+      }
+    },
+    "provenance": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["path", "sha256", "collected_at", "source"],
+      "properties": {
+        "path": { "type": "string", "minLength": 1, "maxLength": 1024 },
+        "sha256": { "type": "string", "pattern": "^[a-f0-9]{64}$" },
+        "collected_at": { "$ref": "#/$defs/timestamp" },
+        "source": {
+          "enum": ["azure-cost-management", "cost-estimate-subagent", "azure-advisor", "azure-monitor-utilization"]
+        }
+      }
+    },
+    "collection": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["source", "collected_at", "request", "pages"],
+      "properties": {
+        "source": { "const": "azure-cost-management" },
+        "collected_at": { "$ref": "#/$defs/timestamp" },
+        "request": { "$ref": "#/$defs/request" },
+        "pages": {
+          "type": "array",
+          "maxItems": 100,
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["request_path", "status_code", "body"],
+            "properties": {
+              "request_path": { "type": "string", "maxLength": 4096 },
+              "status_code": { "type": "integer", "minimum": 100, "maximum": 599 },
+              "body": {
+                "type": ["object", "null"],
+                "additionalProperties": false,
+                "properties": {
+                  "properties": {
+                    "type": "object",
+                    "additionalProperties": false,
+                    "properties": {
+                      "columns": {
+                        "type": "array",
+                        "maxItems": 8,
+                        "items": {
+                          "type": "object",
+                          "additionalProperties": false,
+                          "required": ["name", "type"],
+                          "properties": {
+                            "name": { "type": "string", "minLength": 1, "maxLength": 100 },
+                            "type": { "enum": ["Number", "String", "DateTime"] }
+                          }
+                        }
+                      },
+                      "rows": {
+                        "type": "array",
+                        "maxItems": 100000,
+                        "items": {
+                          "type": "array",
+                          "maxItems": 8,
+                          "items": { "type": ["string", "number", "null"] }
+                        }
+                      },
+                      "nextLink": { "type": ["string", "null"], "maxLength": 4096 }
+                    }
+                  },
+                  "error": {
+                    "type": "object",
+                    "additionalProperties": false,
+                    "required": ["code"],
+                    "properties": { "code": { "type": "string", "pattern": "^[A-Za-z][A-Za-z0-9._-]{0,99}$" } }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "series": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["currency", "cost_status", "amount", "groups"],
+      "properties": {
+        "currency": { "$ref": "#/$defs/currency" },
+        "cost_status": { "enum": ["Actual", "Forecast"] },
+        "amount": { "$ref": "#/$defs/decimal" },
+        "groups": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["dimensions", "amount"],
+            "properties": {
+              "dimensions": { "type": "object", "additionalProperties": { "type": "string" } },
+              "amount": { "$ref": "#/$defs/decimal" }
+            }
+          }
+        }
+      }
+    },
+    "evidence": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "id",
+        "source_kind",
+        "status",
+        "request",
+        "provenance",
+        "series",
+        "page_count",
+        "next_request_path",
+        "gaps"
+      ],
+      "properties": {
+        "id": { "type": "string", "minLength": 1 },
+        "source_kind": { "const": "actual" },
+        "status": { "$ref": "#/$defs/status" },
+        "request": { "$ref": "#/$defs/request" },
+        "provenance": { "oneOf": [{ "$ref": "#/$defs/provenance" }, { "type": "null" }] },
+        "series": { "type": "array", "items": { "$ref": "#/$defs/series" } },
+        "page_count": { "type": "integer", "minimum": 0, "maximum": 100 },
+        "next_request_path": { "type": ["string", "null"], "maxLength": 4096 },
+        "gaps": { "$ref": "#/$defs/notes" }
+      }
+    },
+    "estimate": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "source_kind", "status", "provenance", "currency", "monthly_total", "assumptions", "gaps"],
+      "properties": {
+        "id": { "type": "string", "minLength": 1 },
+        "source_kind": { "const": "estimate" },
+        "status": { "$ref": "#/$defs/status" },
+        "provenance": { "$ref": "#/$defs/provenance" },
+        "currency": { "$ref": "#/$defs/currency" },
+        "monthly_total": { "oneOf": [{ "$ref": "#/$defs/decimal" }, { "type": "null" }] },
+        "assumptions": { "$ref": "#/$defs/notes", "minItems": 1 },
+        "gaps": { "$ref": "#/$defs/notes" }
+      }
+    },
+    "opportunity": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "id",
+        "description",
+        "baseline_evidence_id",
+        "resource_ids",
+        "currency",
+        "reduction_fraction",
+        "amount",
+        "method",
+        "provenance"
+      ],
+      "properties": {
+        "id": { "type": "string", "minLength": 1 },
+        "description": { "$ref": "#/$defs/note" },
+        "baseline_evidence_id": { "type": "string", "minLength": 1 },
+        "resource_ids": {
+          "type": "array",
+          "minItems": 1,
+          "uniqueItems": true,
+          "items": { "type": "string", "minLength": 1 }
+        },
+        "currency": { "$ref": "#/$defs/currency" },
+        "reduction_fraction": { "$ref": "#/$defs/decimal" },
+        "amount": { "$ref": "#/$defs/decimal" },
+        "method": { "const": "baseline_fraction" },
+        "provenance": { "$ref": "#/$defs/provenance" }
+      }
+    }
+  }
+}

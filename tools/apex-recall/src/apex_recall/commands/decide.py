@@ -103,6 +103,8 @@ def run(args) -> int:
     data = migrate_to_v3(data)
 
     if has_kv:
+        if key == "workflow_mode":
+            raise ValueError("Workflow mode changes require the assessment lifecycle; generic decide cannot change it")
         # Mode A: key-value in decisions object
         data.setdefault("decisions", {})[key] = value
         if key in ("iac_tool", "region"):

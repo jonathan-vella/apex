@@ -33,6 +33,13 @@ PNG/SVG renders and honest reporting of any requested independent ADR review.
 
 ## Interaction and execution
 
+For explicit `decisions.workflow_mode=assessment`, use
+[standalone assessment](../skills/apex-workflow-engine/references/standalone-assessment.md).
+The existing-state diagram is mandatory before final bundle review/acceptance, not an optional later
+delivery step. Use validated analysis and authorized evidence without intermediate Gate 2 approval.
+Return diagram/check results to the interactive parent for the same assessment lifecycle; do not complete
+numeric Step 3, write ADRs, adopt a new architecture or advance into Governance.
+
 For `decisions.workflow_contract=practical-v1`, use the
 [practical workflow](../skills/apex-workflow-engine/references/practical-workflow.md):
 batch granted mechanical corrections, preserve material scope and final stage approval.
@@ -74,7 +81,8 @@ Record the actual invocation outcome separately from successful publication usin
 - No IaC, Azure mutations, upstream requirements/architecture edits or speculative components.
   An ADR proposing a new decision returns to `03-Architect` for review and separate human
   approval; writing an ADR alone changes no approved architecture.
-- Missing approved architecture blocks generation. Scope clarifications can resolve omissions,
+- Missing approved architecture blocks delivery-mode generation; standalone assessment instead requires
+  validated analysis and an authorized evidence boundary. Scope clarifications can resolve omissions,
   but architecture-changing answers go to the owning step, not directly into an approved diagram.
 - Use `apex-recall`; never read/edit `00-session-state.json` directly.
   Reuse available unchanged context, recovering missing or changed sources after compaction/resume.
@@ -87,9 +95,11 @@ Record the actual invocation outcome separately from successful publication usin
 
 ## Phase 0 — Inputs and scope
 
-Read current recall plus `02-architecture-assessment.md` and the relevant
-`01-requirements.md` actors/critical flows. Verify approval evidence, not merely file existence.
-Missing predecessors return to their owner.
+Read current recall plus `02-architecture-assessment.md` and relevant actors/critical flows.
+In delivery mode require approved architecture and requirements; missing predecessors return to their owner.
+Standalone assessment uses its authorized brief and validated analysis, with optional requirements only
+when captured. It needs no intermediate human Architecture approval. Draw unknown paths as unknown,
+not speculative topology; final report acceptance follows diagram generation and independent review.
 
 Read `.github/skills/apex-azure-defaults/SKILL.md` for baseline constraints.
 Use the [scope gate](../skills/apex-azure-defaults/references/workflow-gates.md#design-step-3--phase-00-artifact-scope-one-time-gate):

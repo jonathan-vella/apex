@@ -6,6 +6,14 @@ Entries are grouped by conventional-commit type. Breaking changes list the migra
 
 ### Added
 
+#### Standalone existing-workload assessment
+
+Add a terminal WAF-only profile with evidence-only or business-requirements-led discovery.
+Deliver the report, mandatory architecture diagram and Cost Management report as one reviewed bundle
+after upfront read scope and one final acceptance. Deployed workloads use actual spend and available
+forecast evidence; IaC-only uses labelled estimates. Preserve incomplete coverage, existing delivery
+behavior, historical approvals and spent review allowances. No new agents or formal Governance phase.
+
 #### Existing-workload WAF assessment
 
 Add `/waf-assess-existing` for evidence-based WAF assessment from IaC, diagrams, or scoped multi-subscription

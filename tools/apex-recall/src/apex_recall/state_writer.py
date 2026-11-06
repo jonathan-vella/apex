@@ -257,6 +257,9 @@ def validate_state(data: dict) -> None:
     from .practical import validate_state as validate_practical_state
 
     validate_practical_state(data)
+    from .assessment import validate_state as validate_assessment_state
+
+    validate_assessment_state(data)
     if not isinstance(attempts, list) or any(
         not isinstance(attempt, dict)
         or attempt.get("schema_version") != "review-attempt-v1"

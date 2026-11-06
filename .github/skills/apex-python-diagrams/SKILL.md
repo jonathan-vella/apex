@@ -44,6 +44,11 @@ icons) and the `.png` is the `3840×2160` raster render.
 
 ## Required Outputs (Workflow Integration)
 
+For the standalone assessment profile, `assets/03-des-diagram.{py,png,svg}` is mandatory
+before final bundle acceptance. Diagram generation uses authorized evidence and validated analysis,
+not an intermediate Architecture approval. Label observed/declared versus inferred/unknown edges;
+never portray a recommendation or unverified control as deployed. Inspect both formats.
+
 | Step | Python diagram & chart files |
 | --- | --- |
 | 2 | `02-waf-scores.py/.png/.svg` (`matplotlib` via `save_figure`) |

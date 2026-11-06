@@ -38,6 +38,13 @@ are real stopping points, not permission to fill gaps with defaults.
 
 ## Interaction and execution
 
+For explicit `decisions.workflow_mode=assessment`, use
+[standalone assessment](../skills/apex-workflow-engine/references/standalone-assessment.md).
+Evidence-only mode does not dispatch this owner or synthesize requirements. In requirements-led mode,
+capture known objectives/flows/targets with `requirements-discovery.mjs --assessment-mode requirements_led`,
+accept Unknown, and return business context to the parent without Gate 1, SKU elicitation, manifest creation
+or a separate Requirements review cycle. Numeric delivery phases below retain their original contract.
+
 For `decisions.workflow_contract=practical-v1`, use the
 [practical workflow](../skills/apex-workflow-engine/references/practical-workflow.md):
 reuse authoritative material inputs, batch granted mechanical corrections and use the bounded

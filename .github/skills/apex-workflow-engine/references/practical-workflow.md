@@ -85,6 +85,12 @@ A DEV acceptance expanded to PROD changes material scope even if guidance is com
 
 ## Internal routing and user questions
 
+For explicit `workflow_mode=assessment`, the
+[standalone assessment profile](standalone-assessment.md) supplies scope authorization and one final
+bundle acceptance instead of the delivery stage gates below. It retains this contract's captured-input,
+actual-review, freshness and allowance rules. No assessment acceptance authorizes Governance or deployment.
+Existing projects are never silently migrated by a new default.
+
 Keep existing final stage gates. Ask only for missing material choices, scope changes
 or operations beyond permission. Do not ask users to approve synchronizing records,
 fixing counts/cross-references, or an already granted ordinary closure call.

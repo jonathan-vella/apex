@@ -22,6 +22,10 @@ def run(args) -> int:
 
     path = session_state_path(project)
     data = read_state(path)
+    from ..assessment import enabled
+
+    if enabled(data):
+        raise ValueError("Numeric delivery checkpoints are unavailable in standalone assessment mode")
     data = migrate_to_v3(data)
     if getattr(args, "sync_assessment", False):
         from ..practical import sync_views

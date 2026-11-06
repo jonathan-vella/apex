@@ -101,6 +101,14 @@ relevant validations before committing.
 
 ## Agent Workflow
 
+WAF-only requests use the explicit
+[standalone assessment profile](.github/skills/apex-workflow-engine/references/standalone-assessment.md):
+evidence-only or requirements-led intake, required WAF/diagram/cost bundle, upfront scope and final
+acceptance. Internal owner handoffs and both quality reviews are automatic within granted scope.
+Completed assessments have no next Governance or implementation owner. Existing project history and
+review allowances are preserved by explicit adoption, never inferred from new defaults.
+The numeric delivery table below applies to infrastructure delivery, not assessment routing.
+
 New recall projects use the [practical workflow](.github/skills/apex-workflow-engine/references/practical-workflow.md):
 existing stage approvals and independent lenses remain, with an initial and optional closure call
 per required artifact/lens inside actual granted scope. Legacy projects adopt explicitly; histories

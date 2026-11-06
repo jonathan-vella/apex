@@ -5,7 +5,11 @@ agent: 01-Orchestrator
 
 # Assess an existing workload
 
-Coordinate an existing-workload Well-Architected assessment through Requirements and Architect.
+Coordinate a standalone existing-workload Well-Architected assessment, not an infrastructure delivery run.
+Load [standalone assessment](../skills/apex-workflow-engine/references/standalone-assessment.md).
+Select `workflow_mode=assessment` explicitly with an authorized upfront scope.
+Offer evidence-only (no business interview) or requirements-led discovery; source is IaC, Azure or combined.
+Do not require `01-requirements.md` or a numeric Step 1 approval for evidence-only work.
 Use supplied IaC, architecture diagrams and explicitly authorized tenant/subscription read scope.
 Load `.github/skills/apex-azure-defaults/references/existing-workload-intake.md` at evidence intake.
 Treat this as assessment-only, not implementation planning. Reuse captured answers and ask only when
@@ -21,9 +25,11 @@ Do not require `ask_user` to return an SDK request ID. Recover already-captured 
 source-linked local receipt instead of inventing native IDs or repeating settled questions.
 Capture receipts do not replace independent reviews, human gates or Azure authorization.
 
-Deliver requirements, redacted discovery evidence, subscription-attributed observed/recommended SKUs,
-an evidence-backed WAF assessment, verified cost estimate when evidence supports one, and a prioritized
-remediation roadmap. Label unavailable cost inputs and unresolved controls rather than blocking on
-implementation details. Gate 1 approves assessment scope and requirements, not gap closure or compliance.
-Preserve independent reviews and human gates. At Gate 2 offer assessment-only pause or continuation
-through the existing workflow; neither approval provisions resources or applies remediation.
+Deliver a WAF report, required architecture diagram and Cost Management report as one bundle.
+For Azure report actual spend, trends and available forecast; for IaC report labelled estimates.
+Missing cost evidence is not zero. Keep a prioritized nonbinding roadmap and explicit coverage gaps.
+Run internal owner handoffs and both independent WAF/cost-quality reviews automatically within granted scope.
+There is one final bundle acceptance, not intermediate Requirements/Architecture/Design approval gates.
+Gate 1 approves assessment scope and requirements only in existing legacy delivery projects; do not
+silently rewrite their histories. New standalone assessments end after final acceptance with no formal
+Governance, policy-feasibility prerequisite, IaC planning or deployment continuation.

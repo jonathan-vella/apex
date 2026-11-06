@@ -81,10 +81,96 @@ function evidenceDefaults(evidence) {
   return defaults;
 }
 
-export function buildDiscoveryForm(stage, answers = {}, evidence) {
+function discoveryEnvelope(stage, answers, properties, message) {
+  const pending = Object.keys(properties);
+  return {
+    stage,
+    complete: pending.length === 0,
+    ...(pending.length
+      ? {
+          request_id: `requirements-${randomUUID()}`,
+          request_id_source: "apex-local",
+          context: {
+            answers: structuredClone(answers),
+            fields: Object.fromEntries(pending.map((key) => [key, { input_id: key, kind: "input" }])),
+          },
+        }
+      : {}),
+    form: pending.length ? { message, requestedSchema: { properties } } : null,
+  };
+}
+
+export function buildDiscoveryForm(stage, answers = {}, evidence, options = {}) {
   if (!DISCOVERY_STAGES.includes(stage)) throw new Error(`Unknown discovery stage: ${stage}`);
   if (!answers || typeof answers !== "object" || Array.isArray(answers)) {
     throw new Error("Answers must be an object containing the complete captured answer ledger");
+  }
+  const assessmentMode = options.assessmentMode;
+  if (assessmentMode !== undefined && !["evidence_only", "requirements_led"].includes(assessmentMode)) {
+    throw new Error("Assessment mode must be evidence_only or requirements_led");
+  }
+  if (assessmentMode !== undefined) {
+    const properties = {};
+    if (assessmentMode === "requirements_led" && stage === "business") {
+      const inputs = [
+        [
+          "business_objective",
+          "Business purpose",
+          "Which business outcomes and priorities should the assessment evaluate?",
+          ["Reliability and recovery", "Security posture", "Cost efficiency", "Operational readiness"],
+        ],
+        [
+          "critical_flows",
+          "Critical workload flows",
+          "Which user journeys or integrations matter most?",
+          ["Employee access", "Customer transactions", "Data processing and integrations", "Monitoring and support"],
+        ],
+        [
+          "availability_target",
+          "Availability objective",
+          "What availability target is known?",
+          ["99.9%", "99.95%", "99.99%"],
+        ],
+        [
+          "recovery_profile",
+          "Recovery objectives",
+          "What recovery time and data-loss objectives are known?",
+          ["RTO 4 hours / RPO 1 hour", "RTO 24 hours / RPO 24 hours"],
+        ],
+        [
+          "performance_target",
+          "Performance and scale objectives",
+          "What response-time, throughput or peak-demand targets are known?",
+          [],
+        ],
+        [
+          "compliance",
+          "Compliance and residency constraints",
+          "Which frameworks, data residency or security obligations are known?",
+          ["No specific regulatory framework", "EU residency / GDPR", "Organization-specific constraints"],
+        ],
+        [
+          "monthly_budget_amount",
+          "Cost planning target",
+          "Is a cost target known? This is not a spending approval or a hard-cap decision.",
+          ["No fixed budget"],
+        ],
+      ];
+      for (const [key, title, description, suggestions] of inputs) {
+        if (!supplied(answers[key])) {
+          properties[key] = choice(title, `${description} Unknown is a valid assessment input.`, [
+            ...suggestions,
+            "Unknown — assess with available evidence",
+          ]);
+        }
+      }
+    }
+    return discoveryEnvelope(
+      stage,
+      answers,
+      properties,
+      "Assessment business context: supply only known objectives, or choose Unknown. No implementation choice or intermediate approval is requested.",
+    );
   }
   const defaults = evidenceDefaults(evidence);
   const assessmentFromAnswers = isAssessmentScenario(answers.scenario);
@@ -472,32 +558,18 @@ export function buildDiscoveryForm(stage, answers = {}, evidence) {
       ]),
     );
   }
-  return {
+  return discoveryEnvelope(
     stage,
-    complete: Object.keys(properties).length === 0,
-    ...(Object.keys(properties).length
-      ? {
-          request_id: `requirements-${randomUUID()}`,
-          request_id_source: "apex-local",
-          context: {
-            answers: structuredClone(answers),
-            fields: Object.fromEntries(Object.keys(properties).map((key) => [key, { input_id: key, kind: "input" }])),
-          },
-        }
-      : {}),
-    form: Object.keys(properties).length
-      ? {
-          message: `Requirements discovery: ${stage}. Choose suggested answers or type a custom value in the same field. “Not sure” is valid; no architecture or deployment is approved.`,
-          requestedSchema: { properties },
-        }
-      : null,
-  };
+    answers,
+    properties,
+    `Requirements discovery: ${stage}. Choose suggested answers or type a custom value in the same field. “Not sure” is valid; no architecture or deployment is approved.`,
+  );
 }
 
 export function runDiscovery(argv = process.argv.slice(2)) {
   if (argv.includes("--help")) {
     console.log(
-      "Usage: requirements-discovery.mjs --stage business|migration|workload|access [--answers <captured-answers.json> | --recall-view <view.json> --environment <env>] [--evidence <01-discovered-evidence.json>]\nPersist the envelope and its APEX-local request_id before displaying only form through ask_user; retain the ID with the actual response. No SDK-issued request ID is required.\nEvidence: {items:[{input_id,value,provenance:iac|diagram|azure-arg,confidence:observed|inferred}]}. Suggestions require explicit owner confirmation before recording material inputs.",
+      "Usage: requirements-discovery.mjs --stage business|migration|workload|access [--answers <captured-answers.json> | --recall-view <view.json> --environment <env>] [--evidence <01-discovered-evidence.json>] [--assessment-mode evidence_only|requirements_led]\nStandalone assessment modes bypass implementation questionnaires; requirements_led asks only known business targets, accepting Unknown.\nPersist the envelope and its APEX-local request_id before displaying only form through ask_user; retain the ID with the actual response. No SDK-issued request ID is required.\nEvidence: {items:[{input_id,value,provenance:iac|diagram|azure-arg,confidence:observed|inferred}]}. Suggestions require explicit owner confirmation before recording material inputs.",
     );
     return 0;
   }
@@ -506,6 +578,7 @@ export function runDiscovery(argv = process.argv.slice(2)) {
   let recallView;
   let environment;
   let evidence;
+  let assessmentMode;
   let answersProvided = false;
   for (let index = 0; index < argv.length; index += 2) {
     const value = argv[index + 1];
@@ -517,13 +590,14 @@ export function runDiscovery(argv = process.argv.slice(2)) {
     } else if (argv[index] === "--recall-view") recallView = JSON.parse(fs.readFileSync(path.resolve(value), "utf8"));
     else if (argv[index] === "--environment") environment = value;
     else if (argv[index] === "--evidence") evidence = JSON.parse(fs.readFileSync(path.resolve(value), "utf8"));
+    else if (argv[index] === "--assessment-mode") assessmentMode = value;
     else throw new Error(`Unknown option: ${argv[index]}`);
   }
   if (recallView) {
     if (answersProvided) throw new Error("Use captured answers or an authoritative recall view, not both");
     answers = answersFromRecall(recallView, environment);
   } else if (environment) throw new Error("--environment requires --recall-view");
-  console.log(JSON.stringify(buildDiscoveryForm(stage, answers, evidence), null, 2));
+  console.log(JSON.stringify(buildDiscoveryForm(stage, answers, evidence, { assessmentMode }), null, 2));
   return 0;
 }
 

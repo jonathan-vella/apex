@@ -13,6 +13,13 @@ or an automatic fallback.
 
 ## Parent procedure
 
+Standalone assessment retains this same actual-result recorder, provenance and allowance contract.
+Use recall's linked assessment review identity; do not allocate a new cycle merely because a report
+path/type or workflow phase changed. Review the finalized WAF report with the required diagram and
+cost report/evidence as applicable. A workload gap is not a request to remediate; unsupported report
+claims, hidden coverage gaps and misleading arithmetic/topology remain review defects.
+Both comprehensive WAF and cost-feasibility lenses precede final bundle acceptance.
+
 If an artifact owner is a delegated worker without nested task capability, it returns `REVIEW_REQUIRED`
 with exact project/step/artifact/type/lens/pass/output scope and current budget to its interactive parent.
 The authorized Orchestrator invokes this same reviewer automatically as a sibling, captures current
