@@ -26,6 +26,10 @@ For `workflow_mode=assessment`, use [standalone assessment](../apex-workflow-eng
 `templates/03-cost-management-report.template.md`. The root is Markdown-only; normalized cost evidence
 lives in `contracts/03-cost-management.json`. Do not require a deployment SKU manifest or synthesize
 business requirements in evidence-only mode. Keep report coverage separate from acceptance.
+Register-capable runs also use
+[Assessment Action Register](references/assessment-action-register.md) and
+`templates/04-assessment-action-register.template.md`: one validated source generates Excel and Markdown.
+The register is nonbinding financial-impact reporting, not an implementation gate.
 
 ### Mandatory Compliance
 

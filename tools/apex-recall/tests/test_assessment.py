@@ -154,6 +154,29 @@ def analysis(directory: Path, req: dict) -> None:
             }
         )
     )
+    writer = importlib.import_module("apex_recall.state_writer")
+    run = state(writer).get("assessment_run", {})
+    if run.get("action_register"):
+        register(directory, req)
+
+
+def register(directory: Path, req: dict, *, finance: bool = False) -> None:
+    module = importlib.import_module("apex_recall.assessment")
+    checked = subprocess.run(
+        [
+            "node",
+            str(Path(__file__).with_name("assessment_register_fixture.mjs")),
+            str(directory),
+            json.dumps(req),
+            module.datetime.now(UTC).isoformat(timespec="milliseconds"),
+            *(["finance"] if finance else []),
+        ],
+        cwd=REPO,
+        capture_output=True,
+        text=True,
+        check=False,
+    )
+    assert checked.returncode == 0, f"{checked.stdout}\n{checked.stderr}"
 
 
 def diagram(directory: Path) -> None:

@@ -6,6 +6,16 @@ Entries are grouped by conventional-commit type. Breaking changes list the migra
 
 ### Added
 
+#### Assessment Action Register
+
+Extend new Azure/combined standalone assessments with evidence-linked proposed actions and matching
+Excel/Markdown exports. Separate priorities, effort, status/comments and recommended relative windows
+from execution approval. Validate like-for-like upgrade deltas, gross additions, evidenced savings and
+unknown costs through one signed contribution ledger; prevent overlapping cost-report benefits.
+Readiness checks source/export integrity, not file existence alone. IaC-only export remains optional,
+original run bundles retain their contract, and existing reviews/allowances are never reset.
+Add pinned root tooling dependencies `openpyxl` and `et-xmlfile` for safe deterministic workbook exports.
+
 #### Standalone existing-workload assessment
 
 Add a terminal WAF-only profile with evidence-only or business-requirements-led discovery.

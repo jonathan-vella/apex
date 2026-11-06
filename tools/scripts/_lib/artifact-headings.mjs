@@ -21,6 +21,13 @@ export const ARTIFACT_HEADINGS = {
     "## Optimization Opportunities",
     "## Coverage and Limitations",
   ],
+  "04-assessment-action-register.md": [
+    "## Executive Summary",
+    "## Action Register",
+    "## Financial Summary",
+    "## Basis of Estimate",
+    "## Coverage and Limitations",
+  ],
   // Core artifacts (standard strictness)
   "01-requirements.md": [
     "## 🎯 Project Overview",

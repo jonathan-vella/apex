@@ -41,6 +41,10 @@ graph-selected lifecycle instead of the numeric delivery steps below. Capture sc
 Requirements only in requirements-led mode, then analysis, mandatory Design diagram and both reviews
 before one final bundle acceptance. Assessment completion is terminal, never a Governance/IaC handoff.
 Do not manufacture Step 1/2 approvals or start deployment phases for this profile.
+For register-capable Azure/combined runs, include the
+[Assessment Action Register](../skills/apex-azure-artifacts/references/assessment-action-register.md)
+Excel/Markdown exports in the same final bundle. IaC export remains optional; legacy runs retain their
+captured output contract. No additional approval, implementation step or review allowance is introduced.
 
 For `decisions.workflow_contract=practical-v1`, follow the
 [practical workflow](../skills/apex-workflow-engine/references/practical-workflow.md).

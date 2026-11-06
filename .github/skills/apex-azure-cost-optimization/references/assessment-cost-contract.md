@@ -26,6 +26,10 @@ actual spend, invent a zero charge, or describe an API forecast as realized spen
 exists in this contract. Keep currencies, metrics, cost views, scopes and forecast/actual row statuses separate.
 For combined Azure/IaC evidence, correlate only evidenced resource identities; estimates are not duplicate charges,
 proven deployed drift, or savings against the actual bill.
+The [Assessment Action Register](../../apex-azure-artifacts/references/assessment-action-register.md)
+models proposed recurring additions, upgrade deltas and savings separately. Cost-report opportunities are
+referenced inputs to its contribution ledger, never an additional independent sum.
+Do not weaken this report's actual-baseline opportunity checks to accept a new-service retail fee.
 
 `source_kind: "actual"` identifies Cost Management API evidence, including separately labelled forecast rows.
 `source_kind: "estimate"` identifies retail pricing evidence. Neither label is runtime tool-provenance certification:

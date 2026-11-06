@@ -23,6 +23,14 @@ history; do not infer assessment progress or the next owner from those fields.
 `session.assessment_readiness` reports selected-profile readiness and explicit errors, never permission.
 `session.assessment_cost_plan` derives the billing plan from captured scope/reporting settings;
 do not derive approval from the cost report itself.
+Graph 3.2 starts persist `assessment_run.bundle_contract: "assessment-bundle-v2"` and an
+`action_register` boolean. Azure/combined requires true; IaC defaults false unless the scope request
+explicitly selects `"action_register": true`. Legacy absence resolves to `assessment-bundle-v1`,
+preserving original required/frozen outputs under a newer graph. Readers support explicit graph 3.1/3.2
+contracts and reject unknown versions. One graph output resolver drives phase checks, freezes and handoff.
+Register readiness invokes offline export validation, including workbook structure/cells, source/evidence
+hashes, exact derived summaries and Markdown/receipt consistency. It binds source/scopes to the authorized run;
+an existing `.xlsx` file alone cannot satisfy it.
 
 Initialize a new project normally, then use `apex-recall assessment <project> --action start`
 with `--request <scope.json>`. `advance --phase <current>` validates the current graph phase and outputs.
@@ -32,6 +40,11 @@ even when current evidence is stale. It preserves scope and spent allowances; an
 cannot be reopened by this action.
 `adopt --request <scope-and-review-links.json> --dry-run` inspects existing history without rewriting it.
 Request may be a JSON file or inline object; persisted project-local files are preferred.
+For explicit register adoption of an existing assessment, keep scenario/source/scope/reporting unchanged,
+select `action_register:true`, retain original review links and supply a distinct actual adoption receipt.
+Dry-run shows output changes, preserved frozen inputs and review accounting. Actual adoption retains the
+prior run/acceptance in decision history and returns later phases to analysis without resetting allowance.
+This does not broaden read permission or silently upgrade an accepted historical bundle.
 See the [standalone contract](../../../.github/skills/apex-workflow-engine/references/standalone-assessment.md)
 and `session-state.schema.json#/$defs/assessmentRequest` for the exact request shape.
 

@@ -9,7 +9,8 @@ const graph = JSON.parse(fs.readFileSync(".github/skills/apex-workflow-engine/te
 const schema = JSON.parse(fs.readFileSync("tools/schemas/workflow-graph.schema.json", "utf8"));
 const validate = new Ajv2020({ strict: false, allErrors: true }).compile(schema);
 
-test("additive graph 3.1 retains delivery and bounded assessment review identities", () => {
+test("additive graph 3.2 retains delivery and bounded assessment review identities", () => {
+  assert.equal(graph.metadata.version, "3.2");
   assert.equal(validate(graph), true, JSON.stringify(validate.errors));
   assert.deepEqual(validateAssessmentProfile(graph.profiles.assessment), []);
   assert.equal(graph.nodes["step-3_5"].agent, "04g-Governance");
@@ -29,6 +30,20 @@ for (const [label, change] of [
   ["missing mandatory render", (profile) => (profile.nodes.diagram.produces = ["assets/03-des-diagram.py"])],
   ["terminal repair reopening", (profile) => (profile.return_edges[0].from = "terminal")],
   ["missing bounded repair return", (profile) => delete profile.return_edges],
+  [
+    "register made unconditional for old runs",
+    (profile) => profile.nodes.analysis.produces.push("04-assessment-action-register.md"),
+  ],
+  ["register omitted", (profile) => delete profile.nodes.analysis.conditional_produces],
+  [
+    "register condition silently excludes Azure",
+    (profile) => profile.nodes.analysis.conditional_produces[0].when.sources.pop(),
+  ],
+  [
+    "file-presence selection",
+    (profile) => (profile.nodes.analysis.conditional_produces[0].when.selection = "file_exists"),
+  ],
+  ["unknown bundle contract", (profile) => profile.bundle_contracts.push("assessment-bundle-v999")],
 ]) {
   test(`assessment profile rejects ${label}`, () => {
     const profile = structuredClone(graph.profiles.assessment);
@@ -41,6 +56,13 @@ test("unknown graph version fails closed; old delivery graph remains readable", 
   const future = structuredClone(graph);
   future.metadata.version = "3.999";
   assert.equal(validate(future), false);
+  const legacyAssessment = structuredClone(graph);
+  legacyAssessment.metadata.version = "3.1";
+  delete legacyAssessment.profiles.assessment.bundle_contracts;
+  delete legacyAssessment.profiles.assessment.nodes.analysis.conditional_produces;
+  assert.equal(validate(legacyAssessment), true, JSON.stringify(validate.errors));
+  assert.deepEqual(validateAssessmentProfile(legacyAssessment.profiles.assessment, "3.1"), []);
+  assert.ok(validateAssessmentProfile(graph.profiles.assessment, "3.1").length > 0);
   const previous = structuredClone(graph);
   previous.metadata.version = "3.0";
   delete previous.profiles;
@@ -73,4 +95,6 @@ test("assessment request schema rejects mismatched source, invented mode, and re
     false,
   );
   assert.equal(validateRequest({ ...request, receipt: { ...request.receipt, approved: false } }), false);
+  assert.equal(validateRequest({ ...request, action_register: true }), true, JSON.stringify(validateRequest.errors));
+  assert.equal(validateRequest({ ...request, action_register: "yes" }), false);
 });

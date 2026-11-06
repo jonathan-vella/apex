@@ -46,6 +46,7 @@ const ARTIFACT_NAMES = [
   "02-architecture-assessment.md",
   "03-des-cost-estimate.md",
   "03-cost-management-report.md",
+  "04-assessment-action-register.md",
   "04-governance-constraints.md",
   "04-implementation-plan.md",
   "04-preflight-check.md",
@@ -227,6 +228,7 @@ function runH2Sync() {
 const ARTIFACT_STRICTNESS = {
   "01-assessment-brief.md": "standard",
   "03-cost-management-report.md": "standard",
+  "04-assessment-action-register.md": "standard",
   "01-requirements.md": "standard",
   "02-architecture-assessment.md": "standard",
   "04-implementation-plan.md": "standard",
@@ -251,6 +253,7 @@ const ARTIFACT_STRICTNESS = {
 const OPTIONAL_ALLOWED = {
   "01-assessment-brief.md": ["## References"],
   "03-cost-management-report.md": ["## References"],
+  "04-assessment-action-register.md": ["## References"],
   "01-requirements.md": ["## References"],
   "02-architecture-assessment.md": ["## References"],
   "04-implementation-plan.md": ["## References"],
@@ -292,6 +295,7 @@ const CONSOLIDATED_SKILL = ".github/skills/apex-azure-artifacts/SKILL.md";
 const AGENTS = {
   "01-assessment-brief.md": ".github/agents/01-orchestrator.agent.md",
   "03-cost-management-report.md": ".github/agents/03-architect.agent.md",
+  "04-assessment-action-register.md": ".github/agents/03-architect.agent.md",
   "01-requirements.md": ".github/agents/02-requirements.agent.md",
   "02-architecture-assessment.md": ".github/agents/03-architect.agent.md",
   "04-implementation-plan.md": ".github/agents/05-iac-planner.agent.md",
@@ -318,6 +322,7 @@ const TEMPLATE_DIR = ".github/skills/apex-azure-artifacts/templates";
 const TEMPLATES = {
   "01-assessment-brief.md": `${TEMPLATE_DIR}/01-assessment-brief.template.md`,
   "03-cost-management-report.md": `${TEMPLATE_DIR}/03-cost-management-report.template.md`,
+  "04-assessment-action-register.md": `${TEMPLATE_DIR}/04-assessment-action-register.template.md`,
   "01-requirements.md": `${TEMPLATE_DIR}/01-requirements.template.md`,
   "02-architecture-assessment.md": `${TEMPLATE_DIR}/02-architecture-assessment.template.md`,
   "04-implementation-plan.md": `${TEMPLATE_DIR}/04-implementation-plan.template.md`,
