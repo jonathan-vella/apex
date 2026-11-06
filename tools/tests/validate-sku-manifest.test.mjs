@@ -92,6 +92,104 @@ function validateManifest(manifest, context) {
   return runValidator(file);
 }
 
+function intakePinManifest() {
+  const manifest = JSON.parse(fs.readFileSync(path.join(FIXTURE_BASE, "valid/multi-stamp.json"), "utf8"));
+  manifest.environments = ["dev"];
+  manifest.revisions[0].agent = "02-Requirements";
+  manifest.revisions[0].step = "1";
+  manifest.revisions[0].changed_ids = ["storage-pin"];
+  manifest.services = [
+    {
+      id: "storage-pin",
+      service: "Storage Account",
+      size: "LRS",
+      source: "user-pin",
+      source_step: "1",
+      last_modified_rev: 1,
+    },
+  ];
+  delete manifest.stamps;
+  return manifest;
+}
+
+describe("SKU Manifest Step 1 partial user pins", () => {
+  it("accepts a replication-only pin without inventing configuration", (context) => {
+    const manifest = intakePinManifest();
+    const before = structuredClone(manifest);
+    const { exitCode, stdout } = validateManifest(manifest, context);
+    assert.equal(exitCode, 0, stdout);
+    const rendered = renderManifest(manifest);
+    const row = rendered.split("\n").find((line) => line.startsWith("| `storage-pin`"));
+    assert.match(row, /`LRS`/);
+    assert.match(row, /Unknown \| Unknown/);
+    assert.match(row, /Unknown \| `user-pin`/);
+    assert.doesNotMatch(rendered, /Standard_LRS|on-demand/);
+    assert.deepEqual(manifest, before);
+  });
+
+  it("validates supplied configuration instead of treating it as unknown", (context) => {
+    const manifest = intakePinManifest();
+    manifest.services[0].capacity = { mode: "fixed" };
+    const { exitCode, stdout } = validateManifest(manifest, context);
+    assert.notEqual(exitCode, 0, stdout);
+    assert.match(stdout, /default/);
+  });
+
+  for (const step of ["2", "3.5", "4", "6", "7"]) {
+    it(`requires complete user-pin configuration at Step ${step}, even at rev 1`, (context) => {
+      const manifest = intakePinManifest();
+      manifest.revisions[0].step = step;
+      const { exitCode, stdout } = validateManifest(manifest, context);
+      assert.notEqual(exitCode, 0, stdout);
+      for (const field of ["iac_logical_names", "capacity", "zonal", "regions", "sla_target", "commitment"]) {
+        assert.match(stdout, new RegExp(field));
+      }
+    });
+  }
+
+  it("requires complete user-pin configuration after the intake revision", (context) => {
+    const manifest = intakePinManifest();
+    manifest.current_revision = 2;
+    manifest.revisions.push({ ...manifest.revisions[0], rev: 2 });
+    const { exitCode, stdout } = validateManifest(manifest, context);
+    assert.notEqual(exitCode, 0, stdout);
+    assert.match(stdout, /iac_logical_names/);
+  });
+
+  it("accepts later configuration while preserving the original lock and creation step", (context) => {
+    const manifest = intakePinManifest();
+    manifest.current_revision = 2;
+    manifest.revisions.push({ ...manifest.revisions[0], rev: 2, agent: "03-Architect", step: "2" });
+    Object.assign(manifest.services[0], {
+      iac_logical_names: { bicep: "storageData", terraform: "module.storage_data" },
+      capacity: { mode: "fixed", default: 1 },
+      zonal: false,
+      regions: ["swedencentral"],
+      sla_target: "Dev/test; no numeric SLA",
+      commitment: { type: "on-demand" },
+      last_modified_rev: 2,
+    });
+    const { exitCode, stdout } = validateManifest(manifest, context);
+    assert.equal(exitCode, 0, stdout);
+    assert.equal(manifest.services[0].size, "LRS");
+    assert.equal(manifest.services[0].source, "user-pin");
+    assert.equal(manifest.services[0].source_step, "1");
+  });
+
+  for (const [source, sourceStep] of [
+    ["architect-derived", "2"],
+    ["deploy-substitute", "6"],
+  ]) {
+    it(`still rejects incomplete ${source} entries during intake`, (context) => {
+      const manifest = intakePinManifest();
+      Object.assign(manifest.services[0], { source, source_step: sourceStep });
+      const { exitCode, stdout } = validateManifest(manifest, context);
+      assert.notEqual(exitCode, 0, stdout);
+      assert.match(stdout, /iac_logical_names/);
+    });
+  }
+});
+
 describe("SKU Manifest existing-workload subscriptions and provenance", () => {
   const validCases = [
     ["observations across subscriptions without locking them", () => {}],

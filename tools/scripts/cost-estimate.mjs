@@ -120,11 +120,11 @@ function expandManifestServices(manifest, manifestUsage = {}) {
         const envOverride = service.environment_overrides?.[env] ?? {};
         const effective = mergeSparseService(service, envOverride, stampSvcOverride);
         if (
-          effective.source === "observed-current" &&
+          ["observed-current", "user-pin"].includes(effective.source) &&
           (effective.capacity?.default === undefined || !effective.commitment?.type)
         ) {
           throw new Error(
-            `Observed service '${service.id}' requires explicit capacity.default and commitment.type before pricing; unknown values cannot default to one instance or on-demand`,
+            `${effective.source === "user-pin" ? "User-pinned" : "Observed"} service '${service.id}' requires explicit capacity.default and commitment.type before pricing; unknown values cannot default to one instance or on-demand`,
           );
         }
         const regions =

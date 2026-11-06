@@ -362,14 +362,16 @@ test("manifest expansion propagates stamp subscription, service fallback, or nul
   }
 });
 
-test("unknown observed capacity or commitment cannot become implicit pricing assumptions", (context) => {
+test("unknown observed or user-pinned capacity or commitment cannot become implicit pricing assumptions", (context) => {
   const dir = fs.mkdtempSync(path.join(HERE, ".observed-pricing-"));
   context.after(() => fs.rmSync(dir, { recursive: true, force: true }));
   const file = path.join(dir, "sku-manifest.json");
-  for (const missing of ["capacity", "commitment"]) {
+  for (const [source, missing] of ["observed-current", "user-pin"].flatMap((source) =>
+    ["capacity", "commitment"].map((missing) => [source, missing]),
+  )) {
     const manifest = makeManifest();
     manifest.services = [manifest.services[0]];
-    manifest.services[0].source = "observed-current";
+    manifest.services[0].source = source;
     manifest.services[0].observed_sku = manifest.services[0].size;
     delete manifest.services[0][missing];
     fs.writeFileSync(file, JSON.stringify(manifest));

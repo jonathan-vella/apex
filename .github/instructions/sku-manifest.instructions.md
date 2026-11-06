@@ -67,7 +67,14 @@ checkpoints — **not** a free-form changelog.
 - `user-pin` — Step 1 (Requirements). Captured via the mandatory Phase 3j
   SKU/sizing preference elicitation (see
   [Mandatory Elicitation at Step 1](#mandatory-elicitation-at-step-1)).
-  Never auto-changed by downstream agents. If a planner/deploy step
+  At rev 1, with only Step 1 revision metadata, record only the explicit lock
+  (for example `size: "LRS"` for a replication-only pin) and known constraints.
+  Omit unknown IaC logical names, capacity, zoning, regions, SLA and commitment;
+  never invent them to pass validation. Supplied fields must still be valid.
+  Later revisions and non-Step-1 manifests require complete configuration.
+  Architecture fills the missing configuration while preserving the original lock
+  and `source_step: "1"`; unknown capacity/commitment cannot become pricing defaults.
+  Never auto-change the lock. If a planner/deploy step
   needs to alter a user-pin SKU, escalate to Architect via the
   `step-N → step-2` return edge.
 - `architect-derived` — Step 2 (Architecture). Chosen by `03-Architect`
@@ -77,7 +84,8 @@ checkpoints — **not** a free-form changelog.
   and required `observed_sku`. Set `size` to the observed SKU initially.
   Omit unobserved capacity, zoning, commitment, regions, SLA target and IaC logical names;
   omission means unknown, not one instance, no zones or on-demand. Pricing requires explicit
-  quantity/commitment evidence. Other provenance types retain complete configuration requirements.
+  quantity/commitment evidence. Architect-derived and deploy-substitute entries retain
+  complete configuration requirements.
   This is evidence, **not a lock**: Architect may recommend a new `size` and
   change `source` to `architect-derived`, preserving `observed_sku` and the
   original `source_step`. Explicit `user-pin` choices remain locks.
