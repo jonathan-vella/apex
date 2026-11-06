@@ -25,7 +25,8 @@ with independent architecture and cost-feasibility reviews before human approval
 
 ## Success criteria
 
-- Every WAF pillar has an evidence-backed score and confidence; service maturity is assessed.
+- Every WAF pillar has evidence coverage and confidence, plus a justified score or explicit Not assessed;
+  service maturity is assessed without inferring deployed versions from a service name.
 - Creative SKU decisions are manifest-owned and user pins unchanged; current selections are confirmed for
   implementation planning, while assessment recommendations remain nonbinding.
 - Complete pricing covers all environments, stamps, supporting resources and variable usage for
@@ -36,6 +37,15 @@ with independent architecture and cost-feasibility reviews before human approval
   the actual blocker without changing scope. For Assessment, preserve the unverified capability as a finding.
 
 ## Interaction and execution
+
+For explicit `decisions.workflow_mode=assessment`, load
+[standalone assessment](../skills/apex-workflow-engine/references/standalone-assessment.md) and use its
+authorized brief/evidence and optional business context instead of the numeric delivery workflow below.
+No formal Governance, SKU/VNet confirmation, budget cap or intermediate Architecture approval is required.
+Load `.github/skills/apex-azure-cost-optimization/SKILL.md` for scoped actual billing Query/Forecast
+operations in this main's execution context; `cost-estimate-subagent` remains retail-estimate-only.
+Return finalized analysis to the parent for mandatory Design and both independent bundle reviews.
+Do not invoke Design as a child or complete numeric Step 2 in this profile.
 
 For `decisions.workflow_contract=practical-v1`, use the
 [practical workflow](../skills/apex-workflow-engine/references/practical-workflow.md).
@@ -96,8 +106,11 @@ or deferred required costs without verified pricing-owner evidence.
 
 ## Phase 1 — Prerequisites and guidance
 
-Require `01-requirements.md` and current Step 1 completion/approval evidence from recall.
-Missing predecessors return to `02-Requirements`; never manufacture them.
+In delivery mode require `01-requirements.md` and current Step 1 completion/approval evidence from recall.
+Missing delivery predecessors return to `02-Requirements`; never manufacture them.
+In standalone evidence-only assessment require only the authorized assessment brief and scoped evidence;
+in requirements-led assessment also consume captured business context. Neither requires numeric Step 1
+completion, a deployment manifest or intermediate human approval.
 For implementation planning, directly clarify missing SLA/RTO/RPO, performance, compliance, budget,
 scale/data volume, operator access, authentication owner, alert recipient and applicable SQL administrator.
 For Assessment, use the scoped evidence and captured requirements; only ask when assessment scope or

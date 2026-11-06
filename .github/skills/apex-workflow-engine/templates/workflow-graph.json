@@ -1,6 +1,112 @@
 {
   "$schema": "../../../../tools/schemas/workflow-graph.schema.json",
   "description": "Multi-step Azure infrastructure workflow DAG with Bicep and Terraform tracks (governance as Step 3.5)",
+  "profiles": {
+    "assessment": {
+      "workflow_mode": "assessment",
+      "entry": "scope",
+      "terminal": "terminal",
+      "scenarios": ["evidence_only", "requirements_led"],
+      "sources": ["iac", "azure", "combined"],
+      "nodes": {
+        "scope": {
+          "id": "scope",
+          "type": "gate",
+          "name": "Authorize assessment scope",
+          "agent": "01-Orchestrator",
+          "requires": []
+        },
+        "requirements": {
+          "id": "requirements",
+          "type": "agent-step",
+          "name": "Optional business context",
+          "agent": "02-Requirements",
+          "requires": ["scope"],
+          "produces": ["01-requirements.md"]
+        },
+        "evidence": {
+          "id": "evidence",
+          "type": "agent-step",
+          "name": "Scoped assessment evidence",
+          "agent": "03-Architect",
+          "requires": ["scope"],
+          "produces": ["01-assessment-brief.md", "contracts/assessment-evidence.json"]
+        },
+        "analysis": {
+          "id": "analysis",
+          "type": "agent-step",
+          "name": "WAF and cost analysis",
+          "agent": "03-Architect",
+          "requires": ["evidence"],
+          "produces": [
+            "02-architecture-assessment.md",
+            "03-cost-management-report.md",
+            "contracts/03-cost-management.json"
+          ]
+        },
+        "diagram": {
+          "id": "diagram",
+          "type": "agent-step",
+          "name": "Required existing-state diagram",
+          "agent": "04-Design",
+          "requires": ["analysis"],
+          "produces": ["assets/03-des-diagram.py", "assets/03-des-diagram.png", "assets/03-des-diagram.svg"]
+        },
+        "review": {
+          "id": "review",
+          "type": "validation",
+          "name": "Independent WAF and cost-quality review",
+          "agent": "03-Architect",
+          "requires": ["analysis", "diagram"],
+          "review_subagent": "challenger-review-subagent"
+        },
+        "acceptance": {
+          "id": "acceptance",
+          "type": "gate",
+          "name": "Final assessment bundle acceptance",
+          "agent": "01-Orchestrator",
+          "requires": ["diagram", "review"]
+        },
+        "terminal": {
+          "id": "terminal",
+          "type": "validation",
+          "name": "Accepted standalone assessment",
+          "terminal": true,
+          "requires": ["acceptance"]
+        }
+      },
+      "edges": [
+        { "from": "scope", "to": "requirements", "condition": "on_complete", "scenario": "requirements_led" },
+        { "from": "scope", "to": "evidence", "condition": "on_complete", "scenario": "evidence_only" },
+        { "from": "requirements", "to": "evidence", "condition": "on_complete" },
+        { "from": "evidence", "to": "analysis", "condition": "on_complete" },
+        { "from": "analysis", "to": "diagram", "condition": "on_complete" },
+        { "from": "diagram", "to": "review", "condition": "on_complete" },
+        { "from": "review", "to": "acceptance", "condition": "on_complete" },
+        { "from": "acceptance", "to": "terminal", "condition": "on_complete" }
+      ],
+      "return_edges": [
+        {
+          "from": "acceptance",
+          "to": "review",
+          "condition": "on_refine",
+          "reason": "Explicit owner-approved report repair; retain scope, original review cycles and consumed allowance"
+        }
+      ],
+      "reviews": {
+        "comprehensive": {
+          "step": "2",
+          "artifact_type": "architecture",
+          "artifact": "02-architecture-assessment.md"
+        },
+        "cost-feasibility": {
+          "step": "2",
+          "artifact_type": "cost-estimate",
+          "artifact": "03-cost-management-report.md"
+        }
+      }
+    }
+  },
   "nodes": {
     "policy-feasibility": {
       "id": "policy-feasibility",
@@ -482,7 +588,7 @@
       "handoffs": "No active agent UI handoff metadata. ui_label_pattern remains historical fixture compatibility only.",
       "permissions": "Graph edges, names and tool lists do not prove runtime enforcement or credential isolation"
     },
-    "version": "3.0",
+    "version": "3.1",
     "practical_workflow": {
       "contract": "practical-v1",
       "new_projects_only": true,

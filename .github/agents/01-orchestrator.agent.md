@@ -35,6 +35,13 @@ than repeating their production to satisfy an administrative phase boundary.
 
 ## Interaction
 
+For explicit `decisions.workflow_mode=assessment`, load
+[standalone assessment](../skills/apex-workflow-engine/references/standalone-assessment.md) and follow its
+graph-selected lifecycle instead of the numeric delivery steps below. Capture scope/access once; run
+Requirements only in requirements-led mode, then analysis, mandatory Design diagram and both reviews
+before one final bundle acceptance. Assessment completion is terminal, never a Governance/IaC handoff.
+Do not manufacture Step 1/2 approvals or start deployment phases for this profile.
+
 For `decisions.workflow_contract=practical-v1`, follow the
 [practical workflow](../skills/apex-workflow-engine/references/practical-workflow.md).
 Retain stage approvals; batch granted mechanical repairs and ordinary closure verification.
@@ -108,7 +115,9 @@ Only a genuinely new project uses `apex-recall init <project> --json`.
 Load `.github/skills/apex-workflow-engine/SKILL.md` for domain prerequisites and
 `.github/skills/apex-azure-artifacts/SKILL.md` before writing summaries/lessons.
 Load Azure defaults only when recording or evaluating an actual Azure default.
-Do not preload all specialist skills or ask architecture questions before Requirements.
+Do not preload all specialist skills or ask architecture questions before Requirements in delivery mode.
+In standalone evidence-only mode, use the authorized assessment brief and dispatch Architect without
+a Requirements artifact; requirements-led mode captures business context without an intermediate gate.
 Requirements owns `decisions.iac_tool`; do not infer it from the requested agent.
 
 Initialization is not the end of an explicit start/new-project request. When already selected as

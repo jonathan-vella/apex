@@ -9,6 +9,52 @@
   "properties": {
     "$schema": { "type": "string" },
     "description": { "type": "string" },
+    "profiles": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["assessment"],
+      "properties": {
+        "assessment": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "workflow_mode",
+            "entry",
+            "terminal",
+            "scenarios",
+            "sources",
+            "nodes",
+            "edges",
+            "return_edges",
+            "reviews"
+          ],
+          "properties": {
+            "workflow_mode": { "const": "assessment" },
+            "entry": { "const": "scope" },
+            "terminal": { "const": "terminal" },
+            "scenarios": { "const": ["evidence_only", "requirements_led"] },
+            "sources": { "const": ["iac", "azure", "combined"] },
+            "nodes": { "$ref": "#/properties/nodes" },
+            "edges": { "$ref": "#/properties/edges" },
+            "return_edges": { "$ref": "#/properties/return_edges" },
+            "reviews": {
+              "const": {
+                "comprehensive": {
+                  "step": "2",
+                  "artifact_type": "architecture",
+                  "artifact": "02-architecture-assessment.md"
+                },
+                "cost-feasibility": {
+                  "step": "2",
+                  "artifact_type": "cost-estimate",
+                  "artifact": "03-cost-management-report.md"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "nodes": {
       "type": "object",
       "description": "Map of node IDs to node definitions.",
@@ -42,11 +88,11 @@
               "description": "Artifact filenames produced by this step."
             },
             "gate": {
-              "type": "string",
+              "type": ["string", "null"],
               "description": "Gate type (e.g. 'approval')."
             },
             "challenger": {
-              "type": "object",
+              "type": ["object", "null"],
               "description": "Adversarial review configuration.",
               "properties": {
                 "passes": {
@@ -59,7 +105,7 @@
                   "items": { "type": "string" },
                   "description": "Review lens names (legacy format)."
                 },
-                "default_passes": { "type": "integer", "minimum": 1 },
+                "default_passes": { "type": "integer", "minimum": 0 },
                 "default_lenses": {
                   "type": "array",
                   "items": { "type": "string" }
@@ -168,7 +214,7 @@
       "properties": {
         "version": {
           "type": "string",
-          "enum": ["2.1", "2.2", "2.3", "2.4", "2.5", "3.0"],
+          "enum": ["2.1", "2.2", "2.3", "2.4", "2.5", "3.0", "3.1"],
           "description": "Workflow graph schema version. Validators refuse unknown majors per D2 (graceful degradation)."
         },
         "risk_acceptance": {

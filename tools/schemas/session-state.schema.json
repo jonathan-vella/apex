@@ -3,6 +3,240 @@
   "$id": "https://github.com/jonathan-vella/apex/schemas/session-state.schema.json",
   "title": "APEX Session State",
   "$defs": {
+    "assessmentPath": {
+      "type": "string",
+      "minLength": 1,
+      "pattern": "^(?!/)(?![^/]*:)(?!.*[\\\\*?\\[\\]\\u0000])(?!.*//)(?!.*(?:^|/)(?:\\.\\.?|assessment-step-[^/]*)(?:/|$))(?!.*00-session-state\\.json$).+$"
+    },
+    "assessmentReceipt": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["owner", "request_id", "approved"],
+      "properties": {
+        "owner": { "type": "string", "minLength": 1 },
+        "request_id": { "type": "string", "minLength": 1 },
+        "approved": { "const": true }
+      }
+    },
+    "assessmentScope": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["categories", "iac_paths", "azure_scopes"],
+      "properties": {
+        "categories": {
+          "type": "array",
+          "minItems": 1,
+          "uniqueItems": true,
+          "items": {
+            "enum": ["configuration", "topology", "utilization", "operations", "recovery", "billing", "policy"]
+          }
+        },
+        "iac_paths": { "type": "array", "items": { "$ref": "#/$defs/assessmentPath" } },
+        "azure_scopes": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "pattern": "^/subscriptions/[a-fA-F0-9]{8}(-[a-fA-F0-9]{4}){3}-[a-fA-F0-9]{12}(/resourceGroups/[A-Za-z0-9_.()-]{1,90})?$"
+          }
+        }
+      }
+    },
+    "assessmentReporting": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["as_of", "periods", "currency"],
+      "properties": {
+        "as_of": { "type": "string", "format": "date-time" },
+        "currency": { "type": ["string", "null"], "pattern": "^[A-Z]{3}$" },
+        "cost_type": { "enum": ["ActualCost", "AmortizedCost"] },
+        "metric": { "enum": ["PreTaxCost", "Cost"] },
+        "group_by": {
+          "type": "array",
+          "maxItems": 2,
+          "uniqueItems": true,
+          "items": {
+            "enum": [
+              "ServiceName",
+              "ResourceId",
+              "ResourceGroupName",
+              "ResourceType",
+              "ResourceLocation",
+              "ChargeType",
+              "PricingModel",
+              "MeterCategory"
+            ]
+          }
+        },
+        "periods": {
+          "type": "array",
+          "minItems": 1,
+          "maxItems": 12,
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["id", "from", "to"],
+            "properties": {
+              "id": { "type": "string", "pattern": "^[a-z][a-z0-9_-]{0,63}$" },
+              "kind": { "enum": ["closed_month", "month_to_date", "custom", "forecast"] },
+              "from": { "type": "string", "anyOf": [{ "format": "date" }, { "format": "date-time" }] },
+              "to": { "type": "string", "anyOf": [{ "format": "date" }, { "format": "date-time" }] }
+            }
+          }
+        }
+      }
+    },
+    "assessmentRequest": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["scenario", "source", "scope", "reporting", "receipt"],
+      "allOf": [{ "$ref": "#/$defs/assessmentSourceScopes" }],
+      "properties": {
+        "scenario": { "enum": ["evidence_only", "requirements_led"] },
+        "source": { "enum": ["iac", "azure", "combined"] },
+        "scope": { "$ref": "#/$defs/assessmentScope" },
+        "reporting": { "$ref": "#/$defs/assessmentReporting" },
+        "receipt": { "$ref": "#/$defs/assessmentReceipt" },
+        "expected_revision": { "type": "string", "pattern": "^[a-f0-9]{64}$" },
+        "review_links": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "comprehensive": { "type": "string", "pattern": "^[a-f0-9]{64}$" },
+            "cost-feasibility": { "type": "string", "pattern": "^[a-f0-9]{64}$" }
+          }
+        }
+      }
+    },
+    "assessmentSourceScopes": {
+      "allOf": [
+        {
+          "if": { "properties": { "source": { "const": "iac" } }, "required": ["source"] },
+          "then": {
+            "properties": {
+              "scope": { "properties": { "iac_paths": { "minItems": 1 }, "azure_scopes": { "maxItems": 0 } } }
+            }
+          }
+        },
+        {
+          "if": { "properties": { "source": { "const": "azure" } }, "required": ["source"] },
+          "then": {
+            "properties": {
+              "scope": { "properties": { "iac_paths": { "maxItems": 0 }, "azure_scopes": { "minItems": 1 } } }
+            }
+          }
+        },
+        {
+          "if": { "properties": { "source": { "const": "combined" } }, "required": ["source"] },
+          "then": {
+            "properties": {
+              "scope": { "properties": { "iac_paths": { "minItems": 1 }, "azure_scopes": { "minItems": 1 } } }
+            }
+          }
+        }
+      ]
+    },
+    "assessmentRun": {
+      "type": "object",
+      "required": [
+        "schema_version",
+        "scenario",
+        "source",
+        "scope",
+        "reporting",
+        "receipt",
+        "phase",
+        "status",
+        "completed_phases",
+        "scope_digest",
+        "review_links",
+        "frozen_inputs",
+        "coverage",
+        "started_at"
+      ],
+      "additionalProperties": false,
+      "allOf": [
+        { "$ref": "#/$defs/assessmentSourceScopes" },
+        {
+          "if": { "properties": { "status": { "const": "accepted" } }, "required": ["status"] },
+          "then": {
+            "required": ["acceptance", "accepted_at", "reviews"],
+            "properties": {
+              "phase": { "const": "terminal" },
+              "frozen_inputs": { "minProperties": 1 },
+              "completed_phases": {
+                "allOf": [
+                  { "contains": { "const": "diagram" } },
+                  { "contains": { "const": "review" } },
+                  { "contains": { "const": "acceptance" } }
+                ]
+              },
+              "reviews": {
+                "minItems": 2,
+                "maxItems": 2,
+                "allOf": [
+                  { "contains": { "properties": { "lens": { "const": "comprehensive" } }, "required": ["lens"] } },
+                  { "contains": { "properties": { "lens": { "const": "cost-feasibility" } }, "required": ["lens"] } }
+                ]
+              }
+            }
+          },
+          "else": { "properties": { "phase": { "not": { "const": "terminal" } } } }
+        }
+      ],
+      "properties": {
+        "schema_version": { "const": "assessment-run-v1" },
+        "scenario": { "enum": ["evidence_only", "requirements_led"] },
+        "source": { "enum": ["iac", "azure", "combined"] },
+        "scope": { "$ref": "#/$defs/assessmentScope" },
+        "reporting": { "$ref": "#/$defs/assessmentReporting" },
+        "receipt": { "$ref": "#/$defs/assessmentReceipt" },
+        "phase": {
+          "enum": ["scope", "requirements", "evidence", "analysis", "diagram", "review", "acceptance", "terminal"]
+        },
+        "status": { "enum": ["in_progress", "accepted"] },
+        "coverage": { "enum": ["complete", "partial", "not_assessed"] },
+        "scope_digest": { "type": "string", "pattern": "^[a-f0-9]{64}$" },
+        "started_at": { "type": "string", "format": "date-time" },
+        "accepted_at": { "type": "string", "format": "date-time" },
+        "acceptance": { "$ref": "#/$defs/assessmentReceipt" },
+        "completed_phases": { "type": "array", "uniqueItems": true, "items": { "type": "string" } },
+        "frozen_inputs": {
+          "type": "object",
+          "propertyNames": { "$ref": "#/$defs/assessmentPath" },
+          "additionalProperties": { "type": "string", "pattern": "^[a-f0-9]{64}$" }
+        },
+        "review_links": {
+          "type": "object",
+          "propertyNames": { "enum": ["comprehensive", "cost-feasibility"] },
+          "additionalProperties": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["cycle_id", "artifact", "original_artifact", "original_projection", "linked_at"],
+            "properties": {
+              "cycle_id": { "type": "string", "pattern": "^[a-f0-9]{64}$" },
+              "artifact": { "$ref": "#/$defs/assessmentPath" },
+              "original_artifact": { "type": "string", "minLength": 1 },
+              "original_projection": { "type": "string", "pattern": "^[a-f0-9]{64}$" },
+              "linked_at": { "type": "string", "format": "date-time" }
+            }
+          }
+        },
+        "reviews": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["lens", "cycle_id", "path", "sha256"],
+            "properties": {
+              "lens": { "enum": ["comprehensive", "cost-feasibility"] },
+              "cycle_id": { "type": "string", "pattern": "^[a-f0-9]{64}$" },
+              "path": { "$ref": "#/$defs/assessmentPath" },
+              "sha256": { "type": "string", "pattern": "^[a-f0-9]{64}$" }
+            }
+          }
+        }
+      }
+    },
     "riskReference": {
       "type": "object",
       "additionalProperties": false,
@@ -30,6 +264,23 @@
   ],
   "additionalProperties": true,
   "allOf": [
+    {
+      "if": {
+        "required": ["decisions"],
+        "properties": {
+          "decisions": { "required": ["workflow_mode"], "properties": { "workflow_mode": { "const": "assessment" } } }
+        }
+      },
+      "then": { "required": ["assessment_run"] }
+    },
+    {
+      "if": { "required": ["assessment_run"] },
+      "then": {
+        "properties": {
+          "decisions": { "required": ["workflow_mode"], "properties": { "workflow_mode": { "const": "assessment" } } }
+        }
+      }
+    },
     {
       "if": {
         "anyOf": [
@@ -60,6 +311,7 @@
     }
   ],
   "properties": {
+    "assessment_run": { "$ref": "#/$defs/assessmentRun" },
     "risk_authorizations": {
       "type": "object",
       "additionalProperties": false,
@@ -148,6 +400,7 @@
       "required": ["region", "compliance", "budget", "architecture_pattern", "deployment_strategy"],
       "additionalProperties": true,
       "properties": {
+        "workflow_mode": { "enum": ["", "delivery", "assessment"] },
         "workflow_contract": {
           "type": "string",
           "enum": ["", "practical-v1"],

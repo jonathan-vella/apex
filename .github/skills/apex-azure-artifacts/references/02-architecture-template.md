@@ -2,6 +2,27 @@
 
 # Step 2: Architecture Assessment Template
 
+### 01-assessment-brief.md
+
+```text
+## Scope and Authorization
+## Business Context
+## Evidence and Reporting Settings
+## Deliverables and Acceptance
+```
+
+### 03-cost-management-report.md
+
+```text
+## Scope and Evidence
+## Cost Summary
+## Trends and Forecast
+## Cost Drivers and Allocation
+## Optimization Opportunities
+## Coverage and Limitations
+## References
+```
+
 ### 02-architecture-assessment.md
 
 ```text

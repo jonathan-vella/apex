@@ -137,6 +137,56 @@ for (const [scenario, needsMigration] of [
   });
 }
 
+test("standalone evidence-only intake never starts a business or implementation interview", () => {
+  for (const source of ["iac", "azure", "combined"]) {
+    const answers = { assessment_source: source };
+    for (const stage of ["business", "migration", "workload", "access"]) {
+      const request = buildDiscoveryForm(
+        stage,
+        answers,
+        { items: [{ provenance: "diagram", confidence: "inferred", source: "supplied-diagram.svg" }] },
+        { assessmentMode: "evidence_only" },
+      );
+      assert.equal(request.complete, true, `${source}/${stage}`);
+      assert.equal(request.form, null);
+      assert.deepEqual(answers, { assessment_source: source });
+    }
+  }
+});
+
+test("standalone requirements-led discovery captures business targets without implementation choices", () => {
+  for (const source of ["iac", "azure", "combined"]) {
+    const answers = {
+      assessment_source: source,
+      business_objective: "Keep the simulator available",
+      availability_target: "Unknown",
+    };
+    const request = buildDiscoveryForm("business", answers, undefined, { assessmentMode: "requirements_led" });
+    const properties = request.form.requestedSchema.properties;
+    assert.deepEqual(Object.keys(properties), [
+      "critical_flows",
+      "recovery_profile",
+      "performance_target",
+      "compliance",
+      "monthly_budget_amount",
+    ]);
+    assert.ok(Object.values(properties).every((field) => field.enum.some((value) => /Unknown/.test(value))));
+    assert.deepEqual(request.context.answers, answers);
+    const captured = {
+      ...answers,
+      ...Object.fromEntries(Object.keys(properties).map((key) => [key, "Unknown"])),
+    };
+    assert.equal(
+      buildDiscoveryForm("business", captured, undefined, { assessmentMode: "requirements_led" }).complete,
+      true,
+    );
+    for (const stage of ["migration", "workload", "access"]) {
+      assert.equal(buildDiscoveryForm(stage, captured, undefined, { assessmentMode: "requirements_led" }).form, null);
+    }
+  }
+  assert.throws(() => buildDiscoveryForm("business", {}, undefined, { assessmentMode: "invented" }), /Assessment mode/);
+});
+
 test("captured custom answers and unknowns are retained without redundant confirmation", () => {
   const answers = {
     industry: "Professional services",

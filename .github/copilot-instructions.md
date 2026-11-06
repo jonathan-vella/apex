@@ -69,6 +69,11 @@ from artifact prose. Authoring rules:
 All session state flows through `apex-recall`. Do not read or write
 `00-session-state.json` directly.
 
+For the explicit standalone assessment profile, initialized projects use
+`apex-recall assessment <project> --action start|advance|accept|adopt` with persisted request files
+and graph phase IDs; see [the exact contract](skills/apex-workflow-engine/references/standalone-assessment.md#recall-interface).
+Do not manufacture numeric delivery-step completion or use deployment transitions for this route.
+
 ```bash
 # Lifecycle
 apex-recall init <project> --json                                    # new project
@@ -105,6 +110,13 @@ The valid decision-keys registry lives at
 [`tools/apex-recall/docs/decision-keys.md`](../tools/apex-recall/docs/decision-keys.md).
 
 ## Multi-Step Workflow
+
+Explicit WAF-only work selects `workflow_mode=assessment` and the
+[standalone profile](skills/apex-workflow-engine/references/standalone-assessment.md).
+Scope/access authorization starts it; automatic analysis, mandatory diagram and both independent
+quality reviews precede one final bundle acceptance. Evidence-only bypasses the business interview.
+Accepted assessments are terminal: no formal Governance, planning or deployment continuation.
+The delivery workflow below remains unchanged; existing projects require explicit adoption.
 
 The Steps 1–7 + Post-Lessons table is in [AGENTS.md](../AGENTS.md#agent-workflow);
 the machine-readable source is

@@ -23,6 +23,12 @@
 > For an existing-workload Assessment, distinguish observed state from nonbinding recommendations. Use
 > `Unknown`/`Not assessed` for unavailable evidence, and treat gaps as assessment findings rather than
 > implementation prerequisites. Gate 2 does not approve remediation or deployment.
+> In standalone `workflow_mode=assessment`, this is an existing-state report, not a proposed deployment.
+> Use the assessment brief and optional business context; link `03-cost-management-report.md` and the
+> required diagram. The Approval Gate section describes final bundle acceptance only. Requirements
+> Validation may say Not supplied; Implementation Handoff is a nonbinding roadmap, not a next-step route.
+> Rate a pillar only with an explicit evidence-backed rubric; otherwise use Not assessed and show coverage
+> and confidence separately. An unknown control must not automatically lower a numerical score.
 
 | ⬅️ Previous                              | 📑 Index            | Next ➡️                                            |
 | ---------------------------------------- | ------------------- | -------------------------------------------------- |

@@ -6,6 +6,14 @@ Entries are grouped by conventional-commit type. Breaking changes list the migra
 
 ### Added
 
+#### Standalone existing-workload assessment
+
+Add a terminal WAF-only profile with evidence-only or business-requirements-led discovery.
+Deliver the report, mandatory architecture diagram and Cost Management report as one reviewed bundle
+after upfront read scope and one final acceptance. Deployed workloads use actual spend and available
+forecast evidence; IaC-only uses labelled estimates. Preserve incomplete coverage, existing delivery
+behavior, historical approvals and spent review allowances. No new agents or formal Governance phase.
+
 #### Existing-workload WAF assessment
 
 Add `/waf-assess-existing` for evidence-based WAF assessment from IaC, diagrams, or scoped multi-subscription
@@ -14,6 +22,14 @@ keep observed SKUs distinct from user-locked choices. Gate 1 approves assessment
 Store discovered evidence under `_meta/` to preserve the layout-v2 Markdown-only project root.
 
 ### Fixes
+
+#### Standalone assessment review corrections
+
+Validate billing scope lists before persisting an assessment and permit an explicit acceptance-to-review
+repair return without changing scope or review allowance. Preserve actual billing currency and mismatch
+gaps rather than requiring conversion. Fix plain-text active/terminal handoff output and validate
+assessment runs at the session schema root. Support the documented Forecast Cost-to-PreTaxCost response
+mapping while rejecting ambiguous monetary columns.
 
 #### Stricter consumer workflow guards
 

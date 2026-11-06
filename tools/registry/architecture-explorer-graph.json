@@ -1,6 +1,6 @@
 {
   "$schema": "../../tools/schemas/explorer-graph.schema.json",
-  "generatedAt": "2026-10-29T18:46:11.851Z",
+  "generatedAt": "2026-11-06T08:17:35.840Z",
   "categories": [
     { "id": "agent", "key": "agents", "label": "Agent", "color": "#3b82f6", "shape": "round-rectangle", "count": 14 },
     {
@@ -40,7 +40,7 @@
     { "id": "mcp", "key": "mcp_servers", "label": "MCP Server", "color": "#f43f5e", "shape": "barrel", "count": 2 }
   ],
   "nodeCount": 172,
-  "edgeCount": 560,
+  "edgeCount": 562,
   "nodes": [
     {
       "id": "agent:01-orchestrator",
@@ -108,6 +108,7 @@
         "subagents": ["cost-estimate-subagent", "challenger-review-subagent"],
         "handoffTargets": [],
         "skills": [
+          "apex-azure-cost-optimization",
           "apex-azure-defaults",
           "apex-azure-artifacts",
           "apex-azure-kubernetes",
@@ -2412,6 +2413,12 @@
       "id": "agent:02-requirements--uses-skill->skill:apex-azure-artifacts",
       "source": "agent:02-requirements",
       "target": "skill:apex-azure-artifacts",
+      "kind": "uses-skill"
+    },
+    {
+      "id": "agent:03-architect--uses-skill->skill:apex-azure-cost-optimization",
+      "source": "agent:03-architect",
+      "target": "skill:apex-azure-cost-optimization",
       "kind": "uses-skill"
     },
     {
@@ -5088,6 +5095,12 @@
       "id": "skill:apex-azure-artifacts--refs->skill:apex-terraform-patterns",
       "source": "skill:apex-azure-artifacts",
       "target": "skill:apex-terraform-patterns",
+      "kind": "refs"
+    },
+    {
+      "id": "skill:apex-azure-artifacts--refs->skill:apex-workflow-engine",
+      "source": "skill:apex-azure-artifacts",
+      "target": "skill:apex-workflow-engine",
       "kind": "refs"
     },
     {

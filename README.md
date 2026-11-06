@@ -116,9 +116,16 @@ sequenceDiagram
 ## Assess an Existing Workload
 
 Use `/waf-assess-existing` with `01-Orchestrator` to assess supplied IaC, diagrams, or explicitly scoped
-read-only Azure inventory. The workflow preserves unknowns and missing evidence as assessment gaps rather than
-requiring implementation decisions. Its reviews and Gate 1 cover assessment scope and findings—not remediation,
-compliance approval, or deployment.
+read-only Azure evidence. Choose evidence-only (no business interview) or requirements-led assessment.
+The [standalone workflow](.github/skills/apex-workflow-engine/references/standalone-assessment.md)
+delivers a WAF report, architecture diagram and cost report after upfront scope authorization and automatic
+internal work, independent WAF/cost-quality reviews and one final bundle acceptance.
+
+Azure cost reports use authorized actual spend, trends and available forecast; IaC-only uses labelled estimates.
+The proposed default is last completed calendar month, preceding-month comparison and month-to-date,
+with current-month forecast when available. Missing evidence and unpriced costs are explicit gaps, not zeros.
+Acceptance is terminal, not remediation, compliance approval or a handoff to formal Governance/deployment.
+Existing projects keep their histories and require explicit adoption; the infrastructure delivery workflow is unchanged.
 
 ## Start Here
 

@@ -47,6 +47,11 @@ Preserve exact scope, pass, prior findings and metadata. Never invent paths, has
   requirements defect when accurately identified as unknown/not assessed. Review the evidence boundary,
   captured constraints, gap description and confidence; do not require remediation readiness or turn an
   out-of-scope WAF gap into a Step 1 blocker.
+- For standalone assessment bundles, workload risks belong to the primary report and may remain
+  unresolved. Review report integrity, coverage, arithmetic, diagram truthfulness and evidence provenance,
+  not whether remediation has been performed. Missing business targets, billing access or policy observations
+  are not defects when accurately disclosed. Every returned reviewer must-fix remains blocking; do not
+  invent a category-based exemption or accept a misleading diagram or unsupported cost claim.
 
 ## Activities
 

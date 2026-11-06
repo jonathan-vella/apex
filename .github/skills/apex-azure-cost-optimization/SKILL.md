@@ -18,9 +18,14 @@ Analyze Azure subscriptions to identify cost savings through orphaned resource c
 
 | User intent                           | Workflow                                                          |
 | ------------------------------------- | ----------------------------------------------------------------- |
+| Standalone WAF assessment costs | [Assessment cost contract](references/assessment-cost-contract.md) (scoped actual evidence or labelled IaC estimates) |
 | Understand current or historical cost | [Cost query](references/cost-query/workflow.md) (Query REST API)     |
 | Reduce costs or find waste            | [Instructions](#instructions) below                                  |
 | Project future cost                   | [Cost forecast](references/cost-forecast/workflow.md) (Forecast API) |
+
+For an explicitly selected standalone assessment, use the assessment contract instead of the general
+subscription workflow below. Its offline helpers need no Azure authentication; actual queries remain
+Architect-owned operations requiring separately authorized scope and the owner's existing tools.
 
 ## Scope Reference (Shared Across All Workflows)
 
@@ -103,6 +108,7 @@ Load these on demand — do NOT read all at once:
 
 | Reference                               | When to Load                                                       |
 | --------------------------------------- | ------------------------------------------------------------------ |
+| `references/assessment-cost-contract.md` | Standalone assessment reporting windows, offline helper, saved actual evidence and estimate separation |
 | `../apex-entra-app-registration/references/auth-best-practices.md` | Auth Best Practices                                                |
 | `references/azure-quick-review.md`      | Azure Quick Review                                                 |
 | `references/azure-redis.md`             | Azure Redis                                                        |

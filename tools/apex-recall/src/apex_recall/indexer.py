@@ -68,6 +68,10 @@ CREATE TABLE IF NOT EXISTS meta (
 _ARTIFACT_PATTERNS: list[tuple[str, str]] = [
     (r"00-session-state\.json$", "session-state"),
     (r"00-handoff\.md$", "handoff"),
+    (r"01-assessment-brief\.md$", "assessment-brief"),
+    (r"03-cost-management-report\.md$", "cost-management"),
+    (r"(assessment-evidence|03-cost-management)\.json$", "assessment-evidence"),
+    (r"03-des-diagram\.(py|png|svg)$", "diagram"),
     (r"01-requirements\.md$", "requirements"),
     (r"02-architecture.*\.md$", "architecture"),
     (r"03-des-.*\.md$", "design"),
@@ -120,7 +124,7 @@ def _parse_json_safe(text: str) -> dict | list | None:
     """Parse JSON text, returning None on failure."""
     try:
         return json.loads(text)
-    except (json.JSONDecodeError, ValueError):
+    except json.JSONDecodeError, ValueError:
         return None
 
 

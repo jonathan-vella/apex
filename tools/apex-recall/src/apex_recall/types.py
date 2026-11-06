@@ -29,6 +29,8 @@ class SessionInfo:
     updated: str
     complexity: str
     file_path: str
+    workflow_mode: str = "delivery"
+    assessment_phase: str | None = None
 
 
 @dataclass

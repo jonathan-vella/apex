@@ -16,6 +16,7 @@ def run(args) -> int:
 
         if days is not None:
             import time
+
             cutoff = time.time() - (days * 86400)
             query = """
                 SELECT project, file_path, content, modified_time
@@ -40,15 +41,19 @@ def run(args) -> int:
             data = _parse_json_safe(r[2])
             if data and isinstance(data, dict):
                 decisions = data.get("decisions", {})
-                results.append({
-                    "project": r[0],
-                    "current_step": data.get("current_step", 0),
-                    "iac_tool": data.get("iac_tool", ""),
-                    "region": data.get("region", ""),
-                    "updated": data.get("updated", ""),
-                    "complexity": decisions.get("complexity", ""),
-                    "file": r[1],
-                })
+                results.append(
+                    {
+                        "project": r[0],
+                        "current_step": data.get("current_step", 0),
+                        "iac_tool": data.get("iac_tool", ""),
+                        "region": data.get("region", ""),
+                        "updated": data.get("updated", ""),
+                        "complexity": decisions.get("complexity", ""),
+                        "workflow_mode": decisions.get("workflow_mode", "delivery"),
+                        "assessment_run": data.get("assessment_run"),
+                        "file": r[1],
+                    }
+                )
 
         if args.json:
             print(json.dumps(results, indent=2))
@@ -58,6 +63,8 @@ def run(args) -> int:
                 return 0
             for s in results:
                 status = f"step {s['current_step']}"
+                if s["assessment_run"]:
+                    status = s["assessment_run"]["phase"]
                 tool = s["iac_tool"] or "undecided"
                 print(f"  {s['project']:20s}  {status:10s}  {tool:12s}  {s['updated']}")
 

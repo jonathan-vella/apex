@@ -73,6 +73,15 @@ If a Phase A change ships and a downstream consumer fails:
 
 ## Version history
 
+### Standalone assessment profile
+
+The additive 3.1 graph adds an explicit assessment profile without changing delivery nodes or gates.
+Updated readers validate the selected profile and its terminal state. Existing projects keep their
+recorded route; selecting `workflow_mode=assessment` for an existing project requires actual adoption,
+not inferred completion of numeric steps. Review histories and exhausted allowances survive adoption.
+Unknown versions still fail rather than using a default profile. Roll back with compatible readers;
+do not rewrite accepted assessment state into deployment progress.
+
 ### Migration: 2.x to 3.0
 
 Version 3 adds preliminary policy feasibility and the `practical-v1` decision/correction

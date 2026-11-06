@@ -141,6 +141,10 @@ def _select_active_step(steps: dict, decisions: dict, current_step: object = Non
 
 
 def build_handoff_payload(project: str, data: dict, auto_selected: bool = False) -> dict:
+    from ..assessment import enabled, handoff
+
+    if enabled(data):
+        return handoff(project, data, auto_selected)
     steps = data.get("steps", {}) if isinstance(data.get("steps"), dict) else {}
     decisions = data.get("decisions", {}) if isinstance(data.get("decisions"), dict) else {}
     iac_tool = data.get("iac_tool") or decisions.get("iac_tool") or ""
@@ -228,10 +232,8 @@ def run(args) -> int:
         in_progress = [
             (name, path, data)
             for name, path, data in discovered
-            if any(
-                isinstance(s, dict) and s.get("status") == "in_progress"
-                for s in (data.get("steps") or {}).values()
-            )
+            if data.get("assessment_run", {}).get("status") == "in_progress"
+            or any(isinstance(s, dict) and s.get("status") == "in_progress" for s in (data.get("steps") or {}).values())
         ]
         pool = in_progress if len(in_progress) == 1 else discovered if len(discovered) == 1 else []
         if len(pool) == 1:
@@ -256,6 +258,8 @@ def run(args) -> int:
     payload = build_handoff_payload(project, data, auto_selected=auto_selected)
     if as_json:
         print(json.dumps(payload, indent=2))
+    elif payload.get("workflow_mode") == "assessment":
+        print(f"Assessment {project}: {payload['phase']} · {payload['next_owner'] or 'TERMINAL'}")
     else:
         print(
             f"▶ Next Step — Step {payload['active_step']} ({payload['step_name']} · {payload['next_owner']})\n"

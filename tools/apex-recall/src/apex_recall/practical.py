@@ -41,7 +41,9 @@ def enabled(data: dict) -> bool:
 
 
 def validate_state(data: dict) -> None:
-    if not enabled(data):
+    from .assessment import enabled as assessment_enabled
+
+    if not enabled(data) and not assessment_enabled(data):
         return
     decisions = data["decisions"]
     for key in ("material_inputs", "phase_scopes", "review_cycles", "assessment_views"):
@@ -405,8 +407,10 @@ def cycle_identity(request: dict) -> str:
 
 
 def extend_cycle(data: dict, extension: dict) -> None:
+    from .assessment import enabled as assessment_enabled
+
     if (
-        not enabled(data)
+        not (enabled(data) or assessment_enabled(data))
         or not isinstance(extension, dict)
         or set(extension) != {"cycle_id", "max_calls", "request_id", "projection_sha256"}
     ):
@@ -418,7 +422,10 @@ def extend_cycle(data: dict, extension: dict) -> None:
         raise ValueError("Extension must explicitly increase an existing cycle's bound")
     if not isinstance(extension["request_id"], str) or not extension["request_id"].strip():
         raise ValueError("Owner extension approval provenance required")
-    if extension["projection_sha256"] != digest(projection(data, cycle["step"])):
+    snapshot = (
+        data["assessment_run"]["scope_digest"] if assessment_enabled(data) else digest(projection(data, cycle["step"]))
+    )
+    if extension["projection_sha256"] != snapshot:
         raise ValueError("Extension scope does not match current consumed decisions")
     cycle["max_calls"] = extension["max_calls"]
     cycle["projection"] = extension["projection_sha256"]
@@ -433,8 +440,12 @@ def extend_cycle(data: dict, extension: dict) -> None:
 
 
 def prepare_cycle(project: str, data: dict, args: object) -> dict | None:
+    from .assessment import check_frozen, review_key
+    from .assessment import enabled as assessment_enabled
+
+    assessing = assessment_enabled(data)
     request_path = getattr(args, "review_request", None)
-    if not enabled(data):
+    if not enabled(data) and not assessing:
         if request_path:
             raise ValueError("Review-cycle request requires explicit workflow adoption")
         return None
@@ -444,7 +455,12 @@ def prepare_cycle(project: str, data: dict, args: object) -> dict | None:
         raise ValueError("Practical review attempts require the exact --review-request")
     request = json.loads(request_path.read_text(encoding="utf-8"))
     step = str(args.step)
-    check_views(project, data, step)
+    if assessing:
+        if data["assessment_run"]["phase"] != "review":
+            raise ValueError("Assessment reviewer dispatch requires the graph review phase")
+        check_frozen(project, data)
+    else:
+        check_views(project, data, step)
     if request.get("project_name") != project or request.get("step") != step:
         raise ValueError("Review request project/step differs from attempt scope")
     if getattr(args, "attempt_id", None) not in (None, request.get("request_id")):
@@ -455,31 +471,45 @@ def prepare_cycle(project: str, data: dict, args: object) -> dict | None:
             request["artifact_path"],
             *[item["path"] for item in request.get("supporting_inputs", [])],
         ]
-    key = cycle_identity(request)
+    key = review_key(data, request) if assessing else cycle_identity(request)
     history = data.get("review_attempts", [])
     previous = [item for item in history if item["id"] == args.attempt_id]
     cycles = data.setdefault("decisions", {}).setdefault("review_cycles", {})
     cycle = cycles.get(key)
     if args.attempt_outcome == "started" and not previous:
-        binding = data["decisions"]["assessment_views"][step]
+        binding = data["decisions"].get("assessment_views", {}).get(step)
         pdir = project_dir(project)
-        binding_file = resolve_project_file(pdir, binding["path"])
-        binding_name = Path(binding["path"]).name
-        expected_paths = {
-            f"agent-output/{project}/{binding['path']}",
-            f"agent-output/{project}/{binding_name}",
-            f"agent-output/{project}/_meta/{binding_name}",
-        }
-        if not any(
-            item.get("path") in expected_paths and item.get("sha256") == file_revision(binding_file)
-            for item in request.get("supporting_inputs", [])
-        ):
-            raise ValueError("Review request must freeze the consumed decision projection")
+        if assessing:
+            snapshot = data["assessment_run"]["scope_digest"]
+            supporting = {item["path"]: item["sha256"] for item in request.get("supporting_inputs", [])}
+            for relative, sha in data["assessment_run"]["frozen_inputs"].items():
+                expected = f"agent-output/{project}/{relative}"
+                if expected != request["artifact_path"] and supporting.get(expected) != sha:
+                    raise ValueError("Assessment review request must freeze every supporting bundle input")
+            linked = data["assessment_run"].get("review_links", {}).get(request["review_focus"])
+            if linked:
+                if cycle["projection"] not in (linked["original_projection"], snapshot):
+                    raise ValueError("Aliased review scope requires explicit bounded owner reconciliation")
+                snapshot = cycle["projection"]
+        else:
+            binding_file = resolve_project_file(pdir, binding["path"])
+            binding_name = Path(binding["path"]).name
+            expected_paths = {
+                f"agent-output/{project}/{binding['path']}",
+                f"agent-output/{project}/{binding_name}",
+                f"agent-output/{project}/_meta/{binding_name}",
+            }
+            if not any(
+                item.get("path") in expected_paths and item.get("sha256") == file_revision(binding_file)
+                for item in request.get("supporting_inputs", [])
+            ):
+                raise ValueError("Review request must freeze the consumed decision projection")
+            snapshot = digest(projection(data, step))
         root = workspace_root_for()
         result = subprocess.run(
             [
                 "node",
-                str(root / "tools/scripts/record-review.mjs"),
+                str((root / "tools/scripts/record-review.mjs").resolve()),
                 "--preflight",
                 "--request",
                 str(request_path.resolve()),
@@ -491,7 +521,6 @@ def prepare_cycle(project: str, data: dict, args: object) -> dict | None:
         )
         if result.returncode:
             raise ValueError(f"Review preflight failed: {result.stderr.strip()}")
-        snapshot = digest(projection(data, step))
         if cycle:
             if cycle["projection"] != snapshot:
                 raise ValueError("Material scope changed; owner-led cycle revision required, not an allowance reset")
@@ -566,7 +595,13 @@ def select_cycle_result(project: str, data: dict, args: object, prepared: dict |
     ):
         raise ValueError("Review result identity/lens differs from its recorded attempt")
     validation = subprocess.run(
-        ["node", str(root / "tools/scripts/validate-challenger-findings.mjs"), "--path", str(target), "--verify-cache"],
+        [
+            "node",
+            str((root / "tools/scripts/validate-challenger-findings.mjs").resolve()),
+            "--path",
+            str(target),
+            "--verify-cache",
+        ],
         cwd=root,
         capture_output=True,
         text=True,
@@ -576,6 +611,7 @@ def select_cycle_result(project: str, data: dict, args: object, prepared: dict |
         raise ValueError(f"Current review result invalid: {validation.stdout} {validation.stderr}")
     data.input_revisions[target] = file_revision(target)
     data["decisions"]["review_cycles"][prepared["key"]]["current_path"] = target.name
+    data["decisions"]["review_cycles"][prepared["key"]]["current_artifact"] = request["artifact_path"]
 
 
 def cycle_paths(data: dict, step: str, gates: list[tuple[str, str]]) -> list[tuple[str, str]]:

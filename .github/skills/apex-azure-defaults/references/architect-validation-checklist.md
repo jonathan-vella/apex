@@ -2,6 +2,24 @@
 
 # Architect Validation Checklist
 
+## Standalone assessment checks
+
+For explicit `workflow_mode=assessment`, apply this checklist instead of the delivery checks below:
+
+- [ ] Authorized brief and evidence boundary exist; business context is optional in evidence-only mode.
+- [ ] Every pillar states coverage, confidence and a defensible rating or Not assessed.
+- [ ] Observed/declared/inferred relationships are distinguished in report and mandatory diagram.
+- [ ] Both diagram formats are rendered and visually inspected; all components trace to evidence.
+- [ ] Cost report distinguishes actual cost/forecast from retail estimate and unpriced gaps.
+- [ ] Actual billing values trace to official scoped Query/Forecast evidence; retail prices trace to the pricing leaf.
+- [ ] Currencies, metrics, periods and shared-cost allocations are not double-counted.
+- [ ] Both independent report-quality reviews are current; all reviewer must-fix findings are resolved.
+- [ ] Final acceptance covers the bundle only, not remediation or compliance.
+
+No policy-feasibility, manifest completeness, region/SKU adoption or future deployment path is an assessment gate.
+
+## Delivery checks
+
 Load once before presenting the Step 2 Approval Gate. Every item must hold.
 Use the dependency-path check below before committed pricing and after an accepted design repair,
 not only at the final approval gate.

@@ -7,6 +7,20 @@
  */
 
 export const ARTIFACT_HEADINGS = {
+  "01-assessment-brief.md": [
+    "## Scope and Authorization",
+    "## Business Context",
+    "## Evidence and Reporting Settings",
+    "## Deliverables and Acceptance",
+  ],
+  "03-cost-management-report.md": [
+    "## Scope and Evidence",
+    "## Cost Summary",
+    "## Trends and Forecast",
+    "## Cost Drivers and Allocation",
+    "## Optimization Opportunities",
+    "## Coverage and Limitations",
+  ],
   // Core artifacts (standard strictness)
   "01-requirements.md": [
     "## 🎯 Project Overview",

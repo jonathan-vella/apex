@@ -80,6 +80,19 @@ def build_parser() -> argparse.ArgumentParser:
     )
 
     # start-step
+    p_assessment = sub.add_parser("assessment", help="Standalone assessment lifecycle (not delivery steps)")
+    p_assessment.add_argument("project")
+    p_assessment.add_argument("--action", required=True, choices=("start", "advance", "accept", "adopt", "revise"))
+    p_assessment.add_argument(
+        "--request",
+        default="{}",
+        metavar="PATH_OR_JSON",
+        help="JSON request file (e.g. _meta/assessment-start.json); inline JSON also accepted",
+    )
+    p_assessment.add_argument("--phase", default=None, help="Current graph phase to complete")
+    p_assessment.add_argument("--dry-run", action="store_true")
+    p_assessment.add_argument("--json", action="store_true")
+
     p_start = sub.add_parser("start-step", help="Mark a step as in_progress")
     p_start.add_argument("project", help="Project name")
     p_start.add_argument("step", help="Step key (1, 2, 3, 3_5, 4, 5, 6, 7)")
@@ -315,6 +328,8 @@ def main(argv: list[str] | None = None) -> int:
         from .commands.health import run
     elif args.command == "init":
         from .commands.init import run
+    elif args.command == "assessment":
+        from .commands.assessment import run
     elif args.command == "start-step":
         from .commands.start_step import run
     elif args.command == "checkpoint":
