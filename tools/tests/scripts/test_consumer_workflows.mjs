@@ -10,53 +10,134 @@ import { CONSUMER_WORKFLOWS, syncWorkflows } from "../../scripts/sync-workflows.
 
 const sha = "a".repeat(40);
 const rootDirectory = path.resolve(import.meta.dirname, "../../..");
+const PRODUCT_REPOSITORIES = new Set([
+  "jonathan-vella/apex",
+  "jonathan-vella/apex-accelerator",
+  "jonathan-vella/apex-docs",
+]);
 function context(value) {
   if (typeof value === "string") return new data.StringData(value);
   if (typeof value === "boolean") return new data.BooleanData(value);
   return new data.Dictionary(...Object.entries(value).map(([key, entry]) => ({ key, value: context(entry) })));
 }
 
+function validateInstalledWorkflow(template, installed) {
+  const expected = yaml.load(template);
+  const actual = yaml.load(installed);
+  const normalized = structuredClone(actual);
+  assert.deepEqual(Object.keys(actual.jobs), Object.keys(expected.jobs));
+  for (const [name, job] of Object.entries(expected.jobs)) {
+    const guard = actual.jobs[name].if;
+    assert.equal(typeof guard, "string", `${name}: installed guard is required`);
+    assert.ok(guard.startsWith(job.if), `${name}: canonical guard must remain unchanged`);
+    const restriction = guard.slice(job.if.length);
+    assert.match(
+      restriction,
+      /^(?: && github\.repository != '[A-Za-z0-9_.-]+\/[A-Za-z0-9_.-]+')*$/,
+      `${name}: only additional repository exclusions are supported`,
+    );
+    normalized.jobs[name].if = job.if;
+  }
+  assert.deepEqual(normalized, expected, "non-guard workflow content must match the template");
+  return actual;
+}
+
+function assertGuardSafety(guard, file) {
+  const expression = new Parser(new Lexer(guard).lex().tokens, ["github", "vars"], []).parse();
+  const exclusions = new Set(
+    [...guard.matchAll(/github\.repository != '([^']+)'/g)].map((match) => match[1].toLowerCase()),
+  );
+  const repositories = new Set([...PRODUCT_REPOSITORIES, "example/consumer", ...exclusions]);
+  for (const repository of [...repositories, ...[...repositories].map((name) => name.toUpperCase())]) {
+    const normalized = repository.toLowerCase();
+    for (const enabled of ["", "false", "true"]) {
+      for (const eventName of ["schedule", "workflow_dispatch", "pull_request"]) {
+        for (const isTemplate of [false, true]) {
+          const values = context({
+            github: { repository, event_name: eventName, event: { repository: { is_template: isTemplate } } },
+            vars: { GOVERNANCE_BASELINE_ENABLED: enabled },
+          });
+          const actual = new Evaluator(expression, values).evaluate().coerceString();
+          const allowed =
+            !PRODUCT_REPOSITORIES.has(normalized) &&
+            !exclusions.has(normalized) &&
+            !isTemplate &&
+            (file !== "governance-policy-baseline.yml" || enabled === "true");
+          assert.equal(actual, String(allowed), `${file}: ${repository}/${eventName}/${enabled}/${isTemplate}`);
+        }
+      }
+    }
+  }
+}
+
+test("guard safety accepts mixed-case exclusions and independently protects product repositories", () => {
+  for (const file of CONSUMER_WORKFLOWS) {
+    const template = fs.readFileSync(path.join(rootDirectory, ".github/consumer-workflows", file), "utf8");
+    const workflow = yaml.load(template);
+    for (const job of Object.values(workflow.jobs)) {
+      for (const repository of ["Example/Consumer", "EXAMPLE/Disabled"]) {
+        const installed = validateInstalledWorkflow(
+          template,
+          template.replaceAll(job.if, `${job.if} && github.repository != '${repository}'`),
+        );
+        for (const activeJob of Object.values(installed.jobs)) assertGuardSafety(activeJob.if, file);
+      }
+      for (const repository of PRODUCT_REPOSITORIES) {
+        const weakened = job.if.replace(`github.repository != '${repository}' && `, "");
+        assert.notEqual(weakened, job.if, `${file}: fixture must remove the protected repository`);
+        assert.throws(() => assertGuardSafety(weakened, file), { name: "AssertionError" });
+      }
+    }
+  }
+});
+
+test("installed templates allow only additive repository exclusions", () => {
+  const template = `name: Fixture
+on: workflow_dispatch
+jobs:
+  check:
+    if: github.repository != 'example/product' && github.event.repository.is_template != true
+    runs-on: ubuntu-latest
+    steps: []
+`;
+  const guard = yaml.load(template).jobs.check.if;
+  for (const suffix of [
+    "",
+    " && github.repository != 'example/disabled'",
+    " && github.repository != 'example/a' && github.repository != 'example/b'",
+  ]) {
+    assert.ok(validateInstalledWorkflow(template, template.replace(guard, guard + suffix)));
+  }
+  for (const changed of [
+    template.replace("example/product", "example/other"),
+    template.replace(" && github.event.repository.is_template != true", ""),
+    template.replace(guard, `${guard} || true`),
+    template.replace(guard, `${guard} && vars.OPT_OUT != 'false'`),
+    template.replace("steps: []", "steps: [{run: 'echo unexpected'}]"),
+    template.replace(guard, `${guard} && github.repository != 'example/disabled' || true`),
+  ]) {
+    assert.throws(() => validateInstalledWorkflow(template, changed), { name: "AssertionError" });
+  }
+});
+
 test("actual template guards block product/template operations and require governance opt-in", () => {
   const scripts = JSON.parse(fs.readFileSync(path.join(rootDirectory, "package.json"), "utf8")).scripts;
   for (const file of CONSUMER_WORKFLOWS) {
     const active = path.join(rootDirectory, ".github/workflows", file);
+    const template = fs.readFileSync(path.join(rootDirectory, ".github/consumer-workflows", file), "utf8");
+    const workflows = [yaml.load(template)];
     if (!fs.existsSync(path.join(rootDirectory, ".github/workflows/weekly-upstream-sync.yml"))) {
       assert.equal(fs.existsSync(active), false);
     } else {
-      assert.equal(
-        fs.readFileSync(active, "utf8"),
-        fs.readFileSync(path.join(rootDirectory, ".github/consumer-workflows", file), "utf8"),
-      );
+      workflows.push(validateInstalledWorkflow(template, fs.readFileSync(active, "utf8")));
     }
-    const workflow = yaml.load(fs.readFileSync(path.join(rootDirectory, ".github/consumer-workflows", file), "utf8"));
-    for (const job of Object.values(workflow.jobs)) {
-      const expression = new Parser(new Lexer(job.if).lex().tokens, ["github", "vars"], []).parse();
-      for (const repository of [
-        "jonathan-vella/apex",
-        "jonathan-vella/apex-accelerator",
-        "jonathan-vella/apex-docs",
-        "example/consumer",
-      ]) {
-        for (const enabled of ["", "false", "true"]) {
-          for (const eventName of ["schedule", "workflow_dispatch", "pull_request"]) {
-            for (const isTemplate of [false, true]) {
-              const values = context({
-                github: { repository, event_name: eventName, event: { repository: { is_template: isTemplate } } },
-                vars: { GOVERNANCE_BASELINE_ENABLED: enabled },
-              });
-              const actual = new Evaluator(expression, values).evaluate().coerceString();
-              const allowed =
-                repository === "example/consumer" &&
-                !isTemplate &&
-                (file !== "governance-policy-baseline.yml" || enabled === "true");
-              assert.equal(actual, String(allowed), `${file}: ${repository}/${eventName}/${enabled}/${isTemplate}`);
-            }
-          }
+    for (const workflow of workflows) {
+      for (const job of Object.values(workflow.jobs)) {
+        assertGuardSafety(job.if, file);
+        for (const step of job.steps) {
+          for (const [, name] of (step.run ?? "").matchAll(/\bnpm run ([\w:-]+)/g)) assert.ok(scripts[name], name);
+          if (step.uses?.startsWith("./")) assert.ok(fs.existsSync(path.join(rootDirectory, step.uses, "action.yml")));
         }
-      }
-      for (const step of job.steps) {
-        for (const [, name] of (step.run ?? "").matchAll(/\bnpm run ([\w:-]+)/g)) assert.ok(scripts[name], name);
-        if (step.uses?.startsWith("./")) assert.ok(fs.existsSync(path.join(rootDirectory, step.uses, "action.yml")));
       }
     }
   }
