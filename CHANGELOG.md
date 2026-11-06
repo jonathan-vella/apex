@@ -20,6 +20,8 @@ Store discovered evidence under `_meta/` to preserve the layout-v2 Markdown-only
 Consumer workflow tests accept narrowly appended repository exclusions while retaining every
 canonical guard and all other job content. Cover rejection of replaced or weakened guards,
 arbitrary conditions, OR bypasses and changed steps; local opt-outs no longer fail template checks.
+Keep product-repository protections independent of the evaluated expression and normalize local
+exclusions case-insensitively, matching GitHub Actions string comparison.
 
 #### Assessment evidence and completion contracts
 
