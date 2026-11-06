@@ -33,10 +33,12 @@ Store discovered evidence under `_meta/` to preserve the layout-v2 Markdown-only
 
 ### Fixes
 
-#### Workbook contract CI dependencies
+#### Workbook contract validation
 
 Install the canonical Python tooling requirements in the Node CI job before executable workbook
 contract tests, matching the external Python jobs rather than relying on a pre-provisioned interpreter.
+Use explicit XML character bounds in workbook text sanitization, preserving valid whitespace and
+Unicode while rejecting forbidden controls without an over-broad regular-expression range.
 
 #### Standalone assessment review corrections
 

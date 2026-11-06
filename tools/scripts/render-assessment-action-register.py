@@ -32,7 +32,6 @@ XLSX = "assets/04-assessment-action-register.xlsx"
 STAGED_MD = "_meta/action-register-staged.md"
 STAGED_XLSX = "_meta/action-register-staged.xlsx"
 SCRIPT = Path(__file__).with_name("assessment-action-register.mjs")
-ILLEGAL = re.compile("[\x00-\x08\x0b-\x1f\ud800-\udfff\ufffe\uffff]")
 NOTICE = (
     "Generated snapshot: recommendations only, not approved actions, deadlines, an invoice or a forecast. "
     "Edit validated JSON and regenerate; manual workbook edits do not update evidence."
@@ -99,7 +98,15 @@ def safe_path(root: Path, relative: str, *, missing: bool = False) -> Path:
 
 
 def clean(value: object) -> str:
-    return ILLEGAL.sub("", str(value)).replace("\r\n", "\n").replace("\r", "\n")
+    text = "".join(
+        character
+        for character in str(value)
+        if character in "\t\n\r"
+        or 0x20 <= ord(character) <= 0xD7FF
+        or 0xE000 <= ord(character) <= 0xFFFD
+        or 0x10000 <= ord(character) <= 0x10FFFF
+    )
+    return text.replace("\r\n", "\n").replace("\r", "\n")
 
 
 def md_text(value: object) -> str:

@@ -71,6 +71,16 @@ def cli(root: Path, operation: str) -> subprocess.CompletedProcess:
     )
 
 
+def test_clean_preserves_xml_whitespace_and_unicode_boundaries() -> None:
+    assert renderer.clean("a\tb\r\nc\rd\ne") == "a\tb\nc\nd\ne"
+    allowed = "\t\n\r \ud7ff\ue000\ufffd\U00010000\U0010ffff"
+    assert renderer.clean(allowed) == allowed.replace("\r", "\n")
+    invalid = "".join(
+        chr(codepoint) for codepoint in [*range(9), 11, 12, *range(14, 32), 0xD800, 0xDFFF, 0xFFFE, 0xFFFF]
+    )
+    assert renderer.clean(f"start{invalid}end") == "startend"
+
+
 def test_real_three_sheet_workbook_types_styles_exact_values_and_repeat_bytes(project: tuple[Path, dict]) -> None:
     _, payload = project
     first = renderer.workbook_bytes(payload)
