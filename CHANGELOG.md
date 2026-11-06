@@ -6,6 +6,16 @@ Entries are grouped by conventional-commit type. Breaking changes list the migra
 
 ### Added
 
+#### Assessment Action Register
+
+Extend new Azure/combined standalone assessments with evidence-linked proposed actions and matching
+Excel/Markdown exports. Separate priorities, effort, status/comments and recommended relative windows
+from execution approval. Validate like-for-like upgrade deltas, gross additions, evidenced savings and
+unknown costs through one signed contribution ledger; prevent overlapping cost-report benefits.
+Readiness checks source/export integrity, not file existence alone. IaC-only export remains optional,
+original run bundles retain their contract, and existing reviews/allowances are never reset.
+Add pinned root tooling dependencies `openpyxl` and `et-xmlfile` for safe deterministic workbook exports.
+
 #### Standalone existing-workload assessment
 
 Add a terminal WAF-only profile with evidence-only or business-requirements-led discovery.
@@ -22,6 +32,22 @@ keep observed SKUs distinct from user-locked choices. Gate 1 approves assessment
 Store discovered evidence under `_meta/` to preserve the layout-v2 Markdown-only project root.
 
 ### Fixes
+
+#### Assessment Action Register review corrections
+
+Apply captured billing/utilization permissions and reporting plans to every imported cost report,
+and validate ARM prefixes case-insensitively. Compare structured usage, units and component/line regions
+before reporting like-for-like savings. Extend the existing pricing producer, preflight and schema with
+optional register attribution/basis metadata. Confine and consistently hash nested pricing evidence
+without rewriting it. Refresh all fixture provenance from its injected clock and permit explicit overwrite
+of dead export leases after source edits while preserving live-process locks.
+
+#### Workbook contract validation
+
+Install the canonical Python tooling requirements in the Node CI job before executable workbook
+contract tests, matching the external Python jobs rather than relying on a pre-provisioned interpreter.
+Use explicit XML character bounds in workbook text sanitization, preserving valid whitespace and
+Unicode while rejecting forbidden controls without an over-broad regular-expression range.
 
 #### Standalone assessment review corrections
 

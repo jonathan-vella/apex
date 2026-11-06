@@ -89,13 +89,20 @@
       "type": "object",
       "additionalProperties": false,
       "required": ["scenario", "source", "scope", "reporting", "receipt"],
-      "allOf": [{ "$ref": "#/$defs/assessmentSourceScopes" }],
+      "allOf": [
+        { "$ref": "#/$defs/assessmentSourceScopes" },
+        {
+          "if": { "properties": { "source": { "enum": ["azure", "combined"] } }, "required": ["source"] },
+          "then": { "properties": { "action_register": { "const": true } } }
+        }
+      ],
       "properties": {
         "scenario": { "enum": ["evidence_only", "requirements_led"] },
         "source": { "enum": ["iac", "azure", "combined"] },
         "scope": { "$ref": "#/$defs/assessmentScope" },
         "reporting": { "$ref": "#/$defs/assessmentReporting" },
         "receipt": { "$ref": "#/$defs/assessmentReceipt" },
+        "action_register": { "type": "boolean" },
         "expected_revision": { "type": "string", "pattern": "^[a-f0-9]{64}$" },
         "review_links": {
           "type": "object",
@@ -157,6 +164,22 @@
       "allOf": [
         { "$ref": "#/$defs/assessmentSourceScopes" },
         {
+          "if": {
+            "properties": { "bundle_contract": { "const": "assessment-bundle-v2" } },
+            "required": ["bundle_contract"]
+          },
+          "then": {
+            "required": ["action_register"],
+            "allOf": [
+              {
+                "if": { "properties": { "source": { "enum": ["azure", "combined"] } }, "required": ["source"] },
+                "then": { "properties": { "action_register": { "const": true } } }
+              }
+            ]
+          },
+          "else": { "properties": { "action_register": { "const": false } } }
+        },
+        {
           "if": { "properties": { "status": { "const": "accepted" } }, "required": ["status"] },
           "then": {
             "required": ["acceptance", "accepted_at", "reviews"],
@@ -185,6 +208,9 @@
       ],
       "properties": {
         "schema_version": { "const": "assessment-run-v1" },
+        "bundle_contract": { "enum": ["assessment-bundle-v1", "assessment-bundle-v2"] },
+        "action_register": { "type": "boolean" },
+        "bundle_adoption_receipt": { "$ref": "#/$defs/assessmentReceipt" },
         "scenario": { "enum": ["evidence_only", "requirements_led"] },
         "source": { "enum": ["iac", "azure", "combined"] },
         "scope": { "$ref": "#/$defs/assessmentScope" },

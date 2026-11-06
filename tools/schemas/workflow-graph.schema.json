@@ -6,6 +6,43 @@
   "type": "object",
   "required": ["$schema", "description", "nodes", "edges"],
   "additionalProperties": true,
+  "allOf": [
+    {
+      "if": {
+        "properties": { "metadata": { "properties": { "version": { "const": "3.2" } }, "required": ["version"] } },
+        "required": ["metadata"]
+      },
+      "then": {
+        "required": ["profiles"],
+        "properties": {
+          "profiles": {
+            "properties": {
+              "assessment": {
+                "required": ["bundle_contracts"],
+                "properties": {
+                  "nodes": {
+                    "properties": {
+                      "analysis": {
+                        "required": ["conditional_produces"],
+                        "properties": { "conditional_produces": { "minItems": 1, "maxItems": 1 } }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "else": {
+        "properties": {
+          "profiles": {
+            "properties": { "assessment": { "not": { "required": ["bundle_contracts"] } } }
+          }
+        }
+      }
+    }
+  ],
   "properties": {
     "$schema": { "type": "string" },
     "description": { "type": "string" },
@@ -34,6 +71,7 @@
             "terminal": { "const": "terminal" },
             "scenarios": { "const": ["evidence_only", "requirements_led"] },
             "sources": { "const": ["iac", "azure", "combined"] },
+            "bundle_contracts": { "const": ["assessment-bundle-v1", "assessment-bundle-v2"] },
             "nodes": { "$ref": "#/properties/nodes" },
             "edges": { "$ref": "#/properties/edges" },
             "return_edges": { "$ref": "#/properties/return_edges" },
@@ -86,6 +124,27 @@
               "type": "array",
               "items": { "type": "string" },
               "description": "Artifact filenames produced by this step."
+            },
+            "conditional_produces": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "additionalProperties": false,
+                "required": ["when", "outputs"],
+                "properties": {
+                  "when": {
+                    "type": "object",
+                    "additionalProperties": false,
+                    "required": ["bundle_contract", "sources", "selection"],
+                    "properties": {
+                      "bundle_contract": { "const": "assessment-bundle-v2" },
+                      "sources": { "const": ["azure", "combined"] },
+                      "selection": { "const": "action_register" }
+                    }
+                  },
+                  "outputs": { "type": "array", "minItems": 1, "uniqueItems": true, "items": { "type": "string" } }
+                }
+              }
             },
             "gate": {
               "type": ["string", "null"],
@@ -214,7 +273,7 @@
       "properties": {
         "version": {
           "type": "string",
-          "enum": ["2.1", "2.2", "2.3", "2.4", "2.5", "3.0", "3.1"],
+          "enum": ["2.1", "2.2", "2.3", "2.4", "2.5", "3.0", "3.1", "3.2"],
           "description": "Workflow graph schema version. Validators refuse unknown majors per D2 (graceful degradation)."
         },
         "risk_acceptance": {

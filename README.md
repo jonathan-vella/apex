@@ -126,6 +126,12 @@ The proposed default is last completed calendar month, preceding-month compariso
 with current-month forecast when available. Missing evidence and unpriced costs are explicit gaps, not zeros.
 Acceptance is terminal, not remediation, compliance approval or a handoff to formal Governance/deployment.
 Existing projects keep their histories and require explicit adoption; the infrastructure delivery workflow is unchanged.
+New Azure/combined assessments also deliver an
+[Assessment Action Register](.github/skills/apex-azure-artifacts/references/assessment-action-register.md)
+as Excel plus Markdown. Actions carry evidence, priorities, qualitative effort, relative recommended windows
+and defensible monthly additions/savings/net change. Unknown costs stay unquantified; overlapping benefits
+are not summed twice. Edit the structured source and regenerate the snapshot rather than tracking manual Excel changes.
+IaC-only export is optional; historical runs keep their captured output contract.
 
 ## Start Here
 

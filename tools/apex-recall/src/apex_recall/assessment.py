@@ -7,6 +7,7 @@ import re
 import struct
 import subprocess
 import xml.etree.ElementTree as ET
+from copy import deepcopy
 from datetime import UTC, date, datetime, timedelta
 from pathlib import Path
 
@@ -18,6 +19,9 @@ from .state_writer import (
 )
 
 MODE = "assessment"
+GRAPH_VERSIONS = frozenset({"3.1", "3.2"})
+BUNDLE_V1 = "assessment-bundle-v1"
+BUNDLE_V2 = "assessment-bundle-v2"
 CATEGORIES = frozenset({"configuration", "topology", "utilization", "operations", "recovery", "billing", "policy"})
 LENSES = {"comprehensive": "architecture", "cost-feasibility": "cost-estimate"}
 GROUP_BY = frozenset(
@@ -44,16 +48,32 @@ def enabled(data: dict) -> bool:
 def profile(root: Path | None = None) -> dict:
     path = workspace_root_for(root) / ".github/skills/apex-workflow-engine/templates/workflow-graph.json"
     graph = json.loads(path.read_text(encoding="utf-8"))
-    if graph.get("metadata", {}).get("version") != "3.1":
-        raise ValueError("Standalone assessment requires supported graph version 3.1")
+    version = graph.get("metadata", {}).get("version")
+    if version not in GRAPH_VERSIONS:
+        raise ValueError("Standalone assessment requires supported graph version 3.1 or 3.2")
     result = graph.get("profiles", {}).get(MODE)
     if not isinstance(result, dict) or result.get("entry") != "scope" or result.get("terminal") != "terminal":
         raise ValueError("Invalid assessment graph profile")
+    if (
+        result.get("workflow_mode") != MODE
+        or result.get("scenarios") != ["evidence_only", "requirements_led"]
+        or result.get("sources") != ["iac", "azure", "combined"]
+    ):
+        raise ValueError("Unknown assessment graph profile contract")
     nodes = result.get("nodes", {})
     edges = result.get("edges", [])
     for edge in edges:
         if edge.get("from") not in nodes or edge.get("to") not in nodes:
             raise ValueError("Assessment graph edge escapes its profile")
+    if version == "3.2" and result.get("bundle_contracts") != [BUNDLE_V1, BUNDLE_V2]:
+        raise ValueError("Invalid assessment graph bundle contracts")
+    if version == "3.2" and len(nodes.get("analysis", {}).get("conditional_produces", [])) != 1:
+        raise ValueError("Register-capable graph requires analysis output applicability")
+    if version == "3.1" and (
+        "bundle_contracts" in result or any("conditional_produces" in node for node in nodes.values())
+    ):
+        raise ValueError("Register-capable graph declarations require version 3.2")
+    result["_graph_version"] = version
     return result
 
 
@@ -68,6 +88,56 @@ def route(run: dict, graph: dict) -> list[str]:
         if len(matches) != 1 or matches[0] in result:
             raise ValueError("Assessment graph route is ambiguous or cyclic")
         result.append(matches[0])
+    return result
+
+
+def bundle_contract(run: dict, graph: dict) -> str:
+    contract = run.get("bundle_contract", BUNDLE_V1)
+    if contract not in (BUNDLE_V1, BUNDLE_V2) or (contract == BUNDLE_V2 and graph.get("_graph_version") != "3.2"):
+        raise ValueError("Unsupported assessment bundle contract for this graph reader")
+    selection = run.get("action_register", False)
+    if type(selection) is not bool or (contract == BUNDLE_V1 and selection):
+        raise ValueError("Invalid assessment register selection")
+    if contract == BUNDLE_V2 and (
+        "action_register" not in run or (run["source"] in ("azure", "combined") and selection is not True)
+    ):
+        raise ValueError("Register-capable Azure/combined assessment requires action_register:true")
+    return contract
+
+
+def output_paths(run: dict, graph: dict, phase: str) -> list[str]:
+    """Resolve the graph's bundle/source/explicit-selection contract, never file presence."""
+    contract = bundle_contract(run, graph)
+    node = graph["nodes"][phase]
+    result = list(node.get("produces", []))
+    for group in node.get("conditional_produces", []):
+        if (
+            not isinstance(group, dict)
+            or set(group) != {"when", "outputs"}
+            or group["when"]
+            != {"bundle_contract": BUNDLE_V2, "sources": ["azure", "combined"], "selection": "action_register"}
+            or not isinstance(group["outputs"], list)
+            or not group["outputs"]
+        ):
+            raise ValueError("Unknown assessment output applicability contract")
+        when = group["when"]
+        if contract == when["bundle_contract"] and (
+            run["source"] in when["sources"] or run.get(when["selection"], False)
+        ):
+            result.extend(group["outputs"])
+    if any(not isinstance(path, str) for path in result) or len(result) != len(set(result)):
+        raise ValueError("Invalid or duplicate assessment output paths")
+    return result
+
+
+def required_outputs(run: dict, graph: dict) -> list[str]:
+    return [path for phase in route(run, graph) for path in output_paths(run, graph, phase)]
+
+
+def scope_projection(run: dict) -> dict:
+    result = {key: run[key] for key in ("scenario", "source", "scope", "reporting", "receipt")}
+    if run.get("bundle_contract", BUNDLE_V1) == BUNDLE_V2:
+        result.update({key: run[key] for key in ("bundle_contract", "action_register")})
     return result
 
 
@@ -105,13 +175,27 @@ def _receipt(value: object) -> None:
 
 
 def validate_scope(request: dict, *, require_approval: bool = True) -> None:
-    allowed = {"scenario", "source", "scope", "reporting", "receipt", "review_links", "expected_revision"}
+    allowed = {
+        "scenario",
+        "source",
+        "scope",
+        "reporting",
+        "receipt",
+        "review_links",
+        "expected_revision",
+        "action_register",
+    }
     if not isinstance(request, dict) or set(request) - allowed:
         raise ValueError("Unknown assessment request fields")
     if request.get("scenario") not in ("evidence_only", "requirements_led"):
         raise ValueError("Assessment scenario must be evidence_only or requirements_led")
     if request.get("source") not in ("iac", "azure", "combined"):
         raise ValueError("Assessment source must be iac, azure or combined")
+    if "action_register" in request and (
+        type(request["action_register"]) is not bool
+        or (request["source"] in ("azure", "combined") and request["action_register"] is not True)
+    ):
+        raise ValueError("action_register must be boolean; Azure/combined register export cannot be disabled")
     receipt = request.get("receipt")
     pending = receipt is None or (
         isinstance(receipt, dict) and (receipt.get("approved") is None or receipt.get("approved") is False)
@@ -299,7 +383,14 @@ def validate_state(data: dict) -> None:
         "coverage",
         "started_at",
     }
-    if required - set(run) or set(run) - required - {"acceptance", "accepted_at", "reviews"}:
+    if required - set(run) or set(run) - required - {
+        "acceptance",
+        "accepted_at",
+        "reviews",
+        "bundle_contract",
+        "action_register",
+        "bundle_adoption_receipt",
+    }:
         raise ValueError("Invalid assessment-run-v1 fields")
     if run["coverage"] not in ("complete", "partial", "not_assessed") or not all(
         isinstance(run[key], dict) for key in ("review_links", "frozen_inputs")
@@ -307,6 +398,8 @@ def validate_state(data: dict) -> None:
         raise ValueError("Invalid assessment coverage or binding maps")
     validate_scope({key: run[key] for key in ("scenario", "source", "scope", "reporting", "receipt")})
     graph = profile()
+    bundle_contract(run, graph)
+    required_outputs(run, graph)
     phases = route(run, graph)
     if run.get("phase") not in phases or run.get("completed_phases") != phases[: phases.index(run["phase"])]:
         raise ValueError("Assessment phase/predecessors differ from graph route")
@@ -314,12 +407,17 @@ def validate_state(data: dict) -> None:
         raise ValueError("Assessment status does not match phase")
     from .practical import digest
 
-    if run.get("scope_digest") != digest(
-        {key: run[key] for key in ("scenario", "source", "scope", "reporting", "receipt")}
-    ):
+    if run.get("scope_digest") != digest(scope_projection(run)):
         raise ValueError("Assessment authorized scope digest changed")
     if run["status"] == "accepted":
         _receipt(run.get("acceptance"))
+        if run["acceptance"]["request_id"] in {
+            run["receipt"]["request_id"],
+            run.get("bundle_adoption_receipt", {}).get("request_id"),
+        }:
+            raise ValueError("Final acceptance requires a distinct actual owner response")
+    if "bundle_adoption_receipt" in run:
+        _receipt(run["bundle_adoption_receipt"])
     for relative, sha in run.get("frozen_inputs", {}).items():
         safe_path(project_dir(data["project"]), relative)
         if not isinstance(sha, str) or not re.fullmatch(r"[a-f0-9]{64}", sha):
@@ -343,11 +441,13 @@ def _watch(data: dict, path: Path) -> str:
     if not path.is_file() or path.stat().st_size == 0:
         raise ValueError(f"Required assessment artifact missing or empty: {path.name}")
     if hasattr(data, "input_revisions"):
-        data.input_revisions[path] = revision
+        if path in data.input_revisions and data.input_revisions[path] != revision:
+            raise ValueError("Assessment input changed during readiness validation")
+        data.input_revisions.setdefault(path, revision)
     return revision
 
 
-def _node_check(root: Path, script: str, *arguments: str) -> None:
+def _node_check(root: Path, script: str, *arguments: str) -> str:
     checked = subprocess.run(
         ["node", str((root / "tools/scripts" / script).resolve()), *arguments],
         cwd=root,
@@ -357,54 +457,76 @@ def _node_check(root: Path, script: str, *arguments: str) -> None:
     )
     if checked.returncode:
         raise ValueError(f"{script} failed: {checked.stdout.strip()} {checked.stderr.strip()}")
+    return checked.stdout
+
+
+def validate_register_export(directory: Path, data: dict, path: Path) -> dict:
+    root = workspace_root_for()
+    for dependency in (
+        "tools/scripts/assessment-action-register.mjs",
+        "tools/schemas/assessment-action-register.schema.json",
+    ):
+        _watch(data, root / dependency)
+    checked = json.loads(
+        _node_check(
+            root,
+            "assessment-action-register.mjs",
+            "validate-export",
+            "--input",
+            str(path),
+            "--root",
+            str(directory),
+            "--as-of",
+            datetime.now(UTC).isoformat(timespec="milliseconds"),
+        )
+    )
+    if checked.get("valid") is not True or not isinstance(checked.get("receipt"), dict):
+        raise ValueError("Action register export validation returned no verified receipt")
+    receipt = checked["receipt"]
+    revisions = {}
+    for relative, expected in receipt["evidence_hashes"].items():
+        source = safe_path(directory, relative)
+        revisions[relative] = _watch(data, source)
+        if revisions[relative] != expected:
+            raise ValueError("Action register Finance/source bytes changed during export validation")
+    for relative, expected in receipt["tool_hashes"].items():
+        # The validated tool manifest is relative to tools/scripts, including ../schemas.
+        source = (root / "tools/scripts" / relative).resolve()
+        if not source.is_relative_to((root / "tools").resolve()):
+            raise ValueError("Action register validator dependency escapes tool scope")
+        if _watch(data, source) != expected:
+            raise ValueError("Action register validator bytes changed during export validation")
+    return revisions
 
 
 def check_outputs(project: str, data: dict, phase: str, graph: dict) -> dict:
     run = data["assessment_run"]
     directory = project_dir(project)
-    revisions = {}
-    for relative in graph["nodes"][phase].get("produces", []):
+    paths = output_paths(run, graph, phase)
+    revisions = {relative: _watch(data, safe_path(directory, relative)) for relative in paths}
+    for relative in paths:
         path = safe_path(directory, relative)
-        revisions[relative] = _watch(data, path)
         if path.suffix == ".json":
             document = json.loads(path.read_text(encoding="utf-8"))
             if relative == "contracts/assessment-evidence.json":
                 validate_evidence(document, run)
                 run["coverage"] = document["coverage"]
+            if relative == "contracts/assessment-action-register.json":
+                if (
+                    document.get("project") != project
+                    or document.get("source") != run["source"]
+                    or document.get("scopes") != run["scope"]["azure_scopes"]
+                    or document.get("as_of") != run["reporting"]["as_of"]
+                ):
+                    raise ValueError("Action register project/source/scopes/as_of differ from authorized assessment")
+                revisions.update(validate_register_export(directory, data, path))
+                for reference in document["evidence_refs"]:
+                    if reference["kind"] == "cost":
+                        imported = safe_path(directory, reference["path"])
+                        revisions[reference["path"]] = _watch(data, imported)
+                        revisions.update(validate_cost_report(directory, data, imported, run))
             if relative == "contracts/03-cost-management.json":
-                validate_cost_scope(document, run)
-                if hasattr(data, "input_revisions"):
-                    for dependency in (
-                        "tools/scripts/assessment-cost.mjs",
-                        "tools/schemas/assessment-cost.schema.json",
-                    ):
-                        target = workspace_root_for() / dependency
-                        data.input_revisions[target] = file_revision(target)
-                _node_check(
-                    workspace_root_for(),
-                    "assessment-cost.mjs",
-                    "validate",
-                    "--input",
-                    str(path),
-                    "--as-of",
-                    datetime.now(UTC).isoformat(timespec="milliseconds"),
-                    "--root",
-                    str(directory),
-                    *[argument for scope in run["scope"]["azure_scopes"] for argument in ("--scope", scope)],
-                    *(["--approved-plan", json.dumps(cost_plan(run))] if run["scope"]["azure_scopes"] else []),
-                )
-                for item in [
-                    *document.get("evidence", []),
-                    *document.get("estimates", []),
-                    *document.get("opportunities", []),
-                ]:
-                    provenance = item.get("provenance")
-                    if provenance:
-                        source = safe_path(directory, provenance["path"])
-                        relative_source = source.relative_to(directory).as_posix()
-                        revisions[relative_source] = _watch(data, source)
-                        if revisions[relative_source] != provenance["sha256"]:
-                            raise ValueError("Cost source bytes changed during readiness validation")
+                revisions.update(validate_cost_report(directory, data, path, run))
         if path.suffix == ".png":
             raw = path.read_bytes()
             if len(raw) < 33 or raw[:8] != b"\x89PNG\r\n\x1a\n" or raw[12:16] != b"IHDR":
@@ -415,6 +537,37 @@ def check_outputs(project: str, data: dict, phase: str, graph: dict) -> dict:
             svg = ET.fromstring(path.read_text(encoding="utf-8"))
             if svg.tag != "{http://www.w3.org/2000/svg}svg" or not list(svg):
                 raise ValueError("Assessment SVG must be a nonempty SVG document")
+    return revisions
+
+
+def validate_cost_report(directory: Path, data: dict, path: Path, run: dict) -> dict:
+    document = json.loads(path.read_text(encoding="utf-8"))
+    validate_cost_scope(document, run)
+    if hasattr(data, "input_revisions"):
+        for dependency in ("tools/scripts/assessment-cost.mjs", "tools/schemas/assessment-cost.schema.json"):
+            _watch(data, workspace_root_for() / dependency)
+    _node_check(
+        workspace_root_for(),
+        "assessment-cost.mjs",
+        "validate",
+        "--input",
+        str(path),
+        "--as-of",
+        datetime.now(UTC).isoformat(timespec="milliseconds"),
+        "--root",
+        str(directory),
+        *[argument for scope in run["scope"]["azure_scopes"] for argument in ("--scope", scope)],
+        *(["--approved-plan", json.dumps(cost_plan(run))] if run["scope"]["azure_scopes"] else []),
+    )
+    revisions = {}
+    for item in [*document.get("evidence", []), *document.get("estimates", []), *document.get("opportunities", [])]:
+        provenance = item.get("provenance")
+        if provenance:
+            source = safe_path(directory, provenance["path"])
+            relative = source.relative_to(directory).as_posix()
+            revisions[relative] = _watch(data, source)
+            if revisions[relative] != provenance["sha256"]:
+                raise ValueError("Cost source bytes changed during readiness validation")
     return revisions
 
 
@@ -568,7 +721,7 @@ def check_reviews(project: str, data: dict, graph: dict) -> list[dict]:
         if hasattr(data, "input_revisions"):
             for item in review.get("supporting_inputs", []):
                 path = root / item["path"]
-                data.input_revisions[path] = file_revision(path)
+                _watch(data, path)
             for relative in (
                 ".github/agents/_subagents/challenger-review-subagent.agent.md",
                 ".github/skills/apex-azure-defaults/references/one-shot-review.md",
@@ -577,7 +730,7 @@ def check_reviews(project: str, data: dict, graph: dict) -> list[dict]:
                 "tools/scripts/validate-challenger-findings.mjs",
             ):
                 path = root / relative
-                data.input_revisions[path] = file_revision(path)
+                _watch(data, path)
         result.append(
             {
                 "lens": lens,
@@ -595,7 +748,7 @@ def readiness(project: str, data: dict) -> dict:
         graph = profile()
         if hasattr(data, "input_revisions"):
             graph_path = workspace_root_for() / ".github/skills/apex-workflow-engine/templates/workflow-graph.json"
-            data.input_revisions[graph_path] = file_revision(graph_path)
+            _watch(data, graph_path)
         for phase in route(data["assessment_run"], graph):
             check_outputs(project, data, phase, graph)
         reviews = check_reviews(project, data, graph)
@@ -713,6 +866,74 @@ def historical_cycles(project: str, data: dict) -> list[dict]:
     return report
 
 
+def adopt_bundle(project: str, data: dict, request: dict, graph: dict, *, preview: bool = False) -> dict:
+    from .practical import digest
+
+    validate_state(data)
+    run = data["assessment_run"]
+    original = deepcopy(run)
+    old_contract = bundle_contract(run, graph)
+    if graph["_graph_version"] != "3.2":
+        raise ValueError("Register bundle adoption requires graph 3.2")
+    if any(request[key] != run[key] for key in ("scenario", "source", "scope", "reporting")):
+        raise ValueError("Bundle adoption cannot change the existing authorized assessment evidence scope")
+    selected = request["source"] in ("azure", "combined") or request.get("action_register", False)
+    if not selected or (old_contract == BUNDLE_V2 and run.get("action_register")):
+        raise ValueError("Explicit register selection required; already selected bundles cannot renew allowance")
+    receipt = request.get("receipt")
+    if not preview:
+        _receipt(receipt)
+        if receipt["request_id"] in {
+            run["receipt"]["request_id"],
+            run.get("acceptance", {}).get("request_id"),
+            run.get("bundle_adoption_receipt", {}).get("request_id"),
+        }:
+            raise ValueError("Bundle adoption requires its own actual owner scope response")
+    links, cycles = adoption_links(project, data, request, graph)
+    old_outputs = required_outputs(run, graph)
+    run["bundle_contract"] = BUNDLE_V2
+    run["action_register"] = True
+    if receipt is not None and receipt.get("approved") is True:
+        run["bundle_adoption_receipt"] = deepcopy(receipt)
+    run["scope_digest"] = digest(scope_projection(run))
+    run["review_links"].update(links)
+    phases = route(run, graph)
+    if phases.index(run["phase"]) >= phases.index("analysis"):
+        run["phase"] = "analysis"
+        run["completed_phases"] = phases[: phases.index("analysis")]
+    run["status"] = "in_progress"
+    for key in ("acceptance", "accepted_at", "reviews"):
+        run.pop(key, None)
+    outputs = required_outputs(run, graph)
+    changes = [relative for relative in outputs if relative not in old_outputs]
+    revisions = {relative: file_revision(safe_path(project_dir(project), relative)) for relative in outputs}
+    if not preview:
+        data.setdefault("decision_log", []).append(
+            {
+                "decision": "Explicit owner-scoped register adoption; preserve prior acceptance and review allowance",
+                "receipt": deepcopy(receipt),
+                "prior_assessment_run": original,
+                "required_output_changes": changes,
+                "timestamp": _iso_now(),
+            }
+        )
+    return {
+        "status": "adopted",
+        "phase": run["phase"],
+        "old_bundle_contract": old_contract,
+        "bundle_contract": BUNDLE_V2,
+        "action_register": True,
+        "required_outputs": outputs,
+        "required_output_changes": changes,
+        "output_revisions": revisions,
+        "prior_frozen_inputs": original["frozen_inputs"],
+        "prior_status": original["status"],
+        "cycles": cycles,
+        "review_extension_required": any(cycle["remaining"] <= 0 for cycle in cycles),
+        "historical_cycles": historical_cycles(project, data),
+    }
+
+
 def mutate(
     project: str, data: dict, action: str, request: dict, phase: str | None = None, *, preview: bool = False
 ) -> dict:
@@ -720,19 +941,18 @@ def mutate(
 
     graph_path = workspace_root_for() / ".github/skills/apex-workflow-engine/templates/workflow-graph.json"
     if hasattr(data, "input_revisions"):
-        data.input_revisions[graph_path] = file_revision(graph_path)
+        _watch(data, graph_path)
         helper = workspace_root_for() / "tools/scripts/assessment-cost.mjs"
-        data.input_revisions[helper] = file_revision(helper)
+        _watch(data, helper)
     graph = profile()
-    for node in graph["nodes"].values():
-        for relative in node.get("produces", []):
-            safe_path(project_dir(project), relative)
     if action in ("start", "adopt"):
         if phase is not None:
             raise ValueError("Start/adopt cannot select an arbitrary phase; the graph entry determines routing")
         validate_scope(request, require_approval=not preview)
         if enabled(data) or data.get("assessment_run") is not None:
-            raise ValueError("Assessment already selected; resume it rather than resetting history")
+            if action != "adopt":
+                raise ValueError("Assessment already selected; resume it rather than resetting history")
+            return adopt_bundle(project, data, request, graph, preview=preview)
         if action == "start" and (
             data.get("review_attempts")
             or data.get("decisions", {}).get("review_cycles")
@@ -743,6 +963,10 @@ def mutate(
         history = historical_cycles(project, data)
         run = {
             "schema_version": "assessment-run-v1",
+            "bundle_contract": BUNDLE_V2 if graph["_graph_version"] == "3.2" else BUNDLE_V1,
+            "action_register": (request["source"] in ("azure", "combined") or request.get("action_register", False))
+            if graph["_graph_version"] == "3.2"
+            else False,
             **{key: request[key] for key in ("scenario", "source", "scope", "reporting")},
             "receipt": request.get("receipt"),
             "phase": graph["entry"],
@@ -753,7 +977,12 @@ def mutate(
             "coverage": "not_assessed",
             "started_at": _iso_now(),
         }
-        run["scope_digest"] = digest({key: run[key] for key in ("scenario", "source", "scope", "reporting", "receipt")})
+        if graph["_graph_version"] == "3.1" and request.get("action_register"):
+            raise ValueError("Register selection requires graph 3.2")
+        run["scope_digest"] = digest(scope_projection(run))
+        outputs = required_outputs(run, graph)
+        for relative in outputs:
+            safe_path(project_dir(project), relative)
         phases = route(run, graph)
         run["completed_phases"].append(graph["entry"])
         run["phase"] = phases[1]
@@ -772,6 +1001,9 @@ def mutate(
             "phase": run["phase"],
             "cycles": cycles,
             "historical_cycles": history,
+            "bundle_contract": run["bundle_contract"],
+            "action_register": run["action_register"],
+            "required_outputs": outputs,
         }
     if not enabled(data):
         raise ValueError("Explicit assessment start/adoption required")
@@ -814,7 +1046,10 @@ def mutate(
         if set(request) - {"receipt", "expected_revision"}:
             raise ValueError("Unknown assessment acceptance fields")
         _receipt(request.get("receipt"))
-        if request["receipt"]["request_id"] == run["receipt"]["request_id"]:
+        if request["receipt"]["request_id"] in {
+            run["receipt"]["request_id"],
+            run.get("bundle_adoption_receipt", {}).get("request_id"),
+        }:
             raise ValueError("Final acceptance requires its own actual owner response, not upfront scope approval")
         ready = readiness(project, data)
         if ready["status"] != "ready":
@@ -874,6 +1109,9 @@ def handoff(project: str, data: dict, auto_selected: bool = False) -> dict:
         "step_status": run["status"],
         "next_owner": None if terminal else graph["nodes"][run["phase"]]["agent"],
         "frozen_artifacts": sorted(run["frozen_inputs"]),
+        "bundle_contract": bundle_contract(run, graph),
+        "action_register": run.get("action_register", False),
+        "required_outputs": required_outputs(run, graph),
         "coverage": run["coverage"],
         "assessment_run": run,
         "readiness": readiness(project, data) if run["phase"] in ("review", "acceptance", "terminal") else None,

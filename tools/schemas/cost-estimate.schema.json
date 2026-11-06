@@ -25,6 +25,21 @@
   ],
   "additionalProperties": false,
   "properties": {
+    "assumptions": { "type": "array", "minItems": 1, "items": { "type": "string", "minLength": 1 } },
+    "assessment_basis": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["period", "normalization", "cost_view", "tax", "licensing"],
+      "properties": {
+        "period": { "type": "string", "minLength": 1 },
+        "normalization": { "type": "string", "minLength": 1 },
+        "cost_view": { "const": "Retail" },
+        "tax": { "type": "string", "minLength": 1 },
+        "licensing": { "type": "string", "minLength": 1 },
+        "source_unit": { "enum": ["month", "year"] },
+        "original_total": { "type": ["number", "string"] }
+      }
+    },
     "$schema": {
       "type": "string"
     },
@@ -148,6 +163,22 @@
       "required": ["name", "service_name", "sku", "region", "quantity", "monthly_cost", "notes"],
       "additionalProperties": false,
       "properties": {
+        "resource_id": { "type": "string", "minLength": 1 },
+        "charge_id": { "type": "string", "minLength": 1 },
+        "usage": { "type": ["object", "array", "null"] },
+        "components": { "type": "array", "items": { "type": "object" } },
+        "calculation_basis": { "type": "object" },
+        "unit_of_measure": { "type": "string" },
+        "unitOfMeasure": { "type": "string" },
+        "usage_amount": { "type": "number", "minimum": 0 },
+        "usage_scope": { "enum": ["aggregate", "per-instance"] },
+        "hours_per_month": { "type": "number", "minimum": 0 },
+        "billable_days": { "type": "number", "minimum": 0 },
+        "free_grant_units": { "type": "number", "minimum": 0 },
+        "unit_interpretation": { "type": "string" },
+        "retail_price": { "type": "number", "minimum": 0 },
+        "retailPrice": { "type": "number", "minimum": 0 },
+        "tier_bands": { "type": "array", "items": { "type": "object" } },
         "name": {
           "type": "string",
           "minLength": 1

@@ -8,6 +8,7 @@
       "terminal": "terminal",
       "scenarios": ["evidence_only", "requirements_led"],
       "sources": ["iac", "azure", "combined"],
+      "bundle_contracts": ["assessment-bundle-v1", "assessment-bundle-v2"],
       "nodes": {
         "scope": {
           "id": "scope",
@@ -42,6 +43,22 @@
             "02-architecture-assessment.md",
             "03-cost-management-report.md",
             "contracts/03-cost-management.json"
+          ],
+          "conditional_produces": [
+            {
+              "when": {
+                "bundle_contract": "assessment-bundle-v2",
+                "sources": ["azure", "combined"],
+                "selection": "action_register"
+              },
+              "outputs": [
+                "contracts/assessment-action-register.json",
+                "04-assessment-action-register.md",
+                "assets/04-assessment-action-register.xlsx",
+                "_meta/action-register-derived.json",
+                "_meta/action-register-export.json"
+              ]
+            }
           ]
         },
         "diagram": {
@@ -588,7 +605,7 @@
       "handoffs": "No active agent UI handoff metadata. ui_label_pattern remains historical fixture compatibility only.",
       "permissions": "Graph edges, names and tool lists do not prove runtime enforcement or credential isolation"
     },
-    "version": "3.1",
+    "version": "3.2",
     "practical_workflow": {
       "contract": "practical-v1",
       "new_projects_only": true,

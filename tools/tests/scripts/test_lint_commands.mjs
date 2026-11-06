@@ -134,6 +134,18 @@ test("product CI retains coverage while migrated docs automation stays retired",
   }
 });
 
+test("CI installs pinned Python tooling before executable Node workbook contracts", { skip: CI_SKIP }, () => {
+  const ci = load(readFileSync(new URL("../../../.github/workflows/ci.yml", import.meta.url), "utf8"));
+  const steps = ci.jobs.ci.steps;
+  const python = steps.findIndex((step) => step.uses?.startsWith("actions/setup-python@"));
+  const install = steps.findIndex((step) => step.run === "python -m pip install -r requirements.txt");
+  const contracts = steps.findIndex((step) => step.run === "npm run validate:_node-ci");
+  assert.ok(python >= 0);
+  assert.ok(install > python, "Install the canonical Python requirements after interpreter setup");
+  assert.ok(contracts > install, "Workbook subprocess dependencies must exist before Node contract tests");
+  assert.equal(steps[install].if, undefined);
+});
+
 test(
   "hook retirement removes obsolete callers while retaining Git hooks and validation coverage",
   { skip: CI_SKIP },

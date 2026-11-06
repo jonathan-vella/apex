@@ -46,6 +46,10 @@ Load `.github/skills/apex-azure-cost-optimization/SKILL.md` for scoped actual bi
 operations in this main's execution context; `cost-estimate-subagent` remains retail-estimate-only.
 Return finalized analysis to the parent for mandatory Design and both independent bundle reviews.
 Do not invoke Design as a child or complete numeric Step 2 in this profile.
+For register-capable runs, produce the evidence-linked Assessment Action Register before analysis is finalized.
+Load [register rules](../skills/apex-azure-artifacts/references/assessment-action-register.md);
+validate and generate its structured source, Excel and Markdown together. Recommendations, priorities,
+effort and relative windows are nonbinding; never duplicate a cost opportunity as a second benefit.
 
 For `decisions.workflow_contract=practical-v1`, use the
 [practical workflow](../skills/apex-workflow-engine/references/practical-workflow.md).

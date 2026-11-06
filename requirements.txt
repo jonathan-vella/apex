@@ -13,6 +13,10 @@ diagrams==0.25.1
 matplotlib==3.11.2
 pillow==13.0.0
 
+# Assessment Action Register workbook export
+openpyxl==3.1.5
+et-xmlfile==2.0.0
+
 # Repository test and lint tooling
 pytest==9.1.1
 ruff==0.17.0

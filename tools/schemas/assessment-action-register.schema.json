@@ -1,0 +1,261 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://apexops.pro/schemas/assessment-action-register.schema.json",
+  "title": "Evidence-backed Assessment Action Register (generated snapshot)",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "project",
+    "generated_at",
+    "as_of",
+    "source",
+    "scopes",
+    "evidence_refs",
+    "findings",
+    "resources",
+    "bases",
+    "actions",
+    "scenarios",
+    "coverage",
+    "assumptions"
+  ],
+  "properties": {
+    "schema_version": { "const": "action-register-v1" },
+    "project": { "$ref": "#/$defs/id" },
+    "generated_at": { "$ref": "#/$defs/timestamp" },
+    "as_of": { "$ref": "#/$defs/timestamp" },
+    "source": { "enum": ["iac", "azure", "combined"] },
+    "scopes": { "type": "array", "maxItems": 10, "uniqueItems": true, "items": { "type": "string", "minLength": 1 } },
+    "evidence_refs": { "type": "array", "maxItems": 300, "items": { "$ref": "#/$defs/evidence" } },
+    "findings": { "type": "array", "maxItems": 1000, "items": { "$ref": "#/$defs/finding" } },
+    "resources": { "type": "array", "maxItems": 2000, "items": { "$ref": "#/$defs/resource" } },
+    "bases": { "type": "array", "minItems": 1, "maxItems": 30, "items": { "$ref": "#/$defs/basis" } },
+    "actions": { "type": "array", "maxItems": 1000, "items": { "$ref": "#/$defs/action" } },
+    "scenarios": { "type": "array", "minItems": 1, "maxItems": 30, "items": { "$ref": "#/$defs/scenario" } },
+    "coverage": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["status", "reason"],
+      "properties": {
+        "status": { "enum": ["assessed", "partial", "unavailable"] },
+        "reason": { "$ref": "#/$defs/note" }
+      }
+    },
+    "assumptions": { "$ref": "#/$defs/notes", "minItems": 1 }
+  },
+  "$defs": {
+    "id": { "type": "string", "pattern": "^[A-Za-z0-9][A-Za-z0-9_.-]{0,99}$" },
+    "timestamp": { "type": "string", "format": "date-time" },
+    "note": { "type": "string", "minLength": 1, "maxLength": 4000, "pattern": "\\S" },
+    "notes": { "type": "array", "maxItems": 100, "uniqueItems": true, "items": { "$ref": "#/$defs/note" } },
+    "ids": { "type": "array", "maxItems": 100, "uniqueItems": true, "items": { "$ref": "#/$defs/id" } },
+    "locator": { "type": "string", "pattern": "^/", "maxLength": 1024 },
+    "decimal": { "type": "string", "pattern": "^(0|[1-9][0-9]*)(\\.[0-9]+)?$", "maxLength": 100 },
+    "rating": { "enum": ["High", "Medium", "Low", "Unknown"] },
+    "pillars": {
+      "type": "array",
+      "minItems": 1,
+      "uniqueItems": true,
+      "items": {
+        "enum": ["Security", "Reliability", "Cost Optimization", "Operational Excellence", "Performance Efficiency"]
+      }
+    },
+    "evidence": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "path", "sha256", "collected_at", "kind"],
+      "properties": {
+        "id": { "$ref": "#/$defs/id" },
+        "path": { "type": "string", "minLength": 1, "maxLength": 1024 },
+        "sha256": { "type": "string", "pattern": "^[a-f0-9]{64}$" },
+        "collected_at": { "$ref": "#/$defs/timestamp" },
+        "kind": { "enum": ["waf", "inventory", "retail", "cost", "lifecycle", "support"] }
+      }
+    },
+    "finding": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "evidence_id", "locator", "pillars"],
+      "properties": {
+        "id": { "$ref": "#/$defs/id" },
+        "evidence_id": { "$ref": "#/$defs/id" },
+        "locator": { "$ref": "#/$defs/locator" },
+        "pillars": { "$ref": "#/$defs/pillars" }
+      }
+    },
+    "resource": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "name", "type", "count", "evidence_id", "locator"],
+      "properties": {
+        "id": { "type": "string", "minLength": 1, "maxLength": 2048 },
+        "name": { "$ref": "#/$defs/note" },
+        "type": { "$ref": "#/$defs/note" },
+        "count": { "type": ["integer", "null"], "minimum": 0, "maximum": 1000000 },
+        "evidence_id": { "$ref": "#/$defs/id" },
+        "locator": { "$ref": "#/$defs/locator" }
+      }
+    },
+    "basis": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "id",
+        "source_type",
+        "currency",
+        "period",
+        "normalization",
+        "cost_view",
+        "tax",
+        "licensing",
+        "region",
+        "assumptions"
+      ],
+      "properties": {
+        "id": { "$ref": "#/$defs/id" },
+        "source_type": { "enum": ["actual_closed_month", "retail_reference", "unpriced"] },
+        "currency": { "type": ["string", "null"], "pattern": "^[A-Z]{3}$" },
+        "period": { "$ref": "#/$defs/note" },
+        "normalization": { "$ref": "#/$defs/note" },
+        "cost_view": { "enum": ["ActualCost", "AmortizedCost", "Retail", null] },
+        "tax": { "$ref": "#/$defs/note" },
+        "licensing": { "$ref": "#/$defs/note" },
+        "region": { "$ref": "#/$defs/note" },
+        "assumptions": { "$ref": "#/$defs/notes", "minItems": 1 }
+      }
+    },
+    "finance": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["kind", "basis_id", "rationale", "assumptions", "confidence", "ledger"],
+      "properties": {
+        "kind": { "enum": ["upgrade_delta", "new_service_gross", "savings", "no_recurring_change", "unquantified"] },
+        "basis_id": { "$ref": "#/$defs/id" },
+        "rationale": { "$ref": "#/$defs/note" },
+        "assumptions": { "$ref": "#/$defs/notes", "minItems": 1 },
+        "confidence": { "$ref": "#/$defs/rating" },
+        "current_ref": { "$ref": "#/$defs/id" },
+        "proposed_ref": { "$ref": "#/$defs/id" },
+        "opportunity": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["evidence_id", "opportunity_id"],
+          "properties": { "evidence_id": { "$ref": "#/$defs/id" }, "opportunity_id": { "$ref": "#/$defs/id" } }
+        },
+        "missing_inputs": { "$ref": "#/$defs/notes" },
+        "evidence_ids": { "$ref": "#/$defs/ids" },
+        "ledger": {
+          "type": "array",
+          "maxItems": 100,
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["resource_id", "charge_id", "evidence_id", "locator"],
+            "properties": {
+              "resource_id": { "type": "string", "minLength": 1, "maxLength": 2048 },
+              "charge_id": { "$ref": "#/$defs/note" },
+              "evidence_id": { "$ref": "#/$defs/id" },
+              "locator": { "$ref": "#/$defs/locator" }
+            }
+          }
+        }
+      }
+    },
+    "action": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "id",
+        "category",
+        "task",
+        "pillars",
+        "finding_ids",
+        "resource_ids",
+        "priority",
+        "priority_rationale",
+        "impact",
+        "impact_rationale",
+        "effort",
+        "effort_rationale",
+        "dependencies",
+        "applicability",
+        "status",
+        "comments",
+        "notes",
+        "target_window",
+        "window_rationale",
+        "finance"
+      ],
+      "properties": {
+        "id": { "$ref": "#/$defs/id" },
+        "category": { "$ref": "#/$defs/note" },
+        "task": { "$ref": "#/$defs/note" },
+        "pillars": { "$ref": "#/$defs/pillars" },
+        "finding_ids": { "$ref": "#/$defs/ids", "minItems": 1 },
+        "resource_ids": {
+          "type": "array",
+          "maxItems": 100,
+          "uniqueItems": true,
+          "items": { "type": "string", "minLength": 1 }
+        },
+        "priority": { "enum": ["Critical", "High", "Medium", "Low"] },
+        "priority_rationale": { "$ref": "#/$defs/note" },
+        "critical_evidence_id": { "$ref": "#/$defs/id" },
+        "impact": { "$ref": "#/$defs/rating" },
+        "impact_rationale": { "$ref": "#/$defs/note" },
+        "effort": { "$ref": "#/$defs/rating" },
+        "effort_rationale": { "$ref": "#/$defs/note" },
+        "dependencies": { "$ref": "#/$defs/ids" },
+        "alternative_group": { "$ref": "#/$defs/id" },
+        "overlap_group": { "$ref": "#/$defs/id" },
+        "applicability": { "enum": ["unconditional", "conditional", "alternative", "unknown"] },
+        "condition": { "$ref": "#/$defs/note" },
+        "status": { "$ref": "#/$defs/note" },
+        "comments": { "type": "string", "maxLength": 4000 },
+        "notes": { "$ref": "#/$defs/notes" },
+        "target_window": { "enum": ["Immediate", "Week 1", "Weeks 2-4", "Months 2-6"] },
+        "window_rationale": { "$ref": "#/$defs/note" },
+        "lifecycle": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["resource_id", "service", "version", "date", "evidence_id", "locator"],
+          "properties": {
+            "resource_id": { "type": "string", "minLength": 1 },
+            "service": { "$ref": "#/$defs/note" },
+            "version": { "$ref": "#/$defs/note" },
+            "date": { "type": "string", "format": "date" },
+            "evidence_id": { "$ref": "#/$defs/id" },
+            "locator": { "$ref": "#/$defs/locator" }
+          }
+        },
+        "finance": { "$ref": "#/$defs/finance" }
+      }
+    },
+    "scenario": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "name", "proposed", "conditions", "selections"],
+      "properties": {
+        "id": { "$ref": "#/$defs/id" },
+        "name": { "$ref": "#/$defs/note" },
+        "proposed": { "const": true },
+        "conditions": { "$ref": "#/$defs/notes" },
+        "selections": {
+          "type": "array",
+          "maxItems": 1000,
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["action_id", "included", "reason"],
+            "properties": {
+              "action_id": { "$ref": "#/$defs/id" },
+              "included": { "type": "boolean" },
+              "reason": { "$ref": "#/$defs/note" }
+            }
+          }
+        }
+      }
+    }
+  }
+}

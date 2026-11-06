@@ -26,6 +26,9 @@ Analyze Azure subscriptions to identify cost savings through orphaned resource c
 For an explicitly selected standalone assessment, use the assessment contract instead of the general
 subscription workflow below. Its offline helpers need no Azure authentication; actual queries remain
 Architect-owned operations requiring separately authorized scope and the owner's existing tools.
+For register-capable assessment outputs, apply
+[action finance/evidence rules](../apex-azure-artifacts/references/assessment-action-register.md):
+actual cost stays separate from proposed recurring changes, and one scenario ledger prevents duplicated benefits.
 
 ## Scope Reference (Shared Across All Workflows)
 
