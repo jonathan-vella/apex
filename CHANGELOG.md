@@ -33,6 +33,11 @@ Store discovered evidence under `_meta/` to preserve the layout-v2 Markdown-only
 
 ### Fixes
 
+#### Workbook contract CI dependencies
+
+Install the canonical Python tooling requirements in the Node CI job before executable workbook
+contract tests, matching the external Python jobs rather than relying on a pre-provisioned interpreter.
+
 #### Standalone assessment review corrections
 
 Validate billing scope lists before persisting an assessment and permit an explicit acceptance-to-review

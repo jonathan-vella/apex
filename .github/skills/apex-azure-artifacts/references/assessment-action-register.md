@@ -173,6 +173,7 @@ The initial workbook dependencies were publication-age checked and downloaded th
 with wheel SHA256 matched against upstream metadata before local installation.
 
 Offline validation/export needs no Azure credentials or workbook service.
+Node contract tests invoke the Python exporter, so CI installs the same root requirements before those tests.
 It does not send the source, workbook or original screenshots to a third-party renderer.
 Visual verification uses anonymized synthetic actions only. Report the actual viewer used;
 OOXML read-back or a local style preview is not evidence of an Excel desktop UI test.
