@@ -145,6 +145,31 @@
       }
     }
   },
+  "allOf": [
+    {
+      "if": {
+        "properties": {
+          "current_revision": { "const": 1 },
+          "revisions": {
+            "items": { "properties": { "step": { "const": "1" } } }
+          }
+        }
+      },
+      "else": {
+        "properties": {
+          "services": {
+            "items": {
+              "if": {
+                "properties": { "source": { "const": "user-pin" } },
+                "required": ["source"]
+              },
+              "then": { "$ref": "#/$defs/serviceConfiguration" }
+            }
+          }
+        }
+      }
+    }
+  ],
   "$defs": {
     "environmentName": {
       "type": "string",
@@ -259,6 +284,10 @@
       },
       "additionalProperties": false
     },
+    "serviceConfiguration": {
+      "type": "object",
+      "required": ["iac_logical_names", "capacity", "zonal", "regions", "sla_target", "commitment"]
+    },
     "service": {
       "type": "object",
       "required": ["id", "service", "size", "source", "source_step", "last_modified_rev"],
@@ -369,10 +398,14 @@
             "properties": { "source": { "const": "observed-current" } },
             "required": ["source"]
           },
-          "then": { "required": ["observed_sku"] },
-          "else": {
-            "required": ["iac_logical_names", "capacity", "zonal", "regions", "sla_target", "commitment"]
-          }
+          "then": { "required": ["observed_sku"] }
+        },
+        {
+          "if": {
+            "properties": { "source": { "enum": ["architect-derived", "deploy-substitute"] } },
+            "required": ["source"]
+          },
+          "then": { "$ref": "#/$defs/serviceConfiguration" }
         }
       ]
     },
