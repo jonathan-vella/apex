@@ -100,10 +100,14 @@ read authorization or business intent. Missing targets, controls and implementat
 gaps; do not require per-finding dispositions or imply approval of remediation. Gate 1 approves the recorded
 assessment requirements and scope only.
 
-After requirements scope is authorized, Governance may collect preliminary policy
-feasibility before Architecture approval, without completing Step 3.5. No target means
-provisional architecture, not tenant compatibility. Formal Governance reuses current
-evidence and captured scope, performs reconciliation and retains its approval gate.
+After requirements scope is authorized, select the
+[policy source](../../apex-azure-governance-discovery/references/policy-source.md) once.
+New delivery projects use `corp-policy-v1`; existing projects adopt only through an actual source choice.
+Explicit hash-bound shared Corp assumptions may support Architecture approval without target identifiers;
+the architecture remains tenant-unverified. Otherwise Governance collects preliminary policy feasibility
+from authorized targets before Architecture approval, without completing Step 3.5.
+Formal Governance reuses current evidence and captured scope, performs reconciliation and retains its approval gate.
+Planning completion, CodeGen and deployment under the new contract require target-verified current evidence.
 All Defender assignments are collected; presentation can suppress noise after analysis.
 
 DEV/PROD readiness is action- and target-scoped. Keep a PROD hold visible while allowing

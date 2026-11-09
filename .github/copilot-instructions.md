@@ -117,6 +117,11 @@ Scope/access authorization starts it; automatic analysis, mandatory diagram and 
 quality reviews precede one final bundle acceptance. Evidence-only bypasses the business interview.
 Accepted assessments are terminal: no formal Governance, planning or deployment continuation.
 The delivery workflow below remains unchanged; existing projects require explicit adoption.
+For delivery policy intake, use the
+[policy-source contract](skills/apex-azure-governance-discovery/references/policy-source.md).
+New-contract Architecture may use explicitly accepted shared Corp assumptions without a target or manual JSON;
+target-verified evidence remains mandatory before implementation. Native private capture retains only opaque
+scope references in repository artifacts and grants no additional role, read or deployment permission.
 
 The Steps 1–7 + Post-Lessons table is in [AGENTS.md](../AGENTS.md#agent-workflow);
 the machine-readable source is

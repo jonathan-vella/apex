@@ -7,6 +7,10 @@
 
 import fs from "node:fs";
 import path from "node:path";
+import os from "node:os";
+import crypto from "node:crypto";
+
+import { readJson } from "./json.mjs";
 
 export const LAYOUT_SUBDIRS = ["assets", "contracts", "reviews", "_meta"];
 const KNOWN_SUBDIRS = new Set([...LAYOUT_SUBDIRS, "inputs", "pricing", "previews", "scratch"]);
@@ -76,6 +80,58 @@ function resolveInSubdir(projectDir, subdir, filename) {
 }
 
 export function resolveContractPath(projectDir, filename) {
+  if (["04-governance-constraints.json", "04-policy-feasibility.json"].includes(filename)) {
+    const pdir = projectDirFromPath(projectDir);
+    const stateFile = resolveSessionStatePath(pdir);
+    if (fs.existsSync(stateFile)) {
+      const state = readJson(stateFile);
+      const record = state.decisions?.material_inputs?.azure_read_scope;
+      if (record?.value?.scope_ref) {
+        const reference = record.value.scope_ref;
+        if (!/^[a-f0-9]{32}$/.test(reference)) throw new Error("Invalid private policy scope reference");
+        const workspace = fs.realpathSync(path.dirname(path.dirname(pdir)));
+        const stateHome = process.env.XDG_STATE_HOME || path.join(os.homedir(), ".local", "state");
+        if (!path.isAbsolute(stateHome)) throw new Error("Private policy state home must be absolute");
+        const hash = (value) => crypto.createHash("sha256").update(JSON.stringify(value)).digest("hex");
+        const directory = path.join(stateHome, "apex", "policy", hash(workspace), reference);
+        const inside = (parent, target) => {
+          const relative = path.relative(parent, target);
+          return (
+            relative === "" ||
+            (!relative.startsWith(`..${path.sep}`) && relative !== ".." && !path.isAbsolute(relative))
+          );
+        };
+        if (inside(workspace, path.resolve(directory)) || fs.realpathSync(directory) !== path.resolve(directory)) {
+          throw new Error("Private policy storage must be outside the repository without symlinks");
+        }
+        const scopeFile = path.join(directory, "scope.json");
+        const privateFile = (file) => {
+          const metadata = fs.lstatSync(file);
+          if (!metadata.isFile() || (metadata.mode & 0o077) !== 0) {
+            throw new Error("Private policy evidence requires an owner-only regular file");
+          }
+        };
+        privateFile(scopeFile);
+        const scope = readJson(scopeFile);
+        const canonicalScope = Object.fromEntries(Object.entries(scope).sort(([a], [b]) => a.localeCompare(b)));
+        if (
+          scope.project !== path.basename(pdir) ||
+          scope.workspace !== hash(workspace) ||
+          hash(canonicalScope) !== record.value.scope_sha256 ||
+          scope.authorized !== true ||
+          scope.policy_read_scope !== "subscription-and-inherited" ||
+          scope.request_id !== record.request_id ||
+          scope.owner !== record.owner ||
+          JSON.stringify(scope.environments) !== JSON.stringify(record.environments)
+        ) {
+          throw new Error("Private policy scope is changed or differently authorized");
+        }
+        const target = path.join(directory, filename);
+        if (fs.existsSync(target)) privateFile(target);
+        return target;
+      }
+    }
+  }
   return resolveInSubdir(projectDir, "contracts", filename);
 }
 

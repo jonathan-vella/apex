@@ -432,6 +432,10 @@
           "enum": ["", "practical-v1"],
           "description": "New-project default; legacy projects require explicit owner-approved adoption."
         },
+        "policy_evidence_contract": {
+          "const": "corp-policy-v1",
+          "description": "New delivery default; an explicit policy-source choice adopts it without changing historical gates."
+        },
         "material_inputs": {
           "type": "object",
           "description": "Authoritative scoped human choices; domain policy/pricing facts remain in their evidence artifacts.",

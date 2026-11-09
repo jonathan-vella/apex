@@ -79,6 +79,20 @@ def resolve_contract_path(
     workspace_root: Path | None = None,
 ) -> Path:
     """Resolve a canonical contract JSON in ``contracts/`` with root fallback."""
+    if filename in ("04-governance-constraints.json", "04-policy-feasibility.json"):
+        from .state_writer import read_state
+
+        pdir = project_or_dir if isinstance(project_or_dir, Path) else project_dir(project_or_dir, workspace_root)
+        state_path = resolve_session_state_path(pdir.name, workspace_root or pdir.parent.parent)
+        if state_path.is_file():
+            state = read_state(state_path)
+            scope = state.get("decisions", {}).get("material_inputs", {}).get("azure_read_scope", {}).get("value", {})
+            if isinstance(scope, dict) and "scope_ref" in scope:
+                from .policy_source import private_evidence_path, private_scope
+
+                _, directory = private_scope(pdir.name, state)
+                target = directory / filename
+                return private_evidence_path(directory, target) if target.exists() else target
     return _resolve_in_subdir(project_or_dir, "contracts", filename, workspace_root)
 
 

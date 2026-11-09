@@ -33,7 +33,7 @@ BASELINE_KIND = "alz-corp-default"
 # Synthetic id: the baseline describes a policy set, not a real subscription.
 SYNTHETIC_SUBSCRIPTION_ID = "00000000-0000-0000-0000-00000000a1c0"
 DEFAULT_LOCATION = "swedencentral"
-DEFAULT_OUT = Path(".github/data/governance-policy-baseline.json.gz")
+DEFAULT_OUT = Path(".github/data/alz-corp-policy-baseline.json.gz")
 
 # Archetypes a subscription under the Corp management group inherits, outermost first.
 ARCHETYPES: tuple[tuple[str, str], ...] = (
@@ -93,7 +93,7 @@ def _builtin_index(builtins_dir: Path, kind: str) -> dict[str, dict[str, Any]]:
     for path in (builtins_dir / kind).rglob("*.json"):
         try:
             doc = _read_json(path)
-        except (json.JSONDecodeError, UnicodeDecodeError):
+        except json.JSONDecodeError, UnicodeDecodeError:
             continue
         name = doc.get("name") if isinstance(doc, dict) else None
         if isinstance(name, str) and isinstance(doc.get("properties"), dict):
@@ -172,7 +172,7 @@ def build_baseline(
 ) -> dict[str, Any]:
     api, included = build_policy_api(library_root, builtins_dir)
     envelope = discover_mod.discover(
-        SYNTHETIC_SUBSCRIPTION_ID, project=BASELINE_KIND, az_rest=api
+        SYNTHETIC_SUBSCRIPTION_ID, project=BASELINE_KIND, az_rest=api, include_defender_auto=True
     )
     if api.missing:
         raise RuntimeError("unresolved policy documents: " + ", ".join(sorted(api.missing)))
@@ -234,7 +234,7 @@ def _preserve_timestamp(out: Path, document: dict[str, Any]) -> None:
         return
     try:
         prior = json.loads(gzip.decompress(out.read_bytes()))
-    except (OSError, ValueError):
+    except OSError, ValueError:
         return
     prior_time = prior.get("generated_at")
     if not isinstance(prior_time, str):
@@ -257,11 +257,15 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("--out", type=Path, default=DEFAULT_OUT)
     parser.add_argument("--library-dir", type=Path, help="Pre-extracted Azure-Landing-Zones-Library archive root.")
     parser.add_argument("--builtins-dir", type=Path, help="Pre-extracted azure-policy built-in-policies directory.")
-    parser.add_argument("--library-ref", help="ALZ library tag the --library-dir tree was taken from (required with it).")
+    parser.add_argument(
+        "--library-ref", help="ALZ library tag the --library-dir tree was taken from (required with it)."
+    )
     parser.add_argument(
         "--azure-policy-ref", help="azure-policy commit the --builtins-dir tree was taken from (required with it)."
     )
     args = parser.parse_args(argv)
+    if args.out.name == "governance-policy-baseline.json.gz":
+        parser.error("governance-policy-baseline.json.gz is reserved for private tenant snapshots")
     # A local tree is not the pinned release, so its provenance must be stated rather than assumed.
     for tree, ref, tree_flag, ref_flag in (
         (args.library_dir, args.library_ref, "--library-dir", "--library-ref"),
@@ -274,7 +278,7 @@ def main(argv: list[str] | None = None) -> int:
     library_ref = args.library_ref or LIBRARY_REF
     azure_policy_ref = args.azure_policy_ref or AZURE_POLICY_REF
 
-    with tempfile.TemporaryDirectory() as tmp:
+    with tempfile.TemporaryDirectory(prefix=".alz-baseline-sources-", dir=Path.cwd()) as tmp:
         tmp_path = Path(tmp)
         if args.library_dir:
             library_root = args.library_dir
@@ -283,9 +287,14 @@ def main(argv: list[str] | None = None) -> int:
         if args.builtins_dir:
             builtins_dir = args.builtins_dir
         else:
-            builtins_dir = _extract(
-                AZURE_POLICY_URL, tmp_path / "builtin", ("/built-in-policies/policyDefinitions/", "/built-in-policies/policySetDefinitions/")
-            ) / "built-in-policies"
+            builtins_dir = (
+                _extract(
+                    AZURE_POLICY_URL,
+                    tmp_path / "builtin",
+                    ("/built-in-policies/policyDefinitions/", "/built-in-policies/policySetDefinitions/"),
+                )
+                / "built-in-policies"
+            )
         generated_at = datetime.now(UTC).strftime("%Y-%m-%dT%H:%M:%SZ")
         try:
             document = build_baseline(library_root, builtins_dir, generated_at, library_ref, azure_policy_ref)

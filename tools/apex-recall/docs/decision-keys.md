@@ -41,6 +41,7 @@ Specifically:
 | --------------- | ----------------------------------------------------------------------------------------------- | ------------------------------- | --------------- | --------------------------------------------------- |
 | `iac_tool`          | `Bicep` \| `Terraform`                                                                          | Orchestrator prompts the user   | 01-Orchestrator                      | 05-IaC Planner, 06b/06t CodeGen, 07b/07t Deploy     |
 | `workflow_contract` | `practical-v1` \| `legacy`                                                                      | `legacy` (existing projects)    | `apex-recall init`, 01-Orchestrator  | All workflow agents                                 |
+| `policy_evidence_contract` | `corp-policy-v1` | Legacy evidence rules until explicit source choice | New delivery init; `policy-source` | Architecture and implementation gates |
 | `workflow_mode` | `assessment` | Existing numeric delivery workflow | Recall assessment start/adopt from explicit scope approval | Profile routing, terminal handoff and assessment readiness |
 | `region`            | Azure region ID (e.g. `swedencentral`)                                                          | `swedencentral`                 | 02-Requirements                      | All Azure-resource-emitting agents                  |
 | `complexity`        | `simple` \| `standard` \| `complex`                                                             | `standard`                      | 01-Orchestrator, 02-Requirements     | Challenger lens selection                           |
@@ -57,6 +58,14 @@ Specifically:
 | `challenger_skip`   | list of `{step, reason, recorded}`                                                              | n/a (no skips)                  | apex-recall (`--allow-missing-challenger`) | Audit only                                    |
 | `order_overrides`   | list of `{step, problem, reason, recorded}`                                                     | n/a (no overrides)              | apex-recall (`--allow-out-of-order`) | Audit only                                          |
 | `relational_db`     | `azure-sql` \| `postgresql-flex` \| `mysql-flex` \| `sql-managed-instance` \| `none` \| `other` | n/a (Phase 3d question)         | 02-Requirements                      | 03-Architect (SKU), 05-IaC Planner, 06b/06t CodeGen |
+
+### Policy-source material inputs
+
+Policy-source material inputs use the existing scoped ledger, not generic decision strings:
+`policy_source.value` is `{kind: "assumed-corp", sha256: "<shared-file-hash>"}` or `{kind: "tenant"}`.
+Private `azure_read_scope.value` contains `scope_ref`, `scope_sha256` and
+`policy_read_scope: "subscription-and-inherited"`; actual identifiers and native consent stay in the managed private store.
+See [policy-source capture](../../../.github/skills/apex-azure-governance-discovery/references/policy-source.md).
 
 ### Challenger-loop keys (Plan 01 Phase 2b)
 

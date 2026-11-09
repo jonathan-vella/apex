@@ -40,6 +40,7 @@ def run(args) -> int:
     if layout == 2:
         data["layout_version"] = 2
     data.setdefault("decisions", {})["workflow_contract"] = "practical-v1"
+    data["decisions"]["policy_evidence_contract"] = "corp-policy-v1"
     if force and existing_path.exists():
         data = StateDocument(data, existing_path, file_revision(existing_path))
     written = write_state(project, data)

@@ -64,7 +64,9 @@ def sources(tmp_path: Path) -> tuple[Path, Path]:
         _assignment("Enforce-Set", f"{mg}/policySetDefinitions/Custom-Set", enforcementMode="DoNotEnforce"),
         _assignment("Deny-Thing", f"{builtin}/policyDefinitions/{DENY_GUID}"),
         _assignment("Deploy-Thing", f"{builtin}/policyDefinitions/{DINE_GUID}"),
-        _assignment("Audit-Only", f"{builtin}/policyDefinitions/{DENY_GUID}", parameters={"effect": {"value": "Audit"}}),
+        _assignment(
+            "Audit-Only", f"{builtin}/policyDefinitions/{DENY_GUID}", parameters={"effect": {"value": "Audit"}}
+        ),
     ):
         _write(alz / "policy_assignments" / f"{assignment['name']}.alz_policy_assignment.json", assignment)
 
@@ -134,7 +136,59 @@ def test_baseline_resolves_corp_archetypes_and_marks_provenance(sources: tuple[P
         "corp": ["Deploy-Thing", "Audit-Only"],
     }
     assert entry["discovery_status"] == "COMPLETE"
+    assert entry["discovery_options"] == {"include_defender_auto": True}
+    assert entry["discovery_summary"]["defender_auto_filtered"] == 0
     assert document["summary"]["total_findings"] == len(entry["findings"])
+
+
+def test_default_output_is_shared_not_private() -> None:
+    assert Path(".github/data/alz-corp-policy-baseline.json.gz") == gen.DEFAULT_OUT
+    assert Path(".github/data/governance-policy-baseline.json.gz") != gen.DEFAULT_OUT
+
+
+def test_generator_refuses_to_overwrite_the_reserved_private_snapshot(tmp_path: Path) -> None:
+    private = tmp_path / "governance-policy-baseline.json.gz"
+    private.write_bytes(b"private tenant snapshot")
+    with pytest.raises(SystemExit) as error:
+        gen.main(["--out", str(private)])
+    assert error.value.code == 2
+    assert private.read_bytes() == b"private tenant snapshot"
+
+
+def test_baseline_includes_defender_auto_assignments(sources: tuple[Path, Path]) -> None:
+    library, builtins = sources
+    assignment_path = library / "platform" / "alz" / "policy_assignments" / "Deploy-Thing.alz_policy_assignment.json"
+    assignment = json.loads(assignment_path.read_text(encoding="utf-8"))
+    assignment["properties"]["metadata"] = {"assignedBy": "Microsoft Defender for Cloud"}
+    _write(assignment_path, assignment)
+
+    entry = gen.build_baseline(library, builtins, "2026-10-13T00:00:00Z")["subscriptions"][
+        gen.SYNTHETIC_SUBSCRIPTION_ID
+    ]
+    assert entry["discovery_options"] == {"include_defender_auto": True}
+    assert entry["discovery_summary"]["defender_auto_filtered"] == 0
+    assert any(f["assignment_display_name"] == "Deploy-Thing" for f in entry["findings"])
+
+
+def test_shipped_baseline_has_default_provenance_and_full_coverage() -> None:
+    document = load_governance_json(HERE.parents[3] / gen.DEFAULT_OUT)
+    assert document["baseline_kind"] == gen.BASELINE_KIND
+    assert document["alz_library_ref"] == gen.LIBRARY_REF
+    assert document["azure_policy_ref"] == gen.AZURE_POLICY_REF
+    assert document["coverage_status"] == "COMPLETE"
+    assert document["subscriptions_processed"] == document["subscriptions_discovered"] == 1
+    assert document["subscriptions_skipped"] == document["subscriptions_excluded"] == []
+    assert list(document["subscriptions"]) == [gen.SYNTHETIC_SUBSCRIPTION_ID]
+    entry = document["subscriptions"][gen.SYNTHETIC_SUBSCRIPTION_ID]
+    assert entry["source"] == gen.BASELINE_KIND
+    assert entry["provenance"]["verified_against_tenant"] is False
+    assert entry["provenance"]["kind"] == gen.BASELINE_KIND
+    assert entry["provenance"]["alz_library_ref"] == gen.LIBRARY_REF
+    assert entry["provenance"]["azure_policy_ref"] == gen.AZURE_POLICY_REF
+    assert set(entry["provenance"]["archetypes"]) == {archetype for archetype, _ in gen.ARCHETYPES}
+    assert entry["discovery_status"] == "COMPLETE"
+    assert entry["discovery_options"] == {"include_defender_auto": True}
+    assert entry["discovery_summary"]["defender_auto_filtered"] == 0
 
 
 def test_scopes_follow_the_archetype_and_enforcement_mode_is_kept(sources: tuple[Path, Path]) -> None:
@@ -194,7 +248,9 @@ def test_default_subscription_requires_the_alz_kind(sources: tuple[Path, Path]) 
 
 
 def test_conditional_effect_follows_the_resource_type_list() -> None:
-    expression = "[if(contains(parameters('resourceTypeList'),'microsoft.sql/servers'),parameters('effect'),'Disabled')]"
+    expression = (
+        "[if(contains(parameters('resourceTypeList'),'microsoft.sql/servers'),parameters('effect'),'Disabled')]"
+    )
     listed = {"resourceTypeList": ["Microsoft.SQL/servers"], "effect": "DeployIfNotExists"}
     unlisted = {"resourceTypeList": ["microsoft.web/sites"], "effect": "DeployIfNotExists"}
     assert discover._resolve_parameters(expression, listed) == "DeployIfNotExists"

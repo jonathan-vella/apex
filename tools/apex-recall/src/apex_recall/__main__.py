@@ -156,6 +156,21 @@ def build_parser() -> argparse.ArgumentParser:
         "--review-extension", type=Path, help="Explicit bounded extension of an existing review cycle"
     )
 
+    p_policy = sub.add_parser("policy-source", help="Capture an actual policy-source choice or private read scope")
+    p_policy.add_argument("project")
+    p_policy.add_argument("--assumed-corp", action="store_true", help="Record explicit Corp-assumption acceptance")
+    p_policy.add_argument("--tenant", help="Non-secret tenant ID from the actual native response")
+    p_policy.add_argument("--subscription", action="append", help="Explicit subscription ID; repeat for each target")
+    p_policy.add_argument("--authorize-policy-read", action="store_true", help="Record actual scoped read consent")
+    p_policy.add_argument("--owner")
+    p_policy.add_argument("--request-id")
+    p_policy.add_argument("--environment", action="append", choices=["dev", "test", "staging", "prod", "sandbox"])
+    p_policy.add_argument("--show-private-scope", action="store_true", help="Resolve existing private paths, not IDs")
+    p_policy.add_argument(
+        "--verify-tenant", action="store_true", help="Check current CLI tenant against captured scope"
+    )
+    p_policy.add_argument("--json", action="store_true")
+
     # finding
     p_finding = sub.add_parser("finding", help="Manage open_findings")
     p_finding.add_argument("project", help="Project name")
@@ -338,6 +353,8 @@ def main(argv: list[str] | None = None) -> int:
         from .commands.complete_step import run
     elif args.command == "decide":
         from .commands.decide import run
+    elif args.command == "policy-source":
+        from .policy_source import run
     elif args.command == "finding":
         from .commands.finding import run
     elif args.command == "review-audit":

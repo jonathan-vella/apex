@@ -40,6 +40,10 @@ Graph 3.0 adds the [practical contract](references/practical-workflow.md) for ne
 projects; known 2.x project semantics remain readable until explicit owner adoption.
 Specialists and stage approvals are unchanged. Preliminary policy feasibility is
 collection before Architecture approval, not early completion of Governance.
+New delivery projects additionally use the
+[policy-source contract](../apex-azure-governance-discovery/references/policy-source.md):
+explicit shared Corp assumptions can support Architecture; target-verified evidence remains mandatory
+before implementation completion. Existing projects adopt through an actual source choice, not source-file updates.
 
 Use the graph and `apex-recall show <project> --json` together. If the returned
 `session` is empty, initialize or recover the project within the active owner's scope before routing.

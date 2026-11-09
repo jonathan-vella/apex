@@ -74,6 +74,8 @@ Record the actual invocation outcome separately from successful publication usin
 
 - Write only governance artifacts/preview, authorized discovery caches and workspace-local scratch,
   decision sidecar, recorder-owned findings, README, handoff, recall and derived `sku_allowlist_snapshot`.
+  The approved managed private policy store is also allowed for identifying scope, snapshots and diagnostics;
+  resolve it through `apex-recall policy-source`, never through an invented user file format.
   No SKU services/revisions, requirements, architecture, IaC, Azure resources or Azure Policy mutations.
 - Policy authority comes only from `discover.py` or the eligible, explicitly selected
   `render_cached_governance.py` path. No improvised REST/CLI/inline-Python discovery or discovery delegation.
@@ -105,6 +107,12 @@ and bind it with recall checkpoint's `--policy-feasibility`. Do not start/comple
 ask for architecture findings dispositions or imply approval. Formal mode retains prerequisites
 below and reuses current full-coverage evidence/scope. Discovery includes Defender auto-assignments
 by default; explicit legacy exclusion is not equivalent full coverage.
+Apply the [policy-source contract](../skills/apex-azure-governance-discovery/references/policy-source.md)
+before requesting identifiers or reading Azure. Explicit shared Corp assumptions support Architecture
+without tenant scope, but do not constitute tenant discovery or verified implementation readiness.
+Capture actual missing scope through native inputs and the managed CLI; reuse current authorization.
+For private scope, verify the current tenant, collect into the owner-only external store and keep raw previews
+out of public artifacts. Resolve canonical private contracts through the shared project-path helpers.
 
 Recover state via `apex-recall show <project> --json`. Require approved `02-architecture-assessment.md`
 and current Step 2 completion evidence (no self-edit of upstream artifacts).

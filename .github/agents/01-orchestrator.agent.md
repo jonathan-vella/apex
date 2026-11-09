@@ -136,10 +136,15 @@ Any template region is an unconfirmed fallback until the user supplies or confir
 
 ## Native delegation
 
-For practical projects after Gate 1, route an authorized preliminary policy-feasibility task to
-`04g-Governance` before final Architecture approval. Reuse captured target/read scope. This is
-collection only, not Step 3.5 completion or permission to change Azure. No target means provisional
-architecture, not production readiness. Reuse the current snapshot at formal Governance.
+For practical projects after Gate 1, resolve the
+[policy source](../skills/apex-azure-governance-discovery/references/policy-source.md) before Architecture:
+reuse current tenant evidence or ask once for explicit standard Corp-assumption acceptance.
+The assumed route requires no target identifiers or manually prepared JSON; record it through `policy-source`.
+Only the selected tenant route captures missing native target/read inputs and dispatches authorized
+preliminary collection to `04g-Governance`. Use managed private scope capture for anonymous artifacts;
+never invent an external-file preparation task or repeat settled authorization.
+Collection does not complete Step 3.5 or grant Azure writes. Assumed Architecture remains tenant-unverified;
+new-contract planning completion, CodeGen and deployment require current target evidence.
 
 Use actual native selection/calling context; if unavailable, report the role as unknown.
 Do not describe default-agent coordination as selected `01-Orchestrator` or use prose to acquire permissions.
