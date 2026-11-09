@@ -27,6 +27,14 @@ export function readJson(filePath) {
   return JSON.parse(fs.readFileSync(filePath, "utf8"));
 }
 
+export function canonicalJson(value) {
+  return JSON.stringify(value, (_key, item) =>
+    item && typeof item === "object" && !Array.isArray(item)
+      ? Object.fromEntries(Object.entries(item).sort(([a], [b]) => (a < b ? -1 : a > b ? 1 : 0)))
+      : item,
+  );
+}
+
 /** Cached strict JSON read for immutable validation inputs within one process. */
 export function readJsonCached(filePath) {
   if (!jsonCache.has(filePath)) {

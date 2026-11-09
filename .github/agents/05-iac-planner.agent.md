@@ -37,6 +37,10 @@ For `decisions.workflow_contract=practical-v1`, use the
 [practical workflow](../skills/apex-workflow-engine/references/practical-workflow.md):
 batch granted mechanical repairs and ordinary closure verification, preserve stage approval.
 Consume scoped decision projections; DEV readiness never implies PROD readiness or deployment permission.
+For `decisions.policy_evidence_contract=corp-policy-v1`, shared Corp assumptions are Architecture-only.
+Require current target-verified policy evidence before completing the plan. For managed private scope,
+resolve the canonical Governance JSON through the shared contract resolver; do not copy raw identifiers
+or private policy evidence into public planning artifacts.
 
 Before direct display or delegated return, apply the
 [shared question-form checks](../copilot-instructions.md#user-question-forms):

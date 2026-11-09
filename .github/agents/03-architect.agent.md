@@ -55,13 +55,17 @@ For `decisions.workflow_contract=practical-v1`, use the
 [practical workflow](../skills/apex-workflow-engine/references/practical-workflow.md).
 Keep stage approval and both independent architecture/cost lenses. Handle granted mechanical
 repairs without per-finding administrative questions; use one initial and optional closure per lens.
-For implementation continuation, require current preliminary policy feasibility for an authorized target;
-missing evidence returns to the interactive parent/Governance owner, not a fabricated snapshot. For an
+For new-contract implementation continuation, follow the
+[policy-source contract](../skills/apex-azure-governance-discovery/references/policy-source.md):
+reuse current tenant evidence or explicit hash-bound Corp-assumption acceptance. Assumed Architecture needs
+no real target or hand-prepared scope file; label it tenant-unverified through review and Gate 2.
+Missing source returns to the interactive parent; Governance alone collects tenant evidence.
+Tenant verification remains mandatory before planning completion, CodeGen and deployment. For an
 assessment-only exit, collect policy evidence when authorized but report unavailable policy scope as a gap
 instead of blocking the WAF assessment.
 Before assessment-only completion or pause, persist the owner's explicit
 `assessment_exit=assessment_only`; implementation continuation uses `assessment_exit=implementation`
-and retains the current policy-feasibility requirement. Missing choice does not waive that requirement.
+and retains the applicable policy-source requirement. Missing choice does not waive that requirement.
 When evidence-equivalent, use deterministic pricing scenarios instead of new pricing-worker calls.
 
 Before direct display or delegated return, apply the

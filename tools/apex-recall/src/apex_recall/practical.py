@@ -5,6 +5,7 @@ from __future__ import annotations
 import hashlib
 import json
 import re
+import stat
 import subprocess
 import sys
 from pathlib import Path
@@ -46,6 +47,8 @@ def validate_state(data: dict) -> None:
     if not enabled(data) and not assessment_enabled(data):
         return
     decisions = data["decisions"]
+    if decisions.get("policy_evidence_contract") not in (None, "corp-policy-v1"):
+        raise ValueError("Unsupported policy evidence contract")
     for key in ("material_inputs", "phase_scopes", "review_cycles", "assessment_views"):
         if not isinstance(decisions.get(key, {}), dict):
             raise ValueError(f"Invalid practical decision map: {key}")
@@ -53,6 +56,10 @@ def validate_state(data: dict) -> None:
         if not isinstance(record, dict) or record.get("input_id") != key or not record.get("recorded_at"):
             raise ValueError("Invalid scoped material input provenance")
         validate_record({name: value for name, value in record.items() if name != "recorded_at"})
+        if key == "policy_source" and (
+            not isinstance(record["value"], dict) or record["value"].get("kind") not in ("assumed-corp", "tenant")
+        ):
+            raise ValueError("Policy source must explicitly identify Corp assumptions or tenant evidence")
     for step, scope in decisions.get("phase_scopes", {}).items():
         if step not in ("1", "2", "3", "3_5", "4", "5", "6", "7") or not isinstance(scope, dict):
             raise ValueError("Invalid phase scope")
@@ -290,11 +297,34 @@ def sync_views(project: str, data: dict, step: str) -> dict:
         scratch = file.with_suffix(file.suffix + ".recall-scratch")
         with scratch.open("x", encoding="utf-8") as stream:
             stream.write(contents)
+        if file.exists():
+            scratch.chmod(stat.S_IMODE(file.stat().st_mode))
         scratch.replace(file)
         data.input_revisions[file] = file_revision(file)
     binding = {"projection_sha256": digest(view), "path": target.name, "markdown": markdown.name}
     data["decisions"].setdefault("assessment_views", {})[step] = binding
     return binding
+
+
+def check_policy_phase_scope(data: dict, step: str, *, required: bool = False) -> None:
+    if not data.get("decisions", {}).get("policy_evidence_contract"):
+        return
+    phase = data["decisions"].get("phase_scopes", {}).get(step)
+    if not phase:
+        if required:
+            raise ValueError("A policy-bound phase scope is required before CodeGen or deployment")
+        return
+    inputs = material_inputs(data)
+    expected = {"policy_source"} & inputs.keys()
+    if required or inputs.get("policy_source", {}).get("value", {}).get("kind") != "assumed-corp":
+        expected |= {"azure_read_scope"} if required else {"azure_read_scope"} & inputs.keys()
+    if not expected <= set(phase["input_ids"]) or not expected <= inputs.keys():
+        raise ValueError("Phase scope must consume the current policy source/read inputs and their environments")
+    environments = phase.get("environments")
+    if not isinstance(environments, list) or not environments:
+        raise ValueError("Policy-bound phase scope requires explicit environments")
+    if any(not set(environments) <= set(inputs[key]["environments"]) for key in expected):
+        raise ValueError("Phase environments exceed the authorized policy source/read scope")
 
 
 def check_views(project: str, data: dict, step: str) -> None:
@@ -334,6 +364,8 @@ def check_views(project: str, data: dict, step: str) -> None:
             raise ValueError("Derived decision sidecar is stale")
     check_state_revision(data, session_state_path(project))
     scope = view["scope"]["environments"]
+    if data["decisions"].get("policy_evidence_contract") and step in ("2", "3_5", "4", "5", "6"):
+        check_policy_phase_scope(data, step)
     readiness = action_readiness(
         data, {"4": "plan-complete", "5": "code-complete", "6": "deploy"}.get(step, f"step-{step}-complete"), scope
     )
@@ -342,13 +374,20 @@ def check_views(project: str, data: dict, step: str) -> None:
     if step == "2":
         assessment_only = data.get("decisions", {}).get("assessment_exit") == "assessment_only"
         if not assessment_only:
-            check_feasibility(project, data)
+            status = check_feasibility(project, data)
+            if data["decisions"].get("policy_evidence_contract") and status == "provisional_no_authorized_target":
+                raise ValueError(
+                    "Select current tenant evidence or explicitly accept Corp assumptions before Architecture"
+                )
         if data.get("decisions", {}).get("assessment_cost_status") == "not_assessed":
             if not assessment_only:
                 raise ValueError("Unpriced assessment cannot authorize implementation continuation")
             check_unpriced_assessment(project, data)
     elif step in ("4", "5", "6") and data.get("decisions", {}).get("assessment_exit") == "assessment_only":
         raise ValueError("Assessment-only exit does not authorize implementation continuation")
+    elif step in ("4", "5", "6") and data["decisions"].get("policy_evidence_contract"):
+        if check_feasibility(project, data) != "current":
+            raise ValueError("Tenant-verified policy evidence is required before implementation completion")
 
 
 def check_unpriced_assessment(project: str, data: dict) -> None:
@@ -665,6 +704,11 @@ def _feasibility_validation(project: str, data: dict, snapshot: Path) -> dict[st
     ):
         raise ValueError("Explicit target/read scope is required before policy discovery")
     scope = record["value"]
+    private_directory = None
+    if "scope_ref" in scope:
+        from .policy_source import private_scope
+
+        scope, private_directory = private_scope(project, data)
     multiple = "subscription_ids" in scope
     subscriptions = scope.get("subscription_ids") if multiple else [scope.get("subscription_id")]
     if (
@@ -678,6 +722,10 @@ def _feasibility_validation(project: str, data: dict, snapshot: Path) -> dict[st
     root = workspace_root_for()
 
     def evidence_path(candidate: Path) -> Path:
+        if private_directory is not None:
+            from .policy_source import private_evidence_path
+
+            return private_evidence_path(private_directory, candidate)
         target = candidate.resolve()
         if candidate.is_symlink() or not target.is_relative_to(root.resolve()):
             raise ValueError("Policy evidence must remain in the workspace")
@@ -718,7 +766,14 @@ def _feasibility_validation(project: str, data: dict, snapshot: Path) -> dict[st
         try:
             candidate = evidence_path(candidate)
         except ValueError as error:
-            failures.append(f"{subscription}: {error}")
+            failures.append(str(error) if private_directory is not None else f"{subscription}: {error}")
+            continue
+        envelope = json.loads(candidate.read_text(encoding="utf-8"))
+        if (
+            envelope.get("source") == "alz-corp-default"
+            or envelope.get("provenance", {}).get("verified_against_tenant") is False
+        ):
+            failures.append("Assumed Corp evidence cannot attest tenant policy")
             continue
         result = subprocess.run(
             [
@@ -738,14 +793,17 @@ def _feasibility_validation(project: str, data: dict, snapshot: Path) -> dict[st
             check=False,
         )
         if result.returncode:
-            failures.append(f"{subscription}: {result.stdout} {result.stderr}")
-        revisions[str(candidate.relative_to(root.resolve()))] = file_revision(candidate)
+            if private_directory is not None:
+                failures.append("Private policy evidence is incomplete, stale or differently scoped")
+            else:
+                failures.append(f"{subscription}: {result.stdout} {result.stderr}")
+        revisions[str(candidate.relative_to(private_directory or root.resolve()))] = file_revision(candidate)
     if failures:
         raise ValueError(
             f"Preliminary policy evidence is incomplete, stale or differently scoped: {'; '.join(failures)}"
         )
     for name, revision in revisions.items():
-        data.input_revisions[root / name] = revision
+        data.input_revisions[(private_directory or root) / name] = revision
     data.input_revisions[target] = file_revision(target)
     return revisions if multiple else {}
 
@@ -753,21 +811,38 @@ def _feasibility_validation(project: str, data: dict, snapshot: Path) -> dict[st
 def bind_feasibility(project: str, data: dict, snapshot: Path) -> None:
     snapshots = _feasibility_validation(project, data, snapshot)
     root = workspace_root_for()
+    private = "scope_ref" in material_inputs(data)["azure_read_scope"]["value"]
+    if private:
+        from .policy_source import private_scope
+
+        _, root = private_scope(project, data)
     data.setdefault("metadata", {})["policy_feasibility"] = {
         "path": str(snapshot.resolve().relative_to(root.resolve())),
         "sha256": file_revision(snapshot),
         "read_scope": digest(material_inputs(data)["azure_read_scope"]),
+        **({"private": True} if private else {}),
         **({"snapshots": snapshots} if snapshots else {}),
     }
 
 
 def check_feasibility(project: str, data: dict) -> str:
+    source = material_inputs(data).get("policy_source", {}).get("value", {})
+    if source.get("kind") == "assumed-corp":
+        from .policy_source import assumed_baseline
+
+        baseline = assumed_baseline(data)
+        data.input_revisions[baseline] = file_revision(baseline)
+        return "assumed_corp_not_tenant_verified"
     if "azure_read_scope" not in material_inputs(data):
         return "provisional_no_authorized_target"
     record = data.get("metadata", {}).get("policy_feasibility")
     if not record or record["read_scope"] != digest(material_inputs(data)["azure_read_scope"]):
         raise ValueError("Early policy feasibility is missing or target/read scope changed")
     root = workspace_root_for()
+    if record.get("private"):
+        from .policy_source import private_scope
+
+        _, root = private_scope(project, data)
     snapshot = root / record["path"]
     if not snapshot.exists():
         snapshot = resolve_contract_path(project, Path(record["path"]).name)

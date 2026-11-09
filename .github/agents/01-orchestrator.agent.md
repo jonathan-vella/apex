@@ -136,10 +136,15 @@ Any template region is an unconfirmed fallback until the user supplies or confir
 
 ## Native delegation
 
-For practical projects after Gate 1, route an authorized preliminary policy-feasibility task to
-`04g-Governance` before final Architecture approval. Reuse captured target/read scope. This is
-collection only, not Step 3.5 completion or permission to change Azure. No target means provisional
-architecture, not production readiness. Reuse the current snapshot at formal Governance.
+For practical projects after Gate 1, resolve the
+[policy source](../skills/apex-azure-governance-discovery/references/policy-source.md) before Architecture:
+reuse current tenant evidence or ask once for explicit standard Corp-assumption acceptance.
+The assumed route requires no target identifiers or manually prepared JSON; record it through `policy-source`.
+Only the selected tenant route captures missing native target/read inputs and dispatches authorized
+preliminary collection to `04g-Governance`. Use managed private scope capture for anonymous artifacts;
+never invent an external-file preparation task or repeat settled authorization.
+Collection does not complete Step 3.5 or grant Azure writes. Assumed Architecture remains tenant-unverified;
+new-contract planning completion, CodeGen and deployment require current target evidence.
 
 Use actual native selection/calling context; if unavailable, report the role as unknown.
 Do not describe default-agent coordination as selected `01-Orchestrator` or use prose to acquire permissions.
@@ -160,6 +165,10 @@ to an optional candidate.
 Distinguish a full-phase request from an explicitly bounded research/repair slice;
 filenames alone do not define success.
 Record a pending phase's actual start through recall; resume existing progress without forced restart or backdating.
+For `corp-policy-v1`, capture the authorized CodeGen/deployment phase scope, including policy/read inputs and
+target environments, before `start-step` or transition. Reuse the actual granted stage/start approval; do not
+copy earlier-step authority or let DEV evidence authorize PROD. Private policy-backed reviews must freeze the
+opaque supporting set and use only preflight-resolved private read locations under the policy-source contract.
 
 - `execution_mode: delegated`, project, step/phase, objective and exact input paths/revisions;
 - current answers, unresolved decisions, approved side effects and allowed output paths;

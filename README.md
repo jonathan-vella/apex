@@ -16,6 +16,10 @@ New projects use the [practical workflow](.github/skills/apex-workflow-engine/re
 reuse captured decisions, batch authorized routine repairs, bound review closure, and check policy feasibility early.
 Specialists, production support and the lifecycle approval gates shown below remain.
 Existing projects retain their legacy contract until explicitly adopted.
+Delivery projects select [policy evidence](.github/skills/apex-azure-governance-discovery/references/policy-source.md)
+before Architecture: explicitly accepted standard Corp assumptions or authorized target evidence.
+The shared baseline needs no real subscription identifiers; assumptions never authorize implementation.
+Native target capture can keep identifying scope and policy snapshots in an owner-only private store.
 
 ```mermaid
 %%{init: {'theme':'neutral'}}%%

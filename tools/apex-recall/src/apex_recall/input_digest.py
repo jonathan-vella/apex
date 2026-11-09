@@ -27,6 +27,12 @@ def inputs_digest(root: Path, paths: list[str]) -> str:
     root = root.resolve()
     entries: dict[str, str] = {}
     for raw in paths:
+        if raw.startswith("apex-private-policy:"):
+            from .policy_source import resolve_private_reference
+
+            target = resolve_private_reference(raw, root)
+            entries[raw] = hashlib.sha256(target.read_bytes()).hexdigest()
+            continue
         target = (root / raw).resolve()
         try:
             target.relative_to(root)

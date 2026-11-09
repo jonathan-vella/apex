@@ -7,6 +7,10 @@
 
 import fs from "node:fs";
 import path from "node:path";
+import os from "node:os";
+import crypto from "node:crypto";
+
+import { canonicalJson, readJson, sha256File } from "./json.mjs";
 
 export const LAYOUT_SUBDIRS = ["assets", "contracts", "reviews", "_meta"];
 const KNOWN_SUBDIRS = new Set([...LAYOUT_SUBDIRS, "inputs", "pricing", "previews", "scratch"]);
@@ -75,8 +79,141 @@ function resolveInSubdir(projectDir, subdir, filename) {
   return isLayoutV2(pdir) ? v2 : v1;
 }
 
+const POLICY_FILE = /^(?:04-(?:governance-constraints|policy-feasibility)|subscription-[1-9][0-9]*)\.json$/;
+const PRIVATE_PROJECT = /^(?!\.{1,2}$)[A-Za-z0-9_.-]{1,100}$/;
+const PRIVATE_POLICY_REFERENCE =
+  /^apex-private-policy:\/\/([A-Za-z0-9_.-]{1,100})\/([a-f0-9]{32})\/((?:04-(?:governance-constraints|policy-feasibility)|subscription-[1-9][0-9]*)\.json)$/;
+
+function privatePolicyContext(projectDir, filename) {
+  if (POLICY_FILE.test(filename)) {
+    const pdir = projectDirFromPath(projectDir);
+    const stateFile = resolveSessionStatePath(pdir);
+    if (fs.existsSync(stateFile)) {
+      const state = readJson(stateFile);
+      const record = state.decisions?.material_inputs?.azure_read_scope;
+      if (record?.value?.scope_ref) {
+        const reference = record.value.scope_ref;
+        if (!/^[a-f0-9]{32}$/.test(reference)) throw new Error("Invalid private policy scope reference");
+        const workspace = fs.realpathSync(path.dirname(path.dirname(pdir)));
+        const stateHome = process.env.XDG_STATE_HOME || path.join(os.homedir(), ".local", "state");
+        if (!path.isAbsolute(stateHome)) throw new Error("Private policy state home must be absolute");
+        const hash = (value) => crypto.createHash("sha256").update(canonicalJson(value)).digest("hex");
+        const directory = path.join(stateHome, "apex", "policy", hash(workspace), reference);
+        const inside = (parent, target) => {
+          const relative = path.relative(parent, target);
+          return (
+            relative === "" ||
+            (!relative.startsWith(`..${path.sep}`) && relative !== ".." && !path.isAbsolute(relative))
+          );
+        };
+        if (inside(workspace, path.resolve(directory)) || fs.realpathSync(directory) !== path.resolve(directory)) {
+          throw new Error("Private policy storage must be outside the repository without symlinks");
+        }
+        const scopeFile = path.join(directory, "scope.json");
+        const privateFile = (file) => {
+          const metadata = fs.lstatSync(file);
+          if (!metadata.isFile() || (metadata.mode & 0o077) !== 0) {
+            throw new Error("Private policy evidence requires an owner-only regular file");
+          }
+        };
+        privateFile(scopeFile);
+        const scope = readJson(scopeFile);
+        if (
+          scope.project !== path.basename(pdir) ||
+          scope.workspace !== hash(workspace) ||
+          hash(scope) !== record.value.scope_sha256 ||
+          scope.authorized !== true ||
+          scope.policy_read_scope !== "subscription-and-inherited" ||
+          scope.request_id !== record.request_id ||
+          scope.owner !== record.owner ||
+          JSON.stringify(scope.environments) !== JSON.stringify(record.environments)
+        ) {
+          throw new Error("Private policy scope is changed or differently authorized");
+        }
+        const target = path.join(directory, filename);
+        if (fs.existsSync(target)) privateFile(target);
+        return { target, reference, scope, state, record };
+      }
+    }
+  }
+  return null;
+}
+
 export function resolveContractPath(projectDir, filename) {
+  if (["04-governance-constraints.json", "04-policy-feasibility.json"].includes(filename)) {
+    const context = privatePolicyContext(projectDir, filename);
+    if (context) return context.target;
+  }
   return resolveInSubdir(projectDir, "contracts", filename);
+}
+
+export function isPrivatePolicyReference(value) {
+  return typeof value === "string" && value.startsWith("apex-private-policy:");
+}
+
+export function resolvePrivatePolicyReference(root, reference, expectedProject) {
+  const match = typeof reference === "string" && PRIVATE_POLICY_REFERENCE.exec(reference);
+  if (!match || !PRIVATE_PROJECT.test(match[1]) || (expectedProject && match[1] !== expectedProject)) {
+    throw new Error("Invalid or differently scoped private policy reference");
+  }
+  const projectDir = path.join(root, "agent-output", match[1]);
+  const context = privatePolicyContext(projectDir, match[3]);
+  if (!context || context.reference !== match[2]) {
+    throw new Error("Private policy reference does not match the current authorized scope");
+  }
+  return context.target;
+}
+
+export function requiredPrivateReviewInputs(root, project, artifactType, artifactPath) {
+  if (
+    !["architecture", "cost-estimate", "governance-constraints", "implementation-plan", "iac-code"].includes(
+      artifactType,
+    )
+  ) {
+    return [];
+  }
+  if (artifactPath) {
+    const relative = path.relative(path.join(root, "agent-output"), path.resolve(root, artifactPath));
+    if (!relative.startsWith(`..${path.sep}`) && !path.isAbsolute(relative)) {
+      const artifactProject = relative.split(path.sep)[0];
+      if (artifactProject !== project) throw new Error("Review project differs from its primary artifact scope");
+    }
+  }
+  if (!PRIVATE_PROJECT.test(project)) throw new Error("Private policy review requires a valid project slug");
+  const projectDir = path.join(root, "agent-output", project);
+  const stateFile = resolveSessionStatePath(projectDir);
+  if (!fs.existsSync(stateFile)) return [];
+  const state = readJson(stateFile);
+  if (
+    !state.decisions?.material_inputs?.azure_read_scope?.value?.scope_ref ||
+    state.decisions?.material_inputs?.policy_source?.value?.kind === "assumed-corp"
+  ) {
+    return [];
+  }
+  const context = privatePolicyContext(projectDir, "04-policy-feasibility.json");
+  if (!context) throw new Error("Private policy review scope is no longer current");
+  const binding = state.metadata?.policy_feasibility;
+  const scopeHash = crypto.createHash("sha256").update(canonicalJson(context.record)).digest("hex");
+  if (
+    !binding?.private ||
+    binding.read_scope !== scopeHash ||
+    !binding.snapshots ||
+    !Array.isArray(context.scope.subscription_ids) ||
+    !context.scope.subscription_ids.length ||
+    Object.keys(binding.snapshots).length !== context.scope.subscription_ids.length
+  ) {
+    throw new Error("Private policy review requires current full-scope evidence binding");
+  }
+  const files = new Map([[binding.path, binding.sha256], ...Object.entries(binding.snapshots)]);
+  if (artifactType === "governance-constraints") files.set("04-governance-constraints.json", null);
+  return [...files].map(([filename, expectedHash]) => {
+    const reference = `apex-private-policy://${project}/${context.reference}/${filename}`;
+    const actual = sha256File(resolvePrivatePolicyReference(root, reference, project));
+    if (expectedHash !== null && actual !== expectedHash) {
+      throw new Error("Private policy review evidence changed; refresh its current binding");
+    }
+    return { path: reference, sha256: actual };
+  });
 }
 
 export function resolveReviewPath(projectDir, filename) {

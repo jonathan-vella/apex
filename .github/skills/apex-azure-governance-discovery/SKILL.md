@@ -31,6 +31,9 @@ pulling raw Azure REST responses into LLM context.
 
 ## Rules
 
+- **Choose the source early** — follow [policy-source capture](references/policy-source.md).
+  The shared ALZ Corp baseline supports explicitly assumed Architecture, never target verification.
+  Native target/read inputs use managed private capture when artifacts must remain anonymous; no user-prepared JSON.
 - **Stay deterministic** — the discovery script is a single batched REST traversal; no LLM calls, no retries that hide errors, no inferred policy effects
 - **Use compact status for routing**, then targeted envelope reads for decisions; recover all required evidence and diagnostics
 - **Schema compliance is mandatory** — envelope MUST conform to `tools/schemas/governance-constraints.schema.json` (`schema_version: governance-constraints-v1`)

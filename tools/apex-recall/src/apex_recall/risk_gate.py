@@ -120,9 +120,7 @@ def evaluate_gate(
         "approval": approval,
         "context": context,
         "reviews": [str(sidecar) for _, sidecar in _review_paths(project, "4", selected)],
-        "preserved_reviews": [str(resolve_review_path(project, "challenge-findings-plan.json"))]
-        if selected
-        else [],
+        "preserved_reviews": [str(resolve_review_path(project, "challenge-findings-plan.json"))] if selected else [],
         "preserved_execution": (data.get("risk_authorizations", {}).get("deployment-complete") or {}).get("execution"),
         "require_approval": require_approval,
     }
@@ -226,9 +224,13 @@ def record_authorization(data: dict, result: dict | None, now: str) -> None:
 def check_entry(
     project: str, data: StateDocument, step: str, args: object, *, completing_code: bool = False
 ) -> dict | None:
-    from .practical import action_readiness, enabled
+    from .practical import action_readiness, check_feasibility, check_policy_phase_scope, enabled
 
     if enabled(data):
+        if step in ("5", "6") and data.get("decisions", {}).get("policy_evidence_contract"):
+            if check_feasibility(project, data) != "current":
+                raise ValueError("Tenant-verified policy evidence is required before CodeGen or deployment")
+            check_policy_phase_scope(data, step, required=True)
         scope = data.get("decisions", {}).get("phase_scopes", {}).get(step)
         if scope:
             ordinary = action_readiness(data, ENTRY_ACTIONS.get(step, f"step-{step}-complete"), scope["environments"])

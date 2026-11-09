@@ -1,6 +1,7 @@
 import assert from "node:assert/strict";
 import fs from "node:fs";
 import path from "node:path";
+import os from "node:os";
 import { randomUUID, createHash } from "node:crypto";
 import { spawn, spawnSync } from "node:child_process";
 import { once } from "node:events";
@@ -15,6 +16,8 @@ import {
   STRUCTURED_REVIEWER_DEFINITION,
   validateReview,
 } from "../../scripts/validate-challenger-findings.mjs";
+import { requiredPrivateReviewInputs } from "../../scripts/_lib/project-paths.mjs";
+import { supportingInputCompatible } from "../../scripts/_lib/review-compatibility.mjs";
 
 const validator = fileURLToPath(new URL("../../scripts/validate-challenger-findings.mjs", import.meta.url));
 const recorder = fileURLToPath(new URL("../../scripts/record-review.mjs", import.meta.url));
@@ -140,6 +143,212 @@ function fixture(t, { batch = false, supporting = false, parent = "root", review
   };
   return state;
 }
+
+function privatePolicyFixture(t) {
+  const f = fixture(t);
+  const repo = path.resolve(fileURLToPath(new URL("../../../", import.meta.url)));
+  const stateHome = fs.mkdtempSync(path.join(os.tmpdir(), "private-review-test-"));
+  t.after(() => fs.rmSync(stateHome, { recursive: true, force: true }));
+  const previousHome = process.env.XDG_STATE_HOME;
+  process.env.XDG_STATE_HOME = stateHome;
+  t.after(() => {
+    if (previousHome === undefined) delete process.env.XDG_STATE_HOME;
+    else process.env.XDG_STATE_HOME = previousHome;
+  });
+  fs.symlinkSync(path.join(repo, "tools"), path.join(f.root, "tools"));
+  const recall = (...args) => {
+    const result = spawnSync("python3", ["-m", "apex_recall", ...args], {
+      cwd: f.root,
+      encoding: "utf8",
+      env: { ...process.env, APEX_ROOT: f.root, PYTHONPATH: path.join(repo, "tools/apex-recall/src") },
+    });
+    assert.equal(result.status, 0, result.stdout + result.stderr);
+    return JSON.parse(result.stdout);
+  };
+  recall("init", "example", "--json");
+  const scope = recall(
+    "policy-source",
+    "example",
+    "--tenant",
+    "11111111-1111-1111-1111-111111111111",
+    "--subscription",
+    "22222222-2222-2222-2222-222222222222",
+    "--authorize-policy-read",
+    "--owner",
+    "synthetic-owner",
+    "--request-id",
+    "private-scope-request",
+    "--environment",
+    "dev",
+    "--json",
+  );
+  const scripts = ".github/skills/apex-azure-governance-discovery/scripts";
+  for (const filename of ["discover.py", "render_governance.py"]) {
+    f.write(`${scripts}/${filename}`, fs.readFileSync(path.join(repo, scripts, filename)));
+  }
+  const snapshot = path.join(scope.directory, "subscription-1.json");
+  const policy = {
+    schema_version: "governance-constraints-v1",
+    project: "example",
+    subscription_id: "22222222-2222-2222-2222-222222222222",
+    discovery_status: "COMPLETE",
+    source: "live",
+    findings: [],
+    discovery_options: { include_defender_auto: true },
+    discovery_metadata: {
+      discovery_status: "COMPLETE",
+      discovered_at: new Date().toISOString(),
+      ttl_days: 7,
+      scope: { subscription_id: "22222222-2222-2222-2222-222222222222" },
+      completeness_signature: `sha256:${hash("")}`,
+    },
+  };
+  fs.writeFileSync(snapshot, JSON.stringify(policy), { mode: 0o600 });
+  const canonical = path.join(scope.directory, "04-governance-constraints.json");
+  fs.writeFileSync(canonical, JSON.stringify(policy), { mode: 0o600 });
+  recall("checkpoint", "example", "1", "policy-evidence", "--policy-feasibility", scope.evidence_path, "--json");
+  const primary = "agent-output/example/04-governance-constraints.md";
+  f.write(primary, "# Governance\nAnonymized policy summary\n");
+  f.write(
+    "phase.json",
+    JSON.stringify({
+      input_ids: ["policy_source", "azure_read_scope"],
+      environments: ["dev"],
+      request_id: "governance-phase",
+    }),
+  );
+  recall("decide", "example", "--phase-scope", path.join(f.root, "phase.json"), "--step", "3_5", "--json");
+  recall("checkpoint", "example", "3_5", "review-ready", "--sync-assessment", "--json");
+  const projection = "agent-output/example/_meta/assessment-step-3_5.json";
+  const findings = "agent-output/example/reviews/challenge-findings-governance-constraints.json";
+  Object.assign(f.input, {
+    step: "3_5",
+    artifact_path: primary,
+    artifact_type: "governance-constraints",
+    review_focus: "governance-reconciliation",
+    output_path: findings,
+    cache_inputs: cacheInputs(primary, f.root, STRUCTURED_REVIEWER),
+    supporting_inputs: [
+      { path: projection, sha256: hash(fs.readFileSync(path.join(f.root, projection))) },
+      ...requiredPrivateReviewInputs(f.root, "example", "governance-constraints"),
+    ],
+  });
+  Object.assign(f.doc, {
+    challenged_artifact: primary,
+    artifact_type: f.input.artifact_type,
+    review_focus: f.input.review_focus,
+    cache_inputs: structuredClone(f.input.cache_inputs),
+    supporting_inputs: structuredClone(f.input.supporting_inputs),
+  });
+  f.options.output = findings;
+  f.write("request.json", JSON.stringify(f.input));
+  return { ...f, recall, snapshot, canonical, findings };
+}
+
+test("private policy evidence is required, attributed, hash-bound and invalidated after drift", (t) => {
+  const f = privatePolicyFixture(t);
+  const preflight = preflightReviewRequest(f.input, f.root);
+  assert.equal(preflight.private_inputs.length, 3);
+  assert.equal(
+    preflight.private_inputs.some((input) => input.read_path === f.canonical),
+    true,
+  );
+  const request = path.join(f.root, "request.json");
+  f.recall(
+    "review-audit",
+    "example",
+    "3_5",
+    "--attempt-kind",
+    "invocation",
+    "--review-request",
+    request,
+    "--attempt-outcome",
+    "started",
+    "--json",
+  );
+  f.record();
+  f.recall(
+    "review-audit",
+    "example",
+    "3_5",
+    "--attempt-kind",
+    "invocation",
+    "--review-request",
+    request,
+    "--attempt-outcome",
+    "completed",
+    "--review-output",
+    "nonempty",
+    "--review-result",
+    path.join(f.root, f.findings),
+    "--json",
+  );
+  const document = f.persisted();
+  assert.deepEqual(validateReview(document, { root: f.root, verifyCurrent: true }), []);
+  const original = fs.readFileSync(path.join(f.root, f.findings), "utf8");
+  assert.equal(original.includes("22222222-2222-2222-2222-222222222222"), false);
+  fs.appendFileSync(f.snapshot, "\n");
+  assert.match(validateReview(document, { root: f.root, verifyCurrent: true }).join("\n"), /evidence changed/);
+  f.recall(
+    "checkpoint",
+    "example",
+    "3_5",
+    "refresh",
+    "--policy-feasibility",
+    path.join(path.dirname(f.snapshot), "04-policy-feasibility.json"),
+    "--json",
+  );
+  const changed = document.supporting_inputs.find((support) => support.path.endsWith("/subscription-1.json"));
+  const registryRoot = fs.mkdtempSync(path.join(os.tmpdir(), "private-compatibility-test-"));
+  t.after(() => fs.rmSync(registryRoot, { recursive: true, force: true }));
+  fs.mkdirSync(path.join(registryRoot, "tools/registry"), { recursive: true });
+  fs.writeFileSync(
+    path.join(registryRoot, "tools/registry/review-contract.json"),
+    JSON.stringify({
+      contract: "review-v1",
+      editorial_compatibility: [],
+      supporting_input_compatibility: [
+        {
+          path: changed.path,
+          from_sha256: changed.sha256,
+          to_sha256: hash(fs.readFileSync(f.snapshot)),
+          rationale: "A registry mapping cannot waive private policy drift",
+        },
+      ],
+    }),
+  );
+  assert.equal(
+    supportingInputCompatible(changed.path, changed.sha256, hash(fs.readFileSync(f.snapshot)), registryRoot),
+    false,
+  );
+  assert.match(validateReview(document, { root: f.root, verifyCurrent: true }).join("\n"), /supporting bytes changed/);
+  const wrongProject = structuredClone(document);
+  wrongProject.review_execution.project_name = "other";
+  delete wrongProject.supporting_inputs;
+  assert.match(
+    validateReview(wrongProject, { root: f.root, verifyCurrent: true }).join("\n"),
+    /primary artifact scope/,
+  );
+  assert.equal(fs.readFileSync(path.join(f.root, f.findings), "utf8"), original);
+});
+
+test("private review references cannot omit evidence, escape scope or use public copies", (t) => {
+  const f = privatePolicyFixture(t);
+  const withoutPrivate = structuredClone(f.input);
+  withoutPrivate.supporting_inputs = withoutPrivate.supporting_inputs.filter(
+    (support) => !support.path.startsWith("apex-private-policy:"),
+  );
+  assert.throws(() => preflightReviewRequest(withoutPrivate, f.root), /Required private policy evidence/);
+  const outside = structuredClone(f.input);
+  outside.supporting_inputs[1].path = f.snapshot;
+  assert.throws(() => preflightReviewRequest(outside, f.root), /within the workspace/);
+  const wrongScope = structuredClone(f.input);
+  wrongScope.supporting_inputs[1].path = wrongScope.supporting_inputs[1].path.replace("/example/", "/other/");
+  assert.throws(() => preflightReviewRequest(wrongScope, f.root), /differently scoped/);
+  const privatePrimary = structuredClone(f.input);
+  privatePrimary.artifact_path = privatePrimary.supporting_inputs[1].path;
+  assert.throws(() => preflightReviewRequest(privatePrimary, f.root), /primary remains the public summary/);
+});
 
 test("request preflight rejects malformed revisions before any worker or publication", (t) => {
   const f = fixture(t, { supporting: true });
@@ -422,14 +631,50 @@ test("practical initial and closure evidence complete a scoped stage without a t
   f.write("agent-output/example/03-des-cost-estimate.md", "# Cost\nUnpriced draft; no verified estimate\n");
   f.write("agent-output/example/sku-manifest.json", JSON.stringify({ services: [] }));
   const statePath = path.join(f.root, "agent-output/example/_meta/00-session-state.json");
+  const completeDraft = () =>
+    spawnSync("python3", ["-m", "apex_recall", "complete-step", "example", "2", "--json"], {
+      cwd: f.root,
+      encoding: "utf8",
+      env: { ...process.env, APEX_ROOT: f.root, PYTHONPATH: path.join(repo, "tools/apex-recall/src") },
+    });
+  const beforeSourceSelection = fs.readFileSync(statePath, "utf8");
+  const missingSource = completeDraft();
+  assert.equal(missingSource.status, 2, missingSource.stdout + missingSource.stderr);
+  assert.match(JSON.parse(missingSource.stdout).reason, /explicitly accept Corp assumptions before Architecture/);
+  assert.equal(fs.readFileSync(statePath, "utf8"), beforeSourceSelection);
+
+  const baseline = ".github/data/alz-corp-policy-baseline.json.gz";
+  f.write(baseline, fs.readFileSync(path.join(repo, baseline)));
+  recall(
+    "policy-source",
+    "example",
+    "--assumed-corp",
+    "--owner",
+    "synthetic-owner",
+    "--request-id",
+    "synthetic-policy-source-acceptance",
+    "--environment",
+    "dev",
+    "--json",
+  );
+  f.write(
+    "architecture-scope.json",
+    JSON.stringify({
+      input_ids: ["scope", "policy_source"],
+      environments: ["dev"],
+      request_id: "synthetic-architecture-policy-scope-approval",
+    }),
+  );
+  recall("decide", "example", "--phase-scope", path.join(f.root, "architecture-scope.json"), "--step", "2", "--json");
+  recall("checkpoint", "example", "2", "draft", "--sync-assessment", "--json");
+  assert.equal(
+    recall("show", "example", "--json").session.policy_feasibility.status,
+    "assumed_corp_not_tenant_verified",
+  );
   const beforeDraftCompletion = fs.readFileSync(statePath, "utf8");
-  const blocked = spawnSync("python3", ["-m", "apex_recall", "complete-step", "example", "2", "--json"], {
-    cwd: f.root,
-    encoding: "utf8",
-    env: { ...process.env, APEX_ROOT: f.root, PYTHONPATH: path.join(repo, "tools/apex-recall/src") },
-  });
+  const blocked = completeDraft();
   assert.equal(blocked.status, 2, blocked.stdout + blocked.stderr);
-  assert.equal(JSON.parse(blocked.stdout).error, "challenger_findings_missing");
+  assert.equal(JSON.parse(blocked.stdout).error, "challenger_findings_missing", blocked.stdout + blocked.stderr);
   assert.equal(fs.readFileSync(statePath, "utf8"), beforeDraftCompletion);
   assert.equal(fs.existsSync(path.join(f.root, "agent-output/example/02-cost-estimate.json")), false);
   assert.equal(recall("show", "example", "--json").session.steps["2"].status, "in_progress");
