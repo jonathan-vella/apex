@@ -1,10 +1,36 @@
 import assert from "node:assert/strict";
 import test from "node:test";
 import { mkdtempSync, writeFileSync, readFileSync, rmSync } from "node:fs";
-import { tmpdir } from "node:os";
 import path from "node:path";
 import { spawnSync } from "node:child_process";
-import { fetchRetailEvidence, retailQueryUrl } from "../../scripts/fetch-retail-price-evidence.mjs";
+import {
+  fetchRetailEvidence as fetchDurableEvidence,
+  retailQueryUrl,
+} from "../../scripts/fetch-retail-price-evidence.mjs";
+import { captureMcpResponse, reserveQuery, updateAttempt } from "../../scripts/_lib/pricing-evidence.mjs";
+
+const HERE = path.dirname(new URL(import.meta.url).pathname);
+async function fetchRetailEvidence(input, fetcher) {
+  const directory = mkdtempSync(path.join(HERE, ".retail-evidence-"));
+  const output = path.join(directory, "evidence.json");
+  try {
+    for (const [index, attempt] of (input.mcp_failure?.attempts ?? []).entries()) {
+      const query = attempt.query ?? attempt.parameters;
+      if (!query) continue;
+      if (!attempt.response) attempt.response = { status: attempt.http_status, error: attempt.error };
+      const response_path = path.join(directory, `mcp-${index}.json`);
+      writeFileSync(response_path, JSON.stringify(attempt.response));
+      const call_id = `mcp-${index}`;
+      reserveQuery({ output, query, call_id, retry_of: index ? `mcp-${index - 1}` : null });
+      updateAttempt(output, call_id, { state: "issued", issued_at: new Date(Date.now() - 1000).toISOString() });
+      const capture = captureMcpResponse({ output, query, call_id, response_path });
+      attempt.evidence_path = capture.evidence_path;
+    }
+    return await fetchDurableEvidence(input, fetcher, { outputPath: output });
+  } finally {
+    rmSync(directory, { recursive: true, force: true });
+  }
+}
 
 const query = { serviceName: "Azure DNS", meterName: "Private Zone", priceType: "Consumption", currencyCode: "USD" };
 const empty = { Items: [], Count: 0, NextPageLink: null };
@@ -147,7 +173,7 @@ test("invalid or incomplete API responses fail without retries or partial succes
   await assert.rejects(
     fetchRetailEvidence(request(), async () => {
       calls++;
-      return { ok: false, status: 503 };
+      return { ok: false, status: 503, text: async () => "Service unavailable" };
     }),
     /503/,
   );
@@ -156,7 +182,7 @@ test("invalid or incomplete API responses fail without retries or partial succes
     fetchRetailEvidence(request(), async () => {
       throw new Error("timeout");
     }),
-    /timeout/,
+    /fetch/,
   );
 });
 
@@ -421,7 +447,7 @@ test("service_family_unsupported fallback authorizes pricing_get status-400 Unkn
 });
 
 test("CLI refuses existing output before reading request or making network calls", (context) => {
-  const directory = mkdtempSync(path.join(tmpdir(), "retail-evidence-"));
+  const directory = mkdtempSync(path.join(HERE, ".retail-evidence-"));
   context.after(() => rmSync(directory, { recursive: true, force: true }));
   const output = path.join(directory, "evidence.json");
   writeFileSync(output, "preserve this evidence");
@@ -437,6 +463,6 @@ test("CLI refuses existing output before reading request or making network calls
     { encoding: "utf8" },
   );
   assert.equal(result.status, 1);
-  assert.match(result.stderr, /Output already exists/);
+  assert.match(result.stderr, /PREFLIGHT_FAILED/);
   assert.equal(readFileSync(output, "utf8"), "preserve this evidence");
 });

@@ -219,6 +219,10 @@ priced recommendation explicitly nonbinding, and do not imply that estimate appr
    price only the evidence-supported scope and report unknown usage/unpriced resources outside the subtotal;
    do not present a partial subtotal as total workload cost.
    Run `node tools/scripts/cost-estimate.mjs preflight --request <request.json>`.
+   If the user instead requests indicative unit rates with unknown monthly usage, dispatch the pricing owner
+   with `purpose: "rate-quote"` to a distinct quote path. A verified quote can inform the discussion, but never
+   becomes a monthly subtotal, manifest writeback or full-scope Architecture approval. Resume the original
+   monthly estimate only when its missing inputs and remaining allowance are actually resolved.
 4. If no resource has evidence-supported SKU/quantity/usage sufficient for pricing, do not invoke pricing.
    For an assessment-only exit, record `assessment_cost_status=not_assessed` and write
    `contracts/02-assessment-cost-status.json` using the
@@ -227,7 +231,8 @@ priced recommendation explicitly nonbinding, and do not imply that estimate appr
    Failed pricing is a failure, not this no-priceable-evidence path; retain failed attempts in `_meta/`.
    Otherwise invoke `cost-estimate-subagent` for `02-cost-estimate.json`. Require COMPLETE, current
    source evidence and input equivalence for the requested priceable scope; preserve actual versioned success paths.
-   Read persisted JSON, check line sums/annual totals and copy figures verbatim.
+   Read persisted JSON and run current estimate validation for request coverage, source-linked meter selection,
+   freshness and recomputed totals; reject rate-quote artifacts at the monthly gate. Copy verified figures verbatim.
    Only the worker's authorized `manifest_writeback[]` updates price/timestamp fields.
 5. For implementation planning, resolve a missing budget cap or overage through the budget gate, never by
    silent SKU substitution. Preserve owner choices; show their priced alternative and ask when incompatible

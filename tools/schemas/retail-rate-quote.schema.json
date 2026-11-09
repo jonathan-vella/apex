@@ -1,0 +1,84 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/jonathan-vella/apex/schemas/retail-rate-quote.schema.json",
+  "title": "APEX Retail Rate Quote",
+  "description": "Indicative native rates and applicability, never a monthly workload estimate or manifest writeback.",
+  "type": "object",
+  "required": [
+    "schema_version",
+    "purpose",
+    "status",
+    "project_name",
+    "region",
+    "currency",
+    "resources",
+    "data_source",
+    "queried_at",
+    "unresolved_items",
+    "mcp_calls_used"
+  ],
+  "additionalProperties": false,
+  "not": {
+    "anyOf": [
+      { "required": ["monthly_total"] },
+      { "required": ["yearly_total"] },
+      { "required": ["manifest_writeback"] }
+    ]
+  },
+  "allOf": [
+    {
+      "if": { "properties": { "status": { "const": "COMPLETE" } } },
+      "then": {
+        "required": ["request_snapshot", "request_sha256", "evidence"],
+        "properties": { "evidence": { "minItems": 1 }, "unresolved_items": { "maxItems": 0 } }
+      },
+      "else": { "properties": { "unresolved_items": { "minItems": 1 } } }
+    }
+  ],
+  "properties": {
+    "schema_version": { "const": "retail-rate-quote-v1" },
+    "purpose": { "const": "rate-quote" },
+    "status": { "enum": ["COMPLETE", "FAILED"] },
+    "project_name": { "type": "string", "minLength": 1 },
+    "region": { "type": "string", "minLength": 1 },
+    "currency": { "type": "string", "pattern": "^[A-Z]{3}$" },
+    "queried_at": { "type": "string", "format": "date-time" },
+    "data_source": {
+      "enum": [
+        "Azure MCP pricing_get",
+        "Azure MCP pricing_get + Azure Retail Prices API (direct fallback)",
+        "Azure Retail Prices API (direct fallback)"
+      ]
+    },
+    "mcp_calls_used": { "type": "integer", "minimum": 0, "maximum": 20 },
+    "direct_api_calls_used": { "type": "integer", "minimum": 0, "maximum": 20 },
+    "unknown_request_reservations": { "type": "integer", "minimum": 0, "maximum": 20 },
+    "unresolved_items": { "type": "array", "items": { "type": "string", "minLength": 1 } },
+    "request_snapshot": { "type": "object" },
+    "request_sha256": { "type": "string", "pattern": "^[a-f0-9]{64}$" },
+    "evidence": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["evidence_path"],
+        "properties": { "evidence_path": { "type": "string", "minLength": 1 } }
+      }
+    },
+    "resources": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["name", "service_name", "sku", "region", "quantity", "components"],
+        "not": { "required": ["monthly_cost"] },
+        "properties": {
+          "name": { "type": "string", "minLength": 1 },
+          "service_name": { "type": "string", "minLength": 1 },
+          "sku": { "type": "string", "minLength": 1 },
+          "region": { "type": "string", "minLength": 1 },
+          "quantity": { "type": "number", "exclusiveMinimum": 0 },
+          "components": { "type": "array", "minItems": 1, "items": { "type": "object" } }
+        }
+      }
+    }
+  }
+}

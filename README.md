@@ -20,6 +20,13 @@ Delivery projects select [policy evidence](.github/skills/apex-azure-governance-
 before Architecture: explicitly accepted standard Corp assumptions or authorized target evidence.
 The shared baseline needs no real subscription identifiers; assumptions never authorize implementation.
 Native target capture can keep identifying scope and policy snapshots in an owner-only private store.
+Retail pricing uses [captured meter evidence](.github/skills/apex-azure-defaults/references/pricing-guidance.md):
+monthly estimates require explicit billing inputs and deterministic evidence-linked totals.
+Explicit rate-only quotes support unknown monthly usage without approving an incomplete workload estimate.
+Recovery preserves raw responses, original timestamps and consumed request allowances.
+Older monthly outputs remain historical evidence: use explicit legacy audit for inspection, not current approval.
+Refresh into a new owned output with its original request and required review.
+Never restamp reviewed prices or reset allowances.
 
 ```mermaid
 %%{init: {'theme':'neutral'}}%%

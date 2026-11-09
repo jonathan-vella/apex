@@ -10,6 +10,7 @@ import { fileURLToPath } from "node:url";
 import { isDeepStrictEqual, parseArgs } from "node:util";
 import { createAjv } from "./_lib/ajv-validator.mjs";
 import { readJson } from "./_lib/json.mjs";
+import { projectRelativeEvidencePath } from "./_lib/project-paths.mjs";
 import { validateEstimate } from "./cost-estimate.mjs";
 
 const SCHEMA = readJson(new URL("../schemas/assessment-cost.schema.json", import.meta.url));
@@ -541,7 +542,10 @@ export function assessmentCostStatus(evidence, estimates, gaps = []) {
 }
 
 /** Validate structure, source equivalence, freshness and savings without IO when a reader is supplied. */
-export function validateAssessmentCost(report, { asOf, readEvidence, approvedScopes, approvedPlan } = {}) {
+export function validateAssessmentCost(
+  report,
+  { asOf, readEvidence, approvedScopes, approvedPlan, root = process.cwd() } = {},
+) {
   const errors = [];
   const attempt = (label, action) => {
     try {
@@ -693,7 +697,16 @@ export function validateAssessmentCost(report, { asOf, readEvidence, approvedSco
       estimateSources.add(estimate.provenance.sha256);
       assert(CURRENCIES.has(estimate.currency), "Unsupported retail currency");
       const source = verifyReference(estimate.provenance, readEvidence, asOf, 30);
-      const validation = validateEstimate(source, { verifyEvidenceFiles: false });
+      const request = estimate.provenance.pricing_request;
+      assert(request?.path && /^[a-f0-9]{64}$/.test(request.sha256 ?? ""), "Original pricing request required");
+      verifyReference({ ...request, collected_at: estimate.provenance.collected_at }, readEvidence, asOf, 30);
+      const validation = validateEstimate(source, {
+        cwd: root,
+        requestPath: request.path,
+        readRequestFile: (reference) => readEvidence(projectRelativeEvidencePath(root, reference)),
+        readEvidenceFile: (reference) => readEvidence(projectRelativeEvidencePath(root, reference)),
+        now: new Date(asOf),
+      });
       assert(validation.ok, `Invalid retail leaf output: ${validation.errors.join("; ")}`);
       assert(
         !source.decisions?.length && source.resources.length > 0,
@@ -897,6 +910,7 @@ export function runAssessmentCostCli(args = process.argv.slice(2)) {
       const data = JSON.parse(bytes.toString());
       if (operation === "validate")
         result = validateAssessmentCost(data, {
+          root,
           asOf: values["as-of"],
           readEvidence,
           approvedScopes: values.scope,

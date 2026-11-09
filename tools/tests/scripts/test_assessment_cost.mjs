@@ -3,7 +3,7 @@ import { spawnSync } from "node:child_process";
 import { createHash, randomUUID } from "node:crypto";
 import fs from "node:fs";
 import path from "node:path";
-import test from "node:test";
+import test, { after } from "node:test";
 import { fileURLToPath } from "node:url";
 import {
   allowedPaginationPath,
@@ -18,6 +18,7 @@ import {
   validateAssessmentCost,
   validateScopes,
 } from "../../scripts/assessment-cost.mjs";
+import { evidenceBackedFixture } from "./test_cost_estimate_fixture.mjs";
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "../../..");
 const SCRIPT = path.join(ROOT, "tools/scripts/assessment-cost.mjs");
@@ -27,6 +28,11 @@ const RG = `${SUB}/resourceGroups/synthetic`;
 const RESOURCE = `${RG}/providers/Microsoft.Compute/virtualMachines/synthetic`;
 const OTHER = `${RG}/providers/Microsoft.Compute/virtualMachines/other`;
 const WINDOWS = deriveReportingWindows(AS_OF);
+const PRICING_DIRECTORY = fs.mkdtempSync(path.join(ROOT, ".assessment-retail-test-"));
+const PRICING_SOURCES = new Map();
+const PRICING_REQUESTS = new WeakMap();
+let pricingSequence = 0;
+after(() => fs.rmSync(PRICING_DIRECTORY, { recursive: true, force: true }));
 
 function request(overrides = {}) {
   return {
@@ -109,10 +115,11 @@ function report(evidence = [], overrides = {}) {
 
 function validate(value, sources = new Map(), overrides = {}) {
   return validateAssessmentCost(value, {
+    root: PRICING_DIRECTORY,
     asOf: AS_OF,
     readEvidence: (name) => {
-      assert.ok(sources.has(name), `Missing synthetic evidence ${name}`);
-      return sources.get(name);
+      assert.ok(sources.has(name) || PRICING_SOURCES.has(name), `Missing synthetic evidence ${name}`);
+      return sources.get(name) ?? PRICING_SOURCES.get(name);
     },
     ...overrides,
   });
@@ -467,7 +474,8 @@ test("currency and actual/amortized views remain separate; expected currency nev
     [actual.provenance.path, actual.bytes],
     [amortized.provenance.path, amortized.bytes],
   ]);
-  assert.equal(validate(value, sources).valid, true);
+  const result = validate(value, sources);
+  assert.equal(result.valid, true, result.errors.join("; "));
   assert.equal(compareCostEvidence(actual.evidence, amortized.evidence, "USD").comparable, false);
 });
 
@@ -728,7 +736,7 @@ test("report validation rejects duplicate evidence, overlaps, unsupported proper
 });
 
 function retailOutput(overrides = {}) {
-  return {
+  const source = {
     status: "COMPLETE",
     project_name: "synthetic",
     region: "swedencentral",
@@ -736,11 +744,15 @@ function retailOutput(overrides = {}) {
     resources: [
       {
         name: "synthetic",
-        service_name: "Synthetic fixture",
+        service_name: "Azure App Service",
         sku: "Fixture",
         region: "swedencentral",
         quantity: 1,
         monthly_cost: 12,
+        unit_of_measure: "1 GB",
+        retail_price: 12,
+        usage_amount: 1,
+        usage: { amount: 1, unit: "GB", scope: "per-instance" },
         notes: "Synthetic fixture, not a quoted Azure rate",
       },
     ],
@@ -758,10 +770,39 @@ function retailOutput(overrides = {}) {
     budget_exceeded: false,
     ...overrides,
   };
+  const directory = path.join(PRICING_DIRECTORY, `case-${++pricingSequence}`);
+  fs.mkdirSync(directory);
+  const linked = evidenceBackedFixture(source, directory, {
+    queriedAt: source.queried_at,
+    cwd: PRICING_DIRECTORY,
+  });
+  const result = { ...linked, ...overrides };
+  const retainTree = (folder) => {
+    for (const entry of fs.readdirSync(folder, { withFileTypes: true })) {
+      const filename = path.join(folder, entry.name);
+      if (entry.isDirectory()) retainTree(filename);
+      else
+        PRICING_SOURCES.set(
+          path.relative(PRICING_DIRECTORY, filename).split(path.sep).join("/"),
+          fs.readFileSync(filename),
+        );
+    }
+  };
+  retainTree(directory);
+  const request = path
+    .relative(PRICING_DIRECTORY, path.join(directory, "pricing-request.json"))
+    .split(path.sep)
+    .join("/");
+  PRICING_REQUESTS.set(result, {
+    path: request,
+    sha256: createHash("sha256").update(PRICING_SOURCES.get(request)).digest("hex"),
+  });
+  return result;
 }
 
 function estimateFixture(source = retailOutput()) {
   const saved = retained(source, "_meta/cost/retail-output.json", "cost-estimate-subagent", source.queried_at);
+  saved.provenance.pricing_request = PRICING_REQUESTS.get(source);
   const estimate = {
     id: "iac-estimate",
     source_kind: "estimate",
@@ -779,7 +820,8 @@ test("IaC retail estimates retain verified leaf provenance, exact amount and ass
   const saved = estimateFixture();
   const value = report([], { status: "complete", estimates: [saved.estimate] });
   const sources = new Map([[saved.provenance.path, saved.bytes]]);
-  assert.equal(validate(value, sources).valid, true);
+  const result = validate(value, sources);
+  assert.equal(result.valid, true, result.errors.join("; "));
   for (const change of [
     { source_kind: "actual" },
     { currency: "EUR" },
@@ -806,6 +848,8 @@ test("IaC retail estimates retain verified leaf provenance, exact amount and ass
   const failed = estimateFixture(
     retailOutput({
       status: "FAILED",
+      monthly_total: null,
+      yearly_total: null,
       unresolved_items: ["External module unpriced"],
       resources: [{ ...retailOutput().resources[0], monthly_cost: null }],
     }),
@@ -816,13 +860,11 @@ test("IaC retail estimates retain verified leaf provenance, exact amount and ass
     monthly_total: null,
     gaps: ["External module unpriced"],
   };
-  assert.equal(
-    validate(
-      report([], { status: "not_assessed", estimates: [unknown] }),
-      new Map([[failed.provenance.path, failed.bytes]]),
-    ).valid,
-    true,
+  const unavailable = validate(
+    report([], { status: "not_assessed", estimates: [unknown] }),
+    new Map([[failed.provenance.path, failed.bytes]]),
   );
+  assert.equal(unavailable.valid, true, unavailable.errors.join("; "));
   assert.equal(
     validate(
       report([], { status: "complete", estimates: [failed.estimate] }),
@@ -830,6 +872,36 @@ test("IaC retail estimates retain verified leaf provenance, exact amount and ass
     ).valid,
     false,
   );
+});
+
+test("root-produced retail evidence imports through independently retained project-relative requests", () => {
+  const workspace = path.join(PRICING_DIRECTORY, "separate-workspace");
+  const root = path.join(workspace, "agent-output", "synthetic");
+  const directory = path.join(root, "evidence", "pricing");
+  fs.mkdirSync(directory, { recursive: true });
+  const source = retailOutput();
+  Object.assign(source.resources[0], {
+    unit_of_measure: "1 GB",
+    retail_price: 12,
+    usage_amount: 1,
+    usage: { amount: 1, unit: "GB", scope: "per-instance" },
+  });
+  const linked = evidenceBackedFixture(source, directory, { queriedAt: AS_OF, cwd: workspace });
+  const saved = estimateFixture(linked);
+  fs.mkdirSync(path.join(root, "_meta", "cost"), { recursive: true });
+  fs.writeFileSync(path.join(root, saved.provenance.path), saved.bytes);
+  saved.provenance.pricing_request = {
+    path: "evidence/pricing/pricing-request.json",
+    sha256: createHash("sha256")
+      .update(fs.readFileSync(path.join(directory, "pricing-request.json")))
+      .digest("hex"),
+  };
+  const result = validateAssessmentCost(report([], { status: "complete", estimates: [saved.estimate] }), {
+    root,
+    asOf: AS_OF,
+    readEvidence: (reference) => fs.readFileSync(path.join(root, reference)),
+  });
+  assert.equal(result.valid, true, result.errors.join("; "));
 });
 
 test("a complete retail estimate never fills a denied actual-cost record", () => {
@@ -862,6 +934,7 @@ test("documented minimal plan, saved actual, estimate and not-assessed envelopes
   const saved = estimateFixture();
   assert.match(estimate.provenance.sha256, /^<replace/);
   estimate.provenance.sha256 = saved.provenance.sha256;
+  estimate.provenance.pricing_request = saved.provenance.pricing_request;
   assert.equal(
     validate(report([], { status: "complete", estimates: [estimate] }), new Map([[saved.provenance.path, saved.bytes]]))
       .valid,

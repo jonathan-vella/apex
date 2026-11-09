@@ -29,6 +29,29 @@ model/tools and require explicit selection of the owning agent.
 
 ## Pricing Accuracy Gate (HARD)
 
+### Monthly estimates and indicative rate quotes
+
+Default request `purpose` is `monthly-estimate`; new publications use evidence-backed `cost-estimate-v2`.
+Persist the complete original request before dispatch and pass its actual `request_path`.
+Preflight creates the immutable request binding; keep the original file read-only for publication and reuse.
+Ask only for genuinely missing billing inputs before dispatch. Preserve actual captured usage and do not infer
+application transfer from storage size, telemetry ingestion, gateway traffic or a pricing example.
+Preflight must identify missing required dimensions before any queries.
+
+When the user explicitly requests unit rates with unknown monthly usage, dispatch the same pricing owner with
+`purpose: "rate-quote"` and a distinct output path. `retail-rate-quote-v1` retains native units, exact meters,
+complete applicable tier bands and current source provenance; it has no workload monthly/yearly total.
+No new pricing agent, permission, allowance or parametric source is introduced.
+Rate-quote completion permits reporting indicative rates only. It never authorizes manifest writeback, a full
+Architecture estimate, cost-feasibility approval, spending or deployment. Ordinary estimate validation must reject
+quote artifacts regardless of their `COMPLETE` status.
+
+Recovery reuses the saved request/evidence ledger rather than reconstructing it from chat summaries.
+Verify every amount against selected native records, raw-response hashes and deterministic calculations;
+matching a meter ID alone is insufficient. Every issued/failed request remains consumed, and uncertain interrupted
+reservations remain visible. Missing capability or capture permission is a precise blocker, not a catalog outage.
+Explicit legacy audit can inspect historical estimates but cannot manufacture missing source evidence or currentness.
+
 For adopted practical projects, evidence-equivalent scenario arithmetic may use the existing
 deterministic `cost-estimate.mjs scenarios` command over the pricing owner's current verified
 output. This is not parent-authored pricing: rates and calculation bases retain provenance,
@@ -109,11 +132,14 @@ implementation continuation. All other paths retain the normal pricing gate belo
    or restamp reused rates. Reuse preserves the independent cost-feasibility review.
    Invoke with:
    - `manifest_path` (+ optional `manifest_usage`, `supplemental_resources[]`) or `resource_list`, `project_name`, `region`
+   - `request_path`: exact caller-owned original JSON used by preflight, publication and current validation
    - `output_path` = `agent-output/{project}/<artifact>-cost-estimate.json`
      (per-agent: `02-cost-estimate.json` for 03, `07-ab-cost-estimate.json` for 08)
    - `overwrite` = `false` (set to `true` only when re-running after revisions)
    - Optional: `compare_regions: true`, `include_ri_savings: true`
-   The worker may create request/evidence files under `{output_path}.retail-evidence/` for the
+   The worker may create durable query ledgers, exact captured MCP responses and fallback request/evidence files
+   under `{output_path}.retail-evidence/`. Use only the sanctioned capture/helper commands, not arbitrary terminal copies.
+   This also supports the
    [constrained direct-API fallback](pricing-guidance.md#constrained-direct-api-fallback).
    Preserve failed attempts and evidence; never instruct the worker to relabel direct API records as MCP output.
 3. **Receive the compact summary** — the subagent writes the full JSON
@@ -126,9 +152,9 @@ implementation continuation. All other paths retain the normal pricing gate belo
 4. **Read the JSON file** from `output_path` to populate your
    step-owned artifact(s). Copy figures **verbatim** — do NOT round,
    adjust, or "correct" them.
-5. **Cross-check totals** — verify that the sum of
-   `resources[].monthly_cost` equals `monthly_total`. Flag any
-   discrepancy to the user before proceeding to the next phase.
+5. **Validate evidence and totals** — run the ordinary current-result validator, including request coverage,
+   immutable meter evidence, freshness, calculation basis and sums. A shape-only check or matching total is insufficient.
+   Flag discrepancies before proceeding; do not convert a rate quote into a complete monthly estimate.
 
 ## Candidate-set calls
 

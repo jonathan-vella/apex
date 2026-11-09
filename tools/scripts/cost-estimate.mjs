@@ -9,12 +9,35 @@
  */
 
 import { spawnSync } from "node:child_process";
-import { createHash } from "node:crypto";
+import { createHash, randomUUID } from "node:crypto";
 import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { parseArgs } from "node:util";
 import { isLayoutV2, projectDirFromPath, resolveContractPath, resolveProjectFile } from "./_lib/project-paths.mjs";
+import { retailQueryUrl, validateFailure, validateNextPageLink, validatePage } from "./fetch-retail-price-evidence.mjs";
+import {
+  assertSnapshots,
+  captureMcpResponse,
+  decodePricingResponse,
+  digestObject,
+  METER_FIELDS,
+  normalizeMeter,
+  readSnapshot,
+  reserveQuery,
+  safePath,
+  sha256,
+  stableJson,
+  updateAttempt,
+  writeExclusive,
+  verifyCapturedFailure,
+  rawPageBytes,
+  acquirePricingLock,
+  releasePricingLock,
+  evidenceDirectory,
+  resolvePricingWorkspacePath,
+  withLedger,
+} from "./_lib/pricing-evidence.mjs";
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "../..");
 const RENDERER = path.join(ROOT, "tools/scripts/render-sku-manifest-md.mjs");
@@ -30,7 +53,112 @@ const ALLOWED_DATA_SOURCES = new Set([
 
 const VARIABLE_SERVICE_NAMES = new Set(["Key Vault", "Log Analytics", "Azure DNS"]);
 
+function serviceRecipe(line) {
+  const service = String(line.service_name)
+    .toLowerCase()
+    .replace(/^azure /, "");
+  if (/^(bandwidth|data transfer)$/.test(service)) return ["egress_gb"];
+  if (
+    /^(private link|private endpoint|private endpoints|virtual network private link)$/.test(service) ||
+    (service === "virtual network" &&
+      /private (link|endpoint)/i.test(`${line.product_name ?? ""} ${line.meter_name ?? ""}`))
+  )
+    return ["hours", "ingress_gb", "egress_gb"];
+  if (/^(storage|storage account|storage accounts)$/.test(service))
+    return ["capacity_gb", "read_operations", "write_operations", "egress_gb"];
+  if (/cosmos/.test(service))
+    return /serverless/i.test(line.sku) ? ["request_units", "storage_gb"] : ["provisioned_ru", "storage_gb"];
+  if (service === "nat gateway") return ["hours", "processed_gb"];
+  if (service === "virtual network") return undefined;
+  if (/^(front door|front door service)$/.test(service)) return ["hours", "requests", "egress_gb"];
+  if (/^(foundry models|openai|cognitive services)$/.test(service)) return ["input_tokens", "output_tokens"];
+  if (service === "dns") return ["zones", "queries"];
+  if (service === "sql database" && /serverless/i.test(line.sku)) return ["vcore_seconds", "storage_gb"];
+  if (/^(key vault|log analytics|monitor)$/.test(service)) return [];
+  if (
+    /^(app service|virtual machines?|sql database|bastion|container registry|managed disks|redis cache|cache for redis)$/.test(
+      service,
+    )
+  )
+    return null;
+  return undefined;
+}
+
+function validateBillableDimensions(line, purpose) {
+  const recipe = serviceRecipe(line);
+  if (recipe === undefined) return [`${line.name}: unsupported service recipe; explicit billing-input gap`];
+  if (purpose === "rate-quote") {
+    return typeof line.meter_applicability === "string" &&
+      line.meter_applicability.trim() &&
+      typeof line.native_unit === "string" &&
+      line.native_unit.trim()
+      ? []
+      : [`${line.name}: rate-quote requires meter_applicability and native_unit, not guessed monthly usage`];
+  }
+  const errors = validateUsageEntry(line.name, line.service_name, line.sku, line.usage);
+  if (!recipe?.length) return errors;
+  const usage = Array.isArray(line.usage) ? line.usage : [line.usage];
+  for (const dimension of recipe) {
+    const item = usage.find((entry) => entry?.dimension === dimension || Object.hasOwn(entry ?? {}, dimension));
+    const value = item?.dimension === dimension ? item.amount : item?.[dimension];
+    if (
+      typeof value !== "number" ||
+      !Number.isFinite(value) ||
+      value < 0 ||
+      (value === 0 && item?.zero_usage_confirmed !== true)
+    )
+      errors.push(`${line.name}: requires known billable dimension '${dimension}' (explicit confirmed zero allowed)`);
+  }
+  return errors;
+}
+
+function retainPricingSemantics(item) {
+  return {
+    input_semantics: structuredClone(item),
+    subscription: item.subscription ?? null,
+    ...Object.fromEntries(
+      [
+        "subscription",
+        "resource_id",
+        "charge_id",
+        "commitment",
+        "product_name",
+        "sku_name",
+        "billing_region",
+        "native_unit",
+        "meter_applicability",
+        "operating_system",
+        "license",
+        "redundancy",
+        "pricing_context",
+        "hours_per_month",
+      ]
+        .filter((key) => item[key] !== undefined)
+        .map((key) => [key, structuredClone(item[key])]),
+    ),
+  };
+}
+
 const SERVICE_QUERY_GROUP_ALIASES = new Map([
+  ["azure storage", "Storage"],
+  ["storage", "Storage"],
+  ["storage account", "Storage"],
+  ["azure key vault", "Key Vault"],
+  ["key vault", "Key Vault"],
+  ["azure log analytics", "Log Analytics"],
+  ["log analytics", "Log Analytics"],
+  ["dns", "Azure DNS"],
+  ["azure dns", "Azure DNS"],
+  ["cosmos db", "Azure Cosmos DB"],
+  ["azure cosmos db", "Azure Cosmos DB"],
+  ["private link", "Virtual Network"],
+  ["azure private link", "Virtual Network"],
+  ["private endpoint", "Virtual Network"],
+  ["azure private endpoint", "Virtual Network"],
+  ["virtual network private link", "Virtual Network"],
+  ["virtual network", "Virtual Network"],
+  ["virtual machine", "Virtual Machines"],
+  ["virtual machines", "Virtual Machines"],
   ["azure front door", "Azure Front Door Service"],
   ["azure front door service", "Azure Front Door Service"],
   ["azure openai", "Foundry Models"],
@@ -53,18 +181,7 @@ export function resolveWorkspacePath(targetPath, cwd = process.cwd()) {
   if (typeof targetPath !== "string" || !targetPath.trim()) {
     throw new Error("Path must be a non-empty string");
   }
-  if (path.isAbsolute(targetPath)) return path.normalize(targetPath);
-  const resolvedCwd = path.resolve(cwd);
-  const normalizedRel = targetPath.replaceAll("\\", "/");
-  if (
-    (resolvedCwd === ROOT || resolvedCwd.startsWith(`${ROOT}${path.sep}`)) &&
-    (normalizedRel.startsWith("agent-output/") ||
-      normalizedRel.startsWith("tools/") ||
-      normalizedRel.startsWith(".github/"))
-  ) {
-    return path.resolve(ROOT, targetPath);
-  }
-  return path.resolve(resolvedCwd, targetPath);
+  return resolvePricingWorkspacePath(targetPath, cwd);
 }
 
 function assertNotSymlink(filePath, label) {
@@ -111,7 +228,7 @@ function expandManifestServices(manifest, manifestUsage = {}) {
     if (!service.id || !service.service || !service.size) {
       throw new Error(`Manifest service entry is missing id, service, or size: ${JSON.stringify(service)}`);
     }
-    const usageSpec = manifestUsage[service.id] ?? service.usage ?? null;
+    const usageSpec = manifestUsage[service.id] ?? null;
     for (const stamp of stamps) {
       const stampEnvs =
         stamp && Array.isArray(stamp.environments) && stamp.environments.length > 0 ? stamp.environments : topEnvs;
@@ -119,6 +236,7 @@ function expandManifestServices(manifest, manifestUsage = {}) {
       for (const env of stampEnvs) {
         const envOverride = service.environment_overrides?.[env] ?? {};
         const effective = mergeSparseService(service, envOverride, stampSvcOverride);
+        const effectiveUsage = usageSpec ?? effective.usage ?? null;
         if (
           ["observed-current", "user-pin"].includes(effective.source) &&
           (effective.capacity?.default === undefined || !effective.commitment?.type)
@@ -145,20 +263,21 @@ function expandManifestServices(manifest, manifestUsage = {}) {
         for (const region of regions) {
           const stampLabel = stamp?.id ? `, ${stamp.id}` : "";
           expanded.push({
+            ...retainPricingSemantics(effective),
             name: `${service.id} (${env}${stampLabel}, ${region})`,
             manifest_service_id: service.id,
             source_kind: "manifest",
             environment: env,
             stamp: stamp?.id ?? null,
-            subscription: stamp?.subscription ?? service.subscription ?? null,
+            subscription: stamp?.subscription ?? effective.subscription ?? null,
             service_name: effective.service,
             sku: effective.size,
             region,
             quantity,
             commitment: effective.commitment ?? { type: "on-demand" },
-            usage: usageSpec,
-            meter_name: effective.meter_name ?? usageSpec?.meter_name ?? null,
-            upper_bound_ok: Boolean(usageSpec?.upper_bound_ok),
+            usage: effectiveUsage,
+            meter_name: effective.meter_name ?? effectiveUsage?.meter_name ?? null,
+            upper_bound_ok: Boolean(effectiveUsage?.upper_bound_ok),
           });
         }
       }
@@ -171,7 +290,7 @@ function validateUsageEntry(lineName, serviceName, sku, usage) {
   const problems = [];
   const items = Array.isArray(usage) ? usage : usage && typeof usage === "object" ? [usage] : [];
   if (items.length === 0) {
-    if (VARIABLE_SERVICE_NAMES.has(serviceName)) {
+    if (VARIABLE_SERVICE_NAMES.has(serviceName) || /^(azure )?(key vault|log analytics|dns)$/i.test(serviceName)) {
       problems.push(`${lineName}: variable-usage service '${serviceName}' requires explicit usage`);
     }
     if (serviceName === "Azure Monitor" && /alert/i.test(`${sku} ${lineName}`)) {
@@ -186,9 +305,30 @@ function validateUsageEntry(lineName, serviceName, sku, usage) {
       problems.push(`${label}: usage entry must be an object`);
       continue;
     }
+    for (const [key, value] of Object.entries(item)) {
+      if (
+        [
+          "scope",
+          "unit",
+          "dimension",
+          "evaluation_frequency",
+          "zero_usage_confirmed",
+          "meter_name",
+          "upper_bound_ok",
+        ].includes(key)
+      )
+        continue;
+      if (typeof value !== "number" || !Number.isFinite(value) || value < 0)
+        problems.push(`${label}: '${key}' must be an explicit finite nonnegative number, not unknown/null`);
+    }
     if (Object.hasOwn(item, "amount")) {
-      const amount = Number(item.amount);
-      if (!Number.isFinite(amount) || amount < 0 || (amount === 0 && !item.zero_usage_confirmed)) {
+      const amount = item.amount;
+      if (
+        typeof amount !== "number" ||
+        !Number.isFinite(amount) ||
+        amount < 0 ||
+        (amount === 0 && !item.zero_usage_confirmed)
+      ) {
         problems.push(`${label}: usage amount must be a positive number (or 0 with zero_usage_confirmed: true)`);
       }
       if (typeof item.unit !== "string" || !item.unit.trim()) {
@@ -200,6 +340,7 @@ function validateUsageEntry(lineName, serviceName, sku, usage) {
           ![
             "scope",
             "unit",
+            "dimension",
             "evaluation_frequency",
             "billable_days_per_month",
             "zero_usage_confirmed",
@@ -263,6 +404,9 @@ export function normalizeCostRequest(rawRequest, options = {}) {
     );
   }
   const mode = primaryModes[0];
+  const purpose = rawRequest.purpose ?? "monthly-estimate";
+  if (!["monthly-estimate", "rate-quote"].includes(purpose))
+    throw new Error("purpose must be monthly-estimate or rate-quote");
   if (typeof rawRequest.project_name !== "string" || !rawRequest.project_name.trim()) {
     throw new Error("project_name is required");
   }
@@ -288,11 +432,15 @@ export function normalizeCostRequest(rawRequest, options = {}) {
 
   if (mode === "manifest_path") {
     manifestPath = resolveWorkspacePath(rawRequest.manifest_path, cwd);
-    if (!fs.existsSync(manifestPath)) {
+    if (!options.readManifestFile && !fs.existsSync(manifestPath)) {
       const pdir = projectDirFromPath(manifestPath);
       if (isLayoutV2(pdir)) manifestPath = resolveContractPath(pdir, path.basename(manifestPath));
     }
-    const manifest = JSON.parse(fs.readFileSync(manifestPath, "utf8"));
+    const manifest = JSON.parse(
+      options.readManifestFile
+        ? Buffer.from(options.readManifestFile(manifestPath)).toString("utf8")
+        : fs.readFileSync(manifestPath, "utf8"),
+    );
     manifestServiceIds = manifest.services.map((s) => s.id);
     const manifestIdSet = new Set(manifestServiceIds);
     const expanded = expandManifestServices(manifest, rawRequest.manifest_usage ?? {});
@@ -311,6 +459,7 @@ export function normalizeCostRequest(rawRequest, options = {}) {
       }
       seenSupplemental.add(sup.name);
       lines.push({
+        ...retainPricingSemantics(sup),
         name: sup.name,
         source_kind: "supplemental",
         service_name: sup.service_name,
@@ -328,6 +477,7 @@ export function normalizeCostRequest(rawRequest, options = {}) {
       throw new Error("resource_list must be a non-empty array");
     }
     lines = rawRequest.resource_list.map((item, idx) => ({
+      ...retainPricingSemantics(item),
       name: item.name ?? `${item.service_name}-${idx + 1}`,
       source_kind: "resource_list",
       service_name: item.service_name,
@@ -345,12 +495,25 @@ export function normalizeCostRequest(rawRequest, options = {}) {
     if (!Array.isArray(rawRequest.candidate_sets) || rawRequest.candidate_sets.length === 0) {
       throw new Error("candidate_sets must be a non-empty array");
     }
+    const seenDecisions = new Set();
     for (const set of rawRequest.candidate_sets) {
-      if (!set.decision_id || !Array.isArray(set.candidates) || set.candidates.length === 0) {
+      if (
+        typeof set.decision_id !== "string" ||
+        !set.decision_id.trim() ||
+        !Array.isArray(set.candidates) ||
+        set.candidates.length === 0 ||
+        seenDecisions.has(set.decision_id)
+      ) {
         throw new Error("Each candidate_sets entry requires decision_id and a non-empty candidates[] array");
       }
+      seenDecisions.add(set.decision_id);
+      const seenLabels = new Set();
       for (const candidate of set.candidates) {
+        if (typeof candidate.label !== "string" || !candidate.label.trim() || seenLabels.has(candidate.label))
+          throw new Error("Each decision requires unique non-empty candidate labels");
+        seenLabels.add(candidate.label);
         lines.push({
+          ...retainPricingSemantics(candidate),
           name: candidate.label,
           decision_id: set.decision_id,
           source_kind: "candidate",
@@ -367,20 +530,37 @@ export function normalizeCostRequest(rawRequest, options = {}) {
   }
 
   const queryGroups = new Set(
-    lines.map(
-      (line) => `${normalizeQueryGroupService(line.service_name)}|${line.region}|${line.meter_name ?? "*"}|${currency}`,
+    lines.map((line) =>
+      digestObject({
+        service: normalizeQueryGroupService(line.service_name),
+        sku: line.sku,
+        region: line.region,
+        meter: line.meter_name,
+        currency,
+        product: line.product_name,
+        native_unit: line.native_unit,
+        commitment: line.commitment,
+        pricing_context: line.pricing_context,
+        operating_system: line.operating_system,
+        license: line.license,
+        redundancy: line.redundancy,
+        sku_name: line.sku_name,
+        billing_region: line.billing_region,
+      }),
     ),
   );
 
   return {
     mode,
+    purpose,
     project_name: rawRequest.project_name.trim(),
     region: rawRequest.region.trim(),
     currency,
     output_path: outputPath,
     draft_path: draftPath,
     manifest_path: manifestPath,
-    manifest_writeback: mode === "manifest_path" ? rawRequest.manifest_writeback !== false : false,
+    manifest_writeback:
+      purpose === "monthly-estimate" && mode === "manifest_path" ? rawRequest.manifest_writeback !== false : false,
     manifest_service_ids: manifestServiceIds,
     overwrite,
     remaining_requests: remainingRequests,
@@ -400,9 +580,9 @@ export function validateCostRequest(rawRequest, options = {}) {
     return { ok: false, normalized: null, unresolved_items: [error.message] };
   }
 
-  assertNotSymlink(normalized.output_path, "output_path");
-  assertNotSymlink(normalized.draft_path, "draft_path");
-  if (normalized.manifest_path) assertNotSymlink(normalized.manifest_path, "manifest_path");
+  safePath(normalized.output_path);
+  safePath(normalized.draft_path);
+  if (normalized.manifest_path) safePath(normalized.manifest_path);
 
   if (fs.existsSync(normalized.output_path) && !normalized.overwrite && !normalized.recovery) {
     unresolved.push(`output_path already exists and overwrite is false: ${normalized.output_path}`);
@@ -431,14 +611,13 @@ export function validateCostRequest(rawRequest, options = {}) {
     if (!Number.isFinite(line.quantity) || line.quantity <= 0) {
       unresolved.push(`${line.name}: quantity must be a positive number`);
     }
-    if (line.usage !== null && line.usage !== undefined) {
-      unresolved.push(...validateUsageEntry(line.name, line.service_name, line.sku, line.usage));
-    } else if (
-      VARIABLE_SERVICE_NAMES.has(line.service_name) ||
-      (line.service_name === "Azure Monitor" && /alert/i.test(`${line.sku} ${line.name}`))
-    ) {
-      unresolved.push(...validateUsageEntry(line.name, line.service_name, line.sku, null));
-    }
+    if (
+      line.subscription !== null &&
+      line.subscription !== undefined &&
+      (typeof line.subscription !== "string" || !line.subscription.trim())
+    )
+      unresolved.push(`${line.name}: subscription must be a non-empty logical name or null`);
+    unresolved.push(...validateBillableDimensions(line, normalized.purpose));
   }
 
   return {
@@ -487,6 +666,31 @@ function computeComponentCost(component, defaultQuantity = 1) {
   const scope = component.usage_scope ?? component.usage?.scope ?? "per-instance";
   const multiplier = scope === "aggregate" ? 1 : quantity;
   const freeGrant = Number(component.free_grant_units ?? 0);
+  for (const key of ["usage_amount", "hours_per_month", "billable_days", "free_grant_units"]) {
+    if (
+      Object.hasOwn(component, key) &&
+      (typeof component[key] !== "number" || !Number.isFinite(component[key]) || component[key] < 0)
+    )
+      throw new Error(`${key} must be an explicit finite nonnegative number`);
+  }
+  if (component.unit_conversion) {
+    const conversion = component.unit_conversion;
+    if (
+      typeof usageAmount !== "number" ||
+      !Number.isFinite(usageAmount) ||
+      usageAmount < 0 ||
+      typeof conversion.units_per_native_unit !== "number" ||
+      !Number.isFinite(conversion.units_per_native_unit) ||
+      conversion.units_per_native_unit <= 0 ||
+      !["aggregate", "per-instance"].includes(scope)
+    )
+      throw new Error("Explicit usage and native unit conversion required");
+    const units = (usageAmount * multiplier) / conversion.units_per_native_unit;
+    if (component.tier_bands) return computeTieredCharge(units, component.tier_bands);
+    const rate = component.retail_price;
+    if (typeof rate !== "number" || !Number.isFinite(rate) || rate < 0) throw new Error("Invalid native rate");
+    return units * rate;
+  }
 
   const isMillionUnit = /^(?:1m\b|1,000,000(?!,\d))/i;
   const isTenThousandUnit = /^(?:10k\b|10,000(?!,\d))/i;
@@ -610,6 +814,14 @@ export function comparableLineUsage(line) {
       .replace(/^(hours?|days?|months?)$/, (unit) => unit.replace(/s$/, "")),
     usage_amount: numeric(component.usage_amount ?? component.usage?.amount),
     usage_scope: component.usage_scope ?? component.usage?.scope ?? "per-instance",
+    usage_dimension: component.usage_dimension ?? null,
+    unit_conversion: component.unit_conversion
+      ? {
+          usage_unit: component.unit_conversion.usage_unit,
+          native_unit: component.unit_conversion.native_unit,
+          units_per_native_unit: numeric(component.unit_conversion.units_per_native_unit),
+        }
+      : null,
     usage: component.usage === undefined ? null : stable(component.usage),
     hours_per_month: numeric(component.hours_per_month ?? HOURS_PER_MONTH),
     billable_days: numeric(component.billable_days ?? DAYS_PER_MONTH),
@@ -622,6 +834,764 @@ export function comparableLineUsage(line) {
     ...project(line, 1, line.region),
     calculation_basis: line.calculation_basis ? project(line.calculation_basis, line.quantity, line.region) : null,
   };
+}
+
+export function pricingRequestSnapshot(normalized) {
+  return Object.fromEntries(
+    ["purpose", "mode", "project_name", "region", "currency", "lines", "assessment_basis", "assumptions"]
+      .filter((key) => normalized[key] !== undefined)
+      .map((key) => [key, structuredClone(normalized[key])]),
+  );
+}
+
+export function bindCostRequest(rawRequest, { requestPath, cwd = process.cwd() } = {}) {
+  if (!requestPath) throw new Error("Original requestPath is required for immutable preflight binding");
+  const source = readSnapshot(resolveWorkspacePath(requestPath, cwd));
+  if (stableJson(JSON.parse(source.bytes)) !== stableJson(rawRequest))
+    throw new Error("Preflight input differs from the original request file");
+  const normalized = normalizeCostRequest(rawRequest, { cwd });
+  const request_snapshot = pricingRequestSnapshot(normalized);
+  const sourceFiles = normalized.manifest_path ? [readSnapshot(normalized.manifest_path)] : [];
+  if (
+    digestObject(pricingRequestSnapshot(normalizeCostRequest(rawRequest, { cwd }))) !== digestObject(request_snapshot)
+  )
+    throw new Error("Manifest changed during request binding");
+  assertSnapshots([source, ...sourceFiles]);
+  const portable = (filename) => path.relative(cwd, filename).replaceAll(path.sep, "/");
+  const binding = {
+    schema_version: "pricing-request-binding-v1",
+    request_path: portable(source.path),
+    request_source_sha256: source.sha256,
+    request_source_base64: source.bytes.toString("base64"),
+    request_sha256: digestObject(request_snapshot),
+    request_snapshot,
+    source_files: sourceFiles.map((snapshot) => ({
+      path: portable(snapshot.path),
+      sha256: snapshot.sha256,
+      original_base64: snapshot.bytes.toString("base64"),
+    })),
+  };
+  const filename = path.join(
+    evidenceDirectory(normalized.output_path),
+    `request-${source.sha256}-${binding.request_sha256}.json`,
+  );
+  const bytes = `${JSON.stringify(binding, null, 2)}\n`;
+  let bindingDigest = sha256(bytes);
+  if (fs.existsSync(filename)) {
+    const existing = readSnapshot(filename);
+    if (existing.sha256 !== bindingDigest) {
+      const saved = JSON.parse(existing.bytes);
+      const { request_source_base64: _savedBytes, ...savedCore } = saved;
+      const { request_source_base64: _newBytes, ...newCore } = binding;
+      if (
+        stableJson(savedCore) !== stableJson(newCore) ||
+        (saved.request_source_base64 !== undefined &&
+          sha256(Buffer.from(saved.request_source_base64, "base64")) !== source.sha256)
+      )
+        throw new Error("Existing request binding must be preserved");
+      bindingDigest = existing.sha256;
+    }
+  } else writeExclusive(filename, bytes);
+  withLedger(normalized.output_path, () => undefined);
+  return {
+    request_binding_path: portable(filename),
+    request_binding_sha256: bindingDigest,
+    request_snapshot,
+    request_sha256: binding.request_sha256,
+  };
+}
+
+function validateOriginalRequest(estimate, catalogs, options, errors) {
+  if (!options.requestPath) {
+    errors.push("Independent original requestPath is required for authoritative validation");
+    return;
+  }
+  const snapshots = options.snapshots;
+  const readSource = (reference) =>
+    options.readRequestFile
+      ? readSnapshot(reference, options.readRequestFile, options.cwd)
+      : readSnapshot(resolveWorkspacePath(reference, options.cwd));
+  const readEvidence = (reference) =>
+    options.readEvidenceFile
+      ? readSnapshot(reference, options.readEvidenceFile, options.cwd)
+      : readSnapshot(resolveWorkspacePath(reference, options.cwd));
+  const original = readSource(options.requestPath);
+  snapshots.push(original);
+  const rawRequest = JSON.parse(original.bytes);
+  const derivedReference = path.join(
+    path.dirname(rawRequest.output_path),
+    "pricing-evidence",
+    `request-${original.sha256}-${estimate.request_sha256}.json`,
+  );
+  const bindingReference =
+    options.requestBindingPath ??
+    (path.isAbsolute(derivedReference)
+      ? path.relative(options.cwd, derivedReference).replaceAll(path.sep, "/")
+      : derivedReference);
+  let currentSnapshot;
+  try {
+    currentSnapshot = readEvidence(bindingReference);
+  } catch (cause) {
+    throw new Error("Original request/preflight binding differs or is missing", { cause });
+  }
+  snapshots.push(currentSnapshot);
+  const current = JSON.parse(currentSnapshot.bytes);
+  const archives = (binding) =>
+    (binding.source_files ?? []).map((source) => {
+      const bytes = Buffer.from(source.original_base64 ?? "", "base64");
+      if (sha256(bytes) !== source.sha256) throw new Error("Original manifest backup is unverified");
+      return { source, bytes };
+    });
+  const normalizedArchive = (raw, binding) => {
+    const files = archives(binding);
+    const normalized = normalizeCostRequest(raw, {
+      cwd: options.cwd,
+      readManifestFile: files.length === 1 ? () => files[0].bytes : undefined,
+    });
+    return pricingRequestSnapshot(normalized);
+  };
+  if (
+    current.schema_version !== "pricing-request-binding-v1" ||
+    current.request_source_sha256 !== original.sha256 ||
+    resolveWorkspacePath(current.request_path, options.cwd) !==
+      resolveWorkspacePath(options.requestPath, options.cwd) ||
+    current.request_sha256 !== estimate.request_sha256 ||
+    stableJson(current.request_snapshot) !== stableJson(estimate.request_snapshot) ||
+    digestObject(normalizedArchive(rawRequest, current)) !== current.request_sha256
+  )
+    throw new Error("Original request/preflight binding differs; existing evidence cannot be rebound");
+  for (const { source, bytes } of archives(current)) {
+    const snapshot = readSource(source.path);
+    snapshots.push(snapshot);
+    if (snapshot.sha256 !== source.sha256) {
+      const stripWriteback = (manifest) => ({
+        ...manifest,
+        services: manifest.services.map((service) => {
+          const copy = { ...service };
+          delete copy.cost_estimate_monthly_usd;
+          delete copy.cost_estimated_at;
+          return copy;
+        }),
+      });
+      if (stableJson(stripWriteback(JSON.parse(bytes))) !== stableJson(stripWriteback(JSON.parse(snapshot.bytes))))
+        throw new Error("Original manifest billing inputs changed after preflight");
+    }
+  }
+  const currentLedgerReference = path.join(path.dirname(bindingReference), "request-ledger.json");
+  const currentLedgerSnapshot = readEvidence(currentLedgerReference);
+  snapshots.push(currentLedgerSnapshot);
+  const currentLedger = JSON.parse(currentLedgerSnapshot.bytes);
+  if (currentLedger.schema_version !== "pricing-request-ledger-v1" || !Array.isArray(currentLedger.attempts))
+    throw new Error("Current calculation requires a durable request ledger");
+  for (const { evidence, ledgerInfo, historical } of catalogs.values()) {
+    const references = [evidence];
+    if (evidence.schema_version === "retail-price-evidence-v1") {
+      for (const failure of evidence.mcp_failure.attempts) {
+        const snapshot = readEvidence(failure.evidence_path);
+        snapshots.push(snapshot);
+        references.push(JSON.parse(snapshot.bytes));
+      }
+    }
+    for (const capture of references) {
+      if (!capture.request_binding_path || !capture.request_binding_sha256)
+        throw new Error("Captured provenance lacks its original immutable request binding");
+      const bindingSnapshot = readEvidence(capture.request_binding_path);
+      snapshots.push(bindingSnapshot);
+      if (bindingSnapshot.sha256 !== capture.request_binding_sha256)
+        throw new Error("Immutable original request binding hash mismatch");
+      const binding = JSON.parse(bindingSnapshot.bytes);
+      if (
+        binding.schema_version !== "pricing-request-binding-v1" ||
+        digestObject(binding.request_snapshot) !== binding.request_sha256
+      )
+        throw new Error("Historical collection request binding is invalid");
+      if (historical) {
+        if (
+          binding.request_sha256 === current.request_sha256 ||
+          binding.request_source_sha256 === current.request_source_sha256
+        )
+          throw new Error("Same-attempt evidence cannot be relabelled as a historical import");
+        const bytes = binding.request_source_base64
+          ? Buffer.from(binding.request_source_base64, "base64")
+          : readSource(binding.request_path).bytes;
+        if (
+          sha256(bytes) !== binding.request_source_sha256 ||
+          digestObject(normalizedArchive(JSON.parse(bytes), binding)) !== binding.request_sha256
+        )
+          throw new Error("Historical collection original request is unverified");
+      } else if (
+        capture.request_binding_sha256 !== currentSnapshot.sha256 ||
+        bindingSnapshot.path !== currentSnapshot.path
+      )
+        throw new Error(
+          "Original request/preflight binding differs; existing evidence cannot be rebound without an explicit historical import",
+        );
+    }
+    const attemptIds =
+      evidence.source === "mcp" ? [evidence.call_id] : evidence.attempts.map((attempt) => attempt.call_id);
+    for (const id of attemptIds) {
+      const attempt = ledgerInfo.ledger.attempts.find((entry) => entry.call_id === id);
+      if (
+        attempt.request_binding_path !== evidence.request_binding_path ||
+        attempt.request_binding_sha256 !== evidence.request_binding_sha256
+      )
+        throw new Error("Reservation request binding differs from captured provenance");
+    }
+  }
+  return {
+    path: currentSnapshot.path,
+    sha256: currentSnapshot.sha256,
+    binding: current,
+    ledgerInfo: { path: currentLedgerSnapshot.path, ledger: currentLedger },
+  };
+}
+function currentTimestamp(value, options, label, errors) {
+  const timestamp = Date.parse(value);
+  const now = new Date(options.now ?? Date.now()).getTime();
+  if (!Number.isFinite(timestamp) || timestamp > now || now - timestamp > (options.ttlDays ?? 30) * 86400000)
+    errors.push(`${label}: evidence timestamp is invalid, stale or future-dated`);
+}
+
+function validateNativeConversion(conversion) {
+  const native = conversion.native_unit;
+  const usage = conversion.usage_unit;
+  let scale;
+  if (native === usage) scale = 1;
+  else if (/^(1\s*)?hours?$/i.test(native) && usage === "hours") scale = 1;
+  else if (/^(1\s*\/\s*)?days?$/i.test(native) && usage === "days") scale = 1;
+  else if (/^(1\s*\/\s*)?months?$/i.test(native) && usage === "months") scale = 1;
+  else if (/^(1\s*)?GB(\s*\/\s*Month)?$/.test(native) && usage === "GB") scale = 1;
+  else if (/^(1\s*)?TB(\s*\/\s*Month)?$/.test(native) && usage === "TB") scale = 1;
+  else if (native === "1") scale = 1;
+  else if (["operations", "requests", "queries", "tokens", "request_units"].includes(usage)) {
+    if (/^(?:1K\b|1,000(?!,\d))/i.test(native)) scale = 1000;
+    else if (/^(?:10K\b|10,000(?!,\d))/i.test(native)) scale = 10000;
+    else if (/^(?:1M\b|1,000,000(?!,\d))/i.test(native)) scale = 1000000;
+  }
+  if (scale === undefined || scale !== conversion.units_per_native_unit)
+    throw new Error("Unverified or contradictory native unit conversion; use native units or a rate quote");
+}
+
+function loadExactEvidence(entries, options, errors) {
+  const catalogs = new Map();
+  const snapshots = options.snapshots ?? [];
+  const read = (reference) =>
+    options.readEvidenceFile
+      ? readSnapshot(reference, options.readEvidenceFile, options.cwd)
+      : readSnapshot(resolveWorkspacePath(reference, options.cwd));
+  for (const entry of entries ?? []) {
+    try {
+      const filename = resolveWorkspacePath(entry.evidence_path, options.cwd);
+      if (entry.provenance !== undefined && entry.provenance !== "historical-import")
+        throw new Error("Unsupported evidence import provenance tag");
+      if (catalogs.has(filename)) throw new Error("Duplicate evidence reference");
+      const snapshot = read(entry.evidence_path);
+      snapshots.push(snapshot);
+      const evidence = JSON.parse(snapshot.bytes);
+      let ledgerInfo = null;
+      if (evidence.status !== "COMPLETE") throw new Error("Incomplete/unverified evidence response");
+      const rows = [];
+      if (evidence.schema_version === "pricing-response-evidence-v1") {
+        if (
+          evidence.source !== "mcp" ||
+          evidence.provenance !== "caller-supplied-native-call" ||
+          !evidence.call_id ||
+          !evidence.native_call_id ||
+          evidence.query_hash !== digestObject(evidence.query)
+        )
+          throw new Error("Missing native query/call provenance");
+        const raw = read(evidence.raw_path);
+        snapshots.push(raw);
+        if (path.dirname(raw.path) !== path.dirname(snapshot.path))
+          throw new Error("Raw evidence escaped evidence directory");
+        if (raw.sha256 !== evidence.response_sha256) throw new Error("Raw evidence SHA-256 mismatch");
+        const decoded = decodePricingResponse(raw.bytes);
+        if (stableJson(decoded) !== stableJson(evidence.normalized_rows))
+          throw new Error("Normalized result differs from original bytes");
+        rows.push(...decoded);
+        currentTimestamp(evidence.queried_at, options, filename, errors);
+        const ledgerSnapshot = read(path.join(path.dirname(entry.evidence_path), "request-ledger.json"));
+        snapshots.push(ledgerSnapshot);
+        const ledger = JSON.parse(ledgerSnapshot.bytes);
+        ledgerInfo = { path: ledgerSnapshot.path, ledger };
+        const attempt = ledger.attempts?.find((item) => item.call_id === evidence.call_id);
+        if (
+          attempt?.state !== "completed" ||
+          attempt.query_hash !== evidence.query_hash ||
+          attempt.response_sha256 !== evidence.response_sha256 ||
+          attempt.native_call_id !== evidence.native_call_id ||
+          attempt.issued_at !== evidence.queried_at ||
+          resolveWorkspacePath(attempt.evidence_path, options.cwd) !== filename
+        )
+          throw new Error("Native capture lacks matching completed ledger reservation");
+        currentTimestamp(evidence.captured_at, options, "captured_at", errors);
+        if (Date.parse(evidence.captured_at) < Date.parse(evidence.queried_at))
+          throw new Error("Capture timestamp predates native issue");
+        if (ledger.attempts.length + (ledger.external_requests_used ?? 0) > MAX_SHARED_REQUESTS)
+          throw new Error("Shared request budget exceeded");
+      } else if (evidence.schema_version === "retail-price-evidence-v1") {
+        if (!evidence.ledger_path) throw new Error("Missing durable direct request ledger");
+        const failureSnapshots = verifyCapturedFailure(
+          evidence.mcp_failure,
+          options.readEvidenceFile,
+          options.cwd,
+          evidence.ledger_path,
+        );
+        snapshots.push(...failureSnapshots);
+        validateFailure(
+          { query: evidence.query, mcp_failure: failureSnapshots.failure },
+          { now: Date.parse(evidence.pages?.[0]?.queried_at) },
+        );
+        const ledgerSnapshot = read(evidence.ledger_path);
+        snapshots.push(ledgerSnapshot);
+        const ledger = JSON.parse(ledgerSnapshot.bytes);
+        ledgerInfo = { path: ledgerSnapshot.path, ledger };
+        if (
+          !Array.isArray(evidence.pages) ||
+          !evidence.pages.length ||
+          evidence.requests_used !== evidence.pages.length
+        )
+          throw new Error("Incomplete direct evidence pages");
+        for (const [index, page] of evidence.pages.entries()) {
+          if (sha256(rawPageBytes(page)) !== page.response_sha256) throw new Error("Raw page SHA-256 mismatch");
+          const parsed = JSON.parse(page.raw_response);
+          validatePage(parsed, evidence.query);
+          if (parsed.NextPageLink !== null) validateNextPageLink(parsed.NextPageLink, evidence.query, page.url);
+          if (index === 0 && page.url !== retailQueryUrl(evidence.query).href)
+            throw new Error("Direct page query differs from request");
+          const attempt = evidence.attempts?.[index];
+          const issued = ledger.attempts?.find((item) => item.call_id === attempt?.call_id);
+          if (
+            attempt?.state !== "completed" ||
+            issued?.state !== "completed" ||
+            issued.source !== "direct" ||
+            issued.query?.page_url !== page.url ||
+            issued.issued_at !== page.queried_at ||
+            issued.query_hash !== digestObject({ ...evidence.query, page_url: page.url })
+          )
+            throw new Error("Direct page lacks completed durable request provenance");
+          const pageSnapshot = read(issued.evidence_path);
+          snapshots.push(pageSnapshot);
+          const durablePage = JSON.parse(pageSnapshot.bytes);
+          if (
+            durablePage.response_sha256 !== page.response_sha256 ||
+            durablePage.raw_response !== page.raw_response ||
+            rawPageBytes(durablePage).compare(rawPageBytes(page)) !== 0
+          )
+            throw new Error("Direct page differs from durably captured response");
+          if (
+            parsed.BillingCurrency !== evidence.query.currencyCode ||
+            !Object.hasOwn(parsed, "NextPageLink") ||
+            (index === evidence.pages.length - 1
+              ? parsed.NextPageLink !== null
+              : parsed.NextPageLink !== evidence.pages[index + 1].url)
+          )
+            throw new Error("Incomplete direct evidence pagination");
+          rows.push(...parsed.Items);
+          currentTimestamp(page.queried_at, options, filename, errors);
+        }
+      } else throw new Error("Unsupported evidence schema");
+      const meters = rows.map(normalizeMeter);
+      if (!meters.length) throw new Error("No meter evidence");
+      for (const meter of meters) {
+        currentTimestamp(evidence.queried_at ?? evidence.pages[0].queried_at, options, filename, errors);
+        if (Date.parse(meter.effectiveStartDate) > new Date(options.now ?? Date.now()).getTime())
+          throw new Error("Meter effective date is in the future");
+        for (const key of [
+          "serviceName",
+          "armSkuName",
+          "armRegionName",
+          "productName",
+          "skuName",
+          "meterName",
+          "currencyCode",
+        ]) {
+          if (Object.hasOwn(evidence.query, key) && evidence.query[key] !== meter[key])
+            throw new Error(`Evidence row contradicts query ${key}`);
+        }
+        if (meter.type !== evidence.query.priceType) throw new Error("Evidence priceType mismatch");
+      }
+      if (ledgerInfo?.ledger.schema_version !== "pricing-request-ledger-v1")
+        throw new Error("Invalid durable request ledger schema");
+      if (ledgerInfo.ledger.attempts.length + (ledgerInfo.ledger.external_requests_used ?? 0) > MAX_SHARED_REQUESTS)
+        throw new Error("Collection ledger exceeds the shared pricing budget");
+      catalogs.set(filename, { meters, evidence, ledgerInfo, historical: entry.provenance === "historical-import" });
+    } catch (error) {
+      errors.push(`Evidence: ${error.message}`);
+    }
+  }
+  return catalogs;
+}
+
+function validateLinkedPricing(estimate, options, errors, quote = false) {
+  const request = estimate.request_snapshot;
+  if (
+    !request ||
+    estimate.request_sha256 !== digestObject(request) ||
+    !Array.isArray(request.lines) ||
+    !request.lines.length
+  ) {
+    errors.push("Current normalized request_snapshot and request_sha256 are required");
+    return;
+  }
+  if (
+    request.purpose !== (quote ? "rate-quote" : "monthly-estimate") ||
+    ["project_name", "region", "currency"].some((key) => request[key] !== estimate[key])
+  )
+    errors.push("Estimate/request identity or purpose mismatch");
+  if (!["resource_list", "manifest_path", "candidate_sets"].includes(request.mode))
+    errors.push("Invalid original request mode");
+  if (
+    request.lines.some(
+      (line) =>
+        !line ||
+        ["name", "service_name", "sku", "region"].some((key) => typeof line[key] !== "string" || !line[key].trim()) ||
+        typeof line.quantity !== "number" ||
+        !Number.isFinite(line.quantity) ||
+        line.quantity <= 0,
+    )
+  )
+    errors.push("Normalized request lines require explicit identity and positive finite quantity");
+  const catalogs = loadExactEvidence(estimate.evidence, options, errors);
+  const authority = validateOriginalRequest(estimate, catalogs, options, errors);
+  if (!catalogs.size) errors.push("Every COMPLETE result requires exact captured evidence");
+  const used = new Set();
+  const seen = new Set();
+  const aggregateTierGroups = new Set();
+  for (const resource of estimate.resources ?? []) {
+    const input = request.lines.find(
+      (line) =>
+        line.name === resource.name &&
+        line.decision_id === resource.decision_id &&
+        (line.resource_id ?? null) === (resource.resource_id ?? null) &&
+        (line.charge_id ?? null) === (resource.charge_id ?? null),
+    );
+    if (!input || seen.has(input)) {
+      errors.push("Missing, duplicate or unrequested pricing resource");
+      continue;
+    }
+    seen.add(input);
+    for (const key of ["service_name", "sku", "region", "quantity", "subscription", "resource_id", "charge_id"]) {
+      if ((resource[key] ?? null) !== (input[key] ?? null)) errors.push(`${resource.name}: request ${key} differs`);
+    }
+    errors.push(...validateBillableDimensions(input, request.purpose));
+    const basis = quote ? resource : resource.calculation_basis;
+    if (!basis || (!quote && basis.request_line_sha256 !== digestObject(input))) {
+      errors.push(`${resource.name}: retained calculation basis/request coverage is required`);
+      continue;
+    }
+    if (!quote && ["name", "service_name", "sku", "region", "quantity"].some((key) => basis[key] !== resource[key]))
+      errors.push(`${resource.name}: calculation basis differs from resource`);
+    const components = basis.components?.length ? basis.components : [basis];
+    const covered = new Set();
+    const duplicated = new Set();
+    for (const component of components) {
+      try {
+        const ref = component.evidence_ref;
+        if (!ref?.evidence_path || !Array.isArray(ref.row_sha256) || !ref.row_sha256.length)
+          throw new Error("Component requires evidence_ref {evidence_path,row_sha256:[]}");
+        const filename = resolveWorkspacePath(ref.evidence_path, options.cwd);
+        const catalog = catalogs.get(filename);
+        if (!catalog) throw new Error("Component references undeclared/unverified evidence");
+        used.add(filename);
+        const selected = ref.row_sha256.map((digest) => {
+          const matches = catalog.meters.filter((row) => digestObject(row) === digest);
+          if (matches.length !== 1) throw new Error("Selected meter row is absent or ambiguous");
+          return matches[0];
+        });
+        if (new Set(ref.row_sha256).size !== ref.row_sha256.length) throw new Error("Duplicate selected row");
+        const identity = (row) =>
+          stableJson(
+            Object.fromEntries(
+              METER_FIELDS.filter((key) => !["retailPrice", "tierMinimumUnits"].includes(key)).map((key) => [
+                key,
+                row[key],
+              ]),
+            ),
+          );
+        const first = selected[0];
+        if (selected.some((row) => identity(row) !== identity(first)))
+          throw new Error("Tier rows have incompatible native identities");
+        if (input.product_name && input.product_name !== first.productName)
+          throw new Error("Selected native product contradicts request");
+        if (input.meter_name && input.meter_name !== first.meterName)
+          throw new Error("Selected native meter contradicts request");
+        for (const [field, native] of [
+          ["sku_name", "skuName"],
+          ["billing_region", "armRegionName"],
+          ["native_unit", "unitOfMeasure"],
+        ]) {
+          if (Object.hasOwn(input, field) && input[field] !== first[native])
+            throw new Error(`Selected native ${native} contradicts requested ${field}`);
+        }
+        if (
+          Object.hasOwn(input, "operating_system") &&
+          (typeof input.operating_system !== "string" ||
+            !["linux", "windows"].includes(input.operating_system.trim().toLowerCase()) ||
+            !input.operating_system.trim() ||
+            !new RegExp(`\\b${String(input.operating_system).replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}\\b`, "i").test(
+              first.productName,
+            ))
+        )
+          throw new Error("Requested operating_system is unverifiable from the selected native product");
+        if (
+          Object.hasOwn(input, "license") ||
+          Object.hasOwn(input, "pricing_context") ||
+          (Object.hasOwn(input, "commitment") && !["on-demand", "pay-as-you-go"].includes(input.commitment?.type))
+        )
+          throw new Error(
+            "Requested licensing/pricing context/commitment is unverifiable from native Consumption evidence",
+          );
+        if (
+          Object.hasOwn(input, "redundancy") &&
+          ![first.productName, first.skuName, first.armSkuName].some((value) =>
+            value
+              .toLowerCase()
+              .split(/[^a-z0-9]+/)
+              .includes(String(input.redundancy).toLowerCase()),
+          )
+        )
+          throw new Error("Requested redundancy is unverifiable from native identity");
+        const usageEntries = Array.isArray(input.usage) ? input.usage : input.usage ? [input.usage] : [];
+        const applicableUsage = usageEntries[usageEntries.length === 1 ? 0 : component.usage_index];
+        const applicable = catalog.meters.filter(
+          (row) =>
+            normalizeQueryGroupService(row.serviceName) === normalizeQueryGroupService(input.service_name) &&
+            [row.skuName, row.armSkuName].includes(input.sku) &&
+            row.unitOfMeasure === first.unitOfMeasure &&
+            row.armRegionName === first.armRegionName &&
+            (!input.product_name || row.productName === input.product_name) &&
+            (!input.meter_name || row.meterName === input.meter_name) &&
+            (!applicableUsage?.meter_name || row.meterName === applicableUsage.meter_name),
+        );
+        if (new Set(applicable.map(identity)).size > 1)
+          throw new Error("Ambiguous native product/meter applicability; request must select exact product/meter");
+        const allBands = catalog.meters.filter((row) => identity(row) === identity(first));
+        if (allBands.length !== selected.length) throw new Error("All evidenced tier bands must be selected");
+        const duplicateKey = `${identity(first)}|${component.usage_index ?? 0}|${component.usage_dimension ?? "amount"}`;
+        if (duplicated.has(duplicateKey)) throw new Error("Duplicate representations would double count a meter");
+        duplicated.add(duplicateKey);
+        if (!quote && component.usage_scope === "aggregate" && selected.length > 1) {
+          const group = identity(first);
+          if (aggregateTierGroups.has(group))
+            throw new Error(
+              "Aggregate tiered billing group cannot split free bands across components; consolidate usage or prove independent billing scopes",
+            );
+          aggregateTierGroups.add(group);
+        }
+        if (
+          normalizeQueryGroupService(first.serviceName) !== normalizeQueryGroupService(input.service_name) ||
+          ![first.skuName, first.armSkuName].includes(input.sku) ||
+          first.currencyCode !== estimate.currency ||
+          first.type !== "Consumption" ||
+          component.billing_region !== first.armRegionName ||
+          (component.unit_of_measure ?? component.unitOfMeasure) !== first.unitOfMeasure
+        )
+          throw new Error("Component native service/SKU/billing region/currency/type/unit mismatch");
+        if (
+          component.product_name !== first.productName ||
+          component.meter_id !== first.meterId ||
+          component.effective_start_date !== first.effectiveStartDate
+        )
+          throw new Error("Component native product/meter/effective date mismatch");
+        if (first.armRegionName && first.armRegionName !== "Global" && first.armRegionName !== input.region)
+          throw new Error("Billing region does not apply to deployment region");
+        if (first.tierMinimumUnits === null) {
+          if (
+            selected.length !== 1 ||
+            component.tier_bands ||
+            component.tier_metadata_status !== "not-applicable-fixed-hourly" ||
+            component.retail_price !== first.retailPrice
+          )
+            throw new Error("Missing tier metadata is allowed only for a documented single fixed-hourly meter");
+        } else if (selected.length > 1 || first.tierMinimumUnits !== 0 || component.tier_bands) {
+          if (Object.hasOwn(component, "retail_price"))
+            throw new Error("Tiered components cannot also declare a separate flat rate");
+          const actual = selected
+            .map(({ tierMinimumUnits, retailPrice }) => ({ tierMinimumUnits, retailPrice }))
+            .sort((a, b) => a.tierMinimumUnits - b.tierMinimumUnits);
+          const declared = [...(component.tier_bands ?? [])].sort((a, b) => a.tierMinimumUnits - b.tierMinimumUnits);
+          if (stableJson(actual) !== stableJson(declared)) throw new Error("Native tier/rate mismatch");
+          computeTieredCharge(0, actual);
+        } else if (component.retail_price !== first.retailPrice) throw new Error("Native rate mismatch");
+        if (quote) {
+          if (input.native_unit !== first.unitOfMeasure)
+            throw new Error("Quoted native unit differs from request applicability");
+          continue;
+        }
+        const conversion = component.unit_conversion;
+        if (
+          !conversion ||
+          conversion.native_unit !== first.unitOfMeasure ||
+          !conversion.usage_unit ||
+          !conversion.reason ||
+          component.free_grant_units
+        )
+          throw new Error("Explicit labelled native unit conversion required; grants must be evidenced tiers");
+        validateNativeConversion(conversion);
+        if (component.quantity !== undefined && component.quantity !== input.quantity)
+          throw new Error("Component quantity contradicts request");
+        const usage = Array.isArray(input.usage) ? input.usage : input.usage ? [input.usage] : [];
+        const dimension = component.usage_dimension;
+        let usageIndex = component.usage_index;
+        if (usageIndex !== undefined && (!Number.isInteger(usageIndex) || usageIndex < 0 || usageIndex >= usage.length))
+          throw new Error("Component usage_index does not identify a requested usage entry");
+        if (usage.length > 1 && (!Number.isInteger(usageIndex) || usageIndex < 0 || usageIndex >= usage.length))
+          throw new Error("Multiple usage entries require an explicit usage_index for every component");
+        if (usage.length === 1) usageIndex = 0;
+        const declared = usage[usageIndex];
+        if (declared && dimension && declared.dimension !== dimension && !Object.hasOwn(declared, dimension))
+          throw new Error("Component usage dimension does not identify its requested usage entry");
+        const amount = declared?.dimension === dimension || !dimension ? declared?.amount : declared?.[dimension];
+        if (declared) {
+          if (declared.meter_name && declared.meter_name !== first.meterName)
+            throw new Error("Usage entry meter applicability contradicts native evidence");
+          if (
+            amount !== component.usage_amount ||
+            declared.scope !== component.usage_scope ||
+            (declared.unit && declared.unit !== conversion.usage_unit)
+          )
+            throw new Error("Calculation usage contradicts request");
+          covered.add(`${usageIndex}:${Object.hasOwn(declared, "amount") ? "amount" : dimension}`);
+        } else if (
+          serviceRecipe(input) !== null ||
+          component.usage_amount !== (input.hours_per_month ?? HOURS_PER_MONTH) ||
+          conversion.usage_unit !== "hours" ||
+          !/^(1\s*)?hours?$/i.test(first.unitOfMeasure) ||
+          conversion.units_per_native_unit !== 1 ||
+          component.usage_scope !== "per-instance"
+        )
+          throw new Error("Calculation lacks exact request usage coverage");
+        computeComponentCost(component, input.quantity);
+      } catch (error) {
+        errors.push(`${resource.name}: ${error.message}`);
+      }
+    }
+    if (!quote) {
+      for (const dimension of serviceRecipe(input) ?? []) {
+        const usage = Array.isArray(input.usage) ? input.usage : input.usage ? [input.usage] : [];
+        if (
+          !usage.some((entry, index) => covered.has(`${index}:${entry.dimension === dimension ? "amount" : dimension}`))
+        )
+          errors.push(`${resource.name}: missing calculation for ${dimension}`);
+      }
+      const requestedUsage = Array.isArray(input.usage) ? input.usage : input.usage ? [input.usage] : [];
+      for (const [index, entry] of requestedUsage.entries()) {
+        const dimensions = Object.hasOwn(entry, "amount")
+          ? ["amount"]
+          : Object.entries(entry)
+              .filter(([key, value]) => typeof value === "number" && key !== "billable_days_per_month")
+              .map(([key]) => key);
+        for (const dimension of dimensions)
+          if (!covered.has(`${index}:${dimension}`))
+            errors.push(`${resource.name}: missing calculation coverage for usage[${index}].${dimension}`);
+      }
+      if (input.usage && !covered.size) errors.push(`${resource.name}: missing usage calculation coverage`);
+      try {
+        const calculated = calculateLineCost(basis);
+        if (calculated === null || !Number.isFinite(calculated) || calculated !== resource.monthly_cost)
+          errors.push(`${resource.name}: monthly cost contradicts deterministic calculation basis`);
+      } catch (error) {
+        errors.push(`${resource.name}: ${error.message}`);
+      }
+    }
+  }
+  if (seen.size !== request.lines.length) errors.push("Incomplete request/resource coverage");
+  if (used.size !== catalogs.size) errors.push("Unreferenced pricing evidence");
+  const evidenceCalls = [...catalogs.values()]
+    .filter((catalog) => !catalog.historical)
+    .reduce((sum, { evidence }) => sum + (evidence.source === "mcp" ? 1 : evidence.requests_used), 0);
+  if (Number(estimate.mcp_calls_used) + Number(estimate.direct_api_calls_used ?? 0) < evidenceCalls)
+    errors.push("Issued request counts contradict captured evidence");
+  const historicalScopes = new Set(
+    [...catalogs.values()].filter((catalog) => catalog.historical).map(({ ledgerInfo }) => ledgerInfo.path),
+  );
+  const ledgers = new Map(
+    [...catalogs.values()]
+      .filter((catalog) => !catalog.historical)
+      .map(({ ledgerInfo }) => [ledgerInfo.path, ledgerInfo.ledger]),
+  );
+  if (authority) ledgers.set(authority.ledgerInfo.path, authority.ledgerInfo.ledger);
+  const allAttempts = [...ledgers.entries()].flatMap(([filename, ledger]) =>
+    historicalScopes.has(filename)
+      ? ledger.attempts.filter(
+          (attempt) =>
+            !attempt.issued_confirmed ||
+            !attempt.request_binding_sha256 ||
+            attempt.request_binding_sha256 === authority?.sha256,
+        )
+      : ledger.attempts,
+  );
+  const external = [...ledgers.entries()].reduce(
+    (sum, [filename, ledger]) => sum + (historicalScopes.has(filename) ? 0 : (ledger.external_requests_used ?? 0)),
+    0,
+  );
+  const mcpIssued = allAttempts.filter((attempt) => attempt.source === "mcp" && attempt.issued_confirmed).length;
+  const directIssued = allAttempts.filter((attempt) => attempt.source === "direct" && attempt.issued_confirmed).length;
+  const unknown = allAttempts.filter((attempt) => !attempt.issued_confirmed).length;
+  if (
+    Number(estimate.mcp_calls_used) < mcpIssued ||
+    Number(estimate.direct_api_calls_used ?? 0) < directIssued ||
+    Number(estimate.mcp_calls_used) + Number(estimate.direct_api_calls_used ?? 0) !==
+      mcpIssued + directIssued + external
+  )
+    errors.push("Published issued-call accounting must match the durable ledger");
+  if (
+    (estimate.unknown_request_reservations ?? 0) !== unknown ||
+    [...ledgers.values()].some(
+      (ledger) => ledger.attempts.length + (ledger.external_requests_used ?? 0) > MAX_SHARED_REQUESTS,
+    )
+  )
+    errors.push("Unknown reservations and conservative request budget must match the durable ledger");
+  if (
+    [...catalogs.values()].some(({ evidence }) => evidence.schema_version === "retail-price-evidence-v1") &&
+    typeof estimate.data_source === "string" &&
+    !estimate.data_source.includes("direct fallback")
+  )
+    errors.push("Direct pricing evidence must identify direct fallback in data_source");
+}
+
+export function validateRateQuote(quote, options = {}) {
+  const errors = [];
+  const snapshots = options.snapshots ?? [];
+  if (!quote || typeof quote !== "object" || Array.isArray(quote))
+    return { ok: false, errors: ["Rate quote must be an object"] };
+  if (
+    quote?.schema_version !== "retail-rate-quote-v1" ||
+    quote.purpose !== "rate-quote" ||
+    !["COMPLETE", "FAILED"].includes(quote.status)
+  )
+    errors.push("Invalid rate-quote contract");
+  if (["monthly_total", "yearly_total", "manifest_writeback"].some((key) => Object.hasOwn(quote ?? {}, key)))
+    errors.push("Rate quote cannot carry monthly totals or manifest writeback");
+  if (!Array.isArray(quote?.resources) || !Array.isArray(quote?.unresolved_items))
+    errors.push("Quote resources/unresolved_items required");
+  if (quote?.resources?.some((resource) => Object.hasOwn(resource, "monthly_cost")))
+    errors.push("Rate quote resources cannot contain monthly costs");
+  if (
+    ![quote?.mcp_calls_used, quote?.direct_api_calls_used ?? 0].every(
+      (count) => Number.isInteger(count) && count >= 0,
+    ) ||
+    (quote?.mcp_calls_used ?? 0) + (quote?.direct_api_calls_used ?? 0) > MAX_SHARED_REQUESTS
+  )
+    errors.push("Invalid rate-quote shared request accounting");
+  if (!/^[A-Z]{3}$/.test(quote.currency ?? "") || !ALLOWED_DATA_SOURCES.has(quote.data_source))
+    errors.push("Quote currency and explicit supported data_source are required");
+  if (quote?.status === "COMPLETE") {
+    if (quote.unresolved_items?.length) errors.push("COMPLETE quote has unresolved inputs");
+    currentTimestamp(quote.queried_at, options, "queried_at", errors);
+    try {
+      validateLinkedPricing(quote, { cwd: process.cwd(), ...options, snapshots }, errors, true);
+    } catch (error) {
+      errors.push(`Invalid linked quote evidence: ${error.message}`);
+    }
+  } else if (!quote?.unresolved_items?.length) errors.push("FAILED quote must identify unresolved items");
+  try {
+    assertSnapshots(snapshots);
+  } catch (error) {
+    errors.push(error.message);
+  }
+  return { ok: !errors.length, errors };
 }
 
 function validateEvidenceReferences(estimate, cwd) {
@@ -692,10 +1662,17 @@ export function validateEstimate(estimate, options = {}) {
   const cwd = options.cwd ?? process.cwd();
   const errors = [];
   const warnings = [];
+  const snapshots = options.snapshots ?? [];
 
   if (!estimate || typeof estimate !== "object" || Array.isArray(estimate)) {
     return { ok: false, errors: ["Estimate must be a JSON object"], warnings };
   }
+  if (estimate.schema_version === "retail-rate-quote-v1" || estimate.purpose === "rate-quote")
+    return { ok: false, errors: ["Rate quote is not a monthly estimate"], warnings };
+  if (!options.legacyAudit && estimate.schema_version !== "cost-estimate-v2")
+    errors.push("Authoritative estimates require cost-estimate-v2; use explicit legacy-audit for historical data");
+  if (!options.legacyAudit && estimate.purpose !== "monthly-estimate")
+    errors.push("Authoritative monthly estimates require purpose monthly-estimate");
 
   for (const field of [
     "status",
@@ -738,9 +1715,10 @@ export function validateEstimate(estimate, options = {}) {
   if (!Number.isFinite(Date.parse(estimate.queried_at))) {
     errors.push(`queried_at must be a valid ISO-8601 timestamp`);
   }
+  if (!options.legacyAudit) currentTimestamp(estimate.queried_at, options, "queried_at", errors);
 
-  const mcpCalls = Number(estimate.mcp_calls_used);
-  const directCalls = Number(estimate.direct_api_calls_used ?? 0);
+  const mcpCalls = estimate.mcp_calls_used;
+  const directCalls = estimate.direct_api_calls_used ?? 0;
   if (!Number.isInteger(mcpCalls) || mcpCalls < 0 || !Number.isInteger(directCalls) || directCalls < 0) {
     errors.push("mcp_calls_used and direct_api_calls_used must be nonnegative integers");
   } else if (mcpCalls + directCalls > MAX_SHARED_REQUESTS) {
@@ -791,9 +1769,18 @@ export function validateEstimate(estimate, options = {}) {
     errors.push("Estimate containing an upper-bound line cannot report High confidence");
   }
 
-  const isCandidateMode = Array.isArray(estimate.decisions) && estimate.decisions.length > 0;
+  const isCandidateMode = options.legacyAudit
+    ? Array.isArray(estimate.decisions) && estimate.decisions.length > 0
+    : estimate.request_snapshot?.mode === "candidate_sets";
 
   if (estimate.status === "COMPLETE") {
+    if (!options.legacyAudit) {
+      try {
+        validateLinkedPricing(estimate, { cwd, ...options, snapshots }, errors);
+      } catch (error) {
+        errors.push(`Invalid linked estimate evidence: ${error.message}`);
+      }
+    }
     if (!Array.isArray(estimate.unresolved_items) || estimate.unresolved_items.length > 0) {
       errors.push("COMPLETE estimate must have an empty unresolved_items[] array");
     }
@@ -801,11 +1788,59 @@ export function validateEstimate(estimate, options = {}) {
       errors.push("COMPLETE estimate cannot have budget_exceeded = true");
     }
     if (isCandidateMode) {
+      if (!options.legacyAudit) {
+        const requested = new Map();
+        for (const line of estimate.request_snapshot?.lines ?? []) {
+          if (!requested.has(line.decision_id)) requested.set(line.decision_id, []);
+          requested.get(line.decision_id).push(line.name);
+        }
+        const decisions = estimate.decisions ?? [];
+        if (
+          !Array.isArray(decisions) ||
+          decisions.length !== requested.size ||
+          decisions.some(
+            (decision) =>
+              !decision ||
+              !Array.isArray(decision.candidates) ||
+              decision.candidates.some((candidate) => !candidate || typeof candidate.label !== "string"),
+          ) ||
+          new Set(decisions.map((decision) => decision.decision_id)).size !== requested.size
+        )
+          errors.push("Candidate decisions must exactly cover every requested decision");
+        else
+          for (const decision of decisions) {
+            const names = requested.get(decision.decision_id);
+            const labels = decision.candidates?.map((candidate) => candidate.label) ?? [];
+            if (
+              !names ||
+              stableJson([...names].sort()) !== stableJson([...labels].sort()) ||
+              new Set(labels).size !== labels.length
+            )
+              errors.push(`decisions[${decision.decision_id}]: exact requested candidate coverage is required`);
+          }
+      }
       if (Number(estimate.monthly_total) !== 0 || Number(estimate.yearly_total) !== 0) {
         errors.push("candidate_sets mode must report monthly_total = 0 and yearly_total = 0");
       }
-      for (const decision of estimate.decisions) {
-        const candidates = decision.candidates ?? [];
+      for (const decision of Array.isArray(estimate.decisions) ? estimate.decisions : []) {
+        const candidates = Array.isArray(decision?.candidates) ? decision.candidates : [];
+        if (!decision || !Array.isArray(decision.candidates)) {
+          errors.push("Each decision requires a candidates array");
+          continue;
+        }
+        if (candidates.some((candidate) => !candidate || typeof candidate.label !== "string")) {
+          errors.push("Each candidate requires an explicit label");
+          continue;
+        }
+        if (!options.legacyAudit) {
+          for (const candidate of candidates) {
+            const resource = estimate.resources.find(
+              (line) => line.name === candidate.label && line.decision_id === decision.decision_id,
+            );
+            if (!resource || candidate.monthly_cost !== resource.monthly_cost)
+              errors.push(`decisions[${decision.decision_id}]: candidate cost lacks verified resource coverage`);
+          }
+        }
         const completeCandidates = candidates.filter(
           (c) => Number.isFinite(Number(c.monthly_cost)) && c.estimate_kind !== "upper_bound",
         );
@@ -827,6 +1862,8 @@ export function validateEstimate(estimate, options = {}) {
         }
       }
     } else {
+      if (!options.legacyAudit && estimate.decisions?.length)
+        errors.push("Non-candidate requests cannot publish candidate decisions");
       const sum = round6(estimate.resources.reduce((acc, r) => acc + Number(r.monthly_cost ?? 0), 0));
       const monthly = Number(estimate.monthly_total);
       const yearly = Number(estimate.yearly_total);
@@ -843,9 +1880,11 @@ export function validateEstimate(estimate, options = {}) {
     if (!Array.isArray(estimate.unresolved_items) || estimate.unresolved_items.length === 0) {
       errors.push("FAILED estimate must list at least one entry in unresolved_items[]");
     }
+    if (!options.legacyAudit && (estimate.monthly_total !== null || estimate.yearly_total !== null))
+      errors.push("FAILED estimates cannot publish success-shaped totals; monthly_total/yearly_total must be null");
   }
 
-  if (Array.isArray(estimate.retail_api_evidence) && estimate.retail_api_evidence.length > 0) {
+  if (options.legacyAudit && Array.isArray(estimate.retail_api_evidence) && estimate.retail_api_evidence.length > 0) {
     if (!estimate.data_source.includes("direct fallback")) {
       errors.push("Estimate with retail_api_evidence[] must identify direct fallback in data_source");
     }
@@ -854,6 +1893,13 @@ export function validateEstimate(estimate, options = {}) {
     }
   }
 
+  if (!options.legacyAudit) {
+    try {
+      assertSnapshots(snapshots);
+    } catch (error) {
+      errors.push(error.message);
+    }
+  }
   return { ok: errors.length === 0, errors, warnings };
 }
 
@@ -876,6 +1922,15 @@ export function buildCompactSummary(estimate, outputPath) {
   const relPath = outputPath.startsWith(`${ROOT}${path.sep}`)
     ? path.relative(ROOT, outputPath).replaceAll("\\", "/")
     : outputPath;
+  if (estimate.purpose === "rate-quote")
+    return [
+      `RATE QUOTE ${estimate.status}`,
+      `file_path: ${relPath}`,
+      `status: ${estimate.status}`,
+      `currency: ${estimate.currency}`,
+      `resource_count: ${estimate.resources.length}`,
+      `unresolved_items: ${estimate.unresolved_items.length}`,
+    ].join("\n");
   const lines = [
     `COST ESTIMATE ${estimate.status}`,
     `file_path: ${relPath}`,
@@ -895,6 +1950,78 @@ export function buildCompactSummary(estimate, outputPath) {
 }
 
 export function publishEstimate(options = {}) {
+  const resolvedOptions = { ...options };
+  if (options.manifestPath) {
+    let manifestPath = resolveWorkspacePath(options.manifestPath, options.cwd);
+    if (!fs.existsSync(manifestPath)) {
+      const pdir = projectDirFromPath(manifestPath);
+      if (isLayoutV2(pdir)) manifestPath = resolveContractPath(pdir, path.basename(manifestPath));
+    }
+    resolvedOptions.manifestPath = manifestPath;
+  }
+  const targets = [resolvedOptions.outputPath, ...(resolvedOptions.manifestPath ? [resolvedOptions.manifestPath] : [])]
+    .map((target) => resolveWorkspacePath(target, options.cwd))
+    .sort();
+  const locks = [];
+  try {
+    for (const target of targets) {
+      safePath(target);
+      fs.mkdirSync(path.dirname(target), { recursive: true });
+      const lock = `${target}.pricing-lock`;
+      locks.push(acquirePricingLock(lock));
+    }
+    return publishLocked(resolvedOptions);
+  } finally {
+    for (const lock of locks.reverse()) releasePricingLock(lock);
+  }
+}
+
+function recoverPublication(outputPath, draftPath, manifestPath, options) {
+  const cwd = options.cwd ?? process.cwd();
+  const journalPath = `${outputPath}.publication.json`;
+  if (!fs.existsSync(journalPath)) return null;
+  const journal = JSON.parse(readSnapshot(journalPath).bytes);
+  const allowed = new Set(manifestPath ? [manifestPath, path.join(path.dirname(manifestPath), "sku-manifest.md")] : []);
+  if (
+    journal.schema_version !== "pricing-publication-v1" ||
+    journal.output_path !== outputPath ||
+    !Array.isArray(journal.entries) ||
+    journal.entries.some((item) => !allowed.has(item.target))
+  )
+    throw new Error("Publication recovery scope differs; preserve the existing journal");
+  if (fs.existsSync(draftPath) && readSnapshot(draftPath).sha256 !== journal.draft_sha256)
+    throw new Error("Publication recovery requires the unchanged original draft");
+  if (fs.existsSync(outputPath)) {
+    const snapshot = readSnapshot(outputPath);
+    if (
+      snapshot.sha256 !== journal.output_sha256 ||
+      journal.entries.some((item) => readSnapshot(item.target).sha256 !== item.staged_sha256)
+    )
+      throw new Error("Interrupted publication conflicts with current files; preserve journal");
+    const estimate = JSON.parse(snapshot.bytes);
+    const validation = validateEstimate(estimate, { ...options, cwd, legacyAudit: false });
+    if (!validation.ok) throw new Error(`Interrupted publication evidence is invalid: ${validation.errors.join("; ")}`);
+    fs.unlinkSync(journalPath);
+    return { estimate, summary: buildCompactSummary(estimate, outputPath) };
+  }
+  for (const item of journal.entries) {
+    const current = fs.existsSync(item.target) ? readSnapshot(item.target) : null;
+    if (current?.sha256 === item.original_sha256 || (!current && !item.original_sha256)) continue;
+    if (current?.sha256 !== item.staged_sha256)
+      throw new Error("Interrupted publication target changed externally; preserve journal");
+    if (item.original_sha256) {
+      const bytes = Buffer.from(item.original_base64, "base64");
+      if (sha256(bytes) !== item.original_sha256) throw new Error("Publication recovery backup hash mismatch");
+      const rollback = `${item.target}.${randomUUID()}.rollback`;
+      writeExclusive(rollback, bytes);
+      fs.renameSync(rollback, item.target);
+    } else fs.unlinkSync(item.target);
+  }
+  fs.unlinkSync(journalPath);
+  return null;
+}
+
+function publishLocked(options) {
   const cwd = options.cwd ?? process.cwd();
   const draftPath = resolveWorkspacePath(options.draftPath, cwd);
   const outputPath = resolveWorkspacePath(options.outputPath, cwd);
@@ -903,8 +2030,8 @@ export function publishEstimate(options = {}) {
     const pdir = projectDirFromPath(manifestPath);
     if (isLayoutV2(pdir)) manifestPath = resolveContractPath(pdir, path.basename(manifestPath));
   }
-  const overwrite = Boolean(options.overwrite);
-
+  const recovered = recoverPublication(outputPath, draftPath, manifestPath, options);
+  if (recovered) return recovered;
   assertNotSymlink(draftPath, "draftPath");
   assertNotSymlink(outputPath, "outputPath");
   if (manifestPath) assertNotSymlink(manifestPath, "manifestPath");
@@ -912,13 +2039,26 @@ export function publishEstimate(options = {}) {
   if (!fs.existsSync(draftPath)) {
     throw new Error(`Draft file does not exist: ${draftPath}`);
   }
-  if (fs.existsSync(outputPath) && !overwrite) {
-    const err = new Error(`refuse_on_exists: ${outputPath} already exists and overwrite is false`);
+  if (fs.existsSync(outputPath)) {
+    const err = new Error(
+      `refuse_on_exists: ${outputPath} already exists; preserve evidence and select a new publication path`,
+    );
     err.code = "REFUSE_ON_EXISTS";
     throw err;
   }
 
-  const estimate = JSON.parse(fs.readFileSync(draftPath, "utf8"));
+  const draftSnapshot = readSnapshot(draftPath);
+  const estimate = JSON.parse(draftSnapshot.bytes);
+  const snapshots = [draftSnapshot];
+  if (estimate.purpose === "rate-quote") {
+    if (manifestPath) throw new Error("Rate quote cannot write a manifest");
+    const validation = validateRateQuote(estimate, { ...options, cwd, snapshots });
+    if (!validation.ok) throw new Error(`Rate quote validation failed: ${validation.errors.join("; ")}`);
+    assertSnapshots(snapshots);
+    writeExclusive(outputPath, `${JSON.stringify(estimate, null, 2)}\n`);
+    if (readSnapshot(draftPath).sha256 === draftSnapshot.sha256) fs.unlinkSync(draftPath);
+    return { estimate, summary: buildCompactSummary(estimate, outputPath) };
+  }
   for (const res of estimate.resources ?? []) {
     if (Array.isArray(res.components) || res.unit_of_measure || res.tier_bands) {
       res.calculation_basis = structuredClone(res);
@@ -931,24 +2071,26 @@ export function publishEstimate(options = {}) {
     }
   }
 
-  const isCandidateMode = Array.isArray(estimate.decisions) && estimate.decisions.length > 0;
+  const isCandidateMode = estimate.request_snapshot?.mode === "candidate_sets";
   if (isCandidateMode) {
     estimate.monthly_total = 0;
     estimate.yearly_total = 0;
-  } else if (
-    estimate.status === "COMPLETE" ||
-    (Array.isArray(estimate.resources) &&
-      estimate.resources.length > 0 &&
-      estimate.resources.every((r) => r.monthly_cost !== null && r.monthly_cost !== undefined))
-  ) {
+  } else if (estimate.status === "COMPLETE") {
     const sum = round6(estimate.resources.reduce((acc, r) => acc + Number(r.monthly_cost ?? 0), 0));
     estimate.monthly_total = sum;
     estimate.yearly_total = round6(sum * 12);
+  } else {
+    estimate.monthly_total = null;
+    estimate.yearly_total = null;
   }
 
   let manifest = null;
+  let manifestSnapshot = null;
   if (manifestPath && estimate.status === "COMPLETE") {
-    manifest = JSON.parse(fs.readFileSync(manifestPath, "utf8"));
+    if (estimate.currency !== "USD") throw new Error("USD manifest writeback requires USD evidence");
+    manifestSnapshot = readSnapshot(manifestPath);
+    snapshots.push(manifestSnapshot);
+    manifest = JSON.parse(manifestSnapshot.bytes);
     const serviceIds = new Set((manifest.services ?? []).map((s) => s.id));
     const totalsByService = new Map();
     for (const res of estimate.resources ?? []) {
@@ -963,45 +2105,132 @@ export function publishEstimate(options = {}) {
     }));
   }
 
-  const validation = validateEstimate(estimate, { cwd, verifyEvidenceFiles: options.verifyEvidenceFiles !== false });
+  const validation = validateEstimate(estimate, { ...options, cwd, snapshots, legacyAudit: false });
   if (!validation.ok) {
     throw new Error(`Estimate validation failed: ${validation.errors.join("; ")}`);
   }
 
-  fs.writeFileSync(draftPath, `${JSON.stringify(estimate, null, 2)}\n`, "utf8");
-  fs.renameSync(draftPath, outputPath);
+  const staged = [];
+  const committed = [];
+  const journalPath = `${outputPath}.publication.json`;
+  let ownsJournal = false;
+  let outputCommitted = false;
+  const stage = (target, bytes, original = null) => {
+    const filename = `${target}.${randomUUID()}.pending`;
+    writeExclusive(filename, bytes);
+    const item = { target, filename, bytes, original };
+    staged.push(item);
+    return item;
+  };
+  try {
+    if (manifest && Array.isArray(estimate.manifest_writeback) && options.manifestWriteback !== false) {
+      const writebackMap = new Map(estimate.manifest_writeback.map((w) => [w.id, w]));
+      for (const service of manifest.services ?? []) {
+        const wb = writebackMap.get(service.id);
+        if (wb) {
+          service.cost_estimate_monthly_usd = wb.cost_estimate_monthly_usd;
+          service.cost_estimated_at = wb.cost_estimated_at;
+        }
+      }
+      const manifestStage = stage(manifestPath, `${JSON.stringify(manifest, null, 2)}\n`, manifestSnapshot);
 
-  if (manifest && Array.isArray(estimate.manifest_writeback) && options.manifestWriteback !== false) {
-    const writebackMap = new Map(estimate.manifest_writeback.map((w) => [w.id, w]));
-    for (const service of manifest.services ?? []) {
-      const wb = writebackMap.get(service.id);
-      if (wb) {
-        service.cost_estimate_monthly_usd = wb.cost_estimate_monthly_usd;
-        service.cost_estimated_at = wb.cost_estimated_at;
+      if (options.renderMarkdown === true) {
+        const manifestMdPath = path.join(path.dirname(manifestPath), "sku-manifest.md");
+        if (!fs.existsSync(RENDERER)) throw new Error("Requested manifest renderer is unavailable");
+        {
+          safePath(manifestMdPath);
+          const originalMd = fs.existsSync(manifestMdPath) ? readSnapshot(manifestMdPath) : null;
+          if (originalMd) snapshots.push(originalMd);
+          const markdownStage = `${manifestMdPath}.${randomUUID()}.pending`;
+          const rendered = spawnSync(
+            process.execPath,
+            [RENDERER, "--in", manifestStage.filename, "--out", markdownStage],
+            {
+              cwd: ROOT,
+              encoding: "utf8",
+            },
+          );
+          if (rendered.status !== 0 || !fs.existsSync(markdownStage)) {
+            if (fs.existsSync(markdownStage)) fs.unlinkSync(markdownStage);
+            throw new Error("Manifest Markdown render failed; publication not committed");
+          }
+          staged.push({
+            target: manifestMdPath,
+            filename: markdownStage,
+            bytes: readSnapshot(markdownStage).bytes,
+            original: originalMd,
+          });
+        }
       }
     }
-    const manifestTmp = `${manifestPath}.tmp`;
-    assertNotSymlink(manifestTmp, "manifestTmp");
-    fs.writeFileSync(manifestTmp, `${JSON.stringify(manifest, null, 2)}\n`, "utf8");
-    fs.renameSync(manifestTmp, manifestPath);
-
-    if (options.renderMarkdown === true) {
-      const manifestMdPath = path.join(path.dirname(manifestPath), "sku-manifest.md");
-      if (fs.existsSync(RENDERER) && (fs.existsSync(manifestMdPath) || manifestPath.startsWith(ROOT))) {
-        spawnSync(process.execPath, [RENDERER, "--in", manifestPath, "--out", manifestMdPath], {
-          cwd: ROOT,
-          encoding: "utf8",
-        });
+    assertSnapshots(snapshots);
+    const outputBytes = `${JSON.stringify(estimate, null, 2)}\n`;
+    writeExclusive(
+      journalPath,
+      `${JSON.stringify(
+        {
+          schema_version: "pricing-publication-v1",
+          output_path: outputPath,
+          output_sha256: sha256(outputBytes),
+          draft_sha256: draftSnapshot.sha256,
+          entries: staged.map((item) => ({
+            target: item.target,
+            staged_sha256: sha256(item.bytes),
+            original_sha256: item.original?.sha256 ?? null,
+            original_base64: item.original?.bytes.toString("base64") ?? null,
+          })),
+        },
+        null,
+        2,
+      )}\n`,
+    );
+    ownsJournal = true;
+    for (const item of staged) {
+      if (item.original) {
+        assertSnapshots([item.original]);
+        fs.renameSync(item.filename, item.target);
+      } else {
+        fs.linkSync(item.filename, item.target);
+        fs.unlinkSync(item.filename);
       }
+      committed.push(item);
     }
+    assertSnapshots(snapshots.filter((snapshot) => !committed.some((item) => item.target === snapshot.path)));
+    writeExclusive(outputPath, outputBytes);
+    outputCommitted = true;
+    if (readSnapshot(draftPath).sha256 === draftSnapshot.sha256) fs.unlinkSync(draftPath);
+    fs.unlinkSync(journalPath);
+    ownsJournal = false;
+  } catch (error) {
+    if (outputCommitted) throw error;
+    for (const item of committed.reverse()) {
+      if (readSnapshot(item.target).sha256 !== sha256(item.bytes)) continue;
+      if (item.original) {
+        const rollback = `${item.target}.${randomUUID()}.rollback`;
+        writeExclusive(rollback, item.original.bytes);
+        fs.renameSync(rollback, item.target);
+      } else fs.unlinkSync(item.target);
+    }
+    if (ownsJournal && !fs.existsSync(outputPath)) fs.unlinkSync(journalPath);
+    throw error;
+  } finally {
+    for (const item of staged) if (fs.existsSync(item.filename)) fs.unlinkSync(item.filename);
   }
 
   const summary = buildCompactSummary(estimate, outputPath);
   return { estimate, summary };
 }
 
-export function calculateScenarios(estimate, scenarios, { cwd = process.cwd(), now = new Date(), ttlDays = 30 } = {}) {
-  const validation = validateEstimate(estimate, { cwd, verifyEvidenceFiles: true });
+export function calculateScenarios(estimate, scenarios, options = {}) {
+  const { cwd = process.cwd(), now = new Date(), ttlDays = 30 } = options;
+  const validation = validateEstimate(estimate, {
+    ...options,
+    cwd,
+    verifyEvidenceFiles: true,
+    now,
+    ttlDays,
+    legacyAudit: false,
+  });
   if (!validation.ok || estimate.status !== "COMPLETE")
     throw new Error(`Current complete evidence required: ${validation.errors.join("; ")}`);
   const queried = Date.parse(estimate.queried_at);
@@ -1082,7 +2311,14 @@ export async function main(argv = process.argv.slice(2)) {
         draft: { type: "string" },
         output: { type: "string" },
         manifest: { type: "string" },
+        query: { type: "string" },
+        response: { type: "string" },
+        "call-id": { type: "string" },
+        "native-call-id": { type: "string" },
+        "original-request": { type: "string" },
+        "retry-of": { type: "string" },
         overwrite: { type: "boolean" },
+        "render-markdown": { type: "boolean" },
         help: { type: "boolean" },
       },
     });
@@ -1095,18 +2331,80 @@ export async function main(argv = process.argv.slice(2)) {
       console.log(
         "Usage:\n" +
           "  node tools/scripts/cost-estimate.mjs preflight --request REQUEST.json\n" +
-          "  node tools/scripts/cost-estimate.mjs publish --draft DRAFT.json.tmp --output OUTPUT.json [--manifest sku-manifest.json] [--overwrite]\n" +
-          "  node tools/scripts/cost-estimate.mjs validate --input OUTPUT.json [--legacy-audit]\n" +
-          "  node tools/scripts/cost-estimate.mjs scenarios --input ESTIMATE.json --request SCENARIOS.json",
+          "  node tools/scripts/cost-estimate.mjs publish --draft DRAFT.json.tmp --output OUTPUT.json --request ORIGINAL_REQUEST.json [--manifest sku-manifest.json] [--render-markdown]\n" +
+          "  node tools/scripts/cost-estimate.mjs validate --input OUTPUT.json --request ORIGINAL_REQUEST.json\n" +
+          "  node tools/scripts/cost-estimate.mjs validate --input HISTORICAL.json --legacy-audit\n" +
+          "  node tools/scripts/cost-estimate.mjs validate-quote --input QUOTE.json --request ORIGINAL_REQUEST.json\n" +
+          "  node tools/scripts/cost-estimate.mjs scenarios --input ESTIMATE.json --request SCENARIOS.json --original-request ORIGINAL_REQUEST.json\n" +
+          "  node tools/scripts/cost-estimate.mjs reserve-query|issue-query|capture-response --request REQUEST.json --query QUERY.json --output OUTPUT.json --call-id RESERVATION_ID [--response ACTUAL_RESPONSE_FILE --native-call-id ACTUAL_NATIVE_ID] [--retry-of PRIOR_ID]",
       );
       return 0;
+    }
+    if (mode === "validate-quote") {
+      if (!values.input) throw new Error("validate-quote requires --input");
+      const quote = JSON.parse(readSnapshot(resolveWorkspacePath(values.input)).bytes);
+      const result = validateRateQuote(quote, { requestPath: values.request });
+      console.log(JSON.stringify(result, null, 2));
+      return result.ok ? 0 : 1;
+    }
+    if (["reserve-query", "issue-query", "capture-response"].includes(mode)) {
+      if (!values.request || !values.query || !values.output || !values["call-id"])
+        throw new Error("Capture lifecycle requires --request --query --output --call-id");
+      const raw = JSON.parse(readSnapshot(resolveWorkspacePath(values.request)).bytes);
+      const preflight = validateCostRequest(raw);
+      if (!preflight.ok) throw new Error(`Preflight failed: ${preflight.unresolved_items.join("; ")}`);
+      const query = JSON.parse(readSnapshot(resolveWorkspacePath(values.query)).bytes);
+      const output = resolveWorkspacePath(values.output);
+      if (path.dirname(output) !== path.dirname(preflight.normalized.output_path))
+        throw new Error("Output must share request evidence directory");
+      if (
+        !preflight.normalized.lines.some(
+          (line) =>
+            normalizeQueryGroupService(line.service_name) === normalizeQueryGroupService(query.serviceName) &&
+            (!query.armRegionName || query.armRegionName === line.region || query.armRegionName === "Global") &&
+            (!query.armSkuName || query.armSkuName === line.sku),
+        ) ||
+        query.currencyCode !== preflight.normalized.currency ||
+        query.priceType !== "Consumption"
+      )
+        throw new Error("Query must apply to the preflight request");
+      const call_id = values["call-id"];
+      const binding = bindCostRequest(raw, { requestPath: values.request });
+      const reservation = reserveQuery({
+        output,
+        query,
+        call_id,
+        request_binding_path: binding.request_binding_path,
+        retry_of: values["retry-of"],
+        remaining_requests: preflight.normalized.remaining_requests,
+      });
+      let result;
+      if (mode === "reserve-query") result = reservation;
+      else if (mode === "issue-query")
+        result = updateAttempt(output, call_id, { state: "issued", issued_at: new Date().toISOString() });
+      else {
+        if (!values.response) throw new Error("capture-response requires --response actual-response-file");
+        if (!values["native-call-id"])
+          throw new Error("capture-response requires --native-call-id from the actual native invocation");
+        result = captureMcpResponse({
+          output,
+          query,
+          call_id,
+          native_call_id: values["native-call-id"],
+          response_path: resolveWorkspacePath(values.response),
+        });
+      }
+      console.log(JSON.stringify(result, null, 2));
+      return result.status === "FAILED" ? 1 : 0;
     }
     if (mode === "scenarios") {
       if (!values.input || !values.request)
         throw new Error("scenarios requires --input estimate.json --request scenarios.json");
       const estimate = JSON.parse(fs.readFileSync(resolveWorkspacePath(values.input), "utf8"));
       const scenarios = JSON.parse(fs.readFileSync(resolveWorkspacePath(values.request), "utf8"));
-      console.log(JSON.stringify(calculateScenarios(estimate, scenarios), null, 2));
+      console.log(
+        JSON.stringify(calculateScenarios(estimate, scenarios, { requestPath: values["original-request"] }), null, 2),
+      );
       return 0;
     }
 
@@ -1116,11 +2414,17 @@ export async function main(argv = process.argv.slice(2)) {
       const reqPath = resolveWorkspacePath(reqArg);
       const raw = JSON.parse(fs.readFileSync(reqPath, "utf8"));
       const res = validateCostRequest(raw);
+      const binding = res.ok ? bindCostRequest(raw, { requestPath: reqPath }) : null;
       console.log(
         JSON.stringify(
           {
             status: res.ok ? "PREFLIGHT_OK" : "PREFLIGHT_FAILED",
             mode: res.normalized?.mode ?? null,
+            purpose: res.normalized?.purpose ?? null,
+            request_snapshot: res.normalized ? pricingRequestSnapshot(res.normalized) : null,
+            request_sha256: res.normalized ? digestObject(pricingRequestSnapshot(res.normalized)) : null,
+            request_binding_path: binding?.request_binding_path ?? null,
+            request_binding_sha256: binding?.request_binding_sha256 ?? null,
             line_count: res.normalized?.lines.length ?? 0,
             estimated_query_groups: res.normalized?.estimated_query_groups ?? 0,
             unresolved_items: res.unresolved_items,
@@ -1136,7 +2440,7 @@ export async function main(argv = process.argv.slice(2)) {
       if (!values.input) throw new Error("--input is required for validate");
       const target = resolveWorkspacePath(values.input);
       const est = JSON.parse(fs.readFileSync(target, "utf8"));
-      const res = validateEstimate(est, { legacyAudit: Boolean(values["legacy-audit"]) });
+      const res = validateEstimate(est, { legacyAudit: Boolean(values["legacy-audit"]), requestPath: values.request });
       console.log(JSON.stringify({ ok: res.ok, errors: res.errors, warnings: res.warnings }, null, 2));
       return res.ok ? 0 : 1;
     }
@@ -1150,6 +2454,8 @@ export async function main(argv = process.argv.slice(2)) {
         outputPath: values.output,
         manifestPath: values.manifest ?? null,
         overwrite: Boolean(values.overwrite),
+        renderMarkdown: Boolean(values["render-markdown"]),
+        requestPath: values.request,
       });
       console.log(summary);
       return 0;

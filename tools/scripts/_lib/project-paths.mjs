@@ -256,3 +256,34 @@ export function resolveProjectFile(projectDir, relOrName) {
   if (fs.existsSync(rootCandidate)) return rootCandidate;
   return direct;
 }
+
+export function projectRelativeEvidencePath(
+  projectRoot,
+  reference,
+  workspaceRoot = path.resolve(import.meta.dirname, "../../.."),
+) {
+  if (typeof reference !== "string" || !reference.trim() || reference.includes("\0")) {
+    throw new Error("Evidence reference must be a nonempty path string");
+  }
+  const project = fs.realpathSync(projectRoot);
+  let base =
+    reference.startsWith("agent-output/") && path.basename(path.dirname(project)) === "agent-output"
+      ? path.dirname(path.dirname(project))
+      : project;
+  const workspaceReference = path.resolve(workspaceRoot, reference);
+  const workspaceRelative = path.relative(project, workspaceReference);
+  if (
+    ["agent-output/", "tools/", ".github/"].some((prefix) => reference.startsWith(prefix)) &&
+    workspaceRelative &&
+    workspaceRelative !== ".." &&
+    !workspaceRelative.startsWith(`..${path.sep}`) &&
+    !path.isAbsolute(workspaceRelative)
+  ) {
+    base = workspaceRoot;
+  }
+  const relative = path.relative(project, path.resolve(base, reference));
+  if (!relative || relative === ".." || relative.startsWith(`..${path.sep}`) || path.isAbsolute(relative)) {
+    throw new Error("Evidence must remain project-relative to the approved project root");
+  }
+  return relative.split(path.sep).join("/");
+}

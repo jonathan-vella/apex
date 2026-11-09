@@ -9,7 +9,8 @@ import { isDeepStrictEqual, parseArgs } from "node:util";
 import { loadValidator } from "./_lib/ajv-validator.mjs";
 import { readJson, writeJson } from "./_lib/json.mjs";
 import { sumCosts, validateAssessmentCost, validateScopes } from "./assessment-cost.mjs";
-import { comparableLineUsage, resolveWorkspacePath, validateEstimate } from "./cost-estimate.mjs";
+import { comparableLineUsage, validateEstimate } from "./cost-estimate.mjs";
+import { projectRelativeEvidencePath } from "./_lib/project-paths.mjs";
 
 const HERE = path.dirname(fileURLToPath(import.meta.url));
 const SCHEMA = path.resolve(HERE, "../schemas/assessment-action-register.schema.json");
@@ -35,6 +36,7 @@ const TOOL_FILES = [
   "_lib/ajv-validator.mjs",
   "_lib/json.mjs",
   "_lib/project-paths.mjs",
+  "_lib/pricing-evidence.mjs",
   "../schemas/assessment-action-register.schema.json",
   "../schemas/assessment-cost.schema.json",
   "../schemas/cost-estimate.schema.json",
@@ -109,12 +111,7 @@ function reader(root) {
 
 function nestedEvidencePath(root, relative) {
   const project = fs.realpathSync(root);
-  const cwd =
-    relative.startsWith("agent-output/") && path.basename(path.dirname(project)) === "agent-output"
-      ? path.dirname(path.dirname(project))
-      : project;
-  const resolved = resolveWorkspacePath(relative, cwd);
-  const confined = projectPath(root, path.relative(project, resolved).split(path.sep).join("/"));
+  const confined = projectPath(root, projectRelativeEvidencePath(root, relative));
   return path.relative(project, confined).split(path.sep).join("/");
 }
 
@@ -213,7 +210,7 @@ function rejectCredentialUrls(value) {
   else if (value && typeof value === "object") for (const entry of Object.values(value)) rejectCredentialUrls(entry);
 }
 
-function calculateInternal(data, { root, asOf }) {
+function calculateInternal(data, { root, asOf, evidenceHashes = {} }) {
   rejectCredentialUrls(data);
   const now = instant(asOf);
   requireValue(instant(data.as_of) <= instant(data.generated_at), "Generation cannot precede original as-of");
@@ -223,7 +220,17 @@ function calculateInternal(data, { root, asOf }) {
   );
   validateScopes(data.scopes, { allowEmpty: true });
   requireValue(data.source !== "iac" || data.scopes.length === 0, "IaC-only register cannot assert Azure scopes");
-  const readEvidence = reader(root);
+  const readFile = reader(root);
+  const readEvidence = (relative) => {
+    const bytes = readFile(relative);
+    const actual = digest(bytes);
+    requireValue(
+      !evidenceHashes[relative] || evidenceHashes[relative] === actual,
+      "Evidence changed during calculation",
+    );
+    evidenceHashes[relative] = actual;
+    return bytes;
+  };
   const refs = uniqueMap(data.evidence_refs, "evidence");
   const findings = uniqueMap(data.findings, "finding");
   const resources = uniqueMap(data.resources, "resource");
@@ -292,7 +299,20 @@ function calculateInternal(data, { root, asOf }) {
   const retail = (id, basis) => {
     const leaf = document(id, "retail");
     if (!retailCache.has(id)) {
-      const result = validateEstimate(leaf, { verifyEvidenceFiles: false });
+      const request = refs.get(id).pricing_request;
+      requireValue(request?.path && /^[a-f0-9]{64}$/.test(request.sha256 ?? ""), "Original pricing request required");
+      const requestPath = path
+        .relative(fs.realpathSync(root), projectPath(root, request.path))
+        .split(path.sep)
+        .join("/");
+      requireValue(digest(readEvidence(requestPath)) === request.sha256, "Original pricing request hash mismatch");
+      const result = validateEstimate(leaf, {
+        cwd: root,
+        now: new Date(asOf),
+        requestPath,
+        readRequestFile: (reference) => readEvidence(nestedEvidencePath(root, reference)),
+        readEvidenceFile: (reference) => readEvidence(nestedEvidencePath(root, reference)),
+      });
       requireValue(result.ok, `Invalid retail leaf: ${result.errors.join("; ")}`);
       requireValue(
         leaf.status === "COMPLETE" &&
@@ -336,6 +356,7 @@ function calculateInternal(data, { root, asOf }) {
     if (!costCache.has(id)) {
       const report = document(id, "cost");
       const result = validateAssessmentCost(report, {
+        root,
         asOf,
         readEvidence: (relative) => readEvidence(nestedEvidencePath(root, relative)),
         approvedScopes: data.scopes,
@@ -676,11 +697,13 @@ function checked(root, input, asOf) {
   requireValue(path.resolve(input) === expected, `Canonical input must be ${ACTION_REGISTER_OUTPUTS.input}`);
   const bytes = reader(root)(ACTION_REGISTER_OUTPUTS.input);
   const register = JSON.parse(bytes);
-  const result = calculateAssessmentActionRegister(register, { root, asOf });
+  const evidenceHashes = {};
+  const result = calculateAssessmentActionRegister(register, { root, asOf, evidenceHashes });
   requireValue(result.valid, result.errors.join("; "));
   return {
     register,
     derived: result.derived,
+    validated_evidence_hashes: evidenceHashes,
     source_sha256: digest(bytes),
     derived_sha256: digest(JSON.stringify(result.derived)),
   };
@@ -712,7 +735,10 @@ function python(operation, root, input, asOf, payload, staged = false) {
 }
 
 function sourceHashes(payload, root) {
-  const hashes = Object.fromEntries(payload.register.evidence_refs.map((ref) => [ref.path, ref.sha256]));
+  const hashes = {
+    ...Object.fromEntries(payload.register.evidence_refs.map((ref) => [ref.path, ref.sha256])),
+    ...payload.validated_evidence_hashes,
+  };
   // Cost-report provenance and captured retail pages are transitive sources, not extra contributions.
   const track = (relative) => {
     const normalized = nestedEvidencePath(root, relative);

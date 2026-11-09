@@ -210,6 +210,10 @@ output contract; it does not invent meters, recalculate prices, or certify an ac
 The owner retains that invocation and its existing retail evidence checks. Candidate-only, empty, failed, stale or
 changed pricing output cannot support a numeric workload total. Unresolved expressions/modules/unpriced components
 stay in gaps. A failed estimate can be referenced with `monthly_total: null`, `status: "not_assessed"` and stated gaps.
+Retail provenance also retains the independently supplied `pricing_request: {path, sha256}` for the original
+owner request. Both paths are project-relative and hash-checked. The current retail validator reads that request,
+captured responses, immutable preflight binding and request ledger through the same controlled evidence reader.
+An output's recomputed self-hash is not original-request authority; rate-only quotes cannot support a monthly total.
 
 Do not implement speculative rightsizing. Qualitative opportunities and missing utilization evidence belong in the
 Markdown findings/gaps. Quantitative entries require a complete closed-month resource-attributed actual baseline,
@@ -303,7 +307,11 @@ A minimal **retail estimate entry** belongs only in `estimates[]`:
     "path": "_meta/cost/retail-output.json",
     "sha256": "<replace with exact 64-character raw-byte SHA-256>",
     "collected_at": "2026-03-15T12:30:00.000Z",
-    "source": "cost-estimate-subagent"
+    "source": "cost-estimate-subagent",
+    "pricing_request": {
+      "path": "_meta/cost/original-pricing-request.json",
+      "sha256": "<replace with exact original-request raw-byte SHA-256>"
+    }
   },
   "currency": "USD",
   "monthly_total": "12",

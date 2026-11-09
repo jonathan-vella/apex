@@ -2,32 +2,41 @@ import assert from "node:assert/strict";
 import { spawnSync } from "node:child_process";
 import { createHash } from "node:crypto";
 import fs from "node:fs";
-import { tmpdir } from "node:os";
 import path from "node:path";
 import test from "node:test";
 import { fileURLToPath } from "node:url";
 import { createAjv } from "../../scripts/_lib/ajv-validator.mjs";
+import { evidenceBackedFixture, fixtureRequestOptions } from "./test_cost_estimate_fixture.mjs";
 import {
   calculateLineCost,
-  calculateScenarios,
+  calculateScenarios as strictCalculateScenarios,
   normalizeCostRequest,
-  publishEstimate,
+  publishEstimate as strictPublishEstimate,
   resolveWorkspacePath,
   round6,
   validateCostRequest,
-  validateEstimate,
+  validateEstimate as strictValidateEstimate,
 } from "../../scripts/cost-estimate.mjs";
 
 const HERE = path.dirname(fileURLToPath(import.meta.url));
 const ROOT = path.resolve(HERE, "../../..");
 const SCRIPT = path.join(ROOT, "tools/scripts/cost-estimate.mjs");
+const validateEstimate = (estimate, options) =>
+  strictValidateEstimate(estimate, fixtureRequestOptions(estimate, options));
+const calculateScenarios = (estimate, scenarios, options) =>
+  strictCalculateScenarios(estimate, scenarios, fixtureRequestOptions(estimate, options));
+const publishEstimate = (options) =>
+  strictPublishEstimate({
+    ...options,
+    requestPath: options.requestPath ?? path.join(path.dirname(options.draftPath), "pricing-request.json"),
+  });
 
 test("equivalent scenarios reuse retained calculation inputs without new price queries", (t) => {
-  const dir = fs.mkdtempSync(path.join(tmpdir(), "apex-scenarios-"));
+  const dir = fs.mkdtempSync(path.join(HERE, ".apex-scenarios-"));
   t.after(() => fs.rmSync(dir, { recursive: true, force: true }));
   const outputPath = path.join(dir, "estimate.json");
   const draftPath = path.join(dir, "draft.json");
-  const now = new Date("2026-10-23T00:00:00Z");
+  let now = new Date();
   const draft = {
     status: "COMPLETE",
     project_name: "synthetic",
@@ -58,8 +67,9 @@ test("equivalent scenarios reuse retained calculation inputs without new price q
     mcp_calls_used: 1,
     budget_exceeded: false,
   };
-  fs.writeFileSync(draftPath, JSON.stringify(draft));
+  fs.writeFileSync(draftPath, JSON.stringify(evidenceBackedFixture(draft, dir, { cwd: ROOT })));
   const { estimate } = publishEstimate({ draftPath, outputPath });
+  now = new Date();
   assert.ok(estimate.resources[0].calculation_basis);
   assert.equal(estimate.resources[0].subscription, "workload");
   assert.equal(JSON.parse(fs.readFileSync(outputPath, "utf8")).resources[0].subscription, "workload");
@@ -86,12 +96,10 @@ test("equivalent scenarios reuse retained calculation inputs without new price q
   }
   assert.throws(() => calculateScenarios(estimate, { expected: {} }, { now: new Date("2027-01-01") }), /stale/);
   const tampered = structuredClone(estimate);
-  tampered.resources[0].calculation_basis.retail_price = 2;
-  assert.throws(() => calculateScenarios(tampered, { expected: {} }, { now }), /basis differs/);
+  tampered.resources[0].calculation_basis.components[0].retail_price = 2;
+  assert.throws(() => calculateScenarios(tampered, { expected: {} }, { now }), /Native rate mismatch/);
   const componentQuantities = structuredClone(estimate);
-  componentQuantities.resources[0].calculation_basis.components = [
-    { quantity: 1, unit_of_measure: "1 GB", retail_price: 1, usage_amount: 10 },
-  ];
+  componentQuantities.resources[0].calculation_basis.components[0].quantity = 1;
   assert.throws(
     () => calculateScenarios(componentQuantities, { growth: { "synthetic-meter": { quantity: 2 } } }, { now }),
     /Component-specific quantities/,
@@ -180,7 +188,7 @@ test("resolveWorkspacePath prevents double-prefixed agent-output paths when shel
 });
 
 test("preflight enforces single input mode, variable usage, alert frequency, and stale draft checks", (context) => {
-  const dir = fs.mkdtempSync(path.join(tmpdir(), "apex-cost-preflight-"));
+  const dir = fs.mkdtempSync(path.join(HERE, ".apex-cost-preflight-"));
   context.after(() => fs.rmSync(dir, { recursive: true, force: true }));
 
   const manifestPath = path.join(dir, "sku-manifest.json");
@@ -254,7 +262,7 @@ test("preflight enforces single input mode, variable usage, alert frequency, and
 });
 
 test("manifest expansion preserves sparse environment overrides and rejects supplemental ID collisions", (context) => {
-  const dir = fs.mkdtempSync(path.join(tmpdir(), "apex-cost-expand-"));
+  const dir = fs.mkdtempSync(path.join(HERE, ".apex-cost-expand-"));
   context.after(() => fs.rmSync(dir, { recursive: true, force: true }));
 
   const manifest = makeManifest({
@@ -527,7 +535,7 @@ test("calculateLineCost computes deterministic unit and tiered band totals witho
 });
 
 test("publishEstimate normalizes totals, writes back only manifest services, and handles !name notes via CLI", (context) => {
-  const dir = fs.mkdtempSync(path.join(tmpdir(), "apex-cost-publish-"));
+  const dir = fs.mkdtempSync(path.join(HERE, ".apex-cost-publish-"));
   context.after(() => fs.rmSync(dir, { recursive: true, force: true }));
 
   const manifestPath = path.join(dir, "sku-manifest.json");
@@ -603,11 +611,22 @@ test("publishEstimate normalizes totals, writes back only manifest services, and
     mcp_calls_used: 4,
     budget_exceeded: false,
   };
-  fs.writeFileSync(draftPath, JSON.stringify(draft, null, 2));
+  fs.writeFileSync(draftPath, JSON.stringify(evidenceBackedFixture(draft, dir, { cwd: ROOT }), null, 2));
 
   const cli = spawnSync(
     process.execPath,
-    [SCRIPT, "publish", "--draft", draftPath, "--output", outputPath, "--manifest", manifestPath],
+    [
+      SCRIPT,
+      "publish",
+      "--draft",
+      draftPath,
+      "--output",
+      outputPath,
+      "--manifest",
+      manifestPath,
+      "--request",
+      path.join(dir, "pricing-request.json"),
+    ],
     { encoding: "utf8", timeout: 5000 },
   );
   assert.equal(cli.status, 0, cli.stderr);
@@ -633,7 +652,7 @@ test("publishEstimate normalizes totals, writes back only manifest services, and
 });
 
 test("validateEstimate verifies retail_api_evidence SHA-256 and meterIds and flags legacy closest-meter assumptions", (context) => {
-  const dir = fs.mkdtempSync(path.join(tmpdir(), "apex-cost-evidence-"));
+  const dir = fs.mkdtempSync(path.join(HERE, ".apex-cost-evidence-"));
   context.after(() => fs.rmSync(dir, { recursive: true, force: true }));
 
   const rawPage = JSON.stringify({
@@ -703,7 +722,7 @@ test("validateEstimate verifies retail_api_evidence SHA-256 and meterIds and fla
   assert.match(res.warnings[0], /closest published/);
 
   estimate.retail_api_evidence[0].selected_meters[0].meterId = "wrong-meter-id";
-  const bad = validateEstimate(estimate, { cwd: dir });
+  const bad = validateEstimate(estimate, { cwd: dir, legacyAudit: true });
   assert.equal(bad.ok, false);
   assert.match(bad.errors[0], /not found in/);
 });
@@ -726,13 +745,14 @@ test("cost-estimate.schema.json compiles with Ajv and validates fixture and publ
     invalid.resources[0].subscription = subscription;
     assert.equal(validate(invalid), false);
   }
-  const dir = fs.mkdtempSync(path.join(tmpdir(), "published-subscription-"));
+  const dir = fs.mkdtempSync(path.join(HERE, ".published-subscription-"));
   context.after(() => fs.rmSync(dir, { recursive: true, force: true }));
   fixture.resources[0].subscription = "workload";
   fixture.resources[1].subscription = null;
+  for (const resource of fixture.resources) resource.service_name = "Azure App Service";
   const draftPath = path.join(dir, "draft.json");
   const outputPath = path.join(dir, "published.json");
-  fs.writeFileSync(draftPath, JSON.stringify(fixture));
+  fs.writeFileSync(draftPath, JSON.stringify(evidenceBackedFixture(fixture, dir, { cwd: ROOT })));
   publishEstimate({ draftPath, outputPath });
   const published = JSON.parse(fs.readFileSync(outputPath, "utf8"));
   assert.equal(validate(published), true, JSON.stringify(validate.errors));

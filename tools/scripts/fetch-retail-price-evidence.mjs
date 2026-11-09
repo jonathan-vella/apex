@@ -1,8 +1,22 @@
-import { lstatSync, readFileSync, writeFileSync } from "node:fs";
+import { lstatSync, readFileSync, existsSync } from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { createHash } from "node:crypto";
 import { parseArgs } from "node:util";
+import {
+  assertSnapshots,
+  digestObject,
+  readSnapshot,
+  reserveQuery,
+  safePath,
+  updateAttempt,
+  writeExclusive,
+  withLedger,
+  ledgerCounts,
+  verifyCapturedFailure,
+  rawPageBytes,
+  PRICING_ROOT,
+} from "./_lib/pricing-evidence.mjs";
 
 const ENDPOINT = "https://prices.azure.com/api/retail/prices";
 const FILTERS = ["serviceName", "armSkuName", "armRegionName", "productName", "skuName", "meterName", "priceType"];
@@ -59,15 +73,25 @@ export function retailQueryUrl(query) {
   return url;
 }
 
-function validateFailure(request) {
+export function validateFailure(request, options = {}) {
   const failure = request.mcp_failure;
   if (!failure || !Array.isArray(failure.attempts) || failure.attempts.length === 0) {
     throw new Error("Documented MCP failure attempts are required");
   }
-  const now = Date.now();
+  const now = options.now ?? Date.now();
   const timestamp = Date.parse(failure.recorded_at);
-  if (!Number.isFinite(timestamp) || timestamp > now || now - timestamp > 24 * 60 * 60 * 1000) {
+  if (
+    !Number.isFinite(now) ||
+    !Number.isFinite(timestamp) ||
+    timestamp > now ||
+    now - timestamp > 24 * 60 * 60 * 1000
+  ) {
     throw new Error("MCP failure evidence must be current (within 24 hours, not future-dated)");
+  }
+  if (failure.captured_recorded_at !== undefined) {
+    const captured = Date.parse(failure.captured_recorded_at);
+    if (!Number.isFinite(captured) || captured > now || now - captured > 24 * 60 * 60 * 1000)
+      throw new Error("Actual captured native failure must be current (within 24 hours, not future-dated)");
   }
   let matching = false;
   for (const attempt of failure.attempts) {
@@ -199,8 +223,10 @@ function validateFailure(request) {
         throw new Error("Empty-result fallback requires actual empty, exhausted MCP responses");
       }
     } else if (failure.kind === "transient_exhausted") {
+      const nativeStatus = attempt.response?.status ?? attempt.response?.http_status;
       if (
         ![408, 429, 500, 502, 503, 504].includes(attempt.http_status) ||
+        (nativeStatus !== undefined && nativeStatus !== attempt.http_status) ||
         typeof attempt.error !== "string" ||
         !attempt.error.trim()
       ) {
@@ -214,7 +240,7 @@ function validateFailure(request) {
   }
 }
 
-function validatePage(page, query) {
+export function validatePage(page, query) {
   if (
     !page ||
     !Array.isArray(page.Items) ||
@@ -246,9 +272,30 @@ function validatePage(page, query) {
   }
 }
 
-export async function fetchRetailEvidence(request, fetcher = fetch) {
+export function validateNextPageLink(link, query, previous) {
+  const initial = retailQueryUrl(query);
+  const candidate = new URL(link);
+  const prior = new URL(previous);
+  if (
+    candidate.origin !== initial.origin ||
+    candidate.pathname !== initial.pathname ||
+    candidate.username ||
+    candidate.password ||
+    candidate.hash ||
+    candidate.searchParams.get("$filter") !== initial.searchParams.get("$filter") ||
+    candidate.searchParams.get("currencyCode") !== query.currencyCode ||
+    [...candidate.searchParams.keys()].some((key) => !["$filter", "currencyCode", "$skip", "$top"].includes(key)) ||
+    [...candidate.searchParams.keys()].some((key) => candidate.searchParams.getAll(key).length !== 1) ||
+    !/^\d+$/.test(candidate.searchParams.get("$skip") ?? "") ||
+    Number(candidate.searchParams.get("$skip")) <= Number(prior.searchParams.get("$skip") ?? 0) ||
+    (candidate.searchParams.has("$top") && !/^\d+$/.test(candidate.searchParams.get("$top")))
+  )
+    throw new Error("Unsafe or query-changing pagination link");
+  return candidate;
+}
+
+export async function fetchRetailEvidence(request, fetcher = fetch, options = {}) {
   const initial = retailQueryUrl(request.query);
-  validateFailure(request);
   if (
     !Number.isInteger(request.remaining_requests) ||
     request.remaining_requests < 1 ||
@@ -257,54 +304,239 @@ export async function fetchRetailEvidence(request, fetcher = fetch) {
     throw new Error("remaining_requests must reflect 1-20 unused requests in the shared pricing budget");
   }
   const limit = Math.min(4, request.remaining_requests);
+  const output = options.outputPath ?? request.output_path;
+  if (!output) throw new Error("Durable output_path is required before issuing a direct request");
+  safePath(output);
+  const ledgerPath = path.join(path.dirname(path.resolve(output)), "pricing-evidence", "request-ledger.json");
+  const failureSnapshots = verifyCapturedFailure(request.mcp_failure, undefined, PRICING_ROOT, ledgerPath);
+  let failureReferenceTime = Date.now();
+  if (existsSync(ledgerPath)) {
+    const ledger = JSON.parse(readSnapshot(ledgerPath).bytes);
+    const prior = ledger.attempts?.find(
+      (attempt) =>
+        attempt.source === "direct" &&
+        attempt.state === "completed" &&
+        attempt.query?.page_url === initial.href &&
+        attempt.query_hash === digestObject({ ...request.query, page_url: initial.href }),
+    );
+    if (prior && Date.parse(failureSnapshots.failure.recorded_at) <= Date.parse(prior.issued_at))
+      failureReferenceTime = Date.parse(prior.issued_at);
+  }
+  validateFailure({ ...request, mcp_failure: failureSnapshots.failure }, { now: failureReferenceTime });
+  const sharedLedger = JSON.parse(readSnapshot(ledgerPath).bytes);
+  if (
+    !Number.isInteger(sharedLedger.external_requests_used ?? 0) ||
+    (sharedLedger.external_requests_used ?? 0) < 0 ||
+    sharedLedger.attempts.length + (sharedLedger.external_requests_used ?? 0) > 20
+  )
+    throw new Error("Invalid or exhausted shared pricing request accounting");
+  const nativeCaptures = failureSnapshots.flatMap((snapshot) => {
+    try {
+      const record = JSON.parse(snapshot.bytes);
+      return record.schema_version === "pricing-response-evidence-v1" ? [record] : [];
+    } catch {
+      return [];
+    }
+  });
+  const requestBinding = nativeCaptures[0]?.request_binding_path;
+  if (
+    nativeCaptures.some(
+      (capture) =>
+        capture.request_binding_path !== requestBinding ||
+        capture.request_binding_sha256 !== nativeCaptures[0]?.request_binding_sha256,
+    )
+  )
+    throw new Error("Fallback attempts must belong to the same immutable original request");
+  if (existsSync(output)) {
+    const saved = JSON.parse(readSnapshot(output).bytes);
+    if (saved.status === "COMPLETE" && digestObject(saved.query) === digestObject(request.query)) {
+      const savedFailure = verifyCapturedFailure(saved.mcp_failure, undefined, PRICING_ROOT, ledgerPath);
+      validateFailure(
+        { query: saved.query, mcp_failure: savedFailure.failure },
+        { now: Date.parse(saved.pages?.[0]?.queried_at) },
+      );
+      if (
+        saved.request_binding_path !== requestBinding ||
+        saved.request_binding_sha256 !== nativeCaptures[0]?.request_binding_sha256
+      )
+        throw new Error("Saved direct evidence belongs to a different original request binding");
+      for (const [index, page] of saved.pages.entries()) {
+        if (createHash("sha256").update(rawPageBytes(page)).digest("hex") !== page.response_sha256)
+          throw new Error("Saved evidence byte hash mismatch");
+        const parsed = JSON.parse(page.raw_response);
+        validatePage(parsed, request.query);
+        if (index === 0 && page.url !== initial.href) throw new Error("Saved evidence query URL mismatch");
+        if (index < saved.pages.length - 1 && parsed.NextPageLink !== saved.pages[index + 1].url)
+          throw new Error("Saved evidence pagination chain mismatch");
+        if (parsed.NextPageLink !== null) validateNextPageLink(parsed.NextPageLink, request.query, page.url);
+        const issued = sharedLedger.attempts.find((attempt) => attempt.call_id === saved.attempts?.[index]?.call_id);
+        if (
+          issued?.state !== "completed" ||
+          issued.source !== "direct" ||
+          issued.query?.page_url !== page.url ||
+          issued.issued_at !== page.queried_at
+        )
+          throw new Error("Saved page is not a completed durable request");
+        const durable = JSON.parse(readSnapshot(path.resolve(PRICING_ROOT, issued.evidence_path)).bytes);
+        if (createHash("sha256").update(rawPageBytes(durable)).digest("hex") !== page.response_sha256)
+          throw new Error("Saved page differs from current durable raw evidence");
+        if (index === saved.pages.length - 1 && parsed.NextPageLink !== null)
+          throw new Error("Saved evidence incomplete");
+        const age = Date.now() - Date.parse(page.queried_at);
+        if (!Number.isFinite(age) || age < 0 || age > 30 * 86400000) throw new Error("Saved evidence stale");
+      }
+      if (!saved.pages.length || saved.requests_used !== saved.pages.length)
+        throw new Error("Saved evidence incomplete");
+      return { ...saved, requests_issued_this_run: 0 };
+    }
+    throw new Error("Existing evidence must be preserved");
+  }
+  const evidence = {
+    schema_version: "retail-price-evidence-v1",
+    status: "IN_PROGRESS",
+    data_source: "Azure Retail Prices API (direct fallback)",
+    query: request.query,
+    mcp_failure: { ...request.mcp_failure, recorded_at: failureSnapshots.failure.recorded_at },
+    requests_used: 0,
+    pages: [],
+    attempts: [],
+    ledger_path: path
+      .relative(PRICING_ROOT, path.join(path.dirname(path.resolve(output)), "pricing-evidence", "request-ledger.json"))
+      .replaceAll(path.sep, "/"),
+    ...(requestBinding
+      ? { request_binding_path: requestBinding, request_binding_sha256: nativeCaptures[0].request_binding_sha256 }
+      : {}),
+  };
   const pages = [];
   const seen = new Set();
   let next = initial;
-  while (next) {
-    if (pages.length >= limit) throw new Error("Pagination exceeds remaining budget or four-page fallback limit");
-    if (seen.has(next.href)) throw new Error("Repeated pagination URL");
-    seen.add(next.href);
-    const response = await fetcher(next, { redirect: "error", signal: AbortSignal.timeout(15000) });
-    if (!response.ok) throw new Error(`Retail API HTTP ${response.status}; no direct-API retry`);
-    const raw = await response.text();
-    if (Buffer.byteLength(raw) > 10 * 1024 * 1024) throw new Error("Retail response exceeds evidence size limit");
-    const body = JSON.parse(raw);
-    validatePage(body, request.query);
-    pages.push({
-      url: next.href,
-      queried_at: new Date().toISOString(),
-      response_sha256: createHash("sha256").update(raw).digest("hex"),
-      raw_response: raw,
-    });
-    if (body.NextPageLink === null) break;
-    const candidate = new URL(body.NextPageLink);
-    if (
-      candidate.origin !== initial.origin ||
-      candidate.pathname !== initial.pathname ||
-      candidate.username ||
-      candidate.password ||
-      candidate.hash ||
-      candidate.searchParams.get("$filter") !== initial.searchParams.get("$filter") ||
-      candidate.searchParams.get("currencyCode") !== request.query.currencyCode ||
-      [...candidate.searchParams.keys()].some((key) => !["$filter", "currencyCode", "$skip", "$top"].includes(key)) ||
-      [...candidate.searchParams.keys()].some((key) => candidate.searchParams.getAll(key).length !== 1) ||
-      !/^\d+$/.test(candidate.searchParams.get("$skip") ?? "") ||
-      Number(candidate.searchParams.get("$skip")) <= Number(next.searchParams.get("$skip") ?? 0) ||
-      (candidate.searchParams.has("$top") && !/^\d+$/.test(candidate.searchParams.get("$top")))
-    ) {
-      throw new Error("Unsafe or query-changing pagination link");
+  let stage = "reservation";
+  try {
+    while (next) {
+      stage = "budget";
+      if (pages.length >= limit) throw new Error("Pagination exceeds remaining budget or four-page fallback limit");
+      stage = "pagination";
+      if (seen.has(next.href)) throw new Error("Repeated pagination URL");
+      seen.add(next.href);
+      const callId = `direct-${digestObject({ query: request.query, page_url: next.href })}`;
+      stage = "reservation";
+      const reservation = reserveQuery({
+        output,
+        query: { ...request.query, page_url: next.href },
+        call_id: callId,
+        source: "direct",
+        request_binding_path: requestBinding,
+      });
+      const issued = new Date().toISOString();
+      if (!["planned", "completed"].includes(reservation.state))
+        throw new Error("Previously issued/failed direct query cannot be repeated");
+      const replay =
+        reservation.state === "completed"
+          ? JSON.parse(readSnapshot(path.resolve(PRICING_ROOT, reservation.evidence_path)).bytes)
+          : null;
+      if (replay && createHash("sha256").update(rawPageBytes(replay)).digest("hex") !== replay.response_sha256)
+        throw new Error("Saved direct page hash mismatch");
+      if (replay) {
+        const age = Date.now() - Date.parse(replay.queried_at);
+        if (!Number.isFinite(age) || age < 0 || age > 30 * 86400000) throw new Error("Saved direct page stale");
+      }
+      if (!replay) updateAttempt(output, callId, { state: "issued", issued_at: issued });
+      evidence.requests_used++;
+      const attempt = { call_id: callId, url: next.href, state: "issued", issued_at: reservation.issued_at ?? issued };
+      evidence.attempts.push(attempt);
+      stage = "fetch";
+      let response;
+      let raw;
+      try {
+        evidence.requests_issued_this_run = (evidence.requests_issued_this_run ?? 0) + (replay ? 0 : 1);
+        response = replay
+          ? { ok: true, status: 200, arrayBuffer: async () => rawPageBytes(replay) }
+          : await fetcher(next, { redirect: "error", signal: AbortSignal.timeout(15000) });
+        attempt.http_status = response.status ?? 200;
+        stage = "http";
+        const rawBytes = response.arrayBuffer
+          ? Buffer.from(await response.arrayBuffer())
+          : Buffer.from(await response.text(), "utf8");
+        raw = rawBytes.toString("utf8");
+        const pageRecord = {
+          url: next.href,
+          queried_at: replay?.queried_at ?? issued,
+          response_sha256: createHash("sha256").update(rawBytes).digest("hex"),
+          raw_response: raw,
+          raw_response_base64: rawBytes.toString("base64"),
+        };
+        evidence.pages.push(pageRecord);
+        // Failed and invalid pages remain exact evidence, but can never become EVIDENCE_READY.
+        const pagePath = path.join(path.dirname(path.resolve(output)), "pricing-evidence", `${callId}.page.json`);
+        if (!replay) writeExclusive(pagePath, `${JSON.stringify(pageRecord, null, 2)}\n`);
+        attempt.evidence_path = path.relative(PRICING_ROOT, pagePath).replaceAll(path.sep, "/");
+        if (!response.ok) throw new Error(`Retail API HTTP ${response.status}; no direct-API retry`);
+        stage = "decode";
+        if (Buffer.byteLength(raw) > 10 * 1024 * 1024) throw new Error("Retail response exceeds evidence size limit");
+        if (!Buffer.from(raw, "utf8").equals(rawBytes)) throw new Error("Invalid retail response UTF-8 bytes");
+        const body = JSON.parse(raw);
+        stage = "validation";
+        validatePage(body, request.query);
+        pages.push({
+          url: next.href,
+          queried_at: pageRecord.queried_at,
+          response_sha256: createHash("sha256").update(rawBytes).digest("hex"),
+          raw_response: raw,
+          raw_response_base64: rawBytes.toString("base64"),
+        });
+        attempt.state = "completed";
+        updateAttempt(output, callId, {
+          state: "completed",
+          issued_confirmed: true,
+          completed_at: new Date().toISOString(),
+          evidence_path: attempt.evidence_path,
+          http_status: attempt.http_status,
+        });
+        if (body.NextPageLink === null) break;
+        next = validateNextPageLink(body.NextPageLink, request.query, next);
+      } catch (error) {
+        attempt.state = "error";
+        updateAttempt(output, callId, {
+          state: "error",
+          issued_confirmed: true,
+          failure_stage: stage,
+          http_status: response?.status,
+        });
+        throw error;
+      }
     }
-    next = candidate;
+    if (!pages.some((page) => JSON.parse(page.raw_response).Items.length)) throw new Error("No retail meters returned");
+    evidence.status = "COMPLETE";
+    evidence.pages = pages;
+    assertSnapshots(failureSnapshots.filter((snapshot) => path.basename(snapshot.path) !== "request-ledger.json"));
+    verifyCapturedFailure(request.mcp_failure, undefined, PRICING_ROOT, ledgerPath);
+    writeExclusive(output, `${JSON.stringify(evidence, null, 2)}\n`);
+    return evidence;
+  } catch (cause) {
+    evidence.status = "FAILED";
+    evidence.failure = {
+      code: "RETAIL_EVIDENCE_FAILED",
+      stage,
+      diagnostic: "Direct pricing request failed; inspect preserved evidence locally",
+    };
+    evidence.ledger_counts = withLedger(output, (ledger) => {
+      evidence.requests_used = ledger.attempts.filter((attempt) => {
+        if (attempt.source !== "direct" || !attempt.issued_confirmed) return false;
+        const { page_url: _page, ...query } = attempt.query;
+        return digestObject(query) === digestObject(request.query);
+      }).length;
+      return ledgerCounts(ledger);
+    });
+    const failurePath = `${output}.failure.json`;
+    if (!existsSync(failurePath)) writeExclusive(failurePath, `${JSON.stringify(evidence, null, 2)}\n`);
+    const httpStatus = evidence.attempts.at(-1)?.http_status;
+    const error = new Error(
+      `Retail evidence failed at ${stage}${Number.isInteger(httpStatus) ? ` (HTTP ${httpStatus})` : ""}`,
+    );
+    error.cause = { code: cause.code ?? "RETAIL_REQUEST_FAILED" };
+    error.result = evidence;
+    throw error;
   }
-  if (!pages.some((page) => JSON.parse(page.raw_response).Items.length)) throw new Error("No retail meters returned");
-  return {
-    schema_version: "retail-price-evidence-v1",
-    data_source: "Azure Retail Prices API (direct fallback)",
-    query: request.query,
-    mcp_failure: request.mcp_failure,
-    requests_used: pages.length,
-    pages,
-  };
 }
 
 export async function main(args = process.argv.slice(2)) {
@@ -329,14 +561,24 @@ export async function main(args = process.argv.slice(2)) {
     } catch (error) {
       if (error.code !== "ENOENT") throw error;
     }
-    const evidence = await fetchRetailEvidence(JSON.parse(readFileSync(values.request, "utf8")));
-    writeFileSync(values.output, `${JSON.stringify(evidence, null, 2)}\n`, { flag: "wx", mode: 0o600 });
+    const evidence = await fetchRetailEvidence(JSON.parse(readFileSync(values.request, "utf8")), fetch, {
+      outputPath: values.output,
+    });
     console.log(
       JSON.stringify({ status: "EVIDENCE_READY", file_path: values.output, requests_used: evidence.requests_used }),
     );
     return 0;
   } catch (error) {
-    console.error(`Retail fallback FAILED: ${error.message}`);
+    console.error(
+      JSON.stringify({
+        status: "FAILED",
+        code: error.result?.failure?.code ?? "PREFLIGHT_FAILED",
+        stage: error.result?.failure?.stage ?? "preflight",
+        requests_used: error.result?.requests_used ?? 0,
+        ledger_counts: error.result?.ledger_counts,
+        diagnostic: "Retail fallback failed; preserve the durable ledger and inspect local evidence",
+      }),
+    );
     return 1;
   }
 }
