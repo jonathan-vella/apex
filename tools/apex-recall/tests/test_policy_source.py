@@ -241,3 +241,92 @@ def test_python_and_node_resolve_only_current_private_governance_contract(tmp_pa
     with pytest.raises(ValueError, match="owner-only"):
         writer.resolve_contract_path(project, contract.name)
     assert subprocess.run(command, capture_output=True, check=False).returncode != 0
+
+
+@pytest.mark.parametrize("step", ["5", "6"])
+def test_dev_policy_evidence_cannot_start_a_prod_phase(tmp_path: Path, monkeypatch, capsys, step: str):
+    _, writer, cli, module, _ = practical_project(tmp_path)
+    output = capture(cli, monkeypatch, tmp_path, capsys)
+    directory = Path(output["directory"])
+    snapshot = directory / "subscription-1.json"
+    _feasibility_snapshot(tmp_path, snapshot, SUBSCRIPTION)
+    snapshot.chmod(0o600)
+    data = writer.read_state(writer.session_state_path("synthetic"))
+    module.bind_feasibility("synthetic", data, Path(output["evidence_path"]))
+    module.record_input(
+        data,
+        {
+            "input_id": "prod_work",
+            "value": "Approved production work, but no production policy-read authorization",
+            "environments": ["prod"],
+            "owner": "platform-owner",
+            "request_id": "prod-work-request",
+        },
+    )
+    for prerequisite in ("1", "2", "3_5", "4", "5"):
+        if prerequisite != step:
+            data["steps"].setdefault(prerequisite, {}).update(status="complete", completed_environments=["dev"])
+    data["steps"]["3"] = {"status": "skipped"}
+    data["steps"][step] = {"status": "pending"}
+    module.grant_phase(data, step, {"request_id": "prod-stage", "input_ids": ["prod_work"], "environments": ["prod"]})
+    writer.write_state("synthetic", data)
+    before = writer.session_state_path("synthetic").read_bytes()
+    assert cli.main(["start-step", "synthetic", step, "--json"]) == 2
+    assert "policy source/read inputs" in json.loads(capsys.readouterr().out)["error"]
+    assert writer.session_state_path("synthetic").read_bytes() == before
+
+    data = writer.read_state(writer.session_state_path("synthetic"))
+    module.grant_phase(
+        data,
+        step,
+        {"request_id": "dev-stage", "input_ids": ["policy_source", "azure_read_scope"], "environments": ["dev"]},
+    )
+    writer.write_state("synthetic", data)
+    assert cli.main(["start-step", "synthetic", step, "--json"]) == 0
+    assert json.loads(capsys.readouterr().out)["status"] == "in_progress"
+
+
+def test_verified_policy_entry_requires_an_explicit_consuming_phase(tmp_path: Path, monkeypatch):
+    _, writer, _, module, _ = practical_project(tmp_path)
+    gate = importlib.import_module("apex_recall.risk_gate")
+    monkeypatch.setattr(module, "check_feasibility", lambda *_: "current")
+    data = writer.read_state(writer.session_state_path("synthetic"))
+    data["decisions"]["policy_evidence_contract"] = "corp-policy-v1"
+    for step in ("5", "6"):
+        with pytest.raises(ValueError, match="policy-bound phase scope"):
+            gate.check_entry("synthetic", data, step, SimpleNamespace())
+
+
+def test_private_review_digest_and_final_write_watch_exact_scope_evidence(tmp_path: Path, monkeypatch, capsys):
+    project, writer, cli, _, _ = practical_project(tmp_path)
+    output = capture(cli, monkeypatch, tmp_path, capsys)
+    policy = importlib.import_module("apex_recall.policy_source")
+    digests = importlib.import_module("apex_recall.input_digest")
+    completion = importlib.import_module("apex_recall.commands.complete_step")
+    snapshot = Path(output["directory"]) / "subscription-1.json"
+    _feasibility_snapshot(tmp_path, snapshot, SUBSCRIPTION)
+    snapshot.chmod(0o600)
+    reference = f"apex-private-policy://synthetic/{output['scope_ref']}/{snapshot.name}"
+    assert policy.resolve_private_reference(reference, tmp_path, project="synthetic") == snapshot
+    digest = digests.inputs_digest(tmp_path, [reference])
+    (project / "04-governance-constraints.md").write_text("# Governance\nAnonymized summary\n")
+    sidecar = project / completion._CHALLENGER_GATE["3_5"][1]
+    sidecar.write_text(
+        json.dumps({"supporting_inputs": [{"path": reference, "sha256": writer.file_revision(snapshot)}]})
+    )
+    data = writer.read_state(writer.session_state_path("synthetic"))
+    completion.watch_review_inputs(data, "synthetic", "3_5", None)
+    assert data.input_revisions[snapshot] == writer.file_revision(snapshot)
+    snapshot.write_text(snapshot.read_text() + "\n")
+    assert digests.inputs_digest(tmp_path, [reference]) != digest
+    with pytest.raises(ValueError, match="changed"):
+        writer.write_state("synthetic", data)
+    with pytest.raises(ValueError, match="differently scoped"):
+        policy.resolve_private_reference(reference, tmp_path, project="other")
+    for invalid in (
+        reference.replace("/subscription-1.json", "/../scope.json"),
+        reference.replace("/synthetic/", "/../"),
+        reference.replace(output["scope_ref"], "0" * 32),
+    ):
+        with pytest.raises(ValueError):
+            policy.resolve_private_reference(invalid, tmp_path)

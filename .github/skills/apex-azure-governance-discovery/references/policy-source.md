@@ -93,6 +93,24 @@ Reviewers must have actual approved access to required private evidence or retur
 Multi-subscription formal Governance retains separate snapshots and its existing full-coverage contract;
 never substitute one subscription's canonical file for the others.
 
+## Freeze private evidence for independent review
+
+Keep the review primary as the public anonymized summary. For tenant-backed Architecture, cost, Governance,
+planning or code reviews, the exact bound private index and every subscription snapshot are mandatory
+`supporting_inputs`. Governance also freezes its canonical private JSON.
+Use opaque paths such as `apex-private-policy://<project>/<scope_ref>/subscription-1.json` with exact file hashes.
+`requiredPrivateReviewInputs` derives this set from the current authorized scope and evidence binding.
+Do not supply absolute private paths as persisted input identities or copy raw evidence into the repository.
+
+Native request preflight returns a transient `private_inputs` reference/read-path mapping for the interactive owner.
+Pass only these actual authorized locations to the read-only worker along with their opaque identities and hashes.
+Keep the mapping, native identifying diagnostics and raw event logs in approved private storage, not public receipts.
+Require the worker's public findings to use opaque policy references without identifying values; preserve its actual
+judgment. A privacy or read-capability failure blocks publication rather than authorizing copied or rewritten evidence.
+The recorder validates the complete supporting set against current scope, and recall digests/watches the same files.
+Omitted evidence, altered scope, private-byte drift or a changed project blocks reuse; editorial mappings cannot waive it.
+Existing reviewer attribution, freshness, closure budgets and human approval requirements remain unchanged.
+
 ## Gate meaning
 
 - `assumed_corp_not_tenant_verified`: explicit assumptions may support Architecture approval only.
@@ -105,3 +123,7 @@ Source acceptance is never a policy exemption, security waiver, reviewer approva
 All existing human gates and unresolved findings remain in force.
 Each consuming phase scope must include its current policy-source/read inputs and their authorized environments,
 so changing the source invalidates the assessment/review projection rather than bypassing it.
+Before CodeGen or deployment entry, record that target phase's scope from actual granted stage/start authorization,
+including `policy_source` and `azure_read_scope` inputs. Every target environment must be authorized by those records.
+Do this before `start-step` or an atomic transition into the phase. Reuse actual captured approval, not a copied
+earlier-step scope; ask only when the next operation was not authorized. Missing scope blocks entry, not just completion.

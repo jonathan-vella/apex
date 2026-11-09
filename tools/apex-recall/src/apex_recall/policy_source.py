@@ -51,21 +51,22 @@ def assumed_baseline(data: dict) -> Path:
     return path
 
 
-def private_root() -> Path:
+def private_root(workspace_root: Path | None = None) -> Path:
     """Namespace the owner-local store by workspace without exposing Azure identifiers."""
     home = Path(os.environ.get("XDG_STATE_HOME", str(Path.home() / ".local/state")))
     if not home.is_absolute():
         raise ValueError("XDG_STATE_HOME must be absolute for private policy storage")
-    root = home / "apex/policy" / digest(str(workspace_root_for()))
-    if root.resolve().is_relative_to(workspace_root_for()):
+    workspace = workspace_root_for(workspace_root)
+    root = home / "apex/policy" / digest(str(workspace))
+    if root.resolve().is_relative_to(workspace):
         raise ValueError("Private policy storage must be outside the repository")
     return root
 
 
-def scope_directory(reference: str) -> Path:
+def scope_directory(reference: str, workspace_root: Path | None = None) -> Path:
     if not isinstance(reference, str) or not re.fullmatch(r"[a-f0-9]{32}", reference):
         raise ValueError("Invalid private policy scope reference")
-    directory = private_root() / reference
+    directory = private_root(workspace_root) / reference
     if directory.resolve() != directory.absolute():
         raise ValueError("Private policy storage cannot traverse symlinks")
     return directory
@@ -77,15 +78,15 @@ def _read_private(path: Path) -> dict:
     return json.loads(path.read_text(encoding="utf-8"))
 
 
-def private_scope(project: str, data: dict) -> tuple[dict, Path]:
+def private_scope(project: str, data: dict, workspace_root: Path | None = None) -> tuple[dict, Path]:
     record = material_inputs(data).get("azure_read_scope")
     value = record["value"] if record else {}
-    directory = scope_directory(value.get("scope_ref"))
+    directory = scope_directory(value.get("scope_ref"), workspace_root)
     path = directory / "scope.json"
     scope = _read_private(path)
     if (
         scope.get("project") != project
-        or scope.get("workspace") != digest(str(workspace_root_for()))
+        or scope.get("workspace") != digest(str(workspace_root_for(workspace_root)))
         or digest(scope) != value.get("scope_sha256")
         or scope.get("policy_read_scope") != "subscription-and-inherited"
         or scope.get("authorized") is not True
@@ -109,6 +110,24 @@ def private_evidence_path(directory: Path, candidate: Path) -> Path:
     ):
         raise ValueError("Private policy snapshot filenames must use non-identifying canonical names")
     return target
+
+
+def resolve_private_reference(
+    reference: str, workspace_root: Path | None = None, *, project: str | None = None, data: dict | None = None
+) -> Path:
+    match = re.fullmatch(
+        r"apex-private-policy://([A-Za-z0-9_.-]{1,100})/([a-f0-9]{32})/"
+        r"((?:04-(?:governance-constraints|policy-feasibility)|subscription-[1-9][0-9]*)\.json)",
+        reference,
+    )
+    if not match or match[1] in (".", "..") or project is not None and match[1] != project:
+        raise ValueError("Invalid or differently scoped private policy reference")
+    root = workspace_root_for(workspace_root)
+    state = data if data is not None else read_state(session_state_path(match[1], root))
+    if material_inputs(state).get("azure_read_scope", {}).get("value", {}).get("scope_ref") != match[2]:
+        raise ValueError("Private policy reference does not match the current authorized scope")
+    _, directory = private_scope(match[1], state, root)
+    return private_evidence_path(directory, directory / match[3])
 
 
 def _write_private(path: Path, value: dict) -> None:

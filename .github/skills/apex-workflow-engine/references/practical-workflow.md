@@ -113,6 +113,11 @@ All Defender assignments are collected; presentation can suppress noise after an
 DEV/PROD readiness is action- and target-scoped. Keep a PROD hold visible while allowing
 DEV only when shared-resource dependencies permit it. Deployment approval always names
 the actual preview, environment and operation.
+New-contract CodeGen/deployment entry also requires its own granted phase scope to consume current policy-source
+and read inputs within their authorized environments. Capture that scope from the actual stage/start approval before
+`start-step` or transition; a DEV-only policy grant never authorizes PROD entry.
+Private policy-backed reviews freeze opaque private supporting references and every bound snapshot through the
+[policy-source procedure](../../apex-azure-governance-discovery/references/policy-source.md#freeze-private-evidence-for-independent-review).
 
 ## Maintainer compatibility checklist
 

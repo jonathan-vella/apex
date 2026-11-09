@@ -165,6 +165,10 @@ to an optional candidate.
 Distinguish a full-phase request from an explicitly bounded research/repair slice;
 filenames alone do not define success.
 Record a pending phase's actual start through recall; resume existing progress without forced restart or backdating.
+For `corp-policy-v1`, capture the authorized CodeGen/deployment phase scope, including policy/read inputs and
+target environments, before `start-step` or transition. Reuse the actual granted stage/start approval; do not
+copy earlier-step authority or let DEV evidence authorize PROD. Private policy-backed reviews must freeze the
+opaque supporting set and use only preflight-resolved private read locations under the policy-source contract.
 
 - `execution_mode: delegated`, project, step/phase, objective and exact input paths/revisions;
 - current answers, unresolved decisions, approved side effects and allowed output paths;

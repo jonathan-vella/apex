@@ -2,6 +2,7 @@ import fs from "node:fs";
 import path from "node:path";
 import { isDeepStrictEqual } from "node:util";
 import { createHash } from "node:crypto";
+import { isPrivatePolicyReference } from "./project-paths.mjs";
 
 const GUIDANCE = ["checklists_sha", "protocol_sha", "reviewer_contract_sha", "reviewer_definition_sha"];
 const snapshot = (cache) => Object.fromEntries(GUIDANCE.map((key) => [key, cache?.[key] ?? null]));
@@ -34,6 +35,7 @@ export function reviewCompatibility(original, current, root = process.cwd()) {
 export function supportingInputCompatible(inputPath, recordedSha, actualSha, root = process.cwd()) {
   if (recordedSha === actualSha) return true;
   if (typeof inputPath !== "string") return false;
+  if (isPrivatePolicyReference(inputPath)) return false;
   if (inputPath.startsWith("agent-output/") && !/\.(?:py|png|svg)$/i.test(inputPath)) return false;
   const registry = path.join(root, "tools/registry/review-contract.json");
   if (!fs.existsSync(registry)) return false;

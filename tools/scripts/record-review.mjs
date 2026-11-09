@@ -17,6 +17,11 @@ import {
   STRUCTURED_REVIEWER,
   validateReview,
 } from "./validate-challenger-findings.mjs";
+import {
+  isPrivatePolicyReference,
+  resolvePrivatePolicyReference,
+  requiredPrivateReviewInputs,
+} from "./_lib/project-paths.mjs";
 
 const nonempty = (value) => typeof value === "string" && value.trim().length > 0;
 const object = (value) => value !== null && typeof value === "object" && !Array.isArray(value);
@@ -515,6 +520,10 @@ export function preflightReviewRequest(input, root = process.cwd()) {
     "Review lenses and pass numbers must be explicit and unambiguous",
   );
   const target = outputPath(root, input.project_name, input.output_path);
+  requireEvidence(
+    !isPrivatePolicyReference(input.artifact_path),
+    "Private policy evidence must be supporting input; the review primary remains the public summary",
+  );
   const artifact = path.resolve(root, input.artifact_path);
   requireEvidence(
     artifact.startsWith(`${path.resolve(root)}${path.sep}`) &&
@@ -529,6 +538,7 @@ export function preflightReviewRequest(input, root = process.cwd()) {
       isDeepStrictEqual(input.cache_inputs, cacheInputs(input.artifact_path, root, input.cache_inputs.reviewer)),
     "Dispatched cache snapshot does not match current artifact or reviewer contract bytes",
   );
+  const privateInputs = [];
   if (input.supporting_inputs !== undefined) {
     requireEvidence(
       Array.isArray(input.supporting_inputs) && input.supporting_inputs.length > 0,
@@ -540,11 +550,14 @@ export function preflightReviewRequest(input, root = process.cwd()) {
         object(support) && nonempty(support.path) && /^[a-f0-9]{64}$/.test(support.sha256 ?? ""),
         "Invalid supporting input record",
       );
-      const resolved = path.resolve(root, support.path);
+      const privateInput = isPrivatePolicyReference(support.path);
+      const resolved = privateInput
+        ? resolvePrivatePolicyReference(root, support.path, input.project_name)
+        : path.resolve(root, support.path);
       const mutableProblem = mutableInputProblem(support.path);
       requireEvidence(!mutableProblem, mutableProblem);
       requireEvidence(
-        resolved.startsWith(`${path.resolve(root)}${path.sep}`) &&
+        (privateInput || resolved.startsWith(`${path.resolve(root)}${path.sep}`)) &&
           !support.path.split(/[\\/]/).includes("..") &&
           !seen.has(resolved) &&
           resolved !== target,
@@ -555,13 +568,26 @@ export function preflightReviewRequest(input, root = process.cwd()) {
         cacheInputs(support.path, root, input.cache_inputs.reviewer).artifact_sha === support.sha256,
         "supporting bytes changed",
       );
+      if (privateInput) privateInputs.push({ reference: support.path, read_path: resolved });
     }
+  }
+  for (const expected of requiredPrivateReviewInputs(
+    root,
+    input.project_name,
+    input.artifact_type,
+    input.artifact_path,
+  )) {
+    requireEvidence(
+      input.supporting_inputs?.some((support) => support.path === expected.path && support.sha256 === expected.sha256),
+      "Required private policy evidence must be frozen in supporting inputs",
+    );
   }
   return {
     lenses,
     batch,
     output: target,
     attempt_inputs: [input.artifact_path, ...(input.supporting_inputs ?? []).map((support) => support.path)],
+    ...(privateInputs.length ? { private_inputs: privateInputs } : {}),
   };
 }
 

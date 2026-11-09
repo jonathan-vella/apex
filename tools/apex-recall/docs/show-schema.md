@@ -89,6 +89,11 @@ repository material inputs retain `scope_ref` and `scope_sha256`, never identify
 Private feasibility metadata uses `private: true`, a scope-relative `path`, and the usual exact evidence hashes.
 Python and Node contract resolvers select canonical Governance JSON in that owner-only store when scope is private.
 See the [source/capture contract](../../../.github/skills/apex-azure-governance-discovery/references/policy-source.md).
+CodeGen/deployment entry requires that phase's actual scope to consume these policy inputs within their authorized
+environments. Review inputs identify private snapshots with `apex-private-policy://<project>/<scope_ref>/<filename>`
+supporting references and exact hashes; raw private paths are never persisted as public review identities.
+Preflight returns transient `private_inputs` read locations for authorized dispatch, while recall's attempt digests
+and final revision checks watch the same private files. Private evidence drift cannot use editorial compatibility.
 `review-audit --review-request <JSON>` derives identity/cycle from the exact preflighted
 request. Initial/closure attempts share a bounded lineage; `--closure-of` identifies
 the original. `--review-result` selects only an attributed current published result.

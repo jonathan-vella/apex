@@ -224,15 +224,13 @@ def record_authorization(data: dict, result: dict | None, now: str) -> None:
 def check_entry(
     project: str, data: StateDocument, step: str, args: object, *, completing_code: bool = False
 ) -> dict | None:
-    from .practical import action_readiness, check_feasibility, enabled
+    from .practical import action_readiness, check_feasibility, check_policy_phase_scope, enabled
 
     if enabled(data):
-        if (
-            step in ("5", "6")
-            and data.get("decisions", {}).get("policy_evidence_contract")
-            and check_feasibility(project, data) != "current"
-        ):
-            raise ValueError("Tenant-verified policy evidence is required before CodeGen or deployment")
+        if step in ("5", "6") and data.get("decisions", {}).get("policy_evidence_contract"):
+            if check_feasibility(project, data) != "current":
+                raise ValueError("Tenant-verified policy evidence is required before CodeGen or deployment")
+            check_policy_phase_scope(data, step, required=True)
         scope = data.get("decisions", {}).get("phase_scopes", {}).get(step)
         if scope:
             ordinary = action_readiness(data, ENTRY_ACTIONS.get(step, f"step-{step}-complete"), scope["environments"])

@@ -306,6 +306,27 @@ def sync_views(project: str, data: dict, step: str) -> dict:
     return binding
 
 
+def check_policy_phase_scope(data: dict, step: str, *, required: bool = False) -> None:
+    if not data.get("decisions", {}).get("policy_evidence_contract"):
+        return
+    phase = data["decisions"].get("phase_scopes", {}).get(step)
+    if not phase:
+        if required:
+            raise ValueError("A policy-bound phase scope is required before CodeGen or deployment")
+        return
+    inputs = material_inputs(data)
+    expected = {"policy_source"} & inputs.keys()
+    if required or inputs.get("policy_source", {}).get("value", {}).get("kind") != "assumed-corp":
+        expected |= {"azure_read_scope"} if required else {"azure_read_scope"} & inputs.keys()
+    if not expected <= set(phase["input_ids"]) or not expected <= inputs.keys():
+        raise ValueError("Phase scope must consume the current policy source/read inputs and their environments")
+    environments = phase.get("environments")
+    if not isinstance(environments, list) or not environments:
+        raise ValueError("Policy-bound phase scope requires explicit environments")
+    if any(not set(environments) <= set(inputs[key]["environments"]) for key in expected):
+        raise ValueError("Phase environments exceed the authorized policy source/read scope")
+
+
 def check_views(project: str, data: dict, step: str) -> None:
     if not enabled(data):
         return
@@ -344,11 +365,7 @@ def check_views(project: str, data: dict, step: str) -> None:
     check_state_revision(data, session_state_path(project))
     scope = view["scope"]["environments"]
     if data["decisions"].get("policy_evidence_contract") and step in ("2", "3_5", "4", "5", "6"):
-        required = {"policy_source"} & material_inputs(data).keys()
-        if material_inputs(data).get("policy_source", {}).get("value", {}).get("kind") != "assumed-corp":
-            required |= {"azure_read_scope"} & material_inputs(data).keys()
-        if not required <= view["inputs"].keys():
-            raise ValueError("Phase scope must consume the current policy source/read inputs and their environments")
+        check_policy_phase_scope(data, step)
     readiness = action_readiness(
         data, {"4": "plan-complete", "5": "code-complete", "6": "deploy"}.get(step, f"step-{step}-complete"), scope
     )
