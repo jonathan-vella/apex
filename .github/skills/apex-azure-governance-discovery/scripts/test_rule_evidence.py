@@ -8,6 +8,7 @@ import stat
 import subprocess
 import sys
 from pathlib import Path
+from typing import Any
 
 import pytest
 
@@ -24,9 +25,9 @@ SUBSCRIPTION = "00000000-0000-0000-0000-000000000001"
 @pytest.fixture
 def policy_source():
     definitions = []
-    effects = ["Deny", "DeployIfNotExists", "Modify", "Audit", "AuditIfNotExists", "Disabled"]
+    effects = ["Deny", "DeployIfNotExists", "Modify", "Append", "Audit", "AuditIfNotExists", "Disabled"]
     for effect in effects:
-        details = {
+        details: dict[str, Any] | list[dict[str, Any]] = {
             "existenceCondition": {"field": "location", "equals": "[parameters('region')]"},
             "existenceScope": "resourceGroup",
             "deploymentScope": "subscription",
@@ -39,6 +40,14 @@ def policy_source():
         elif effect == "Modify":
             details["operations"] = [
                 {"operation": "addOrReplace", "field": "tags[fixture]", "value": "[parameters('region')]"}
+            ]
+        elif effect == "Append":
+            details = [
+                {"field": "tags[fixture-region]", "value": "[parameters('region')]"},
+                {
+                    "field": "Microsoft.Storage/storageAccounts/networkAcls.ipRules",
+                    "value": [{"action": "Allow", "value": "192.0.2.0/24"}],
+                },
             ]
         definitions.append(
             {
@@ -110,11 +119,12 @@ def test_full_rules_and_effective_parameter_lineage_survive_collection(policy_so
     assert evidence["definitions"] == sorted(original[1], key=lambda item: item["id"].lower())
     assert evidence["initiatives"] == [original[2]]
     records = evidence["effective_records"]
-    assert len(records) == 12
+    assert len(records) == 14
     assert {item["effect"] for item in records} == {
         "Deny",
         "DeployIfNotExists",
         "Modify",
+        "Append",
         "Audit",
         "AuditIfNotExists",
         "Disabled",
@@ -122,13 +132,99 @@ def test_full_rules_and_effective_parameter_lineage_survive_collection(policy_so
     for record in records:
         expected = "swedencentral" if record["assignment_id"].endswith("/0") else "germanywestcentral"
         assert record["effective_parameters"]["region"] == expected
-        assert record["policy_rule"]["then"]["details"]["existenceCondition"]["equals"] == expected
+        if record["effect"] == "Append":
+            assert record["policy_rule"]["then"]["details"][0]["value"] == expected
+        else:
+            assert record["policy_rule"]["then"]["details"]["existenceCondition"]["equals"] == expected
         assert record["policy_definition_reference_id"].startswith("member-")
     dine = next(item for item in records if item["effect"] == "DeployIfNotExists")
     assert dine["policy_rule"]["then"]["details"]["deployment"]["properties"]["template"]["resources"]
     modify = next(item for item in records if item["effect"] == "Modify")
     assert modify["policy_rule"]["then"]["details"]["operations"][0]["operation"] == "addOrReplace"
     assert policy_source[1:] == original
+
+
+def test_append_details_arrays_are_retained_without_becoming_deployment_objects(policy_source):
+    _, _, definitions, _ = policy_source
+    original = copy.deepcopy(next(item for item in definitions if item["id"].endswith("/Append")))
+    envelope = collect(policy_source)
+    assert envelope["discovery_status"] == "COMPLETE"
+    assert discover.rule_evidence_errors(envelope) == []
+    evidence = envelope["rule_evidence"]
+    assert next(item for item in evidence["definitions"] if item["id"] == original["id"]) == original
+    assert evidence["coverage"]["effects"]["Append"] == 2
+    records = [item for item in evidence["effective_records"] if item["effect"] == "Append"]
+    assert len(records) == 2
+    for record in records:
+        details = record["policy_rule"]["then"]["details"]
+        assert isinstance(details, list)
+        assert details[1]["value"] == [{"action": "Allow", "value": "192.0.2.0/24"}]
+    assert not any(item["effect"] == "append" for item in envelope["findings"])
+
+
+@pytest.mark.parametrize(
+    "details",
+    [
+        None,
+        {},
+        "unresolved-expression",
+        [None],
+        [{}],
+        [{"field": "tags[fixture]"}],
+        [{"field": None, "value": "fixture"}],
+        [{"field": "", "value": "fixture"}],
+        [{"field": " \t", "value": "fixture"}],
+        [{"field": ["tags[fixture]"], "value": "fixture"}],
+        [{"field": "tags[fixture]", "value": "fixture"}, None],
+    ],
+)
+def test_invalid_append_details_return_partial_instead_of_crashing(policy_source, details):
+    router, _, definitions, _ = policy_source
+    append = next(item for item in definitions if item["id"].endswith("/Append"))
+    append["properties"]["policyRule"]["then"]["details"] = details
+    envelope = discover.discover(SUBSCRIPTION, project="fixture", az_rest=router, retain_rule_evidence=True)
+    assert envelope["discovery_status"] == "PARTIAL"
+    assert envelope["discovery_metadata"]["discovery_status"] == "PARTIAL"
+    assert discover.rule_evidence_errors(envelope)
+
+
+@pytest.mark.parametrize("value", ["", False, 0, None, [], {}, {"nested": [False, 0, None]}])
+def test_append_value_presence_does_not_reject_or_coerce_falsy_or_nested_values(policy_source, value):
+    _, _, definitions, _ = policy_source
+    append = next(item for item in definitions if item["id"].endswith("/Append"))
+    append["properties"]["policyRule"]["then"]["details"] = [{"field": "tags[fixture]", "value": value}]
+    envelope = collect(policy_source)
+    assert envelope["discovery_status"] == "COMPLETE"
+    assert discover.rule_evidence_errors(envelope) == []
+    records = [item for item in envelope["rule_evidence"]["effective_records"] if item["effect"] == "Append"]
+    assert len(records) == 2
+    for record in records:
+        retained = record["policy_rule"]["then"]["details"][0]["value"]
+        assert type(retained) is type(value)
+        assert retained == value
+
+
+@pytest.mark.parametrize("entry", [None, {}, {"field": "tags[fixture]"}])
+def test_private_cli_rejects_malformed_append_entries_without_a_complete_status(
+    tmp_path,
+    monkeypatch,
+    capsys,
+    policy_source,
+    entry,
+):
+    output, arguments = private_arguments(tmp_path)
+    _, _, definitions, _ = policy_source
+    append = next(item for item in definitions if item["id"].endswith("/Append"))
+    append["properties"]["policyRule"]["then"]["details"] = [entry]
+    monkeypatch.setattr(discover, "_default_az_rest", policy_source[0])
+    monkeypatch.setattr(discover, "_default_check_auth", lambda: None)
+    assert discover.main(arguments + ["--retain-rule-evidence"]) == 1
+    assert json.loads(capsys.readouterr().out.splitlines()[0])["status"] == "PARTIAL"
+    snapshot = json.loads(output.read_text())
+    assert snapshot["discovery_status"] == "PARTIAL"
+    assert snapshot["discovery_metadata"]["discovery_status"] == "PARTIAL"
+    monkeypatch.setattr(discover, "_default_check_auth", lambda: pytest.fail("No readonly Azure retry"))
+    assert discover.main(arguments + ["--validate-only", "--retain-rule-evidence"]) != 0
 
 
 def test_digest_and_recomputed_coverage_detect_tampering(policy_source):
