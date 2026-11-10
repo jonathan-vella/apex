@@ -31,6 +31,12 @@ Older monthly outputs remain historical evidence: use explicit legacy audit for 
 Refresh into a new owned output with its original request and required review.
 Never restamp reviewed prices or reset allowances.
 
+Delivery resume reports actual prerequisite recovery instead of an unconditional ready-to-run handoff.
+Stale inputs and exhausted affected reviews return one actionable work package to their owners;
+already-current reviews consume no new allowance. Stage scope includes the declared owned reconciliation,
+updates and bounded reviews, while new permissions and human stage approvals remain explicit.
+See the [complete-stage contract](.github/skills/apex-workflow-engine/references/practical-workflow.md#complete-stage-work-package).
+
 Product documentation uses [source/date references and original billing conclusions](.github/skills/apex-azure-defaults/references/cost-estimate-parent-contract.md#product-documentation-and-publication),
 with explicit applicability and limitations, not automatic full-page copies.
 Necessary full-text research captures remain private outside Git unless redistribution rights and attribution are

@@ -196,6 +196,12 @@ Checkpoint `phase_1_discovery`.
 
 ## Phase 2 — Artifacts and reconciliation
 
+Use the [complete-stage work package](../skills/apex-workflow-engine/references/practical-workflow.md#complete-stage-work-package).
+Assess actual applicability and phase: informational Audit observations normally become concrete planning/test
+requirements, not automatic Deny findings. Missing runtime proof for not-yet-deployed resources is Unverified,
+not itself a design violation. Material residency, security, cost or exception gaps still require owner evidence/decision.
+Batch genuine missing choices/read scope once; do not broaden discovery, infer a policy waiver or reprice unchanged scope.
+
 Load `.github/skills/apex-azure-artifacts/SKILL.md` and its
 `04-governance-constraints.template.md`.
 Use compact script `findings[]`/targeted JSON selectors, not raw definitions or whole large snapshots.
@@ -246,7 +252,9 @@ Finalize all review inputs before spending the pass.
 Required single `governance-reconciliation` pass, except the graph's genuine
 `constraints.count == 0` case (`blockers + auto_remediate + warnings == 0`).
 Discovery signature alone is not review freshness; reuse only validated unchanged review inputs.
-An exhausted one-pass allowance blocks a new review; changed filenames/sessions reset nothing.
+For practical projects, use the actual artifact/lens cycle and its granted initial/closure/extension allowance.
+For legacy projects, an exhausted one-pass allowance blocks a new review.
+Changed filenames/sessions reset nothing; missing additional authority returns once to the interactive parent.
 
 Load [one-shot review](../skills/apex-azure-defaults/references/one-shot-review.md) and the
 [review protocol](../skills/apex-azure-defaults/references/adversarial-review-protocol.md).

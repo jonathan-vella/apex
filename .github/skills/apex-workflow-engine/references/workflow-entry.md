@@ -155,11 +155,19 @@ procedure. Run `apex-recall handoff [<project>] --json` first to deterministical
 followed by `apex-recall show <project> --json`. Use an explicit or auto-selected single active project without
 reconfirmation; ask only when `apex-recall handoff --json` reports `AMBIGUOUS_PROJECT`. Empty recall is not permission
 to start fresh. Reconcile handoff, checkpoints, reviews and approvals before advancing.
+For a delivery `BLOCKED` handoff, follow `next_action` and its actual affected prerequisite owners rather than
+delegating a formal downstream phase as if historical completion proved current readiness.
+Use the [complete-stage work package](practical-workflow.md#complete-stage-work-package):
+reuse existing recovery authority or batch genuinely missing scope and bounded review extensions into one form.
+An existing consumed cycle is never renewed by resume. Restore/finalize inputs first and spend only necessary,
+actually granted reviews. Keep approved upstream inputs read-only unless their own owner has explicit recovery scope.
+Already-authorized preliminary/owned recovery may continue; `BLOCKED` does not demand reinitialization or a new role check.
 When the current step is already `in_progress` (for example after an atomic `transition` to a `phase_*_handoff`
 checkpoint) and its upstream prerequisites are `complete` and `current`, immediately dispatch `next_owner` for the
 active step without asking another intermediate gate. Otherwise present recovered status and the applicable human gate.
-Whenever a turn pauses at a step boundary or blocker, end the response with a fenced `text` code block containing
-the one-line resume command (`/apex-workflow-start resume <project>`) so the user has a 1-click Copy/Insert action.
+When pausing at an ordinary boundary, retain the canonical one-line resume copy block.
+For a real blocker, first name the actual next owner decision/capability and unresolved bounds; any role-required
+resume copy block is navigation only, not a claim that repeating it supplies permission or clears the blocker.
 
 ## Harness Acceptance
 

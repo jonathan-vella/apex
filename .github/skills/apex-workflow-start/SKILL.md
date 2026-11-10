@@ -26,6 +26,12 @@ material inputs without requiring a multi-line user prompt. Supplied explicit va
 ambiguous operation/project requires a native question. No guessed new project on an empty recall result.
 Read [workflow entry](../apex-workflow-engine/references/workflow-entry.md) and
 [workflow engine](../apex-workflow-engine/SKILL.md) only for relevant domain prerequisites.
+For a `BLOCKED` delivery handoff, use `next_action`, `blocked_prerequisites` and the affected review-cycle summaries
+before formal downstream delegation. Recovery is not a new project or a blanket stop: continue only already-granted
+owned/preliminary work, reuse a saved scope-matching recovery grant, and batch genuinely missing authority once.
+Follow the [complete-stage work package](../apex-workflow-engine/references/practical-workflow.md#complete-stage-work-package);
+do not end collector/draft recovery by suggesting that a bare `resume` clears stale evidence or exhausted reviews.
+Handoff `READY` and `permission_granted:false` remain orientation, never operation or stage approval.
 Recover `apex-recall show <project> --json`, existing summary/artifacts and real review/approval evidence.
 Never read/write state JSON directly or infer completion from numbered files.
 

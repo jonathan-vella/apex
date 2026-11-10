@@ -50,6 +50,10 @@ For `decisions.workflow_contract=practical-v1`, follow the
 [practical workflow](../skills/apex-workflow-engine/references/practical-workflow.md).
 Retain stage approvals; batch granted mechanical repairs and ordinary closure verification.
 Legacy per-finding administrative questions and per-step ceiling snippets below apply only to legacy projects.
+Use the [complete-stage work package](../skills/apex-workflow-engine/references/practical-workflow.md#complete-stage-work-package):
+scope reconciliation, owned updates and required bounded reviews together at the existing stage/start interaction.
+Include an expected later target-policy follow-up only with actual bounded owner authorization; record it through
+existing phase/extension APIs when its final inputs are ready. Do not make the user operate counters or prepare files.
 
 Before direct display or delegated return, apply the
 [shared question-form checks](../copilot-instructions.md#user-question-forms):
@@ -223,7 +227,10 @@ do not call that an unavailable reviewer or send the user through a fresh manual
 Do not reconstruct a review, request predetermined approval, retry a valid completed review,
 or dispatch the manual Challenger wrapper as a fallback.
 Missing/empty reviewer output permits one identical-input retry within the existing budget.
-Preserve default/deep invocation ceilings, Governance's stricter cap and any exhausted allowance.
+For practical projects, the per-artifact/lens `review_cycles` ledger is authoritative, including its actual
+initial/closure/extension allowance. Do not apply a second legacy per-step ceiling.
+Legacy projects retain their default/deep invocation ceilings and Governance's stricter cap.
+Preserve every exhausted allowance until an actual bounded extension is granted.
 Changing a worker, context or backend resets neither findings nor attempts.
 
 At a boundary:
@@ -251,6 +258,11 @@ At a boundary:
 
 ### Challenger-invocation ceiling
 
+For `practical-v1`, use the current artifact/lens cycle, exact recorded calls and explicit bounded extensions only.
+Do not also gate that dispatch with `decisions.challenger_invocations_<step>`. An exhausted valid current review
+needs no new call; reuse it. Stale inputs return to their owner; batch only actually needed recovery authority.
+
+The following per-step rule is **legacy-only**:
 Preserve `decisions.challenger_invocations_<step>` before each new independent review:
 default ceiling 2, deep ceiling 4, with Governance's stricter one-pass allowance.
 At exhaustion ask the real owner using "Accept findings", "Override ceiling" or "Abort step";

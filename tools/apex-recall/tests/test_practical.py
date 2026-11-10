@@ -702,7 +702,9 @@ def test_handoff_auto_selects_active_project_and_emits_deterministic_contract(tm
 
     assert cli.main(["handoff", "--json"]) == 0
     payload = json.loads(capsys.readouterr().out)
-    assert payload["status"] == "READY"
+    assert payload["status"] == "BLOCKED"
+    assert payload["blocked_prerequisites"][0]["step"] == "3_5"
+    assert payload["next_action"]["kind"] == "recover_prerequisites"
     assert payload["project"] == "synthetic"
     assert payload["auto_selected"] is True
     assert payload["active_step"] == "4"
