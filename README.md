@@ -20,6 +20,9 @@ Delivery projects select [policy evidence](.github/skills/apex-azure-governance-
 before Architecture: explicitly accepted standard Corp assumptions or authorized target evidence.
 The shared baseline needs no real subscription identifiers; assumptions never authorize implementation.
 Native target capture can keep identifying scope and policy snapshots in an owner-only private store.
+Private policy collection uses `--retain-rule-evidence` to retain full policy objects and effective parameter/member
+lineage inside that same private snapshot. Offline semantic validation requires this evidence; summary-only caches
+need a bounded authorized refresh. Existing opaque snapshot hashes bind the raw archive without publishing it in Git.
 Retail pricing uses [captured meter evidence](.github/skills/apex-azure-defaults/references/pricing-guidance.md):
 monthly estimates require explicit billing inputs and deterministic evidence-linked totals.
 Explicit rate-only quotes support unknown monthly usage without approving an incomplete workload estimate.

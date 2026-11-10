@@ -72,6 +72,16 @@ A tenant mismatch blocks; do not log in, change credentials or choose the active
 Within actual authorized read scope, Governance consumes the generated private scope file and invokes
 the existing deterministic `discover.py` for each subscription. Keep `umask 077`; pass confirmed subscription IDs
 explicitly and write snapshots, previews and diagnostics inside that private directory.
+Use `discover.py --retain-rule-evidence` for these private snapshots and formal Governance.
+This keeps full raw policy objects and effective assignment/member/parameter lineage inside each snapshot,
+including Audit and Disabled rules; its existing opaque file hash binds the entire archive.
+Before semantic reconciliation, run the same command with `--validate-only --retain-rule-evidence`.
+Missing bodies or digest/coverage drift block reuse. A summary-only cache needs an explicitly bounded refresh
+within actual authorization, not a repeated discovery command or an inferred new allowance.
+When a bound `subscription-N.json` already has verified full-rule evidence, use
+`render_cached_governance.py --retain-rule-evidence` with that actual private input and the canonical private
+Governance output. Resolve the snapshot through the managed index; the index itself is not a rule envelope.
+This offline path preserves the collection timestamp and performs no additional Azure reads.
 Use non-identifying names: `subscription-1.json`, `subscription-2.json`, and
 `04-policy-feasibility.json` for the index. The index retains the existing subscription/path shape privately.
 Managed capture prepares the index even for a single subscription; fill its generated snapshot paths,

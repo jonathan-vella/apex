@@ -9,6 +9,7 @@ import fs from "node:fs";
 import path from "node:path";
 import os from "node:os";
 import crypto from "node:crypto";
+import { spawnSync } from "node:child_process";
 
 import { canonicalJson, readJson, sha256File } from "./json.mjs";
 
@@ -208,7 +209,35 @@ export function requiredPrivateReviewInputs(root, project, artifactType, artifac
   if (artifactType === "governance-constraints") files.set("04-governance-constraints.json", null);
   return [...files].map(([filename, expectedHash]) => {
     const reference = `apex-private-policy://${project}/${context.reference}/${filename}`;
-    const actual = sha256File(resolvePrivatePolicyReference(root, reference, project));
+    const file = resolvePrivatePolicyReference(root, reference, project);
+    if (artifactType === "governance-constraints" && filename === "04-governance-constraints.json") {
+      const envelope = readJson(file);
+      if (
+        typeof envelope.subscription_id !== "string" ||
+        !context.scope.subscription_ids.some((id) => id.toLowerCase() === envelope.subscription_id.toLowerCase())
+      ) {
+        throw new Error("Private governance rule evidence is differently scoped");
+      }
+      const result = spawnSync(
+        "python3",
+        [
+          path.join(root, ".github/skills/apex-azure-governance-discovery/scripts/discover.py"),
+          "--project",
+          project,
+          "--subscription",
+          envelope.subscription_id,
+          "--out",
+          file,
+          "--validate-only",
+          "--retain-rule-evidence",
+        ],
+        { cwd: root, encoding: "utf8", timeout: 30000 },
+      );
+      if (result.error || result.status !== 0) {
+        throw new Error("Private governance rule evidence is missing, changed or invalid; offline validation required");
+      }
+    }
+    const actual = sha256File(file);
     if (expectedHash !== null && actual !== expectedHash) {
       throw new Error("Private policy review evidence changed; refresh its current binding");
     }

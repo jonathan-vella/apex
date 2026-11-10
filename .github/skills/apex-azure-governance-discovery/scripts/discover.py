@@ -14,14 +14,17 @@ from __future__ import annotations
 
 import argparse
 import copy
+import hashlib
 import json
 import os
 import re
 import subprocess
 import sys
+import tempfile
 import time
 import urllib.error
 import urllib.request
+from collections import Counter
 from concurrent.futures import ThreadPoolExecutor
 from datetime import UTC, datetime, timezone
 from pathlib import Path
@@ -728,6 +731,188 @@ def _classify(effect: str) -> str:
     return "informational"
 
 
+def _assignment_members(
+    assignment: dict[str, Any],
+    definitions: dict[str, dict[str, Any]],
+    initiatives: dict[str, dict[str, Any]],
+    unresolved: list[str],
+) -> list[tuple[dict[str, Any], str | None, dict[str, Any]]]:
+    props = assignment.get("properties") or {}
+    policy_id = (props.get("policyDefinitionId") or "").lower()
+    members = []
+    if "/policysetdefinitions/" in policy_id and policy_id in initiatives:
+        initiative = initiatives[policy_id]
+        parameters = _effective_parameters(initiative, props.get("parameters") or {})
+        entries = (initiative.get("properties") or {}).get("policyDefinitions") or []
+        if not entries:
+            unresolved.append(policy_id)
+        for entry in entries:
+            definition_id = (entry.get("policyDefinitionId") or "").lower()
+            if definition_id in definitions:
+                supplied = _resolve_parameters(entry.get("parameters") or {}, parameters)
+                members.append((definitions[definition_id], entry.get("policyDefinitionReferenceId"), supplied))
+            else:
+                unresolved.append(definition_id or policy_id)
+    elif policy_id in definitions:
+        members.append((definitions[policy_id], None, props.get("parameters") or {}))
+    else:
+        unresolved.append(policy_id or assignment.get("id") or "")
+    return members
+
+
+def _rule_record(assignment: dict, definition: dict, member: str | None, supplied: dict) -> dict:
+    parameters = _effective_parameters(definition, supplied)
+    effective = _effective_definition(definition, parameters)
+    rule = (effective.get("properties") or {}).get("policyRule")
+    original_rule = (definition.get("properties") or {}).get("policyRule")
+    if isinstance(rule, dict) and isinstance(original_rule, dict):
+        details = (original_rule.get("then") or {}).get("details") or {}
+        deployment = details.get("deployment")
+        properties = deployment.get("properties") if isinstance(deployment, dict) else None
+        if isinstance(properties, dict) and "template" in properties:
+            # Embedded ARM templates have their own parameter namespace.
+            rule["then"]["details"]["deployment"]["properties"]["template"] = copy.deepcopy(properties["template"])
+    return {
+        "assignment_id": assignment["id"],
+        "policy_definition_id": definition["id"],
+        "policy_definition_reference_id": member,
+        "supplied_parameters": copy.deepcopy(supplied),
+        "effective_parameters": parameters,
+        "policy_rule": rule,
+        "effect": _effect_of(effective),
+    }
+
+
+def _rule_coverage(assignments: list, records: list) -> dict:
+    return {
+        "assignment_count": len(assignments),
+        "effective_record_count": len(records),
+        "effects": dict(sorted(Counter(str(record["effect"] or "Unresolved") for record in records).items())),
+    }
+
+
+def rule_evidence_digest(evidence: dict) -> str:
+    """Bind the complete retained object, independently of the legacy finding signature."""
+    raw = json.dumps(evidence, sort_keys=True, ensure_ascii=False, separators=(",", ":"), allow_nan=False)
+    return hashlib.sha256(raw.encode("utf-8")).hexdigest()
+
+
+def rule_evidence_errors(envelope: dict) -> list[str]:
+    """Validate full-rule coverage and replay parameter lineage without Azure calls."""
+    evidence = envelope.get("rule_evidence")
+    if not isinstance(evidence, dict):
+        return ["Full policy-rule evidence is missing; an authorized refresh is required"]
+    try:
+        if (
+            evidence.get("schema_version") != "policy-rule-evidence-v1"
+            or any(evidence.get(key) != envelope.get(key) for key in ("project", "subscription_id", "discovered_at"))
+            or envelope.get("discovery_options") != {"include_defender_auto": True}
+            or (envelope.get("discovery_metadata") or {}).get("rule_evidence_sha256") != rule_evidence_digest(evidence)
+            or (envelope.get("discovery_metadata") or {}).get("discovered_at") != envelope.get("discovered_at")
+            or (envelope.get("discovery_metadata") or {}).get("discovery_status") != envelope.get("discovery_status")
+            or (envelope.get("discovery_metadata") or {}).get("scope", {}).get("subscription_id")
+            != envelope.get("subscription_id")
+        ):
+            return ["Policy-rule evidence identity, coverage options or digest does not match"]
+        groups = {}
+        for key in ("assignments", "definitions", "initiatives", "exemptions"):
+            items = evidence.get(key)
+            if not isinstance(items, list) or any(
+                not isinstance(item, dict) or not isinstance(item.get("id"), str) or not item["id"]
+                for item in items
+            ):
+                return ["Policy-rule evidence requires complete raw object inventories"]
+            groups[key] = {item["id"].lower(): item for item in items}
+            if len(groups[key]) != len(items):
+                return ["Policy-rule evidence contains duplicate object identities"]
+        counts = (envelope.get("discovery_metadata") or {}).get("page_counts") or {}
+        for key, surface in (
+            ("assignments", "policyAssignments"), ("definitions", "policyDefinitions"),
+            ("initiatives", "policySetDefinitions"), ("exemptions", "policyExemptions"),
+        ):
+            if len(evidence[key]) != counts.get(surface):
+                return ["Retained raw object counts differ from the actual discovery inventory"]
+        expected = []
+        unresolved = []
+        for assignment in evidence["assignments"]:
+            for definition, member, supplied in _assignment_members(
+                assignment, groups["definitions"], groups["initiatives"], unresolved
+            ):
+                record = _rule_record(assignment, definition, member, supplied)
+                rule = record["policy_rule"]
+                if (
+                    not record["effect"] or not isinstance(rule, dict)
+                    or not isinstance(rule.get("if"), dict) or not isinstance(rule.get("then"), dict)
+                ):
+                    return ["An effective policy has no complete resolvable if/then rule"]
+                details = rule["then"].get("details")
+                if record["effect"] in {"DeployIfNotExists", "Modify", "AuditIfNotExists"}:
+                    if not isinstance(details, dict):
+                        return ["An effective policy is missing its full then.details"]
+                    if record["effect"] == "DeployIfNotExists" and not isinstance(details.get("deployment"), dict):
+                        return ["A DeployIfNotExists rule is missing its deployment body"]
+                    if record["effect"] == "Modify" and not isinstance(details.get("operations"), list):
+                        return ["A Modify rule is missing its operations array"]
+                expected.append(record)
+        if unresolved or evidence.get("effective_records") != expected:
+            return ["Effective rule records do not cover the raw assignment/member/parameter lineage"]
+        summary = envelope.get("discovery_summary") or {}
+        if (
+            evidence.get("coverage") != _rule_coverage(evidence["assignments"], expected)
+            or len(evidence["assignments"]) != summary.get("assignment_total")
+            or len(evidence["assignments"]) != summary.get("assignment_kept")
+            or sum(record["effect"] in {"Audit", "AuditIfNotExists"} for record in expected) != summary.get("audit_count")
+            or sum(record["effect"] == "Disabled" for record in expected) != summary.get("disabled_count")
+        ):
+            return ["Retained rule coverage differs from the collected inventory and effect counts"]
+    except (KeyError, TypeError, AttributeError, ValueError):
+        return ["Malformed policy-rule evidence cannot establish semantic coverage"]
+    return []
+
+
+def private_rule_output(path: Path) -> None:
+    """Require an existing owner-only directory outside Git before reading or writing raw rules."""
+    if os.name != "posix":
+        raise ValueError("Owner-only policy-rule retention requires a POSIX private store")
+    target = path.absolute()
+    repository = Path(__file__).resolve().parents[4]
+    if (
+        target != path.resolve()
+        or target.is_relative_to(repository)
+        or any((parent / ".git").exists() for parent in target.parents)
+    ):
+        raise ValueError("Full policy-rule evidence must stay outside repositories without symlinks")
+    parent = target.parent
+    metadata = parent.stat()
+    if not parent.is_dir() or metadata.st_mode & 0o077 or metadata.st_uid != os.getuid():
+        raise ValueError("Full policy-rule evidence requires an owner-only private directory")
+    for candidate in (target, target.with_suffix(".preview.md")):
+        if candidate.exists() or candidate.is_symlink():
+            metadata = candidate.lstat()
+            if (
+                candidate.is_symlink() or not candidate.is_file()
+                or metadata.st_mode & 0o077 or metadata.st_uid != os.getuid() or metadata.st_nlink != 1
+            ):
+                raise ValueError("Full policy-rule evidence requires owner-only regular files")
+
+
+def write_private_rule_envelope(path: Path, envelope: dict) -> None:
+    """Atomically persist raw evidence without publishing a partially written snapshot."""
+    private_rule_output(path)
+    temporary = None
+    try:
+        with tempfile.NamedTemporaryFile(mode="w", encoding="utf-8", dir=path.parent, delete=False) as stream:
+            temporary = Path(stream.name)
+            json.dump(envelope, stream, indent=2, allow_nan=False)
+            stream.write("\n")
+            stream.flush()
+            os.fsync(stream.fileno())
+        os.replace(temporary, path)
+    finally:
+        if temporary is not None and temporary.exists():
+            temporary.unlink()
+
+
 def discover(
     subscription_id: str,
     *,
@@ -735,6 +920,7 @@ def discover(
     include_defender_auto: bool = True,
     az_rest: Callable[[str], dict[str, Any]] | None = None,
     verbose: bool = False,
+    retain_rule_evidence: bool = False,
 ) -> dict[str, Any]:
     """Run discovery and return the full envelope (not written to disk).
 
@@ -832,6 +1018,7 @@ def discover(
 
     assignment_inventory: list[dict[str, Any]] = []
     findings: list[dict[str, Any]] = []
+    effective_records: list[dict[str, Any]] = []
     audit_count = 0
     disabled_count = 0
     unresolved: list[str] = []
@@ -860,25 +1047,11 @@ def discover(
             continue
 
         # Resolve to member definitions (initiative → its members; policy → itself).
-        members: list[tuple[dict[str, Any], str | None, dict[str, Any]]] = []
-        if "/policysetdefinitions/" in pid and pid in sets:
-            set_parameters = _effective_parameters(sets[pid], props.get("parameters") or {})
-            set_members = (sets[pid].get("properties") or {}).get("policyDefinitions") or []
-            if not set_members:
-                unresolved.append(pid)
-            for m in set_members:
-                mid = (m.get("policyDefinitionId") or "").lower()
-                if mid in defs:
-                    supplied = _resolve_parameters(m.get("parameters") or {}, set_parameters)
-                    members.append((defs[mid], m.get("policyDefinitionReferenceId"), supplied))
-                else:
-                    unresolved.append(mid or pid)
-        elif pid in defs:
-            members.append((defs[pid], None, props.get("parameters") or {}))
-        else:
-            unresolved.append(pid)
+        members = _assignment_members(a, defs, sets, unresolved)
 
         for original_defn, member_ref_id, supplied in members:
+            if retain_rule_evidence:
+                effective_records.append(_rule_record(a, original_defn, member_ref_id, supplied))
             effective_parameters = _effective_parameters(original_defn, supplied)
             defn = _effective_definition(original_defn, effective_parameters)
             eff = _effect_of(defn)
@@ -1048,6 +1221,24 @@ def discover(
         "tags_required": _extract_tags_required(findings),
         "allowed_locations": _extract_allowed_locations(findings),
     }
+    if retain_rule_evidence:
+        envelope["discovery_metadata"]["page_counts"]["policySetDefinitions"] = len(sets)
+        envelope["discovery_metadata"]["api_versions"]["policySetDefinitions"] = API_DEFINITIONS
+        envelope["rule_evidence"] = {
+            "schema_version": "policy-rule-evidence-v1",
+            "project": project,
+            "subscription_id": subscription_id,
+            "discovered_at": discovered_at,
+            "assignments": copy.deepcopy(assignments),
+            "definitions": copy.deepcopy(sorted(defs.values(), key=lambda item: item["id"].lower())),
+            "initiatives": copy.deepcopy(sorted(sets.values(), key=lambda item: item["id"].lower())),
+            "exemptions": copy.deepcopy(exemptions),
+            "effective_records": effective_records,
+            "coverage": _rule_coverage(kept_assignments, effective_records),
+        }
+        envelope["discovery_metadata"]["rule_evidence_sha256"] = rule_evidence_digest(envelope["rule_evidence"])
+        if rule_evidence_errors(envelope):
+            envelope["discovery_status"] = envelope["discovery_metadata"]["discovery_status"] = "PARTIAL"
     return envelope
 
 
@@ -1133,6 +1324,10 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("--refresh", action="store_true")
     parser.add_argument("--validate-only", action="store_true", help="Validate the exact saved full-coverage snapshot offline")
     parser.add_argument(
+        "--retain-rule-evidence", action="store_true",
+        help="Retain and validate full policy objects/lineage inside an owner-only snapshot outside Git.",
+    )
+    parser.add_argument(
         "--arch",
         default=None,
         help="Path to 02-architecture-assessment.md. Enables policy→resource mapping in preview.md.",
@@ -1154,8 +1349,38 @@ def main(argv: list[str] | None = None) -> int:
     args = parser.parse_args(argv)
 
     out_path = Path(args.out)
+    if args.refresh and not args.retain_rule_evidence and out_path.exists():
+        try:
+            previous = json.loads(out_path.read_text(encoding="utf-8"))
+        except (OSError, UnicodeError, json.JSONDecodeError):
+            _emit_status({"status": "FAILED", "error": "existing-output-read"})
+            return 2
+        if isinstance(previous, dict) and "rule_evidence" in previous:
+            _emit_status({"status": "FAILED", "error": "retain-rule-evidence-required"})
+            return 2
+    if args.retain_rule_evidence:
+        try:
+            private_rule_output(out_path)
+            if not args.include_defender_auto:
+                raise ValueError("Full policy-rule evidence requires unfiltered assignment coverage")
+        except (OSError, ValueError) as error:
+            _emit_status({"status": "FAILED", "error": "private-rule-evidence", "detail": str(error)})
+            return 2
     if args.validate_only:
-        cached = json.loads(out_path.read_text(encoding="utf-8"))
+        try:
+            cached = json.loads(out_path.read_text(encoding="utf-8"))
+        except (OSError, UnicodeError, json.JSONDecodeError):
+            _emit_status({"status": "INVALID", "error": "snapshot-read", "read_only": True})
+            return 1
+        if not isinstance(cached, dict):
+            _emit_status({"status": "INVALID", "error": "snapshot-shape", "read_only": True})
+            return 1
+        if "rule_evidence" in cached:
+            try:
+                private_rule_output(out_path)
+            except (OSError, ValueError) as error:
+                _emit_status({"status": "INVALID", "error": "private-rule-evidence", "detail": str(error)})
+                return 1
         valid = (
             args.subscription != "default"
             and cached.get("project") == args.project
@@ -1166,6 +1391,7 @@ def main(argv: list[str] | None = None) -> int:
             and _cache_is_fresh(cached)
             and cached.get("discovery_metadata", {}).get("scope", {}).get("subscription_id", "").lower() == args.subscription.lower()
             and cached.get("discovery_metadata", {}).get("completeness_signature") == _completeness_signature(cached.get("findings", []))
+            and (not args.retain_rule_evidence and "rule_evidence" not in cached or not rule_evidence_errors(cached))
         )
         _emit_status({"status": "CURRENT" if valid else "INVALID", "read_only": True})
         return 0 if valid else 1
@@ -1197,7 +1423,33 @@ def main(argv: list[str] | None = None) -> int:
             try:
                 cached = json.loads(cache_source.read_text(encoding="utf-8"))
             except (OSError, UnicodeError, json.JSONDecodeError):
+                if args.retain_rule_evidence:
+                    _emit_status({"status": "FAILED", "error": "policy-rule-evidence-cache-read"})
+                    return 2
                 continue
+            if args.retain_rule_evidence and not isinstance(cached, dict):
+                _emit_status({"status": "FAILED", "error": "policy-rule-evidence-cache-shape"})
+                return 2
+            if isinstance(cached, dict) and (args.retain_rule_evidence or "rule_evidence" in cached):
+                errors = rule_evidence_errors(cached)
+                if args.retain_rule_evidence and (
+                    cached.get("project") != args.project
+                    or str(cached.get("subscription_id", "")).lower() != sub_id.lower()
+                    or cached.get("discovery_status") != "COMPLETE"
+                    or not _cache_is_fresh(cached)
+                    or (cached.get("discovery_metadata") or {}).get("completeness_signature")
+                    != _completeness_signature(cached.get("findings", []))
+                ):
+                    errors.append("Private rule evidence is stale, incomplete or differently scoped; authorized refresh required")
+                if errors:
+                    _emit_status({"status": "FAILED", "error": "policy-rule-evidence", "detail": errors[0]})
+                    return 2
+                try:
+                    private_rule_output(out_path)
+                    private_rule_output(cache_source)
+                except (OSError, ValueError) as error:
+                    _emit_status({"status": "FAILED", "error": "private-rule-evidence", "detail": str(error)})
+                    return 2
             if (
                 isinstance(cached, dict)
                 and cached.get("schema_version") == "governance-constraints-v1"
@@ -1219,9 +1471,18 @@ def main(argv: list[str] | None = None) -> int:
                 if cache_source != out_path:
                     out_path.parent.mkdir(parents=True, exist_ok=True)
                     cached["_out_path"] = str(out_path)
-                    out_path.write_text(json.dumps(cached, indent=2, sort_keys=False) + "\n", encoding="utf-8")
+                    if "rule_evidence" in cached:
+                        try:
+                            write_private_rule_envelope(out_path, cached)
+                        except (OSError, ValueError):
+                            _emit_status({"status": "FAILED", "error": "private-evidence-write"})
+                            return 2
+                    else:
+                        out_path.write_text(json.dumps(cached, indent=2, sort_keys=False) + "\n", encoding="utf-8")
                 if args.arch:
-                    _emit_preview_md(cached, out_path, arch_resources=_extract_arch_resources(args.arch))
+                    preview = _emit_preview_md(cached, out_path, arch_resources=_extract_arch_resources(args.arch))
+                    if preview and "rule_evidence" in cached:
+                        Path(preview).chmod(0o600)
                 summary = cached.get("discovery_summary") or {}
                 status = {
                     "status": "COMPLETE",
@@ -1261,6 +1522,7 @@ def main(argv: list[str] | None = None) -> int:
             project=args.project,
             include_defender_auto=args.include_defender_auto,
             verbose=args.verbose,
+            retain_rule_evidence=args.retain_rule_evidence,
         )
     except subprocess.CalledProcessError as e:
         _emit_status(
@@ -1279,12 +1541,21 @@ def main(argv: list[str] | None = None) -> int:
 
     out_path.parent.mkdir(parents=True, exist_ok=True)
     envelope["_out_path"] = str(out_path)
-    out_path.write_text(json.dumps(envelope, indent=2, sort_keys=False) + "\n")
+    if args.retain_rule_evidence:
+        try:
+            write_private_rule_envelope(out_path, envelope)
+        except (OSError, ValueError):
+            _emit_status({"status": "FAILED", "error": "private-evidence-write"})
+            return 2
+    else:
+        out_path.write_text(json.dumps(envelope, indent=2, sort_keys=False) + "\n")
 
     # Fix C: emit sibling preview.md for agent annotation
     arch_resources = _extract_arch_resources(args.arch) if args.arch else None
     preview_path = _emit_preview_md(envelope, out_path, arch_resources=arch_resources)
     if preview_path:
+        if args.retain_rule_evidence:
+            Path(preview_path).chmod(0o600)
         print(f"preview: wrote {preview_path}", file=sys.stderr)
 
     summary = envelope["discovery_summary"]
@@ -1298,7 +1569,8 @@ def main(argv: list[str] | None = None) -> int:
         "out_path": str(out_path),
     }
     _emit_status(status)
-    _emit_preview(envelope)
+    if not args.retain_rule_evidence:
+        _emit_preview(envelope)
     return 0 if envelope["discovery_status"] == "COMPLETE" else 1
 
 

@@ -18,6 +18,7 @@ import {
 } from "../../scripts/validate-challenger-findings.mjs";
 import { requiredPrivateReviewInputs } from "../../scripts/_lib/project-paths.mjs";
 import { supportingInputCompatible } from "../../scripts/_lib/review-compatibility.mjs";
+import { canonicalJson } from "../../scripts/_lib/json.mjs";
 
 const validator = fileURLToPath(new URL("../../scripts/validate-challenger-findings.mjs", import.meta.url));
 const recorder = fileURLToPath(new URL("../../scripts/record-review.mjs", import.meta.url));
@@ -203,6 +204,27 @@ function privatePolicyFixture(t) {
       completeness_signature: `sha256:${hash("")}`,
     },
   };
+  policy.discovered_at = policy.discovery_metadata.discovered_at;
+  policy.discovery_metadata.page_counts = {
+    policyAssignments: 0,
+    policyDefinitions: 0,
+    policySetDefinitions: 0,
+    policyExemptions: 0,
+  };
+  policy.discovery_summary = { assignment_total: 0, assignment_kept: 0, audit_count: 0, disabled_count: 0 };
+  policy.rule_evidence = {
+    schema_version: "policy-rule-evidence-v1",
+    project: policy.project,
+    subscription_id: policy.subscription_id,
+    discovered_at: policy.discovered_at,
+    assignments: [],
+    definitions: [],
+    initiatives: [],
+    exemptions: [],
+    effective_records: [],
+    coverage: { assignment_count: 0, effective_record_count: 0, effects: {} },
+  };
+  policy.discovery_metadata.rule_evidence_sha256 = hash(canonicalJson(policy.rule_evidence));
   fs.writeFileSync(snapshot, JSON.stringify(policy), { mode: 0o600 });
   const canonical = path.join(scope.directory, "04-governance-constraints.json");
   fs.writeFileSync(canonical, JSON.stringify(policy), { mode: 0o600 });
@@ -244,6 +266,27 @@ function privatePolicyFixture(t) {
   f.write("request.json", JSON.stringify(f.input));
   return { ...f, recall, snapshot, canonical, findings };
 }
+
+test("private rule-body evidence is included in existing Node review hashes", (t) => {
+  const f = privatePolicyFixture(t);
+  assert.ok(preflightReviewRequest(f.input, f.root).private_inputs.length);
+  const policy = JSON.parse(fs.readFileSync(f.canonical, "utf8"));
+  policy.rule_evidence.exemptions.push({ id: "synthetic-changed-rule-evidence" });
+  fs.writeFileSync(f.canonical, JSON.stringify(policy), { mode: 0o600 });
+  assert.throws(() => preflightReviewRequest(f.input, f.root), /changed|supporting/i);
+});
+
+test("private Governance review rejects a summary-only canonical snapshot", (t) => {
+  const f = privatePolicyFixture(t);
+  const policy = JSON.parse(fs.readFileSync(f.canonical, "utf8"));
+  delete policy.rule_evidence;
+  delete policy.discovery_metadata.rule_evidence_sha256;
+  fs.writeFileSync(f.canonical, JSON.stringify(policy), { mode: 0o600 });
+  assert.throws(
+    () => requiredPrivateReviewInputs(f.root, "example", "governance-constraints"),
+    /Private governance rule evidence/,
+  );
+});
 
 test("private policy evidence is required, attributed, hash-bound and invalidated after drift", (t) => {
   const f = privatePolicyFixture(t);

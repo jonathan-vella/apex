@@ -39,7 +39,7 @@
     "test:retirement-scan": "node --test tools/tests/audit-retirement-candidates.test.mjs",
     "lint:skills-format": "node tools/scripts/validate-skills.mjs",
     "lint:governance-refs": "node tools/scripts/validate-governance-refs.mjs",
-    "test:governance-discovery": "python3 -m pytest .github/skills/apex-azure-governance-discovery/scripts/test_discover.py -q",
+    "test:governance-discovery": "python3 -m pytest .github/skills/apex-azure-governance-discovery/scripts/test_discover.py .github/skills/apex-azure-governance-discovery/scripts/test_rule_evidence.py -q",
     "test:governance-baseline-python": "python3 -m pytest .github/skills/apex-azure-governance-discovery/scripts/test_governance_baseline.py .github/skills/apex-azure-governance-discovery/scripts/test_generate_alz_baseline.py -q",
     "validate:instruction-checks": "node tools/scripts/validate-instruction-checks.mjs",
     "validate:session-state": "node tools/scripts/validate-session-state.mjs",
