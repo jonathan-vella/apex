@@ -55,6 +55,48 @@ Reviewer invocation IDs and signed risk-authorization provenance retain their se
 The receipt stays outside the exact recall input-record schema below. Recall receives its existing
 `input_id`, `value`, `environments`, `owner` and `request_id` fields; no schema bypass or state-file edit is needed.
 
+## Complete-stage work package
+
+At the existing stage/start interaction, scope the complete owned work: reconciliation, reports/projections,
+focused validation, required independent lenses and ordinary closure if needed. Do not reduce a full-stage request
+to collector-only or draft-only work and repeatedly return the unfinished stage to the owner.
+Read-only, evidence-only and initialization-only requests retain their explicit narrower boundary.
+
+Use the handoff's `blocked_prerequisites`, per-artifact review state and current `review_cycles` to identify
+the actual recovery work before asking. Reuse an existing scope-matching grant. Otherwise batch missing stage
+scope, genuinely applicable material choices and any necessary bounded review extensions into one contextual form,
+with distinct fields where the inputs are independent. No approval defaults or administrative disposition fields.
+Persist the actual response/receipt and use the existing phase-scope and `decide --review-extension` contracts;
+the owner does not prepare JSON, calculate projection hashes or manage cycle IDs.
+Do not replace an unchanged phase-scope request ID for bookkeeping; record review extensions separately.
+
+When Architecture explicitly uses Corp assumptions, explain and scope the expected later target-policy reconciliation
+at that same interaction. An owner may explicitly preauthorize one bounded follow-up per affected required lens,
+including its maximum additional calls and DEV/PROD boundary. Save that actual grant with its receipt; after target
+evidence and choices are final, record only a necessary extension against the existing cycle/current projection.
+Do not silently grant future calls, infer read permission, raise limits on every resume or reset historical usage.
+Existing projects and narrower grants gain no new authority from a kit update.
+Phase-scope/cycle-extension APIs are practical-only; legacy projects retain their existing scope, accounting
+and recovery contract unless explicitly adopted. Complete-stage batching itself grants no permission or allowance.
+
+Collect complete current target evidence before final policy-sensitive reviews when actual read scope is available.
+For explicitly deferred target evidence, retain the assumption qualification instead of pretending tenant verification.
+Repair and freeze final inputs before spending an affected review allowance. Freeze exact immutable consumed files;
+do not use a mutable research, `_meta` or retail-evidence folder merely for convenience. A directory that is itself
+the defined review target, such as an IaC code tree, retains its real tree hash. New required inputs or changed
+consumed bytes still invalidate affected reuse; this is not permission to ignore hashes or restamp old results.
+
+Applicability and phase matter. Informational Audit observations normally become concrete planning/verification
+requirements, not automatic deployment denials. Missing runtime proof for not-yet-deployed resources is Unverified,
+not fabricated compliance and not by itself a reason to block design. Confirmed Deny/security conflicts and material
+residency, ownership, cost or exception questions still require evidence and the appropriate owner decision.
+Use bounded targeted read permission only when genuinely needed; do not broaden discovery or reprice unchanged scope.
+
+After an actual grant, the coordinator routes each repair to its owning agent, records current attributed reviews
+and presents the existing human stage gate. Do not rewrite earlier approvals, turn a findings disposition into
+closure, self-review or continue into consequential operations. Exhausted bounds or persistent blockers produce
+one consolidated escalation with the actual next decision, not a bare repeat of the resume command.
+
 ## Ordinary review cycle
 
 Each required artifact/lens has one initial and at most one closure dispatch within

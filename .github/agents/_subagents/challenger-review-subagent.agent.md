@@ -67,7 +67,11 @@ Preserve exact scope, pass, prior findings and metadata. Never invent paths, has
    NOT a failed tool call — immediately read the file in bounded `view_range` slices or with `grep`
    rather than returning `status: "FAILED"`.
    Never call `view` on guessed or unverified paths (for example, there is no
-   `tools/schemas/challenger-findings.schema.json`); any failed tool call invalidates recording.
+   `tools/schemas/challenger-findings.schema.json`); unresolved failed tool calls invalidate recording.
+   For private evidence, copy the supplied `private_inputs[].read_path` literally; never reconstruct or shorten it.
+   If one file-not-found read omitted the immediate scope directory, correct it once using that supplied literal
+   path in this same invocation. Continue only after a successful read; retain the failed call for recorder audit.
+   Do not search alternative locations or retry access/content-exclusion denials. Missing evidence still blocks.
 2. Preserve supplied `cache_inputs`/`supporting_inputs` unchanged. The parent captures them before dispatch.
    They identify `challenger-review-subagent`, its definition and the shared one-shot contract.
    Do not compute, refresh or restamp hashes; missing metadata is an execution failure.
@@ -121,7 +125,8 @@ Historical file-output receipts remain history, not this invocation's output mod
 
 Missing/invalid input or unreadable required evidence: return a JSON execution failure with
 `status:"FAILED"`, the actual `stage` and `error`, not a fabricated review or empty clean findings.
-The parent owns any permitted retry within existing accounting. Do not retry/delegate independently.
+The parent owns any new invocation within existing accounting. Do not retry the task or delegate independently;
+the bounded in-invocation path correction above and same-file range correction do not start a new review.
 A readable empty/frontmatter-only artifact produces a normal validated payload with one substantive
 empty-artifact must-fix per requested lens, not an invented clean review.
 After the one substantive JSON result or explicit execution failure, stop.

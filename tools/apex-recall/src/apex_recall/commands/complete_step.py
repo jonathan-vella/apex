@@ -128,12 +128,18 @@ def review_verdict(document: dict) -> str | None:
 
 
 def _challenger_findings_invalid(
-    project: str, step: str, governance_review: Path | None = None, allow_unresolved: bool = False
+    project: str,
+    step: str,
+    governance_review: Path | None = None,
+    allow_unresolved: bool = False,
+    *,
+    review_paths: list[tuple[Path, Path]] | None = None,
 ) -> str | None:
     """Validate present reviews before mutation; missing-review bypass cannot waive these checks."""
     root = workspace_root_for()
     validator = root / "tools/scripts/validate-challenger-findings.mjs"
-    for artifact, sidecar in _review_paths(project, step, governance_review):
+    paths = _review_paths(project, step, governance_review) if review_paths is None else review_paths
+    for artifact, sidecar in paths:
         if not sidecar.is_file():
             continue
         try:

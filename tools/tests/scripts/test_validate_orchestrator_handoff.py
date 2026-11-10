@@ -67,6 +67,26 @@ def test_missing_file_is_a_failure(tmp_path):
     assert _load_module().validate_step_agent(tmp_path / "missing.agent.md")
 
 
+def test_delivery_entries_consume_actionable_blocked_handoff():
+    for relative in (
+        ".github/skills/apex-workflow-start/SKILL.md",
+        ".github/skills/apex-workflow-engine/references/workflow-entry.md",
+    ):
+        source = (REPO_ROOT / relative).read_text()
+        assert "`BLOCKED`" in source, relative
+        assert "`next_action`" in source, relative
+        assert "practical-workflow.md#complete-stage-work-package" in source, relative
+
+
+def test_review_ceiling_selects_the_contract_at_point_of_use():
+    source = AGENT.read_text().split("### Challenger-invocation ceiling", 1)[1]
+    assert "per-step rule is **legacy-only**" in source
+    assert "Do not also gate that dispatch with `decisions.challenger_invocations_<step>`" in source
+    governance = (AGENT.parent / "04g-governance.agent.md").read_text()
+    assert "For practical projects, use the actual artifact/lens cycle" in governance
+    assert "For legacy projects, an exhausted one-pass allowance" in governance
+
+
 def test_cli_exit_codes(tmp_path):
     passing = subprocess.run([sys.executable, str(SCRIPT)], capture_output=True, text=True)
     assert passing.returncode == 0, passing.stderr

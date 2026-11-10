@@ -4,9 +4,17 @@ from __future__ import annotations
 
 import json
 from pathlib import Path
+from types import SimpleNamespace
 
 from ..config import get_agent_output_dir
-from ..state_writer import project_dir, read_state, resolve_project_file, session_state_path, workspace_root_for
+from ..state_writer import (
+    check_state_revision,
+    project_dir,
+    read_state,
+    resolve_project_file,
+    session_state_path,
+    workspace_root_for,
+)
 
 STEP_ORDER = ("1", "2", "3", "3_5", "4", "5", "6", "7")
 
@@ -140,6 +148,166 @@ def _select_active_step(steps: dict, decisions: dict, current_step: object = Non
     return "7"
 
 
+def _prerequisite_recovery(project: str, data: dict, active_step: str) -> dict:
+    """Orient recovery through the existing completion validators; never grant or mutate authority."""
+    from ..practical import check_views, digest, enabled, projection
+    from ..risk_gate import evaluate_gate
+    from ..step_order import PREDECESSOR
+    from .complete_step import (
+        _CHALLENGER_GATE,
+        _challenger_findings_invalid,
+        _review_paths,
+        _select_replacement_review,
+        is_audited_replay,
+        watch_review_inputs,
+    )
+
+    root = workspace_root_for()
+    directory = project_dir(project)
+    steps = data.get("steps", {})
+    decisions = data.get("decisions", {})
+    blocked = []
+    review_results = []
+    cycle_results = []
+    practical = enabled(data)
+    step = PREDECESSOR.get(active_step)
+    if step is not None and step in _CHALLENGER_GATE and steps.get(step, {}).get("status") == "complete":
+        errors = []
+        cycle_needs_review = {}
+        current_projection = None
+        if practical:
+            try:
+                current_projection = digest(projection(data, step))
+                check_views(project, data, step)
+            except (OSError, ValueError) as error:
+                errors.append({"kind": "assessment", "detail": str(error)})
+        try:
+            selected, selection = _select_replacement_review(project, step, SimpleNamespace(), data)
+            try:
+                watch_review_inputs(data, project, step, selected)
+            except (OSError, ValueError) as error:
+                errors.append({"kind": "review", "detail": str(error)})
+            if step == "4" and data.get("risk_authorizations"):
+                evaluate_gate(project, data, "plan-complete", selected=selected)
+                paths = []
+            else:
+                paths = _review_paths(project, step, selected)
+            primary = directory / _CHALLENGER_GATE[step][0]
+            if not primary.is_file():
+                errors.append(
+                    {"kind": "artifact", "detail": f"Completed prerequisite artifact is missing: {primary.name}"}
+                )
+            audited_skip = selected is None and selection is None and is_audited_replay(data, step)
+            for artifact, sidecar in paths:
+                error = None
+                if not sidecar.is_file():
+                    if not audited_skip:
+                        error = "Required review is missing"
+                else:
+                    error = _challenger_findings_invalid(
+                        project,
+                        step,
+                        selected,
+                        review_paths=[(artifact, sidecar)],
+                    )
+                artifact_path = str(artifact.resolve().relative_to(root))
+                review_results.append(
+                    {
+                        "step": step,
+                        "artifact": artifact_path,
+                        "status": "blocked" if error else "current",
+                        "error": error,
+                    }
+                )
+                if error:
+                    errors.append({"kind": "review", "artifact": artifact_path, "detail": error})
+                if practical:
+                    try:
+                        document = json.loads(sidecar.read_text()) if sidecar.is_file() else {}
+                        lens = document.get("review_focus") if isinstance(document, dict) else None
+                    except OSError, UnicodeError, ValueError:
+                        lens = None
+                    for identity, cycle in decisions.get("review_cycles", {}).items():
+                        if cycle.get("step") != step or cycle.get("artifact") != artifact_path:
+                            continue
+                        if lens is not None and cycle.get("lens") != lens:
+                            continue
+                        if lens is None and sidecar.name not in (
+                            Path(cycle["canonical_path"]).name,
+                            cycle.get("current_path"),
+                        ):
+                            continue
+                        cycle_needs_review[identity] = bool(error)
+        except (OSError, ValueError) as error:
+            errors.append({"kind": "review", "detail": str(error)})
+        if practical:
+            for identity, cycle in decisions.get("review_cycles", {}).items():
+                if cycle.get("step") != step:
+                    continue
+                projection_changed = current_projection is not None and current_projection != cycle["projection"]
+                needs_revalidation = cycle_needs_review.get(identity, bool(errors)) or projection_changed
+                remaining = max(0, cycle["max_calls"] - cycle["calls"])
+                cycle_results.append(
+                    {
+                        "cycle_id": identity,
+                        "step": step,
+                        "artifact": cycle["artifact"],
+                        "lens": cycle["lens"],
+                        "calls": cycle["calls"],
+                        "max_calls": cycle["max_calls"],
+                        "remaining_calls": remaining,
+                        "projection_changed": projection_changed,
+                        "revalidation_needed": needs_revalidation,
+                        "extension_required_if_review_needed": needs_revalidation
+                        and (remaining == 0 or projection_changed),
+                    }
+                )
+                if projection_changed:
+                    errors.append(
+                        {
+                            "kind": "review-scope",
+                            "artifact": cycle["artifact"],
+                            "detail": (
+                                f"Material projection changed for {cycle['lens']}; owner-authorized cycle revision "
+                                "is required even with remaining calls."
+                            ),
+                        }
+                    )
+        if errors:
+            blocked.append(
+                {
+                    "step": step,
+                    "owner": _resolve_owner(step, decisions.get("iac_tool", ""), steps.get(step, {})),
+                    "errors": errors,
+                }
+            )
+    check_state_revision(data, session_state_path(project))
+    needs_extension = any(item["extension_required_if_review_needed"] for item in cycle_results)
+    return {
+        "blocked_prerequisites": blocked,
+        "reviews": review_results,
+        "review_cycles": cycle_results,
+        "next_action": {
+            "kind": (
+                "authorize_recovery_work_package"
+                if needs_extension
+                else "recover_prerequisites"
+                if blocked
+                else "continue_stage"
+            ),
+            "owner": "01-Orchestrator" if needs_extension else blocked[0]["owner"] if blocked else None,
+            "summary": (
+                "Use already-granted, scope-matching recovery authority; ask once only for missing owned-repair scope or bounded review extensions."
+                if needs_extension
+                else "Return affected inputs to their owners, repair and freeze them, then revalidate only affected reviews."
+                if blocked
+                else "Continue the stage within actual granted scope through its existing approval gate."
+            ),
+            "permission_granted": False,
+        },
+    }
+
+
 def build_handoff_payload(project: str, data: dict, auto_selected: bool = False) -> dict:
     from ..assessment import enabled, handoff
 
@@ -157,6 +325,10 @@ def build_handoff_payload(project: str, data: dict, auto_selected: bool = False)
     checkpoint = step_entry.get("sub_step")
     next_owner = _resolve_owner(active_step, iac_tool, step_entry)
     step_name = STEP_NAMES.get(active_step, step_entry.get("name") or f"Step {active_step}")
+    recovery = _prerequisite_recovery(project, data, active_step)
+    blocked = bool(recovery["blocked_prerequisites"])
+    if recovery["next_action"]["owner"] is None:
+        recovery["next_action"]["owner"] = next_owner
 
     completed_steps = [k for k in STEP_ORDER if steps.get(k, {}).get("status") == "complete"]
 
@@ -194,11 +366,20 @@ def build_handoff_payload(project: str, data: dict, auto_selected: bool = False)
         f"under `{workflow_contract}`{checkpoint_clause} and complete the full Step {active_step} "
         f"({step_name}) phase through its required validations and independent challenger review(s) "
         f"to the Step {active_step} approval gate. Preserve all {len(settled_ids)} settled material inputs "
-        f"in `apex-recall` and keep completed upstream artifacts read-only."
+        f"in `apex-recall` and keep completed upstream artifacts read-only unless their owner has explicit recovery scope. "
+        "Reuse an actual complete-stage grant or batch only genuinely missing scope/review authority once; "
+        "this report grants no operation permission."
     )
+    if blocked:
+        delegation_prompt = (
+            f"Recover `{project}` prerequisites before formal Step {active_step} (`{next_owner}`). "
+            f"{recovery['next_action']['summary']} Reuse current evidence and settled answers; "
+            "do not repeat successful collection, reset allowances, restamp reviews or infer approval. "
+            "Only already-authorized preliminary/owned recovery may continue; obtain missing authority in one consolidated form."
+        )
 
     return {
-        "status": "READY",
+        "status": "BLOCKED" if blocked else "READY",
         "project": project,
         "auto_selected": auto_selected,
         "workflow_contract": workflow_contract,
@@ -215,6 +396,8 @@ def build_handoff_payload(project: str, data: dict, auto_selected: bool = False)
         "settled_material_input_ids": settled_ids,
         "resume_command": resume_command,
         "delegation_prompt": delegation_prompt,
+        "permission_granted": False,
+        **recovery,
     }
 
 
@@ -260,6 +443,19 @@ def run(args) -> int:
         print(json.dumps(payload, indent=2))
     elif payload.get("workflow_mode") == "assessment":
         print(f"Assessment {project}: {payload['phase']} · {payload['next_owner'] or 'TERMINAL'}")
+    elif payload["status"] == "BLOCKED":
+        print(
+            f"Prerequisite recovery required before Step {payload['active_step']} ({payload['next_owner']}).\n"
+            f"  Next action: {payload['next_action']['summary']}\n"
+            f"  Owner:       {payload['next_action']['owner']}\n"
+            "  No permission or approval is granted by this report."
+        )
+        for prerequisite in payload["blocked_prerequisites"]:
+            print(f"  Blocked prerequisite: Step {prerequisite['step']} · {prerequisite['owner']}")
+            for error in prerequisite["errors"]:
+                artifact = f"{error['artifact']}: " if error.get("artifact") else ""
+                print(f"    - {artifact}{error['detail']}")
+        print("Resolve the listed prerequisites through the existing owner before formal downstream progression.")
     else:
         print(
             f"▶ Next Step — Step {payload['active_step']} ({payload['step_name']} · {payload['next_owner']})\n"

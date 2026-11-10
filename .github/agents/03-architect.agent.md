@@ -274,6 +274,11 @@ Record significant choices and checkpoint `phase_5_artifact`.
 Load [one-shot review](../skills/apex-azure-defaults/references/one-shot-review.md) and the
 [review lifecycle](../skills/apex-azure-defaults/references/adversarial-review-protocol.md).
 Finalize both documents and immutable supporting inputs before metadata capture.
+When target/read scope is available, consume complete current policy evidence before final policy-sensitive reviews.
+For explicitly assumed Corp Architecture, retain that qualification and use only an actually granted later
+target-policy follow-up under the [managed stage contract](../skills/apex-workflow-engine/references/practical-workflow.md#complete-stage-work-package).
+Freeze exact consumed files, not mutable research or retail-evidence directories; unchanged current evidence and
+reviews are reused rather than regenerated merely for a new handoff.
 Include actual COMPLETE pricing JSON and its consumed evidence via `--supporting-input`;
 for the unpriced assessment-only path include the NOT_ASSESSED cost-status contract and source
 evidence instead. Both architecture and cost-feasibility reviews remain mandatory, including

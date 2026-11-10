@@ -14,6 +14,37 @@ repairs an index after a committed write; it is not a state rollback.
 
 ## Top-level shape
 
+### Delivery handoff and managed recovery
+
+`apex-recall handoff [project] --json` retains `active_step`, `next_owner`, `checkpoint`,
+`completed_steps`, `frozen_artifacts`, `settled_material_input_ids` and `resume_command`.
+Delivery `status` is `READY` only when the relevant completed predecessor's current review/view checks pass;
+otherwise it is `BLOCKED`. Historical completed steps and approvals are not rewritten.
+The existing completion validators check each required artifact/lens, including selected reviews,
+audited missing-review skips and supported Plan risk authorization. Unrelated earlier stages are not revalidated
+merely because their records exist. A current exhausted review requires no additional call.
+
+Additional read-only fields:
+
+- `permission_granted: false`: orientation is never scope, resource-write permission or stage approval.
+- `blocked_prerequisites[]`: affected step, artifact owner and explicit artifact/view/review errors.
+- `reviews[]`: per-artifact current/blocked status from the canonical strict review validator.
+- `review_cycles[]`: existing practical cycle identity, lens, consumed/maximum/remaining calls,
+  `projection_changed`, `revalidation_needed` and `extension_required_if_review_needed`.
+  Ledger summaries survive review-selection and supporting-input validation failures.
+  Changed projections require explicit owner-led cycle revision even when calls remain; these summaries grant nothing.
+- `next_action`: `continue_stage`, `recover_prerequisites` or `authorize_recovery_work_package`,
+  its actual owner, summary and `permission_granted:false`.
+
+The workflow owner reuses an existing scope-matching grant or asks once for genuinely missing stage/recovery
+authority using the complete-stage contract. Any actually needed extension uses the existing
+`decide --review-extension` API after final inputs/projection are frozen. No counters, outcomes or old hashes reset.
+The blocked plain-text output names this action instead of presenting a bare resume command as the remedy.
+It also prints each blocked prerequisite's artifact, when available, and exact error detail.
+JSON retains `resume_command` as a compatible entrypoint, not a bypass of the reported gate.
+Both statuses exit zero because they are valid read-only orientation reports, not successful stage executions.
+Standalone assessment handoff remains governed by its existing profile and terminal acceptance contract.
+
 ### Standalone assessment state
 
 Explicit `decisions.workflow_mode=assessment` selects the optional graph profile.

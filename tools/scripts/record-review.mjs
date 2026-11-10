@@ -374,6 +374,7 @@ export function extractReview(events, workerId, parentId) {
     ),
   );
   const recoveredReads = new Set();
+  let correctedPrivateRead;
   for (const event of toolEvents) {
     const turn = turns.find(
       (candidate) =>
@@ -397,15 +398,39 @@ export function extractReview(events, workerId, parentId) {
     if (!external && !successful(toolFinish)) {
       const readPath = toolStart.data?.arguments?.path;
       const message = toolFinish.data?.error?.message ?? toolFinish.data?.result?.message;
+      const errorCode = toolFinish.data?.error?.code ?? toolFinish.data?.result?.code;
+      const privateInput =
+        nonempty(readPath) &&
+        path.isAbsolute(readPath) &&
+        Array.isArray(input.private_inputs) &&
+        input.private_inputs.find(
+          (entry) =>
+            object(entry) &&
+            isPrivatePolicyReference(entry.reference) &&
+            nonempty(entry.read_path) &&
+            path.isAbsolute(entry.read_path) &&
+            readPath === path.join(path.dirname(path.dirname(entry.read_path)), path.basename(entry.read_path)),
+        );
+      const privateCorrection =
+        privateInput &&
+        (errorCode === undefined || ["failure", "ENOENT"].includes(errorCode)) &&
+        [
+          "File not found",
+          `File not found: ${readPath}`,
+          `Path ${readPath} does not exist. Please provide a valid path.`,
+          `ENOENT: no such file or directory, open '${readPath}'`,
+        ].includes(message) &&
+        (correctedPrivateRead === undefined || correctedPrivateRead === toolFinish.data.toolCallId);
+      const retryPath = privateCorrection ? privateInput.read_path : readPath;
       recovered =
         toolStart.data?.toolName === "view" &&
         nonempty(readPath) &&
-        message === "view_range out of bounds" &&
+        (message === "view_range out of bounds" || privateCorrection) &&
         worker.some(
           (retry) =>
             retry.type === "tool.execution_start" &&
             retry.data?.toolName === "view" &&
-            retry.data?.arguments?.path === readPath &&
+            retry.data?.arguments?.path === retryPath &&
             events.indexOf(retry) > events.indexOf(toolFinish) &&
             worker.some(
               (finish) =>
@@ -416,7 +441,10 @@ export function extractReview(events, workerId, parentId) {
                 events.indexOf(finish) < events.indexOf(response),
             ),
         );
-      if (recovered) recoveredReads.add(toolFinish.data.toolCallId);
+      if (recovered) {
+        recoveredReads.add(toolFinish.data.toolCallId);
+        if (privateCorrection) correctedPrivateRead = toolFinish.data.toolCallId;
+      }
     }
     requireEvidence(
       nonempty(event.data?.toolCallId) &&
@@ -580,6 +608,12 @@ export function preflightReviewRequest(input, root = process.cwd()) {
     requireEvidence(
       input.supporting_inputs?.some((support) => support.path === expected.path && support.sha256 === expected.sha256),
       "Required private policy evidence must be frozen in supporting inputs",
+    );
+  }
+  if (input.private_inputs !== undefined) {
+    requireEvidence(
+      isDeepStrictEqual(input.private_inputs, privateInputs),
+      "Transient private read mapping must exactly match canonical preflight inputs",
     );
   }
   return {
