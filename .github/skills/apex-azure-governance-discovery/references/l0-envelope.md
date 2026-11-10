@@ -90,6 +90,8 @@ It preserves original assignments, definitions, initiatives and exemptions plus 
 its supplied/effective parameters and full resolved `policy_rule`, including Audit, AuditIfNotExists and Disabled.
 Policy-level parameter bindings are resolved; embedded ARM deployment templates retain their own parameter
 namespace and original expressions rather than being substituted with same-named policy parameters.
+Append effects retain their complete `then.details` arrays, including nested array values; only object-shaped
+details are inspected for embedded deployments. See the [Append effect definition](https://learn.microsoft.com/azure/governance/policy/concepts/effect-append#append-properties).
 `coverage` counts occurrences, not unique definitions or proven resource violations.
 `discovery_metadata.rule_evidence_sha256` covers the complete retained object; the existing opaque snapshot's
 whole-file SHA-256 binds both raw and normalized evidence for Python/Node review consumers.

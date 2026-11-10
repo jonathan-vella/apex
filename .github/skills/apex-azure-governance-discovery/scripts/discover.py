@@ -766,8 +766,9 @@ def _rule_record(assignment: dict, definition: dict, member: str | None, supplie
     rule = (effective.get("properties") or {}).get("policyRule")
     original_rule = (definition.get("properties") or {}).get("policyRule")
     if isinstance(rule, dict) and isinstance(original_rule, dict):
-        details = (original_rule.get("then") or {}).get("details") or {}
-        deployment = details.get("deployment")
+        original_then = original_rule.get("then")
+        details = original_then.get("details") if isinstance(original_then, dict) else None
+        deployment = details.get("deployment") if isinstance(details, dict) else None
         properties = deployment.get("properties") if isinstance(deployment, dict) else None
         if isinstance(properties, dict) and "template" in properties:
             # Embedded ARM templates have their own parameter namespace.
@@ -846,6 +847,8 @@ def rule_evidence_errors(envelope: dict) -> list[str]:
                 ):
                     return ["An effective policy has no complete resolvable if/then rule"]
                 details = rule["then"].get("details")
+                if record["effect"] == "Append" and not isinstance(details, list):
+                    return ["An Append rule is missing its complete details array"]
                 if record["effect"] in {"DeployIfNotExists", "Modify", "AuditIfNotExists"}:
                     if not isinstance(details, dict):
                         return ["An effective policy is missing its full then.details"]
