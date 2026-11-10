@@ -847,8 +847,16 @@ def rule_evidence_errors(envelope: dict) -> list[str]:
                 ):
                     return ["An effective policy has no complete resolvable if/then rule"]
                 details = rule["then"].get("details")
-                if record["effect"] == "Append" and not isinstance(details, list):
-                    return ["An Append rule is missing its complete details array"]
+                if record["effect"] == "Append" and (
+                    not isinstance(details, list) or any(
+                        not isinstance(entry, dict)
+                        or not isinstance(entry.get("field"), str)
+                        or not entry["field"].strip()
+                        or "value" not in entry
+                        for entry in details
+                    )
+                ):
+                    return ["An Append rule requires object entries with a nonempty field and a value key"]
                 if record["effect"] in {"DeployIfNotExists", "Modify", "AuditIfNotExists"}:
                     if not isinstance(details, dict):
                         return ["An effective policy is missing its full then.details"]
