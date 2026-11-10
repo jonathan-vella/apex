@@ -168,6 +168,108 @@ def test_only_the_affected_lens_needs_review_recovery(tmp_path, monkeypatch, cap
     assert cost["status"] == "current"
 
 
+def test_invalid_private_scope_does_not_hide_exhausted_cycles(tmp_path, monkeypatch, capsys):
+    project, _, cli, _, _ = practical_architecture(tmp_path, monkeypatch, stale=("02-architecture-assessment.md",))
+    sidecar = project / "challenge-findings-architecture.json"
+    review = json.loads(sidecar.read_text())
+    review["supporting_inputs"] = [
+        {"path": "apex-private-policy://synthetic/unknown-scope/subscription-1.json", "sha256": "0" * 64}
+    ]
+    sidecar.write_text(json.dumps(review))
+    state = project / "00-session-state.json"
+    before = state.read_bytes()
+    result = handoff(cli, capsys)
+    assert result["status"] == "BLOCKED"
+    assert result["next_action"]["kind"] == "authorize_recovery_work_package"
+    assert len(result["review_cycles"]) == 2
+    architecture = next(cycle for cycle in result["review_cycles"] if cycle["lens"] == "comprehensive")
+    assert architecture["calls"] == architecture["max_calls"] == 2
+    assert architecture["extension_required_if_review_needed"] is True
+    assert any("private" in error["detail"].lower() for error in result["blocked_prerequisites"][0]["errors"])
+    cost = next(cycle for cycle in result["review_cycles"] if cycle["lens"] == "cost-feasibility")
+    assert cost["revalidation_needed"] is False
+    assert state.read_bytes() == before
+
+
+def test_review_selection_failure_still_reports_consumed_cycle_bounds(tmp_path, monkeypatch, capsys):
+    project, _, cli, _, _ = practical_architecture(tmp_path, monkeypatch)
+    completion = importlib.import_module("apex_recall.commands.complete_step")
+
+    def invalid_selection(*args, **kwargs):
+        raise ValueError("Selected review bytes changed; explicit owner resolution required")
+
+    monkeypatch.setattr(completion, "_select_replacement_review", invalid_selection)
+    state = project / "00-session-state.json"
+    before = state.read_bytes()
+    result = handoff(cli, capsys)
+    assert result["status"] == "BLOCKED"
+    assert result["next_action"]["kind"] == "authorize_recovery_work_package"
+    assert len(result["review_cycles"]) == 2
+    assert all(cycle["calls"] == cycle["max_calls"] == 2 for cycle in result["review_cycles"])
+    assert "Selected review bytes changed" in json.dumps(result["blocked_prerequisites"])
+    assert state.read_bytes() == before
+
+
+def test_invalid_review_lens_cannot_hide_its_consumed_cycle(tmp_path, monkeypatch, capsys):
+    project, _, cli, _, _ = practical_architecture(tmp_path, monkeypatch, stale=("02-architecture-assessment.md",))
+    sidecar = project / "challenge-findings-architecture.json"
+    review = json.loads(sidecar.read_text())
+    review["review_focus"] = "invalid-lens"
+    sidecar.write_text(json.dumps(review))
+    result = handoff(cli, capsys)
+    assert result["next_action"]["kind"] == "authorize_recovery_work_package"
+    architecture = next(cycle for cycle in result["review_cycles"] if cycle["lens"] == "comprehensive")
+    assert architecture["calls"] == architecture["max_calls"] == 2
+    assert architecture["extension_required_if_review_needed"] is True
+    cost = next(cycle for cycle in result["review_cycles"] if cycle["lens"] == "cost-feasibility")
+    assert cost["revalidation_needed"] is False
+
+
+def test_changed_projection_requires_owner_binding_even_with_remaining_calls(tmp_path, monkeypatch, capsys):
+    project, writer, cli, practical, record = practical_architecture(tmp_path, monkeypatch)
+    state = project / "00-session-state.json"
+    data = writer.read_state(state)
+    for identity in data["decisions"]["review_cycles"]:
+        practical.extend_cycle(
+            data,
+            {
+                "cycle_id": identity,
+                "max_calls": 4,
+                "request_id": "actual-original-scope-extension",
+                "projection_sha256": practical.digest(practical.projection(data, "2")),
+            },
+        )
+    practical.record_input(data, {**record, "value": "Changed actual owner choice", "request_id": "new-actual-answer"})
+    practical.sync_views("synthetic", data, "2")
+    writer.write_state("synthetic", data)
+    before = state.read_bytes()
+    result = handoff(cli, capsys)
+    assert result["status"] == "BLOCKED"
+    assert result["next_action"]["kind"] == "authorize_recovery_work_package"
+    assert all(cycle["remaining_calls"] == 2 for cycle in result["review_cycles"])
+    assert all(cycle["projection_changed"] for cycle in result["review_cycles"])
+    assert all(cycle["extension_required_if_review_needed"] for cycle in result["review_cycles"])
+    assert any(error["kind"] == "review-scope" for error in result["blocked_prerequisites"][0]["errors"])
+    assert state.read_bytes() == before
+    data = writer.read_state(state)
+    for identity in data["decisions"]["review_cycles"]:
+        practical.extend_cycle(
+            data,
+            {
+                "cycle_id": identity,
+                "max_calls": 5,
+                "request_id": "actual-new-scope-revision-grant",
+                "projection_sha256": practical.digest(practical.projection(data, "2")),
+            },
+        )
+    writer.write_state("synthetic", data)
+    result = handoff(cli, capsys)
+    assert result["status"] == "READY"
+    assert all(not cycle["projection_changed"] for cycle in result["review_cycles"])
+    assert all(not cycle["extension_required_if_review_needed"] for cycle in result["review_cycles"])
+    assert all(cycle["calls"] == 2 for cycle in result["review_cycles"])
+
+
 def test_material_projection_drift_cannot_reuse_old_scope_or_renew_allowance(tmp_path, monkeypatch, capsys):
     project, writer, cli, practical, record = practical_architecture(tmp_path, monkeypatch)
     state = project / "00-session-state.json"
@@ -203,7 +305,18 @@ def test_blocked_plain_handoff_names_the_action_instead_of_repeating_resume(tmp_
     assert "Prerequisite recovery required" in text
     assert "scope-matching recovery authority" in text
     assert "01-Orchestrator" in text
+    assert "02-architecture-assessment.md" in text
+    assert "Synthetic current-input drift" in text
     assert "/apex-workflow-start resume" not in text
+
+
+def test_plain_handoff_prints_the_missing_review_artifact_and_reason(tmp_path, monkeypatch, capsys):
+    project, _, cli, _, _ = practical_architecture(tmp_path, monkeypatch)
+    (project / "challenge-findings-architecture.json").unlink()
+    capsys.readouterr()
+    assert cli.main(["handoff", "synthetic"]) == 0
+    text = capsys.readouterr().out
+    assert "02-architecture-assessment.md: Required review is missing" in text
 
 
 def test_authorized_plan_exception_is_reused_without_closing_findings(tmp_path, monkeypatch, capsys):

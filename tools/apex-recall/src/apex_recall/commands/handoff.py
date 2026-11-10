@@ -173,6 +173,7 @@ def _prerequisite_recovery(project: str, data: dict, active_step: str) -> dict:
     step = PREDECESSOR.get(active_step)
     if step is not None and step in _CHALLENGER_GATE and steps.get(step, {}).get("status") == "complete":
         errors = []
+        cycle_needs_review = {}
         current_projection = None
         if practical:
             try:
@@ -182,7 +183,10 @@ def _prerequisite_recovery(project: str, data: dict, active_step: str) -> dict:
                 errors.append({"kind": "assessment", "detail": str(error)})
         try:
             selected, selection = _select_replacement_review(project, step, SimpleNamespace(), data)
-            watch_review_inputs(data, project, step, selected)
+            try:
+                watch_review_inputs(data, project, step, selected)
+            except (OSError, ValueError) as error:
+                errors.append({"kind": "review", "detail": str(error)})
             if step == "4" and data.get("risk_authorizations"):
                 evaluate_gate(project, data, "plan-complete", selected=selected)
                 paths = []
@@ -233,25 +237,42 @@ def _prerequisite_recovery(project: str, data: dict, active_step: str) -> dict:
                             cycle.get("current_path"),
                         ):
                             continue
-                        needs_revalidation = bool(error) or (
-                            current_projection is not None and current_projection != cycle["projection"]
-                        )
-                        remaining = max(0, cycle["max_calls"] - cycle["calls"])
-                        cycle_results.append(
-                            {
-                                "cycle_id": identity,
-                                "step": step,
-                                "artifact": artifact_path,
-                                "lens": cycle["lens"],
-                                "calls": cycle["calls"],
-                                "max_calls": cycle["max_calls"],
-                                "remaining_calls": remaining,
-                                "revalidation_needed": needs_revalidation,
-                                "extension_required_if_review_needed": needs_revalidation and remaining == 0,
-                            }
-                        )
+                        cycle_needs_review[identity] = bool(error)
         except (OSError, ValueError) as error:
             errors.append({"kind": "review", "detail": str(error)})
+        if practical:
+            for identity, cycle in decisions.get("review_cycles", {}).items():
+                if cycle.get("step") != step:
+                    continue
+                projection_changed = current_projection is not None and current_projection != cycle["projection"]
+                needs_revalidation = cycle_needs_review.get(identity, bool(errors)) or projection_changed
+                remaining = max(0, cycle["max_calls"] - cycle["calls"])
+                cycle_results.append(
+                    {
+                        "cycle_id": identity,
+                        "step": step,
+                        "artifact": cycle["artifact"],
+                        "lens": cycle["lens"],
+                        "calls": cycle["calls"],
+                        "max_calls": cycle["max_calls"],
+                        "remaining_calls": remaining,
+                        "projection_changed": projection_changed,
+                        "revalidation_needed": needs_revalidation,
+                        "extension_required_if_review_needed": needs_revalidation
+                        and (remaining == 0 or projection_changed),
+                    }
+                )
+                if projection_changed:
+                    errors.append(
+                        {
+                            "kind": "review-scope",
+                            "artifact": cycle["artifact"],
+                            "detail": (
+                                f"Material projection changed for {cycle['lens']}; owner-authorized cycle revision "
+                                "is required even with remaining calls."
+                            ),
+                        }
+                    )
         if errors:
             blocked.append(
                 {
@@ -431,6 +452,9 @@ def run(args) -> int:
         )
         for prerequisite in payload["blocked_prerequisites"]:
             print(f"  Blocked prerequisite: Step {prerequisite['step']} · {prerequisite['owner']}")
+            for error in prerequisite["errors"]:
+                artifact = f"{error['artifact']}: " if error.get("artifact") else ""
+                print(f"    - {artifact}{error['detail']}")
         print("Resolve the listed prerequisites through the existing owner before formal downstream progression.")
     else:
         print(

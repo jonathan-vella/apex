@@ -30,7 +30,9 @@ Additional read-only fields:
 - `blocked_prerequisites[]`: affected step, artifact owner and explicit artifact/view/review errors.
 - `reviews[]`: per-artifact current/blocked status from the canonical strict review validator.
 - `review_cycles[]`: existing practical cycle identity, lens, consumed/maximum/remaining calls,
-  `revalidation_needed` and `extension_required_if_review_needed`. These summaries do not grant extensions.
+  `projection_changed`, `revalidation_needed` and `extension_required_if_review_needed`.
+  Ledger summaries survive review-selection and supporting-input validation failures.
+  Changed projections require explicit owner-led cycle revision even when calls remain; these summaries grant nothing.
 - `next_action`: `continue_stage`, `recover_prerequisites` or `authorize_recovery_work_package`,
   its actual owner, summary and `permission_granted:false`.
 
@@ -38,6 +40,7 @@ The workflow owner reuses an existing scope-matching grant or asks once for genu
 authority using the complete-stage contract. Any actually needed extension uses the existing
 `decide --review-extension` API after final inputs/projection are frozen. No counters, outcomes or old hashes reset.
 The blocked plain-text output names this action instead of presenting a bare resume command as the remedy.
+It also prints each blocked prerequisite's artifact, when available, and exact error detail.
 JSON retains `resume_command` as a compatible entrypoint, not a bypass of the reported gate.
 Both statuses exit zero because they are valid read-only orientation reports, not successful stage executions.
 Standalone assessment handoff remains governed by its existing profile and terminal acceptance contract.
