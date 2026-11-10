@@ -154,9 +154,11 @@ function isStepInProgressBeforeHandoff(sessionStatePath, stepKey) {
   }
 }
 
-function isPendingGovernanceCheckpoint(state, projectDir, stepKey, artifact, missingSidecars) {
+function isPendingGovernanceCheckpoint(state, projectDir, stepKey, artifact) {
   if (!publicationCheckpoint || stepKey !== "3_5" || state?.steps?.[stepKey]?.status !== "pending") return false;
+  const legacyPasses = state.review_audit?.step_3_5?.passes_executed;
   if (
+    (legacyPasses !== undefined && legacyPasses !== 0) ||
     state.steps[stepKey].completed ||
     state.review_selections?.[stepKey] ||
     !Array.isArray(state.review_attempts ?? []) ||
@@ -167,11 +169,20 @@ function isPendingGovernanceCheckpoint(state, projectDir, stepKey, artifact, mis
     STEP_ORDER.slice(STEP_ORDER.indexOf(stepKey) + 1).some(
       (key) => ![undefined, "pending", "not_started"].includes(state.steps[key]?.status),
     ) ||
-    missingSidecars.some((sidecar) => fs.existsSync(resolveReviewPath(projectDir, sidecar)))
+    [projectDir, path.join(projectDir, "reviews")].some(
+      (directory) =>
+        fs.existsSync(directory) &&
+        fs
+          .readdirSync(directory)
+          .some((name) => /^challenge-findings-governance-constraints(?:-.*)?\.json$/.test(name)),
+    )
   ) {
     return false;
   }
-  const header = fs.readFileSync(path.join(projectDir, artifact), "utf8").split(/^## /m)[0];
+  const header = fs
+    .readFileSync(path.join(projectDir, artifact), "utf8")
+    .replace(/<!--[\s\S]*?(?:-->|$)/g, "")
+    .split(/^## /m)[0];
   return (
     !/^\s*(?:```|~~~)/m.test(header) &&
     /^!\[Status\]\(https:\/\/img\.shields\.io\/badge\/Status-Owner_prepared_not_approved-[^\s)]+\)\s*$/m.test(header)
@@ -249,7 +260,7 @@ for (const project of projects) {
       continue;
     }
 
-    if (isPendingGovernanceCheckpoint(stateObj, projectDir, stepKey, gatingArtifact, missingSidecars)) {
+    if (isPendingGovernanceCheckpoint(stateObj, projectDir, stepKey, gatingArtifact)) {
       r.info(
         `${project}/${gate.label}`,
         "unapproved pending owner draft: checkpoint publication only; independent review remains required for handoff/completion",

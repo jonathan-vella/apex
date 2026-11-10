@@ -60,6 +60,7 @@ for (const [label, mutate] of [
   ["downstream code completed", (f) => (f.state.steps["5"] = { status: "complete" })],
   ["downstream deployment stale", (f) => (f.state.steps["6"] = { status: "stale" })],
   ["prior Governance attempt", (f) => (f.state.review_attempts = [{ step: "3_5", outcome: "failed" }])],
+  ["legacy Governance review", (f) => (f.state.review_audit = { step_3_5: { passes_executed: 1 } })],
   ["consumed Governance cycle", (f) => (f.state.decisions.review_cycles = { cycle: { step: "3_5", calls: 1 } })],
   ["selected Governance review", (f) => (f.state.review_selections = { "3_5": { path: "review.json" } })],
   [
@@ -68,6 +69,8 @@ for (const [label, mutate] of [
   ],
   ["missing unapproved status", (f) => writeFileSync(f.artifact, "# Governance\n\nDraft text.\n")],
   ["fenced unapproved status", (f) => writeFileSync(f.artifact, `# Governance\n\n\`\`\`md\n${f.badge}\n\`\`\`\n`)],
+  ["commented unapproved status", (f) => writeFileSync(f.artifact, `# Governance\n\n<!--\n${f.badge}\n-->\n`)],
+  ["unclosed commented status", (f) => writeFileSync(f.artifact, `# Governance\n\n<!--\n${f.badge}\n`)],
 ]) {
   test(`checkpoint mode cannot excuse ${label}`, (context) => {
     const f = governanceCheckpoint(context);
@@ -76,6 +79,43 @@ for (const [label, mutate] of [
     assert.equal(f.run("--publication-checkpoint").status, 1);
   });
 }
+
+test("zero legacy review count does not invent an executed Governance review", (context) => {
+  const f = governanceCheckpoint(context);
+  f.state.review_audit = { step_3_5: { passes_executed: 0 } };
+  f.save();
+  assert.equal(f.run("--publication-checkpoint").status, 0);
+});
+
+for (const directory of ["", "reviews"]) {
+  for (const [filename, body] of [
+    ["challenge-findings-governance-constraints-pass3.json", "invalid"],
+    ["challenge-findings-governance-constraints-closure1.json", "invalid"],
+    ["challenge-findings-governance-constraints.json", '{"findings":[]}'],
+  ]) {
+    test(`live Governance evidence blocks the draft exception: ${directory || "legacy root"}/${filename}`, (context) => {
+      const f = governanceCheckpoint(context);
+      if (!directory) delete f.state.layout_version;
+      f.save();
+      const location = path.join(f.project, directory);
+      mkdirSync(location, { recursive: true });
+      writeFileSync(path.join(location, filename), body);
+      assert.equal(f.run("--publication-checkpoint").status, 1);
+    });
+  }
+}
+
+test("HTML comments cannot hide header boundaries before a visible draft badge", (context) => {
+  const f = governanceCheckpoint(context);
+  writeFileSync(f.artifact, `# Governance\n\n<!--\n## Not a rendered heading\n-->\n\n${f.badge}\n`);
+  assert.equal(f.run("--publication-checkpoint").status, 0);
+});
+
+test("non-live archived sidecars are not promoted into current review evidence", (context) => {
+  const f = governanceCheckpoint(context);
+  writeFileSync(path.join(f.project, "_meta/challenge-findings-governance-constraints-pass3.json"), "archived draft");
+  assert.equal(f.run("--publication-checkpoint").status, 0);
+});
 
 test("checkpoint mode does not waive other missing reviews", (context) => {
   const f = governanceCheckpoint(context);
