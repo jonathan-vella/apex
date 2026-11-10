@@ -7,7 +7,8 @@ import test from "node:test";
 import { fileURLToPath } from "node:url";
 import { normalizeCostCollection } from "../../scripts/assessment-cost.mjs";
 import { createAjv } from "../../scripts/_lib/ajv-validator.mjs";
-import { normalizeCostRequest, publishEstimate } from "../../scripts/cost-estimate.mjs";
+import { comparableLineUsage, normalizeCostRequest, publishEstimate } from "../../scripts/cost-estimate.mjs";
+import { evidenceBackedFixture } from "./test_cost_estimate_fixture.mjs";
 import {
   ACTION_REGISTER_OUTPUTS,
   calculateAssessmentActionRegister,
@@ -134,10 +135,10 @@ test("annual-to-month normalization needs original units and exact source-eviden
   const leaf = f.sources.get("annual-proposed");
   leaf.assessment_basis.source_unit = "year";
   leaf.assessment_basis.original_total = "1200";
-  f.retain("annual-proposed", leaf, "retail");
+  f.reprice("annual-proposed", leaf);
   assert.equal(calculate(f, root).valid, true);
   leaf.assessment_basis.original_total = "1201";
-  f.retain("annual-proposed", leaf, "retail");
+  f.reprice("annual-proposed", leaf);
   fails(f, root, /Annual normalization/);
 });
 
@@ -156,7 +157,7 @@ test("duplicate actual imports and same-charge replacement benefits cannot bypas
   for (const id of ["replacement-current", "replacement-proposed"]) {
     const leaf = f.sources.get(id);
     leaf.resources[0].resource_id = ACTUAL_RESOURCE;
-    f.retain(id, leaf, "retail");
+    f.reprice(id, leaf);
   }
   replacement.resource_ids = [ACTUAL_RESOURCE];
   replacement.finance.ledger[0].resource_id = ACTUAL_RESOURCE;
@@ -170,10 +171,10 @@ test("same resource independent charges are supported; fabricated slices and ove
   assert.equal(calculate(f, root).valid, true);
   const line = f.sources.get("storage-current");
   line.resources[0].charge_id = "compute";
-  f.retain("storage-current", line, "retail");
+  f.reprice("storage-current", line);
   const proposed = f.sources.get("storage-proposed");
   proposed.resources[0].charge_id = "compute";
-  f.retain("storage-proposed", proposed, "retail");
+  f.reprice("storage-proposed", proposed);
   f.data.actions[1].finance.ledger[0].charge_id = "compute";
   f.data.actions[1].overlap_group = "claimed-combined";
   fails(f, root, /overlapping/);
@@ -192,6 +193,20 @@ test("actual baseline provenance is mandatory; retail-only savings do not certif
   fails(f, root, /original saved source|complete closed-month/);
 });
 
+test("retail imports require an independently retained original request and watch every captured source", (t) => {
+  const { root, f } = setup(t);
+  f.addRetail("bound", "100");
+  const ref = f.data.evidence_refs.find((entry) => entry.id === "bound-proposed");
+  assert.equal(calculate(f, root).valid, true);
+  const request = ref.pricing_request;
+  delete ref.pricing_request;
+  fails(f, root, /Original pricing request required/);
+  ref.pricing_request = request;
+  const requestPath = path.join(root, request.path);
+  fs.appendFileSync(requestPath, "\n");
+  fails(f, root, /Original pricing request hash mismatch/);
+});
+
 test("gross additions use verified retail evidence and refuse missing, failed and mixed-basis prices", (t) => {
   const { root, f } = setup(t);
   const action = f.addRetail("gross", "100");
@@ -202,7 +217,7 @@ test("gross additions use verified retail evidence and refuse missing, failed an
   fails(f, root, /retail/);
   source.status = "COMPLETE";
   source.assessment_basis.licensing = "Negotiated actual discounts";
-  f.retain("gross-proposed", source, "retail");
+  f.reprice("gross-proposed", source);
   fails(f, root, /basis mismatch/);
   action.finance.proposed_ref = "not-retained";
   fails(f, root, /Missing\/wrong retail/);
@@ -213,11 +228,11 @@ test("retail upgrade quantities and assumptions must be like-for-like, not mixed
   f.addRetail("migration", "50", "100");
   const leaf = f.sources.get("migration-proposed");
   leaf.resources[0].quantity = 2;
-  f.retain("migration-proposed", leaf, "retail");
+  f.reprice("migration-proposed", leaf);
   fails(f, root, /usage quantities/);
   leaf.resources[0].quantity = 1;
   leaf.assumptions = ["Different projected usage than current reference."];
-  f.retain("migration-proposed", leaf, "retail");
+  f.reprice("migration-proposed", leaf);
   fails(f, root, /assumptions differ/);
 });
 
@@ -260,24 +275,28 @@ for (const driver of [
         calculation_basis: { region: leaf.region, quantity: 1, unit_of_measure: "1 GB", usage_amount: 1000 },
       });
     }
-    const line = proposed.resources[0];
+    const linkedCurrent = f.reprice("upgrade-current", current);
+    const linkedProposed = f.reprice("upgrade-proposed", proposed);
+    const baseline = calculate(f, root);
+    assert.equal(baseline.valid, true, baseline.errors.join("; "));
+    const line = linkedProposed.resources[0];
     if (driver === "usage") line.usage.amount = 100;
     if (driver === "usage_amount") line.usage_amount = 100;
     if (driver === "unit") line.unit_of_measure = "1 TB";
     if (driver === "hours") line.hours_per_month = 100;
     if (driver === "region") line.region = "another-region";
-    if (driver === "component_usage") line.components[0].usage_amount = 100;
-    if (driver === "component_region") line.components[0].region = "another-region";
-    if (driver === "calculation_basis") line.calculation_basis.usage_amount = 100;
-    f.retain("upgrade-current", current, "retail");
-    f.retain("upgrade-proposed", proposed, "retail");
-    fails(f, root, /usage quantities, regions/);
-    current.resources[0] = { ...structuredClone(line), sku: "Current SKU", hourly_rate: 2, monthly_cost: "100" };
+    if (driver === "component_usage") line.calculation_basis.components[0].usage_amount = 100;
+    if (driver === "component_region") line.calculation_basis.components[0].billing_region = "another-region";
+    if (driver === "calculation_basis") line.calculation_basis.quantity = 100;
+    f.retain("upgrade-proposed", linkedProposed, "retail");
+    fails(f, root, /usage quantities, regions|Invalid retail leaf/);
+    linkedCurrent.resources[0] = { ...structuredClone(line), sku: "Current SKU", hourly_rate: 2, monthly_cost: "100" };
     line.sku = "Proposed SKU";
     line.hourly_rate = 1;
-    f.retain("upgrade-current", current, "retail");
-    f.retain("upgrade-proposed", proposed, "retail");
-    assert.equal(calculate(f, root).valid, true);
+    f.reprice("upgrade-current", linkedCurrent);
+    f.reprice("upgrade-proposed", linkedProposed);
+    const refreshed = calculate(f, root);
+    assert.equal(refreshed.valid, true, refreshed.errors.join("; "));
   });
 }
 
@@ -288,14 +307,13 @@ test("consumption normalization preserves exact decimal distinctions", (t) => {
   const proposed = f.sources.get("usage-proposed");
   current.resources[0].usage = { amount: "1000.000", unit: "GB", scope: "aggregate" };
   proposed.resources[0].usage = { amount: 1000, unit: "GB", scope: "aggregate" };
-  f.retain("usage-current", current, "retail");
-  f.retain("usage-proposed", proposed, "retail");
+  assert.deepEqual(comparableLineUsage(current.resources[0]), comparableLineUsage(proposed.resources[0]));
+  f.reprice("usage-current", current);
+  f.reprice("usage-proposed", proposed);
   assert.equal(calculate(f, root).valid, true);
   current.resources[0].usage.amount = "9007199254740993";
   proposed.resources[0].usage.amount = "9007199254740992";
-  f.retain("usage-current", current, "retail");
-  f.retain("usage-proposed", proposed, "retail");
-  fails(f, root, /usage quantities/);
+  assert.notDeepEqual(comparableLineUsage(current.resources[0]), comparableLineUsage(proposed.resources[0]));
 });
 
 test("the normalized producer context and standard published pricing output quantify a register action", (t) => {
@@ -328,16 +346,29 @@ test("the normalized producer context and standard published pricing output quan
         usage: request.lines[0].usage,
         unit_of_measure: "1 GB",
         retail_price: 0.01,
+        usage_amount: 1000,
       },
     ],
   };
   const draftPath = path.join(root, "evidence/draft.json");
-  fs.writeFileSync(draftPath, JSON.stringify(draft));
-  const leaf = publishEstimate({ draftPath, outputPath: request.output_path }).estimate;
+  const fixtureDirectory = path.join(root, "evidence", "published-pricing");
+  fs.mkdirSync(fixtureDirectory, { recursive: true });
+  const linked = evidenceBackedFixture(draft, fixtureDirectory, { queriedAt: AS_OF, cwd: root });
+  fs.writeFileSync(draftPath, JSON.stringify(linked));
+  const leaf = publishEstimate({
+    draftPath,
+    outputPath: request.output_path,
+    cwd: root,
+    requestPath: path.join(fixtureDirectory, "pricing-request.json"),
+  }).estimate;
   const schema = JSON.parse(fs.readFileSync(path.join(ROOT, "tools/schemas/cost-estimate.schema.json")));
   const valid = createAjv().compile(schema);
   assert.equal(valid(leaf), true, JSON.stringify(valid.errors));
-  f.retain("standard-proposed", leaf, "retail");
+  const publishedRef = f.retain("standard-proposed", leaf, "retail");
+  publishedRef.pricing_request = {
+    path: path.relative(root, path.join(fixtureDirectory, "pricing-request.json")),
+    sha256: digest(fs.readFileSync(path.join(fixtureDirectory, "pricing-request.json"))),
+  };
   const result = calculate(f, root);
   assert.equal(result.valid, true, result.errors.join("; "));
   assert.equal(result.derived.actions[0].id, action.id);
@@ -357,42 +388,34 @@ test("the normalized producer context and standard published pricing output quan
 });
 
 for (const kind of ["project", "absolute", "workspace"]) {
-  test(`retail fallback ${kind} paths remain confined and normalized in the export receipt`, (t) => {
+  test(`captured retail evidence ${kind} paths remain confined and normalized in the export receipt`, (t) => {
     const { root, f } = setup(t);
     f.addRetail("fallback", "10");
-    const raw = JSON.stringify({ Items: [{ meterId: "synthetic-meter" }] });
-    const catalog = f.retain("catalog", {
-      schema_version: "retail-price-evidence-v1",
-      pages: [{ raw_response: raw, response_sha256: digest(raw) }],
-    });
-    f.data.evidence_refs = f.data.evidence_refs.filter((ref) => ref.id !== "catalog");
-    const absolute = path.join(root, catalog.path);
     const leaf = f.sources.get("fallback-proposed");
+    const catalogPath = leaf.evidence[0].evidence_path;
+    const absolute = path.join(root, catalogPath);
     const suppliedPath =
-      kind === "absolute" ? absolute : kind === "workspace" ? path.relative(ROOT, absolute) : catalog.path;
-    leaf.retail_api_evidence = [
-      {
-        evidence_path: suppliedPath,
-        resource_names: [leaf.resources[0].name],
-        selected_meters: [{ meterId: "synthetic-meter" }],
-        calculation: "Synthetic evidence only.",
-      },
-    ];
-    leaf.data_source = "Azure MCP pricing_get + Azure Retail Prices API (direct fallback)";
-    leaf.direct_api_calls_used = 1;
+      kind === "absolute" ? absolute : kind === "workspace" ? path.relative(ROOT, absolute) : catalogPath;
+    leaf.evidence[0].evidence_path = suppliedPath;
+    leaf.resources[0].calculation_basis.components[0].evidence_ref.evidence_path = suppliedPath;
     const ref = f.retain("fallback-proposed", leaf, "retail");
     const before = fs.readFileSync(path.join(root, ref.path));
     const opts = options(root, f);
     const result = renderAssessmentActionRegister(opts);
     assert.equal(result.valid, true);
-    assert.equal(result.receipt.evidence_hashes[catalog.path], digest(fs.readFileSync(absolute)));
+    assert.equal(result.receipt.evidence_hashes[catalogPath], digest(fs.readFileSync(absolute)));
+    assert.ok(Object.keys(result.receipt.evidence_hashes).some((file) => file.endsWith(".raw")));
+    assert.ok(Object.keys(result.receipt.evidence_hashes).some((file) => file.endsWith("request-ledger.json")));
+    assert.ok(Object.keys(result.receipt.evidence_hashes).some((file) => file.endsWith("pricing-request.json")));
     assert.ok(Object.keys(result.receipt.evidence_hashes).every((file) => !path.isAbsolute(file)));
     assert.deepEqual(fs.readFileSync(path.join(root, ref.path)), before);
-    fs.symlinkSync("catalog.json", path.join(root, "evidence/catalog-link.json"));
-    leaf.retail_api_evidence[0].evidence_path = path.join(root, "evidence/catalog-link.json");
+    fs.symlinkSync(absolute, path.join(root, "evidence/catalog-link.json"));
+    leaf.evidence[0].evidence_path = path.join(root, "evidence/catalog-link.json");
+    leaf.resources[0].calculation_basis.components[0].evidence_ref.evidence_path = leaf.evidence[0].evidence_path;
     f.retain("fallback-proposed", leaf, "retail");
-    fails(f, root, /Symlink forbidden/);
-    leaf.retail_api_evidence[0].evidence_path = path.join(root, "../outside.json");
+    fails(f, root, /Symlink forbidden|paths must not contain symlinks/);
+    leaf.evidence[0].evidence_path = path.join(root, "../outside.json");
+    leaf.resources[0].calculation_basis.components[0].evidence_ref.evidence_path = leaf.evidence[0].evidence_path;
     f.retain("fallback-proposed", leaf, "retail");
     fails(f, root, /project-relative/);
   });

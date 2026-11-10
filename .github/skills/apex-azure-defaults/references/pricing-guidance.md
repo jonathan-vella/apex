@@ -8,6 +8,84 @@ Azure Retail Prices API records; the caller selects meters and calculates totals
 Azure MCP remains primary. Only `cost-estimate-subagent` may use the constrained direct-API fallback below,
 for unresolved public retail meters after documented MCP failure. Parent agents never price resources directly.
 
+## Deterministic pricing contract
+
+The worker resolves billing applicability; the helper captures raw evidence, verifies selected meters and calculates.
+New monthly outputs use `cost-estimate-v2`. An evidence-free `COMPLETE` payload, future/stale source, changed raw
+response, mismatched native rate/unit/tier, or missing usage cannot become a verified current estimate.
+Every calculated component retains its exact evidence identity and calculation basis.
+The caller supplies the original persisted request path separately from the result.
+Preflight freezes that request's bytes and normalized scope in the evidence directory; publication and current
+validation require the independent request path and exact immutable binding. Recomputing a draft's own hashes
+cannot authorize different quantities, usage, candidates or scope.
+Preserve deployment scope, subscription attribution, explicit quantities and usage aggregation through normalization.
+Equivalent queries share evidence; they do not merge independent billed quantities.
+
+Use the durable query ledger and sanctioned capture helper for actual MCP response/offload files.
+Capture the original bytes immediately rather than manually reconstructing JSON, flattening catalog rows into prose,
+or parsing human-readable console trailers. Empty and error responses are evidence too.
+Reserve requests before dispatch, retain actual issued/completed/failed accounting, and preserve unknown reservations
+after interruption. A new task, chat or output filename does not reset allowance or turn a missing result into zero calls.
+Direct fallback records every attempted page, including HTTP/network/parse failures, without publishing partial evidence
+as `EVIDENCE_READY`. The existing eligibility, retry and request-ceiling rules remain in force.
+
+### Rate quotes are not monthly estimates
+
+Set request `purpose: "rate-quote"` only when the owner requested native per-unit rates rather than a monthly total.
+Retain the same resource-list, candidate or manifest input mode and exact meter applicability.
+Unknown monthly usage is permitted for a quote, not silently supplied. Preserve all relevant tier boundaries and
+conditions; do not select a charged monthly tier or apply a shared free entitlement without evidence.
+Emit `retail-rate-quote-v1` without monthly/yearly totals or manifest writeback.
+Label every unit conversion explicitly: TB and Tb are different; do not reinterpret the owner's ambiguous spelling.
+A verified quote may be shown as indicative evidence but never satisfies full-workload pricing or Architecture approval.
+
+Default `purpose: "monthly-estimate"` requires explicit service-specific variable dimensions before network calls.
+Current verified raw evidence can support deterministic zero-query replay under the same request/evidence hashes.
+Missing or altered inputs produce one precise blocker, not repeated full-estimate recovery.
+Historical outputs remain inspectable through explicit legacy audit; do not restamp them or treat audit as readiness.
+
+### Capture and publication commands
+
+Use the existing helper from the workspace root with the actual pricing request and canonical query files.
+The output argument identifies this estimate's owned result/evidence scope, not an arbitrary copy destination.
+Reserve a unique call identity, mark the actual dispatch, then capture its native response immediately:
+
+```bash
+node tools/scripts/cost-estimate.mjs reserve-query \
+  --request <request.json> --query <query.json> --output <estimate.json> --call-id <query-id>
+node tools/scripts/cost-estimate.mjs issue-query \
+  --request <request.json> --query <query.json> --output <estimate.json> --call-id <query-id>
+```
+
+Invoke `pricing_get` through its actual tool between issue and capture, retaining the native call identity.
+Capture the actual offloaded response file without rewriting its bytes:
+
+```bash
+node tools/scripts/cost-estimate.mjs capture-response \
+  --request <request.json> --query <query.json> --output <estimate.json> --call-id <query-id> \
+  --response <actual-native-response-file> --native-call-id <actual-native-call-id>
+```
+
+An unissued reservation is not a successful query. An issued call with no captured result remains unresolved;
+keep its accounting on resume rather than inventing an empty response or issuing it again without eligible recovery.
+Never copy sample responses, authorize arbitrary terminal file copies, or bypass failed capture validation.
+Only the pricing worker runs these helpers for owner-authorized pricing.
+
+Monthly publication uses `publish`, then `validate`; rate quotes use their separate validator:
+
+```bash
+node tools/scripts/cost-estimate.mjs publish \
+  --draft <owned-draft.tmp> --output <owned-output.json> --request <original-request.json>
+node tools/scripts/cost-estimate.mjs validate --input <monthly-estimate.json> --request <original-request.json>
+node tools/scripts/cost-estimate.mjs validate-quote --input <rate-quote.json> --request <original-request.json>
+```
+
+Only a current monthly estimate may use the existing optional manifest writeback.
+Keep actual requests, native responses and durable evidence available for offline validation and replay.
+The `scenarios` command also requires `--original-request <original-request.json>` alongside its scenario file.
+Assessment cost/register retail provenance carries a separately retained original request path and hash;
+their controlled evidence readers validate and revision-watch the request, capture, raw bytes and shared ledger.
+
 ## Connection
 
 The workspace registers the Azure MCP server as `azure-mcp` (pinned `@azure/mcp` release) in `.mcp.json`.
@@ -383,24 +461,20 @@ Before fetching, create a request JSON with editing tools under `{output_path}.r
     "recorded_at": "<actual current MCP failure timestamp>",
     "attempts": [
       {
-        "query": {
-          "serviceName": "Azure DNS",
-          "meterName": "Private Zone",
-          "priceType": "Consumption",
-          "currencyCode": "USD"
-        },
-        "response": {
-          "result": { "Items": [], "Count": 0, "NextPageLink": null }
-        }
+        "evidence_path": "<actual captured native-response metadata path>"
       }
     ]
   }
 }
 ```
 
-Copy actual MCP responses, not the example. Record the failed `pricing_get` call in the helper's catalog field names
-(`serviceName`, `armSkuName`, `armRegionName`, `productName`, `skuName`, `meterName`, `priceType`, `currencyCode`) and keep its real response, either
-`{ "status": 200, "results": { "prices": [...] } }` or the retail-page shape shown. Include the relevant discovery attempts; the helper requires a matching
+Use the actual captured evidence path, never a reconstructed response or this placeholder.
+The helper loads and verifies the original query/response bytes and native ledger itself.
+Optional inline query/response fields must match that capture exactly; they cannot authorize fallback without it.
+Express the narrowed fallback query in the helper's catalog field names
+(`serviceName`, `armSkuName`, `armRegionName`, `productName`, `skuName`, `meterName`, `priceType`, `currencyCode`).
+The helper derives the actual response from the capture, including supported native wrappers; do not duplicate large
+catalog arrays in the request. Include the relevant captured discovery attempts; the helper requires a matching
 failed query, the same service/currency, and a real timestamp within 24 hours. Never restamp old failure evidence.
 For `kind: "missing_tier_metadata"`, record the status-200 `pricing_get` attempt (using either `query` or raw `parameters`)
 whose `results.prices` contains multiple rate rows for that meter without `tierMinimumUnits`; a single service/product-level

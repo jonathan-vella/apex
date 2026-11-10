@@ -129,6 +129,15 @@
         "collected_at": { "$ref": "#/$defs/timestamp" },
         "source": {
           "enum": ["azure-cost-management", "cost-estimate-subagent", "azure-advisor", "azure-monitor-utilization"]
+        },
+        "pricing_request": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["path", "sha256"],
+          "properties": {
+            "path": { "type": "string", "minLength": 1 },
+            "sha256": { "type": "string", "pattern": "^[a-f0-9]{64}$" }
+          }
         }
       }
     },

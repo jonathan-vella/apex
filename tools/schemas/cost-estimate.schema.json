@@ -24,6 +24,15 @@
     "budget_exceeded"
   ],
   "additionalProperties": false,
+  "allOf": [
+    {
+      "if": { "required": ["schema_version"], "properties": { "schema_version": { "const": "cost-estimate-v2" } } },
+      "then": {
+        "required": ["purpose", "request_snapshot", "request_sha256", "evidence"],
+        "properties": { "purpose": { "const": "monthly-estimate" } }
+      }
+    }
+  ],
   "properties": {
     "assumptions": { "type": "array", "minItems": 1, "items": { "type": "string", "minLength": 1 } },
     "assessment_basis": {
@@ -45,7 +54,29 @@
     },
     "schema_version": {
       "type": "string",
-      "const": "cost-estimate-v1"
+      "enum": ["cost-estimate-v1", "cost-estimate-v2"],
+      "description": "Historical v1 is shape-readable only; current publication/readiness requires verified v2."
+    },
+    "purpose": {
+      "const": "monthly-estimate"
+    },
+    "request_snapshot": {
+      "type": "object",
+      "description": "Exact normalized request consumed by deterministic request/evidence equivalence validation."
+    },
+    "request_sha256": {
+      "type": "string",
+      "pattern": "^[a-f0-9]{64}$"
+    },
+    "evidence": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["evidence_path"],
+        "properties": {
+          "evidence_path": { "type": "string", "minLength": 1 }
+        }
+      }
     },
     "status": {
       "type": "string",
@@ -125,6 +156,11 @@
       "maximum": 20
     },
     "direct_api_calls_used": {
+      "type": "integer",
+      "minimum": 0,
+      "maximum": 20
+    },
+    "unknown_request_reservations": {
       "type": "integer",
       "minimum": 0,
       "maximum": 20

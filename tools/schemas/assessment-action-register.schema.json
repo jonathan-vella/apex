@@ -70,7 +70,16 @@
         "path": { "type": "string", "minLength": 1, "maxLength": 1024 },
         "sha256": { "type": "string", "pattern": "^[a-f0-9]{64}$" },
         "collected_at": { "$ref": "#/$defs/timestamp" },
-        "kind": { "enum": ["waf", "inventory", "retail", "cost", "lifecycle", "support"] }
+        "kind": { "enum": ["waf", "inventory", "retail", "cost", "lifecycle", "support"] },
+        "pricing_request": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["path", "sha256"],
+          "properties": {
+            "path": { "type": "string", "minLength": 1 },
+            "sha256": { "type": "string", "pattern": "^[a-f0-9]{64}$" }
+          }
+        }
       }
     },
     "finding": {

@@ -9,6 +9,7 @@ import {
   normalizeCostCollection,
   planCostQueries,
 } from "../../../../scripts/assessment-cost.mjs";
+import { evidenceBackedFixture } from "../../test_cost_estimate_fixture.mjs";
 
 export const AS_OF = "2026-11-06T10:00:00.000Z";
 export const SCOPE = "/subscriptions/00000000-0000-4000-8000-000000000001/resourceGroups/synthetic";
@@ -19,6 +20,7 @@ export function fixture(root, { asOf = AS_OF, reporting } = {}) {
   fs.mkdirSync(path.join(root, "contracts"), { recursive: true });
   fs.mkdirSync(path.join(root, "evidence"), { recursive: true });
   const sources = new Map();
+  let pricingRevision = 0;
   const data = {
     schema_version: "action-register-v1",
     project: "synthetic",
@@ -64,6 +66,8 @@ export function fixture(root, { asOf = AS_OF, reporting } = {}) {
       kind,
     };
     const existing = data.evidence_refs.findIndex((r) => r.id === id);
+    if (existing >= 0 && kind === "retail" && data.evidence_refs[existing].pricing_request)
+      ref.pricing_request = data.evidence_refs[existing].pricing_request;
     if (existing >= 0) data.evidence_refs[existing] = ref;
     else data.evidence_refs.push(ref);
     return ref;
@@ -131,12 +135,16 @@ export function fixture(root, { asOf = AS_OF, reporting } = {}) {
       resources: [
         {
           name: "synthetic-line",
-          service_name: "Synthetic Service",
+          service_name: "Azure App Service",
           sku: "Synthetic SKU",
           region: basis.region,
           quantity: 1,
           notes: "Synthetic fixture supplied usage.",
           monthly_cost: monthly,
+          unit_of_measure: "1 GB",
+          retail_price: Number(monthly),
+          usage_amount: 1,
+          usage: { amount: 1, unit: "GB", scope: "per-instance" },
           resource_id: resourceId,
           charge_id: chargeId,
         },
@@ -158,8 +166,41 @@ export function fixture(root, { asOf = AS_OF, reporting } = {}) {
         ["period", "normalization", "cost_view", "tax", "licensing"].map((key) => [key, basis[key]]),
       ),
     };
-    retain(id, leaf, "retail");
-    return leaf;
+    const directory = path.join(root, "evidence", id, "pricing");
+    fs.mkdirSync(directory, { recursive: true });
+    const linked = evidenceBackedFixture(leaf, directory, { queriedAt: asOf, cwd: root });
+    const ref = retain(id, linked, "retail");
+    ref.pricing_request = {
+      path: path.relative(root, path.join(directory, "pricing-request.json")).split(path.sep).join("/"),
+      sha256: createHash("sha256")
+        .update(fs.readFileSync(path.join(directory, "pricing-request.json")))
+        .digest("hex"),
+    };
+    return linked;
+  };
+  const reprice = (id, source) => {
+    const leaf = structuredClone(source);
+    for (const resource of leaf.resources) {
+      const amount = Number(resource.usage?.amount ?? resource.usage_amount ?? 1);
+      resource.unit_of_measure = "1 GB";
+      resource.usage_amount = amount;
+      resource.usage = { amount, unit: "GB", scope: "per-instance" };
+      resource.retail_price = Number(resource.monthly_cost) / amount / resource.quantity;
+      delete resource.calculation_basis;
+      delete resource.components;
+      delete resource.hourly_rate;
+    }
+    const directory = path.join(root, "evidence", id, `pricing-revision-${++pricingRevision}`);
+    fs.mkdirSync(directory, { recursive: true });
+    const linked = evidenceBackedFixture(leaf, directory, { queriedAt: asOf, cwd: root });
+    const ref = retain(id, linked, "retail");
+    ref.pricing_request = {
+      path: path.relative(root, path.join(directory, "pricing-request.json")).split(path.sep).join("/"),
+      sha256: createHash("sha256")
+        .update(fs.readFileSync(path.join(directory, "pricing-request.json")))
+        .digest("hex"),
+    };
+    return linked;
   };
   const addRetail = (id, proposed, current = null, extras = {}) => {
     const resourceId = current === null ? `proposed:${id}` : RETAIL_RESOURCE;
@@ -311,7 +352,7 @@ export function fixture(root, { asOf = AS_OF, reporting } = {}) {
     fs.writeFileSync(input, `${JSON.stringify(data, null, 2)}\n`);
     return input;
   };
-  return { data, sources, retain, retail, action, addRetail, addActual, save };
+  return { data, sources, retain, retail, reprice, action, addRetail, addActual, save };
 }
 
 export function exampleFixture(root, options) {
