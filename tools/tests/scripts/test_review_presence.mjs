@@ -9,6 +9,89 @@ import { loadValidator } from "../../scripts/_lib/ajv-validator.mjs";
 
 const script = fileURLToPath(new URL("../../scripts/validate-challenger-presence.mjs", import.meta.url));
 
+function governanceCheckpoint(context) {
+  const root = mkdtempSync(path.join(tmpdir(), "apex-governance-checkpoint-"));
+  context.after(() => rmSync(root, { recursive: true, force: true }));
+  const project = path.join(root, "agent-output/demo");
+  mkdirSync(path.join(project, "_meta"), { recursive: true });
+  const statePath = path.join(project, "_meta/00-session-state.json");
+  const artifact = path.join(project, "04-governance-constraints.md");
+  const state = {
+    schema_version: "session-state-v3",
+    layout_version: 2,
+    project: "demo",
+    steps: { 2: { status: "complete" }, 3: { status: "complete" }, "3_5": { status: "pending" } },
+    decisions: {},
+  };
+  const badge = "![Status](https://img.shields.io/badge/Status-Owner_prepared_not_approved-orange?style=for-the-badge)";
+  const save = () => writeFileSync(statePath, JSON.stringify(state));
+  save();
+  writeFileSync(artifact, `# Governance owner draft\n\n${badge}\n\n## Discovery Source\n\nUnapproved draft.\n`);
+  return {
+    project,
+    statePath,
+    artifact,
+    state,
+    badge,
+    save,
+    run: (...args) => spawnSync(process.execPath, [script, ...args], { cwd: root, encoding: "utf8" }),
+  };
+}
+
+test("pending unapproved Governance draft is publishable only in checkpoint mode without mutation", (context) => {
+  const f = governanceCheckpoint(context);
+  const before = readFileSync(f.statePath);
+  const artifact = readFileSync(f.artifact);
+  assert.equal(f.run().status, 1);
+  const checkpoint = f.run("--publication-checkpoint");
+  assert.equal(checkpoint.status, 0, checkpoint.stdout + checkpoint.stderr);
+  assert.match(checkpoint.stdout, /checkpoint publication only/);
+  assert.match(checkpoint.stdout, /review remains required/);
+  assert.deepEqual(readFileSync(f.statePath), before);
+  assert.deepEqual(readFileSync(f.artifact), artifact);
+  assert.equal(f.run().status, 1);
+});
+
+for (const [label, mutate] of [
+  ["completed Governance", (f) => (f.state.steps["3_5"].status = "complete")],
+  ["stale Governance", (f) => (f.state.steps["3_5"].status = "stale")],
+  ["completion timestamp", (f) => (f.state.steps["3_5"].completed = "historical-completion")],
+  ["downstream plan started", (f) => (f.state.steps["4"] = { status: "in_progress" })],
+  ["downstream code completed", (f) => (f.state.steps["5"] = { status: "complete" })],
+  ["downstream deployment stale", (f) => (f.state.steps["6"] = { status: "stale" })],
+  ["prior Governance attempt", (f) => (f.state.review_attempts = [{ step: "3_5", outcome: "failed" }])],
+  ["consumed Governance cycle", (f) => (f.state.decisions.review_cycles = { cycle: { step: "3_5", calls: 1 } })],
+  ["selected Governance review", (f) => (f.state.review_selections = { "3_5": { path: "review.json" } })],
+  [
+    "unreadable present review",
+    (f) => writeFileSync(path.join(f.project, "challenge-findings-governance-constraints-pass1.json"), "invalid"),
+  ],
+  ["missing unapproved status", (f) => writeFileSync(f.artifact, "# Governance\n\nDraft text.\n")],
+  ["fenced unapproved status", (f) => writeFileSync(f.artifact, `# Governance\n\n\`\`\`md\n${f.badge}\n\`\`\`\n`)],
+]) {
+  test(`checkpoint mode cannot excuse ${label}`, (context) => {
+    const f = governanceCheckpoint(context);
+    mutate(f);
+    f.save();
+    assert.equal(f.run("--publication-checkpoint").status, 1);
+  });
+}
+
+test("checkpoint mode does not waive other missing reviews", (context) => {
+  const f = governanceCheckpoint(context);
+  writeFileSync(path.join(f.project, "01-requirements.md"), "# Requirements\n");
+  const result = f.run("--publication-checkpoint");
+  assert.equal(result.status, 1);
+  assert.match(result.stdout + result.stderr, /Step 1 Requirements/);
+});
+
+test("unknown publication arguments fail explicitly", (context) => {
+  const f = governanceCheckpoint(context);
+  const result = f.run("--publication-checkpoint", "--allow-missing");
+  assert.equal(result.status, 1);
+  assert.match(result.stdout + result.stderr, /Unsupported argument: --allow-missing/);
+});
+
 test("native resume delegates recovery and routing without extra mode questions", () => {
   const native = readFileSync(new URL("../../../.github/skills/apex-workflow-start/SKILL.md", import.meta.url), "utf8");
   assert.match(native, /apex-workflow-engine\/references\/workflow-entry.md/);

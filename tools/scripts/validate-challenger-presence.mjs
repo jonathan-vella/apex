@@ -25,6 +25,10 @@
  * Exit codes:
  *   0  all review-mandated artifacts have their sidecar (or audited skip)
  *   1  one or more missing sidecars detected
+ *
+ * --publication-checkpoint is reserved for the Git publication snapshot:
+ * an explicitly unapproved, never-started Governance draft can be saved
+ * without granting handoff/completion approval. Default checks stay strict.
  */
 
 import fs from "node:fs";
@@ -34,6 +38,8 @@ import { LAYOUT_SUBDIRS, resolveReviewPath, resolveSessionStatePath } from "./_l
 import { validateProject } from "./validate-risk-authorizations.mjs";
 
 const ROOT = "agent-output";
+const cliArgs = process.argv.slice(2);
+const publicationCheckpoint = cliArgs.includes("--publication-checkpoint");
 
 // step key -> { gatingArtifact, requiredSidecar, label }
 const GATES = {
@@ -63,6 +69,9 @@ const GATES = {
 
 const r = new Reporter("Challenger Presence Validator");
 r.header();
+for (const argument of cliArgs.filter((argument) => argument !== "--publication-checkpoint")) {
+  r.error("CLI", `Unsupported argument: ${argument}; optional flag: --publication-checkpoint`);
+}
 
 function listProjects(rootDir) {
   if (!fs.existsSync(rootDir)) return [];
@@ -145,6 +154,30 @@ function isStepInProgressBeforeHandoff(sessionStatePath, stepKey) {
   }
 }
 
+function isPendingGovernanceCheckpoint(state, projectDir, stepKey, artifact, missingSidecars) {
+  if (!publicationCheckpoint || stepKey !== "3_5" || state?.steps?.[stepKey]?.status !== "pending") return false;
+  if (
+    state.steps[stepKey].completed ||
+    state.review_selections?.[stepKey] ||
+    !Array.isArray(state.review_attempts ?? []) ||
+    (state.review_attempts ?? []).some((attempt) => String(attempt?.step).replace(".", "_") === stepKey) ||
+    Object.values(state.decisions?.review_cycles ?? {}).some(
+      (cycle) => String(cycle?.step).replace(".", "_") === stepKey,
+    ) ||
+    STEP_ORDER.slice(STEP_ORDER.indexOf(stepKey) + 1).some(
+      (key) => ![undefined, "pending", "not_started"].includes(state.steps[key]?.status),
+    ) ||
+    missingSidecars.some((sidecar) => fs.existsSync(resolveReviewPath(projectDir, sidecar)))
+  ) {
+    return false;
+  }
+  const header = fs.readFileSync(path.join(projectDir, artifact), "utf8").split(/^## /m)[0];
+  return (
+    !/^\s*(?:```|~~~)/m.test(header) &&
+    /^!\[Status\]\(https:\/\/img\.shields\.io\/badge\/Status-Owner_prepared_not_approved-[^\s)]+\)\s*$/m.test(header)
+  );
+}
+
 function step2Complete(sessionStatePath) {
   try {
     return JSON.parse(fs.readFileSync(sessionStatePath, "utf-8"))?.steps?.["2"]?.status === "complete";
@@ -216,6 +249,14 @@ for (const project of projects) {
       continue;
     }
 
+    if (isPendingGovernanceCheckpoint(stateObj, projectDir, stepKey, gatingArtifact, missingSidecars)) {
+      r.info(
+        `${project}/${gate.label}`,
+        "unapproved pending owner draft: checkpoint publication only; independent review remains required for handoff/completion",
+      );
+      continue;
+    }
+
     r.error(
       `${project}/${gate.label}`,
       `gating artifact ${gatingArtifact} exists but required findings ` +
@@ -235,6 +276,8 @@ for (const project of projects) {
 
 r.summary();
 r.exitOnError(
-  "All review-mandated artifacts have a present challenger findings sidecar (or audited skip)",
+  publicationCheckpoint
+    ? "Checkpoint publication validated; unapproved pending drafts grant no workflow approval"
+    : "All review-mandated artifacts have a present challenger findings sidecar (or audited skip)",
   "Missing challenger findings sidecar(s) detected — review is mandatory before handoff",
 );
