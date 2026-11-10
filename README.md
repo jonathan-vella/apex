@@ -36,6 +36,8 @@ Stale inputs and exhausted affected reviews return one actionable work package t
 already-current reviews consume no new allowance. Stage scope includes the declared owned reconciliation,
 updates and bounded reviews, while new permissions and human stage approvals remain explicit.
 See the [complete-stage contract](.github/skills/apex-workflow-engine/references/practical-workflow.md#complete-stage-work-package).
+Private-evidence reviewers use canonical literal paths. One verified same-invocation correction of an omitted
+scope directory retains the failed read in provenance; missing evidence and access denials still block.
 
 Product documentation uses [source/date references and original billing conclusions](.github/skills/apex-azure-defaults/references/cost-estimate-parent-contract.md#product-documentation-and-publication),
 with explicit applicability and limitations, not automatic full-page copies.

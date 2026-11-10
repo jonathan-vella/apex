@@ -99,6 +99,10 @@ No manual Challenger selection or leading approval prompt replaces this path.
    protocol and linked dispatch: both executions remain counted. Duplicate IDs
    within either protocol still fail. A new ID never resets the review allowance.
    Supply bounded required context and the exact contract path to the reviewer.
+   When preflight emits `private_inputs`, copy that exact array into the protected native prompt as
+   transient `private_inputs` alongside the opaque `supporting_inputs`. Do not persist literal mappings in
+   repository requests or findings. The recorder compares the transient mapping to canonical scoped resolution.
+   Instruct the reviewer to copy each `read_path` literally rather than reconstructing it.
    The prompt requests review work directly: no `APEX_WORKER_HANDSHAKE`,
    nonce-only continuation or `WORKER_EXECUTE` is used for this one-shot call.
    An omitted task `mode` is accepted only when the linked native worker start
@@ -133,7 +137,12 @@ No manual Challenger selection or leading approval prompt replaces this path.
    conflicting hashes block recording. There is no post-dispatch refresh option.
    A failed range read is recoverable only after a successful read of the same
    file in that reviewer interaction; its call ID stays in execution provenance.
-   Failed commands, missing inputs and unknown tool outcomes still block.
+   One file-not-found `view` that omitted the immediate private scope directory may also be corrected within
+   that same invocation, using only the supplied canonical `private_inputs[].read_path`. A later successful
+   read must precede the actual verdict. Its failed call remains in `recovered_read_calls`; no call is erased
+   or refunded. A second path correction, another target, missing/mismatched mapping, access/content-exclusion
+   denial, failed command, unavailable evidence or unknown outcome still blocks.
+   This cannot salvage an already-ended failed review or authorize another invocation.
    Ask for an independent verdict, never an `APPROVED` verdict or zero findings.
    Synthetic completion events and manually written review outcomes are not evidence.
 5. Require successful recording and strict current validation:
@@ -186,7 +195,7 @@ Resolve skill paths under `.github/skills/`. The shared reviewer role does
 not replace Azure/WAF, governance, cost-feasibility or template checks.
 Do not modify artifacts, findings files, decisions or state. Do not delegate,
 ask users, access Azure, change credentials or invent missing evidence.
-Return an explicit execution failure when required inputs are unavailable.
+Return an explicit execution failure when required inputs remain unavailable after any permitted in-invocation correction.
 Read a short reference without `view_range`; do not guess a tail range beyond
 its last line, and never call `view` on guessed or unverified schema paths
 (for example, there is no `tools/schemas/challenger-findings.schema.json`).
@@ -236,7 +245,8 @@ finding IDs, severity counts, equivalent artifact paths and unambiguous string-t
 It then validates schema, original metadata, current input bytes and execution provenance.
 This does not allow the parent to reconstruct findings, edit the verdict, invent evidence or
 repair malformed substantive fields. Missing or ambiguous content still blocks.
-Failed shell/tool operations still block recording; do not salvage an earlier failed interaction
+Unrecovered shell/tool operations still block recording; only the bounded read corrections above are permitted.
+Do not salvage an earlier failed interaction
 with a new contract hash, manually authored sidecar or reset allowance.
 
 For a separately approved standalone batch, supply explicit `lenses` entries

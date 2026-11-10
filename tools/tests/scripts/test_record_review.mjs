@@ -1385,6 +1385,110 @@ for (const [label, mutate] of [
   });
 }
 
+function privateReadRecoveryFixture(t, count = 2) {
+  const f = privatePolicyFixture(t);
+  f.input.private_inputs = preflightReviewRequest(f.input, f.root).private_inputs;
+  addReadTurns(f, count);
+  const reads = f.events.filter((event) => event.type === "tool.execution_start" && event.data.toolName === "view");
+  const shortened = path.join(path.dirname(path.dirname(f.canonical)), path.basename(f.canonical));
+  reads[0].data.arguments = { path: shortened };
+  reads[1].data.arguments = { path: f.canonical };
+  const failed = f.events.find(
+    (event) => event.type === "tool.execution_complete" && event.data.toolCallId === "read-0",
+  );
+  failed.data.success = false;
+  failed.data.error = {
+    code: "failure",
+    message: `Path ${shortened} does not exist. Please provide a valid path.`,
+  };
+  return { ...f, reads, failed, shortened };
+}
+
+for (const format of ["native-path", "file-not-found", "enoent"]) {
+  test(`one literal private-path correction is recorded in the same invocation: ${format}`, (t) => {
+    const f = privateReadRecoveryFixture(t);
+    if (format === "file-not-found") f.failed.data.error.message = `File not found: ${f.shortened}`;
+    if (format === "enoent") {
+      f.failed.data.error = {
+        code: "ENOENT",
+        message: `ENOENT: no such file or directory, open '${f.shortened}'`,
+      };
+    }
+    f.record();
+    const saved = f.persisted();
+    assert.deepEqual(saved.review_execution.recovered_read_calls, ["read-0"]);
+    assert.equal(saved.review_execution.worker_id, "worker-1");
+    assert.equal(saved.overall_assessment, "APPROVED");
+    assert.equal(f.failed.data.success, false);
+    assert.deepEqual(saved.supporting_inputs, f.input.supporting_inputs);
+    assert.equal(JSON.stringify(saved).includes(f.canonical), false);
+    assert.equal(JSON.stringify(saved).includes(f.shortened), false);
+  });
+}
+
+for (const [label, mutate] of [
+  ["no supplied mapping", (f) => delete f.input.private_inputs],
+  ["different corrected file", (f) => (f.reads[1].data.arguments.path = f.snapshot)],
+  ["unrelated missing path", (f) => (f.reads[0].data.arguments.path = "/unrelated/missing.json")],
+  ["access denied", (f) => (f.failed.data.error = { code: "EACCES", message: "Permission denied" })],
+  [
+    "content exclusion",
+    (f) => (f.failed.data.error = { code: "CONTENT_EXCLUDED", message: "Blocked by content exclusion policy" }),
+  ],
+  ["unknown error code", (f) => (f.failed.data.error.code = "unknown")],
+  [
+    "failed corrected read",
+    (f) =>
+      (f.events.find(
+        (event) => event.type === "tool.execution_complete" && event.data.toolCallId === "read-1",
+      ).data.success = false),
+  ],
+]) {
+  test(`private-path correction remains blocked: ${label}`, (t) => {
+    const f = privateReadRecoveryFixture(t);
+    mutate(f);
+    assert.throws(() => f.record(), /Worker tool calls must complete successfully/);
+    assert.equal(fs.existsSync(path.join(f.root, f.findings)), false);
+  });
+}
+
+test("a second private-path correction in one invocation remains blocked", (t) => {
+  const f = privateReadRecoveryFixture(t, 4);
+  const shortened = path.join(path.dirname(path.dirname(f.snapshot)), path.basename(f.snapshot));
+  f.reads[2].data.arguments = { path: shortened };
+  f.reads[3].data.arguments = { path: f.snapshot };
+  const failed = f.events.find(
+    (event) => event.type === "tool.execution_complete" && event.data.toolCallId === "read-2",
+  );
+  failed.data.success = false;
+  failed.data.error = { code: "failure", message: `File not found: ${shortened}` };
+  assert.throws(() => f.record(), /Worker tool calls must complete successfully/);
+});
+
+test("supplied private mappings cannot substitute an unauthorized target", (t) => {
+  const f = privateReadRecoveryFixture(t);
+  const entry = f.input.private_inputs.find((item) => item.read_path === f.canonical);
+  entry.read_path = path.join(f.root, "other-scope", path.basename(f.canonical));
+  f.reads[0].data.arguments.path = path.join(f.root, path.basename(f.canonical));
+  f.reads[1].data.arguments.path = entry.read_path;
+  f.failed.data.error.message = `File not found: ${f.reads[0].data.arguments.path}`;
+  assert.throws(() => preflightReviewRequest(f.input, f.root), /mapping must exactly match canonical/);
+  assert.throws(() => f.record(), /mapping must exactly match canonical/);
+  assert.equal(fs.existsSync(path.join(f.root, f.findings)), false);
+});
+
+test("a corrected read cannot turn a returned execution failure into findings", (t) => {
+  const f = privateReadRecoveryFixture(t);
+  for (const key of Object.keys(f.doc)) delete f.doc[key];
+  Object.assign(f.doc, {
+    status: "FAILED",
+    stage: "private-evidence-read",
+    error: "No substantive verdict was produced",
+  });
+  assert.throws(() => f.record(), /Reviewer execution failed at private-evidence-read/);
+  assert.equal(fs.existsSync(path.join(f.root, f.findings)), false);
+});
+
 test("request ID resolves an exact worker in an explicit session without UUID scraping", (t) => {
   const f = fixture(t);
   f.flush();
