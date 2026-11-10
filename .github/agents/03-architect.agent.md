@@ -241,6 +241,8 @@ priced recommendation explicitly nonbinding, and do not imply that estimate appr
 
 All user-facing dollar amounts come from verified worker output, never direct parent pricing or memory.
 Qualitative WAF strengths/gaps contain no dollar figures.
+For billing documentation retain source URL/date, a short original conclusion, applicability and limitations;
+follow the pricing parent contract's publication rules, not whole-page repository captures.
 On interrupted pricing, inspect exact persisted evidence before retry; preserve budgets and failed
 attempts under the pricing contract. A saved draft is not COMPLETE and a new task resets no allowance.
 Checkpoint `phase_3_cost`.
