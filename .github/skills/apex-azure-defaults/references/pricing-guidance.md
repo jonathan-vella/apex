@@ -29,6 +29,14 @@ after interruption. A new task, chat or output filename does not reset allowance
 Direct fallback records every attempted page, including HTTP/network/parse failures, without publishing partial evidence
 as `EVIDENCE_READY`. The existing eligibility, retry and request-ceiling rules remain in force.
 
+Exact-byte capture here means native retail API evidence, not complete product-documentation pages.
+Use the parent's [documentation references](cost-estimate-parent-contract.md#product-documentation-and-publication)
+for billing semantics: actual source URL/date, a short original conclusion, applicability and limitations.
+Do not require full-page archives or copy web-fetch offloads into the repository.
+This distinction does not permit trimming, paraphrasing or replacing native retail API response bytes.
+The repository's Git attributes preserve `agent-output/**` bytes without text normalization.
+Verify staged capture hashes match the collected bytes before publication; do not fix raw evidence with a formatter.
+
 ### Rate quotes are not monthly estimates
 
 Set request `purpose: "rate-quote"` only when the owner requested native per-unit rates rather than a monthly total.

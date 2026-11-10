@@ -28,6 +28,9 @@ Callers: Architect (planned estimates) | As-Built (deployed estimates).
   COMPLETE and `manifest_writeback: true`, using its temporary sibling for atomic writeback.
   Query ledgers, captured MCP responses and constrained-fallback request/evidence files may be created exclusively under
   `{output_path}.retail-evidence/`; preserve existing files and use new names for each distinct query.
+  Exact-byte capture applies to native retail API responses, not whole product-documentation pages.
+  Consume parent-supplied source/date/conclusion/applicability references for billing semantics; do not require or
+  create full-page documentation archives. Missing applicability remains unresolved, not an assumed exemption.
   Preserve all SKU choices, pins, revisions
   and unrelated user edits. No other artifact, recall or Azure writes.
 - Use editing tools for JSON and #tool:execute only for arithmetic, validation, atomic rename,

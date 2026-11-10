@@ -28,6 +28,13 @@ Older monthly outputs remain historical evidence: use explicit legacy audit for 
 Refresh into a new owned output with its original request and required review.
 Never restamp reviewed prices or reset allowances.
 
+Product documentation uses [source/date references and original billing conclusions](.github/skills/apex-azure-defaults/references/cost-estimate-parent-contract.md#product-documentation-and-publication),
+with explicit applicability and limitations, not automatic full-page copies.
+Necessary full-text research captures remain private outside Git unless redistribution rights and attribution are
+established. Repairing old review-bound captures preserves original evidence privately and historical review records;
+changed inputs require revalidation, not restamped approval. Native retail API responses still require exact-byte capture.
+Git preserves artifact bytes without line-ending normalization so staged captures retain their evidence hashes.
+
 ```mermaid
 %%{init: {'theme':'neutral'}}%%
 sequenceDiagram

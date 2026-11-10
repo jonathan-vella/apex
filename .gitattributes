@@ -79,3 +79,6 @@ azure-pipelines*.yml text eol=lf
 
 # Git hooks (husky)
 .husky/* text eol=lf
+
+# Preserve captured and review-bound artifact hashes through staging and checkout.
+agent-output/** -text

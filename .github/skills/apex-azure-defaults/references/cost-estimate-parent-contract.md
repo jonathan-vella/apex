@@ -29,6 +29,34 @@ model/tools and require explicit selection of the owning agent.
 
 ## Pricing Accuracy Gate (HARD)
 
+### Product documentation and publication
+
+Exact-byte capture of native retail API responses is required for meter/rate validation.
+It does not require archiving whole product-documentation or commercial pricing pages in Git.
+For billing inclusions, exemptions and applicability, the parent retains a documentation reference containing:
+
+- `source_url`: the actual fetched source URL, not one inferred from the filename or title.
+- `retrieved_at`: the actual retrieval timestamp.
+- `title`: the source document title.
+- `billing_conclusion`: a short original paraphrase of the relevant billing rule, not copied page text or rates.
+- `applicability`: the exact SKU, region, traffic or endpoint conditions checked.
+- `limitations`: unresolved applicability, missing inputs and any assumptions.
+
+Collect only missing applicable documentation; reuse current references. An unavailable source or unproven exemption
+remains an explicit limitation, never a free-charge assumption. Documentation does not replace native retail-rate evidence.
+Provide these references to the pricing leaf; do not make full-page copies a pricing or review prerequisite.
+Full-text research captures, when necessary and authorized, stay in an owner-controlled private location outside the
+repository. Public accessibility is not redistribution permission. Any separately proposed redistribution needs the actual
+source, applicable license/permission and attribution established before publication; do not generalize a Learn license
+to commercial pricing pages. Do not copy native web-fetch offloads into project artifacts by default.
+
+For an existing review-bound full-page capture, obtain owner authorization for evidence repair. Preserve the original
+privately and publish an explicitly labelled provenance notice or original summary, never a pretend native response.
+Record the original digest and any unknown source/date without inventing metadata. Keep historical review records and
+hashes unchanged, record the evidence change through recall, and require affected-owner revalidation and independent
+review under existing allowances before using the changed evidence for current approval. Do not reset budgets,
+restamp reviews, infer renewed approval or silently remove protected inputs.
+
 ### Monthly estimates and indicative rate quotes
 
 Default request `purpose` is `monthly-estimate`; new publications use evidence-backed `cost-estimate-v2`.

@@ -187,6 +187,11 @@ detection. Authoring rules:
 
 ## Conventions Detail
 
+Third-party research belongs in source/date references and short original conclusions, not automatic whole-page copies.
+Keep necessary full-text captures private outside Git unless redistribution rights and attribution are established.
+Pricing's exact-byte retail API evidence requirement does not extend to commercial documentation pages; follow the
+[documentation evidence contract](.github/skills/apex-azure-defaults/references/cost-estimate-parent-contract.md#product-documentation-and-publication).
+
 For deeper guidance, agents read these on demand:
 
 - Bicep conventions: `infra/bicep/AGENTS.md`
