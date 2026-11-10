@@ -113,6 +113,10 @@ without tenant scope, but do not constitute tenant discovery or verified impleme
 Capture actual missing scope through native inputs and the managed CLI; reuse current authorization.
 For private scope, verify the current tenant, collect into the owner-only external store and keep raw previews
 out of public artifacts. Resolve canonical private contracts through the shared project-path helpers.
+Use `discover.py --retain-rule-evidence` for private collection and
+`--validate-only --retain-rule-evidence` before target-backed semantic reconciliation.
+Summary-only COMPLETE caches lack full rule evidence and require a bounded authorized refresh,
+not inferred approval, new consent files, review restamping or an allowance reset.
 
 Recover state via `apex-recall show <project> --json`. Require approved `02-architecture-assessment.md`
 and current Step 2 completion evidence (no self-edit of upstream artifacts).

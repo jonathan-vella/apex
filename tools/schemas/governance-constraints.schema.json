@@ -6,7 +6,81 @@
   "type": "object",
   "required": ["schema_version", "subscription_id", "discovered_at", "findings"],
   "additionalProperties": true,
+  "dependentRequired": {
+    "rule_evidence": ["discovery_metadata", "project", "discovery_options", "discovery_summary"]
+  },
+  "allOf": [
+    {
+      "if": { "required": ["rule_evidence"] },
+      "then": { "properties": { "discovery_metadata": { "required": ["rule_evidence_sha256"] } } }
+    }
+  ],
   "properties": {
+    "rule_evidence": {
+      "description": "Optional full raw objects and replayable effective rules, retained only in owner-only private snapshots outside Git. The entire snapshot remains bound by the existing private file SHA-256.",
+      "type": "object",
+      "required": [
+        "schema_version",
+        "project",
+        "subscription_id",
+        "discovered_at",
+        "assignments",
+        "definitions",
+        "initiatives",
+        "exemptions",
+        "effective_records",
+        "coverage"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "schema_version": { "const": "policy-rule-evidence-v1" },
+        "project": { "type": "string", "minLength": 1 },
+        "subscription_id": { "type": "string", "minLength": 1 },
+        "discovered_at": { "type": "string", "format": "date-time" },
+        "assignments": { "type": "array", "items": { "type": "object", "required": ["id", "properties"] } },
+        "definitions": { "type": "array", "items": { "type": "object", "required": ["id", "properties"] } },
+        "initiatives": { "type": "array", "items": { "type": "object", "required": ["id", "properties"] } },
+        "exemptions": { "type": "array", "items": { "type": "object", "required": ["id", "properties"] } },
+        "effective_records": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": [
+              "assignment_id",
+              "policy_definition_id",
+              "policy_definition_reference_id",
+              "supplied_parameters",
+              "effective_parameters",
+              "policy_rule",
+              "effect"
+            ],
+            "additionalProperties": false,
+            "properties": {
+              "assignment_id": { "type": "string", "minLength": 1 },
+              "policy_definition_id": { "type": "string", "minLength": 1 },
+              "policy_definition_reference_id": { "type": ["string", "null"] },
+              "supplied_parameters": { "type": "object" },
+              "effective_parameters": { "type": "object" },
+              "policy_rule": {
+                "type": ["object", "null"],
+                "properties": { "if": { "type": "object" }, "then": { "type": "object" } }
+              },
+              "effect": { "type": ["string", "null"] }
+            }
+          }
+        },
+        "coverage": {
+          "type": "object",
+          "required": ["assignment_count", "effective_record_count", "effects"],
+          "additionalProperties": false,
+          "properties": {
+            "assignment_count": { "type": "integer", "minimum": 0 },
+            "effective_record_count": { "type": "integer", "minimum": 0 },
+            "effects": { "type": "object", "additionalProperties": { "type": "integer", "minimum": 0 } }
+          }
+        }
+      }
+    },
     "schema_version": {
       "type": "string",
       "const": "governance-constraints-v1"
@@ -78,6 +152,7 @@
           "type": "string",
           "pattern": "^sha256:[0-9a-f]{64}$"
         },
+        "rule_evidence_sha256": { "type": "string", "pattern": "^[a-f0-9]{64}$" },
         "ttl_days": {
           "type": "integer",
           "minimum": 1,

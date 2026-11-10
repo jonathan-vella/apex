@@ -20,6 +20,10 @@ Append `--refresh` for explicit refresh, stale/invalid evidence, signature drift
 or changed discovery inputs. Read the first stdout JSON line and exit status
 for routing; capture diagnostics and inspect the envelope for decisions.
 COMPLETE collection alone does not establish governance readiness or approval.
+For managed private scope, replace the public `--out` with its actual authorized private snapshot path
+and add `--retain-rule-evidence`. Validate with `--validate-only --retain-rule-evidence` before semantic
+reconciliation. The private directory must already be owner-only; use managed capture, not a user-prepared file.
+Summary-only caches require an authorized bounded `--refresh`; the new flag never implies read permission.
 
 ## Cmd 2: Phase 2 — Combined JSON verification + annotation data
 

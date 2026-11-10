@@ -16,7 +16,7 @@ import sys
 from datetime import UTC, datetime
 from pathlib import Path
 
-from discover import _cache_is_fresh
+from discover import _cache_is_fresh, private_rule_output, rule_evidence_errors, write_private_rule_envelope
 from governance_baseline import load_governance_json
 
 # Import shared renderer (no Azure dependencies)
@@ -84,6 +84,10 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("--in", dest="input", required=True, help="Path to governance-constraints-v1 JSON envelope.")
     parser.add_argument("--out", required=True, help="Path to project-local 04-governance-constraints.json.")
     parser.add_argument(
+        "--retain-rule-evidence", action="store_true",
+        help="Require existing full-rule evidence and owner-only output outside Git; never reconstruct missing rules.",
+    )
+    parser.add_argument(
         "--subscription",
         default=None,
         help="Target subscription ID; required for the alz-corp-default baseline, ignored otherwise.",
@@ -112,6 +116,17 @@ def main(argv: list[str] | None = None) -> int:
         status = {"status": "FAILED", "error": "schema-mismatch", "detail": "Not a governance-constraints-v1 envelope"}
         sys.stdout.write(json.dumps(status, separators=(",", ":")) + "\n")
         return 2
+
+    if args.retain_rule_evidence or "rule_evidence" in envelope:
+        errors = rule_evidence_errors(envelope)
+        try:
+            private_rule_output(in_path)
+            private_rule_output(out_path)
+        except (OSError, ValueError) as error:
+            errors.append(str(error))
+        if errors:
+            sys.stdout.write(json.dumps({"status": "FAILED", "error": "policy-rule-evidence", "detail": errors[0]}) + "\n")
+            return 2
 
     if envelope.get("source") == "alz-corp-default":
         target = args.subscription or ""
@@ -196,7 +211,14 @@ def main(argv: list[str] | None = None) -> int:
         return 2
 
     out_path.parent.mkdir(parents=True, exist_ok=True)
-    out_path.write_text(json.dumps(envelope, indent=2, sort_keys=False) + "\n")
+    if "rule_evidence" in envelope:
+        try:
+            write_private_rule_envelope(out_path, envelope)
+        except (OSError, ValueError):
+            sys.stdout.write(json.dumps({"status": "FAILED", "error": "private-evidence-write"}) + "\n")
+            return 2
+    else:
+        out_path.write_text(json.dumps(envelope, indent=2, sort_keys=False) + "\n")
 
     arch_resources = extract_arch_resources(args.arch) if args.arch else None
     preview_path = emit_preview_md(envelope, out_path, arch_resources=arch_resources)
@@ -215,6 +237,8 @@ def main(argv: list[str] | None = None) -> int:
     sys.stdout.write(json.dumps(status, separators=(",", ":")) + "\n")
 
     if preview_path:
+        if "rule_evidence" in envelope:
+            preview_path.chmod(0o600)
         print(f"preview: wrote {preview_path}", file=sys.stderr)
 
     return 0

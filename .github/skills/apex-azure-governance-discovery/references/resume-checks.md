@@ -53,6 +53,10 @@ Skip to Phase 3 (Approval Gate) only if **every** check passes:
    architecture and governance inputs are unchanged with no unresolved blockers. Use the existing
    Findings Cache procedure; invocation counts and discovery signatures alone do not establish this.
    When the graph permits skipping review because no actionable constraints exist, preserve that exception.
+10. **Private semantic evidence** — private target-backed reconciliation must pass
+    `discover.py --validate-only --retain-rule-evidence` on the actual bound snapshot.
+    A summary-only COMPLETE result is not full rule coverage. Missing bodies require bounded collection
+    within current authorization; source repair or resume does not renew reviews or reset allowances.
 
 If only review validity fails while discovery and confirmations remain valid, go to Phase 2.5
 for reconciliation review; do not rediscover unchanged policy solely to refresh review evidence.
