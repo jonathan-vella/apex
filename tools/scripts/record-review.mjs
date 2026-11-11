@@ -123,6 +123,12 @@ function normalizeReviewDoc(doc, input, root) {
     ) {
       entry.challenged_artifact = input.artifact_path;
     }
+    if (object(input?.cache_inputs) && !Object.hasOwn(entry, "cache_inputs")) {
+      entry.cache_inputs = structuredClone(input.cache_inputs);
+    }
+    if (Array.isArray(input?.supporting_inputs) && !Object.hasOwn(entry, "supporting_inputs")) {
+      entry.supporting_inputs = structuredClone(input.supporting_inputs);
+    }
     if (!Array.isArray(entry.findings)) continue;
     for (const finding of entry.findings) {
       if (!object(finding)) continue;
@@ -151,11 +157,13 @@ function normalizeReviewDoc(doc, input, root) {
   }
 }
 function matchesRequest(prompt, requestId) {
-  return (
-    typeof prompt === "string" &&
-    prompt.startsWith("APEX_REVIEW\n") &&
-    JSON.parse(prompt.slice("APEX_REVIEW\n".length)).request_id === requestId
-  );
+  if (typeof prompt !== "string" || !prompt.startsWith("APEX_REVIEW\n")) return false;
+  try {
+    const parsed = JSON.parse(prompt.slice("APEX_REVIEW\n".length));
+    return object(parsed) && parsed.request_id === requestId;
+  } catch {
+    return false;
+  }
 }
 
 function resolveReviewer(events, requestId) {
@@ -197,21 +205,93 @@ function resolveReviewer(events, requestId) {
   return { workerId: starts[0].agentId, parentId: dispatch.agentId ?? "root" };
 }
 
-function parseEvents(eventsPath) {
+function parseEvents(eventsPath, { allowTrailingPartial = false } = {}) {
   requireEvidence(path.isAbsolute(eventsPath), "--events must be an absolute native events.jsonl path");
-  return fs
-    .readFileSync(eventsPath, "utf8")
-    .split(/\r?\n/)
-    .filter((line) => line.trim())
-    .map((line, index) => {
-      try {
-        const event = JSON.parse(line);
-        requireEvidence(object(event), "not an event object");
-        return event;
-      } catch (error) {
-        throw new Error(`Invalid event record ${index + 1}: ${error.message}`, { cause: error });
-      }
-    });
+  const rawLines = fs.readFileSync(eventsPath, "utf8").split(/\r?\n/);
+  const nonEmpty = rawLines.filter((line) => line.trim());
+  const events = [];
+  for (const [index, line] of nonEmpty.entries()) {
+    try {
+      const event = JSON.parse(line);
+      requireEvidence(object(event), "not an event object");
+      events.push(event);
+    } catch (error) {
+      if (allowTrailingPartial && index === nonEmpty.length - 1 && rawLines.at(-1)?.trim() === line.trim()) break;
+      throw new Error(`Invalid event record ${index + 1}: ${error.message}`, { cause: error });
+    }
+  }
+  return events;
+}
+
+function hasRequestCandidate(events, requestId) {
+  const hasDispatch = events.some((event) => {
+    if (event.type !== "tool.execution_start" || event.data?.toolName !== "task") return false;
+    const args = event.data.arguments;
+    return isRecordedReviewer(args?.agent_type) && matchesRequest(args.prompt, requestId);
+  });
+  if (hasDispatch) return true;
+  const requests = events.filter(
+    (event) => event.type === "user.message" && matchesRequest(event.data?.content, requestId),
+  );
+  return (
+    requests.length > 0 &&
+    events.some(
+      (event) =>
+        event.type === "subagent.started" &&
+        isRecordedReviewer(event.data?.agentName) &&
+        event.data?.executionMode === "sync" &&
+        event.data?.resumable === false &&
+        nonempty(event.agentId) &&
+        nonempty(event.data?.toolCallId) &&
+        requests.some((request) => request.agentId === event.agentId),
+    )
+  );
+}
+
+export function resolveEventsFromDir(eventsDir, requestId, { allowTrailingPartial = true } = {}) {
+  requireEvidence(
+    nonempty(eventsDir) && path.isAbsolute(eventsDir) && !eventsDir.split(/[\\/]/).includes(".."),
+    "--events-dir must be a normalized absolute directory path",
+  );
+  requireEvidence(nonempty(requestId), "--events-dir requires --request-id");
+  const dirStat = fs.lstatSync(eventsDir);
+  requireEvidence(!dirStat.isSymbolicLink() && dirStat.isDirectory(), "--events-dir must be a real directory");
+  const candidates = [];
+  const direct = path.join(eventsDir, "events.jsonl");
+  if (fs.existsSync(direct)) {
+    const stat = fs.lstatSync(direct);
+    requireEvidence(!stat.isSymbolicLink(), "Symlinked events.jsonl in --events-dir is forbidden");
+    if (stat.isFile()) candidates.push(direct);
+  }
+  const entries = fs.readdirSync(eventsDir, { withFileTypes: true }).sort((a, b) => a.name.localeCompare(b.name));
+  requireEvidence(entries.length <= 2000, "--events-dir exceeds bounded session scan limit");
+  for (const entry of entries) {
+    if (entry.name === "events.jsonl") continue;
+    const childPath = path.join(eventsDir, entry.name);
+    const childStat = fs.lstatSync(childPath);
+    if (childStat.isSymbolicLink()) continue;
+    if (!childStat.isDirectory()) continue;
+    const nested = path.join(childPath, "events.jsonl");
+    try {
+      const nestedStat = fs.lstatSync(nested);
+      requireEvidence(!nestedStat.isSymbolicLink(), "Symlinked nested events.jsonl in --events-dir is forbidden");
+      if (nestedStat.isFile()) candidates.push(nested);
+    } catch (error) {
+      if (error.code !== "ENOENT") throw error;
+    }
+  }
+  const matches = [];
+  for (const candidate of candidates) {
+    const parsed = parseEvents(candidate, { allowTrailingPartial });
+    if (hasRequestCandidate(parsed, requestId)) matches.push(candidate);
+  }
+  requireEvidence(
+    matches.length === 1,
+    matches.length > 1
+      ? `Ambiguous request ID ${requestId} matched multiple session logs in --events-dir`
+      : `Request ID ${requestId} was not found in --events-dir`,
+  );
+  return matches[0];
 }
 
 export function extractReview(events, workerId, parentId) {
@@ -688,6 +768,7 @@ function loadEventsWithFlushWait(eventsPath, workerId) {
 /** Extract and atomically publish actual worker evidence; failures leave existing output untouched. */
 export function recordReview({
   events: eventsPath,
+  eventsDir,
   workerId,
   parentId,
   requestId,
@@ -696,9 +777,13 @@ export function recordReview({
   refreshContractCache = false,
 }) {
   requireEvidence(!refreshContractCache, "Review metadata cannot be refreshed after dispatch");
+  requireEvidence(!(nonempty(eventsPath) && nonempty(eventsDir)), "Supply either --events or --events-dir, not both");
+  if (nonempty(eventsDir)) {
+    eventsPath = resolveEventsFromDir(eventsDir, requestId, { allowTrailingPartial: true });
+  }
   requireEvidence(nonempty(eventsPath), "Explicit --events is required; newest-session discovery is not supported");
   root = fs.realpathSync(root);
-  const events = parseEvents(eventsPath);
+  const events = parseEvents(eventsPath, { allowTrailingPartial: nonempty(eventsDir) });
   if (requestId !== undefined) {
     requireEvidence(nonempty(requestId), "Request ID must be nonempty");
     const resolved = resolveReviewer(events, requestId);
@@ -709,6 +794,12 @@ export function recordReview({
   }
   requireEvidence(nonempty(workerId) && nonempty(parentId), "Supply --request-id or both --worker-id and --parent-id");
   const ready = loadEventsWithFlushWait(eventsPath, workerId);
+  if (nonempty(eventsDir)) {
+    requireEvidence(
+      resolveEventsFromDir(eventsDir, requestId, { allowTrailingPartial: false }) === eventsPath,
+      "Session log identity changed or became ambiguous while waiting for native records",
+    );
+  }
   if (requestId !== undefined) {
     const resolved = resolveReviewer(ready, requestId);
     requireEvidence(
@@ -761,6 +852,7 @@ export function runRecorder(argv = process.argv.slice(2)) {
       args: argv,
       options: {
         events: { type: "string" },
+        "events-dir": { type: "string" },
         "worker-id": { type: "string" },
         "parent-id": { type: "string" },
         "request-id": { type: "string" },
@@ -772,8 +864,8 @@ export function runRecorder(argv = process.argv.slice(2)) {
     });
     if (values.help) {
       console.log(
-        "Usage: record-review.mjs --events /absolute/events.jsonl --output PATH " +
-          "(--request-id ID | --worker-id ID --parent-id root|ID)\n" +
+        "Usage: record-review.mjs (--events /absolute/events.jsonl | --events-dir /absolute/session-state) " +
+          "--output PATH (--request-id ID | --worker-id ID --parent-id root|ID)\n" +
           "Read-only preflight: record-review.mjs --preflight --request request.json",
       );
       return 0;
@@ -781,7 +873,7 @@ export function runRecorder(argv = process.argv.slice(2)) {
     if (values.preflight) {
       requireEvidence(
         nonempty(values.request) &&
-          !["events", "output", "worker-id", "parent-id", "request-id"].some((key) => values[key]),
+          !["events", "events-dir", "output", "worker-id", "parent-id", "request-id"].some((key) => values[key]),
         "Preflight requires only --preflight --request",
       );
       const input = JSON.parse(fs.readFileSync(values.request, "utf8"));
@@ -797,11 +889,16 @@ export function runRecorder(argv = process.argv.slice(2)) {
       return 0;
     }
     requireEvidence(values.request === undefined, "--request requires --preflight");
-    for (const key of ["events", "output"]) requireEvidence(nonempty(values[key]), `Missing --${key}`);
+    requireEvidence(nonempty(values.output), "Missing --output");
+    requireEvidence(
+      nonempty(values.events) || nonempty(values["events-dir"]),
+      "Missing --events (or --events-dir with --request-id)",
+    );
     console.log(
       JSON.stringify(
         recordReview({
           events: values.events,
+          eventsDir: values["events-dir"],
           workerId: values["worker-id"],
           parentId: values["parent-id"],
           requestId: values["request-id"],

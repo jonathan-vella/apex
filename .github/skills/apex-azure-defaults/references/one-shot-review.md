@@ -84,7 +84,7 @@ No manual Challenger selection or leading approval prompt replaces this path.
      "output_path": "agent-output/example/challenge-findings-requirements.json",
      "overwrite": false,
      "cache_inputs": {},
-     "instructions": "## Inputs\nReview the supplied artifact and captured metadata using the one-shot review contract.\n## Activities\nRead the artifact and applicable Azure checklists independently. Read only supplied/linked paths; never call view on guessed paths (e.g., there is no tools/schemas/challenger-findings.schema.json). No shell commands, code execution, file writes (including scratch), direct session-state reads, delegation, user questions or Azure access. Do not request out-of-bounds file ranges; read short files without a range. Return missing context to the parent. Evaluate requirements at discovery scope; documented later-stage implementation unknowns are not defects solely because they remain open.\n## Outputs\nReturn your complete independent findings as one raw JSON object, starting with { and ending with }. Use traces_to arrays. Omit finding IDs and severity counts; the existing recorder derives those mechanical fields. Copy captured metadata unchanged. No introduction, Markdown fence, conclusion or success summary."
+     "instructions": "## Inputs\nReview the supplied artifact and captured metadata using the one-shot review contract.\n## Activities\nRead the artifact and applicable Azure checklists independently. Read only supplied/linked paths; never call view on guessed paths (e.g., there is no tools/schemas/challenger-findings.schema.json). No shell commands, code execution, file writes (including scratch), direct session-state reads, delegation, user questions or Azure access. Do not request out-of-bounds file ranges; read short files without a range. Return missing context to the parent. Evaluate requirements at discovery scope; documented later-stage implementation unknowns are not defects solely because they remain open.\n## Outputs\nReturn your complete independent findings as one raw JSON object, starting with { and ending with }. Use traces_to arrays. Omit finding IDs and severity counts, as well as cache_inputs and supporting_inputs; the recorder derives and stamps those mechanical fields from verified dispatch metadata. No introduction, Markdown fence, conclusion or success summary."
    }
    ```
 
@@ -92,7 +92,8 @@ No manual Challenger selection or leading approval prompt replaces this path.
    example. Include the emitted `supporting_inputs` unchanged when present.
    New metadata identifies `challenger-review-subagent` and hashes both its definition
    (`reviewer_definition` / `reviewer_definition_sha`) and this shared contract.
-   The reviewer returns those exact values; it does not capture or refresh them.
+   When the reviewer omits `cache_inputs`/`supporting_inputs`, the recorder stamps the exact
+   dispatched values after verifying disk bytes; conflicting echoed values still fail closed.
    Use the actual owning step, project-scoped review depth and a stable, unique
    request ID for this reviewer dispatch, distinct from any parent task request ID.
    Historical parent/reviewer ID reuse is attributed separately by
@@ -112,11 +113,12 @@ No manual Challenger selection or leading approval prompt replaces this path.
    completed tool-reading turns may precede the sole final JSON response within
    the same attributed interaction. No parent continuation is authorized.
 4. On completion, record the independently returned payload from the exact
-   native session log, not a parent-authored reconstruction:
+   native session log (or via `--events-dir ~/.copilot/session-state` resolved by exact `--request-id`),
+   not a parent-authored reconstruction:
 
    ```bash
    node tools/scripts/record-review.mjs \
-     --events /absolute/current-session/events.jsonl \
+     --events-dir ~/.copilot/session-state \
      --request-id example-requirements-review-1 \
      --output agent-output/example/challenge-findings-requirements.json
    ```
@@ -130,9 +132,11 @@ No manual Challenger selection or leading approval prompt replaces this path.
    or alters verdicts. Refuse existing output unless the dispatch explicitly
    authorizes overwrite. Malformed or ambiguous non-JSON output remains a failed
    review.
-   Resolve the worker from the exact request ID in the explicitly supplied session;
-   do not scrape the newest session or guess a worker UUID. The explicit
-   `--worker-id` / `--parent-id` form remains supported.
+   Resolve the worker from the exact request ID in the explicitly supplied `--events` file or
+   `--events-dir` directory; do not scrape the newest session by mtime or guess a worker UUID. The explicit
+   `--worker-id` / `--parent-id` form remains supported. Re-recording an already-completed native log
+   consumes no new `started` attempt; if a completed nonempty invocation fails recorder publication with
+   unchanged input bytes, at most one `--attempt-kind publication-retry --retry-of <id>` is permitted per cycle.
    Capture metadata before dispatch and preserve it unchanged: empty, stale or
    conflicting hashes block recording. There is no post-dispatch refresh option.
    A failed range read is recoverable only after a successful read of the same

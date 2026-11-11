@@ -18,6 +18,10 @@
         "approved": { "const": true }
       }
     },
+    "rgEntry": {
+      "type": "string",
+      "pattern": "^(?:/subscriptions/[a-fA-F0-9]{8}(?:-[a-fA-F0-9]{4}){3}-[a-fA-F0-9]{12}/resourceGroups/)?[A-Za-z0-9_.()-]{1,90}$"
+    },
     "assessmentScope": {
       "type": "object",
       "additionalProperties": false,
@@ -37,6 +41,15 @@
           "items": {
             "type": "string",
             "pattern": "^/subscriptions/[a-fA-F0-9]{8}(-[a-fA-F0-9]{4}){3}-[a-fA-F0-9]{12}(/resourceGroups/[A-Za-z0-9_.()-]{1,90})?$"
+          }
+        },
+        "rg_attribution": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "workload_rgs": { "type": "array", "uniqueItems": true, "items": { "$ref": "#/$defs/rgEntry" } },
+            "shared_rgs": { "type": "array", "uniqueItems": true, "items": { "$ref": "#/$defs/rgEntry" } },
+            "excluded_rgs": { "type": "array", "uniqueItems": true, "items": { "$ref": "#/$defs/rgEntry" } }
           }
         }
       }
@@ -103,6 +116,7 @@
         "reporting": { "$ref": "#/$defs/assessmentReporting" },
         "receipt": { "$ref": "#/$defs/assessmentReceipt" },
         "action_register": { "type": "boolean" },
+        "visual_charts": { "type": "boolean" },
         "expected_revision": { "type": "string", "pattern": "^[a-f0-9]{64}$" },
         "review_links": {
           "type": "object",
@@ -165,7 +179,9 @@
         { "$ref": "#/$defs/assessmentSourceScopes" },
         {
           "if": {
-            "properties": { "bundle_contract": { "const": "assessment-bundle-v2" } },
+            "properties": {
+              "bundle_contract": { "enum": ["assessment-bundle-v2", "assessment-bundle-v3"] }
+            },
             "required": ["bundle_contract"]
           },
           "then": {
@@ -174,6 +190,13 @@
               {
                 "if": { "properties": { "source": { "enum": ["azure", "combined"] } }, "required": ["source"] },
                 "then": { "properties": { "action_register": { "const": true } } }
+              },
+              {
+                "if": { "properties": { "bundle_contract": { "const": "assessment-bundle-v3" } } },
+                "then": {
+                  "required": ["visual_charts"],
+                  "properties": { "visual_charts": { "const": true } }
+                }
               }
             ]
           },
@@ -208,8 +231,11 @@
       ],
       "properties": {
         "schema_version": { "const": "assessment-run-v1" },
-        "bundle_contract": { "enum": ["assessment-bundle-v1", "assessment-bundle-v2"] },
+        "bundle_contract": {
+          "enum": ["assessment-bundle-v1", "assessment-bundle-v2", "assessment-bundle-v3"]
+        },
         "action_register": { "type": "boolean" },
+        "visual_charts": { "type": "boolean" },
         "bundle_adoption_receipt": { "$ref": "#/$defs/assessmentReceipt" },
         "scenario": { "enum": ["evidence_only", "requirements_led"] },
         "source": { "enum": ["iac", "azure", "combined"] },

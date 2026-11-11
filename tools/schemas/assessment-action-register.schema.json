@@ -221,6 +221,15 @@
         "applicability": { "enum": ["unconditional", "conditional", "alternative", "unknown"] },
         "condition": { "$ref": "#/$defs/note" },
         "status": { "$ref": "#/$defs/note" },
+        "disposition": {
+          "enum": [
+            "remediate_now",
+            "production_readiness_gap",
+            "intentional_lab_tradeoff",
+            "orphan_or_drift_cleanup",
+            "verification_followup"
+          ]
+        },
         "comments": { "type": "string", "maxLength": 4000 },
         "notes": { "$ref": "#/$defs/notes" },
         "target_window": { "enum": ["Immediate", "Week 1", "Weeks 2-4", "Months 2-6"] },

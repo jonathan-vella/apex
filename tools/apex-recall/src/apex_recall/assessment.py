@@ -19,9 +19,10 @@ from .state_writer import (
 )
 
 MODE = "assessment"
-GRAPH_VERSIONS = frozenset({"3.1", "3.2"})
+GRAPH_VERSIONS = frozenset({"3.1", "3.2", "3.3"})
 BUNDLE_V1 = "assessment-bundle-v1"
 BUNDLE_V2 = "assessment-bundle-v2"
+BUNDLE_V3 = "assessment-bundle-v3"
 CATEGORIES = frozenset({"configuration", "topology", "utilization", "operations", "recovery", "billing", "policy"})
 LENSES = {"comprehensive": "architecture", "cost-feasibility": "cost-estimate"}
 GROUP_BY = frozenset(
@@ -50,7 +51,7 @@ def profile(root: Path | None = None) -> dict:
     graph = json.loads(path.read_text(encoding="utf-8"))
     version = graph.get("metadata", {}).get("version")
     if version not in GRAPH_VERSIONS:
-        raise ValueError("Standalone assessment requires supported graph version 3.1 or 3.2")
+        raise ValueError("Standalone assessment requires supported graph version 3.1, 3.2 or 3.3")
     result = graph.get("profiles", {}).get(MODE)
     if not isinstance(result, dict) or result.get("entry") != "scope" or result.get("terminal") != "terminal":
         raise ValueError("Invalid assessment graph profile")
@@ -65,14 +66,18 @@ def profile(root: Path | None = None) -> dict:
     for edge in edges:
         if edge.get("from") not in nodes or edge.get("to") not in nodes:
             raise ValueError("Assessment graph edge escapes its profile")
-    if version == "3.2" and result.get("bundle_contracts") != [BUNDLE_V1, BUNDLE_V2]:
-        raise ValueError("Invalid assessment graph bundle contracts")
-    if version == "3.2" and len(nodes.get("analysis", {}).get("conditional_produces", [])) != 1:
-        raise ValueError("Register-capable graph requires analysis output applicability")
-    if version == "3.1" and (
-        "bundle_contracts" in result or any("conditional_produces" in node for node in nodes.values())
-    ):
-        raise ValueError("Register-capable graph declarations require version 3.2")
+    if version == "3.2":
+        if result.get("bundle_contracts") != [BUNDLE_V1, BUNDLE_V2]:
+            raise ValueError("Invalid assessment graph bundle contracts")
+        if len(nodes.get("analysis", {}).get("conditional_produces", [])) != 1:
+            raise ValueError("Register-capable graph requires analysis output applicability")
+    elif version == "3.3":
+        if result.get("bundle_contracts") != [BUNDLE_V1, BUNDLE_V2, BUNDLE_V3]:
+            raise ValueError("Invalid assessment graph 3.3 bundle contracts")
+        if len(nodes.get("analysis", {}).get("conditional_produces", [])) != 2:
+            raise ValueError("Visual-capable graph 3.3 requires register and visual analysis output applicability")
+    elif "bundle_contracts" in result or any("conditional_produces" in node for node in nodes.values()):
+        raise ValueError("Register-capable graph declarations require version 3.2 or 3.3")
     result["_graph_version"] = version
     return result
 
@@ -93,15 +98,25 @@ def route(run: dict, graph: dict) -> list[str]:
 
 def bundle_contract(run: dict, graph: dict) -> str:
     contract = run.get("bundle_contract", BUNDLE_V1)
-    if contract not in (BUNDLE_V1, BUNDLE_V2) or (contract == BUNDLE_V2 and graph.get("_graph_version") != "3.2"):
+    version = graph.get("_graph_version")
+    if (
+        contract not in (BUNDLE_V1, BUNDLE_V2, BUNDLE_V3)
+        or (contract == BUNDLE_V2 and version not in ("3.2", "3.3"))
+        or (contract == BUNDLE_V3 and version != "3.3")
+    ):
         raise ValueError("Unsupported assessment bundle contract for this graph reader")
     selection = run.get("action_register", False)
-    if type(selection) is not bool or (contract == BUNDLE_V1 and selection):
-        raise ValueError("Invalid assessment register selection")
-    if contract == BUNDLE_V2 and (
+    visual = run.get("visual_charts", False)
+    if type(selection) is not bool or type(visual) is not bool or (contract == BUNDLE_V1 and (selection or visual)):
+        raise ValueError("Invalid assessment register or visual_charts selection")
+    if contract == BUNDLE_V2 and visual:
+        raise ValueError("visual_charts requires assessment-bundle-v3")
+    if contract in (BUNDLE_V2, BUNDLE_V3) and (
         "action_register" not in run or (run["source"] in ("azure", "combined") and selection is not True)
     ):
         raise ValueError("Register-capable Azure/combined assessment requires action_register:true")
+    if contract == BUNDLE_V3 and visual is not True:
+        raise ValueError("assessment-bundle-v3 requires visual_charts:true")
     return contract
 
 
@@ -110,20 +125,23 @@ def output_paths(run: dict, graph: dict, phase: str) -> list[str]:
     contract = bundle_contract(run, graph)
     node = graph["nodes"][phase]
     result = list(node.get("produces", []))
+    v2_when = {"bundle_contract": BUNDLE_V2, "sources": ["azure", "combined"], "selection": "action_register"}
+    v3_when = {"bundle_contract": BUNDLE_V3, "sources": ["iac", "azure", "combined"], "selection": "visual_charts"}
     for group in node.get("conditional_produces", []):
         if (
             not isinstance(group, dict)
             or set(group) != {"when", "outputs"}
-            or group["when"]
-            != {"bundle_contract": BUNDLE_V2, "sources": ["azure", "combined"], "selection": "action_register"}
+            or group["when"] not in (v2_when, v3_when)
             or not isinstance(group["outputs"], list)
             or not group["outputs"]
         ):
             raise ValueError("Unknown assessment output applicability contract")
         when = group["when"]
-        if contract == when["bundle_contract"] and (
-            run["source"] in when["sources"] or run.get(when["selection"], False)
-        ):
+        if (
+            when == v2_when
+            and contract in (BUNDLE_V2, BUNDLE_V3)
+            and (run["source"] in when["sources"] or run.get("action_register", False))
+        ) or (when == v3_when and contract == BUNDLE_V3 and run.get("visual_charts", False)):
             result.extend(group["outputs"])
     if any(not isinstance(path, str) for path in result) or len(result) != len(set(result)):
         raise ValueError("Invalid or duplicate assessment output paths")
@@ -136,8 +154,11 @@ def required_outputs(run: dict, graph: dict) -> list[str]:
 
 def scope_projection(run: dict) -> dict:
     result = {key: run[key] for key in ("scenario", "source", "scope", "reporting", "receipt")}
-    if run.get("bundle_contract", BUNDLE_V1) == BUNDLE_V2:
+    contract = run.get("bundle_contract", BUNDLE_V1)
+    if contract == BUNDLE_V2:
         result.update({key: run[key] for key in ("bundle_contract", "action_register")})
+    elif contract == BUNDLE_V3:
+        result.update({key: run[key] for key in ("bundle_contract", "action_register", "visual_charts")})
     return result
 
 
@@ -184,6 +205,7 @@ def validate_scope(request: dict, *, require_approval: bool = True) -> None:
         "review_links",
         "expected_revision",
         "action_register",
+        "visual_charts",
     }
     if not isinstance(request, dict) or set(request) - allowed:
         raise ValueError("Unknown assessment request fields")
@@ -196,6 +218,8 @@ def validate_scope(request: dict, *, require_approval: bool = True) -> None:
         or (request["source"] in ("azure", "combined") and request["action_register"] is not True)
     ):
         raise ValueError("action_register must be boolean; Azure/combined register export cannot be disabled")
+    if "visual_charts" in request and type(request["visual_charts"]) is not bool:
+        raise ValueError("visual_charts must be boolean")
     receipt = request.get("receipt")
     pending = receipt is None or (
         isinstance(receipt, dict) and (receipt.get("approved") is None or receipt.get("approved") is False)
@@ -213,7 +237,11 @@ def validate_scope(request: dict, *, require_approval: bool = True) -> None:
     else:
         _receipt(receipt)
     scope = request.get("scope")
-    if not isinstance(scope, dict) or set(scope) != {"categories", "iac_paths", "azure_scopes"}:
+    if (
+        not isinstance(scope, dict)
+        or {"categories", "iac_paths", "azure_scopes"} - set(scope)
+        or set(scope) - {"categories", "iac_paths", "azure_scopes", "rg_attribution"}
+    ):
         raise ValueError("Explicit categories, iac_paths and azure_scopes required")
     categories = scope["categories"]
     if (
@@ -230,6 +258,25 @@ def validate_scope(request: dict, *, require_approval: bool = True) -> None:
     has_azure = request["source"] in ("azure", "combined")
     if bool(scope["iac_paths"]) != has_iac or bool(scope["azure_scopes"]) != has_azure:
         raise ValueError("Evidence scopes do not match selected source")
+    if "rg_attribution" in scope:
+        rg_attr = scope["rg_attribution"]
+        rg_keys = {"workload_rgs", "shared_rgs", "excluded_rgs"}
+        rg_pattern = re.compile(
+            r"^(?:/subscriptions/[0-9a-fA-F]{8}(?:-[0-9a-fA-F]{4}){3}-[0-9a-fA-F]{12}/resourceGroups/)?[A-Za-z0-9_.()-]{1,90}$"
+        )
+        if not has_azure or not isinstance(rg_attr, dict) or set(rg_attr) - rg_keys:
+            raise ValueError("rg_attribution requires Azure scopes and only workload_rgs, shared_rgs or excluded_rgs")
+        seen_rgs: set[str] = set()
+        for bucket in ("workload_rgs", "shared_rgs", "excluded_rgs"):
+            entries = rg_attr.get(bucket, [])
+            if not isinstance(entries, list) or any(
+                not isinstance(entry, str) or not rg_pattern.fullmatch(entry) for entry in entries
+            ):
+                raise ValueError(f"Invalid {bucket} entries in rg_attribution")
+            lowered = [entry.lower() for entry in entries]
+            if len(lowered) != len(set(lowered)) or seen_rgs & set(lowered):
+                raise ValueError("rg_attribution buckets must contain unique, pairwise-disjoint resource groups")
+            seen_rgs.update(lowered)
     for relative in scope["iac_paths"]:
         safe_path(workspace_root_for(), relative)
     if scope["azure_scopes"]:
@@ -389,6 +436,7 @@ def validate_state(data: dict) -> None:
         "reviews",
         "bundle_contract",
         "action_register",
+        "visual_charts",
         "bundle_adoption_receipt",
     }:
         raise ValueError("Invalid assessment-run-v1 fields")
@@ -489,13 +537,25 @@ def validate_register_export(directory: Path, data: dict, path: Path) -> dict:
         revisions[relative] = _watch(data, source)
         if revisions[relative] != expected:
             raise ValueError("Action register Finance/source bytes changed during export validation")
-    for relative, expected in receipt["tool_hashes"].items():
+    compat_path = root / "tools/registry/register-tool-compatibility.json"
+    compat_snapshots: list[dict] = []
+    if compat_path.is_file():
+        compat_doc = json.loads(compat_path.read_text(encoding="utf-8"))
+        if compat_doc.get("contract") == "register-tool-compatibility-v1":
+            compat_snapshots = [
+                entry["tool_hashes"]
+                for entry in compat_doc.get("compatible_tool_snapshots", [])
+                if isinstance(entry, dict) and isinstance(entry.get("tool_hashes"), dict)
+            ]
+    current_tool_hashes: dict[str, str] = {}
+    for relative in receipt["tool_hashes"]:
         # The validated tool manifest is relative to tools/scripts, including ../schemas.
         source = (root / "tools/scripts" / relative).resolve()
         if not source.is_relative_to((root / "tools").resolve()):
             raise ValueError("Action register validator dependency escapes tool scope")
-        if _watch(data, source) != expected:
-            raise ValueError("Action register validator bytes changed during export validation")
+        current_tool_hashes[relative] = _watch(data, source)
+    if receipt["tool_hashes"] != current_tool_hashes and receipt["tool_hashes"] not in compat_snapshots:
+        raise ValueError("Action register validator bytes changed during export validation")
     return revisions
 
 
@@ -527,6 +587,28 @@ def check_outputs(project: str, data: dict, phase: str, graph: dict) -> dict:
                         revisions.update(validate_cost_report(directory, data, imported, run))
             if relative == "contracts/03-cost-management.json":
                 revisions.update(validate_cost_report(directory, data, path, run))
+            if relative == "_meta/waf-scores.json":
+                if document.get("project") != project or document.get("as_of") != run["reporting"]["as_of"]:
+                    raise ValueError("WAF scores project/as_of differ from authorized assessment")
+                pillars = document.get("pillars")
+                if (
+                    document.get("schema_version") != "assessment-waf-scores-v1"
+                    or not isinstance(pillars, list)
+                    or len(pillars) != 5
+                ):
+                    raise ValueError("Invalid _meta/waf-scores.json schema")
+                for entry in pillars:
+                    obs = (
+                        int(entry.get("passed_checks", 0))
+                        + int(entry.get("risk_checks", 0))
+                        + int(entry.get("intentional_tradeoff_checks", 0))
+                    )
+                    if entry.get("status") == "scored" and (
+                        obs < 2 or not isinstance(entry.get("score"), (int, float)) or not (0 <= entry["score"] <= 10)
+                    ):
+                        raise ValueError("Scored WAF pillar requires >= 2 observed checks and score in [0, 10]")
+                    if entry.get("status") == "not_assessed" and entry.get("score") is not None:
+                        raise ValueError("not_assessed WAF pillar cannot carry a numeric score")
         if path.suffix == ".png":
             raw = path.read_bytes()
             if len(raw) < 33 or raw[:8] != b"\x89PNG\r\n\x1a\n" or raw[12:16] != b"IHDR":
@@ -873,13 +955,21 @@ def adopt_bundle(project: str, data: dict, request: dict, graph: dict, *, previe
     run = data["assessment_run"]
     original = deepcopy(run)
     old_contract = bundle_contract(run, graph)
-    if graph["_graph_version"] != "3.2":
-        raise ValueError("Register bundle adoption requires graph 3.2")
+    if graph["_graph_version"] not in ("3.2", "3.3"):
+        raise ValueError("Register or visual bundle adoption requires graph 3.2 or 3.3")
     if any(request[key] != run[key] for key in ("scenario", "source", "scope", "reporting")):
         raise ValueError("Bundle adoption cannot change the existing authorized assessment evidence scope")
+    want_visual = bool(request.get("visual_charts", False))
+    if want_visual and graph["_graph_version"] != "3.3":
+        raise ValueError("visual_charts bundle adoption requires graph 3.3")
     selected = request["source"] in ("azure", "combined") or request.get("action_register", False)
-    if not selected or (old_contract == BUNDLE_V2 and run.get("action_register")):
-        raise ValueError("Explicit register selection required; already selected bundles cannot renew allowance")
+    target_contract = BUNDLE_V3 if want_visual else BUNDLE_V2
+    if not (selected or want_visual) or (
+        old_contract == target_contract
+        and bool(run.get("action_register")) == bool(selected)
+        and bool(run.get("visual_charts", False)) == want_visual
+    ):
+        raise ValueError("Explicit bundle upgrade selection required; already selected bundles cannot renew allowance")
     receipt = request.get("receipt")
     if not preview:
         _receipt(receipt)
@@ -891,8 +981,10 @@ def adopt_bundle(project: str, data: dict, request: dict, graph: dict, *, previe
             raise ValueError("Bundle adoption requires its own actual owner scope response")
     links, cycles = adoption_links(project, data, request, graph)
     old_outputs = required_outputs(run, graph)
-    run["bundle_contract"] = BUNDLE_V2
-    run["action_register"] = True
+    run["bundle_contract"] = target_contract
+    run["action_register"] = bool(selected)
+    if target_contract == BUNDLE_V3:
+        run["visual_charts"] = True
     if receipt is not None and receipt.get("approved") is True:
         run["bundle_adoption_receipt"] = deepcopy(receipt)
     run["scope_digest"] = digest(scope_projection(run))
@@ -921,8 +1013,9 @@ def adopt_bundle(project: str, data: dict, request: dict, graph: dict, *, previe
         "status": "adopted",
         "phase": run["phase"],
         "old_bundle_contract": old_contract,
-        "bundle_contract": BUNDLE_V2,
-        "action_register": True,
+        "bundle_contract": run["bundle_contract"],
+        "action_register": run["action_register"],
+        **({"visual_charts": True} if run.get("visual_charts") else {}),
         "required_outputs": outputs,
         "required_output_changes": changes,
         "output_revisions": revisions,
@@ -961,12 +1054,20 @@ def mutate(
             raise ValueError("Existing project history requires explicit adoption")
         links, cycles = adoption_links(project, data, request, graph)
         history = historical_cycles(project, data)
+        version = graph["_graph_version"]
+        want_visual = bool(request.get("visual_charts", False))
+        if want_visual and version != "3.3":
+            raise ValueError("visual_charts selection requires graph 3.3")
+        if version == "3.1" and request.get("action_register"):
+            raise ValueError("Register selection requires graph 3.2 or 3.3")
+        selected_contract = BUNDLE_V1 if version == "3.1" else (BUNDLE_V3 if want_visual else BUNDLE_V2)
         run = {
             "schema_version": "assessment-run-v1",
-            "bundle_contract": BUNDLE_V2 if graph["_graph_version"] == "3.2" else BUNDLE_V1,
+            "bundle_contract": selected_contract,
             "action_register": (request["source"] in ("azure", "combined") or request.get("action_register", False))
-            if graph["_graph_version"] == "3.2"
+            if version in ("3.2", "3.3")
             else False,
+            **({"visual_charts": True} if selected_contract == BUNDLE_V3 else {}),
             **{key: request[key] for key in ("scenario", "source", "scope", "reporting")},
             "receipt": request.get("receipt"),
             "phase": graph["entry"],
@@ -977,8 +1078,6 @@ def mutate(
             "coverage": "not_assessed",
             "started_at": _iso_now(),
         }
-        if graph["_graph_version"] == "3.1" and request.get("action_register"):
-            raise ValueError("Register selection requires graph 3.2")
         run["scope_digest"] = digest(scope_projection(run))
         outputs = required_outputs(run, graph)
         for relative in outputs:

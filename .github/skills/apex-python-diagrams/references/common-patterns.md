@@ -362,6 +362,67 @@ finish("agent-output/my-project/04-deployment-pipeline", "Phased infrastructure 
 
 ---
 
+## 5. Multi-Subscription Existing-State Assessment (`assessment` Profile)
+
+For standalone WAF assessments across `1–10` subscriptions, render **all observed resource families**
+from `_meta/live-inventory.json` and `_meta/controls-evidence.json` rather than omitting subscriptions
+without VNet peering rows:
+
+- **Left / Top**: Shared platform / hub subscription (`rg-hub`, `vnet-hub`, Firewall, Bastion, Private DNS zones, central Log Analytics workspace).
+- **Center**: Detailed primary workload stamp (`rg-spoke` VNet + subnets + Private Endpoints, `rg-datacenter` VMs/Arc, workload RG service cards with SKUs and counts).
+- **Right**: Per-subscription Stamp Summary & Drift cards for sibling subscriptions (resource count, top families, monthly spend, peering status, and amber/red region-drift badges; muted slate card for empty/torn-down scopes).
+- **Epistemic visual encoding**: Solid `net`/`peer`/`tel` connectors = observed ARM configuration/peering; dashed `mig`/`AM` connectors = user-declared runtime flows (unverified); bottom unknown/caveat strip kept `<= 95px` (`< 10%` of canvas height).
+
+```python
+import sys
+from pathlib import Path
+
+sys.path.insert(0, str(Path(".github/skills/apex-python-diagrams/scripts").resolve()))
+from dlib import *  # noqa: E402, F403
+
+reset()
+add(t(50, 102, "OBSERVED ARM SNAPSHOT  •  solid = observed config/peering  •  dashed amber = declared flow (unverified)", 18, "700", NAVY))
+
+# Shared hub subscription
+add(sub(35, 125, 480, 760, "Shared Hub Subscription", BL, "#F5FAFF", "OBSERVED • 21 RES", 190))
+add(rg(52, 178, 446, 430, "rg-hub", BL))
+add(card(70, 226, 410, 66, "vnet", [("vnet-hub", 1), ("Reciprocal peering connected", 0)], "#FFFFFF", BL))
+add(card(70, 310, 410, 66, "fw", [("Azure Firewall", 1), ("Shared east-west / egress hub", 0)], "#FFFFFF", BL))
+add(card(70, 394, 410, 66, "dns", [("4 Private DNS Zones", 1), ("4 VNet links observed", 0)], "#FFFFFF", BL))
+add(rg(52, 628, 446, 235, "rg-management", BL))
+add(card(70, 680, 410, 72, "law", [("log-management", 1), ("30-day retention • Sweden Central", 0)], "#FFFFFF", BL))
+
+# Primary observed workload subscription
+add(sub(555, 125, 760, 760, "Workload 01 Subscription", TL, "#F2FAF8", "OBSERVED • 75 RES", 190))
+add(rg(575, 178, 720, 430, "rg-spoke + rg-university", TL))
+add(card(595, 226, 325, 66, "vnet", [("vnet-spoke", 1), ("snet-app, snet-pe, snet-sqlmi", 0)], "#FFFFFF", TL))
+add(card(950, 226, 325, 66, "app", [("App Service (P0v3)", 1), ("HTTPS-only • VNet integrated", 0)], "#FFFFFF", TL))
+add(card(595, 314, 325, 66, "sqlmi", [("SQL Managed Instance", 1), ("GP Gen5 4 vCore • LRS • no AZ", 0)], "#FFFFFF", TL))
+add(card(950, 314, 325, 66, "pe", [("4 Private Endpoints", 1), ("ACR, KV, Blob, Service Bus", 0)], "#FFFFFF", TL))
+add(rg(575, 628, 720, 235, "rg-datacenter", SL))
+add(card(595, 680, 680, 72, "vm", [("2 Simulated Datacenter VMs + Arc", 1), ("vnet-datacenter peered to hub", 0)], "#FFFFFF", SL))
+
+# Sibling subscription summary & drift cards
+add(sub(1355, 125, 530, 460, "Workload 02 Subscription", AM, AMF, "DRIFT • 111 RES", 175))
+add(card(1375, 190, 490, 72, "bas", [("Standard Bastion + VMs", 1), ("No hub peering • top cost driver", 0)], "#FFFFFF", AM))
+add(card(1375, 282, 490, 72, "sqldb", [("2 App Sites + SQL DB + Arc/Migrate", 1), ("Divergent non-MI stamp", 0)], "#FFFFFF", AM))
+add(card(1375, 374, 490, 72, "kv", [("Region Drift Observed", 1), ("Resources in North Europe & West US 2", 0)], "#FFFFFF", AM))
+
+add(sub(1355, 610, 530, 275, "Workload 03 Subscription", SL, GRF, "MINIMAL • 3 RES", 175))
+add(card(1375, 680, 490, 72, "mon", [("Network Watcher + Action Group + LAW", 1), ("Workload stamp unprovisioned / torn down", 0)], "#FFFFFF", SL))
+
+# Connectors + compact <=90px caveat strip
+add(arr("M480 259H595", "net", start=True))
+add(arr("M950 259H920V347H920", "mig"))
+add(box(35, 910, 1850, 82, AMF, AM, sw=1.5))
+add(t(55, 943, "UNVERIFIED: End-to-end runtime traffic, effective RBAC/DNS resolution, restore/cutover drills, and log ingestion.", 17, "700", NAVY))
+add(t(55, 972, "Observed configuration references and peerings do not establish live reachability or policy compliance.", 16, "400", GR))
+
+finish("agent-output/my-project/assets/03-des-diagram", "Existing-State Multi-Subscription Architecture")
+```
+
+---
+
 ## Layout Checklist Before Calling `finish()`
 
 1. **Zero `WARN overflow:` output**: Run the `.py` script and verify stdout has no `WARN overflow:` lines. Wrap long text into two lines (`chip2` or multi-line `card`) or widen the container.

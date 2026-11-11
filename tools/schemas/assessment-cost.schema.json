@@ -149,6 +149,24 @@
         "source": { "const": "azure-cost-management" },
         "collected_at": { "$ref": "#/$defs/timestamp" },
         "request": { "$ref": "#/$defs/request" },
+        "physical_request_period": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["from", "to"],
+          "properties": {
+            "from": { "$ref": "#/$defs/timestamp" },
+            "to": { "$ref": "#/$defs/timestamp" }
+          }
+        },
+        "inferred_currency_from": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["period_id", "currency"],
+          "properties": {
+            "period_id": { "type": "string", "pattern": "^[a-z][a-z0-9_-]{0,63}$" },
+            "currency": { "$ref": "#/$defs/currency" }
+          }
+        },
         "pages": {
           "type": "array",
           "maxItems": 100,

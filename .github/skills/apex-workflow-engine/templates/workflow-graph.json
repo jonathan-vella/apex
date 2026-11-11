@@ -8,7 +8,7 @@
       "terminal": "terminal",
       "scenarios": ["evidence_only", "requirements_led"],
       "sources": ["iac", "azure", "combined"],
-      "bundle_contracts": ["assessment-bundle-v1", "assessment-bundle-v2"],
+      "bundle_contracts": ["assessment-bundle-v1", "assessment-bundle-v2", "assessment-bundle-v3"],
       "nodes": {
         "scope": {
           "id": "scope",
@@ -57,6 +57,22 @@
                 "assets/04-assessment-action-register.xlsx",
                 "_meta/action-register-derived.json",
                 "_meta/action-register-export.json"
+              ]
+            },
+            {
+              "when": {
+                "bundle_contract": "assessment-bundle-v3",
+                "sources": ["iac", "azure", "combined"],
+                "selection": "visual_charts"
+              },
+              "outputs": [
+                "_meta/waf-scores.json",
+                "assets/02-waf-posture.png",
+                "assets/02-waf-posture.svg",
+                "assets/03-cost-trends.png",
+                "assets/03-cost-trends.svg",
+                "assets/03-cost-drivers.png",
+                "assets/03-cost-drivers.svg"
               ]
             }
           ]
@@ -605,7 +621,7 @@
       "handoffs": "No active agent UI handoff metadata. ui_label_pattern remains historical fixture compatibility only.",
       "permissions": "Graph edges, names and tool lists do not prove runtime enforcement or credential isolation"
     },
-    "version": "3.2",
+    "version": "3.3",
     "practical_workflow": {
       "contract": "practical-v1",
       "new_projects_only": true,

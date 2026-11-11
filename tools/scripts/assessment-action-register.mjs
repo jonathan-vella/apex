@@ -173,6 +173,22 @@ function toolHashes() {
   return Object.fromEntries(TOOL_FILES.map((file) => [file, digest(fs.readFileSync(path.resolve(HERE, file)))]));
 }
 
+function toolHashesCompatible(recorded) {
+  if (isDeepStrictEqual(recorded, toolHashes())) return true;
+  const registryPath = path.resolve(HERE, "../registry/register-tool-compatibility.json");
+  if (!fs.existsSync(registryPath)) return false;
+  const policy = readJson(registryPath);
+  if (policy?.contract !== "register-tool-compatibility-v1" || !Array.isArray(policy.compatible_tool_snapshots)) {
+    return false;
+  }
+  return policy.compatible_tool_snapshots.some(
+    (entry) =>
+      typeof entry?.rationale === "string" &&
+      entry.rationale.trim().length > 0 &&
+      isDeepStrictEqual(recorded, entry.tool_hashes),
+  );
+}
+
 function comparableRetail(leaf, basis) {
   requireValue(basis.source_type === "retail_reference" && basis.cost_view === "Retail", "Retail basis required");
   requireValue(
@@ -535,6 +551,7 @@ function calculateInternal(data, { root, asOf, evidenceHashes = {} }) {
     }
     derivedActions.push({
       id: action.id,
+      ...(action.disposition !== undefined ? { disposition: action.disposition } : {}),
       monthly_contribution: contribution,
       display_contribution: displayCost(contribution),
       currency: basis.currency,
@@ -768,7 +785,7 @@ export function validateAssessmentActionRegisterExport({ root, input, asOf }) {
       receipt.schema_version === "action-register-export-v1" &&
         receipt.source_sha256 === payload.source_sha256 &&
         receipt.derived_sha256 === payload.derived_sha256 &&
-        isDeepStrictEqual(receipt.tool_hashes, toolHashes()) &&
+        toolHashesCompatible(receipt.tool_hashes) &&
         isDeepStrictEqual(receipt.evidence_hashes, sourceHashes(payload, root)),
       "Stale export receipt/source/derivation hashes",
     );

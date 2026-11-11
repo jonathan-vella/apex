@@ -1155,3 +1155,153 @@ test("CLI emits bounded JSON errors, accepts --input, validates persisted fixtur
   assert.equal(escaped.code, 1);
   assert.match(escaped.result.errors.join(" "), /escapes project root/);
 });
+
+test("physical collector consolidates 16 logical requests into 8 physical calls, handles 429 Retry-After, and verifies same-scope empty currency", async (t) => {
+  const { executePhysicalCostPlan, parseRetryAfterMs, planPhysicalCostCalls } =
+    await import("../../scripts/collect-assessment-cost.mjs");
+  const scopes = [
+    "/subscriptions/11111111-1111-1111-1111-111111111111",
+    "/subscriptions/22222222-2222-2222-2222-222222222222",
+    "/subscriptions/33333333-3333-3333-3333-333333333333",
+    "/subscriptions/44444444-4444-4444-4444-444444444444",
+  ];
+  const planConfig = { as_of: AS_OF, scopes };
+  const planned = planCostQueries(planConfig);
+  assert.equal(planned.requests.length, 16);
+  const physical = planPhysicalCostCalls(planned);
+  assert.equal(physical.length, 8);
+
+  assert.equal(parseRetryAfterMs({ "x-ms-ratelimit-microsoft.costmanagement-entity-retry-after": "3" }, 1), 3000);
+  assert.equal(parseRetryAfterMs({ "retry-after": "2" }, 2), 2000);
+
+  const projectRoot = path.join(ROOT, `.collect-cost-${randomUUID()}`);
+  fs.mkdirSync(projectRoot, { recursive: true });
+  t.after(() => fs.rmSync(projectRoot, { recursive: true, force: true }));
+
+  const sleeps = [];
+  let throttledOnce = false;
+  const executor = (url, _body) => {
+    if (!throttledOnce && url.includes("44444444") && url.includes("/query")) {
+      throttledOnce = true;
+      return { status_code: 429, headers: { "retry-after": "1" }, body: { error: { code: "TooManyRequests" } } };
+    }
+    const scope = scopes.find((s) => url.toLowerCase().includes(s.toLowerCase()));
+    if (url.includes("/forecast")) {
+      return {
+        status_code: 200,
+        headers: {},
+        body: {
+          properties: {
+            columns: [
+              { name: "PreTaxCost", type: "Number" },
+              { name: "Currency", type: "String" },
+              { name: "UsageDate", type: "Number" },
+              { name: "CostStatus", type: "String" },
+            ],
+            rows: [
+              [10, "USD", 20260310, "Actual"],
+              [25, "USD", 20260320, "Forecast"],
+            ],
+            nextLink: null,
+          },
+        },
+      };
+    }
+    // Scope 4 has 0 rows in preceding_month (Jan 2026), positive rows in Feb & Mar MTD.
+    const rows =
+      scope === scopes[3]
+        ? [
+            [
+              31.44,
+              "USD",
+              "Virtual Machines",
+              `${scope}/resourceGroups/rg/providers/Microsoft.Compute/virtualMachines/vm1`,
+              20260215,
+            ],
+            [
+              0.43,
+              "USD",
+              "Storage",
+              `${scope}/resourceGroups/rg/providers/Microsoft.Storage/storageAccounts/st1`,
+              20260305,
+            ],
+          ]
+        : [
+            [
+              50,
+              "USD",
+              "Compute",
+              `${scope}/resourceGroups/rg/providers/Microsoft.Compute/virtualMachines/vm`,
+              20260110,
+            ],
+            [
+              60,
+              "USD",
+              "Compute",
+              `${scope}/resourceGroups/rg/providers/Microsoft.Compute/virtualMachines/vm`,
+              20260210,
+            ],
+            [
+              15,
+              "USD",
+              "Compute",
+              `${scope}/resourceGroups/rg/providers/Microsoft.Compute/virtualMachines/vm`,
+              20260305,
+            ],
+          ];
+    return {
+      status_code: 200,
+      headers: {},
+      body: {
+        properties: {
+          columns: [
+            { name: "PreTaxCost", type: "Number" },
+            { name: "Currency", type: "String" },
+            { name: "ServiceName", type: "String" },
+            { name: "ResourceId", type: "String" },
+            { name: "UsageDate", type: "Number" },
+          ],
+          rows,
+          nextLink: null,
+        },
+      },
+    };
+  };
+
+  const out = executePhysicalCostPlan(planConfig, {
+    projectRoot,
+    collectedAt: AS_OF,
+    executor,
+    sleep: (ms) => sleeps.push(ms),
+    minIntervalMs: 1500,
+  });
+  assert.equal(out.physical_call_count, 8);
+  assert.equal(out.report.status, "complete");
+  assert.ok(sleeps.includes(1000)); // 429 Retry-After backoff
+  const scope4Preceding = out.report.evidence.find((e) => e.id === "scope4-preceding_month");
+  assert.equal(scope4Preceding.status, "complete");
+  assert.equal(scope4Preceding.series[0].currency, "USD");
+  assert.equal(scope4Preceding.series[0].amount, "0");
+
+  const validation = validateAssessmentCost(out.report, {
+    root: projectRoot,
+    asOf: AS_OF,
+    readEvidence: (rel) => fs.readFileSync(path.join(projectRoot, rel)),
+    approvedScopes: scopes,
+    approvedPlan: planConfig,
+  });
+  assert.deepEqual(validation, { valid: true, errors: [] });
+
+  // Conflicting sibling currency invalidates same-scope currency inference.
+  const badReport = structuredClone(out.report);
+  const donor = badReport.evidence.find((e) => e.id === "scope4-previous_month");
+  donor.series[0].currency = "EUR";
+  const badCheck = validateAssessmentCost(badReport, {
+    root: projectRoot,
+    asOf: AS_OF,
+    readEvidence: (rel) => fs.readFileSync(path.join(projectRoot, rel)),
+    approvedScopes: scopes,
+    approvedPlan: planConfig,
+  });
+  assert.equal(badCheck.valid, false);
+});

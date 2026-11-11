@@ -85,7 +85,7 @@ def reconcile_events(events_path: Path, attempts: list[dict], project: str, step
                 attempt["id"]
                 for attempt in attempts
                 if attempt.get("step") == step
-                and attempt.get("kind") in ("invocation", "empty-output-retry")
+                and attempt.get("kind") in ("invocation", "empty-output-retry", "publication-retry")
                 and attempt["id"] not in requests
             }
         ),
@@ -154,14 +154,14 @@ def run(args) -> int:
         if (
             not attempt_id
             or not re.fullmatch(r"[A-Za-z0-9_-]{1,100}", attempt_id)
-            or kind not in ("invocation", "repair", "empty-output-retry")
+            or kind not in ("invocation", "repair", "empty-output-retry", "publication-retry")
             or not re.fullmatch(r"[a-f0-9]{64}", digest or "")
             or outcome not in ("started", "completed", "failed", "unknown")
         ):
             raise ValueError("Attempt ID, kind, input digest and outcome are required")
         if review_output is not None and (
             review_output not in ("empty", "nonempty", "unknown")
-            or kind not in ("invocation", "empty-output-retry")
+            or kind not in ("invocation", "empty-output-retry", "publication-retry")
             or outcome not in ("completed", "failed")
         ):
             raise ValueError("Reviewer output is recorded only with a completed or failed native review attempt")
@@ -206,8 +206,33 @@ def run(args) -> int:
                 )
             if not previous and any(attempt.get("retry_of") == retry_of for attempt in attempts):
                 raise ValueError("Identical-input retry already recorded; allowance cannot reset")
+        elif kind == "publication-retry":
+            if not prepared:
+                raise ValueError("publication-retry requires --review-request")
+            originals = [attempt for attempt in attempts if attempt["id"] == retry_of]
+            if not originals or originals[-1]["kind"] != "invocation" or originals[-1]["step"] != step:
+                raise ValueError(
+                    "Publication retry must reference an original invocation in the same step; retry chains are forbidden"
+                )
+            original = originals[-1]
+            live_inputs = [
+                prepared["request"]["artifact_path"],
+                *(item["path"] for item in prepared["request"].get("supporting_inputs", [])),
+            ]
+            live_digest = inputs_digest(workspace_root_for(), live_inputs)
+            if (
+                original.get("outcome") != "completed"
+                or original.get("review_output") != "nonempty"
+                or original.get("input_digest") != digest
+                or live_digest != digest
+            ):
+                raise ValueError(
+                    "Publication retry requires a completed nonempty invocation and unchanged input bytes on disk"
+                )
+            if not previous and any(attempt.get("retry_of") == retry_of for attempt in attempts):
+                raise ValueError("Retry already recorded for this invocation; allowance cannot reset")
         elif retry_of is not None and not prepared:
-            raise ValueError("retry-of is only valid for empty-output-retry attempts")
+            raise ValueError("retry-of is only valid for empty-output-retry or publication-retry attempts")
         select_cycle_result(project, data, args, prepared)
         attempts.append(
             {

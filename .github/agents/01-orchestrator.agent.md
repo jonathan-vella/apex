@@ -37,7 +37,8 @@ than repeating their production to satisfy an administrative phase boundary.
 
 For explicit `decisions.workflow_mode=assessment`, load
 [standalone assessment](../skills/apex-workflow-engine/references/standalone-assessment.md) and follow its
-graph-selected lifecycle instead of the numeric delivery steps below. Capture scope/access once; run
+graph-selected lifecycle instead of the numeric delivery steps below. Capture scope/access once (including
+optional `scope.rg_attribution` for shared, workload or excluded resource groups); run
 Requirements only in requirements-led mode, then analysis, mandatory Design diagram and both reviews
 before one final bundle acceptance. Assessment completion is terminal, never a Governance/IaC handoff.
 Do not manufacture Step 1/2 approvals or start deployment phases for this profile.

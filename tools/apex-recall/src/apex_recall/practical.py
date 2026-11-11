@@ -83,6 +83,10 @@ def validate_state(data: dict) -> None:
             or type(cycle.get("calls")) is not int
             or type(cycle.get("max_calls")) is not int
             or not 0 <= cycle["calls"] <= cycle["max_calls"]
+            or (
+                "publication_retries" in cycle
+                and (type(cycle["publication_retries"]) is not int or not 0 <= cycle["publication_retries"] <= 1)
+            )
             or not all(
                 cycle.get(key) for key in ("step", "artifact", "lens", "initial_id", "projection", "canonical_path")
             )
@@ -428,7 +432,8 @@ def adoption_report(data: dict) -> dict:
             {
                 item["id"]
                 for item in data.get("review_attempts", [])
-                if item["kind"] in ("invocation", "empty-output-retry") and not item.get("cycle_id")
+                if item["kind"] in ("invocation", "empty-output-retry", "publication-retry")
+                and not item.get("cycle_id")
             }
         ),
         "legacy_decisions_require_explicit_records": sorted(
@@ -560,6 +565,42 @@ def prepare_cycle(project: str, data: dict, args: object) -> dict | None:
         )
         if result.returncode:
             raise ValueError(f"Review preflight failed: {result.stderr.strip()}")
+        if getattr(args, "attempt_kind", None) == "publication-retry":
+            if not cycle:
+                raise ValueError("Publication retry requires an existing review cycle")
+            if cycle["projection"] != snapshot:
+                raise ValueError("Material scope changed; owner-led cycle revision required, not an allowance reset")
+            if cycle.get("publication_retries", 0) >= 1:
+                raise ValueError("Publication retry allowance exhausted for this cycle")
+            if getattr(args, "closure_of", None) is not None:
+                raise ValueError("Publication retry cannot combine --closure-of with --retry-of")
+            target_id = getattr(args, "retry_of", None)
+            prior = [item for item in history if item["id"] == target_id]
+            if (
+                not target_id
+                or not prior
+                or prior[-1].get("cycle_id") != key
+                or prior[-1]["kind"] != "invocation"
+                or prior[-1]["outcome"] != "completed"
+                or prior[-1].get("review_output") != "nonempty"
+            ):
+                raise ValueError("Publication retry requires a completed nonempty invocation in the same cycle")
+            from .input_digest import inputs_digest
+
+            live_digest = inputs_digest(
+                root,
+                [
+                    request["artifact_path"],
+                    *(item["path"] for item in request.get("supporting_inputs", [])),
+                ],
+            )
+            if live_digest != prior[-1]["input_digest"]:
+                raise ValueError("Publication retry requires unchanged reviewed and supporting input bytes on disk")
+            target_output = root / request["output_path"]
+            if target_output.is_file() or cycle.get("current_path") == target_output.name:
+                raise ValueError("Publication retry is forbidden when the target review output is already published")
+            cycle["publication_retries"] = cycle.get("publication_retries", 0) + 1
+            return {"key": key, "request": request}
         if cycle:
             if cycle["projection"] != snapshot:
                 raise ValueError("Material scope changed; owner-led cycle revision required, not an allowance reset")
@@ -585,7 +626,7 @@ def prepare_cycle(project: str, data: dict, args: object) -> dict | None:
         else:
             if any(
                 item["step"] == step
-                and item["kind"] in ("invocation", "empty-output-retry")
+                and item["kind"] in ("invocation", "empty-output-retry", "publication-retry")
                 and not item.get("cycle_id")
                 for item in history
             ):

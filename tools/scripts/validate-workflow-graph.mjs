@@ -273,9 +273,9 @@ for (const edge of graph.edges) {
 
 // Validate metadata.version
 const expectedMajors = ["2", "3"];
-const knownVersions = new Set(["2.1", "2.2", "2.3", "2.4", "2.5", "3.0", "3.1", "3.2"]);
+const knownVersions = new Set(["2.1", "2.2", "2.3", "2.4", "2.5", "3.0", "3.1", "3.2", "3.3"]);
 const metaVersion = graph.metadata?.version;
-if (["2.5", "3.0", "3.1", "3.2"].includes(metaVersion)) {
+if (["2.5", "3.0", "3.1", "3.2", "3.3"].includes(metaVersion)) {
   const contract = graph.metadata?.risk_acceptance;
   if (
     contract?.contract !== "risk-authorization-v1" ||
@@ -302,7 +302,7 @@ if (metaVersion === undefined) {
 } else if (!expectedMajors.includes(metaVersion.split(".")[0])) {
   r.error(`Unsupported metadata.version major: ${metaVersion}`);
 }
-if (["3.0", "3.1", "3.2"].includes(metaVersion)) {
+if (["3.0", "3.1", "3.2", "3.3"].includes(metaVersion)) {
   const contract = graph.metadata.practical_workflow;
   if (
     contract?.contract !== "practical-v1" ||
@@ -314,11 +314,11 @@ if (["3.0", "3.1", "3.2"].includes(metaVersion)) {
   )
     r.error("Practical workflow must preserve bounded review cycles, stage approvals and explicit legacy adoption");
 }
-if (["3.1", "3.2"].includes(metaVersion)) {
+if (["3.1", "3.2", "3.3"].includes(metaVersion)) {
   for (const error of validateAssessmentProfile(graph.profiles?.assessment, metaVersion)) r.error(error);
 }
 
-export function validateAssessmentProfile(profile, version = "3.2") {
+export function validateAssessmentProfile(profile, version = "3.3") {
   const errors = [];
   if (
     !profile ||
@@ -327,30 +327,52 @@ export function validateAssessmentProfile(profile, version = "3.2") {
     profile.terminal !== "terminal"
   )
     return ["Missing explicit standalone assessment profile"];
-  if (!["3.1", "3.2"].includes(version)) errors.push("Unknown standalone assessment graph version");
+  if (!["3.1", "3.2", "3.3"].includes(version)) errors.push("Unknown standalone assessment graph version");
+  const expectedV2 = {
+    when: {
+      bundle_contract: "assessment-bundle-v2",
+      sources: ["azure", "combined"],
+      selection: "action_register",
+    },
+    outputs: [
+      "contracts/assessment-action-register.json",
+      "04-assessment-action-register.md",
+      "assets/04-assessment-action-register.xlsx",
+      "_meta/action-register-derived.json",
+      "_meta/action-register-export.json",
+    ],
+  };
+  const expectedV3 = {
+    when: {
+      bundle_contract: "assessment-bundle-v3",
+      sources: ["iac", "azure", "combined"],
+      selection: "visual_charts",
+    },
+    outputs: [
+      "_meta/waf-scores.json",
+      "assets/02-waf-posture.png",
+      "assets/02-waf-posture.svg",
+      "assets/03-cost-trends.png",
+      "assets/03-cost-trends.svg",
+      "assets/03-cost-drivers.png",
+      "assets/03-cost-drivers.svg",
+    ],
+  };
   if (version === "3.2") {
     if (JSON.stringify(profile.bundle_contracts) !== JSON.stringify(["assessment-bundle-v1", "assessment-bundle-v2"]))
       errors.push("Assessment graph must declare original and register-capable bundle contracts");
-    const expected = [
-      {
-        when: {
-          bundle_contract: "assessment-bundle-v2",
-          sources: ["azure", "combined"],
-          selection: "action_register",
-        },
-        outputs: [
-          "contracts/assessment-action-register.json",
-          "04-assessment-action-register.md",
-          "assets/04-assessment-action-register.xlsx",
-          "_meta/action-register-derived.json",
-          "_meta/action-register-export.json",
-        ],
-      },
-    ];
-    if (JSON.stringify(profile.nodes?.analysis?.conditional_produces) !== JSON.stringify(expected))
+    if (JSON.stringify(profile.nodes?.analysis?.conditional_produces) !== JSON.stringify([expectedV2]))
       errors.push("Assessment register outputs must use the bounded contract/source/selection condition at analysis");
+  } else if (version === "3.3") {
+    if (
+      JSON.stringify(profile.bundle_contracts) !==
+      JSON.stringify(["assessment-bundle-v1", "assessment-bundle-v2", "assessment-bundle-v3"])
+    )
+      errors.push("Assessment graph 3.3 must declare v1, v2 and v3 bundle contracts");
+    if (JSON.stringify(profile.nodes?.analysis?.conditional_produces) !== JSON.stringify([expectedV2, expectedV3]))
+      errors.push("Assessment graph 3.3 must declare exact v2 register and v3 visual_charts conditions at analysis");
   } else if (profile.bundle_contracts || Object.values(profile.nodes ?? {}).some((node) => node.conditional_produces)) {
-    errors.push("Register-capable output declarations require graph 3.2");
+    errors.push("Register-capable output declarations require graph 3.2 or 3.3");
   }
   const nodes = profile.nodes ?? {};
   const edges = Array.isArray(profile.edges) ? profile.edges : [];

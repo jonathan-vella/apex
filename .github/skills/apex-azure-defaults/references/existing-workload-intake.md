@@ -149,6 +149,13 @@ Price recommended resources through the existing pricing owner; current SKU name
 
 For each pillar, cite dated evidence, distinguish current state from recommendation, state confidence and retain gaps.
 Do not score an unknown control as compliant or call a diagram a live verification.
+Assign a bounded `0–10` score whenever `>= 2` pillar-relevant checks are observed (computed strictly over observed
+applicable checks with `unknown` excluded from both numerator and denominator, paired with explicit evidence coverage
+`High >=70%`, `Medium 35–69%`, `Low <35%`). Reserve `Not assessed` strictly for pillars with `< 2` observed checks.
+Classify action-register recommendations with `disposition` (`remediate_now`, `production_readiness_gap`,
+`intentional_lab_tradeoff`, `orphan_or_drift_cleanup`, or `verification_followup`) so user-declared lab/PoC
+trade-offs are distinguished from unintended drift/cost leaks and production cutover blockers. Quantify recurring
+monthly savings when closed-month resource-attributed Cost Management + utilization/Advisor observations substantiate them.
 
 | Pillar | Workload checks | Cross-subscription checks |
 | --- | --- | --- |

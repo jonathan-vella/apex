@@ -318,6 +318,38 @@ export function normalizeCostCollection(collection, { approvedScopes, asOf, prov
   timestamp(collection.collected_at);
   assert(timestamp(collection.collected_at) <= timestamp(asOf), "Collection cannot be future-dated");
   const { request_path } = buildCostRequest(request, { approvedScopes, asOf: collection.collected_at });
+  const logicalFromDay = iso(timestamp(request.period.from)).slice(0, 10);
+  const logicalToDay = iso(timestamp(request.period.to)).slice(0, 10);
+  let physicalFromDay = logicalFromDay;
+  let physicalToDay = logicalToDay;
+  if (collection.physical_request_period !== undefined) {
+    assert(
+      request.operation === "query" && request.granularity === "Daily",
+      "physical_request_period requires a Daily historical query",
+    );
+    validatePeriod(
+      { id: "physical_slice", kind: "custom", ...collection.physical_request_period },
+      "query",
+      collection.collected_at,
+    );
+    const physFrom = timestamp(collection.physical_request_period.from);
+    const physTo = timestamp(collection.physical_request_period.to);
+    assert(
+      physFrom <= timestamp(request.period.from) && physTo >= timestamp(request.period.to),
+      "physical_request_period must enclose the logical request period",
+    );
+    physicalFromDay = iso(physFrom).slice(0, 10);
+    physicalToDay = iso(physTo).slice(0, 10);
+  }
+  if (collection.inferred_currency_from !== undefined) {
+    assert(
+      request.operation === "query" &&
+        request.expected_currency === undefined &&
+        collection.inferred_currency_from.period_id !== request.period.id &&
+        CURRENCIES.has(collection.inferred_currency_from.currency),
+      "inferred_currency_from is only valid for empty historical queries without expected_currency",
+    );
+  }
   checkShape(provenance, "provenance");
   assert(
     provenance.source === collection.source && provenance.collected_at === collection.collected_at,
@@ -410,11 +442,11 @@ export function normalizeCostCollection(collection, { approvedScopes, asOf, prov
         }
         if (dates.length) {
           const date = rowDate(values[dates[0]]);
-          assert(
-            date >= iso(timestamp(request.period.from)).slice(0, 10) &&
-              date <= iso(timestamp(request.period.to)).slice(0, 10),
-            "Response date outside requested period",
-          );
+          assert(date >= physicalFromDay && date <= physicalToDay, "Response date outside requested period");
+          if (collection.physical_request_period !== undefined && (date < logicalFromDay || date > logicalToDay)) {
+            continue;
+          }
+          assert(date >= logicalFromDay && date <= logicalToDay, "Response date outside requested period");
           dimensions[dates[0]] = date;
         }
         const key = JSON.stringify([currency, costStatus, dimensions]);
@@ -444,6 +476,11 @@ export function normalizeCostCollection(collection, { approvedScopes, asOf, prov
   if (!collection.pages.length) gaps.push("Cost Management not queried or response unavailable");
   if (expected !== null && collection.pages.length)
     gaps.push("Pagination incomplete; reported amounts are observed subtotals only");
+  if (!integrityFailure && completed && rowsSeen > 0 && collection.inferred_currency_from !== undefined) {
+    gaps.push("inferred_currency_from is forbidden when the period returned actual cost rows");
+    integrityFailure = true;
+    completed = false;
+  }
   if (!integrityFailure && completed && rowsSeen === 0) {
     if (request.operation === "forecast")
       gaps.push("Forecast unavailable: successful response contained no forecast rows");
@@ -454,7 +491,18 @@ export function normalizeCostCollection(collection, { approvedScopes, asOf, prov
         amount: "0",
         groups: [],
       });
-    else gaps.push("Successful empty query has no declared reporting currency; no numeric zero assigned");
+    else if (collection.inferred_currency_from) {
+      const inferred = collection.inferred_currency_from.currency;
+      series.set(`${inferred}:Actual`, {
+        currency: inferred,
+        cost_status: "Actual",
+        amount: "0",
+        groups: [],
+      });
+      gaps.push(
+        `Empty historical period zero-valued in ${inferred} from verified same-scope period ${collection.inferred_currency_from.period_id}`,
+      );
+    } else gaps.push("Successful empty query has no declared reporting currency; no numeric zero assigned");
   }
   if (request.operation === "forecast" && rowsSeen && ![...series.values()].some((s) => s.cost_status === "Forecast"))
     gaps.push("Forecast API returned history only; quantitative forecast unavailable");
@@ -463,7 +511,9 @@ export function normalizeCostCollection(collection, { approvedScopes, asOf, prov
   if (completed && request.period.kind === "month_to_date")
     gaps.push("Month-to-date billing may be delayed or revised; not a final invoice");
   const usable = [...series.values()].filter((s) => request.operation !== "forecast" || s.cost_status === "Forecast");
-  const blockingGaps = gaps.filter((gap) => !gap.startsWith("Month-to-date billing"));
+  const blockingGaps = gaps.filter(
+    (gap) => !gap.startsWith("Month-to-date billing") && !gap.startsWith("Empty historical period zero-valued in "),
+  );
   result.status = !usable.length
     ? "not_assessed"
     : completed && successful > 0 && !blockingGaps.length
@@ -618,6 +668,7 @@ export function validateAssessmentCost(
     attempt(`period ${period.id}`, () =>
       validatePeriod(period, period.kind === "forecast" ? "forecast" : "query", report.as_of),
     );
+  const loadedSources = new Map();
   for (const evidence of report.evidence) {
     attempt(`evidence ${evidence.id}`, () => {
       assert(!ids.has(evidence.id) && evidence.id === evidence.request.id, "Duplicate or inconsistent evidence ID");
@@ -657,6 +708,7 @@ export function validateAssessmentCost(
           "Source collected after report generation",
         );
         const source = verifyReference(evidence.provenance, readEvidence, asOf, 7);
+        loadedSources.set(evidence.id, source);
         const normalized = normalizeCostCollection(source, {
           approvedScopes: report.scopes,
           asOf,
@@ -664,6 +716,41 @@ export function validateAssessmentCost(
         });
         assert(isDeepStrictEqual(evidence, normalized), "Normalized evidence differs from original saved source");
       }
+    });
+  }
+  for (const [evidenceId, source] of loadedSources.entries()) {
+    if (!source.inferred_currency_from) continue;
+    attempt(`evidence ${evidenceId} currency inference`, () => {
+      const current = byId.get(evidenceId);
+      const { period_id: refPeriodId, currency: inferredCurrency } = source.inferred_currency_from;
+      const sameScope = report.evidence.filter(
+        (item) =>
+          item.request.scope.toLowerCase() === current.request.scope.toLowerCase() &&
+          item.request.operation === "query" &&
+          item.request.cost_type === current.request.cost_type &&
+          item.request.metric === current.request.metric,
+      );
+      const donor = sameScope.find((item) => item.request.period.id === refPeriodId);
+      const donorSource = donor ? loadedSources.get(donor.id) : undefined;
+      assert(
+        donor &&
+          donor.status === "complete" &&
+          donorSource &&
+          !donorSource.inferred_currency_from &&
+          donor.series.length === 1 &&
+          donor.series[0].currency === inferredCurrency &&
+          donor.series[0].groups.length > 0,
+        "inferred_currency_from must reference a non-empty, non-inferred complete period on the exact same scope",
+      );
+      const observedCurrencies = new Set(
+        sameScope
+          .filter((item) => !loadedSources.get(item.id)?.inferred_currency_from)
+          .flatMap((item) => item.series.map((s) => s.currency)),
+      );
+      assert(
+        observedCurrencies.size === 1 && observedCurrencies.has(inferredCurrency),
+        "Same-scope currency inference is forbidden when sibling periods report conflicting currencies",
+      );
     });
   }
   for (const scope of report.scopes) {

@@ -46,8 +46,14 @@ icons) and the `.png` is the `3840×2160` raster render.
 
 For the standalone assessment profile, `assets/03-des-diagram.{py,png,svg}` is mandatory
 before final bundle acceptance. Diagram generation uses authorized evidence and validated analysis,
-not an intermediate Architecture approval. Label observed/declared versus inferred/unknown edges;
-never portray a recommendation or unverified control as deployed. Inspect both formats.
+not an intermediate Architecture approval. Render all observed resource families inside their
+Subscription/RG/VNet containers, encode observed versus declared/unverified edges visually via
+the compact legend (capping caveat boxes at `<= 10%` of canvas height), and never portray a
+recommendation or unverified control as deployed. For `assessment-bundle-v3` (`visual_charts: true`),
+`03-Architect` also runs `python3 tools/scripts/render-assessment-charts.py --project-dir agent-output/{project}`
+during `analysis` to produce `assets/02-waf-posture.{png,svg}`, `assets/03-cost-trends.{png,svg}`,
+and `assets/03-cost-drivers.{png,svg}` from `_meta/waf-scores.json` and `contracts/03-cost-management.json`,
+embedding the SVGs inline in `02-architecture-assessment.md` and `03-cost-management-report.md`.
 
 | Step | Python diagram & chart files |
 | --- | --- |

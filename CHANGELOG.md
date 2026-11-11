@@ -6,6 +6,16 @@ Entries are grouped by conventional-commit type. Breaking changes list the migra
 
 ### Added
 
+#### Standalone WAF assessment v2 hardening and `assessment-bundle-v3` visuals
+
+Stamp omitted `cache_inputs` and `supporting_inputs` from verified `APEX_REVIEW` dispatch metadata in
+`record-review.mjs`, add symlink-safe `--events-dir` lookup by `request_id`, and support bounded
+`publication-retry` (`<= 1` per cycle) in `apex-recall`. Add uniform scalar-allowlisted multi-subscription
+collection (`collect-assessment-evidence.py`) with optional disjoint `scope.rg_attribution`, consolidated
+`429`-resilient Cost Management collection (`collect-assessment-cost.mjs`) with verified same-scope zero-row
+currency inference, optional action `disposition` classification, and `assessment-bundle-v3` quantitative
+WAF/cost charts (`render-assessment-charts.py`) while preserving `v1`/`v2` compatibility.
+
 #### Assessment Action Register
 
 Extend new Azure/combined standalone assessments with evidence-linked proposed actions and matching

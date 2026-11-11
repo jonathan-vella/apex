@@ -119,6 +119,12 @@ Skills provide domain methods, not new tool permissions or role transitions.
 
 1. Map approved resources, boundaries, dependencies and critical flows before drawing.
    Locate the source decision for every component; report absent evidence instead of inferring topology.
+   In standalone assessments, render **every observed resource family** inside its Subscription, RG and
+   VNet/subnet containers using `_meta/live-inventory.json` and `_meta/controls-evidence.json` (see the
+   Multi-Subscription Existing-State pattern in `common-patterns.md`). Encode epistemic state visually
+   (solid blue/teal = observed config/peering, dashed amber = declared/unverified flow, amber/red pill =
+   region/cost drift, muted card = empty/torn-down subscription) with one compact legend row; keep
+   disclaimer/unknown callout boxes to `<= 10%` of canvas height instead of omitting observed resources.
 2. Select the nearest pattern in the diagrams skill; prefer `dlib` (`scripts/dlib.py`) for
    architecture, network, DNS, identity and swimlane diagrams, and `matplotlib` (`save_figure`)
    for quantitative charts. For large topologies use an overview and focused region/workload diagrams.

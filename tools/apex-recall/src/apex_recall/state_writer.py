@@ -270,7 +270,7 @@ def validate_state(data: dict) -> None:
             "review_output" in attempt
             and (
                 attempt["review_output"] not in ("empty", "nonempty", "unknown")
-                or attempt["kind"] not in ("invocation", "empty-output-retry")
+                or attempt["kind"] not in ("invocation", "empty-output-retry", "publication-retry")
                 or attempt["outcome"] not in ("completed", "failed")
             )
         )

@@ -28,7 +28,9 @@ Capture receipts do not replace independent reviews, human gates or Azure author
 Deliver a WAF report, required architecture diagram and Cost Management report as one bundle, plus the
 [Assessment Action Register](../skills/apex-azure-artifacts/references/assessment-action-register.md)
 (`04-assessment-action-register.md` and `assets/04-assessment-action-register.xlsx`) for new Azure/combined runs
-or when `action_register: true` is requested for IaC-only runs.
+or when `action_register: true` is requested for IaC-only runs, and quantitative WAF/cost charts
+(`visual_charts: true` -> `assets/02-waf-posture.{png,svg}`, `assets/03-cost-trends.{png,svg}`,
+`assets/03-cost-drivers.{png,svg}` embedded inline in the Markdown reports).
 For Azure report actual spend, trends and available forecast; for IaC report labelled estimates.
 Missing cost evidence is not zero. Keep a prioritized nonbinding roadmap and explicit coverage gaps.
 Run internal owner handoffs and both independent WAF/cost-quality reviews automatically within granted scope.

@@ -54,6 +54,11 @@ def graph_version(directory: Path, version: str) -> None:
     if version == "3.1":
         del graph["profiles"]["assessment"]["bundle_contracts"]
         del graph["profiles"]["assessment"]["nodes"]["analysis"]["conditional_produces"]
+    elif version == "3.2":
+        graph["profiles"]["assessment"]["bundle_contracts"] = ["assessment-bundle-v1", "assessment-bundle-v2"]
+        graph["profiles"]["assessment"]["nodes"]["analysis"]["conditional_produces"] = [
+            graph["profiles"]["assessment"]["nodes"]["analysis"]["conditional_produces"][0]
+        ]
     (directory.parent.parent / GRAPH).write_text(json.dumps(graph))
 
 
@@ -154,7 +159,7 @@ def test_legacy_frozen_and_accepted_runs_keep_exact_contract_under_current_graph
     assert writer.session_state_path("synthetic").read_bytes() == before
 
 
-@pytest.mark.parametrize("version", ["3.0", "3.3", "3.999", "4.0"])
+@pytest.mark.parametrize("version", ["3.0", "3.4", "3.999", "4.0"])
 def test_unknown_assessment_reader_versions_fail_before_start(assessment_project, version):
     directory, writer, _, cli = assessment_project
     before = writer.session_state_path("synthetic").read_bytes()
@@ -422,3 +427,58 @@ def test_every_imported_cost_report_obeys_captured_authorization(assessment_proj
     assert invoke(cli, "advance", phase="analysis") != 0
     assert message in module.readiness("synthetic", state(writer))["error"]
     assert writer.session_state_path("synthetic").read_bytes() == before
+
+
+def test_v3_visual_charts_contract_requires_waf_scores_and_rendered_charts(assessment_project):
+    directory, writer, module, cli = assessment_project
+    req = {**request("iac"), "visual_charts": True}
+    assert invoke(cli, "start", req) == 0
+    run = state(writer)["assessment_run"]
+    assert run["bundle_contract"] == "assessment-bundle-v3"
+    assert run["visual_charts"] is True
+    assert validate_root_document(writer.session_state_path("synthetic"))["valid"]
+
+    evidence(directory, req)
+    assert invoke(cli, "advance", phase="evidence") == 0
+    analysis(directory, req)
+    # Missing v3 chart outputs blocks advancing analysis.
+    assert invoke(cli, "advance", phase="analysis") != 0
+
+    (directory / "_meta").mkdir(exist_ok=True)
+    (directory / "_meta/waf-scores.json").write_text(
+        json.dumps(
+            {
+                "schema_version": "assessment-waf-scores-v1",
+                "project": "synthetic",
+                "as_of": req["reporting"]["as_of"],
+                "pillars": [
+                    {
+                        "pillar": name,
+                        "status": "scored",
+                        "score": 7.0,
+                        "confidence": "Medium",
+                        "passed_checks": 2,
+                        "risk_checks": 1,
+                        "intentional_tradeoff_checks": 0,
+                        "unknown_checks": 1,
+                    }
+                    for name in (
+                        "Security",
+                        "Reliability",
+                        "Performance Efficiency",
+                        "Cost Optimization",
+                        "Operational Excellence",
+                    )
+                ],
+            }
+        )
+    )
+    subprocess.run(
+        ["python3", str(REPO / "tools/scripts/render-assessment-charts.py"), "--project-dir", str(directory)],
+        check=True,
+    )
+    assert invoke(cli, "advance", phase="analysis") == 0
+    diagram(directory)
+    assert invoke(cli, "advance", phase="diagram") == 0
+    assert "assets/02-waf-posture.png" in state(writer)["assessment_run"]["frozen_inputs"]
+    assert "assets/03-cost-trends.svg" in state(writer)["assessment_run"]["frozen_inputs"]

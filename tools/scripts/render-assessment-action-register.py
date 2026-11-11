@@ -165,6 +165,11 @@ def view_rows(payload: dict) -> list[tuple[tuple[str, ...], list[list[object]]]]
             resource = resources[resource_id]
             count = "count unknown" if resource["count"] is None else f"evidenced count {resource['count']}"
             affected.append(f"{resource['name']} ({resource['type']}; {count})")
+        note_items = (
+            ([f"Disposition: {action['disposition']}"] if "disposition" in action else [])
+            + action["notes"]
+            + [f"Dependencies: {', '.join(action['dependencies']) or 'none supplied'}"]
+        )
         action_rows.append(
             [
                 action["category"],
@@ -174,7 +179,7 @@ def view_rows(payload: dict) -> list[tuple[tuple[str, ...], list[list[object]]]]
                 "; ".join(affected) or "Resource attribution unknown / proposed service",
                 amount(value["display_contribution"]),
                 action["effort"],
-                "; ".join(action["notes"] + [f"Dependencies: {', '.join(action['dependencies']) or 'none supplied'}"]),
+                "; ".join(note_items),
                 action["comments"],
                 action["status"],
                 action["target_window"],
@@ -258,7 +263,7 @@ def view_rows(payload: dict) -> list[tuple[tuple[str, ...], list[list[object]]]]
         basis_rows.append(
             ["Action", action["id"], "Applicability", f"{action['applicability']}; {action.get('condition', '')}"]
         )
-        for key in ("alternative_group", "overlap_group", "critical_evidence_id", "lifecycle"):
+        for key in ("disposition", "alternative_group", "overlap_group", "critical_evidence_id", "lifecycle"):
             if key in action:
                 basis_rows.append(["Action", action["id"], key, json.dumps(action[key], ensure_ascii=False)])
         finance = action["finance"]
