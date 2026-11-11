@@ -1,0 +1,36 @@
+{
+  "contract": "register-tool-compatibility-v1",
+  "compatible_tool_snapshots": [
+    {
+      "rationale": "Initial assessment-bundle-v2 action-register export baseline (2026-11-06); outputs and derived math are unchanged when optional disposition is absent.",
+      "tool_hashes": {
+        "assessment-action-register.mjs": "1ae022587f6ee4786625d2c64d999df25e152e9ad236f3bf7b95cb9cc49eeb6d",
+        "render-assessment-action-register.py": "f42d96c0aa3ed48ab78d630d28920a706e6d4f30f6ff2414ba7d9b319dfdbd87",
+        "assessment-cost.mjs": "9405314b9dcfb3f96f242fa632fc92a0363cdacd883096e8a873ec42f2751bb5",
+        "cost-estimate.mjs": "8dcd436e27bcb061c7adfd017d37c6bb0d2fa4f72efbfcda076b15792a3dc02c",
+        "_lib/ajv-validator.mjs": "413f9afa75c946c4098c3884b92d8059eb66632ab5b2108810d8499ff1c56bf6",
+        "_lib/json.mjs": "90c6ae0a04a2847a54bdd75163288d7e58e10fd5991475cf8c676c2ad1156487",
+        "_lib/project-paths.mjs": "d7710b11b6fe6ae53c2c605b6e4f89bf4742c1151b3fe6d10fe4fe296393612b",
+        "../schemas/assessment-action-register.schema.json": "56ba79b7f23149452a4fa04cdba2852e4bd4bddbfb301c8f55b0c2f70524f61d",
+        "../schemas/assessment-cost.schema.json": "87f9c94df26b0f9f5f82d9dac82246dd26eff6bf774a7c95e8227abe92b97628",
+        "../schemas/cost-estimate.schema.json": "1ea1a9d3b365e530bcd3f12370e9bc7df4e04b9444fb735864206655ec417553"
+      }
+    },
+    {
+      "rationale": "PR #826 retail pricing evidence update baseline; outputs and derived math are unchanged when optional disposition is absent.",
+      "tool_hashes": {
+        "assessment-action-register.mjs": "4323dee76780626694029212d67b4ec26be8ae007136f6d320aace7b3bc41850",
+        "render-assessment-action-register.py": "f42d96c0aa3ed48ab78d630d28920a706e6d4f30f6ff2414ba7d9b319dfdbd87",
+        "assessment-cost.mjs": "0855cc2fa59bd418624df912042564e88df325747a44293d033b63c1a5d79311",
+        "cost-estimate.mjs": "e0793d60b271b87d564016e40249647d8adb27f05bbe2a0c69a87770638ea9d4",
+        "_lib/ajv-validator.mjs": "413f9afa75c946c4098c3884b92d8059eb66632ab5b2108810d8499ff1c56bf6",
+        "_lib/json.mjs": "a92b44b6218df7fd925123a9656916b14b4133dcaef736a6068e4ec440c987cc",
+        "_lib/project-paths.mjs": "8bfcabbbb235bcca3a8606d924517f3e7bf8f056a7600fa540b850e274dbd743",
+        "_lib/pricing-evidence.mjs": "39686ba621c3df1a863a73649b83cc951b9aad0216ed4aee277d7a07f5a56e4b",
+        "../schemas/assessment-action-register.schema.json": "1582dca22ae9b75beb120c9237598b4389acfde21e067c5454ee665ef658b0b8",
+        "../schemas/assessment-cost.schema.json": "3e2efe60a5b8fc61c40b07a6edba397c05051a85255a01b0502e7fae2ed12138",
+        "../schemas/cost-estimate.schema.json": "4c25d59c6ffacd5f89010a5a3f44be0d54e750ec2411b5cf8adb6b811b668512"
+      }
+    }
+  ]
+}

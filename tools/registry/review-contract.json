@@ -32,6 +32,38 @@
         "reviewer_contract_sha": "5b6d929b6c7bae2ad054b343e5627eb17349fb6fd4d4b94a76a9bc90973ee21a",
         "reviewer_definition_sha": "e714de1a61d227de38093bc7b45081dd7375c4598b2e2b1b092f1824f8ade87f"
       }
+    },
+    {
+      "classification": "editorial",
+      "rationale": "Allow challenger-review-subagent to omit mechanical cache_inputs/supporting_inputs hashes stamped by record-review.mjs without changing checklists or review criteria.",
+      "from": {
+        "checklists_sha": "418fdabfe6b6d1f762c798fd559369a89c1e607af237a5c2861abc9b34876073",
+        "protocol_sha": "ee62e6840d6b4e331bf39fc6ae1a617ae17bebe795a5a9d8587cb8c5ab988182",
+        "reviewer_contract_sha": "bdf575404d5ffcf99758c25f9176cc86432adeffe6be17fd13453e178ca3fb49",
+        "reviewer_definition_sha": "5c64843766e2021c7e053d6bb9bb8c4c2d6752a3cf0f957bf7e3ac23aa85a532"
+      },
+      "to": {
+        "checklists_sha": "418fdabfe6b6d1f762c798fd559369a89c1e607af237a5c2861abc9b34876073",
+        "protocol_sha": "ee62e6840d6b4e331bf39fc6ae1a617ae17bebe795a5a9d8587cb8c5ab988182",
+        "reviewer_contract_sha": "ee1fae777768a19fcba7e279710bc88b5bee17af04ebd9e73f790718f66319fc",
+        "reviewer_definition_sha": "3f58fd74517882804da1d1e3274fb6e5396125f6179538f29926589e2071e009"
+      }
+    },
+    {
+      "classification": "editorial",
+      "rationale": "Allow challenger-review-subagent to omit mechanical cache_inputs/supporting_inputs hashes stamped by record-review.mjs without changing checklists or review criteria (arcbox-insights baseline).",
+      "from": {
+        "checklists_sha": "418fdabfe6b6d1f762c798fd559369a89c1e607af237a5c2861abc9b34876073",
+        "protocol_sha": "ee62e6840d6b4e331bf39fc6ae1a617ae17bebe795a5a9d8587cb8c5ab988182",
+        "reviewer_contract_sha": "9c3243808f64728c77d632c952456548576fcb0be301a9c5d22973d0a69c4c7a",
+        "reviewer_definition_sha": "61fc7885bbfdd9f47dcbbc23cbc3a8ecbc0e6a5f04d6504c3146bae9d32bd769"
+      },
+      "to": {
+        "checklists_sha": "418fdabfe6b6d1f762c798fd559369a89c1e607af237a5c2861abc9b34876073",
+        "protocol_sha": "ee62e6840d6b4e331bf39fc6ae1a617ae17bebe795a5a9d8587cb8c5ab988182",
+        "reviewer_contract_sha": "ee1fae777768a19fcba7e279710bc88b5bee17af04ebd9e73f790718f66319fc",
+        "reviewer_definition_sha": "3f58fd74517882804da1d1e3274fb6e5396125f6179538f29926589e2071e009"
+      }
     }
   ],
   "supporting_input_compatibility": [

@@ -72,9 +72,9 @@ Preserve exact scope, pass, prior findings and metadata. Never invent paths, has
    If one file-not-found read omitted the immediate scope directory, correct it once using that supplied literal
    path in this same invocation. Continue only after a successful read; retain the failed call for recorder audit.
    Do not search alternative locations or retry access/content-exclusion denials. Missing evidence still blocks.
-2. Preserve supplied `cache_inputs`/`supporting_inputs` unchanged. The parent captures them before dispatch.
-   They identify `challenger-review-subagent`, its definition and the shared one-shot contract.
-   Do not compute, refresh or restamp hashes; missing metadata is an execution failure.
+2. Preserve supplied `cache_inputs`/`supporting_inputs` unchanged if echoed, or omit them from your JSON
+   output so `record-review.mjs` stamps the exact verified dispatch hashes. The parent captures them before dispatch.
+   Do not compute, refresh or restamp hashes; missing dispatch metadata is an execution failure.
 3. Read the target completely and relevant supporting artifacts. Actual COMPLETE cost evidence must use
    the caller's authoritative path, not a guessed alias or an old FAILED draft.
    Return missing required rationale to the parent instead of reading unrelated state or running commands.
@@ -103,7 +103,9 @@ Return one raw JSON object, beginning with `{` and ending with `}`.
 No Markdown fences, introduction, prose-only report or closing summary.
 Single-lens substantive fields:
 `schema_version:"1.0"`, `challenged_artifact`, `artifact_type`, `review_focus`, `pass_number`,
-`overall_assessment`, `risk_level`, `findings`, `cache_inputs`; copy exact `supporting_inputs` when supplied.
+`overall_assessment`, `risk_level`, `findings`. Omit `cache_inputs` and `supporting_inputs` so the
+recorder stamps the exact verified dispatch hashes without transcription typos (exact echoed copies
+remain accepted for compatibility).
 Assessment is `APPROVED`, `NEEDS_REVISION` or `BLOCKED`; do not infer it from counts alone.
 Each finding has `severity`, `category`, `claim`, `evidence`, `impact`, `artifact_section`,
 `traces_to` (default empty array).
@@ -114,8 +116,8 @@ Risk is `high`, `medium` or `low`. Omit finding IDs and severity counts; the rec
 from your exact returned identity fields and severities. Do not include `review_execution`;
 the recorder derives actual worker/parent identity and completion from native events.
 
-Batch JSON is one object with `batch_results`: an ordered array of complete single-lens payloads,
-including each schema/cache block. It is not separate automatic per-pass files or an abbreviated schema.
+Batch JSON is one object with `batch_results`: an ordered array of complete single-lens payloads.
+It is not separate automatic per-pass files or an abbreviated schema.
 Per-finding decisions belong only to the parent's separate decisions sidecar.
 
 Batch results use this same JSON contract; there is no file-path-only return channel.

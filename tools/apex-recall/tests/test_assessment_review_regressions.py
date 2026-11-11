@@ -452,3 +452,191 @@ def test_root_schema_preserves_legacy_risk_references_and_exception_decisions(as
     result = validate_root_document(case)
     assert result["valid"], result["errors"]
     assert "assessment_run" not in legacy
+
+
+def test_publication_retry_recovers_once_when_closure_fails_recorder_with_unchanged_inputs(assessment_project):
+    directory, writer, _, cli = assessment_project
+    req = request("iac")
+    assert invoke(cli, "start", req) == 0
+    evidence(directory, req)
+    assert invoke(cli, "advance", phase="evidence") == 0
+    analysis(directory, req)
+    assert invoke(cli, "advance", phase="analysis") == 0
+    diagram(directory)
+    assert invoke(cli, "advance", phase="diagram") == 0
+    seed_reviews(assessment_project)
+
+    cycles = copy.deepcopy(state(writer)["decisions"]["review_cycles"])
+    waf_key, waf_cycle = next((k, v) for k, v in cycles.items() if v["lens"] == "comprehensive")
+    closure_req = audit_request(assessment_project, "comprehensive")
+    closure_req.update(
+        {
+            "request_id": "waf-closure-unpublishable",
+            "prior_findings": [],
+            "output_path": "agent-output/synthetic/reviews/challenge-findings-waf-closure.json",
+        }
+    )
+    (directory / "reviews").mkdir(exist_ok=True)
+    closure_path = directory.parent.parent / "waf-closure-req.json"
+    closure_path.write_text(json.dumps(closure_req))
+    assert audit(cli, closure_path, "started", "--closure-of", waf_cycle["initial_id"]) == 0
+    assert (
+        audit(
+            cli,
+            closure_path,
+            "completed",
+            "--closure-of",
+            waf_cycle["initial_id"],
+            "--review-output",
+            "nonempty",
+        )
+        == 0
+    )
+    assert state(writer)["decisions"]["review_cycles"][waf_key]["calls"] == 2
+
+    original_report = (directory / "02-architecture-assessment.md").read_text()
+    (directory / "02-architecture-assessment.md").write_text(original_report + "\nMutated.\n")
+    pub_req = copy.deepcopy(closure_req)
+    pub_req["request_id"] = "waf-closure-pub-retry"
+    pub_path = directory.parent.parent / "waf-pub-retry-req.json"
+    pub_path.write_text(json.dumps(pub_req))
+    assert (
+        cli.main(
+            [
+                "review-audit",
+                "synthetic",
+                "2",
+                "--review-request",
+                str(pub_path),
+                "--attempt-kind",
+                "publication-retry",
+                "--retry-of",
+                "waf-closure-unpublishable",
+                "--attempt-outcome",
+                "started",
+                "--json",
+            ]
+        )
+        != 0
+    )
+
+    (directory / "02-architecture-assessment.md").write_text(original_report)
+    assert (
+        cli.main(
+            [
+                "review-audit",
+                "synthetic",
+                "2",
+                "--review-request",
+                str(pub_path),
+                "--attempt-kind",
+                "publication-retry",
+                "--retry-of",
+                "waf-closure-unpublishable",
+                "--attempt-outcome",
+                "started",
+                "--json",
+            ]
+        )
+        == 0
+    )
+    document = json.loads((directory / waf_cycle["current_path"]).read_text())
+    document.update({"cache_inputs": pub_req["cache_inputs"], "supporting_inputs": pub_req["supporting_inputs"]})
+    document["review_execution"].update(
+        {
+            "request_id": pub_req["request_id"],
+            "worker_id": "pub-retry-worker",
+            "tool_call_id": "pub-retry-call",
+            "completed_at": writer._iso_now(),
+        }
+    )
+    published = directory / "reviews/challenge-findings-waf-closure.json"
+    published.write_text(json.dumps(document))
+    assert (
+        cli.main(
+            [
+                "review-audit",
+                "synthetic",
+                "2",
+                "--review-request",
+                str(pub_path),
+                "--attempt-kind",
+                "publication-retry",
+                "--retry-of",
+                "waf-closure-unpublishable",
+                "--attempt-outcome",
+                "completed",
+                "--review-output",
+                "nonempty",
+                "--review-result",
+                str(published),
+                "--json",
+            ]
+        )
+        == 0
+    )
+    updated_cycle = state(writer)["decisions"]["review_cycles"][waf_key]
+    assert updated_cycle["calls"] == 2
+    assert updated_cycle["publication_retries"] == 1
+
+    second_req = copy.deepcopy(closure_req)
+    second_req.update(
+        {
+            "request_id": "waf-closure-pub-retry-2",
+            "output_path": "agent-output/synthetic/reviews/challenge-findings-waf-closure-2.json",
+        }
+    )
+    second_path = directory.parent.parent / "waf-pub-retry-2.json"
+    second_path.write_text(json.dumps(second_req))
+    assert (
+        cli.main(
+            [
+                "review-audit",
+                "synthetic",
+                "2",
+                "--review-request",
+                str(second_path),
+                "--attempt-kind",
+                "publication-retry",
+                "--retry-of",
+                "waf-closure-unpublishable",
+                "--attempt-outcome",
+                "started",
+                "--json",
+            ]
+        )
+        != 0
+    )
+
+    # An invocation whose findings were already published cannot be retried via a new output_path.
+    cost_cycle = next(
+        v for v in state(writer)["decisions"]["review_cycles"].values() if v["lens"] == "cost-feasibility"
+    )
+    published_retry_req = audit_request(assessment_project, "cost-feasibility")
+    published_retry_req.update(
+        {
+            "request_id": "cost-already-published-retry",
+            "output_path": "agent-output/synthetic/reviews/challenge-findings-cost-unused.json",
+        }
+    )
+    published_retry_path = directory.parent.parent / "cost-already-published-retry.json"
+    published_retry_path.write_text(json.dumps(published_retry_req))
+    assert (
+        cli.main(
+            [
+                "review-audit",
+                "synthetic",
+                "2",
+                "--review-request",
+                str(published_retry_path),
+                "--attempt-kind",
+                "publication-retry",
+                "--retry-of",
+                cost_cycle["initial_id"],
+                "--attempt-outcome",
+                "started",
+                "--json",
+            ]
+        )
+        != 0
+    )

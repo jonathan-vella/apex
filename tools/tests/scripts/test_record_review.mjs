@@ -1683,3 +1683,91 @@ test("CLI requires absolute, parseable native events and refuses unknown overrid
   const result = run();
   assert.equal(result.status, 0, result.stderr);
 });
+
+test("recorder stamps omitted cache_inputs and supporting_inputs across single and batch results while rejecting null or conflicts", (t) => {
+  const single = fixture(t, { supporting: true });
+  delete single.doc.cache_inputs;
+  delete single.doc.supporting_inputs;
+  single.record();
+  assert.deepEqual(single.persisted().cache_inputs, single.input.cache_inputs);
+  assert.deepEqual(single.persisted().supporting_inputs, single.input.supporting_inputs);
+
+  const withoutSupport = fixture(t, { supporting: false });
+  delete withoutSupport.doc.cache_inputs;
+  withoutSupport.record();
+  assert.deepEqual(withoutSupport.persisted().cache_inputs, withoutSupport.input.cache_inputs);
+  assert.equal(Object.hasOwn(withoutSupport.persisted(), "supporting_inputs"), false);
+
+  const batch = fixture(t, { batch: true, supporting: true });
+  for (const item of batch.doc.batch_results) {
+    delete item.cache_inputs;
+    delete item.supporting_inputs;
+  }
+  batch.record();
+  for (const item of batch.persisted().batch_results) {
+    assert.deepEqual(item.cache_inputs, batch.input.cache_inputs);
+    assert.deepEqual(item.supporting_inputs, batch.input.supporting_inputs);
+  }
+
+  for (const bad of [(f) => (f.entry.cache_inputs = null), (f) => (f.entry.supporting_inputs = null)]) {
+    const invalid = fixture(t, { supporting: true });
+    bad(invalid);
+    assert.throws(() => invalid.record(), /differ from dispatch/);
+  }
+});
+
+test("--events-dir resolves unique session log by request_id, tolerates worker-first flush, and rejects symlinks/duplicates", async (t) => {
+  const f = fixture(t, { supporting: true });
+  delete f.doc.cache_inputs;
+  delete f.doc.supporting_inputs;
+  f.flush();
+  const sessions = path.join(f.root, "session-state");
+  const s1 = path.join(sessions, "session-a");
+  const s2 = path.join(sessions, "session-b");
+  fs.mkdirSync(s1, { recursive: true });
+  fs.mkdirSync(s2, { recursive: true });
+  fs.writeFileSync(path.join(s1, "events.jsonl"), `${JSON.stringify({ type: "session.start", data: {} })}\n`);
+  const raw = fs.readFileSync(f.options.events, "utf8");
+  fs.writeFileSync(path.join(s2, "events.jsonl"), raw);
+  const res = recordReview({
+    root: f.root,
+    eventsDir: sessions,
+    requestId: "request-1",
+    output,
+  });
+  assert.equal(res.review_execution.request_id, "request-1");
+
+  // Duplicate request_id across two session logs fails closed.
+  fs.writeFileSync(path.join(s1, "events.jsonl"), raw);
+  f.input.overwrite = true;
+  assert.throws(
+    () => recordReview({ root: f.root, eventsDir: sessions, requestId: "request-1", output }),
+    /Ambiguous request ID/,
+  );
+
+  // Symlinked events.jsonl in --events-dir is rejected.
+  fs.unlinkSync(path.join(s1, "events.jsonl"));
+  fs.symlinkSync(path.join(s2, "events.jsonl"), path.join(s1, "events.jsonl"));
+  assert.throws(
+    () => recordReview({ root: f.root, eventsDir: sessions, requestId: "request-1", output }),
+    /Symlinked nested events\.jsonl/,
+  );
+
+  // Trailing partial JSON line during --events-dir flush wait is tolerated until flushed.
+  fs.unlinkSync(path.join(s1, "events.jsonl"));
+  f.input.overwrite = true;
+  f.flush();
+  const rawOverwrite = fs.readFileSync(f.options.events, "utf8");
+  const logPath = path.join(s2, "events.jsonl");
+  fs.writeFileSync(logPath, `${rawOverwrite}\n{"type":"partial_flush`);
+  const child = spawn(
+    process.execPath,
+    [recorder, "--events-dir", sessions, "--request-id", "request-1", "--output", output],
+    { cwd: f.root, stdio: ["ignore", "pipe", "pipe"] },
+  );
+  setTimeout(() => {
+    fs.writeFileSync(logPath, `${rawOverwrite}\n`);
+  }, 150);
+  const [exitCode] = await once(child, "exit");
+  assert.equal(exitCode, 0);
+});

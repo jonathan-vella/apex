@@ -163,6 +163,10 @@ as Excel plus Markdown. Actions carry evidence, priorities, qualitative effort, 
 and defensible monthly additions/savings/net change. Unknown costs stay unquantified; overlapping benefits
 are not summed twice. Edit the structured source and regenerate the snapshot rather than tracking manual Excel changes.
 IaC-only export is optional; historical runs keep their captured output contract.
+When `visual_charts: true` is selected (`assessment-bundle-v3`), `03-Architect` also generates bounded WAF
+posture/coverage, subscription spend/forecast trend, and top cost-driver charts (`render-assessment-charts.py`)
+alongside uniform multi-subscription evidence collection (`collect-assessment-evidence.py`) and paced,
+consolidated Cost Management collection (`collect-assessment-cost.mjs`).
 See the [WAF Assessment User Guide](https://apexops.pro/guides/waf-assessment/) for step-by-step walkthroughs
 and prompts for both `evidence_only` and `requirements_led` scenarios.
 

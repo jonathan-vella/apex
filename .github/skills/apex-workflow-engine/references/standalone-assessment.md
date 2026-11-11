@@ -27,9 +27,14 @@ Use one field per independent input and retain the complete captured-answer ledg
 Do not treat default options, local IDs, task output or Autopilot responses as independent human authorization.
 
 For static sources record exact allowed files/directories. For live sources record the tenant, subscriptions
-and resource-group boundaries, plus allowed read categories: configuration/topology, utilization, operations,
+and resource-group boundaries, optional disjoint `scope.rg_attribution` (`workload_rgs`, `shared_rgs`,
+`excluded_rgs` so unrelated or orphaned resource groups are classified explicitly without widening scope),
+plus allowed read categories: configuration/topology, utilization, operations,
 cost and optionally policy. Referenced external subscriptions remain out of scope unless explicitly added.
 Do not request secrets, sign in, change credentials or broaden access automatically.
+Use `python3 tools/scripts/collect-assessment-evidence.py --project-dir agent-output/<project>` to collect
+paginated, scalar-allowlisted inventory, topology, configuration, operations, recovery and policy headers
+uniformly across all approved scopes without persisting raw ARM properties, secrets or tag values.
 
 Cost settings are part of the scope: last completed calendar month, preceding-month comparison,
 month-to-date and current-month forecast when available are suggested defaults. Persist resolved dates;
@@ -63,11 +68,16 @@ apex-recall handoff example --json
 In the show response, `.session.assessment_run` is the authoritative route/checkpoint and
 `.session.assessment_readiness` is current validation, not permission.
 `.session.assessment_cost_plan` is derived from captured reporting settings, not the report being checked.
-Graph 3.2 starts persist `assessment_run.bundle_contract: "assessment-bundle-v2"` and
+Graph 3.2 and 3.3 starts persist `assessment_run.bundle_contract: "assessment-bundle-v2"` by default
+(or `"assessment-bundle-v3"` under graph 3.3 when the scope request sets `"visual_charts": true`) and
 `assessment_run.action_register`: true for Azure/combined, false for IaC unless the actual request
-contains `"action_register": true`. Do not send a guessed `bundle_contract` in the scope request.
-The reader explicitly supports graphs 3.1 and 3.2, not arbitrary future versions.
-An original run without `bundle_contract` remains `assessment-bundle-v1` even under graph 3.2;
+contains `"action_register": true`. For `assessment-bundle-v3`, `03-Architect` writes `_meta/waf-scores.json`
+and runs `python3 tools/scripts/render-assessment-charts.py --project-dir agent-output/<project>` during
+`analysis` to emit `assets/02-waf-posture.{png,svg}`, `assets/03-cost-trends.{png,svg}`, and
+`assets/03-cost-drivers.{png,svg}` (embedded inline in `02-architecture-assessment.md` and
+`03-cost-management-report.md`). Do not send a guessed `bundle_contract` in the scope request.
+The reader explicitly supports graphs 3.1, 3.2 and 3.3, not arbitrary future versions.
+An original run without `bundle_contract` remains `assessment-bundle-v1` even under graph 3.2/3.3;
 file presence, newer source or a resume never opts it in.
 
 The graph phase IDs are `scope`, optional `requirements`, `evidence`, `analysis`, `diagram`,

@@ -1,0 +1,52 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://apexops.pro/schemas/assessment-waf-scores.schema.json",
+  "title": "Standalone Assessment Bounded WAF Pillar Scores & Coverage",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema_version", "project", "as_of", "pillars"],
+  "properties": {
+    "schema_version": { "const": "assessment-waf-scores-v1" },
+    "project": { "type": "string", "pattern": "^[a-z0-9][a-z0-9-]{0,62}$" },
+    "as_of": { "type": "string", "format": "date-time" },
+    "pillars": {
+      "type": "array",
+      "minItems": 5,
+      "maxItems": 5,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "pillar",
+          "status",
+          "score",
+          "confidence",
+          "passed_checks",
+          "risk_checks",
+          "intentional_tradeoff_checks",
+          "unknown_checks"
+        ],
+        "allOf": [
+          {
+            "if": { "properties": { "status": { "const": "scored" } }, "required": ["status"] },
+            "then": { "properties": { "score": { "type": "number", "minimum": 0, "maximum": 10 } } },
+            "else": { "properties": { "score": { "type": "null" } } }
+          }
+        ],
+        "properties": {
+          "pillar": {
+            "enum": ["Security", "Reliability", "Performance Efficiency", "Cost Optimization", "Operational Excellence"]
+          },
+          "status": { "enum": ["scored", "not_assessed"] },
+          "score": { "type": ["number", "null"], "minimum": 0, "maximum": 10 },
+          "confidence": { "enum": ["High", "Medium", "Low"] },
+          "passed_checks": { "type": "integer", "minimum": 0, "maximum": 1000 },
+          "risk_checks": { "type": "integer", "minimum": 0, "maximum": 1000 },
+          "intentional_tradeoff_checks": { "type": "integer", "minimum": 0, "maximum": 1000 },
+          "unknown_checks": { "type": "integer", "minimum": 0, "maximum": 1000 },
+          "notes": { "type": "string", "maxLength": 500 }
+        }
+      }
+    }
+  }
+}

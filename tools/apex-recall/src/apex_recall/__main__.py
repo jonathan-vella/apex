@@ -202,7 +202,11 @@ def build_parser() -> argparse.ArgumentParser:
     p_ra.add_argument("--skip-reason", action="append", default=None, help="Skip reason (repeatable)")
     p_ra.add_argument("--json", action="store_true", help="Output as JSON")
     p_ra.add_argument("--attempt-id", default=None, help="Caller-assigned durable attempt identity")
-    p_ra.add_argument("--attempt-kind", choices=["invocation", "repair", "empty-output-retry"], default=None)
+    p_ra.add_argument(
+        "--attempt-kind",
+        choices=["invocation", "repair", "empty-output-retry", "publication-retry"],
+        default=None,
+    )
     p_ra.add_argument("--input-digest", default=None, help="SHA-256 of the frozen input set")
     p_ra.add_argument(
         "--attempt-input",

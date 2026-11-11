@@ -696,3 +696,34 @@ test("CLI argument failures are explicit nonzero JSON, never silent defaults", (
     assert.equal(JSON.parse(result.stdout).valid, false);
   }
 });
+
+test("optional action disposition preserves exact byte parity when absent and renders cleanly when supplied", (t) => {
+  const { root, f } = setup(t, true);
+  const opts = options(root, f);
+  assert.equal(renderAssessmentActionRegister(opts).valid, true);
+  const baselineMd = fs.readFileSync(path.join(root, ACTION_REGISTER_OUTPUTS.markdown));
+  const baselineXlsx = fs.readFileSync(path.join(root, ACTION_REGISTER_OUTPUTS.workbook));
+  const baselineDerived = JSON.parse(fs.readFileSync(path.join(root, ACTION_REGISTER_OUTPUTS.derived), "utf8"));
+  assert.equal(Object.hasOwn(baselineDerived.actions[0], "disposition"), false);
+
+  // Explicit disposition updates derived, Markdown and workbook readback cleanly.
+  f.data.actions[0].disposition = "intentional_lab_tradeoff";
+  f.save();
+  assert.equal(renderAssessmentActionRegister({ ...opts, overwrite: true }).valid, true);
+  const withDispDerived = JSON.parse(fs.readFileSync(path.join(root, ACTION_REGISTER_OUTPUTS.derived), "utf8"));
+  assert.equal(withDispDerived.actions[0].disposition, "intentional_lab_tradeoff");
+  const mdText = fs.readFileSync(path.join(root, ACTION_REGISTER_OUTPUTS.markdown), "utf8");
+  assert.match(mdText, /Disposition: intentional\\_lab\\_tradeoff/);
+
+  // Removing disposition restores exact derived/Markdown/workbook byte parity.
+  delete f.data.actions[0].disposition;
+  f.save();
+  assert.equal(renderAssessmentActionRegister({ ...opts, overwrite: true }).valid, true);
+  assert.deepEqual(fs.readFileSync(path.join(root, ACTION_REGISTER_OUTPUTS.markdown)), baselineMd);
+  assert.deepEqual(fs.readFileSync(path.join(root, ACTION_REGISTER_OUTPUTS.workbook)), baselineXlsx);
+
+  // Invalid disposition enum fails validation.
+  f.data.actions[0].disposition = "invalid_disposition";
+  f.save();
+  assert.equal(calculate(f, root).valid, false);
+});

@@ -472,6 +472,9 @@ Or inline all Step-3 charts into `03-des-charts.py` and all Step-7 charts into `
 | Cost Projection (ab)    | `07-ab-cost-projection.py`    | `07-ab-cost-projection.png`    | Step 7      |
 | Design vs As-Built      | `07-ab-cost-comparison.py`    | `07-ab-cost-comparison.png`    | Step 7      |
 | Compliance Gaps         | `07-ab-compliance-gaps.py`    | `07-ab-compliance-gaps.png`    | Step 7      |
+| Standalone WAF Posture  | `tools/scripts/render-assessment-charts.py` | `assets/02-waf-posture.{png,svg}` | Assessment (`v3`) |
+| Standalone Cost Trends  | `tools/scripts/render-assessment-charts.py` | `assets/03-cost-trends.{png,svg}` | Assessment (`v3`) |
+| Standalone Cost Drivers | `tools/scripts/render-assessment-charts.py` | `assets/03-cost-drivers.{png,svg}` | Assessment (`v3`) |
 
 ---
 

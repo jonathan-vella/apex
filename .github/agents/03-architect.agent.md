@@ -40,16 +40,15 @@ with independent architecture and cost-feasibility reviews before human approval
 
 For explicit `decisions.workflow_mode=assessment`, load
 [standalone assessment](../skills/apex-workflow-engine/references/standalone-assessment.md) and use its
-authorized brief/evidence and optional business context instead of the numeric delivery workflow below.
-No formal Governance, SKU/VNet confirmation, budget cap or intermediate Architecture approval is required.
-Load `.github/skills/apex-azure-cost-optimization/SKILL.md` for scoped actual billing Query/Forecast
-operations in this main's execution context; `cost-estimate-subagent` remains retail-estimate-only.
-Return finalized analysis to the parent for mandatory Design and both independent bundle reviews.
-Do not invoke Design as a child or complete numeric Step 2 in this profile.
-For register-capable runs, produce the evidence-linked Assessment Action Register before analysis is finalized.
-Load [register rules](../skills/apex-azure-artifacts/references/assessment-action-register.md);
-validate and generate its structured source, Excel and Markdown together. Recommendations, priorities,
-effort and relative windows are nonbinding; never duplicate a cost opportunity as a second benefit.
+authorized brief/evidence and optional business context instead of numeric delivery steps (no formal
+Governance, SKU/VNet confirmation, budget cap or intermediate Architecture approval). Use
+`collect-assessment-evidence.py` and `collect-assessment-cost.mjs` (plus `.github/skills/apex-azure-cost-optimization/SKILL.md`)
+for scoped evidence/billing; `cost-estimate-subagent` remains retail-only. For `assessment-bundle-v3`, write
+`_meta/waf-scores.json` and run `render-assessment-charts.py` in `analysis`. For register-capable runs, load
+[register rules](../skills/apex-azure-artifacts/references/assessment-action-register.md) and generate source,
+Excel and Markdown with `disposition` (`remediate_now`, `production_readiness_gap`, `intentional_lab_tradeoff`,
+`orphan_or_drift_cleanup`, `verification_followup`) without duplicating cost benefits. Return finalized analysis
+to the parent for mandatory Design and both independent bundle reviews (never invoke Design as a child).
 
 For `decisions.workflow_contract=practical-v1`, use the
 [practical workflow](../skills/apex-workflow-engine/references/practical-workflow.md).
@@ -154,7 +153,9 @@ Start with one broad lookup per service; use bounded targeted fallbacks for miss
 Unverified claims remain gaps, not remembered facts.
 
 - Score Security, Reliability, Performance Efficiency, Cost Optimization and Operational Excellence
-  from 1–10, each with High/Medium/Low confidence and source-backed strengths/gaps.
+  from 0–10 whenever `>= 2` pillar-relevant checks are observed (excluding unknowns from numerator and
+  denominator, paired with `High (>=70%) | Medium (35-69%) | Low (<35%)` evidence coverage); reserve
+  `Not assessed` strictly for pillars with `< 2` observed checks.
 - Include service maturity, trade-offs, an overview Mermaid diagram and meaningful traffic-light
   statuses; do not manufacture warnings/failures merely to populate symbols.
 - Verify zonal features rather than inferring them from a tier name. Respect single-region residency,
