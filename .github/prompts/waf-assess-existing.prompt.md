@@ -25,7 +25,10 @@ Do not require `ask_user` to return an SDK request ID. Recover already-captured 
 source-linked local receipt instead of inventing native IDs or repeating settled questions.
 Capture receipts do not replace independent reviews, human gates or Azure authorization.
 
-Deliver a WAF report, required architecture diagram and Cost Management report as one bundle.
+Deliver a WAF report, required architecture diagram and Cost Management report as one bundle, plus the
+[Assessment Action Register](../skills/apex-azure-artifacts/references/assessment-action-register.md)
+(`04-assessment-action-register.md` and `assets/04-assessment-action-register.xlsx`) for new Azure/combined runs
+or when `action_register: true` is requested for IaC-only runs.
 For Azure report actual spend, trends and available forecast; for IaC report labelled estimates.
 Missing cost evidence is not zero. Keep a prioritized nonbinding roadmap and explicit coverage gaps.
 Run internal owner handoffs and both independent WAF/cost-quality reviews automatically within granted scope.
