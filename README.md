@@ -161,6 +161,8 @@ as Excel plus Markdown. Actions carry evidence, priorities, qualitative effort, 
 and defensible monthly additions/savings/net change. Unknown costs stay unquantified; overlapping benefits
 are not summed twice. Edit the structured source and regenerate the snapshot rather than tracking manual Excel changes.
 IaC-only export is optional; historical runs keep their captured output contract.
+See the [WAF Assessment User Guide](https://apexops.pro/guides/waf-assessment/) for step-by-step walkthroughs
+and prompts for both `evidence_only` and `requirements_led` scenarios.
 
 ## Start Here
 
