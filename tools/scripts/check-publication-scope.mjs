@@ -63,7 +63,7 @@ export function runPublicationCheck(mode, root = process.cwd()) {
     }
     const artifactStatus = run(path.join(snapshot, "tools/scripts/validate-artifacts.mjs"));
     if (artifactStatus !== 0) return artifactStatus;
-    return run(path.join(snapshot, "tools/scripts/validate-challenger-presence.mjs"));
+    return run(path.join(snapshot, "tools/scripts/validate-challenger-presence.mjs"), ["--publication-checkpoint"]);
   } finally {
     fs.rmSync(snapshot, { recursive: true, force: true });
   }

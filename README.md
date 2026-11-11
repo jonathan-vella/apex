@@ -38,6 +38,8 @@ updates and bounded reviews, while new permissions and human stage approvals rem
 See the [complete-stage contract](.github/skills/apex-workflow-engine/references/practical-workflow.md#complete-stage-work-package).
 Private-evidence reviewers use canonical literal paths. One verified same-invocation correction of an omitted
 scope directory retains the failed read in provenance; missing evidence and access denials still block.
+Checkpoint publication may preserve an explicitly unapproved, pending Governance owner draft.
+This publication-only exception never approves a stage or relaxes Recall's mandatory completion reviews.
 
 Product documentation uses [source/date references and original billing conclusions](.github/skills/apex-azure-defaults/references/cost-estimate-parent-contract.md#product-documentation-and-publication),
 with explicit applicability and limitations, not automatic full-page copies.
