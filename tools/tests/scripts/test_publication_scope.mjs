@@ -60,6 +60,18 @@ test("publication hooks validate index bytes and ignore unrelated untracked arti
   assert.equal(git("write-tree"), staged);
 });
 
+test("artifact publication explicitly selects checkpoint validation without changing the index", (context) => {
+  const { git, write, run } = fixture(context);
+  write(
+    "tools/scripts/validate-challenger-presence.mjs",
+    'if(!process.argv.includes("--publication-checkpoint"))process.exit(11);',
+  );
+  git("add", "tools/scripts/validate-challenger-presence.mjs");
+  const before = git("write-tree");
+  assert.equal(run("artifacts").status, 0);
+  assert.equal(git("write-tree"), before);
+});
+
 test("template triggers retain tracked artifact checks and propagate each validator failure", (context) => {
   const { git, write, run } = fixture(context);
   git(

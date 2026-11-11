@@ -68,6 +68,14 @@ If the index is empty, report no commit was created and stop.
 Run the smallest applicable repository checks and branch-scope validation.
 Do not invoke artifact markdown lint directly; existing hooks/review own that contract.
 
+The publication hook selects `validate-challenger-presence.mjs --publication-checkpoint`.
+This permits only an explicitly unapproved Governance owner draft whose step is still pending, with no
+Governance review history, completion or downstream execution. Unreadable present evidence blocks this exception.
+History includes legacy executed-pass records; live Governance sidecars in either supported review location block it.
+The unapproved status must be visible, not hidden inside an HTML comment or code fence.
+Direct presence checks and Recall completion/handoff gates remain strict. Publishing a checkpoint never
+records a review, consumes/refunds a call, changes stage status or grants workflow approval.
+
 ## Create The Local Commit
 
 Use the provided subject when valid, or derive a Conventional Commit from the scoped diff.

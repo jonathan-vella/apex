@@ -498,6 +498,37 @@ def test_governance_invalid_review_cannot_complete_or_bypass(tmp_path, command, 
 
 
 @pytest.mark.parametrize("command", ["transition", "complete_step"])
+def test_publishable_pending_governance_draft_still_cannot_complete_without_review(tmp_path, command):
+    _reimport_with_root(tmp_path)
+    module = importlib.import_module(f"apex_recall.commands.{command}")
+    project = _seed_project(tmp_path, "demo", in_order=True)
+    writer = importlib.import_module("apex_recall.state_writer")
+    state = project / "00-session-state.json"
+    data = writer.read_state(state)
+    data["steps"]["2"]["status"] = "complete"
+    data["steps"]["3_5"] = {"status": "pending"}
+    writer.write_state("demo", data)
+    (project / "04-governance-constraints.md").write_text(
+        "# Governance\n\n"
+        "![Status](https://img.shields.io/badge/Status-Owner_prepared_not_approved-orange?style=for-the-badge)\n"
+    )
+    repo = Path(__file__).resolve().parents[3]
+    script = repo / "tools/scripts/validate-challenger-presence.mjs"
+    published = subprocess.run(
+        ["node", str(script), "--publication-checkpoint"], cwd=tmp_path, capture_output=True, text=True, check=False
+    )
+    assert published.returncode == 0, published.stdout + published.stderr
+    before = state.read_bytes()
+    result, payload = _capture(
+        module,
+        SimpleNamespace(project="demo", step="3_5", from_step="3_5", to_step="4", complete=True, json=True),
+    )
+    assert result == 2
+    assert payload["error"] == "challenger_findings_missing"
+    assert state.read_bytes() == before
+
+
+@pytest.mark.parametrize("command", ["transition", "complete_step"])
 def test_current_governance_review_allows_completion(tmp_path, command):
     _reimport_with_root(tmp_path)
     module = importlib.import_module(f"apex_recall.commands.{command}")
