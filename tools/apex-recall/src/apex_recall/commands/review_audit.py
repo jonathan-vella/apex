@@ -243,6 +243,7 @@ def run(args) -> int:
                 "input_digest": digest,
                 "outcome": outcome,
                 **({"review_output": review_output} if review_output is not None else {}),
+                **({"output_path": prepared["request"]["output_path"]} if prepared else {}),
                 "retry_of": retry_of,
                 "recorded_at": _iso_now(),
                 **({"cycle_id": prepared["key"]} if prepared else {}),

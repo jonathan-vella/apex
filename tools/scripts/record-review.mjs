@@ -739,8 +739,8 @@ function checkReview(input, doc, root) {
   requireEvidence(errors.length === 0, errors.join("\n"));
 }
 
-function loadEventsWithFlushWait(eventsPath, workerId) {
-  let events = parseEvents(eventsPath);
+function loadEventsWithFlushWait(eventsPath, workerId, { allowTrailingPartial = false } = {}) {
+  let events = parseEvents(eventsPath, { allowTrailingPartial });
   const start = events.find(
     (event) =>
       event.agentId === workerId &&
@@ -749,20 +749,28 @@ function loadEventsWithFlushWait(eventsPath, workerId) {
       event.data?.resumable === false &&
       nonempty(event.data?.toolCallId),
   );
-  if (!start) return events;
   const sleepBuf = new Int32Array(new SharedArrayBuffer(4));
   const deadline = Date.now() + 25_000;
-  while (
-    (!events.some((event) => event.agentId === workerId && event.type === "subagent.completed") ||
-      !["tool.execution_start", "tool.execution_complete"].every((type) =>
-        events.some((event) => event.type === type && event.data?.toolCallId === start.data.toolCallId),
-      )) &&
-    Date.now() < deadline
-  ) {
-    Atomics.wait(sleepBuf, 0, 0, 500);
-    events = parseEvents(eventsPath);
+  if (start) {
+    while (
+      (!events.some((event) => event.agentId === workerId && event.type === "subagent.completed") ||
+        !["tool.execution_start", "tool.execution_complete"].every((type) =>
+          events.some((event) => event.type === type && event.data?.toolCallId === start.data.toolCallId),
+        )) &&
+      Date.now() < deadline
+    ) {
+      Atomics.wait(sleepBuf, 0, 0, 500);
+      events = parseEvents(eventsPath, { allowTrailingPartial: true });
+    }
   }
-  return events;
+  while (allowTrailingPartial && Date.now() < deadline) {
+    try {
+      return parseEvents(eventsPath, { allowTrailingPartial: false });
+    } catch {
+      Atomics.wait(sleepBuf, 0, 0, 200);
+    }
+  }
+  return parseEvents(eventsPath, { allowTrailingPartial: false });
 }
 
 /** Extract and atomically publish actual worker evidence; failures leave existing output untouched. */
@@ -793,7 +801,7 @@ export function recordReview({
     parentId = resolved.parentId;
   }
   requireEvidence(nonempty(workerId) && nonempty(parentId), "Supply --request-id or both --worker-id and --parent-id");
-  const ready = loadEventsWithFlushWait(eventsPath, workerId);
+  const ready = loadEventsWithFlushWait(eventsPath, workerId, { allowTrailingPartial: nonempty(eventsDir) });
   if (nonempty(eventsDir)) {
     requireEvidence(
       resolveEventsFromDir(eventsDir, requestId, { allowTrailingPartial: false }) === eventsPath,

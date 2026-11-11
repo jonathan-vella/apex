@@ -1305,3 +1305,105 @@ test("physical collector consolidates 16 logical requests into 8 physical calls,
   });
   assert.equal(badCheck.valid, false);
 });
+
+test("physical cost collector rejects gapped consolidation, preserves body+pacing across pagination, and captures 429 headers/ENOBUFS", async (t) => {
+  const { defaultHttpExecutor, executePhysicalCostPlan, parseAzRestResult, planPhysicalCostCalls } =
+    await import("../../scripts/collect-assessment-cost.mjs");
+  const sub = "/subscriptions/11111111-1111-1111-1111-111111111111";
+
+  // 1. Disjoint custom periods must NOT consolidate into one spanning query.
+  const disjointPlan = planCostQueries({
+    as_of: "2026-03-15T12:00:00.000Z",
+    scopes: [sub],
+    periods: [
+      { id: "jan_slice", kind: "custom", from: "2026-01-01T00:00:00.000Z", to: "2026-01-05T23:59:59.999Z" },
+      { id: "mar_slice", kind: "custom", from: "2026-03-01T00:00:00.000Z", to: "2026-03-05T23:59:59.999Z" },
+    ],
+  });
+  const disjointCalls = planPhysicalCostCalls(disjointPlan);
+  assert.equal(disjointCalls.length, 2);
+  assert.ok(disjointCalls.every((c) => c.kind === "single_query"));
+
+  // 2. ENOBUFS and rate-limit debug headers in defaultHttpExecutor / parseAzRestResult.
+  const enobufs = parseAzRestResult({ error: { code: "ENOBUFS" }, status: null, stdout: "", stderr: "" });
+  assert.equal(enobufs.status_code, 502);
+  assert.equal(enobufs.body.error.code, "ResponseBufferExceeded");
+
+  const exec429 = defaultHttpExecutor(
+    "https://management.azure.com/test",
+    { type: "ActualCost" },
+    (_bin, args, opts) => {
+      assert.equal(opts.maxBuffer, 64 * 1024 * 1024);
+      assert.ok(args.includes("--debug"));
+      assert.ok(args.includes("--body"));
+      return {
+        status: 1,
+        stdout: "",
+        stderr:
+          "urllib3.connectionpool: Response status: 429\n" +
+          "'x-ms-ratelimit-microsoft.costmanagement-entity-retry-after': '17'\n" +
+          '{"error":{"code":"429","message":"Too many requests"}}',
+      };
+    },
+  );
+  assert.equal(exec429.status_code, 429);
+  assert.equal(exec429.headers["x-ms-ratelimit-microsoft.costmanagement-entity-retry-after"], "17");
+
+  // 3. Continuation pages keep POST body and apply minIntervalMs pacing before every page.
+  const pageRoot = path.join(ROOT, `.collect-paged-${randomUUID()}`);
+  fs.mkdirSync(pageRoot, { recursive: true });
+  t.after(() => fs.rmSync(pageRoot, { recursive: true, force: true }));
+  const singlePeriodCfg = {
+    as_of: AS_OF,
+    scopes: [sub],
+    expected_currency: "USD",
+    periods: [WINDOWS[0]],
+  };
+  const seenBodies = [];
+  const intervals = [];
+  let callNum = 0;
+  const pagedOut = executePhysicalCostPlan(singlePeriodCfg, {
+    projectRoot: pageRoot,
+    collectedAt: AS_OF,
+    minIntervalMs: 1500,
+    sleep: (ms) => intervals.push(ms),
+    executor: (url, body) => {
+      seenBodies.push(body);
+      callNum++;
+      return {
+        status_code: 200,
+        headers: {},
+        body: {
+          properties: {
+            columns: [
+              { name: "PreTaxCost", type: "Number" },
+              { name: "Currency", type: "String" },
+              { name: "ServiceName", type: "String" },
+              { name: "ResourceId", type: "String" },
+              { name: "UsageDate", type: "Number" },
+            ],
+            rows: [
+              [
+                10 * callNum,
+                "USD",
+                "Compute",
+                `${sub}/resourceGroups/rg/providers/Microsoft.Compute/virtualMachines/vm${callNum}`,
+                20260210 + callNum,
+              ],
+            ],
+            nextLink:
+              callNum === 1
+                ? `https://management.azure.com${sub}/providers/Microsoft.CostManagement/query?api-version=2023-11-01&$skiptoken=page2`
+                : null,
+          },
+        },
+      };
+    },
+  });
+  assert.equal(seenBodies.length, 2);
+  assert.ok(seenBodies[0] !== null);
+  assert.deepEqual(seenBodies[0], seenBodies[1]);
+  assert.deepEqual(intervals, [1500]);
+  assert.equal(pagedOut.report.evidence[0].status, "complete");
+  assert.equal(pagedOut.report.evidence[0].page_count, 2);
+});

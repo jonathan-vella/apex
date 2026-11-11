@@ -482,3 +482,13 @@ def test_v3_visual_charts_contract_requires_waf_scores_and_rendered_charts(asses
     assert invoke(cli, "advance", phase="diagram") == 0
     assert "assets/02-waf-posture.png" in state(writer)["assessment_run"]["frozen_inputs"]
     assert "assets/03-cost-trends.svg" in state(writer)["assessment_run"]["frozen_inputs"]
+
+    # Duplicate pillar names or invalid status enums in _meta/waf-scores.json fail readiness closed.
+    dup = json.loads((directory / "_meta/waf-scores.json").read_text())
+    dup["pillars"][1]["pillar"] = "Security"
+    with pytest.raises(ValueError, match="Duplicate or unknown WAF pillar"):
+        module.validate_waf_scores_document(dup, "synthetic", req["reporting"]["as_of"])
+    bad_status = json.loads((directory / "_meta/waf-scores.json").read_text())
+    bad_status["pillars"][0]["status"] = "unknown_status"
+    with pytest.raises(ValueError, match="status or confidence"):
+        module.validate_waf_scores_document(bad_status, "synthetic", req["reporting"]["as_of"])

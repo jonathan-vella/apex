@@ -131,8 +131,59 @@ def test_collector_enforces_rg_and_category_bounds_handles_diag_arrays_and_redac
     assessment.validate_scope(scope_request)
     assessment.validate_evidence(contract, scope_request)
 
-    # Disjoint rg_attribution enforcement and legacy scope_digest preservation
+    # Disjoint rg_attribution enforcement (including bare vs qualified aliases) and excluded RG scope rejection
     bad_scope = json.loads(json.dumps(scope_request))
     bad_scope["scope"]["rg_attribution"]["excluded_rgs"] = ["RG-HUB"]
     with pytest.raises(ValueError, match="disjoint"):
         assessment.validate_scope(bad_scope)
+
+    alias_overlap = json.loads(json.dumps(scope_request))
+    alias_overlap["scope"]["rg_attribution"]["excluded_rgs"] = [f"/subscriptions/{SUB1}/resourceGroups/rg-hub"]
+    with pytest.raises(ValueError, match="disjoint"):
+        assessment.validate_scope(alias_overlap)
+
+    excluded_target = json.loads(json.dumps(scope_request))
+    excluded_target["scope"]["rg_attribution"]["workload_rgs"] = []
+    excluded_target["scope"]["rg_attribution"]["excluded_rgs"] = ["rg-spoke"]
+    with pytest.raises(ValueError, match="excluded_rgs"):
+        assessment.validate_scope(excluded_target)
+    with pytest.raises(ValueError, match="excluded_rgs"):
+        collector.collect_assessment_evidence(project, excluded_target, runner=fake_runner)
+
+
+def test_policy_only_and_rg_only_scopes_do_not_run_arg_inventory_or_subscription_root_reads(tmp_path: Path) -> None:
+    project = tmp_path / "agent-output/pol-only"
+    (project / "_meta").mkdir(parents=True)
+    req = {
+        "scenario": "evidence_only",
+        "source": "azure",
+        "receipt": {"owner": "tester", "request_id": "req-pol", "approved": True},
+        "scope": {
+            "categories": ["policy"],
+            "iac_paths": [],
+            "azure_scopes": [f"/subscriptions/{SUB2}/resourceGroups/rg-spoke"],
+        },
+        "reporting": {
+            "as_of": "2026-11-11T09:00:00.000Z",
+            "currency": None,
+            "periods": [{"id": "previous_month", "kind": "closed_month", "from": "2026-10-01", "to": "2026-10-31"}],
+        },
+    }
+    seen_urls: list[str] = []
+
+    def strict_runner(cmd: list[str]) -> tuple[int, str, str]:
+        assert cmd[:2] != ["az", "graph"], "ARG inventory must not run when only policy category is authorized"
+        if cmd[:2] == ["az", "rest"]:
+            url = cmd[cmd.index("--url") + 1]
+            seen_urls.append(url)
+            assert "/resourceGroups/rg-spoke?" in url, "RG-only scope must probe RG endpoint, not subscription root"
+            return 0, json.dumps({"id": "ok", "location": "swedencentral", "provisioningState": "Succeeded"}), ""
+        if cmd[:3] == ["az", "policy", "assignment"]:
+            return 0, json.dumps([{"id": "p1", "name": "pol", "enforcementMode": "Default"}]), ""
+        raise AssertionError(f"Unexpected cmd: {cmd}")
+
+    out = collector.collect_assessment_evidence(project, req, runner=strict_runner)
+    assert out["coverage"] == "complete"
+    assert len(seen_urls) == 1
+    inv_saved = json.loads((project / "_meta/live-inventory.json").read_text(encoding="utf-8"))
+    assert inv_saved["inventories"] == []

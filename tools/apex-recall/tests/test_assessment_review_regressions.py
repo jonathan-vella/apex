@@ -607,3 +607,36 @@ def test_publication_retry_recovers_once_when_closure_fails_recorder_with_unchan
         )
         != 0
     )
+
+    # An invocation whose findings were already published cannot be retried via a new output_path.
+    cost_cycle = next(
+        v for v in state(writer)["decisions"]["review_cycles"].values() if v["lens"] == "cost-feasibility"
+    )
+    published_retry_req = audit_request(assessment_project, "cost-feasibility")
+    published_retry_req.update(
+        {
+            "request_id": "cost-already-published-retry",
+            "output_path": "agent-output/synthetic/reviews/challenge-findings-cost-unused.json",
+        }
+    )
+    published_retry_path = directory.parent.parent / "cost-already-published-retry.json"
+    published_retry_path.write_text(json.dumps(published_retry_req))
+    assert (
+        cli.main(
+            [
+                "review-audit",
+                "synthetic",
+                "2",
+                "--review-request",
+                str(published_retry_path),
+                "--attempt-kind",
+                "publication-retry",
+                "--retry-of",
+                cost_cycle["initial_id"],
+                "--attempt-outcome",
+                "started",
+                "--json",
+            ]
+        )
+        != 0
+    )

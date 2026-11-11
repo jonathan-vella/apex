@@ -4,8 +4,9 @@
  * sequential pacing, and HTTP 429 Retry-After / ratelimit backoff.
  */
 import { spawnSync } from "node:child_process";
-import { createHash } from "node:crypto";
+import { createHash, randomUUID } from "node:crypto";
 import fs from "node:fs";
+import os from "node:os";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { isDeepStrictEqual, parseArgs } from "node:util";
@@ -66,20 +67,26 @@ export function planPhysicalCostCalls(planned) {
     const historical = entries.filter((e) => e.request.operation === "query");
     const forecasts = entries.filter((e) => e.request.operation === "forecast");
     const first = historical[0]?.request;
-    const minFrom = historical.length
-      ? historical.reduce(
-          (min, e) => (Date.parse(e.request.period.from) < Date.parse(min) ? e.request.period.from : min),
-          historical[0].request.period.from,
-        )
-      : null;
-    const maxTo = historical.length
-      ? historical.reduce(
+    const sortedHist = [...historical].sort(
+      (a, b) => Date.parse(a.request.period.from) - Date.parse(b.request.period.from),
+    );
+    const minFrom = sortedHist.length ? sortedHist[0].request.period.from : null;
+    const maxTo = sortedHist.length
+      ? sortedHist.reduce(
           (max, e) => (Date.parse(e.request.period.to) > Date.parse(max) ? e.request.period.to : max),
-          historical[0].request.period.to,
+          sortedHist[0].request.period.to,
         )
       : null;
+    const isContiguous =
+      sortedHist.length > 1 &&
+      sortedHist.every((entry, idx) => {
+        if (idx === 0) return true;
+        const prevTo = Date.parse(sortedHist[idx - 1].request.period.to);
+        const curFrom = Date.parse(entry.request.period.from);
+        return curFrom >= prevTo && curFrom - prevTo <= 1000;
+      });
     const canConsolidate =
-      historical.length > 1 &&
+      isContiguous &&
       historical.every(
         (e) =>
           e.request.granularity === "Daily" &&
@@ -171,21 +178,71 @@ function defaultSleep(ms) {
   Atomics.wait(buf, 0, 0, ms);
 }
 
-function defaultHttpExecutor(url, body) {
-  const args = ["rest", "--method", "post", "--url", url, "--headers", "Content-Type=application/json"];
-  if (body !== null) args.push("--body", JSON.stringify(body));
-  const res = spawnSync("az", [...args, "--output", "json"], { encoding: "utf8", timeout: 120000 });
-  if (res.status === 0) {
-    return { status_code: 200, headers: {}, body: JSON.parse(res.stdout) };
+const MAX_CLI_BUFFER = 64 * 1024 * 1024;
+const ALLOWLISTED_HEADER_RE =
+  /['"]?(x-ms-ratelimit-microsoft\.costmanagement-[a-z0-9-]+-retry-after|retry-after)['"]?\s*:\s*['"]?([^'",\r\n}]+)['"]?/gi;
+
+export function parseAzRestResult(res, outFileText = null) {
+  if (res.error?.code === "ENOBUFS") {
+    return { status_code: 502, headers: {}, body: { error: { code: "ResponseBufferExceeded" } } };
   }
-  const stderr = res.stderr || "";
-  const is429 = /\b429\b|Too Many Requests/i.test(stderr);
-  const retryMatch = /retry[- ]after[:\s]+(\d+)/i.exec(stderr);
+  const stderr = String(res.stderr || "");
+  const headers = {};
+  for (const match of stderr.matchAll(ALLOWLISTED_HEADER_RE)) {
+    headers[match[1].toLowerCase()] = match[2].trim();
+  }
+  const statusMatches = [...stderr.matchAll(/Response status:\s*(\d{3})/gi)];
+  const debugStatus = statusMatches.length ? Number(statusMatches.at(-1)[1]) : null;
+
+  const rawBody = outFileText ?? String(res.stdout || "");
+  if (res.status === 0 && (debugStatus === null || (debugStatus >= 200 && debugStatus < 300))) {
+    try {
+      return { status_code: debugStatus ?? 200, headers, body: JSON.parse(rawBody) };
+    } catch {
+      return { status_code: 502, headers, body: { error: { code: "MalformedJsonResponse" } } };
+    }
+  }
+  const is429 = debugStatus === 429 || /\b429\b|Too Many Requests/i.test(stderr);
+  const statusCode = debugStatus ?? (is429 ? 429 : 500);
+  const codeMatch = /"code"\s*:\s*"([A-Za-z][A-Za-z0-9._-]{0,99})"/.exec(stderr);
   return {
-    status_code: is429 ? 429 : 500,
-    headers: retryMatch ? { "retry-after": retryMatch[1] } : {},
-    body: { error: { code: is429 ? "TooManyRequests" : "CliRequestFailed" } },
+    status_code: statusCode,
+    headers,
+    body: { error: { code: codeMatch ? codeMatch[1] : is429 ? "TooManyRequests" : "CliRequestFailed" } },
   };
+}
+
+export function defaultHttpExecutor(url, body, spawnFn = spawnSync) {
+  const scratchDir = fs.mkdtempSync(path.join(os.tmpdir(), `apex-cost-${randomUUID().slice(0, 8)}-`));
+  const outFile = path.join(scratchDir, "response.json");
+  const bodyFile = path.join(scratchDir, "request.json");
+  try {
+    const args = [
+      "rest",
+      "--method",
+      "post",
+      "--url",
+      url,
+      "--headers",
+      "Content-Type=application/json",
+      "--output-file",
+      outFile,
+      "--debug",
+    ];
+    if (body !== null && body !== undefined) {
+      fs.writeFileSync(bodyFile, JSON.stringify(body), "utf8");
+      args.push("--body", `@${bodyFile}`);
+    }
+    const res = spawnFn("az", args, {
+      encoding: "utf8",
+      timeout: 120000,
+      maxBuffer: MAX_CLI_BUFFER,
+    });
+    const outFileText = fs.existsSync(outFile) ? fs.readFileSync(outFile, "utf8") : null;
+    return parseAzRestResult(res, outFileText);
+  } finally {
+    fs.rmSync(scratchDir, { recursive: true, force: true });
+  }
 }
 
 export function executePhysicalCostPlan(
@@ -206,19 +263,20 @@ export function executePhysicalCostPlan(
 
   const attemptsLog = [];
   const rawEnvelopes = new Map();
+  let requestCounter = 0;
 
-  physicalCalls.forEach((call, callIdx) => {
-    if (callIdx > 0) sleep(minIntervalMs);
+  physicalCalls.forEach((call) => {
     const sampleRequest = call.logical_entries[0].request;
     const pages = [];
     let nextPath = call.request_path;
-    let firstPage = true;
 
     while (nextPath && pages.length < 100) {
+      if (requestCounter > 0) sleep(minIntervalMs);
+      requestCounter++;
       const url = `https://management.azure.com${nextPath}`;
       let response = null;
       for (let attempt = 1; attempt <= maxAttempts; attempt++) {
-        response = executor(url, firstPage ? call.body : null);
+        response = executor(url, call.body);
         attemptsLog.push({
           request_path: nextPath,
           kind: call.kind,
@@ -230,7 +288,6 @@ export function executePhysicalCostPlan(
           sleep(parseRetryAfterMs(response.headers, attempt));
         }
       }
-      firstPage = false;
       const pruned = pruneCostBody(response.body, sampleRequest);
       pages.push({
         request_path: nextPath,

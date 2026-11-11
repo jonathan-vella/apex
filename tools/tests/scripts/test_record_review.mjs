@@ -1716,7 +1716,7 @@ test("recorder stamps omitted cache_inputs and supporting_inputs across single a
   }
 });
 
-test("--events-dir resolves unique session log by request_id, tolerates worker-first flush, and rejects symlinks/duplicates", (t) => {
+test("--events-dir resolves unique session log by request_id, tolerates worker-first flush, and rejects symlinks/duplicates", async (t) => {
   const f = fixture(t, { supporting: true });
   delete f.doc.cache_inputs;
   delete f.doc.supporting_inputs;
@@ -1752,4 +1752,22 @@ test("--events-dir resolves unique session log by request_id, tolerates worker-f
     () => recordReview({ root: f.root, eventsDir: sessions, requestId: "request-1", output }),
     /Symlinked nested events\.jsonl/,
   );
+
+  // Trailing partial JSON line during --events-dir flush wait is tolerated until flushed.
+  fs.unlinkSync(path.join(s1, "events.jsonl"));
+  f.input.overwrite = true;
+  f.flush();
+  const rawOverwrite = fs.readFileSync(f.options.events, "utf8");
+  const logPath = path.join(s2, "events.jsonl");
+  fs.writeFileSync(logPath, `${rawOverwrite}\n{"type":"partial_flush`);
+  const child = spawn(
+    process.execPath,
+    [recorder, "--events-dir", sessions, "--request-id", "request-1", "--output", output],
+    { cwd: f.root, stdio: ["ignore", "pipe", "pipe"] },
+  );
+  setTimeout(() => {
+    fs.writeFileSync(logPath, `${rawOverwrite}\n`);
+  }, 150);
+  const [exitCode] = await once(child, "exit");
+  assert.equal(exitCode, 0);
 });

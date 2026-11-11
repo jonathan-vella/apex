@@ -213,6 +213,27 @@ def collect_assessment_evidence(
     rg_attr: dict[str, list[str]] | None = scope.get("rg_attribution")
     excluded_rgs = list((rg_attr or {}).get("excluded_rgs", []))
 
+    if rg_attr and azure_scopes:
+        approved_subs = {parse_azure_scope(raw)[0] for raw in azure_scopes}
+        seen_expanded: set[str] = set()
+        for bucket in ("workload_rgs", "shared_rgs", "excluded_rgs"):
+            for entry in rg_attr.get(bucket, []):
+                low = entry.lower()
+                if low.startswith("/subscriptions/"):
+                    parts = low.split("/")
+                    if len(parts) != 5 or parts[3] != "resourcegroups" or parts[2] not in approved_subs:
+                        raise ValueError(f"Invalid or out-of-scope rg_attribution entry: {entry}")
+                    expanded = {f"/subscriptions/{parts[2]}/resourcegroups/{parts[4]}"}
+                else:
+                    expanded = {f"/subscriptions/{sub}/resourcegroups/{low}" for sub in approved_subs}
+                if seen_expanded & expanded:
+                    raise ValueError("rg_attribution buckets must contain unique, pairwise-disjoint resource groups")
+                seen_expanded.update(expanded)
+    for raw in azure_scopes:
+        sub_check, rg_check = parse_azure_scope(raw)
+        if rg_check and rg_bucket(sub_check, rg_check, rg_attr) == "excluded":
+            raise ValueError(f"Explicitly authorized RG scope {raw} cannot be listed in excluded_rgs")
+
     checks: list[dict[str, str]] = []
     inventories: list[dict[str, Any]] = []
     topology_obs: list[dict[str, Any]] = []
@@ -256,42 +277,57 @@ def collect_assessment_evidence(
                 )
 
     non_billing_azure = [cat for cat in categories if cat != "billing"]
+    arg_inventory_categories = {"configuration", "topology", "operations", "recovery"}
+    needs_arg_inventory = bool(set(categories) & arg_inventory_categories)
+    include_config_scalars = "configuration" in categories
+
     for raw_scope in azure_scopes:
         sub_id, rg_name = parse_azure_scope(raw_scope)
-        sub_check_cmd = [
+        probe_url = (
+            f"https://management.azure.com/subscriptions/{sub_id}/resourceGroups/{rg_name}?api-version=2022-12-01"
+            if rg_name
+            else f"https://management.azure.com/subscriptions/{sub_id}?api-version=2022-12-01"
+        )
+        probe_query = (
+            "{id:id,location:location,provisioningState:properties.provisioningState}"
+            if rg_name
+            else "{subscriptionId:subscriptionId,tenantId:tenantId,state:state}"
+        )
+        scope_check_cmd = [
             "az",
             "rest",
             "--method",
             "get",
             "--url",
-            f"https://management.azure.com/subscriptions/{sub_id}?api-version=2022-12-01",
+            probe_url,
             "--query",
-            "{subscriptionId:subscriptionId,tenantId:tenantId,state:state}",
+            probe_query,
             "-o",
             "json",
         ]
-        code, stdout, stderr = runner(sub_check_cmd)
+        code, stdout, stderr = runner(scope_check_cmd)
         if code != 0:
             reason = redact_error_text(stderr)
             status = "denied" if "authorization" in stderr.lower() or "403" in stderr else "unknown"
-            inventories.append(
-                {
-                    "scope": raw_scope,
-                    "subscription_id": sub_id,
-                    "resource_group": rg_name,
-                    "complete": False,
-                    "count": 0,
-                    "resources": [],
-                    "error": reason,
-                }
-            )
+            if needs_arg_inventory:
+                inventories.append(
+                    {
+                        "scope": raw_scope,
+                        "subscription_id": sub_id,
+                        "resource_group": rg_name,
+                        "complete": False,
+                        "count": 0,
+                        "resources": [],
+                        "error": reason,
+                    }
+                )
             for cat in non_billing_azure:
                 checks.append(
                     {
                         "category": cat,
                         "scope": raw_scope,
                         "status": status,
-                        "evidence": f"Subscription access probe failed ({reason}).",
+                        "evidence": f"Scope access probe failed ({reason}).",
                     }
                 )
             if "billing" in categories:
@@ -309,13 +345,18 @@ def collect_assessment_evidence(
         inv_rows: list[dict[str, Any]] = []
         inv_complete = False
         inv_note = ""
-        if non_billing_azure:
+        if needs_arg_inventory:
             before_count, count_err = arg_count(runner, sub_id, where_clause)
+            extra_projection = (
+                ", skuName=tostring(sku.name), skuTier=tostring(sku.tier), kind=tostring(kind), "
+                "zones=tostring(zones), identityType=tostring(identity.type)"
+                if include_config_scalars
+                else ""
+            )
             inv_query = (
                 f"Resources | where {where_clause} "
-                "| project id, name, type, location, subscriptionId, resourceGroup, "
-                "skuName=tostring(sku.name), skuTier=tostring(sku.tier), kind=tostring(kind), "
-                "zones=tostring(zones), identityType=tostring(identity.type) | order by id asc"
+                f"| project id, name, type, location, subscriptionId, resourceGroup{extra_projection} "
+                "| order by id asc"
             )
             inv_rows, pages, inv_err = run_arg_paginated(runner, sub_id, inv_query)
             after_count, after_err = arg_count(runner, sub_id, where_clause)
@@ -328,21 +369,21 @@ def collect_assessment_evidence(
             )
             for row in inv_rows:
                 row["rg_role"] = rg_bucket(sub_id, str(row.get("resourceGroup", "")), rg_attr)
-                discovered_items.append(
-                    {
-                        "id": row.get("id"),
-                        "name": row.get("name"),
-                        "type": row.get("type"),
-                        "location": row.get("location"),
-                        "subscription": sub_id,
-                        "resource_group": row.get("resourceGroup"),
-                        "rg_role": row["rg_role"],
-                        "sku": row.get("skuName") or row.get("skuTier") or None,
-                        "provenance": "azure-arg",
-                        "confidence": "observed",
-                        "observed_at": timestamp,
-                    }
-                )
+                item_record: dict[str, Any] = {
+                    "id": row.get("id"),
+                    "name": row.get("name"),
+                    "type": row.get("type"),
+                    "location": row.get("location"),
+                    "subscription": sub_id,
+                    "resource_group": row.get("resourceGroup"),
+                    "rg_role": row["rg_role"],
+                    "provenance": "azure-arg",
+                    "confidence": "observed",
+                    "observed_at": timestamp,
+                }
+                if include_config_scalars:
+                    item_record["sku"] = row.get("skuName") or row.get("skuTier") or None
+                discovered_items.append(item_record)
             rg_summary: dict[str, dict[str, Any]] = {}
             for row in inv_rows:
                 rgn = str(row.get("resourceGroup", ""))

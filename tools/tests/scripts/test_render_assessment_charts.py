@@ -274,3 +274,83 @@ def test_iac_unassessed_cost_mode_still_emits_valid_placeholder_charts(tmp_path:
     )
     out = charts.render_all_assessment_charts(project)
     assert len(out["outputs"]) == 6
+
+
+def test_multicurrency_credits_unavailable_estimates_and_cross_currency_forecasts_render_accurately(
+    tmp_path: Path,
+) -> None:
+    # Case 1: Azure scopes exist + unavailable estimate records -> no IndexError, clean banner.
+    p1 = tmp_path / "agent-output/azure-unassessed-with-est"
+    (p1 / "_meta").mkdir(parents=True)
+    (p1 / "contracts").mkdir(parents=True)
+    (p1 / "_meta/waf-scores.json").write_text(json.dumps(sample_waf_scores("azure-unassessed")), encoding="utf-8")
+    unassessed_cost = sample_cost_report()
+    for ev in unassessed_cost["evidence"]:
+        ev["status"] = "not_assessed"
+        ev["series"] = []
+    unassessed_cost["estimates"] = [
+        {"id": "est-gap", "source_kind": "estimate", "status": "not_assessed", "currency": "USD", "monthly_total": None}
+    ]
+    (p1 / "contracts/03-cost-management.json").write_text(json.dumps(unassessed_cost), encoding="utf-8")
+    assert len(charts.render_all_assessment_charts(p1)["outputs"]) == 6
+
+    # Case 2: Multi-currency IaC estimates (USD + EUR) keep separate currency labels.
+    p2 = tmp_path / "agent-output/iac-multicurrency"
+    (p2 / "_meta").mkdir(parents=True)
+    (p2 / "contracts").mkdir(parents=True)
+    (p2 / "_meta/waf-scores.json").write_text(json.dumps(sample_waf_scores("iac-multicurrency")), encoding="utf-8")
+    iac_mc = {
+        **unassessed_cost,
+        "scopes": [],
+        "evidence": [],
+        "estimates": [
+            {
+                "id": "app-usd",
+                "source_kind": "estimate",
+                "status": "complete",
+                "currency": "USD",
+                "monthly_total": "120.50",
+            },
+            {
+                "id": "db-eur",
+                "source_kind": "estimate",
+                "status": "complete",
+                "currency": "EUR",
+                "monthly_total": "95.00",
+            },
+        ],
+    }
+    (p2 / "contracts/03-cost-management.json").write_text(json.dumps(iac_mc), encoding="utf-8")
+    charts.render_all_assessment_charts(p2)
+    trends_svg_iac = (p2 / "assets/03-cost-trends.svg").read_text(encoding="utf-8")
+    assert "USD 120.50" in trends_svg_iac and "EUR 95.00" in trends_svg_iac
+
+    # Case 3: Live USD + EUR scopes, negative credit month, signed driver net (100 + -80 = 20), and trailing EUR 0 series.
+    p3 = tmp_path / "agent-output/live-multicurrency-credits"
+    (p3 / "_meta").mkdir(parents=True)
+    (p3 / "contracts").mkdir(parents=True)
+    (p3 / "_meta/waf-scores.json").write_text(json.dumps(sample_waf_scores("live-multicurrency")), encoding="utf-8")
+    mc_live = sample_cost_report()
+    mc_live["evidence"][0]["series"][0]["amount"] = "-45.00"  # Net credit month
+    mc_live["evidence"][5]["series"] = [
+        {
+            "currency": "USD",
+            "cost_status": "Actual",
+            "amount": "20.00",
+            "groups": [
+                {"dimensions": {"ServiceName": "Azure Bastion"}, "amount": "100.00"},
+                {"dimensions": {"ServiceName": "Azure Bastion"}, "amount": "-80.00"},
+            ],
+        },
+        {
+            "currency": "EUR",
+            "cost_status": "Actual",
+            "amount": "0",
+            "groups": [],
+        },
+    ]
+    (p3 / "contracts/03-cost-management.json").write_text(json.dumps(mc_live), encoding="utf-8")
+    charts.render_all_assessment_charts(p3)
+    drivers_svg = (p3 / "assets/03-cost-drivers.svg").read_text(encoding="utf-8")
+    assert "USD 20.00" in drivers_svg
+    assert "USD 100.00" not in drivers_svg

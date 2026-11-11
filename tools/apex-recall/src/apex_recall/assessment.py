@@ -258,6 +258,10 @@ def validate_scope(request: dict, *, require_approval: bool = True) -> None:
     has_azure = request["source"] in ("azure", "combined")
     if bool(scope["iac_paths"]) != has_iac or bool(scope["azure_scopes"]) != has_azure:
         raise ValueError("Evidence scopes do not match selected source")
+    for relative in scope["iac_paths"]:
+        safe_path(workspace_root_for(), relative)
+    if scope["azure_scopes"]:
+        validate_billing_scopes(scope["azure_scopes"])
     if "rg_attribution" in scope:
         rg_attr = scope["rg_attribution"]
         rg_keys = {"workload_rgs", "shared_rgs", "excluded_rgs"}
@@ -266,21 +270,37 @@ def validate_scope(request: dict, *, require_approval: bool = True) -> None:
         )
         if not has_azure or not isinstance(rg_attr, dict) or set(rg_attr) - rg_keys:
             raise ValueError("rg_attribution requires Azure scopes and only workload_rgs, shared_rgs or excluded_rgs")
-        seen_rgs: set[str] = set()
+        approved_subs = {item.split("/")[2].lower() for item in scope["azure_scopes"]}
+        explicit_rg_scopes = {
+            f"/subscriptions/{item.split('/')[2].lower()}/resourcegroups/{item.split('/')[4].lower()}"
+            for item in scope["azure_scopes"]
+            if "/resourcegroups/" in item.lower()
+        }
+        seen_expanded: set[str] = set()
+        excluded_expanded: set[str] = set()
         for bucket in ("workload_rgs", "shared_rgs", "excluded_rgs"):
             entries = rg_attr.get(bucket, [])
             if not isinstance(entries, list) or any(
                 not isinstance(entry, str) or not rg_pattern.fullmatch(entry) for entry in entries
             ):
                 raise ValueError(f"Invalid {bucket} entries in rg_attribution")
-            lowered = [entry.lower() for entry in entries]
-            if len(lowered) != len(set(lowered)) or seen_rgs & set(lowered):
-                raise ValueError("rg_attribution buckets must contain unique, pairwise-disjoint resource groups")
-            seen_rgs.update(lowered)
-    for relative in scope["iac_paths"]:
-        safe_path(workspace_root_for(), relative)
-    if scope["azure_scopes"]:
-        validate_billing_scopes(scope["azure_scopes"])
+            for entry in entries:
+                if entry.lower().startswith("/subscriptions/"):
+                    parts = entry.split("/")
+                    sub_low = parts[2].lower()
+                    rg_low = parts[4].lower()
+                    if sub_low not in approved_subs:
+                        raise ValueError("rg_attribution entry references an unapproved subscription")
+                    expanded = {f"/subscriptions/{sub_low}/resourcegroups/{rg_low}"}
+                else:
+                    expanded = {f"/subscriptions/{sub_low}/resourcegroups/{entry.lower()}" for sub_low in approved_subs}
+                if seen_expanded & expanded:
+                    raise ValueError("rg_attribution buckets must contain unique, pairwise-disjoint resource groups")
+                seen_expanded.update(expanded)
+                if bucket == "excluded_rgs":
+                    excluded_expanded.update(expanded)
+        if explicit_rg_scopes & excluded_expanded:
+            raise ValueError("Explicitly authorized resource-group scope cannot be listed in excluded_rgs")
     reporting = request.get("reporting")
     if (
         not isinstance(reporting, dict)
@@ -588,27 +608,7 @@ def check_outputs(project: str, data: dict, phase: str, graph: dict) -> dict:
             if relative == "contracts/03-cost-management.json":
                 revisions.update(validate_cost_report(directory, data, path, run))
             if relative == "_meta/waf-scores.json":
-                if document.get("project") != project or document.get("as_of") != run["reporting"]["as_of"]:
-                    raise ValueError("WAF scores project/as_of differ from authorized assessment")
-                pillars = document.get("pillars")
-                if (
-                    document.get("schema_version") != "assessment-waf-scores-v1"
-                    or not isinstance(pillars, list)
-                    or len(pillars) != 5
-                ):
-                    raise ValueError("Invalid _meta/waf-scores.json schema")
-                for entry in pillars:
-                    obs = (
-                        int(entry.get("passed_checks", 0))
-                        + int(entry.get("risk_checks", 0))
-                        + int(entry.get("intentional_tradeoff_checks", 0))
-                    )
-                    if entry.get("status") == "scored" and (
-                        obs < 2 or not isinstance(entry.get("score"), (int, float)) or not (0 <= entry["score"] <= 10)
-                    ):
-                        raise ValueError("Scored WAF pillar requires >= 2 observed checks and score in [0, 10]")
-                    if entry.get("status") == "not_assessed" and entry.get("score") is not None:
-                        raise ValueError("not_assessed WAF pillar cannot carry a numeric score")
+                validate_waf_scores_document(document, project, run["reporting"]["as_of"])
         if path.suffix == ".png":
             raw = path.read_bytes()
             if len(raw) < 33 or raw[:8] != b"\x89PNG\r\n\x1a\n" or raw[12:16] != b"IHDR":
@@ -620,6 +620,66 @@ def check_outputs(project: str, data: dict, phase: str, graph: dict) -> dict:
             if svg.tag != "{http://www.w3.org/2000/svg}svg" or not list(svg):
                 raise ValueError("Assessment SVG must be a nonempty SVG document")
     return revisions
+
+
+def validate_waf_scores_document(document: dict, project: str, expected_as_of: str) -> None:
+    expected_pillars = {
+        "Security",
+        "Reliability",
+        "Performance Efficiency",
+        "Cost Optimization",
+        "Operational Excellence",
+    }
+    if (
+        not isinstance(document, dict)
+        or set(document) != {"schema_version", "project", "as_of", "pillars"}
+        or document.get("schema_version") != "assessment-waf-scores-v1"
+    ):
+        raise ValueError("Invalid _meta/waf-scores.json schema")
+    if document.get("project") != project or document.get("as_of") != expected_as_of:
+        raise ValueError("WAF scores project/as_of differ from authorized assessment")
+    pillars = document.get("pillars")
+    if not isinstance(pillars, list) or len(pillars) != 5:
+        raise ValueError("Invalid _meta/waf-scores.json pillars list")
+    required_entry_keys = {
+        "pillar",
+        "status",
+        "score",
+        "confidence",
+        "passed_checks",
+        "risk_checks",
+        "intentional_tradeoff_checks",
+        "unknown_checks",
+    }
+    seen_pillars: set[str] = set()
+    for entry in pillars:
+        if (
+            not isinstance(entry, dict)
+            or required_entry_keys - set(entry)
+            or set(entry) - (required_entry_keys | {"notes"})
+        ):
+            raise ValueError("Invalid WAF pillar score entry shape")
+        name = entry["pillar"]
+        if name not in expected_pillars or name in seen_pillars:
+            raise ValueError(f"Duplicate or unknown WAF pillar in _meta/waf-scores.json: {name}")
+        seen_pillars.add(name)
+        if entry["status"] not in ("scored", "not_assessed") or entry["confidence"] not in ("High", "Medium", "Low"):
+            raise ValueError("Invalid WAF pillar status or confidence enum")
+        if "notes" in entry and (not isinstance(entry["notes"], str) or len(entry["notes"]) > 500):
+            raise ValueError("Invalid WAF pillar notes")
+        counts = []
+        for count_key in ("passed_checks", "risk_checks", "intentional_tradeoff_checks", "unknown_checks"):
+            val = entry[count_key]
+            if type(val) is not int or not (0 <= val <= 1000):
+                raise ValueError(f"Invalid integer check count for {count_key}")
+            counts.append(val)
+        obs = counts[0] + counts[1] + counts[2]
+        score = entry["score"]
+        if entry["status"] == "scored":
+            if obs < 2 or type(score) is bool or not isinstance(score, (int, float)) or not (0 <= float(score) <= 10):
+                raise ValueError("Scored WAF pillar requires >= 2 observed checks and score in [0, 10]")
+        elif score is not None:
+            raise ValueError("not_assessed WAF pillar cannot carry a numeric score")
 
 
 def validate_cost_report(directory: Path, data: dict, path: Path, run: dict) -> dict:

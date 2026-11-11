@@ -203,49 +203,75 @@ def render_cost_trends(cost_doc: dict[str, Any], out_base: Path) -> None:
     evidence: list[dict[str, Any]] = list(cost_doc.get("evidence", []))
     estimates: list[dict[str, Any]] = list(cost_doc.get("estimates", []))
 
-    fig, ax = plt.subplots(figsize=(12.5, 4.8))
-    fig.patch.set_facecolor(BG)
-    ax.set_facecolor("#FFFFFF")
-    ax.spines[["top", "right"]].set_visible(False)
-    ax.spines[["left", "bottom"]].set_color("#CBD5E1")
-
-    currencies = sorted(
+    live_currencies = sorted(
         {
             s["currency"]
             for item in evidence
+            if item.get("status") == "complete"
             for s in item.get("series", [])
-            if item.get("status") == "complete" and s.get("currency")
+            if s.get("currency")
         }
-        | {est["currency"] for est in estimates if est.get("status") == "complete" and est.get("currency")}
     )
+    valid_ests = [
+        e
+        for e in estimates
+        if e.get("status") == "complete" and e.get("monthly_total") is not None and e.get("currency")
+    ]
 
-    if not scopes or (not currencies and not estimates):
-        # IaC-only or unassessed billing banner
-        if estimates and any(e.get("monthly_total") is not None for e in estimates):
-            valid_ests = [e for e in estimates if e.get("monthly_total") is not None]
-            names = [e["id"] for e in valid_ests]
-            vals = [float(e["monthly_total"]) for e in valid_ests]
-            cur = valid_ests[0]["currency"]
-            bars = ax.bar(names, vals, width=0.45, color=BLUE)
-            for bar, val in zip(bars, vals, strict=True):
-                ax.text(
-                    bar.get_x() + bar.get_width() / 2,
-                    val,
-                    f"{cur} {val:,.2f}",
-                    ha="center",
-                    va="bottom",
-                    fontsize=9.5,
-                    fontweight="bold",
-                    color=NAVY,
-                )
-            ax.set_ylabel(f"Estimated Monthly Retail Cost ({cur})", fontsize=10, color=SLATE)
-            ax.set_title(
+    if not scopes or not live_currencies:
+        if valid_ests:
+            est_currencies = sorted({str(e["currency"]) for e in valid_ests})
+            fig, axes_grid = plt.subplots(
+                1,
+                len(est_currencies),
+                figsize=(max(8.5, 6.2 * len(est_currencies)), 4.6),
+                squeeze=False,
+            )
+            fig.patch.set_facecolor(BG)
+            for idx, cur in enumerate(est_currencies):
+                ax = axes_grid[0, idx]
+                ax.set_facecolor("#FFFFFF")
+                ax.spines[["top", "right"]].set_visible(False)
+                ax.spines[["left", "bottom"]].set_color("#CBD5E1")
+                subset = [e for e in valid_ests if e["currency"] == cur]
+                names = [str(e["id"]) for e in subset]
+                vals = [float(e["monthly_total"]) for e in subset]
+                max_e = max([1.0, *vals])
+                min_e = min([0.0, *vals])
+                span_e = max(1.0, max_e - min_e)
+                bars = ax.bar(names, vals, width=0.45, color=BLUE)
+                if min_e < 0:
+                    ax.axhline(0, color="#64748B", linewidth=0.9)
+                for bar, val in zip(bars, vals, strict=True):
+                    y_txt = val + span_e * 0.02 if val >= 0 else val - span_e * 0.02
+                    ax.text(
+                        bar.get_x() + bar.get_width() / 2,
+                        y_txt,
+                        f"{cur} {val:,.2f}",
+                        ha="center",
+                        va="bottom" if val >= 0 else "top",
+                        fontsize=9.5,
+                        fontweight="bold",
+                        color=NAVY,
+                    )
+                ax.set_ylim(min_e - span_e * 0.20 if min_e < 0 else 0, max_e + span_e * 0.22)
+                ax.set_ylabel(f"Estimated Monthly Retail Cost ({cur})", fontsize=10, color=SLATE)
+                ax.set_title(f"IaC Retail Estimates ({cur})", fontsize=11.5, fontweight="bold", color=NAVY)
+                ax.grid(axis="y", color="#E2E8F0", linewidth=0.8)
+            fig.suptitle(
                 "Labelled IaC Retail Cost Estimates (not live Azure billing)",
-                fontsize=12.5,
+                fontsize=13,
                 fontweight="bold",
                 color=NAVY,
+                y=0.99,
             )
+            plt.tight_layout(rect=(0, 0, 1, 0.94))
         else:
+            fig, ax = plt.subplots(figsize=(12.5, 4.8))
+            fig.patch.set_facecolor(BG)
+            ax.set_facecolor("#FFFFFF")
+            ax.spines[["top", "right"]].set_visible(False)
+            ax.spines[["left", "bottom"]].set_color("#CBD5E1")
             ax.set_xticks([])
             ax.set_yticks([])
             ax.text(
@@ -261,186 +287,222 @@ def render_cost_trends(cost_doc: dict[str, Any], out_base: Path) -> None:
                 transform=ax.transAxes,
             )
             ax.set_title("Subscription Spend & Forecast Trends", fontsize=12.5, fontweight="bold", color=NAVY)
-        plt.tight_layout()
+            plt.tight_layout()
         save_figure(fig, out_base, bbox_inches="tight", facecolor=fig.get_facecolor())
         plt.close(fig)
         return
 
-    primary_currency = currencies[0]
     periods = cost_doc.get("periods", [])
     hist_periods = [p for p in periods if p.get("kind") != "forecast"]
     forecast_period = next((p for p in periods if p.get("kind") == "forecast"), None)
-
     x = np.arange(len(scopes))
     slot_count = len(hist_periods) + (1 if forecast_period else 0)
     width = min(0.20, 0.76 / max(1, slot_count))
     palette = ["#64748B", BLUE, TEAL]
 
-    max_val = 1.0
-    for scope in scopes:
-        for period in hist_periods:
-            ev = next(
-                (
-                    e
-                    for e in evidence
-                    if e["request"]["scope"].lower() == scope.lower() and e["request"]["period"]["id"] == period["id"]
-                ),
-                None,
-            )
-            series = next(
-                (
-                    s
-                    for s in (ev or {}).get("series", [])
-                    if s.get("currency") == primary_currency and s.get("cost_status") == "Actual"
-                ),
-                None,
-            )
-            if ev and ev.get("status") == "complete" and series:
-                max_val = max(max_val, float(series["amount"]))
+    fig, axes_grid = plt.subplots(
+        len(live_currencies),
+        1,
+        figsize=(12.5, 4.8 * len(live_currencies)),
+        squeeze=False,
+    )
+    fig.patch.set_facecolor(BG)
+
+    for c_idx, cur in enumerate(live_currencies):
+        ax = axes_grid[c_idx, 0]
+        ax.set_facecolor("#FFFFFF")
+        ax.spines[["top", "right"]].set_visible(False)
+        ax.spines[["left", "bottom"]].set_color("#CBD5E1")
+
+        max_val = 1.0
+        min_val = 0.0
+        for scope in scopes:
+            for period in hist_periods:
+                ev = next(
+                    (
+                        e
+                        for e in evidence
+                        if e["request"]["scope"].lower() == scope.lower()
+                        and e["request"]["period"]["id"] == period["id"]
+                    ),
+                    None,
+                )
+                series = next(
+                    (
+                        s
+                        for s in (ev or {}).get("series", [])
+                        if s.get("currency") == cur and s.get("cost_status") == "Actual"
+                    ),
+                    None,
+                )
+                if ev and ev.get("status") == "complete" and series is not None:
+                    val = float(series["amount"])
+                    max_val = max(max_val, val)
+                    min_val = min(min_val, val)
+            if forecast_period:
+                fev = next(
+                    (
+                        e
+                        for e in evidence
+                        if e["request"]["scope"].lower() == scope.lower()
+                        and e["request"]["period"]["id"] == forecast_period["id"]
+                    ),
+                    None,
+                )
+                cur_f = [s for s in (fev or {}).get("series", []) if s.get("currency") == cur]
+                if fev and fev.get("status") == "complete" and any(s.get("cost_status") == "Forecast" for s in cur_f):
+                    act = sum(float(s["amount"]) for s in cur_f if s.get("cost_status") == "Actual")
+                    proj = sum(float(s["amount"]) for s in cur_f if s.get("cost_status") == "Forecast")
+                    max_val = max(max_val, act + proj, act)
+                    min_val = min(min_val, act + proj, act)
+
+        span = max(1.0, max_val - min_val)
+        na_height = span * 0.12
+        if min_val < 0:
+            ax.axhline(0, color="#64748B", linewidth=0.9)
+
+        for p_idx, period in enumerate(hist_periods):
+            offset = (p_idx - (slot_count - 1) / 2) * (width + 0.02)
+            color = palette[p_idx % len(palette)]
+            for s_idx, scope in enumerate(scopes):
+                ev = next(
+                    (
+                        e
+                        for e in evidence
+                        if e["request"]["scope"].lower() == scope.lower()
+                        and e["request"]["period"]["id"] == period["id"]
+                    ),
+                    None,
+                )
+                series = next(
+                    (
+                        s
+                        for s in (ev or {}).get("series", [])
+                        if s.get("currency") == cur and s.get("cost_status") == "Actual"
+                    ),
+                    None,
+                )
+                xpos = x[s_idx] + offset
+                if ev and ev.get("status") == "complete" and series is not None:
+                    val = float(series["amount"])
+                    ax.bar(
+                        xpos,
+                        val,
+                        width=width,
+                        color=color,
+                        label=f"{period['id']} (Actual)" if s_idx == 0 else None,
+                    )
+                    y_txt = val + span * 0.015 if val >= 0 else val - span * 0.02
+                    ax.text(
+                        xpos,
+                        y_txt,
+                        f"{val:,.0f}",
+                        ha="center",
+                        va="bottom" if val >= 0 else "top",
+                        fontsize=8,
+                        color=NAVY,
+                    )
+                else:
+                    ax.bar(
+                        xpos,
+                        na_height,
+                        width=width,
+                        color="#F1F5F9",
+                        edgecolor="#94A3B8",
+                        hatch="//",
+                        label="Not assessed / throttled" if s_idx == 0 and p_idx == 0 else None,
+                    )
+                    ax.text(
+                        xpos,
+                        na_height / 2,
+                        "N/A",
+                        ha="center",
+                        va="center",
+                        fontsize=7.5,
+                        fontweight="bold",
+                        color=SLATE,
+                    )
+
         if forecast_period:
-            fev = next(
-                (
-                    e
-                    for e in evidence
-                    if e["request"]["scope"].lower() == scope.lower()
-                    and e["request"]["period"]["id"] == forecast_period["id"]
-                ),
-                None,
-            )
-            if fev and fev.get("status") == "complete":
-                act = sum(
-                    float(s["amount"])
-                    for s in fev.get("series", [])
-                    if s.get("currency") == primary_currency and s.get("cost_status") == "Actual"
+            offset = ((slot_count - 1) - (slot_count - 1) / 2) * (width + 0.02)
+            for s_idx, scope in enumerate(scopes):
+                fev = next(
+                    (
+                        e
+                        for e in evidence
+                        if e["request"]["scope"].lower() == scope.lower()
+                        and e["request"]["period"]["id"] == forecast_period["id"]
+                    ),
+                    None,
                 )
-                proj = sum(
-                    float(s["amount"])
-                    for s in fev.get("series", [])
-                    if s.get("currency") == primary_currency and s.get("cost_status") == "Forecast"
+                cur_f = [s for s in (fev or {}).get("series", []) if s.get("currency") == cur]
+                has_cur_forecast = bool(
+                    fev and fev.get("status") == "complete" and any(s.get("cost_status") == "Forecast" for s in cur_f)
                 )
-                max_val = max(max_val, act + proj)
+                xpos = x[s_idx] + offset
+                if has_cur_forecast:
+                    act = sum(float(s["amount"]) for s in cur_f if s.get("cost_status") == "Actual")
+                    proj = sum(float(s["amount"]) for s in cur_f if s.get("cost_status") == "Forecast")
+                    ax.bar(
+                        xpos,
+                        act,
+                        width=width,
+                        color="#93C5FD",
+                        label="Forecast API: Actual-to-date" if s_idx == 0 else None,
+                    )
+                    ax.bar(
+                        xpos,
+                        proj,
+                        bottom=act,
+                        width=width,
+                        color=AMBER,
+                        label="Forecast API: Projected remainder" if s_idx == 0 else None,
+                    )
+                    tot_f = act + proj
+                    y_txt = tot_f + span * 0.015 if tot_f >= 0 else tot_f - span * 0.02
+                    ax.text(
+                        xpos,
+                        y_txt,
+                        f"{tot_f:,.0f}",
+                        ha="center",
+                        va="bottom" if tot_f >= 0 else "top",
+                        fontsize=8,
+                        color=NAVY,
+                    )
+                else:
+                    ax.bar(xpos, na_height, width=width, color="#F1F5F9", edgecolor="#94A3B8", hatch="//")
+                    ax.text(
+                        xpos,
+                        na_height / 2,
+                        "N/A",
+                        ha="center",
+                        va="center",
+                        fontsize=7.5,
+                        fontweight="bold",
+                        color=SLATE,
+                    )
 
-    na_height = max_val * 0.12
-    for p_idx, period in enumerate(hist_periods):
-        offset = (p_idx - (slot_count - 1) / 2) * (width + 0.02)
-        color = palette[p_idx % len(palette)]
-        for s_idx, scope in enumerate(scopes):
-            ev = next(
-                (
-                    e
-                    for e in evidence
-                    if e["request"]["scope"].lower() == scope.lower() and e["request"]["period"]["id"] == period["id"]
-                ),
-                None,
+        ax.set_xticks(
+            x, labels=[short_scope_label(s, idx) for idx, s in enumerate(scopes)], fontsize=9.5, fontweight="bold"
+        )
+        ax.set_ylim(min_val - span * 0.20 if min_val < 0 else 0, max_val + span * 0.22)
+        ax.set_ylabel(f"Pre-Tax Amount ({cur})", fontsize=10, color=SLATE)
+        ax.set_title(
+            f"Scoped Actual Spend vs. Forecast API Breakdown ({cur})\n"
+            "MTD Query and Forecast API series are plotted separately and never summed together",
+            fontsize=11.5,
+            fontweight="bold",
+            color=NAVY,
+            pad=10,
+        )
+        ax.grid(axis="y", color="#E2E8F0", linewidth=0.8)
+        handles, labels = ax.get_legend_handles_labels()
+        if not any("Not assessed" in lbl for lbl in labels):
+            handles.append(
+                mpatches.Patch(facecolor="#F1F5F9", edgecolor="#94A3B8", hatch="//", label="N/A (not assessed)")
             )
-            series = next(
-                (
-                    s
-                    for s in (ev or {}).get("series", [])
-                    if s.get("currency") == primary_currency and s.get("cost_status") == "Actual"
-                ),
-                None,
-            )
-            xpos = x[s_idx] + offset
-            if ev and ev.get("status") == "complete" and series is not None:
-                val = float(series["amount"])
-                ax.bar(
-                    xpos,
-                    val,
-                    width=width,
-                    color=color,
-                    label=f"{period['id']} (Actual)" if s_idx == 0 else None,
-                )
-                ax.text(xpos, val + max_val * 0.015, f"{val:,.0f}", ha="center", va="bottom", fontsize=8, color=NAVY)
-            else:
-                ax.bar(
-                    xpos,
-                    na_height,
-                    width=width,
-                    color="#F1F5F9",
-                    edgecolor="#94A3B8",
-                    hatch="//",
-                    label="Not assessed / throttled" if s_idx == 0 and p_idx == 0 else None,
-                )
-                ax.text(
-                    xpos, na_height / 2, "N/A", ha="center", va="center", fontsize=7.5, fontweight="bold", color=SLATE
-                )
+        ax.legend(handles=handles, loc="upper right", fontsize=8.5, frameon=True)
 
-    if forecast_period:
-        offset = ((slot_count - 1) - (slot_count - 1) / 2) * (width + 0.02)
-        for s_idx, scope in enumerate(scopes):
-            fev = next(
-                (
-                    e
-                    for e in evidence
-                    if e["request"]["scope"].lower() == scope.lower()
-                    and e["request"]["period"]["id"] == forecast_period["id"]
-                ),
-                None,
-            )
-            xpos = x[s_idx] + offset
-            if fev and fev.get("status") == "complete":
-                act = sum(
-                    float(s["amount"])
-                    for s in fev.get("series", [])
-                    if s.get("currency") == primary_currency and s.get("cost_status") == "Actual"
-                )
-                proj = sum(
-                    float(s["amount"])
-                    for s in fev.get("series", [])
-                    if s.get("currency") == primary_currency and s.get("cost_status") == "Forecast"
-                )
-                ax.bar(
-                    xpos,
-                    act,
-                    width=width,
-                    color="#93C5FD",
-                    label="Forecast API: Actual-to-date" if s_idx == 0 else None,
-                )
-                ax.bar(
-                    xpos,
-                    proj,
-                    bottom=act,
-                    width=width,
-                    color=AMBER,
-                    label="Forecast API: Projected remainder" if s_idx == 0 else None,
-                )
-                ax.text(
-                    xpos,
-                    act + proj + max_val * 0.015,
-                    f"{act + proj:,.0f}",
-                    ha="center",
-                    va="bottom",
-                    fontsize=8,
-                    color=NAVY,
-                )
-            else:
-                ax.bar(xpos, na_height, width=width, color="#F1F5F9", edgecolor="#94A3B8", hatch="//")
-                ax.text(
-                    xpos, na_height / 2, "N/A", ha="center", va="center", fontsize=7.5, fontweight="bold", color=SLATE
-                )
-
-    ax.set_xticks(
-        x, labels=[short_scope_label(s, idx) for idx, s in enumerate(scopes)], fontsize=9.5, fontweight="bold"
-    )
-    ax.set_ylim(0, max_val * 1.22)
-    ax.set_ylabel(f"Pre-Tax Amount ({primary_currency})", fontsize=10, color=SLATE)
-    currency_note = (
-        f" ({primary_currency}; additional currencies omitted)" if len(currencies) > 1 else f" ({primary_currency})"
-    )
-    ax.set_title(
-        f"Scoped Actual Spend vs. Forecast API Breakdown{currency_note}\n"
-        "MTD Query and Forecast API series are plotted separately and never summed together",
-        fontsize=11.5,
-        fontweight="bold",
-        color=NAVY,
-        pad=10,
-    )
-    ax.grid(axis="y", color="#E2E8F0", linewidth=0.8)
-    handles, labels = ax.get_legend_handles_labels()
-    if not any("Not assessed" in lbl for lbl in labels):
-        handles.append(mpatches.Patch(facecolor="#F1F5F9", edgecolor="#94A3B8", hatch="//", label="N/A (not assessed)"))
-    ax.legend(handles=handles, loc="upper right", fontsize=8.5, frameon=True)
     plt.tight_layout()
     save_figure(fig, out_base, bbox_inches="tight", facecolor=fig.get_facecolor())
     plt.close(fig)
@@ -451,7 +513,6 @@ def render_cost_drivers(cost_doc: dict[str, Any], out_base: Path) -> None:
     evidence: list[dict[str, Any]] = list(cost_doc.get("evidence", []))
     scope_index = {s.lower(): short_scope_label(s, idx) for idx, s in enumerate(scopes)}
 
-    # Rank service cost drivers from the most recent closed_month with grouped rows (fallback to any complete query).
     closed_periods = sorted(
         [p for p in cost_doc.get("periods", []) if p.get("kind") == "closed_month"],
         key=lambda p: str(p.get("to", "")),
@@ -471,8 +532,9 @@ def render_cost_drivers(cost_doc: dict[str, Any], out_base: Path) -> None:
             break
     if target_period is None and closed_periods:
         target_period = closed_periods[0]["id"]
+
+    # Aggregate signed amounts (including credits/refunds) per (currency, scope•service) before ranking.
     driver_totals: dict[tuple[str, str], float] = {}
-    currency = "USD"
     for item in evidence:
         if item.get("status") != "complete" or item["request"]["operation"] != "query":
             continue
@@ -480,30 +542,22 @@ def render_cost_drivers(cost_doc: dict[str, Any], out_base: Path) -> None:
             continue
         s_label = scope_index.get(item["request"]["scope"].lower(), "Scope")
         for series in item.get("series", []):
-            if series.get("cost_status") != "Actual":
+            if series.get("cost_status") != "Actual" or not series.get("currency"):
                 continue
-            currency = series["currency"]
+            cur = str(series["currency"])
             for grp in series.get("groups", []):
                 svc = grp.get("dimensions", {}).get("ServiceName") or "Unattributed service"
                 amt = float(grp["amount"])
-                if amt > 0:
-                    driver_totals[(f"{s_label} • {svc}", currency)] = (
-                        driver_totals.get((f"{s_label} • {svc}", currency), 0.0) + amt
-                    )
+                key = (cur, f"{s_label} • {svc}")
+                driver_totals[key] = driver_totals.get(key, 0.0) + amt
 
-    fig, ax = plt.subplots(figsize=(11.5, 4.6))
-    fig.patch.set_facecolor(BG)
-    ax.set_facecolor("#FFFFFF")
-    ax.spines[["top", "right"]].set_visible(False)
-    ax.spines[["left", "bottom"]].set_color("#CBD5E1")
-
-    ranked = sorted(
-        [(label, amt) for (label, cur), amt in driver_totals.items() if cur == currency],
-        key=lambda pair: pair[1],
-        reverse=True,
-    )[:10]
-
-    if not ranked:
+    driver_currencies = sorted({cur for (cur, _), net in driver_totals.items() if net > 0})
+    if not driver_currencies:
+        fig, ax = plt.subplots(figsize=(11.5, 4.6))
+        fig.patch.set_facecolor(BG)
+        ax.set_facecolor("#FFFFFF")
+        ax.spines[["top", "right"]].set_visible(False)
+        ax.spines[["left", "bottom"]].set_color("#CBD5E1")
         ax.set_xticks([])
         ax.set_yticks([])
         ax.text(
@@ -519,7 +573,30 @@ def render_cost_drivers(cost_doc: dict[str, Any], out_base: Path) -> None:
             transform=ax.transAxes,
         )
         ax.set_title("Top Service Cost Drivers", fontsize=12.5, fontweight="bold", color=NAVY)
-    else:
+        plt.tight_layout()
+        save_figure(fig, out_base, bbox_inches="tight", facecolor=fig.get_facecolor())
+        plt.close(fig)
+        return
+
+    fig, axes_grid = plt.subplots(
+        len(driver_currencies),
+        1,
+        figsize=(11.5, 4.6 * len(driver_currencies)),
+        squeeze=False,
+    )
+    fig.patch.set_facecolor(BG)
+    period_note = f" ({target_period})" if target_period else ""
+
+    for idx, cur in enumerate(driver_currencies):
+        ax = axes_grid[idx, 0]
+        ax.set_facecolor("#FFFFFF")
+        ax.spines[["top", "right"]].set_visible(False)
+        ax.spines[["left", "bottom"]].set_color("#CBD5E1")
+        ranked = sorted(
+            [(label, net) for (c, label), net in driver_totals.items() if c == cur and net > 0],
+            key=lambda pair: pair[1],
+            reverse=True,
+        )[:10]
         ranked.reverse()
         labels = [item[0] for item in ranked]
         values = [item[1] for item in ranked]
@@ -529,7 +606,7 @@ def render_cost_drivers(cost_doc: dict[str, Any], out_base: Path) -> None:
             ax.text(
                 val + max_v * 0.015,
                 bar.get_y() + bar.get_height() / 2,
-                f"{currency} {val:,.2f}",
+                f"{cur} {val:,.2f}",
                 va="center",
                 ha="left",
                 fontsize=9,
@@ -537,10 +614,9 @@ def render_cost_drivers(cost_doc: dict[str, Any], out_base: Path) -> None:
                 color=NAVY,
             )
         ax.set_xlim(0, max_v * 1.24)
-        ax.set_xlabel(f"Closed-Month Actual Spend ({currency})", fontsize=9.5, color=SLATE)
-        period_note = f" ({target_period})" if target_period else ""
+        ax.set_xlabel(f"Closed-Month Net Actual Spend ({cur})", fontsize=9.5, color=SLATE)
         ax.set_title(
-            f"Top Scoped Service Cost Drivers{period_note}",
+            f"Top Scoped Service Cost Drivers — {cur}{period_note}",
             fontsize=12.5,
             fontweight="bold",
             color=NAVY,

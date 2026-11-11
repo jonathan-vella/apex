@@ -596,6 +596,32 @@ def prepare_cycle(project: str, data: dict, args: object) -> dict | None:
             )
             if live_digest != prior[-1]["input_digest"]:
                 raise ValueError("Publication retry requires unchanged reviewed and supporting input bytes on disk")
+            prior_output_rel = prior[-1].get("output_path")
+            if prior_output_rel:
+                prior_target = root / prior_output_rel
+                if (
+                    prior_target.is_file()
+                    or resolve_review_path(project, prior_target.name).is_file()
+                    or cycle.get("current_path") == prior_target.name
+                ):
+                    raise ValueError(
+                        "Publication retry is forbidden when the referenced invocation already published findings"
+                    )
+            for candidate_dir in (pdir, pdir / "reviews"):
+                if not candidate_dir.is_dir():
+                    continue
+                for candidate_file in candidate_dir.glob("*.json"):
+                    try:
+                        parsed_doc = json.loads(candidate_file.read_text(encoding="utf-8"))
+                    except OSError, json.JSONDecodeError:
+                        continue
+                    if (
+                        isinstance(parsed_doc, dict)
+                        and parsed_doc.get("review_execution", {}).get("request_id") == target_id
+                    ):
+                        raise ValueError(
+                            "Publication retry is forbidden when the referenced invocation already has a published receipt"
+                        )
             target_output = root / request["output_path"]
             if target_output.is_file() or cycle.get("current_path") == target_output.name:
                 raise ValueError("Publication retry is forbidden when the target review output is already published")
