@@ -5,7 +5,7 @@
  */
 import fs from "node:fs";
 import path from "node:path";
-import { randomUUID } from "node:crypto";
+import { createHash, randomUUID } from "node:crypto";
 import { isDeepStrictEqual } from "node:util";
 import { parseArgs } from "node:util";
 import { fileURLToPath } from "node:url";
@@ -17,6 +17,7 @@ import {
   STRUCTURED_REVIEWER,
   validateReview,
 } from "./validate-challenger-findings.mjs";
+import { reviewCompatibility } from "./_lib/review-compatibility.mjs";
 import {
   isPrivatePolicyReference,
   resolvePrivatePolicyReference,
@@ -156,14 +157,96 @@ function normalizeReviewDoc(doc, input, root) {
     }
   }
 }
-function matchesRequest(prompt, requestId) {
-  if (typeof prompt !== "string" || !prompt.startsWith("APEX_REVIEW\n")) return false;
-  try {
-    const parsed = JSON.parse(prompt.slice("APEX_REVIEW\n".length));
-    return object(parsed) && parsed.request_id === requestId;
-  } catch {
-    return false;
+function parseReviewEnvelopeHeader(prompt) {
+  if (typeof prompt !== "string") return null;
+  if (prompt.startsWith("APEX_REVIEW\n")) {
+    try {
+      const parsed = JSON.parse(prompt.slice("APEX_REVIEW\n".length));
+      return object(parsed) ? { kind: "inline", payload: parsed } : null;
+    } catch {
+      return null;
+    }
   }
+  if (prompt.startsWith("APEX_REVIEW_FILE\n")) {
+    try {
+      const parsed = JSON.parse(prompt.slice("APEX_REVIEW_FILE\n".length));
+      return object(parsed) ? { kind: "file", payload: parsed } : null;
+    } catch {
+      return null;
+    }
+  }
+  return null;
+}
+
+function matchesRequest(prompt, requestId) {
+  const header = parseReviewEnvelopeHeader(prompt);
+  return Boolean(header && header.payload.request_id === requestId);
+}
+
+function loadVerifiedReviewFileEnvelope(envelope, root) {
+  const allowedKeys = new Set([
+    "request_id",
+    "project_name",
+    "step",
+    "review_depth",
+    "request_path",
+    "request_sha256",
+    "private_inputs",
+  ]);
+  for (const key of Object.keys(envelope)) {
+    requireEvidence(allowedKeys.has(key), `Unsupported APEX_REVIEW_FILE field: ${key}`);
+  }
+  requireEvidence(
+    nonempty(envelope.request_id) &&
+      nonempty(envelope.project_name) &&
+      nonempty(envelope.step) &&
+      ["default", "deep"].includes(envelope.review_depth) &&
+      nonempty(envelope.request_path) &&
+      /^[a-f0-9]{64}$/.test(envelope.request_sha256 ?? ""),
+    "APEX_REVIEW_FILE requires request_id, project_name, step, review_depth, request_path, and 64-hex request_sha256",
+  );
+  requireEvidence(
+    !path.isAbsolute(envelope.request_path) &&
+      !envelope.request_path.includes("\\") &&
+      !envelope.request_path.split("/").some((part) => ["", ".", ".."].includes(part)),
+    "APEX_REVIEW_FILE request_path must be a normalized workspace-relative path",
+  );
+  const realRoot = fs.realpathSync(root);
+  let cursor = realRoot;
+  for (const part of envelope.request_path.split("/")) {
+    cursor = path.join(cursor, part);
+    const stat = fs.lstatSync(cursor);
+    requireEvidence(!stat.isSymbolicLink(), "APEX_REVIEW_FILE request_path must not traverse symlinks");
+  }
+  requireEvidence(fs.statSync(cursor).isFile(), "APEX_REVIEW_FILE request_path must be a regular file");
+  const rawBytes = fs.readFileSync(cursor);
+  const actualSha = createHash("sha256").update(rawBytes).digest("hex");
+  requireEvidence(
+    actualSha === envelope.request_sha256,
+    "APEX_REVIEW_FILE request_sha256 does not match current request file bytes",
+  );
+  const input = JSON.parse(rawBytes.toString("utf8"));
+  requireEvidence(object(input), "Saved review request file must contain one JSON object");
+  requireEvidence(
+    nonempty(input.project_name) &&
+      cursor.startsWith(`${path.join(realRoot, "agent-output", input.project_name, "_meta")}${path.sep}`),
+    "APEX_REVIEW_FILE request_path must reside under agent-output/<project_name>/_meta/",
+  );
+  requireEvidence(
+    input.request_id === envelope.request_id &&
+      input.project_name === envelope.project_name &&
+      input.step === envelope.step &&
+      input.review_depth === envelope.review_depth,
+    "APEX_REVIEW_FILE header fields differ from the saved review request",
+  );
+  if (envelope.private_inputs !== undefined) {
+    requireEvidence(
+      !Object.hasOwn(input, "private_inputs"),
+      "Saved review request must not persist literal private_inputs",
+    );
+    input.private_inputs = structuredClone(envelope.private_inputs);
+  }
+  return input;
 }
 
 function resolveReviewer(events, requestId) {
@@ -351,7 +434,7 @@ function resolveRootHookDispatch(events, call) {
   };
 }
 
-export function extractReview(events, workerId, parentId) {
+export function extractReview(events, workerId, parentId, { root = process.cwd() } = {}) {
   requireEvidence(
     nonempty(workerId) && nonempty(parentId) && workerId !== parentId && workerId !== "root",
     "Exact distinct worker and parent identities are required",
@@ -425,10 +508,13 @@ export function extractReview(events, workerId, parentId) {
     );
   }
   requireEvidence(
-    typeof args.prompt === "string" && args.prompt.startsWith("APEX_REVIEW\n"),
-    "Task prompt must be APEX_REVIEW followed by one JSON object",
+    typeof args.prompt === "string" &&
+      (args.prompt.startsWith("APEX_REVIEW\n") || args.prompt.startsWith("APEX_REVIEW_FILE\n")),
+    "Task prompt must be APEX_REVIEW or APEX_REVIEW_FILE followed by one JSON object",
   );
-  const input = JSON.parse(args.prompt.slice("APEX_REVIEW\n".length));
+  const input = args.prompt.startsWith("APEX_REVIEW_FILE\n")
+    ? loadVerifiedReviewFileEnvelope(JSON.parse(args.prompt.slice("APEX_REVIEW_FILE\n".length)), root)
+    : JSON.parse(args.prompt.slice("APEX_REVIEW\n".length));
   requireEvidence(object(input), "Review input must be an object");
   requireEvidence(
     nonempty(input.request_id) && nonempty(input.step) && ["default", "deep"].includes(input.review_depth),
@@ -731,9 +817,11 @@ export function preflightReviewRequest(input, root = process.cwd()) {
     "Review artifact must remain in the workspace and output cannot be a reviewed input",
   );
   requireEvidence(!fs.existsSync(target) || input.overwrite === true, "Output exists without explicit overwrite:true");
+  const expectedCache = cacheInputs(input.artifact_path, root, input.cache_inputs.reviewer);
+  const cacheCompat = reviewCompatibility(input.cache_inputs, expectedCache, root);
   requireEvidence(
     input.cache_inputs.reviewer === STRUCTURED_REVIEWER &&
-      isDeepStrictEqual(input.cache_inputs, cacheInputs(input.artifact_path, root, input.cache_inputs.reviewer)),
+      (cacheCompat === "exact" || cacheCompat === "editorial-compatible"),
     "Dispatched cache snapshot does not match current artifact or reviewer contract bytes",
   );
   const privateInputs = [];
@@ -797,10 +885,12 @@ export function preflightReviewRequest(input, root = process.cwd()) {
 
 function checkReview(input, doc, root) {
   const { lenses, batch } = preflightReviewRequest(input, root);
+  const expectedCache = cacheInputs(input.artifact_path, root, input.cache_inputs.reviewer);
+  const cacheCompat = reviewCompatibility(input.cache_inputs, expectedCache, root);
   requireEvidence(
     isRecordedReviewer(input.cache_inputs.reviewer) &&
       input.cache_inputs.reviewer === doc.review_execution?.reviewer &&
-      isDeepStrictEqual(input.cache_inputs, cacheInputs(input.artifact_path, root, input.cache_inputs.reviewer)),
+      (cacheCompat === "exact" || cacheCompat === "editorial-compatible"),
     "Dispatched cache snapshot does not match current artifact or reviewer contract bytes",
   );
   const entries = batch ? doc.batch_results : [doc];
@@ -932,7 +1022,7 @@ export function recordReview({
       "Review identity changed while waiting for native records",
     );
   }
-  const { input, doc, execution } = extractReview(ready, workerId, parentId);
+  const { input, doc, execution } = extractReview(ready, workerId, parentId, { root });
   requireEvidence(
     execution.reviewer === STRUCTURED_REVIEWER,
     "New recordings require challenger-review-subagent; historical rubber-duck receipts are read-only compatibility",
@@ -1001,13 +1091,34 @@ export function runRecorder(argv = process.argv.slice(2)) {
           !["events", "events-dir", "output", "worker-id", "parent-id", "request-id"].some((key) => values[key]),
         "Preflight requires only --preflight --request",
       );
-      const input = JSON.parse(fs.readFileSync(values.request, "utf8"));
+      const rawBytes = fs.readFileSync(values.request);
+      const input = JSON.parse(rawBytes.toString("utf8"));
       const result = preflightReviewRequest(input);
+      let fileEnvelope;
+      if (!Object.hasOwn(input, "private_inputs")) {
+        try {
+          const realCwd = fs.realpathSync(process.cwd());
+          const relRequest = path.relative(realCwd, path.resolve(realCwd, values.request)).replaceAll(path.sep, "/");
+          const candidate = {
+            request_id: input.request_id,
+            project_name: input.project_name,
+            step: input.step,
+            review_depth: input.review_depth,
+            request_path: relRequest,
+            request_sha256: createHash("sha256").update(rawBytes).digest("hex"),
+          };
+          loadVerifiedReviewFileEnvelope(candidate, realCwd);
+          fileEnvelope = candidate;
+        } catch {
+          fileEnvelope = undefined;
+        }
+      }
       console.log(
         JSON.stringify({
           request_id: input.request_id,
           status: "preflight_passed",
           attempt_inputs: result.attempt_inputs,
+          ...(fileEnvelope ? { review_file_envelope: fileEnvelope } : {}),
           permission_granted: false,
         }),
       );

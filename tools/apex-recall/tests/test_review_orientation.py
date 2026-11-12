@@ -294,6 +294,56 @@ def test_reconcile_recognizes_root_hook_buffered_and_post_turn_flushed_dispatche
     assert [r["request_id"] for r in par["requests"]] == ["root-closure-1", "root-closure-2"]
     assert all(r["gap"] is False for r in par["requests"])
 
+    # APEX_REVIEW_FILE envelopes are reconciled cleanly and verify on-disk request SHA-256 + header parity when present.
+    req_on_disk = tmp_path / "agent-output/synthetic/_meta/req.json"
+    req_on_disk.parent.mkdir(parents=True, exist_ok=True)
+    req_bytes = (
+        json.dumps(
+            {
+                "request_id": "root-closure-1",
+                "project_name": "synthetic",
+                "step": "2",
+                "review_depth": "default",
+            }
+        )
+        + "\n"
+    ).encode("utf-8")
+    req_on_disk.write_bytes(req_bytes)
+    import hashlib
+
+    file_prompt = "APEX_REVIEW_FILE\n" + json.dumps(
+        {
+            "request_id": "root-closure-1",
+            "project_name": "synthetic",
+            "step": "2",
+            "review_depth": "default",
+            "request_path": "agent-output/synthetic/_meta/req.json",
+            "request_sha256": hashlib.sha256(req_bytes).hexdigest(),
+        }
+    )
+    file_events = [
+        {
+            "type": "tool.execution_start",
+            "timestamp": "2026-11-11T18:14:34.025Z",
+            "data": {
+                "toolCallId": "call-file-1",
+                "toolName": "task",
+                "arguments": {"agent_type": "challenger-review-subagent", "prompt": file_prompt},
+            },
+        },
+        {"type": "tool.execution_complete", "data": {"toolCallId": "call-file-1", "success": True}},
+    ]
+    capture.write_text("\n".join(json.dumps(ev) for ev in file_events) + "\n")
+    file_rec = audit.reconcile_events(capture, attempts, "synthetic", "2")
+    assert file_rec["ledger_without_native_dispatch"] == []
+    assert len(file_rec["requests"]) == 1
+    assert file_rec["requests"][0]["gap"] is False
+
+    # Tampered on-disk request file fails reconciliation closed.
+    req_on_disk.write_bytes(req_bytes + b" ")
+    with pytest.raises(ValueError, match="request_sha256 mismatch"):
+        audit.reconcile_events(capture, attempts, "synthetic", "2")
+
 
 def test_completed_empty_output_allows_one_identical_retry_without_rewriting_outcome(tmp_path: Path) -> None:
     project, writer, cli = setup(tmp_path)

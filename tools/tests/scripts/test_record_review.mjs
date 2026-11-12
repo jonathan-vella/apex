@@ -1871,3 +1871,94 @@ test("root-session mid-turn buffered dispatch records via preToolUse/postToolUse
   // Non-root parentId cannot use the root hook fallback.
   assert.throws(() => extractReview(bufferedEvents, "worker-1", "subagent-parent"), /Attributed one-shot/);
 });
+
+test("APEX_REVIEW_FILE hash-bound request pointer records cleanly and rejects tampered, symlinked, or non-_meta paths", (t) => {
+  const f = fixture(t, { supporting: true });
+  delete f.doc.cache_inputs;
+  delete f.doc.supporting_inputs;
+  const reqRel = "agent-output/example/_meta/review-request.json";
+  const reqRaw = `${JSON.stringify(f.input, null, 2)}\n`;
+  f.write(reqRel, reqRaw);
+
+  const preflight = spawnSync(process.execPath, [recorder, "--preflight", "--request", reqRel], {
+    cwd: f.root,
+    encoding: "utf8",
+  });
+  assert.equal(preflight.status, 0, preflight.stderr);
+  const preflightOut = JSON.parse(preflight.stdout);
+  assert.equal(preflightOut.review_file_envelope.request_path, reqRel);
+  assert.equal(preflightOut.review_file_envelope.request_sha256, hash(reqRaw));
+
+  const filePrompt = `APEX_REVIEW_FILE\n${JSON.stringify(preflightOut.review_file_envelope)}`;
+  f.flush();
+  f.events[0].data.arguments.prompt = filePrompt;
+  f.events.find((e) => e.type === "user.message").data.content = filePrompt;
+  f.write("events.jsonl", f.events.map((e) => JSON.stringify(e)).join("\n"));
+
+  const sessions = path.join(f.root, "file-envelope-sessions");
+  const sessionDir = path.join(sessions, "s1");
+  fs.mkdirSync(sessionDir, { recursive: true });
+  fs.writeFileSync(path.join(sessionDir, "events.jsonl"), fs.readFileSync(f.options.events, "utf8"));
+
+  const recorded = recordReview({
+    root: f.root,
+    eventsDir: sessions,
+    requestId: "request-1",
+    output,
+  });
+  assert.equal(recorded.review_execution.request_id, "request-1");
+  assert.deepEqual(f.persisted().supporting_inputs, f.input.supporting_inputs);
+
+  // Tampering with saved request file bytes after dispatch fails closed on request_sha256 mismatch.
+  f.write(reqRel, `${reqRaw} `);
+  assert.throws(() => extractReview(f.events, "worker-1", "root", { root: f.root }), /request_sha256 does not match/);
+  f.write(reqRel, reqRaw);
+
+  // Path outside agent-output/<project>/_meta/ omits review_file_envelope on --preflight and fails closed on extractReview.
+  const outsideRel = "agent-output/example/review-request.json";
+  const overwriteRaw = `${JSON.stringify({ ...f.input, overwrite: true }, null, 2)}\n`;
+  f.write(outsideRel, overwriteRaw);
+  const outsidePreflight = spawnSync(process.execPath, [recorder, "--preflight", "--request", outsideRel], {
+    cwd: f.root,
+    encoding: "utf8",
+  });
+  assert.equal(outsidePreflight.status, 0, outsidePreflight.stderr);
+  assert.equal(Object.hasOwn(JSON.parse(outsidePreflight.stdout), "review_file_envelope"), false);
+
+  const badOutside = structuredClone(f.events);
+  const outsidePrompt = `APEX_REVIEW_FILE\n${JSON.stringify({
+    ...preflightOut.review_file_envelope,
+    request_path: outsideRel,
+    request_sha256: hash(overwriteRaw),
+  })}`;
+  badOutside[0].data.arguments.prompt = outsidePrompt;
+  badOutside.find((e) => e.type === "user.message").data.content = outsidePrompt;
+  assert.throws(
+    () => extractReview(badOutside, "worker-1", "root", { root: f.root }),
+    /must reside under agent-output/,
+  );
+
+  // Omitting project_name / step / review_depth on APEX_REVIEW_FILE fails closed.
+  const missingHeader = structuredClone(f.events);
+  const incompleteEnv = { ...preflightOut.review_file_envelope };
+  delete incompleteEnv.project_name;
+  const incompletePrompt = `APEX_REVIEW_FILE\n${JSON.stringify(incompleteEnv)}`;
+  missingHeader[0].data.arguments.prompt = incompletePrompt;
+  missingHeader.find((e) => e.type === "user.message").data.content = incompletePrompt;
+  assert.throws(
+    () => extractReview(missingHeader, "worker-1", "root", { root: f.root }),
+    /requires request_id, project_name, step, review_depth/,
+  );
+
+  // Symlinked request_path fails closed.
+  const linkRel = "agent-output/example/_meta/linked-request.json";
+  fs.symlinkSync(path.join(f.root, reqRel), path.join(f.root, linkRel));
+  const badLink = structuredClone(f.events);
+  const linkPrompt = `APEX_REVIEW_FILE\n${JSON.stringify({
+    ...preflightOut.review_file_envelope,
+    request_path: linkRel,
+  })}`;
+  badLink[0].data.arguments.prompt = linkPrompt;
+  badLink.find((e) => e.type === "user.message").data.content = linkPrompt;
+  assert.throws(() => extractReview(badLink, "worker-1", "root", { root: f.root }), /must not traverse symlinks/);
+});

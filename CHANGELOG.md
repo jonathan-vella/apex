@@ -6,6 +6,14 @@ Entries are grouped by conventional-commit type. Breaking changes list the migra
 
 ### Added
 
+#### Hash-bound `APEX_REVIEW_FILE` envelope for large review requests
+
+Add `APEX_REVIEW_FILE` support across `record-review.mjs` (including `review_file_envelope` output in
+`--preflight`), `challenger-review-subagent`, `one-shot-review.md`, `apex-recall review-audit
+--reconcile-events`, and `profile_debug_log.py` so parents can pass a compact SHA-256-verified pointer
+to a preflighted `agent-output/<project>/_meta/<request>.json` file instead of re-emitting 40+ KB of
+`supporting_inputs` hashes inline in `task` arguments.
+
 #### Standalone WAF assessment v2 hardening and `assessment-bundle-v3` visuals
 
 Stamp omitted `cache_inputs` and `supporting_inputs` from verified `APEX_REVIEW` dispatch metadata in

@@ -623,6 +623,27 @@ def test_one_shot_models_remain_diagnostic(one_shot, model):
     assert load("smoke_verify").evaluate(metrics(records), strict=True)[1]
 
 
+def test_one_shot_apex_review_file_envelope_is_counted_and_validated(one_shot):
+    records = one_shot()
+    file_env = {
+        "request_id": "review-request-file-1",
+        "project_name": "synthetic",
+        "step": "2",
+        "review_depth": "default",
+        "request_path": "agent-output/synthetic/_meta/review-request.json",
+        "request_sha256": "a" * 64,
+    }
+    review_dispatch(records)["data"]["arguments"]["prompt"] = "APEX_REVIEW_FILE\n" + json.dumps(file_env)
+    report = metrics(records)
+    requests = report["native_evidence"]["execution_requests"]
+    assert sum(request.get("protocol") == "APEX_REVIEW" for request in requests) == 1
+
+    bad_sha = {**file_env, "request_sha256": "short"}
+    review_dispatch(records)["data"]["arguments"]["prompt"] = "APEX_REVIEW_FILE\n" + json.dumps(bad_sha)
+    with pytest.raises(ValueError, match="APEX_REVIEW"):
+        metrics(records)
+
+
 @pytest.mark.parametrize(
     "field,value",
     [("agentName", "other-reviewer"), ("parentId", "root"), ("toolCallId", "other-task")],
