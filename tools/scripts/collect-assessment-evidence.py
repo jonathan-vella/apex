@@ -183,12 +183,12 @@ def classify_cli_error(stderr: str) -> str:
     return "cli_or_service_error"
 
 
-METRIC_SPECS: dict[str, str] = {
-    "microsoft.compute/virtualmachines": "Percentage CPU",
-    "microsoft.web/serverfarms": "CpuPercentage,MemoryPercentage",
-    "microsoft.sql/managedinstances": "avg_cpu_percent,storage_space_used_mb",
-    "microsoft.sql/servers/databases": "cpu_percent,dtu_consumption_percent",
-    "microsoft.servicebus/namespaces": "IncomingMessages,ServerErrors",
+METRIC_SPECS: dict[str, tuple[str, int, tuple[str, ...]]] = {
+    "microsoft.compute/virtualmachines": ("Percentage CPU", 1, ("Average", "Maximum")),
+    "microsoft.web/serverfarms": ("CpuPercentage,MemoryPercentage", 2, ("Average", "Maximum")),
+    "microsoft.sql/managedinstances": ("avg_cpu_percent,storage_space_used_mb", 2, ("Average", "Maximum")),
+    "microsoft.sql/servers/databases": ("cpu_percent,dtu_consumption_percent", 2, ("Average", "Maximum")),
+    "microsoft.servicebus/namespaces": ("IncomingMessages,ServerErrors", 2, ("Total",)),
 }
 
 
@@ -209,6 +209,7 @@ def parse_metric_summaries(raw_stdout: str) -> tuple[list[dict[str, Any]] | None
         unit = str(metric.get("unit") or "")
         averages: list[float] = []
         maximums: list[float] = []
+        totals: list[float] = []
         for ts in metric.get("timeseries") or []:
             if not isinstance(ts, dict):
                 continue
@@ -217,11 +218,14 @@ def parse_metric_summaries(raw_stdout: str) -> tuple[list[dict[str, Any]] | None
                     continue
                 avg = point.get("average")
                 mx = point.get("maximum")
+                tot = point.get("total")
                 if isinstance(avg, (int, float)) and not isinstance(avg, bool):
                     averages.append(float(avg))
                 if isinstance(mx, (int, float)) and not isinstance(mx, bool):
                     maximums.append(float(mx))
-        sample_count = max(len(averages), len(maximums))
+                if isinstance(tot, (int, float)) and not isinstance(tot, bool):
+                    totals.append(float(tot))
+        sample_count = max(len(averages), len(maximums), len(totals))
         summaries.append(
             {
                 "metric": metric_name,
@@ -230,6 +234,7 @@ def parse_metric_summaries(raw_stdout: str) -> tuple[list[dict[str, Any]] | None
                 "sample_count": sample_count,
                 "average": round(sum(averages) / len(averages), 4) if averages else None,
                 "maximum": round(max(maximums), 4) if maximums else None,
+                "total": round(sum(totals), 4) if totals else None,
             }
         )
     return summaries, None
@@ -517,6 +522,7 @@ def collect_assessment_evidence(
             )
 
         if "topology" in categories:
+            mv_limit = 1000
             topo_base_query = (
                 f"Resources | where {where_clause} and type in~ ("
                 "'microsoft.network/virtualnetworks','microsoft.network/privateendpoints',"
@@ -526,6 +532,9 @@ def collect_assessment_evidence(
                 "| project id, name, type, resourceGroup, location, skuName=tostring(sku.name), "
                 "addressPrefixesCount=array_length(properties.addressSpace.addressPrefixes), "
                 "firstAddressPrefix=tostring(properties.addressSpace.addressPrefixes[0]), "
+                "subnetCount=array_length(properties.subnets), "
+                "peeringCount=array_length(properties.virtualNetworkPeerings), "
+                "peConnectionCount=array_length(properties.privateLinkServiceConnections), "
                 "peSubnetId=tostring(properties.subnet.id), "
                 "ipConfigSubnetId=tostring(properties.ipConfigurations[0].properties.subnet.id), "
                 "vnetLinkState=tostring(properties.virtualNetworkLinkState), "
@@ -533,7 +542,7 @@ def collect_assessment_evidence(
             )
             subnet_query = (
                 f"Resources | where {where_clause} and type =~ 'microsoft.network/virtualnetworks' "
-                "| mv-expand subnet=properties.subnets "
+                f"| mv-expand subnet=properties.subnets limit {mv_limit} "
                 "| project vnetId=id, vnetName=name, resourceGroup, "
                 "subnetName=tostring(subnet.name), "
                 "addressPrefix=tostring(subnet.properties.addressPrefix), "
@@ -544,7 +553,7 @@ def collect_assessment_evidence(
             )
             peering_query = (
                 f"Resources | where {where_clause} and type =~ 'microsoft.network/virtualnetworks' "
-                "| mv-expand peering=properties.virtualNetworkPeerings "
+                f"| mv-expand peering=properties.virtualNetworkPeerings limit {mv_limit} "
                 "| project vnetId=id, vnetName=name, resourceGroup, "
                 "peeringName=tostring(peering.name), "
                 "peeringState=tostring(peering.properties.peeringState), "
@@ -555,7 +564,7 @@ def collect_assessment_evidence(
             )
             pe_conn_query = (
                 f"Resources | where {where_clause} and type =~ 'microsoft.network/privateendpoints' "
-                "| mv-expand conn=properties.privateLinkServiceConnections "
+                f"| mv-expand conn=properties.privateLinkServiceConnections limit {mv_limit} "
                 "| project peId=id, peName=name, resourceGroup, "
                 "subnetId=tostring(properties.subnet.id), "
                 "targetResourceId=tostring(conn.properties.privateLinkServiceId), "
@@ -567,7 +576,35 @@ def collect_assessment_evidence(
             subnet_rows, _, sub_err = run_arg_paginated(runner, sub_id, subnet_query)
             peering_rows, _, peer_err = run_arg_paginated(runner, sub_id, peering_query)
             pe_conn_rows, _, pe_err = run_arg_paginated(runner, sub_id, pe_conn_query)
-            combined_topo_err = topo_err or sub_err or peer_err or pe_err
+            subnet_by_vnet: dict[str, int] = {}
+            for srow in subnet_rows:
+                vid = str(srow.get("vnetId") or "").lower()
+                if vid:
+                    subnet_by_vnet[vid] = subnet_by_vnet.get(vid, 0) + 1
+            peering_by_vnet: dict[str, int] = {}
+            for prow in peering_rows:
+                vid = str(prow.get("vnetId") or "").lower()
+                if vid:
+                    peering_by_vnet[vid] = peering_by_vnet.get(vid, 0) + 1
+            conn_by_pe: dict[str, int] = {}
+            for crow in pe_conn_rows:
+                pid = str(crow.get("peId") or "").lower()
+                if pid:
+                    conn_by_pe[pid] = conn_by_pe.get(pid, 0) + 1
+            overflow_err: str | None = None
+            for trow in topo_rows:
+                rid = str(trow.get("id") or "").lower()
+                sc = trow.get("subnetCount")
+                pc = trow.get("peeringCount")
+                cc = trow.get("peConnectionCount")
+                if (
+                    (type(sc) is int and sc > subnet_by_vnet.get(rid, 0))
+                    or (type(pc) is int and pc > peering_by_vnet.get(rid, 0))
+                    or (type(cc) is int and cc > conn_by_pe.get(rid, 0))
+                ):
+                    overflow_err = "mv-expand child element count truncated or unreconciled against parent array_length"
+                    break
+            combined_topo_err = topo_err or sub_err or peer_err or pe_err or overflow_err
             scope_topology.append(
                 {
                     "scope": raw_scope,
@@ -749,7 +786,9 @@ def collect_assessment_evidence(
             ][:20]
             metric_items: list[dict[str, Any]] = []
             metric_errors: list[str] = []
+            incomplete_metric_targets = 0
             for res_id, rtype in metric_targets:
+                metric_csv, expected_metric_count, metric_aggs = METRIC_SPECS[rtype]
                 m_code, m_out, m_stderr = runner(
                     [
                         "az",
@@ -761,7 +800,7 @@ def collect_assessment_evidence(
                         "--resource",
                         res_id,
                         "--metric",
-                        METRIC_SPECS[rtype],
+                        metric_csv,
                         "--start-time",
                         metrics_start,
                         "--end-time",
@@ -769,8 +808,7 @@ def collect_assessment_evidence(
                         "--interval",
                         "PT1H",
                         "--aggregation",
-                        "Average",
-                        "Maximum",
+                        *metric_aggs,
                         "--only-show-errors",
                         "-o",
                         "json",
@@ -793,12 +831,25 @@ def collect_assessment_evidence(
                         }
                     )
                 else:
-                    metric_items.append({"resource_id": res_id, "type": rtype, "status": "ok", "metrics": summaries})
+                    all_observed = len(summaries) >= expected_metric_count and all(
+                        s.get("status") == "observed" for s in summaries
+                    )
+                    if not all_observed:
+                        incomplete_metric_targets += 1
+                    metric_items.append(
+                        {
+                            "resource_id": res_id,
+                            "type": rtype,
+                            "status": "ok" if all_observed else "partial_or_empty",
+                            "metrics": summaries,
+                        }
+                    )
             scope_metrics.append(
                 {
                     "scope": raw_scope,
                     "window": {"start": metrics_start, "end": metrics_end, "interval": "PT1H"},
                     "target_count": len(metric_targets),
+                    "incomplete_target_count": incomplete_metric_targets,
                     "items": metric_items,
                     "errors": sorted(set(metric_errors)),
                 }
@@ -819,6 +870,18 @@ def collect_assessment_evidence(
                         "scope": raw_scope,
                         "status": "unknown",
                         "evidence": f"Monitor metric collection encountered {', '.join(sorted(set(metric_errors)))} across {len(metric_targets)} targets in _meta/metrics-evidence.json.",
+                    }
+                )
+            elif incomplete_metric_targets > 0:
+                scope_checks.append(
+                    {
+                        "category": "utilization",
+                        "scope": raw_scope,
+                        "status": "unknown",
+                        "evidence": (
+                            f"Monitor metric responses had empty or missing samples on {incomplete_metric_targets}/{len(metric_targets)} targets; "
+                            "observed summaries are retained in _meta/metrics-evidence.json."
+                        ),
                     }
                 )
             else:

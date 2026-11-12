@@ -472,7 +472,8 @@ export function runCollectCostCli(argv = process.argv.slice(2), runtimeOpts = {}
       };
     }
     if (values["include-rg-breakdown"]) {
-      const rgPeriods = (planConfig.periods ?? []).filter((p) => p.kind !== "forecast");
+      const resolvedPeriods = planCostQueries(planConfig).periods;
+      const rgPeriods = resolvedPeriods.filter((p) => p.kind !== "forecast");
       if (rgPeriods.length > 0) {
         const rgRoot = path.join(resolvedRoot, "_meta/resource-group-cost");
         fs.mkdirSync(path.join(rgRoot, "_meta"), { recursive: true });

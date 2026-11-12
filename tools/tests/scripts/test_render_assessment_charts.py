@@ -417,18 +417,31 @@ def test_no_rows_badge_signed_subdollar_labels_display_names_and_diagram_validat
     diag_mod = importlib.util.module_from_spec(diag_spec)
     diag_spec.loader.exec_module(diag_mod)
 
-    # Copy one valid PNG/SVG pair as 03-des-diagram.{png,svg} + .py (using standard W3C DOCTYPE svg header)
+    # Copy one valid PNG/SVG pair as 03-des-diagram.{png,svg} + .py (with W3C DOCTYPE + local #ic-vnet <use> ref)
     (p / "assets/03-des-diagram.py").write_text("# generator\n", encoding="utf-8")
     (p / "assets/03-des-diagram.png").write_bytes((p / "assets/02-waf-posture.png").read_bytes())
     (p / "assets/03-des-diagram.svg").write_text(
         '<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">\n'
-        '<svg xmlns="http://www.w3.org/2000/svg" width="800" height="400"><text>gh-shared (706f47e8)</text></svg>',
+        '<svg xmlns="http://www.w3.org/2000/svg" width="800" height="400">'
+        '<defs><symbol id="ic-vnet"/></defs><use href="#ic-vnet"/><text>gh-shared (706f47e8)</text></svg>',
         encoding="utf-8",
     )
     (p / "assets/03-des-coverage.json").write_text(json.dumps({"total_resources": 5}), encoding="utf-8")
     ok = diag_mod.validate_assessment_diagrams(p)
     assert ok["valid"] is True
     assert ok["reconciled_resources"] == 5
+
+    # External <use href="icons.svg#vnet"/> reference is rejected.
+    (p / "assets/03-des-diagram.svg").write_text(
+        '<svg xmlns="http://www.w3.org/2000/svg"><use href="icons.svg#vnet"/><text>gh-shared</text></svg>',
+        encoding="utf-8",
+    )
+    with pytest.raises(ValueError, match="external <use> reference"):
+        diag_mod.validate_assessment_diagrams(p)
+    (p / "assets/03-des-diagram.svg").write_text(
+        '<svg xmlns="http://www.w3.org/2000/svg"><defs><symbol id="ic-vnet"/></defs><use href="#ic-vnet"/></svg>',
+        encoding="utf-8",
+    )
 
     # Boolean total_resources is rejected.
     (p / "assets/03-des-coverage.json").write_text(json.dumps({"total_resources": True}), encoding="utf-8")

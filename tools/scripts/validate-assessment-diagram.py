@@ -41,6 +41,10 @@ def validate_svg_file(svg_path: Path) -> None:
             href = elem.attrib.get("href") or elem.attrib.get("{http://www.w3.org/1999/xlink}href") or ""
             if href and not href.startswith(("data:image/", "#")):
                 raise ValueError(f"{svg_path.name} contains unembedded <image> reference: {href[:80]}")
+        elif local == "use":
+            href = elem.attrib.get("href") or elem.attrib.get("{http://www.w3.org/1999/xlink}href") or ""
+            if href and not href.startswith("#"):
+                raise ValueError(f"{svg_path.name} contains external <use> reference: {href[:80]}")
         text_chunks = [elem.text or "", elem.tail or ""]
         for chunk in text_chunks:
             if not chunk.strip():

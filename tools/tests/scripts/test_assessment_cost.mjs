@@ -1416,7 +1416,7 @@ test("physical cost collector rejects gapped consolidation, preserves body+pacin
 
   // 4. --include-amortized and --include-rg-breakdown write isolated companion contracts without clobbering primary.
   const { runCollectCostCli } = await import("../../scripts/collect-assessment-cost.mjs");
-  const { normalizeCostRequest } = await import("../../scripts/cost-estimate.mjs");
+  const { validateCostRequest } = await import("../../scripts/cost-estimate.mjs");
   const multiRoot = path.join(ROOT, `.collect-multi-${randomUUID()}`);
   fs.mkdirSync(path.join(multiRoot, "_meta"), { recursive: true });
   t.after(() => fs.rmSync(multiRoot, { recursive: true, force: true }));
@@ -1425,7 +1425,7 @@ test("physical cost collector rejects gapped consolidation, preserves body+pacin
     as_of: AS_OF,
     scopes: [sub],
     expected_currency: "USD",
-    periods: WINDOWS,
+    // Intentionally omit periods so --include-rg-breakdown exercises planCostQueries() default windows.
   };
   fs.writeFileSync(multiPlanPath, `${JSON.stringify(multiPlan, null, 2)}\n`);
   const cliCode = runCollectCostCli(
@@ -1510,11 +1510,11 @@ test("physical cost collector rejects gapped consolidation, preserves body+pacin
     false,
   );
 
-  // 5. SQL Managed Instance, Service Bus, and Azure Firewall recipes pass normalizeCostRequest preflight.
-  const paasReq = normalizeCostRequest({
+  // 5. PaaS recipes enforce service/SKU-specific variable dimensions and reject missing variable usage.
+  const paasCheck = validateCostRequest({
     project_name: "paas-recipe-test",
     region: "swedencentral",
-    output_path: "agent-output/paas-recipe-test/_meta/pricing/paas.json",
+    output_path: path.join(multiRoot, "_meta/paas.json"),
     resource_list: [
       {
         name: "sqlmi-gp-gen5",
@@ -1524,8 +1524,83 @@ test("physical cost collector rejects gapped consolidation, preserves body+pacin
         quantity: 1,
       },
       { name: "sb-prem", service_name: "Azure Service Bus", sku: "Premium", region: "swedencentral", quantity: 1 },
-      { name: "afw-std", service_name: "Azure Firewall", sku: "Standard", region: "swedencentral", quantity: 1 },
+      {
+        name: "afw-std",
+        service_name: "Azure Firewall",
+        sku: "Standard",
+        region: "swedencentral",
+        quantity: 1,
+        usage: [
+          { dimension: "hours", amount: 730, unit: "Hour", scope: "per-instance" },
+          { dimension: "processed_gb", amount: 500, unit: "GB", scope: "aggregate" },
+        ],
+      },
+      {
+        name: "ca-cons",
+        service_name: "Azure Container Apps",
+        sku: "Consumption",
+        region: "swedencentral",
+        quantity: 1,
+        usage: [
+          { dimension: "vcpu_seconds", amount: 100000, unit: "vCPU-s", scope: "aggregate" },
+          { dimension: "gib_seconds", amount: 200000, unit: "GiB-s", scope: "aggregate" },
+          { dimension: "requests", amount: 500000, unit: "1M", scope: "aggregate" },
+        ],
+      },
     ],
   });
-  assert.equal(paasReq.lines.length, 3);
+  assert.equal(paasCheck.ok, true, paasCheck.unresolved_items.join("; "));
+  assert.equal(paasCheck.normalized.lines.length, 4);
+
+  // Firewall without processed_gb, Service Bus Standard without operations, and Container Apps Consumption without CPU/memory/requests fail preflight!
+  const missingFirewall = validateCostRequest({
+    project_name: "paas-missing-dim",
+    region: "swedencentral",
+    output_path: path.join(multiRoot, "_meta/paas-bad1.json"),
+    resource_list: [
+      {
+        name: "afw-hourly-only",
+        service_name: "Azure Firewall",
+        sku: "Standard",
+        region: "swedencentral",
+        quantity: 1,
+      },
+    ],
+  });
+  assert.equal(missingFirewall.ok, false);
+  assert.match(missingFirewall.unresolved_items.join("\n"), /requires known billable dimension 'processed_gb'/);
+
+  const missingSbStd = validateCostRequest({
+    project_name: "sb-std-missing",
+    region: "swedencentral",
+    output_path: path.join(multiRoot, "_meta/paas-bad2.json"),
+    resource_list: [
+      {
+        name: "sb-std",
+        service_name: "Azure Service Bus",
+        sku: "Standard",
+        region: "swedencentral",
+        quantity: 1,
+      },
+    ],
+  });
+  assert.equal(missingSbStd.ok, false);
+  assert.match(missingSbStd.unresolved_items.join("\n"), /requires known billable dimension 'operations'/);
+
+  const missingCa = validateCostRequest({
+    project_name: "ca-missing-dim",
+    region: "swedencentral",
+    output_path: path.join(multiRoot, "_meta/paas-bad3.json"),
+    resource_list: [
+      {
+        name: "ca-no-usage",
+        service_name: "Azure Container Apps",
+        sku: "Consumption",
+        region: "swedencentral",
+        quantity: 1,
+      },
+    ],
+  });
+  assert.equal(missingCa.ok, false);
+  assert.match(missingCa.unresolved_items.join("\n"), /requires known billable dimension 'vcpu_seconds'/);
 });

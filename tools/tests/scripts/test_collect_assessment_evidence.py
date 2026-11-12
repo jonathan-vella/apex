@@ -215,6 +215,7 @@ def test_kql_avoids_reserved_kind_alias_projects_server_side_scalars_and_collect
         },
     }
     vm_id = f"/subscriptions/{SUB1}/resourceGroups/rg-spoke/providers/Microsoft.Compute/virtualMachines/vm-app01"
+    sb_id = f"/subscriptions/{SUB1}/resourceGroups/rg-spoke/providers/Microsoft.ServiceBus/namespaces/sb-spoke"
     seen_queries: list[str] = []
 
     def runner(cmd: list[str]) -> tuple[int, str, str]:
@@ -233,9 +234,10 @@ def test_kql_avoids_reserved_kind_alias_projects_server_side_scalars_and_collect
             assert "rg-skip" in q, "Every ARG query including child mv-expand must filter out excluded_rgs first"
             if "mv-expand" in q:
                 assert q.index("where ") < q.index("mv-expand "), "Scope filter must precede mv-expand"
+                assert "limit 1000" in q, "mv-expand must declare an explicit limit above default 128"
                 return 0, json.dumps({"data": []}), ""
             if "summarize total=count()" in q:
-                return 0, json.dumps({"data": [{"total": 1}]}), ""
+                return 0, json.dumps({"data": [{"total": 2}]}), ""
             if "resourceKind=tostring(['kind'])" in q:
                 return (
                     0,
@@ -252,7 +254,18 @@ def test_kql_avoids_reserved_kind_alias_projects_server_side_scalars_and_collect
                                     "skuName": "Standard_D2s_v5",
                                     "skuTier": "Standard",
                                     "resourceKind": "",
-                                }
+                                },
+                                {
+                                    "id": sb_id,
+                                    "name": "sb-spoke",
+                                    "type": "Microsoft.ServiceBus/namespaces",
+                                    "location": "swedencentral",
+                                    "subscriptionId": SUB1,
+                                    "resourceGroup": "rg-spoke",
+                                    "skuName": "Premium",
+                                    "skuTier": "Premium",
+                                    "resourceKind": "",
+                                },
                             ]
                         }
                     ),
@@ -261,6 +274,30 @@ def test_kql_avoids_reserved_kind_alias_projects_server_side_scalars_and_collect
             return 0, json.dumps({"data": []}), ""
         if cmd[:3] == ["az", "monitor", "metrics"]:
             assert "--subscription" in cmd and cmd[cmd.index("--subscription") + 1] == SUB1
+            res = cmd[cmd.index("--resource") + 1]
+            agg_idx = cmd.index("--aggregation") + 1
+            if res == sb_id:
+                assert cmd[agg_idx] == "Total", "Service Bus metrics must request Total aggregation"
+                return (
+                    0,
+                    json.dumps(
+                        {
+                            "value": [
+                                {
+                                    "name": {"value": "IncomingMessages"},
+                                    "unit": "Count",
+                                    "timeseries": [{"data": [{"total": 42.0}, {"total": 8.0}]}],
+                                },
+                                {
+                                    "name": {"value": "ServerErrors"},
+                                    "unit": "Count",
+                                    "timeseries": [{"data": [{"total": 0.0}]}],
+                                },
+                            ]
+                        }
+                    ),
+                    "",
+                )
             return (
                 0,
                 json.dumps(
@@ -272,12 +309,7 @@ def test_kql_avoids_reserved_kind_alias_projects_server_side_scalars_and_collect
                                 "timeseries": [
                                     {"data": [{"average": 12.5, "maximum": 44.0}, {"average": 15.5, "maximum": 52.0}]}
                                 ],
-                            },
-                            {
-                                "name": {"value": "Empty Metric"},
-                                "unit": "Count",
-                                "timeseries": [{"data": [{}]}],
-                            },
+                            }
                         ]
                     }
                 ),
@@ -285,7 +317,6 @@ def test_kql_avoids_reserved_kind_alias_projects_server_side_scalars_and_collect
             )
         raise AssertionError(f"Unexpected cmd: {cmd}")
 
-    # Reload updated module under test from /tmp/apex-v2-1
     contract = collector.collect_assessment_evidence(
         project, req, runner=runner, collected_at="2026-11-11T09:00:00.000Z"
     )
@@ -294,17 +325,87 @@ def test_kql_avoids_reserved_kind_alias_projects_server_side_scalars_and_collect
     inv = json.loads((project / "_meta/live-inventory.json").read_text(encoding="utf-8"))
     assert inv["inventories"][0]["subscription_name"] == "gh-workload01"
     metrics_doc = json.loads((project / "_meta/metrics-evidence.json").read_text(encoding="utf-8"))
-    m_list = metrics_doc["utilization"][0]["items"][0]["metrics"]
-    assert m_list[0] == {
+    vm_metrics = metrics_doc["utilization"][0]["items"][0]["metrics"]
+    sb_metrics = metrics_doc["utilization"][0]["items"][1]["metrics"]
+    assert vm_metrics[0] == {
         "metric": "Percentage CPU",
         "unit": "Percent",
         "status": "observed",
         "sample_count": 2,
         "average": 14.0,
         "maximum": 52.0,
+        "total": None,
     }
-    assert m_list[1]["status"] == "empty_timeseries"
+    assert sb_metrics[0]["total"] == 50.0 and sb_metrics[0]["status"] == "observed"
     assert (project / "_meta/scalar-topology.json").is_file()
+
+    # Empty or missing metric samples degrade utilization check to unknown while retaining observed summaries.
+    def partial_metrics_runner(cmd: list[str]) -> tuple[int, str, str]:
+        if cmd[:3] == ["az", "monitor", "metrics"] and cmd[cmd.index("--resource") + 1] == sb_id:
+            return 0, json.dumps({"value": []}), ""
+        return runner(cmd)
+
+    partial_contract = collector.collect_assessment_evidence(
+        project, req, runner=partial_metrics_runner, collected_at="2026-11-11T09:00:00.000Z"
+    )
+    partial_util = next(c for c in partial_contract["checks"] if c["category"] == "utilization")
+    assert partial_util["status"] == "unknown"
+    assert partial_contract["coverage"] == "partial"
+    saved_partial_metrics = json.loads((project / "_meta/metrics-evidence.json").read_text(encoding="utf-8"))
+    assert saved_partial_metrics["utilization"][0]["items"][0]["metrics"][0]["average"] == 14.0
+
+    # mv-expand truncation (parent subnetCount > returned subnet rows) marks topology unknown.
+    vnet_id = f"/subscriptions/{SUB1}/resourceGroups/rg-spoke/providers/Microsoft.Network/virtualNetworks/vnet-big"
+
+    def truncated_topo_runner(cmd: list[str]) -> tuple[int, str, str]:
+        if cmd[:2] == ["az", "graph"]:
+            q = cmd[cmd.index("-q") + 1]
+            if "subnetCount=array_length" in q:
+                return (
+                    0,
+                    json.dumps(
+                        {
+                            "data": [
+                                {
+                                    "id": vnet_id,
+                                    "name": "vnet-big",
+                                    "type": "Microsoft.Network/virtualNetworks",
+                                    "resourceGroup": "rg-spoke",
+                                    "location": "swedencentral",
+                                    "subnetCount": 2,
+                                    "peeringCount": 0,
+                                    "peConnectionCount": None,
+                                }
+                            ]
+                        }
+                    ),
+                    "",
+                )
+            if "mv-expand subnet=properties.subnets" in q:
+                return (
+                    0,
+                    json.dumps(
+                        {
+                            "data": [
+                                {
+                                    "vnetId": vnet_id,
+                                    "vnetName": "vnet-big",
+                                    "resourceGroup": "rg-spoke",
+                                    "subnetName": "s1",
+                                }
+                            ]
+                        }
+                    ),
+                    "",
+                )
+        return runner(cmd)
+
+    trunc_contract = collector.collect_assessment_evidence(
+        project, req, runner=truncated_topo_runner, collected_at="2026-11-11T09:00:00.000Z"
+    )
+    topo_check = next(c for c in trunc_contract["checks"] if c["category"] == "topology")
+    assert topo_check["status"] == "unknown"
+    assert "mv-expand" in topo_check["evidence"]
 
     # Error path in metrics uses allowlisted class without leaking raw secrets.
     def failing_metrics_runner(cmd: list[str]) -> tuple[int, str, str]:

@@ -1848,6 +1848,15 @@ test("root-session mid-turn buffered dispatch records via preToolUse/postToolUse
   assert.equal(recorded.review_execution.parent_id, "root");
   assert.equal(recorded.review_execution.request_id, "request-1");
 
+  // Missing or runtime-managed taskModelSource labels must remain nonblocking when task args have no overrides.
+  for (const labelVal of [undefined, "runtime_default", "session_inheritance"]) {
+    const variant = structuredClone(bufferedEvents);
+    const sEv = variant.find((e) => e.type === "subagent.started");
+    if (labelVal === undefined) delete sEv.data.taskModelSource;
+    else sEv.data.taskModelSource = labelVal;
+    assert.equal(extractReview(variant, "worker-1", "root").execution.request_id, "request-1");
+  }
+
   // Caller model override inside preToolUse args must still fail closed.
   const badOverride = structuredClone(bufferedEvents);
   badOverride[0].data.input.toolCalls[0].args.model = "gpt-override";

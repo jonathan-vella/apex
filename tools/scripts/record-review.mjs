@@ -409,8 +409,8 @@ export function extractReview(events, workerId, parentId) {
     parentBoundaryEvents = [finished];
   } else {
     requireEvidence(
-      start.data?.parentId === undefined && start.data?.resumable === false && start.data?.taskModelSource === "unset",
-      "Root buffered review dispatch requires unoverridden one-shot subagent telemetry",
+      start.data?.parentId === undefined && start.data?.resumable === false,
+      "Root buffered review dispatch requires one-shot root subagent telemetry",
     );
     const rootHook = resolveRootHookDispatch(events, call);
     args = rootHook.args;

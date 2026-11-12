@@ -69,6 +69,20 @@ function serviceRecipe(line) {
   if (/cosmos/.test(service))
     return /serverless/i.test(line.sku) ? ["request_units", "storage_gb"] : ["provisioned_ru", "storage_gb"];
   if (service === "nat gateway") return ["hours", "processed_gb"];
+  if (service === "firewall") return ["hours", "processed_gb"];
+  if (service === "application gateway") return ["hours", "capacity_units"];
+  if (/^(?:database for )?(?:postgresql|mysql)$/.test(service)) return ["hours", "storage_gb"];
+  if (service === "service bus") {
+    if (/\bpremium\b/i.test(line.sku)) return null;
+    if (/\bstandard\b/i.test(line.sku)) return ["hours", "operations"];
+    if (/\bbasic\b/i.test(line.sku)) return ["operations"];
+    return undefined;
+  }
+  if (service === "container apps") {
+    if (/consumption/i.test(line.sku)) return ["vcpu_seconds", "gib_seconds", "requests"];
+    if (/\b(?:dedicated|d\d+|e\d+)\b/i.test(line.sku)) return null;
+    return undefined;
+  }
   if (service === "virtual network") return undefined;
   if (/^(front door|front door service)$/.test(service)) return ["hours", "requests", "egress_gb"];
   if (/^(foundry models|openai|cognitive services)$/.test(service)) return ["input_tokens", "output_tokens"];
@@ -76,7 +90,7 @@ function serviceRecipe(line) {
   if (service === "sql database" && /serverless/i.test(line.sku)) return ["vcore_seconds", "storage_gb"];
   if (/^(key vault|log analytics|monitor)$/.test(service)) return [];
   if (
-    /^(app service|virtual machines?|sql database|sql managed instance|service bus|firewall|application gateway|(?:database for )?postgresql|(?:database for )?mysql|bastion|container registry|container apps|managed disks|managed redis|redis cache|cache for redis)$/.test(
+    /^(app service|virtual machines?|sql database|sql managed instance|bastion|container registry|managed disks|managed redis|redis cache|cache for redis)$/.test(
       service,
     )
   )
