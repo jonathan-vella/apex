@@ -114,6 +114,187 @@ def test_reconcile_includes_unmatched_empty_output_retries_but_not_repairs(tmp_p
     ]
 
 
+def test_reconcile_recognizes_root_hook_buffered_and_post_turn_flushed_dispatches(tmp_path: Path) -> None:
+    setup(tmp_path)
+    audit = importlib.import_module("apex_recall.commands.review_audit")
+    prompt = "APEX_REVIEW\n" + json.dumps({"project_name": "synthetic", "step": "2", "request_id": "root-closure-1"})
+    hook_events = [
+        {
+            "type": "hook.start",
+            "timestamp": "2026-11-11T18:14:34.025Z",
+            "data": {
+                "hookInvocationId": "pre-1",
+                "hookType": "preToolUse",
+                "input": {
+                    "toolCalls": [
+                        {
+                            "id": "call-root-1",
+                            "name": "task",
+                            "args": {"agent_type": "challenger-review-subagent", "prompt": prompt},
+                        }
+                    ]
+                },
+            },
+        },
+        {"type": "hook.end", "data": {"hookInvocationId": "pre-1", "hookType": "preToolUse", "success": True}},
+        {
+            "type": "subagent.started",
+            "agentId": "worker-1",
+            "data": {
+                "toolCallId": "call-root-1",
+                "agentName": "challenger-review-subagent",
+                "executionMode": "sync",
+                "resumable": False,
+            },
+        },
+        {
+            "type": "subagent.completed",
+            "agentId": "worker-1",
+            "data": {"toolCallId": "call-root-1", "agentName": "challenger-review-subagent"},
+        },
+        {
+            "type": "hook.start",
+            "data": {
+                "hookInvocationId": "post-1",
+                "hookType": "postToolUse",
+                "input": {
+                    "toolCallId": "call-root-1",
+                    "toolName": "task",
+                    "toolResult": {"resultType": "success"},
+                },
+            },
+        },
+        {"type": "hook.end", "data": {"hookInvocationId": "post-1", "hookType": "postToolUse", "success": True}},
+    ]
+    attempts = [
+        {
+            "id": "root-closure-1",
+            "step": "2",
+            "kind": "invocation",
+            "outcome": "started",
+            "recorded_at": "2026-11-11T18:11:49Z",
+        },
+        {"id": "root-closure-1", "step": "2", "kind": "invocation", "outcome": "completed"},
+    ]
+    capture = tmp_path / "buffered-root.jsonl"
+    capture.write_text("\n".join(json.dumps(ev) for ev in hook_events) + "\n")
+    mid = audit.reconcile_events(capture, attempts, "synthetic", "2")
+    assert mid["ledger_without_native_dispatch"] == []
+    assert len(mid["requests"]) == 1
+    assert mid["requests"][0]["gap"] is False
+
+    # Post-turn flush appends tool.execution_start/complete with a later flush timestamp for the same call_id.
+    flushed_events = hook_events + [
+        {
+            "type": "tool.execution_start",
+            "timestamp": "2026-11-12T07:41:31.057Z",
+            "data": {
+                "toolCallId": "call-root-1",
+                "toolName": "task",
+                "arguments": {"agent_type": "challenger-review-subagent", "prompt": prompt},
+            },
+        },
+        {"type": "tool.execution_complete", "data": {"toolCallId": "call-root-1", "success": True}},
+    ]
+    capture.write_text("\n".join(json.dumps(ev) for ev in flushed_events) + "\n")
+    post = audit.reconcile_events(capture, attempts, "synthetic", "2")
+    assert post["ledger_without_native_dispatch"] == []
+    assert len(post["requests"]) == 1
+    assert post["requests"][0]["native_dispatch_at"] == "2026-11-11T18:14:34.025Z"
+    assert post["requests"][0]["gap"] is False
+
+    # Parallel sibling review dispatches share one preToolUse hookInvocationId with multiple toolCalls.
+    prompt2 = "APEX_REVIEW\n" + json.dumps({"project_name": "synthetic", "step": "2", "request_id": "root-closure-2"})
+    parallel_events = [
+        {
+            "type": "hook.start",
+            "timestamp": "2026-11-11T18:14:34.025Z",
+            "data": {
+                "hookInvocationId": "pre-parallel",
+                "hookType": "preToolUse",
+                "input": {
+                    "toolCalls": [
+                        {
+                            "id": "call-p1",
+                            "name": "task",
+                            "args": {"agent_type": "challenger-review-subagent", "prompt": prompt},
+                        },
+                        {
+                            "id": "call-p2",
+                            "name": "task",
+                            "args": {"agent_type": "challenger-review-subagent", "prompt": prompt2},
+                        },
+                    ]
+                },
+            },
+        },
+        {"type": "hook.end", "data": {"hookInvocationId": "pre-parallel", "hookType": "preToolUse", "success": True}},
+        {
+            "type": "subagent.started",
+            "agentId": "w-p1",
+            "data": {
+                "toolCallId": "call-p1",
+                "agentName": "challenger-review-subagent",
+                "executionMode": "sync",
+                "resumable": False,
+            },
+        },
+        {
+            "type": "subagent.started",
+            "agentId": "w-p2",
+            "data": {
+                "toolCallId": "call-p2",
+                "agentName": "challenger-review-subagent",
+                "executionMode": "sync",
+                "resumable": False,
+            },
+        },
+        {
+            "type": "subagent.completed",
+            "agentId": "w-p1",
+            "data": {"toolCallId": "call-p1", "agentName": "challenger-review-subagent"},
+        },
+        {
+            "type": "subagent.completed",
+            "agentId": "w-p2",
+            "data": {"toolCallId": "call-p2", "agentName": "challenger-review-subagent"},
+        },
+        {
+            "type": "hook.start",
+            "data": {
+                "hookInvocationId": "post-p1",
+                "hookType": "postToolUse",
+                "input": {"toolCallId": "call-p1", "toolName": "task", "toolResult": {"resultType": "success"}},
+            },
+        },
+        {"type": "hook.end", "data": {"hookInvocationId": "post-p1", "hookType": "postToolUse", "success": True}},
+        {
+            "type": "hook.start",
+            "data": {
+                "hookInvocationId": "post-p2",
+                "hookType": "postToolUse",
+                "input": {"toolCallId": "call-p2", "toolName": "task", "toolResult": {"resultType": "success"}},
+            },
+        },
+        {"type": "hook.end", "data": {"hookInvocationId": "post-p2", "hookType": "postToolUse", "success": True}},
+    ]
+    parallel_attempts = attempts + [
+        {
+            "id": "root-closure-2",
+            "step": "2",
+            "kind": "invocation",
+            "outcome": "started",
+            "recorded_at": "2026-11-11T18:11:50Z",
+        },
+        {"id": "root-closure-2", "step": "2", "kind": "invocation", "outcome": "completed"},
+    ]
+    capture.write_text("\n".join(json.dumps(ev) for ev in parallel_events) + "\n")
+    par = audit.reconcile_events(capture, parallel_attempts, "synthetic", "2")
+    assert par["ledger_without_native_dispatch"] == []
+    assert [r["request_id"] for r in par["requests"]] == ["root-closure-1", "root-closure-2"]
+    assert all(r["gap"] is False for r in par["requests"])
+
+
 def test_completed_empty_output_allows_one_identical_retry_without_rewriting_outcome(tmp_path: Path) -> None:
     project, writer, cli = setup(tmp_path)
 

@@ -35,7 +35,7 @@
     },
     {
       "classification": "editorial",
-      "rationale": "Allow challenger-review-subagent to omit mechanical cache_inputs/supporting_inputs hashes stamped by record-review.mjs without changing checklists or review criteria.",
+      "rationale": "Allow challenger-review-subagent to omit mechanical cache_inputs/supporting_inputs hashes stamped by record-review.mjs and clarify binary .xlsx/.png read-back rules without changing checklists or review criteria.",
       "from": {
         "checklists_sha": "418fdabfe6b6d1f762c798fd559369a89c1e607af237a5c2861abc9b34876073",
         "protocol_sha": "ee62e6840d6b4e331bf39fc6ae1a617ae17bebe795a5a9d8587cb8c5ab988182",
@@ -45,13 +45,13 @@
       "to": {
         "checklists_sha": "418fdabfe6b6d1f762c798fd559369a89c1e607af237a5c2861abc9b34876073",
         "protocol_sha": "ee62e6840d6b4e331bf39fc6ae1a617ae17bebe795a5a9d8587cb8c5ab988182",
-        "reviewer_contract_sha": "ee1fae777768a19fcba7e279710bc88b5bee17af04ebd9e73f790718f66319fc",
-        "reviewer_definition_sha": "3f58fd74517882804da1d1e3274fb6e5396125f6179538f29926589e2071e009"
+        "reviewer_contract_sha": "6083f3c5f55f3e9dab8733015e5daa58d6dc3ffc4946bf09ba2704e01285ede5",
+        "reviewer_definition_sha": "05d31e509c52f9a58b01b090399150bbf528358745f989457bf59353b8066fbb"
       }
     },
     {
       "classification": "editorial",
-      "rationale": "Allow challenger-review-subagent to omit mechanical cache_inputs/supporting_inputs hashes stamped by record-review.mjs without changing checklists or review criteria (arcbox-insights baseline).",
+      "rationale": "Allow challenger-review-subagent to omit mechanical cache_inputs/supporting_inputs hashes stamped by record-review.mjs and clarify binary .xlsx/.png read-back rules without changing checklists or review criteria (arcbox-insights baseline).",
       "from": {
         "checklists_sha": "418fdabfe6b6d1f762c798fd559369a89c1e607af237a5c2861abc9b34876073",
         "protocol_sha": "ee62e6840d6b4e331bf39fc6ae1a617ae17bebe795a5a9d8587cb8c5ab988182",
@@ -61,8 +61,24 @@
       "to": {
         "checklists_sha": "418fdabfe6b6d1f762c798fd559369a89c1e607af237a5c2861abc9b34876073",
         "protocol_sha": "ee62e6840d6b4e331bf39fc6ae1a617ae17bebe795a5a9d8587cb8c5ab988182",
+        "reviewer_contract_sha": "6083f3c5f55f3e9dab8733015e5daa58d6dc3ffc4946bf09ba2704e01285ede5",
+        "reviewer_definition_sha": "05d31e509c52f9a58b01b090399150bbf528358745f989457bf59353b8066fbb"
+      }
+    },
+    {
+      "classification": "editorial",
+      "rationale": "Clarify binary .xlsx/.png read-back guidance and parallel sibling review ordering without changing checklists or review criteria (PR #835 baseline).",
+      "from": {
+        "checklists_sha": "418fdabfe6b6d1f762c798fd559369a89c1e607af237a5c2861abc9b34876073",
+        "protocol_sha": "ee62e6840d6b4e331bf39fc6ae1a617ae17bebe795a5a9d8587cb8c5ab988182",
         "reviewer_contract_sha": "ee1fae777768a19fcba7e279710bc88b5bee17af04ebd9e73f790718f66319fc",
         "reviewer_definition_sha": "3f58fd74517882804da1d1e3274fb6e5396125f6179538f29926589e2071e009"
+      },
+      "to": {
+        "checklists_sha": "418fdabfe6b6d1f762c798fd559369a89c1e607af237a5c2861abc9b34876073",
+        "protocol_sha": "ee62e6840d6b4e331bf39fc6ae1a617ae17bebe795a5a9d8587cb8c5ab988182",
+        "reviewer_contract_sha": "6083f3c5f55f3e9dab8733015e5daa58d6dc3ffc4946bf09ba2704e01285ede5",
+        "reviewer_definition_sha": "05d31e509c52f9a58b01b090399150bbf528358745f989457bf59353b8066fbb"
       }
     }
   ],

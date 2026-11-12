@@ -354,3 +354,106 @@ def test_multicurrency_credits_unavailable_estimates_and_cross_currency_forecast
     drivers_svg = (p3 / "assets/03-cost-drivers.svg").read_text(encoding="utf-8")
     assert "USD 20.00" in drivers_svg
     assert "USD 100.00" not in drivers_svg
+
+
+def test_no_rows_badge_signed_subdollar_labels_display_names_and_diagram_validator(tmp_path: Path) -> None:
+    p = tmp_path / "agent-output/no-rows-and-subdollar"
+    (p / "_meta").mkdir(parents=True)
+    (p / "contracts").mkdir(parents=True)
+    (p / "assets").mkdir(parents=True)
+    (p / "_meta/waf-scores.json").write_text(json.dumps(sample_waf_scores("no-rows")), encoding="utf-8")
+    (p / "_meta/live-inventory.json").write_text(
+        json.dumps(
+            {
+                "collected_at": "2026-11-11T09:00:00.000Z",
+                "inventories": [
+                    {
+                        "subscription_id": "706f47e8-f430-4395-8dfc-fafba699c850",
+                        "subscription_name": "gh-shared",
+                        "count": 2,
+                    },
+                    {
+                        "subscription_id": "582da6a2-2ecc-4cba-8495-7b3564a46284",
+                        "subscription_name": "gh-workload02",
+                        "count": 3,
+                    },
+                ],
+            }
+        ),
+        encoding="utf-8",
+    )
+    doc = sample_cost_report()
+    # Scope 1 preceding_month: 0-row inferred-currency slice on FIRST scope (Scope 2 has $95.00 -> legend must stay!)
+    doc["evidence"][0]["series"] = [{"currency": "USD", "cost_status": "Actual", "amount": "0", "groups": []}]
+    doc["evidence"][0]["gaps"] = ["Empty historical period; currency USD inferred from sibling period previous_month."]
+    doc["evidence"][1]["series"][0]["amount"] = "0.004"
+    doc["evidence"][2]["series"][0]["amount"] = "-0.004"
+    # Scope 2 preceding_month: actual $95.00 so preceding_month (Actual) legend entry must still be emitted!
+    doc["evidence"][4]["status"] = "complete"
+    doc["evidence"][4]["series"] = [{"currency": "USD", "cost_status": "Actual", "amount": "95.00", "groups": []}]
+    doc["evidence"][4]["gaps"] = []
+    # Scope 2 previous_month: sub-dollar positive (0.46)
+    doc["evidence"][5]["series"][0]["amount"] = "0.46"
+    (p / "contracts/03-cost-management.json").write_text(json.dumps(doc), encoding="utf-8")
+
+    charts.render_all_assessment_charts(p)
+    trends_svg = (p / "assets/03-cost-trends.svg").read_text(encoding="utf-8")
+    drivers_svg = (p / "assets/03-cost-drivers.svg").read_text(encoding="utf-8")
+    assert "gh-shared (706f47e8)" in trends_svg
+    assert "gh-workload02 (582da6a2)" in trends_svg
+    assert "gh-workload02 (582da6a2)" in drivers_svg
+    assert "preceding_month (Actual)" in trends_svg
+    assert "&lt;0.01" in trends_svg
+    assert "-&lt;0.01" in trends_svg
+    assert "0.46" in trends_svg
+    assert "NO" in trends_svg and "ROWS" in trends_svg
+
+    # Validate stock diagram checker on valid pair (with W3C DOCTYPE svg header!), GUID leak, bool count, and >2 fan-out.
+    diag_spec = importlib.util.spec_from_file_location(
+        "validate_assessment_diagram",
+        ROOT / "tools/scripts/validate-assessment-diagram.py",
+    )
+    assert diag_spec and diag_spec.loader
+    diag_mod = importlib.util.module_from_spec(diag_spec)
+    diag_spec.loader.exec_module(diag_mod)
+
+    # Copy one valid PNG/SVG pair as 03-des-diagram.{png,svg} + .py (using standard W3C DOCTYPE svg header)
+    (p / "assets/03-des-diagram.py").write_text("# generator\n", encoding="utf-8")
+    (p / "assets/03-des-diagram.png").write_bytes((p / "assets/02-waf-posture.png").read_bytes())
+    (p / "assets/03-des-diagram.svg").write_text(
+        '<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">\n'
+        '<svg xmlns="http://www.w3.org/2000/svg" width="800" height="400"><text>gh-shared (706f47e8)</text></svg>',
+        encoding="utf-8",
+    )
+    (p / "assets/03-des-coverage.json").write_text(json.dumps({"total_resources": 5}), encoding="utf-8")
+    ok = diag_mod.validate_assessment_diagrams(p)
+    assert ok["valid"] is True
+    assert ok["reconciled_resources"] == 5
+
+    # Boolean total_resources is rejected.
+    (p / "assets/03-des-coverage.json").write_text(json.dumps({"total_resources": True}), encoding="utf-8")
+    with pytest.raises(ValueError, match="must be an integer"):
+        diag_mod.validate_assessment_diagrams(p)
+    (p / "assets/03-des-coverage.json").write_text(json.dumps({"total_resources": 5}), encoding="utf-8")
+
+    # Full 36-char GUID in SVG text is rejected.
+    (p / "assets/03-des-diagram.svg").write_text(
+        '<svg xmlns="http://www.w3.org/2000/svg"><text>706f47e8-f430-4395-8dfc-fafba699c850</text></svg>',
+        encoding="utf-8",
+    )
+    with pytest.raises(ValueError, match="full 36-char GUID"):
+        diag_mod.validate_assessment_diagrams(p)
+
+    # Restore clean SVG and verify >2 diagram fan-out is rejected by default.
+    (p / "assets/03-des-diagram.svg").write_text(
+        '<svg xmlns="http://www.w3.org/2000/svg"><text>gh-shared</text></svg>',
+        encoding="utf-8",
+    )
+    for idx in (1, 2):
+        (p / f"assets/03-des-extra-{idx}.png").write_bytes((p / "assets/03-des-diagram.png").read_bytes())
+        (p / f"assets/03-des-extra-{idx}.svg").write_text(
+            '<svg xmlns="http://www.w3.org/2000/svg"><text>extra</text></svg>',
+            encoding="utf-8",
+        )
+    with pytest.raises(ValueError, match="exceeding bounded limit of 2"):
+        diag_mod.validate_assessment_diagrams(p)

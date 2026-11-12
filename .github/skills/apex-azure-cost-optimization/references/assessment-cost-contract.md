@@ -21,6 +21,10 @@ The report contains:
 - Evidence-backed `opportunities[]`, shared/resource `exclusions[]`, `allocation_notes[]` and `gaps[]`.
 
 Coverage is `complete`, `partial` or `not_assessed`, independently of lifecycle completion and report acceptance.
+Successful billing/forecast query collection establishes assessment evidence **coverage**, never a passing
+Cost Optimization workload control in `_meta/waf-checks.json` or `_meta/waf-scores.json` (score workload controls
+such as rightsizing, idle/unattached cleanup, dev/test shutdown, AHB/commitments, budgets/anomaly alerts and
+storage/backup lifecycle). For live Azure collection, invoke `node tools/scripts/collect-assessment-cost.mjs --plan _meta/cost-plan.json --root agent-output/<project> [--include-amortized] [--include-rg-breakdown]` (uses `--only-show-errors` without `--debug` header dumps) rather than writing custom `_meta/scratch/` wrappers.
 Honest inaccessible cost evidence can be a valid final deliverable. Never substitute retail estimates for missing
 actual spend, invent a zero charge, or describe an API forecast as realized spend. No workload-wide combined total
 exists in this contract. Keep currencies, metrics, cost views, scopes and forecast/actual row statuses separate.

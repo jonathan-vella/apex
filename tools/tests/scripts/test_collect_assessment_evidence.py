@@ -187,3 +187,179 @@ def test_policy_only_and_rg_only_scopes_do_not_run_arg_inventory_or_subscription
     assert len(seen_urls) == 1
     inv_saved = json.loads((project / "_meta/live-inventory.json").read_text(encoding="utf-8"))
     assert inv_saved["inventories"] == []
+
+
+def test_kql_avoids_reserved_kind_alias_projects_server_side_scalars_and_collects_utilization_metrics(
+    tmp_path: Path,
+) -> None:
+    project = tmp_path / "agent-output/metrics-topo"
+    (project / "_meta").mkdir(parents=True)
+    req = {
+        "scenario": "requirements_led",
+        "source": "azure",
+        "receipt": {"owner": "tester", "request_id": "req-metrics", "approved": True},
+        "scope": {
+            "categories": ["topology", "configuration", "recovery", "utilization"],
+            "iac_paths": [],
+            "azure_scopes": [f"/subscriptions/{SUB1}"],
+            "rg_attribution": {
+                "workload_rgs": ["rg-spoke"],
+                "shared_rgs": [],
+                "excluded_rgs": ["rg-skip"],
+            },
+        },
+        "reporting": {
+            "as_of": "2026-11-11T09:00:00.000Z",
+            "currency": "USD",
+            "periods": [{"id": "previous_month", "kind": "closed_month", "from": "2026-10-01", "to": "2026-10-31"}],
+        },
+    }
+    vm_id = f"/subscriptions/{SUB1}/resourceGroups/rg-spoke/providers/Microsoft.Compute/virtualMachines/vm-app01"
+    seen_queries: list[str] = []
+
+    def runner(cmd: list[str]) -> tuple[int, str, str]:
+        if cmd[:2] == ["az", "rest"]:
+            return (
+                0,
+                json.dumps(
+                    {"subscriptionId": SUB1, "displayName": "gh-workload01", "tenantId": "t", "state": "Enabled"}
+                ),
+                "",
+            )
+        if cmd[:2] == ["az", "graph"]:
+            q = cmd[cmd.index("-q") + 1]
+            seen_queries.append(q)
+            assert "kind=tostring(kind)" not in q, "Reserved KQL alias kind=tostring(kind) causes ARG ParserFailure"
+            assert "rg-skip" in q, "Every ARG query including child mv-expand must filter out excluded_rgs first"
+            if "mv-expand" in q:
+                assert q.index("where ") < q.index("mv-expand "), "Scope filter must precede mv-expand"
+                return 0, json.dumps({"data": []}), ""
+            if "summarize total=count()" in q:
+                return 0, json.dumps({"data": [{"total": 1}]}), ""
+            if "resourceKind=tostring(['kind'])" in q:
+                return (
+                    0,
+                    json.dumps(
+                        {
+                            "data": [
+                                {
+                                    "id": vm_id,
+                                    "name": "vm-app01",
+                                    "type": "Microsoft.Compute/virtualMachines",
+                                    "location": "swedencentral",
+                                    "subscriptionId": SUB1,
+                                    "resourceGroup": "rg-spoke",
+                                    "skuName": "Standard_D2s_v5",
+                                    "skuTier": "Standard",
+                                    "resourceKind": "",
+                                }
+                            ]
+                        }
+                    ),
+                    "",
+                )
+            return 0, json.dumps({"data": []}), ""
+        if cmd[:3] == ["az", "monitor", "metrics"]:
+            assert "--subscription" in cmd and cmd[cmd.index("--subscription") + 1] == SUB1
+            return (
+                0,
+                json.dumps(
+                    {
+                        "value": [
+                            {
+                                "name": {"value": "Percentage CPU"},
+                                "unit": "Percent",
+                                "timeseries": [
+                                    {"data": [{"average": 12.5, "maximum": 44.0}, {"average": 15.5, "maximum": 52.0}]}
+                                ],
+                            },
+                            {
+                                "name": {"value": "Empty Metric"},
+                                "unit": "Count",
+                                "timeseries": [{"data": [{}]}],
+                            },
+                        ]
+                    }
+                ),
+                "",
+            )
+        raise AssertionError(f"Unexpected cmd: {cmd}")
+
+    # Reload updated module under test from /tmp/apex-v2-1
+    contract = collector.collect_assessment_evidence(
+        project, req, runner=runner, collected_at="2026-11-11T09:00:00.000Z"
+    )
+    assert set(contract.keys()) == {"coverage", "checks"}
+    assert contract["coverage"] == "complete"
+    inv = json.loads((project / "_meta/live-inventory.json").read_text(encoding="utf-8"))
+    assert inv["inventories"][0]["subscription_name"] == "gh-workload01"
+    metrics_doc = json.loads((project / "_meta/metrics-evidence.json").read_text(encoding="utf-8"))
+    m_list = metrics_doc["utilization"][0]["items"][0]["metrics"]
+    assert m_list[0] == {
+        "metric": "Percentage CPU",
+        "unit": "Percent",
+        "status": "observed",
+        "sample_count": 2,
+        "average": 14.0,
+        "maximum": 52.0,
+    }
+    assert m_list[1]["status"] == "empty_timeseries"
+    assert (project / "_meta/scalar-topology.json").is_file()
+
+    # Error path in metrics uses allowlisted class without leaking raw secrets.
+    def failing_metrics_runner(cmd: list[str]) -> tuple[int, str, str]:
+        if cmd[:3] == ["az", "monitor", "metrics"]:
+            return 1, "", "AuthorizationFailed Bearer eyJhbGciOiJIUzI1NiJ9.secret"
+        return runner(cmd)
+
+    err_contract = collector.collect_assessment_evidence(
+        project, req, runner=failing_metrics_runner, collected_at="2026-11-11T09:00:00.000Z"
+    )
+    util_check = next(c for c in err_contract["checks"] if c["category"] == "utilization")
+    assert util_check["status"] == "unknown"
+    assert "authorization_denied" in util_check["evidence"]
+    assert "eyJhbGci" not in util_check["evidence"]
+
+    # Verify diagnostic-settings --query uses not_null(value, @) and boolean eventHubRuleConfigured.
+    ops_req = json.loads(json.dumps(req))
+    ops_req["scope"]["categories"] = ["operations"]
+    seen_diag_query: list[str] = []
+
+    def ops_runner(cmd: list[str]) -> tuple[int, str, str]:
+        if cmd[:3] == ["az", "monitor", "diagnostic-settings"]:
+            q = cmd[cmd.index("--query") + 1]
+            seen_diag_query.append(q)
+            assert "not_null(value, @)" in q
+            assert "eventHubAuthorizationRuleId != null" in q
+            return 0, "[]", ""
+        if cmd[:2] == ["az", "graph"]:
+            q = cmd[cmd.index("-q") + 1]
+            if "summarize total=count()" in q:
+                return 0, json.dumps({"data": [{"total": 1}]}), ""
+            if "order by id asc" in q and "operationalinsights" not in q:
+                return (
+                    0,
+                    json.dumps(
+                        {
+                            "data": [
+                                {
+                                    "id": f"/subscriptions/{SUB1}/resourceGroups/rg-spoke/providers/Microsoft.Web/sites/app1",
+                                    "name": "app1",
+                                    "type": "Microsoft.Web/sites",
+                                    "location": "swedencentral",
+                                    "subscriptionId": SUB1,
+                                    "resourceGroup": "rg-spoke",
+                                }
+                            ]
+                        }
+                    ),
+                    "",
+                )
+            return 0, json.dumps({"data": []}), ""
+        return runner(cmd)
+
+    ops_out = collector.collect_assessment_evidence(
+        project, ops_req, runner=ops_runner, collected_at="2026-11-11T09:00:00.000Z"
+    )
+    assert ops_out["coverage"] == "complete"
+    assert len(seen_diag_query) == 1

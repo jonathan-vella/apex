@@ -69,7 +69,66 @@ def validate_waf_scores(doc: dict[str, Any]) -> None:
             raise ValueError(f"Invalid pillar status on '{name}'")
 
 
-def short_scope_label(scope: str, index: int) -> str:
+def format_trend_amount(val: float) -> str:
+    if val == 0:
+        return "0"
+    abs_val = abs(val)
+    if abs_val < 0.01:
+        return f"{'-' if val < 0 else ''}<0.01"
+    if abs_val < 10.0:
+        return f"{val:,.2f}"
+    return f"{val:,.0f}"
+
+
+def is_empty_no_rows_slice(entry: dict[str, Any] | None, series: dict[str, Any] | None) -> bool:
+    if not entry or not series:
+        return False
+    return bool(
+        entry.get("status") == "complete"
+        and entry.get("request", {}).get("operation") == "query"
+        and not series.get("groups")
+        and any("empty historical period" in str(gap).lower() for gap in entry.get("gaps", []))
+    )
+
+
+def load_scope_names(project_dir: Path) -> dict[str, str]:
+    names: dict[str, str] = {}
+    for rel, list_key in (
+        ("_meta/live-inventory.json", "inventories"),
+        ("_meta/01-discovered-evidence.json", "subscriptions"),
+    ):
+        candidate = project_dir / rel
+        if not candidate.is_file() or candidate.is_symlink():
+            continue
+        try:
+            doc = json.loads(candidate.read_text(encoding="utf-8"))
+        except json.JSONDecodeError:
+            continue
+        for item in doc.get(list_key) or []:
+            if not isinstance(item, dict):
+                continue
+            sub_id = str(item.get("subscription_id") or "").strip().lower()
+            sub_name = str(item.get("subscription_name") or "").strip()
+            if sub_id and sub_name:
+                names.setdefault(sub_id, sub_name)
+    brief = project_dir / "_meta/user-brief.json"
+    if brief.is_file() and not brief.is_symlink():
+        try:
+            bdoc = json.loads(brief.read_text(encoding="utf-8"))
+            subs = (bdoc.get("read_authorization") or {}).get("subscriptions")
+            if isinstance(subs, list):
+                for entry in subs:
+                    if isinstance(entry, dict):
+                        sid = str(entry.get("id") or entry.get("subscription_id") or "").strip().lower()
+                        sname = str(entry.get("name") or entry.get("display_name") or "").strip()
+                        if sid and sname:
+                            names.setdefault(sid, sname)
+        except json.JSONDecodeError:
+            pass
+    return names
+
+
+def short_scope_label(scope: str, index: int, scope_names: dict[str, str] | None = None) -> str:
     lower = scope.lower()
     if "/resourcegroups/" in lower:
         rg = scope.split("/")[-1]
@@ -77,7 +136,12 @@ def short_scope_label(scope: str, index: int) -> str:
         return f"{rg} ({sub_short})"
     parts = scope.strip("/").split("/")
     if len(parts) >= 2:
-        return f"Sub {index + 1} ({parts[1][:8]})"
+        sub_id = parts[1].lower()
+        sub_short = parts[1][:8]
+        display = (scope_names or {}).get(sub_id)
+        if display:
+            return f"{display} ({sub_short})"
+        return f"Sub {index + 1} ({sub_short})"
     return f"Scope {index + 1}"
 
 
@@ -198,7 +262,12 @@ def render_waf_posture(waf_doc: dict[str, Any], out_base: Path) -> None:
     plt.close(fig)
 
 
-def render_cost_trends(cost_doc: dict[str, Any], out_base: Path) -> None:
+def render_cost_trends(
+    cost_doc: dict[str, Any],
+    out_base: Path,
+    *,
+    scope_names: dict[str, str] | None = None,
+) -> None:
     scopes: list[str] = list(cost_doc.get("scopes", []))
     evidence: list[dict[str, Any]] = list(cost_doc.get("evidence", []))
     estimates: list[dict[str, Any]] = list(cost_doc.get("estimates", []))
@@ -361,9 +430,12 @@ def render_cost_trends(cost_doc: dict[str, Any], out_base: Path) -> None:
         if min_val < 0:
             ax.axhline(0, color="#64748B", linewidth=0.9)
 
+        has_no_rows_badge = False
+        labeled_na = False
         for p_idx, period in enumerate(hist_periods):
             offset = (p_idx - (slot_count - 1) / 2) * (width + 0.02)
             color = palette[p_idx % len(palette)]
+            labeled_period = False
             for s_idx, scope in enumerate(scopes):
                 ev = next(
                     (
@@ -384,24 +456,44 @@ def render_cost_trends(cost_doc: dict[str, Any], out_base: Path) -> None:
                 )
                 xpos = x[s_idx] + offset
                 if ev and ev.get("status") == "complete" and series is not None:
-                    val = float(series["amount"])
-                    ax.bar(
-                        xpos,
-                        val,
-                        width=width,
-                        color=color,
-                        label=f"{period['id']} (Actual)" if s_idx == 0 else None,
-                    )
-                    y_txt = val + span * 0.015 if val >= 0 else val - span * 0.02
-                    ax.text(
-                        xpos,
-                        y_txt,
-                        f"{val:,.0f}",
-                        ha="center",
-                        va="bottom" if val >= 0 else "top",
-                        fontsize=8,
-                        color=NAVY,
-                    )
+                    if is_empty_no_rows_slice(ev, series):
+                        has_no_rows_badge = True
+                        ax.text(
+                            xpos,
+                            na_height * 0.65,
+                            "NO\nROWS",
+                            ha="center",
+                            va="center",
+                            fontsize=6.8,
+                            fontweight="bold",
+                            color=NAVY,
+                            bbox={
+                                "boxstyle": "round,pad=0.22",
+                                "facecolor": "#FFFBEB",
+                                "edgecolor": AMBER,
+                                "linewidth": 1.0,
+                            },
+                        )
+                    else:
+                        val = float(series["amount"])
+                        ax.bar(
+                            xpos,
+                            val,
+                            width=width,
+                            color=color,
+                            label=f"{period['id']} (Actual)" if not labeled_period else None,
+                        )
+                        labeled_period = True
+                        y_txt = val + span * 0.015 if val >= 0 else val - span * 0.02
+                        ax.text(
+                            xpos,
+                            y_txt,
+                            format_trend_amount(val),
+                            ha="center",
+                            va="bottom" if val >= 0 else "top",
+                            fontsize=8,
+                            color=NAVY,
+                        )
                 else:
                     ax.bar(
                         xpos,
@@ -410,8 +502,9 @@ def render_cost_trends(cost_doc: dict[str, Any], out_base: Path) -> None:
                         color="#F1F5F9",
                         edgecolor="#94A3B8",
                         hatch="//",
-                        label="Not assessed / throttled" if s_idx == 0 and p_idx == 0 else None,
+                        label="Not assessed / throttled" if not labeled_na else None,
                     )
+                    labeled_na = True
                     ax.text(
                         xpos,
                         na_height / 2,
@@ -425,6 +518,7 @@ def render_cost_trends(cost_doc: dict[str, Any], out_base: Path) -> None:
 
         if forecast_period:
             offset = ((slot_count - 1) - (slot_count - 1) / 2) * (width + 0.02)
+            labeled_forecast = False
             for s_idx, scope in enumerate(scopes):
                 fev = next(
                     (
@@ -448,7 +542,7 @@ def render_cost_trends(cost_doc: dict[str, Any], out_base: Path) -> None:
                         act,
                         width=width,
                         color="#93C5FD",
-                        label="Forecast API: Actual-to-date" if s_idx == 0 else None,
+                        label="Forecast API: Actual-to-date" if not labeled_forecast else None,
                     )
                     ax.bar(
                         xpos,
@@ -456,14 +550,15 @@ def render_cost_trends(cost_doc: dict[str, Any], out_base: Path) -> None:
                         bottom=act,
                         width=width,
                         color=AMBER,
-                        label="Forecast API: Projected remainder" if s_idx == 0 else None,
+                        label="Forecast API: Projected remainder" if not labeled_forecast else None,
                     )
+                    labeled_forecast = True
                     tot_f = act + proj
                     y_txt = tot_f + span * 0.015 if tot_f >= 0 else tot_f - span * 0.02
                     ax.text(
                         xpos,
                         y_txt,
-                        f"{tot_f:,.0f}",
+                        format_trend_amount(tot_f),
                         ha="center",
                         va="bottom" if tot_f >= 0 else "top",
                         fontsize=8,
@@ -483,7 +578,10 @@ def render_cost_trends(cost_doc: dict[str, Any], out_base: Path) -> None:
                     )
 
         ax.set_xticks(
-            x, labels=[short_scope_label(s, idx) for idx, s in enumerate(scopes)], fontsize=9.5, fontweight="bold"
+            x,
+            labels=[short_scope_label(s, idx, scope_names) for idx, s in enumerate(scopes)],
+            fontsize=9.5,
+            fontweight="bold",
         )
         ax.set_ylim(min_val - span * 0.20 if min_val < 0 else 0, max_val + span * 0.22)
         ax.set_ylabel(f"Pre-Tax Amount ({cur})", fontsize=10, color=SLATE)
@@ -501,6 +599,14 @@ def render_cost_trends(cost_doc: dict[str, Any], out_base: Path) -> None:
             handles.append(
                 mpatches.Patch(facecolor="#F1F5F9", edgecolor="#94A3B8", hatch="//", label="N/A (not assessed)")
             )
+        if has_no_rows_badge:
+            handles.append(
+                mpatches.Patch(
+                    facecolor="#FFFBEB",
+                    edgecolor=AMBER,
+                    label="NO ROWS (empty period; currency inferred)",
+                )
+            )
         ax.legend(handles=handles, loc="upper right", fontsize=8.5, frameon=True)
 
     plt.tight_layout()
@@ -508,10 +614,15 @@ def render_cost_trends(cost_doc: dict[str, Any], out_base: Path) -> None:
     plt.close(fig)
 
 
-def render_cost_drivers(cost_doc: dict[str, Any], out_base: Path) -> None:
+def render_cost_drivers(
+    cost_doc: dict[str, Any],
+    out_base: Path,
+    *,
+    scope_names: dict[str, str] | None = None,
+) -> None:
     scopes: list[str] = list(cost_doc.get("scopes", []))
     evidence: list[dict[str, Any]] = list(cost_doc.get("evidence", []))
-    scope_index = {s.lower(): short_scope_label(s, idx) for idx, s in enumerate(scopes)}
+    scope_index = {s.lower(): short_scope_label(s, idx, scope_names) for idx, s in enumerate(scopes)}
 
     closed_periods = sorted(
         [p for p in cost_doc.get("periods", []) if p.get("kind") == "closed_month"],
@@ -638,10 +749,11 @@ def render_all_assessment_charts(project_dir: Path) -> dict[str, list[str]]:
 
     waf_doc = json.loads(waf_path.read_text(encoding="utf-8"))
     cost_doc = json.loads(cost_path.read_text(encoding="utf-8"))
+    scope_names = load_scope_names(resolved)
 
     render_waf_posture(waf_doc, assets_dir / "02-waf-posture")
-    render_cost_trends(cost_doc, assets_dir / "03-cost-trends")
-    render_cost_drivers(cost_doc, assets_dir / "03-cost-drivers")
+    render_cost_trends(cost_doc, assets_dir / "03-cost-trends", scope_names=scope_names)
+    render_cost_drivers(cost_doc, assets_dir / "03-cost-drivers", scope_names=scope_names)
 
     expected = [
         "assets/02-waf-posture.png",

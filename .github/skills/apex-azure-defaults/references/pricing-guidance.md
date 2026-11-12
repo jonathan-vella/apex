@@ -453,7 +453,7 @@ The helper allows at most four pages per query, 15 seconds per page, with no dir
 including failed attempts and pagination, count toward the worker's shared ceiling of 20 MCP plus direct requests.
 If the result set is incomplete or invalid, no evidence-ready file is written and the affected line remains FAILED.
 
-Before fetching, create a request JSON with editing tools under `{output_path}.retail-evidence/`:
+Before fetching, create a request JSON with editing tools under `{dirname(output_path)}/pricing-evidence/` (or `{output_path}.retail-evidence/`):
 
 ```json
 {

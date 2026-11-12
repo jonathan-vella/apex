@@ -76,7 +76,7 @@ function serviceRecipe(line) {
   if (service === "sql database" && /serverless/i.test(line.sku)) return ["vcore_seconds", "storage_gb"];
   if (/^(key vault|log analytics|monitor)$/.test(service)) return [];
   if (
-    /^(app service|virtual machines?|sql database|bastion|container registry|managed disks|redis cache|cache for redis)$/.test(
+    /^(app service|virtual machines?|sql database|sql managed instance|service bus|firewall|application gateway|(?:database for )?postgresql|(?:database for )?mysql|bastion|container registry|container apps|managed disks|managed redis|redis cache|cache for redis)$/.test(
       service,
     )
   )

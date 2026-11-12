@@ -166,7 +166,7 @@ implementation continuation. All other paths retain the normal pricing gate belo
    - `overwrite` = `false` (set to `true` only when re-running after revisions)
    - Optional: `compare_regions: true`, `include_ri_savings: true`
    The worker may create durable query ledgers, exact captured MCP responses and fallback request/evidence files
-   under `{output_path}.retail-evidence/`. Use only the sanctioned capture/helper commands, not arbitrary terminal copies.
+   under `{dirname(output_path)}/pricing-evidence/` (or `{output_path}.retail-evidence/`). Use only the sanctioned capture/helper commands, not arbitrary terminal copies.
    This also supports the
    [constrained direct-API fallback](pricing-guidance.md#constrained-direct-api-fallback).
    Preserve failed attempts and evidence; never instruct the worker to relabel direct API records as MCP output.

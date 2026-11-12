@@ -1324,7 +1324,7 @@ test("physical cost collector rejects gapped consolidation, preserves body+pacin
   assert.equal(disjointCalls.length, 2);
   assert.ok(disjointCalls.every((c) => c.kind === "single_query"));
 
-  // 2. ENOBUFS and rate-limit debug headers in defaultHttpExecutor / parseAzRestResult.
+  // 2. ENOBUFS, token-clean --only-show-errors (never --debug), and rate-limit parsing in defaultHttpExecutor / parseAzRestResult.
   const enobufs = parseAzRestResult({ error: { code: "ENOBUFS" }, status: null, stdout: "", stderr: "" });
   assert.equal(enobufs.status_code, 502);
   assert.equal(enobufs.body.error.code, "ResponseBufferExceeded");
@@ -1334,20 +1334,27 @@ test("physical cost collector rejects gapped consolidation, preserves body+pacin
     { type: "ActualCost" },
     (_bin, args, opts) => {
       assert.equal(opts.maxBuffer, 64 * 1024 * 1024);
-      assert.ok(args.includes("--debug"));
+      assert.equal(args.includes("--debug"), false, "defaultHttpExecutor must never pass --debug");
+      assert.ok(args.includes("--only-show-errors"));
       assert.ok(args.includes("--body"));
       return {
         status: 1,
         stdout: "",
-        stderr:
-          "urllib3.connectionpool: Response status: 429\n" +
-          "'x-ms-ratelimit-microsoft.costmanagement-entity-retry-after': '17'\n" +
-          '{"error":{"code":"429","message":"Too many requests"}}',
+        stderr: '{"error":{"code":"429","message":"Too many requests. Please retry after 17 seconds."}}',
       };
     },
   );
   assert.equal(exec429.status_code, 429);
-  assert.equal(exec429.headers["x-ms-ratelimit-microsoft.costmanagement-entity-retry-after"], "17");
+  assert.equal(exec429.headers["retry-after"], "17");
+
+  // Legacy header-style stderr lines remain supported by parseAzRestResult.
+  const legacy429 = parseAzRestResult({
+    status: 1,
+    stdout: "",
+    stderr: "Response status: 429\n" + "'x-ms-ratelimit-microsoft.costmanagement-entity-retry-after': '12'\n",
+  });
+  assert.equal(legacy429.status_code, 429);
+  assert.equal(legacy429.headers["x-ms-ratelimit-microsoft.costmanagement-entity-retry-after"], "12");
 
   // 3. Continuation pages keep POST body and apply minIntervalMs pacing before every page.
   const pageRoot = path.join(ROOT, `.collect-paged-${randomUUID()}`);
@@ -1406,4 +1413,119 @@ test("physical cost collector rejects gapped consolidation, preserves body+pacin
   assert.deepEqual(intervals, [1500]);
   assert.equal(pagedOut.report.evidence[0].status, "complete");
   assert.equal(pagedOut.report.evidence[0].page_count, 2);
+
+  // 4. --include-amortized and --include-rg-breakdown write isolated companion contracts without clobbering primary.
+  const { runCollectCostCli } = await import("../../scripts/collect-assessment-cost.mjs");
+  const { normalizeCostRequest } = await import("../../scripts/cost-estimate.mjs");
+  const multiRoot = path.join(ROOT, `.collect-multi-${randomUUID()}`);
+  fs.mkdirSync(path.join(multiRoot, "_meta"), { recursive: true });
+  t.after(() => fs.rmSync(multiRoot, { recursive: true, force: true }));
+  const multiPlanPath = path.join(multiRoot, "_meta/cost-plan.json");
+  const multiPlan = {
+    as_of: AS_OF,
+    scopes: [sub],
+    expected_currency: "USD",
+    periods: WINDOWS,
+  };
+  fs.writeFileSync(multiPlanPath, `${JSON.stringify(multiPlan, null, 2)}\n`);
+  const cliCode = runCollectCostCli(
+    [
+      "--plan",
+      multiPlanPath,
+      "--root",
+      multiRoot,
+      "--collected-at",
+      AS_OF,
+      "--include-amortized",
+      "--include-rg-breakdown",
+    ],
+    {
+      sleep: () => {},
+      executor: (url, body) => {
+        const isForecast = url.includes("/forecast?");
+        if (isForecast) {
+          return {
+            status_code: 200,
+            headers: {},
+            body: {
+              properties: {
+                columns: [
+                  { name: "PreTaxCost", type: "Number" },
+                  { name: "UsageDate", type: "Number" },
+                  { name: "CostStatus", type: "String" },
+                  { name: "Currency", type: "String" },
+                ],
+                rows: [
+                  [50, 20260301, "Actual", "USD"],
+                  [90, 20260320, "Forecast", "USD"],
+                ],
+                nextLink: null,
+              },
+            },
+          };
+        }
+        const firstGroupDim = body?.dataset?.grouping?.[0]?.name ?? "ServiceName";
+        const firstGroupVal = firstGroupDim === "ResourceGroupName" ? "rg-spoke" : "SQL Managed Instance";
+        return {
+          status_code: 200,
+          headers: {},
+          body: {
+            properties: {
+              columns: [
+                { name: "PreTaxCost", type: "Number" },
+                { name: "Currency", type: "String" },
+                { name: firstGroupDim, type: "String" },
+                { name: "ResourceId", type: "String" },
+                { name: "UsageDate", type: "Number" },
+              ],
+              rows: [
+                [
+                  body?.type === "AmortizedCost" ? 80 : 100,
+                  "USD",
+                  firstGroupVal,
+                  `${sub}/resourceGroups/rg-spoke/providers/Microsoft.Sql/managedInstances/sqlmi1`,
+                  20260215,
+                ],
+              ],
+              nextLink: null,
+            },
+          },
+        };
+      },
+    },
+  );
+  assert.equal(cliCode, 0);
+  const primaryDoc = JSON.parse(fs.readFileSync(path.join(multiRoot, "contracts/03-cost-management.json"), "utf8"));
+  const amortizedDoc = JSON.parse(
+    fs.readFileSync(path.join(multiRoot, "_meta/amortized-cost/contracts/03-cost-management.json"), "utf8"),
+  );
+  const rgDoc = JSON.parse(
+    fs.readFileSync(path.join(multiRoot, "_meta/resource-group-cost/contracts/03-cost-management.json"), "utf8"),
+  );
+  assert.equal(primaryDoc.evidence[0].request.cost_type, "ActualCost");
+  assert.equal(amortizedDoc.evidence[0].request.cost_type, "AmortizedCost");
+  assert.deepEqual(rgDoc.evidence[0].request.group_by, ["ResourceGroupName", "ResourceId"]);
+  assert.equal(
+    rgDoc.periods.some((p) => p.kind === "forecast"),
+    false,
+  );
+
+  // 5. SQL Managed Instance, Service Bus, and Azure Firewall recipes pass normalizeCostRequest preflight.
+  const paasReq = normalizeCostRequest({
+    project_name: "paas-recipe-test",
+    region: "swedencentral",
+    output_path: "agent-output/paas-recipe-test/_meta/pricing/paas.json",
+    resource_list: [
+      {
+        name: "sqlmi-gp-gen5",
+        service_name: "Azure SQL Managed Instance",
+        sku: "GP_Gen5_4",
+        region: "swedencentral",
+        quantity: 1,
+      },
+      { name: "sb-prem", service_name: "Azure Service Bus", sku: "Premium", region: "swedencentral", quantity: 1 },
+      { name: "afw-std", service_name: "Azure Firewall", sku: "Standard", region: "swedencentral", quantity: 1 },
+    ],
+  });
+  assert.equal(paasReq.lines.length, 3);
 });

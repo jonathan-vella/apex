@@ -7,6 +7,9 @@ agent: 01-Orchestrator
 
 Coordinate a standalone existing-workload Well-Architected assessment, not an infrastructure delivery run.
 Load [standalone assessment](../skills/apex-workflow-engine/references/standalone-assessment.md).
+At `scope` intake, read only `standalone-assessment.md` and `tools/schemas/session-state.schema.json`
+(`assessmentRequest`) before initializing recall; defer worker scripts (`collect-assessment-*`,
+`render-assessment-*`) and subagent definitions to delegated phase owners.
 Select `workflow_mode=assessment` explicitly with an authorized upfront scope.
 Offer evidence-only (no business interview) or requirements-led discovery; source is IaC, Azure or combined.
 Do not require `01-requirements.md` or a numeric Step 1 approval for evidence-only work.

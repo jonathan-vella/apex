@@ -19,8 +19,12 @@ test("mutable parent-owned files are rejected as review inputs", () => {
   ]) {
     assert.match(mutableInputProblem(`agent-output/p/${name}`), /mutable parent-owned file/, name);
   }
+  assert.match(mutableInputProblem("README.md"), /mutable parent-owned file/);
+  assert.match(mutableInputProblem("agent-output/p/_meta/sku-manifest.json"), /mutable parent-owned file/);
   assert.equal(mutableInputProblem("agent-output/p/04-iac-contract.json"), null);
   assert.equal(mutableInputProblem("agent-output/p/04-governance-constraints.json"), null);
+  assert.equal(mutableInputProblem("agent-output/p/_meta/workbook-readback/README.md"), null);
+  assert.equal(mutableInputProblem("agent-output/p/_meta/snapshots/00-handoff.md"), null);
 });
 
 test("metadata generation refuses a mutable supporting input with a remediation message", () => {

@@ -68,6 +68,11 @@ Preserve exact scope, pass, prior findings and metadata. Never invent paths, has
    rather than returning `status: "FAILED"`.
    Never call `view` on guessed or unverified paths (for example, there is no
    `tools/schemas/challenger-findings.schema.json`); unresolved failed tool calls invalidate recording.
+   Never call `view` on binary `.xlsx` or `.png` supporting inputs (file-view tools return compressed binary
+   bytes on `.xlsx` workbooks, and `record-review.mjs` already verifies their exact SHA-256 hashes); inspect
+   their paired Markdown, `.svg`, `_meta/action-register-export.json` and
+   `_meta/action-register-workbook-readback.json` artifacts instead, and never fail with `status: "FAILED"`
+   solely because a frozen `.xlsx` workbook is binary.
    For private evidence, copy the supplied `private_inputs[].read_path` literally; never reconstruct or shorten it.
    If one file-not-found read omitted the immediate scope directory, correct it once using that supplied literal
    path in this same invocation. Continue only after a successful read; retain the failed call for recorder audit.
