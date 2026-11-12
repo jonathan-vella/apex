@@ -339,10 +339,41 @@ def test_reconcile_recognizes_root_hook_buffered_and_post_turn_flushed_dispatche
     assert len(file_rec["requests"]) == 1
     assert file_rec["requests"][0]["gap"] is False
 
-    # Tampered on-disk request file fails reconciliation closed.
+    # Tampered on-disk request file for the SELECTED project/step fails reconciliation closed.
     req_on_disk.write_bytes(req_bytes + b" ")
     with pytest.raises(ValueError, match="request_sha256 mismatch"):
         audit.reconcile_events(capture, attempts, "synthetic", "2")
+    req_on_disk.write_bytes(req_bytes)
+
+    # Changed request file belonging to a DIFFERENT step or project does NOT abort reconciliation of selected scope.
+    other_step_req = tmp_path / "agent-output/synthetic/_meta/step1-req.json"
+    other_step_req.write_text('{"modified": true}\n', encoding="utf-8")
+    other_prompt = "APEX_REVIEW_FILE\n" + json.dumps(
+        {
+            "request_id": "step1-old",
+            "project_name": "synthetic",
+            "step": "1",
+            "review_depth": "default",
+            "request_path": "agent-output/synthetic/_meta/step1-req.json",
+            "request_sha256": "f" * 64,
+        }
+    )
+    mixed_events = file_events + [
+        {
+            "type": "tool.execution_start",
+            "timestamp": "2026-11-11T17:00:00.000Z",
+            "data": {
+                "toolCallId": "call-step1-old",
+                "toolName": "task",
+                "arguments": {"agent_type": "challenger-review-subagent", "prompt": other_prompt},
+            },
+        }
+    ]
+    capture.write_text("\n".join(json.dumps(ev) for ev in mixed_events) + "\n")
+    scoped_rec = audit.reconcile_events(capture, attempts, "synthetic", "2")
+    assert len(scoped_rec["requests"]) == 1
+    assert scoped_rec["requests"][0]["request_id"] == "root-closure-1"
+    assert scoped_rec["requests"][0]["gap"] is False
 
 
 def test_completed_empty_output_allows_one_identical_retry_without_rewriting_outcome(tmp_path: Path) -> None:

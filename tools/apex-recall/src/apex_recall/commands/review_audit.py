@@ -52,12 +52,22 @@ def _register_native_request(
     }
 
 
-def _parse_native_review_prompt(prompt: object, root: Path | None = None) -> dict | None:
+def _parse_native_review_prompt(
+    prompt: object,
+    *,
+    target_project: str,
+    target_step: str,
+    root: Path | None = None,
+) -> dict | None:
     if not isinstance(prompt, str):
         return None
     if prompt.startswith("APEX_REVIEW\n"):
         parsed = json.loads(prompt.removeprefix("APEX_REVIEW\n"))
-        return parsed if isinstance(parsed, dict) else None
+        if not isinstance(parsed, dict):
+            return None
+        if parsed.get("project_name") != target_project or parsed.get("step") != target_step:
+            return None
+        return parsed
     if prompt.startswith("APEX_REVIEW_FILE\n"):
         envelope = json.loads(prompt.removeprefix("APEX_REVIEW_FILE\n"))
         if not isinstance(envelope, dict):
@@ -79,6 +89,8 @@ def _parse_native_review_prompt(prompt: object, root: Path | None = None) -> dic
             or not req_path.startswith(f"agent-output/{proj}/_meta/")
         ):
             raise ValueError("Invalid APEX_REVIEW_FILE native review envelope")
+        if proj != target_project or stp != target_step:
+            return None
         base = (root or workspace_root_for()).resolve()
         cursor = base
         exists_all = True
@@ -128,10 +140,8 @@ def reconcile_events(events_path: Path, attempts: list[dict], project: str, step
                 prompt = args.get("prompt", "")
                 if args.get("agent_type") != "challenger-review-subagent":
                     continue
-                request = _parse_native_review_prompt(prompt, root)
-                if request is None:
-                    continue
-                if request.get("project_name") == project and request.get("step") == step:
+                request = _parse_native_review_prompt(prompt, target_project=project, target_step=step, root=root)
+                if request is not None:
                     _register_native_request(
                         requests,
                         request_id=request.get("request_id"),
@@ -197,8 +207,8 @@ def reconcile_events(events_path: Path, attempts: list[dict], project: str, step
             call_id = info["call"]
             if not isinstance(call_id, str) or call_id not in subagent_starts:
                 continue
-            request = _parse_native_review_prompt(info["prompt"], root)
-            if request and request.get("project_name") == project and request.get("step") == step:
+            request = _parse_native_review_prompt(info["prompt"], target_project=project, target_step=step, root=root)
+            if request is not None:
                 _register_native_request(
                     requests,
                     request_id=request.get("request_id"),

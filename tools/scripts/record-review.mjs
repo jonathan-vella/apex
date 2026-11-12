@@ -239,11 +239,11 @@ function loadVerifiedReviewFileEnvelope(envelope, root) {
       input.review_depth === envelope.review_depth,
     "APEX_REVIEW_FILE header fields differ from the saved review request",
   );
+  requireEvidence(
+    !Object.hasOwn(input, "private_inputs"),
+    "Saved review request must not persist literal private_inputs",
+  );
   if (envelope.private_inputs !== undefined) {
-    requireEvidence(
-      !Object.hasOwn(input, "private_inputs"),
-      "Saved review request must not persist literal private_inputs",
-    );
     input.private_inputs = structuredClone(envelope.private_inputs);
   }
   return input;

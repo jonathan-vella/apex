@@ -1961,4 +1961,21 @@ test("APEX_REVIEW_FILE hash-bound request pointer records cleanly and rejects ta
   badLink[0].data.arguments.prompt = linkPrompt;
   badLink.find((e) => e.type === "user.message").data.content = linkPrompt;
   assert.throws(() => extractReview(badLink, "worker-1", "root", { root: f.root }), /must not traverse symlinks/);
+
+  // Persisted private_inputs inside saved request JSON is rejected even when envelope omits private_inputs.
+  const privRel = "agent-output/example/_meta/persisted-private.request.json";
+  const privRaw = `${JSON.stringify({ ...f.input, private_inputs: [{ reference: "ref", read_path: "/tmp/p" }] }, null, 2)}\n`;
+  f.write(privRel, privRaw);
+  const badPriv = structuredClone(f.events);
+  const privPrompt = `APEX_REVIEW_FILE\n${JSON.stringify({
+    ...preflightOut.review_file_envelope,
+    request_path: privRel,
+    request_sha256: hash(privRaw),
+  })}`;
+  badPriv[0].data.arguments.prompt = privPrompt;
+  badPriv.find((e) => e.type === "user.message").data.content = privPrompt;
+  assert.throws(
+    () => extractReview(badPriv, "worker-1", "root", { root: f.root }),
+    /must not persist literal private_inputs/,
+  );
 });
