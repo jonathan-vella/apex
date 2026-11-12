@@ -102,6 +102,15 @@ No manual Challenger selection or leading approval prompt replaces this path.
    dispatched values after verifying disk bytes; conflicting echoed values still fail closed.
    Use the actual owning step, project-scoped review depth and a stable, unique
    request ID for this reviewer dispatch, distinct from any parent task request ID.
+   When a preflighted request file under `agent-output/<project>/_meta/` is large (for example,
+   multi-subscription assessments with dozens of `supporting_inputs`), prefer the hash-bound
+   `APEX_REVIEW_FILE` prompt format using the `review_file_envelope` emitted by `--preflight`
+   instead of re-serializing the entire JSON inline:
+   `APEX_REVIEW_FILE` followed by a newline and
+   `{"request_id":"...","project_name":"...","step":"...","review_depth":"default","request_path":"agent-output/<project>/_meta/<request>.json","request_sha256":"<64-hex>"}`
+   (adding transient `private_inputs` on the envelope only when required). `record-review.mjs`
+   verifies `request_sha256` against the saved `_meta/` file on disk and enforces the exact same
+   provenance and freshness checks as inline `APEX_REVIEW`.
    Historical parent/reviewer ID reuse is attributed separately by
    protocol and linked dispatch: both executions remain counted. Duplicate IDs
    within either protocol still fail. A new ID never resets the review allowance.

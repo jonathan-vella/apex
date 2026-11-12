@@ -42,6 +42,7 @@ import argparse
 import contextlib
 import hashlib
 import json
+import re
 import sys
 from collections import Counter, defaultdict
 from datetime import datetime
@@ -475,7 +476,9 @@ def sdk_events_to_spans(events: list[dict[str, Any]]) -> list[dict[str, Any]]:
         if not isinstance(args, dict) or args.get("agent_type") not in {"rubber-duck", "challenger-review-subagent"}:
             continue
         prompt = args.get("prompt")
-        if not isinstance(prompt, str) or not prompt.startswith("APEX_REVIEW\n"):
+        if not isinstance(prompt, str) or not (
+            prompt.startswith("APEX_REVIEW\n") or prompt.startswith("APEX_REVIEW_FILE\n")
+        ):
             continue
         envelope = _one_shot_review_envelope(prompt, args)
         linked = [
@@ -560,15 +563,34 @@ def sdk_events_to_spans(events: list[dict[str, Any]]) -> list[dict[str, Any]]:
 
 def _one_shot_review_envelope(prompt: str, arguments: dict[str, Any]) -> dict[str, Any]:
     """Validate dispatch intent, without treating it as findings or runtime approval."""
+    if ("mode" in arguments and arguments["mode"] != "sync") or any(
+        key in arguments for key in ("model", "reasoning_effort", "context_tier")
+    ):
+        raise ValueError("invalid APEX_REVIEW envelope or task arguments")
+    if prompt.startswith("APEX_REVIEW_FILE\n"):
+        try:
+            file_env = json.loads(prompt.removeprefix("APEX_REVIEW_FILE\n"))
+        except json.JSONDecodeError as exc:
+            raise ValueError("invalid APEX_REVIEW envelope JSON") from exc
+        if (
+            not isinstance(file_env, dict)
+            or not all(
+                isinstance(file_env.get(key), str) and file_env[key].strip()
+                for key in ("request_id", "project_name", "step", "request_path")
+            )
+            or file_env.get("review_depth") not in ("default", "deep")
+            or not isinstance(file_env.get("request_sha256"), str)
+            or re.fullmatch(r"[0-9a-f]{64}", file_env["request_sha256"]) is None
+        ):
+            raise ValueError("invalid APEX_REVIEW envelope or task arguments")
+        return file_env
     try:
         envelope = json.loads(prompt.removeprefix("APEX_REVIEW\n"))
     except json.JSONDecodeError as exc:
         raise ValueError("invalid APEX_REVIEW envelope JSON") from exc
     required = ("request_id", "project_name", "step", "artifact_path", "artifact_type", "output_path")
     if (
-        ("mode" in arguments and arguments["mode"] != "sync")
-        or any(key in arguments for key in ("model", "reasoning_effort", "context_tier"))
-        or not isinstance(envelope, dict)
+        not isinstance(envelope, dict)
         or not all(isinstance(envelope.get(key), str) and envelope[key].strip() for key in required)
         or envelope.get("review_depth") not in ("default", "deep")
         or not isinstance(envelope.get("overwrite"), bool)

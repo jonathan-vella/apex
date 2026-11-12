@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import hashlib
 import json
 import re
 from datetime import datetime
@@ -51,8 +52,76 @@ def _register_native_request(
     }
 
 
+def _parse_native_review_prompt(
+    prompt: object,
+    *,
+    target_project: str,
+    target_step: str,
+    root: Path | None = None,
+) -> dict | None:
+    if not isinstance(prompt, str):
+        return None
+    if prompt.startswith("APEX_REVIEW\n"):
+        parsed = json.loads(prompt.removeprefix("APEX_REVIEW\n"))
+        if not isinstance(parsed, dict):
+            return None
+        if parsed.get("project_name") != target_project or parsed.get("step") != target_step:
+            return None
+        return parsed
+    if prompt.startswith("APEX_REVIEW_FILE\n"):
+        envelope = json.loads(prompt.removeprefix("APEX_REVIEW_FILE\n"))
+        if not isinstance(envelope, dict):
+            return None
+        req_id = envelope.get("request_id")
+        proj = envelope.get("project_name")
+        stp = envelope.get("step")
+        depth = envelope.get("review_depth")
+        req_path = envelope.get("request_path")
+        req_sha = envelope.get("request_sha256")
+        if (
+            not all(isinstance(v, str) and v for v in (req_id, proj, stp, req_path))
+            or depth not in ("default", "deep")
+            or not isinstance(req_sha, str)
+            or re.fullmatch(r"[0-9a-f]{64}", req_sha) is None
+            or "\\" in req_path
+            or req_path.startswith("/")
+            or any(part in ("", ".", "..") for part in req_path.split("/"))
+            or not req_path.startswith(f"agent-output/{proj}/_meta/")
+        ):
+            raise ValueError("Invalid APEX_REVIEW_FILE native review envelope")
+        if proj != target_project or stp != target_step:
+            return None
+        base = (root or workspace_root_for()).resolve()
+        cursor = base
+        exists_all = True
+        for part in req_path.split("/"):
+            cursor = cursor / part
+            if cursor.is_symlink():
+                raise ValueError("Symlinked APEX_REVIEW_FILE request_path in native review dispatch")
+            if not cursor.exists():
+                exists_all = False
+                break
+        if exists_all and cursor.is_file():
+            raw_bytes = cursor.read_bytes()
+            if hashlib.sha256(raw_bytes).hexdigest() != req_sha:
+                raise ValueError("APEX_REVIEW_FILE request_sha256 mismatch in native review dispatch")
+            loaded = json.loads(raw_bytes.decode("utf-8"))
+            if (
+                not isinstance(loaded, dict)
+                or loaded.get("request_id") != req_id
+                or loaded.get("project_name") != proj
+                or loaded.get("step") != stp
+                or loaded.get("review_depth") != depth
+            ):
+                raise ValueError("APEX_REVIEW_FILE header fields differ from saved review request")
+            return loaded
+        return envelope
+    return None
+
+
 def reconcile_events(events_path: Path, attempts: list[dict], project: str, step: str) -> dict:
     """Report native lifecycle evidence without editing or backdating the ledger."""
+    root = workspace_root_for()
     requests: dict[str, dict] = {}
     outcomes: dict[str, bool] = {}
     hook_pre_starts: dict[str, list[tuple[str, dict]]] = {}
@@ -69,10 +138,10 @@ def reconcile_events(events_path: Path, attempts: list[dict], project: str, step
             if etype == "tool.execution_start" and data.get("toolName") == "task":
                 args = data.get("arguments", {})
                 prompt = args.get("prompt", "")
-                if args.get("agent_type") != "challenger-review-subagent" or not prompt.startswith("APEX_REVIEW\n"):
+                if args.get("agent_type") != "challenger-review-subagent":
                     continue
-                request = json.loads(prompt.removeprefix("APEX_REVIEW\n"))
-                if request.get("project_name") == project and request.get("step") == step:
+                request = _parse_native_review_prompt(prompt, target_project=project, target_step=step, root=root)
+                if request is not None:
                     _register_native_request(
                         requests,
                         request_id=request.get("request_id"),
@@ -97,7 +166,7 @@ def reconcile_events(events_path: Path, attempts: list[dict], project: str, step
                         if (
                             args.get("agent_type") == "challenger-review-subagent"
                             and isinstance(prompt, str)
-                            and prompt.startswith("APEX_REVIEW\n")
+                            and (prompt.startswith("APEX_REVIEW\n") or prompt.startswith("APEX_REVIEW_FILE\n"))
                         ):
                             hook_pre_starts.setdefault(inv_id, []).append(
                                 (event.get("timestamp") or "", {"call": tc.get("id"), "prompt": prompt})
@@ -138,8 +207,8 @@ def reconcile_events(events_path: Path, attempts: list[dict], project: str, step
             call_id = info["call"]
             if not isinstance(call_id, str) or call_id not in subagent_starts:
                 continue
-            request = json.loads(info["prompt"].removeprefix("APEX_REVIEW\n"))
-            if request.get("project_name") == project and request.get("step") == step:
+            request = _parse_native_review_prompt(info["prompt"], target_project=project, target_step=step, root=root)
+            if request is not None:
                 _register_native_request(
                     requests,
                     request_id=request.get("request_id"),

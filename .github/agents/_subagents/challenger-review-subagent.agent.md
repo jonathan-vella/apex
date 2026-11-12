@@ -18,7 +18,14 @@ Do not adopt the built-in critic's prose format or require an interactive Challe
 
 ## Inputs
 
-The native task prompt is `APEX_REVIEW`, a newline, then one JSON object.
+The native task prompt is either:
+
+- `APEX_REVIEW`, a newline, then one inline request JSON object; or
+- `APEX_REVIEW_FILE`, a newline, then a compact file-pointer JSON object
+  (`request_id`, `project_name`, `step`, `review_depth`, `request_path`, `request_sha256`, and optional
+  transient `private_inputs`) — in which case read the saved request JSON at `request_path` first via `view`
+  and treat that JSON object (plus any transient `private_inputs` on the envelope) as your authoritative request.
+
 Required: `request_id`, `step`, `review_depth`, `artifact_path`, `project_name`, `artifact_type`,
 `output_path`, `overwrite`, `prior_findings` and the parent's captured `cache_inputs`.
 `output_path` is the recorder's destination, not permission for this leaf to write.
