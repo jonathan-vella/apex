@@ -31,6 +31,22 @@
         "../schemas/assessment-cost.schema.json": "3e2efe60a5b8fc61c40b07a6edba397c05051a85255a01b0502e7fae2ed12138",
         "../schemas/cost-estimate.schema.json": "4c25d59c6ffacd5f89010a5a3f44be0d54e750ec2411b5cf8adb6b811b668512"
       }
+    },
+    {
+      "rationale": "PR #835 assessment-bundle-v3 baseline; legacy three-key output_hashes receipts remain valid when workbook read-back sidecar was not yet emitted by render.",
+      "tool_hashes": {
+        "assessment-action-register.mjs": "e82516e8237939102e74e251bb035d3973e0da563cd18cf117440c5003208f0b",
+        "render-assessment-action-register.py": "442b934c846340c90bfda7b8d182ffbb6f03aa716316f5aad4128296cbb4a0c7",
+        "assessment-cost.mjs": "e70c12e8660ade3f2c931595694357b7989d58f9e291d88e4833e50865a10659",
+        "cost-estimate.mjs": "e0793d60b271b87d564016e40249647d8adb27f05bbe2a0c69a87770638ea9d4",
+        "_lib/ajv-validator.mjs": "413f9afa75c946c4098c3884b92d8059eb66632ab5b2108810d8499ff1c56bf6",
+        "_lib/json.mjs": "a92b44b6218df7fd925123a9656916b14b4133dcaef736a6068e4ec440c987cc",
+        "_lib/project-paths.mjs": "8bfcabbbb235bcca3a8606d924517f3e7bf8f056a7600fa540b850e274dbd743",
+        "_lib/pricing-evidence.mjs": "39686ba621c3df1a863a73649b83cc951b9aad0216ed4aee277d7a07f5a56e4b",
+        "../schemas/assessment-action-register.schema.json": "0908233fa6f9cc8278fbc22879039bffb268a681c5413f84099bb6f95f8817e4",
+        "../schemas/assessment-cost.schema.json": "d0a4a97e6895292cdb36d7d811733ad48ebd3119c11fe9ab538e7a85ed85f332",
+        "../schemas/cost-estimate.schema.json": "4c25d59c6ffacd5f89010a5a3f44be0d54e750ec2411b5cf8adb6b811b668512"
+      }
     }
   ]
 }

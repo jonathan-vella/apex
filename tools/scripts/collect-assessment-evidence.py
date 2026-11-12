@@ -4,13 +4,14 @@
 from __future__ import annotations
 
 import argparse
+import concurrent.futures
 import hashlib
 import json
 import re
 import subprocess
 import sys
 from collections.abc import Callable
-from datetime import UTC, datetime
+from datetime import UTC, datetime, timedelta
 from pathlib import Path
 from typing import Any
 
@@ -169,6 +170,76 @@ def arg_count(runner: Runner, sub_id: str, where_clause: str) -> tuple[int | Non
     return (int(total), None) if isinstance(total, int) else (None, "Invalid ARG count field")
 
 
+def classify_cli_error(stderr: str) -> str:
+    low = (stderr or "").lower()
+    if "403" in low or "authorizationfailed" in low or "forbidden" in low or "access denied" in low:
+        return "authorization_denied"
+    if "429" in low or "throttl" in low or "too many requests" in low:
+        return "throttled"
+    if "metric" in low and ("not found" in low or "unsupported" in low or "failed to find metric" in low):
+        return "unsupported_metric"
+    if "timeout" in low or "timed out" in low:
+        return "timed_out"
+    return "cli_or_service_error"
+
+
+METRIC_SPECS: dict[str, tuple[str, int, tuple[str, ...]]] = {
+    "microsoft.compute/virtualmachines": ("Percentage CPU", 1, ("Average", "Maximum")),
+    "microsoft.web/serverfarms": ("CpuPercentage,MemoryPercentage", 2, ("Average", "Maximum")),
+    "microsoft.sql/managedinstances": ("avg_cpu_percent,storage_space_used_mb", 2, ("Average", "Maximum")),
+    "microsoft.sql/servers/databases": ("cpu_percent,dtu_consumption_percent", 2, ("Average", "Maximum")),
+    "microsoft.servicebus/namespaces": ("IncomingMessages,ServerErrors", 2, ("Total",)),
+}
+
+
+def parse_metric_summaries(raw_stdout: str) -> tuple[list[dict[str, Any]] | None, str | None]:
+    try:
+        parsed = json.loads(raw_stdout)
+    except json.JSONDecodeError:
+        return None, "malformed_metrics_json"
+    values = parsed.get("value") if isinstance(parsed, dict) else None
+    if not isinstance(values, list):
+        return None, "unexpected_metrics_container"
+    summaries: list[dict[str, Any]] = []
+    for metric in values:
+        if not isinstance(metric, dict):
+            continue
+        name_obj = metric.get("name")
+        metric_name = name_obj.get("value") if isinstance(name_obj, dict) else str(name_obj or "")
+        unit = str(metric.get("unit") or "")
+        averages: list[float] = []
+        maximums: list[float] = []
+        totals: list[float] = []
+        for ts in metric.get("timeseries") or []:
+            if not isinstance(ts, dict):
+                continue
+            for point in ts.get("data") or []:
+                if not isinstance(point, dict):
+                    continue
+                avg = point.get("average")
+                mx = point.get("maximum")
+                tot = point.get("total")
+                if isinstance(avg, (int, float)) and not isinstance(avg, bool):
+                    averages.append(float(avg))
+                if isinstance(mx, (int, float)) and not isinstance(mx, bool):
+                    maximums.append(float(mx))
+                if isinstance(tot, (int, float)) and not isinstance(tot, bool):
+                    totals.append(float(tot))
+        sample_count = max(len(averages), len(maximums), len(totals))
+        summaries.append(
+            {
+                "metric": metric_name,
+                "unit": unit,
+                "status": "observed" if sample_count > 0 else "empty_timeseries",
+                "sample_count": sample_count,
+                "average": round(sum(averages) / len(averages), 4) if averages else None,
+                "maximum": round(max(maximums), 4) if maximums else None,
+                "total": round(sum(totals), 4) if totals else None,
+            }
+        )
+    return summaries, None
+
+
 def parse_diag_settings(raw_stdout: str) -> tuple[list[dict[str, Any]] | None, str | None]:
     try:
         parsed = json.loads(raw_stdout)
@@ -183,12 +254,17 @@ def parse_diag_settings(raw_stdout: str) -> tuple[list[dict[str, Any]] | None, s
             continue
         logs = entry.get("logs") or []
         metrics = entry.get("metrics") or []
+        has_eh = (
+            bool(entry.get("eventHubRuleConfigured"))
+            if "eventHubRuleConfigured" in entry
+            else bool(entry.get("eventHubAuthorizationRuleId"))
+        )
         sanitized.append(
             {
                 "name": entry.get("name"),
                 "workspaceId": entry.get("workspaceId"),
                 "storageAccountId": entry.get("storageAccountId"),
-                "eventHubAuthorizationRuleId": bool(entry.get("eventHubAuthorizationRuleId")),
+                "eventHubAuthorizationRuleId": has_eh,
                 "enabled_log_count": sum(1 for item in logs if isinstance(item, dict) and item.get("enabled") is True),
                 "enabled_metric_count": sum(
                     1 for item in metrics if isinstance(item, dict) and item.get("enabled") is True
@@ -240,6 +316,7 @@ def collect_assessment_evidence(
     config_obs: list[dict[str, Any]] = []
     operations_obs: list[dict[str, Any]] = []
     recovery_obs: list[dict[str, Any]] = []
+    metrics_obs: list[dict[str, Any]] = []
     policy_obs: list[dict[str, Any]] = []
     discovered_items: list[dict[str, Any]] = []
 
@@ -277,11 +354,27 @@ def collect_assessment_evidence(
                 )
 
     non_billing_azure = [cat for cat in categories if cat != "billing"]
-    arg_inventory_categories = {"configuration", "topology", "operations", "recovery"}
+    arg_inventory_categories = {"configuration", "topology", "operations", "recovery", "utilization"}
     needs_arg_inventory = bool(set(categories) & arg_inventory_categories)
     include_config_scalars = "configuration" in categories
+    try:
+        end_dt = datetime.fromisoformat(timestamp.replace("Z", "+00:00")).astimezone(UTC)
+    except ValueError:
+        end_dt = datetime.now(UTC)
+    metrics_end = end_dt.strftime("%Y-%m-%dT%H:%M:%SZ")
+    metrics_start = (end_dt - timedelta(days=7)).strftime("%Y-%m-%dT%H:%M:%SZ")
 
-    for raw_scope in azure_scopes:
+    def collect_single_scope(raw_scope: str) -> dict[str, Any]:
+        scope_checks: list[dict[str, str]] = []
+        scope_inventories: list[dict[str, Any]] = []
+        scope_topology: list[dict[str, Any]] = []
+        scope_config: list[dict[str, Any]] = []
+        scope_ops: list[dict[str, Any]] = []
+        scope_rec: list[dict[str, Any]] = []
+        scope_metrics: list[dict[str, Any]] = []
+        scope_policy: list[dict[str, Any]] = []
+        scope_discovered: list[dict[str, Any]] = []
+
         sub_id, rg_name = parse_azure_scope(raw_scope)
         probe_url = (
             f"https://management.azure.com/subscriptions/{sub_id}/resourceGroups/{rg_name}?api-version=2022-12-01"
@@ -291,7 +384,7 @@ def collect_assessment_evidence(
         probe_query = (
             "{id:id,location:location,provisioningState:properties.provisioningState}"
             if rg_name
-            else "{subscriptionId:subscriptionId,tenantId:tenantId,state:state}"
+            else "{subscriptionId:subscriptionId,displayName:displayName,tenantId:tenantId,state:state}"
         )
         scope_check_cmd = [
             "az",
@@ -310,10 +403,11 @@ def collect_assessment_evidence(
             reason = redact_error_text(stderr)
             status = "denied" if "authorization" in stderr.lower() or "403" in stderr else "unknown"
             if needs_arg_inventory:
-                inventories.append(
+                scope_inventories.append(
                     {
                         "scope": raw_scope,
                         "subscription_id": sub_id,
+                        "subscription_name": None,
                         "resource_group": rg_name,
                         "complete": False,
                         "count": 0,
@@ -322,7 +416,7 @@ def collect_assessment_evidence(
                     }
                 )
             for cat in non_billing_azure:
-                checks.append(
+                scope_checks.append(
                     {
                         "category": cat,
                         "scope": raw_scope,
@@ -331,7 +425,7 @@ def collect_assessment_evidence(
                     }
                 )
             if "billing" in categories:
-                checks.append(
+                scope_checks.append(
                     {
                         "category": "billing",
                         "scope": raw_scope,
@@ -339,7 +433,27 @@ def collect_assessment_evidence(
                         "evidence": "Billing evidence is collected separately in contracts/03-cost-management.json.",
                     }
                 )
-            continue
+            return {
+                "checks": scope_checks,
+                "inventories": scope_inventories,
+                "topology": scope_topology,
+                "config": scope_config,
+                "ops": scope_ops,
+                "recovery": scope_rec,
+                "metrics": scope_metrics,
+                "policy": scope_policy,
+                "discovered": scope_discovered,
+            }
+
+        sub_display_name: str | None = None
+        try:
+            probe_doc = json.loads(stdout)
+            if isinstance(probe_doc, dict) and isinstance(probe_doc.get("displayName"), str):
+                cleaned_name = probe_doc["displayName"].strip()
+                if cleaned_name:
+                    sub_display_name = cleaned_name
+        except json.JSONDecodeError:
+            pass
 
         where_clause = kql_scope_filter(sub_id, rg_name, excluded_rgs)
         inv_rows: list[dict[str, Any]] = []
@@ -348,8 +462,8 @@ def collect_assessment_evidence(
         if needs_arg_inventory:
             before_count, count_err = arg_count(runner, sub_id, where_clause)
             extra_projection = (
-                ", skuName=tostring(sku.name), skuTier=tostring(sku.tier), kind=tostring(kind), "
-                "zones=tostring(zones), identityType=tostring(identity.type)"
+                ", skuName=tostring(sku.name), skuTier=tostring(sku.tier), resourceKind=tostring(['kind']), "
+                "availabilityZones=tostring(zones), identityType=tostring(identity.type)"
                 if include_config_scalars
                 else ""
             )
@@ -375,6 +489,7 @@ def collect_assessment_evidence(
                     "type": row.get("type"),
                     "location": row.get("location"),
                     "subscription": sub_id,
+                    "subscription_name": sub_display_name,
                     "resource_group": row.get("resourceGroup"),
                     "rg_role": row["rg_role"],
                     "provenance": "azure-arg",
@@ -383,17 +498,18 @@ def collect_assessment_evidence(
                 }
                 if include_config_scalars:
                     item_record["sku"] = row.get("skuName") or row.get("skuTier") or None
-                discovered_items.append(item_record)
+                scope_discovered.append(item_record)
             rg_summary: dict[str, dict[str, Any]] = {}
             for row in inv_rows:
                 rgn = str(row.get("resourceGroup", ""))
                 entry = rg_summary.setdefault(rgn, {"count": 0, "role": row.get("rg_role", "workload")})
                 entry["count"] += 1
             inv_note = inv_err or count_err or after_err or "Reconciled paginated ARG inventory"
-            inventories.append(
+            scope_inventories.append(
                 {
                     "scope": raw_scope,
                     "subscription_id": sub_id,
+                    "subscription_name": sub_display_name,
                     "resource_group": rg_name,
                     "complete": inv_complete,
                     "pages": pages,
@@ -406,53 +522,110 @@ def collect_assessment_evidence(
             )
 
         if "topology" in categories:
-            topo_query = (
+            mv_limit = 1000
+            topo_base_query = (
                 f"Resources | where {where_clause} and type in~ ("
                 "'microsoft.network/virtualnetworks','microsoft.network/privateendpoints',"
                 "'microsoft.network/privatednszones','microsoft.network/privatednszones/virtualnetworklinks',"
-                "'microsoft.network/azurefirewalls','microsoft.network/bastionhosts') "
-                "| project id, name, type, resourceGroup, location, "
-                "addressPrefixes=properties.addressSpace.addressPrefixes, "
-                "subnets=properties.subnets, peerings=properties.virtualNetworkPeerings, "
-                "privateLinkConnections=properties.privateLinkServiceConnections, "
-                "vnetLinkState=tostring(properties.virtualNetworkLinkState) | order by id asc"
+                "'microsoft.network/azurefirewalls','microsoft.network/bastionhosts',"
+                "'microsoft.network/applicationgateways','microsoft.network/networkinterfaces') "
+                "| project id, name, type, resourceGroup, location, skuName=tostring(sku.name), "
+                "addressPrefixesCount=array_length(properties.addressSpace.addressPrefixes), "
+                "firstAddressPrefix=tostring(properties.addressSpace.addressPrefixes[0]), "
+                "subnetCount=array_length(properties.subnets), "
+                "peeringCount=array_length(properties.virtualNetworkPeerings), "
+                "peConnectionCount=array_length(properties.privateLinkServiceConnections), "
+                "peSubnetId=tostring(properties.subnet.id), "
+                "ipConfigSubnetId=tostring(properties.ipConfigurations[0].properties.subnet.id), "
+                "vnetLinkState=tostring(properties.virtualNetworkLinkState), "
+                "linkedVnetId=tostring(properties.virtualNetwork.id) | order by id asc"
             )
-            topo_rows, _, topo_err = run_arg_paginated(runner, sub_id, topo_query)
-            # Prune subnet objects to scalar allowlisted keys only.
-            for item in topo_rows:
-                if isinstance(item.get("subnets"), list):
-                    item["subnets"] = [
-                        {
-                            "name": sub.get("name"),
-                            "addressPrefix": (sub.get("properties") or {}).get("addressPrefix"),
-                            "nsgId": ((sub.get("properties") or {}).get("networkSecurityGroup") or {}).get("id"),
-                            "routeTableId": ((sub.get("properties") or {}).get("routeTable") or {}).get("id"),
-                        }
-                        for sub in item["subnets"]
-                        if isinstance(sub, dict)
-                    ]
-                if isinstance(item.get("peerings"), list):
-                    item["peerings"] = [
-                        {
-                            "name": peer.get("name"),
-                            "peeringState": (peer.get("properties") or {}).get("peeringState"),
-                            "remoteVnetId": ((peer.get("properties") or {}).get("remoteVirtualNetwork") or {}).get(
-                                "id"
-                            ),
-                        }
-                        for peer in item["peerings"]
-                        if isinstance(peer, dict)
-                    ]
-            topology_obs.append({"scope": raw_scope, "count": len(topo_rows), "items": topo_rows, "error": topo_err})
-            checks.append(
+            subnet_query = (
+                f"Resources | where {where_clause} and type =~ 'microsoft.network/virtualnetworks' "
+                f"| mv-expand subnet=properties.subnets limit {mv_limit} "
+                "| project vnetId=id, vnetName=name, resourceGroup, "
+                "subnetName=tostring(subnet.name), "
+                "addressPrefix=tostring(subnet.properties.addressPrefix), "
+                "nsgId=tostring(subnet.properties.networkSecurityGroup.id), "
+                "routeTableId=tostring(subnet.properties.routeTable.id), "
+                "delegationService=tostring(subnet.properties.delegations[0].properties.serviceName) "
+                "| order by vnetId asc, subnetName asc"
+            )
+            peering_query = (
+                f"Resources | where {where_clause} and type =~ 'microsoft.network/virtualnetworks' "
+                f"| mv-expand peering=properties.virtualNetworkPeerings limit {mv_limit} "
+                "| project vnetId=id, vnetName=name, resourceGroup, "
+                "peeringName=tostring(peering.name), "
+                "peeringState=tostring(peering.properties.peeringState), "
+                "remoteVnetId=tostring(peering.properties.remoteVirtualNetwork.id), "
+                "allowForwardedTraffic=tobool(peering.properties.allowForwardedTraffic), "
+                "useRemoteGateways=tobool(peering.properties.useRemoteGateways) "
+                "| order by vnetId asc, peeringName asc"
+            )
+            pe_conn_query = (
+                f"Resources | where {where_clause} and type =~ 'microsoft.network/privateendpoints' "
+                f"| mv-expand conn=properties.privateLinkServiceConnections limit {mv_limit} "
+                "| project peId=id, peName=name, resourceGroup, "
+                "subnetId=tostring(properties.subnet.id), "
+                "targetResourceId=tostring(conn.properties.privateLinkServiceId), "
+                "groupId=tostring(conn.properties.groupIds[0]), "
+                "connectionStatus=tostring(conn.properties.privateLinkServiceConnectionState.status) "
+                "| order by peId asc"
+            )
+            topo_rows, _, topo_err = run_arg_paginated(runner, sub_id, topo_base_query)
+            subnet_rows, _, sub_err = run_arg_paginated(runner, sub_id, subnet_query)
+            peering_rows, _, peer_err = run_arg_paginated(runner, sub_id, peering_query)
+            pe_conn_rows, _, pe_err = run_arg_paginated(runner, sub_id, pe_conn_query)
+            subnet_by_vnet: dict[str, int] = {}
+            for srow in subnet_rows:
+                vid = str(srow.get("vnetId") or "").lower()
+                if vid:
+                    subnet_by_vnet[vid] = subnet_by_vnet.get(vid, 0) + 1
+            peering_by_vnet: dict[str, int] = {}
+            for prow in peering_rows:
+                vid = str(prow.get("vnetId") or "").lower()
+                if vid:
+                    peering_by_vnet[vid] = peering_by_vnet.get(vid, 0) + 1
+            conn_by_pe: dict[str, int] = {}
+            for crow in pe_conn_rows:
+                pid = str(crow.get("peId") or "").lower()
+                if pid:
+                    conn_by_pe[pid] = conn_by_pe.get(pid, 0) + 1
+            overflow_err: str | None = None
+            for trow in topo_rows:
+                rid = str(trow.get("id") or "").lower()
+                sc = trow.get("subnetCount")
+                pc = trow.get("peeringCount")
+                cc = trow.get("peConnectionCount")
+                if (
+                    (type(sc) is int and sc > subnet_by_vnet.get(rid, 0))
+                    or (type(pc) is int and pc > peering_by_vnet.get(rid, 0))
+                    or (type(cc) is int and cc > conn_by_pe.get(rid, 0))
+                ):
+                    overflow_err = "mv-expand child element count truncated or unreconciled against parent array_length"
+                    break
+            combined_topo_err = topo_err or sub_err or peer_err or pe_err or overflow_err
+            scope_topology.append(
+                {
+                    "scope": raw_scope,
+                    "count": len(topo_rows),
+                    "items": topo_rows,
+                    "subnets": subnet_rows,
+                    "peerings": peering_rows,
+                    "private_endpoint_connections": pe_conn_rows,
+                    "error": combined_topo_err,
+                }
+            )
+            scope_checks.append(
                 {
                     "category": "topology",
                     "scope": raw_scope,
-                    "status": "observed" if inv_complete and topo_err is None else "unknown",
+                    "status": "observed" if inv_complete and combined_topo_err is None else "unknown",
                     "evidence": (
-                        f"Collected {len(topo_rows)} network/DNS/peering topology records in _meta/controls-evidence.json."
-                        if topo_err is None
-                        else f"Topology projection incomplete: {topo_err}."
+                        f"Collected {len(topo_rows)} scalar network/DNS/NIC records, {len(subnet_rows)} subnets, "
+                        f"{len(peering_rows)} peerings, and {len(pe_conn_rows)} private-endpoint bindings in _meta/scalar-topology.json."
+                        if combined_topo_err is None
+                        else f"Topology projection incomplete: {combined_topo_err}."
                     ),
                 }
             )
@@ -463,13 +636,21 @@ def collect_assessment_evidence(
                 "| project id, name, type, resourceGroup, location, skuName=tostring(sku.name), "
                 "httpsOnly=tobool(properties.httpsOnly), "
                 "minTlsVersion=tostring(properties.siteConfig.minTlsVersion), "
+                "ftpsState=tostring(properties.siteConfig.ftpsState), "
                 "publicNetworkAccess=tostring(properties.publicNetworkAccess), "
                 "vnetSubnetId=tostring(properties.virtualNetworkSubnetId), "
+                "vnetRouteAllEnabled=tobool(properties.vnetRouteAllEnabled), "
                 "zoneRedundant=tobool(properties.zoneRedundant), "
                 "sqlStorageAccountType=tostring(properties.storageAccountType), "
                 "sqlBackupRedundancy=tostring(properties.requestedBackupStorageRedundancy), "
+                "sqlCurrentBackupRedundancy=tostring(properties.currentBackupStorageRedundancy), "
+                "sqlLicenseType=tostring(properties.licenseType), "
+                "sqlVCores=toint(properties.vCores), "
+                "sqlStorageSizeInGB=toint(properties.storageSizeInGB), "
+                "sqlPublicDataEndpointEnabled=tobool(properties.publicDataEndpointEnabled), "
                 "entraOnlySql=tobool(properties.administrators.azureADOnlyAuthentication), "
                 "kvRbac=tobool(properties.enableRbacAuthorization), "
+                "kvSoftDelete=tobool(properties.enableSoftDelete), "
                 "kvPurgeProtection=tobool(properties.enablePurgeProtection), "
                 "acrAdminEnabled=tobool(properties.adminUserEnabled), "
                 "acrNetworkBypass=tostring(properties.networkRuleBypassOptions), "
@@ -477,8 +658,8 @@ def collect_assessment_evidence(
                 "arcStatus=tostring(properties.status) | order by id asc"
             )
             cfg_rows, _, cfg_err = run_arg_paginated(runner, sub_id, cfg_query)
-            config_obs.append({"scope": raw_scope, "count": len(cfg_rows), "items": cfg_rows, "error": cfg_err})
-            checks.append(
+            scope_config.append({"scope": raw_scope, "count": len(cfg_rows), "items": cfg_rows, "error": cfg_err})
+            scope_checks.append(
                 {
                     "category": "configuration",
                     "scope": raw_scope,
@@ -520,9 +701,26 @@ def collect_assessment_evidence(
                 and row.get("rg_role") != "excluded"
             ][:10]
             diag_err: str | None = None
+            diag_jmes = (
+                "not_null(value, @)[].{name:name,workspaceId:workspaceId,storageAccountId:storageAccountId,"
+                "eventHubRuleConfigured:eventHubAuthorizationRuleId != null,"
+                "logs:logs[].{enabled:enabled},metrics:metrics[].{enabled:enabled}}"
+            )
             for res_id in diag_targets:
                 d_code, d_out, d_stderr = runner(
-                    ["az", "monitor", "diagnostic-settings", "list", "--resource", res_id, "-o", "json"]
+                    [
+                        "az",
+                        "monitor",
+                        "diagnostic-settings",
+                        "list",
+                        "--resource",
+                        res_id,
+                        "--query",
+                        diag_jmes,
+                        "--only-show-errors",
+                        "-o",
+                        "json",
+                    ]
                 )
                 if d_code != 0:
                     diag_err = redact_error_text(d_stderr)
@@ -532,7 +730,7 @@ def collect_assessment_evidence(
                     diag_err = p_err
                 else:
                     diag_samples.append({"resource_id": res_id, "settings": parsed_diag})
-            operations_obs.append(
+            scope_ops.append(
                 {
                     "scope": raw_scope,
                     "monitoring_resources": ops_rows,
@@ -540,7 +738,7 @@ def collect_assessment_evidence(
                     "error": ops_err or diag_err,
                 }
             )
-            checks.append(
+            scope_checks.append(
                 {
                     "category": "operations",
                     "scope": raw_scope,
@@ -561,12 +759,13 @@ def collect_assessment_evidence(
                 "| project id, name, type, resourceGroup, location, "
                 "zoneRedundant=tobool(properties.zoneRedundant), "
                 "storageAccountType=tostring(properties.storageAccountType), "
+                "currentBackupStorageRedundancy=tostring(properties.currentBackupStorageRedundancy), "
                 "requestedBackupStorageRedundancy=tostring(properties.requestedBackupStorageRedundancy) "
                 "| order by id asc"
             )
             rec_rows, _, rec_err = run_arg_paginated(runner, sub_id, rec_query)
-            recovery_obs.append({"scope": raw_scope, "items": rec_rows, "error": rec_err})
-            checks.append(
+            scope_rec.append({"scope": raw_scope, "items": rec_rows, "error": rec_err})
+            scope_checks.append(
                 {
                     "category": "recovery",
                     "scope": raw_scope,
@@ -580,14 +779,124 @@ def collect_assessment_evidence(
             )
 
         if "utilization" in categories:
-            checks.append(
+            metric_targets = [
+                (row["id"], str(row.get("type", "")).lower())
+                for row in inv_rows
+                if str(row.get("type", "")).lower() in METRIC_SPECS and row.get("rg_role") != "excluded"
+            ][:20]
+            metric_items: list[dict[str, Any]] = []
+            metric_errors: list[str] = []
+            incomplete_metric_targets = 0
+            for res_id, rtype in metric_targets:
+                metric_csv, expected_metric_count, metric_aggs = METRIC_SPECS[rtype]
+                m_code, m_out, m_stderr = runner(
+                    [
+                        "az",
+                        "monitor",
+                        "metrics",
+                        "list",
+                        "--subscription",
+                        sub_id,
+                        "--resource",
+                        res_id,
+                        "--metric",
+                        metric_csv,
+                        "--start-time",
+                        metrics_start,
+                        "--end-time",
+                        metrics_end,
+                        "--interval",
+                        "PT1H",
+                        "--aggregation",
+                        *metric_aggs,
+                        "--only-show-errors",
+                        "-o",
+                        "json",
+                    ]
+                )
+                if m_code != 0:
+                    err_cls = classify_cli_error(m_stderr)
+                    metric_errors.append(err_cls)
+                    metric_items.append({"resource_id": res_id, "type": rtype, "status": "error", "error": err_cls})
+                    continue
+                summaries, m_err = parse_metric_summaries(m_out)
+                if m_err or summaries is None:
+                    metric_errors.append(m_err or "malformed_metrics_json")
+                    metric_items.append(
+                        {
+                            "resource_id": res_id,
+                            "type": rtype,
+                            "status": "error",
+                            "error": m_err or "malformed_metrics_json",
+                        }
+                    )
+                else:
+                    all_observed = len(summaries) >= expected_metric_count and all(
+                        s.get("status") == "observed" for s in summaries
+                    )
+                    if not all_observed:
+                        incomplete_metric_targets += 1
+                    metric_items.append(
+                        {
+                            "resource_id": res_id,
+                            "type": rtype,
+                            "status": "ok" if all_observed else "partial_or_empty",
+                            "metrics": summaries,
+                        }
+                    )
+            scope_metrics.append(
                 {
-                    "category": "utilization",
                     "scope": raw_scope,
-                    "status": "unknown",
-                    "evidence": "Inventory collected; representative multi-week metric windows require targeted Azure Monitor metric queries before rightsizing.",
+                    "window": {"start": metrics_start, "end": metrics_end, "interval": "PT1H"},
+                    "target_count": len(metric_targets),
+                    "incomplete_target_count": incomplete_metric_targets,
+                    "items": metric_items,
+                    "errors": sorted(set(metric_errors)),
                 }
             )
+            if not inv_complete:
+                scope_checks.append(
+                    {
+                        "category": "utilization",
+                        "scope": raw_scope,
+                        "status": "unknown",
+                        "evidence": "Inventory incomplete; utilization metric targets could not be reconciled.",
+                    }
+                )
+            elif metric_errors:
+                scope_checks.append(
+                    {
+                        "category": "utilization",
+                        "scope": raw_scope,
+                        "status": "unknown",
+                        "evidence": f"Monitor metric collection encountered {', '.join(sorted(set(metric_errors)))} across {len(metric_targets)} targets in _meta/metrics-evidence.json.",
+                    }
+                )
+            elif incomplete_metric_targets > 0:
+                scope_checks.append(
+                    {
+                        "category": "utilization",
+                        "scope": raw_scope,
+                        "status": "unknown",
+                        "evidence": (
+                            f"Monitor metric responses had empty or missing samples on {incomplete_metric_targets}/{len(metric_targets)} targets; "
+                            "observed summaries are retained in _meta/metrics-evidence.json."
+                        ),
+                    }
+                )
+            else:
+                scope_checks.append(
+                    {
+                        "category": "utilization",
+                        "scope": raw_scope,
+                        "status": "observed",
+                        "evidence": (
+                            f"Collected 7-day PT1H Azure Monitor metric summaries for {len(metric_targets)} compute/database targets in _meta/metrics-evidence.json."
+                            if metric_targets
+                            else "No compute/database metric targets present in scope; 0 metric series required in _meta/metrics-evidence.json."
+                        ),
+                    }
+                )
 
         if "policy" in categories:
             pol_scope_args = (
@@ -603,7 +912,8 @@ def collect_assessment_evidence(
                     "list",
                     *pol_scope_args,
                     "--query",
-                    "[].{id:id,name:name,scope:scope,enforcementMode:enforcementMode,policyDefinitionId:policyDefinitionId}",
+                    "[].{id:id,name:name,displayName:displayName,scope:scope,enforcementMode:enforcementMode,policyDefinitionId:policyDefinitionId}",
+                    "--only-show-errors",
                     "-o",
                     "json",
                 ]
@@ -614,17 +924,17 @@ def collect_assessment_evidence(
                 except json.JSONDecodeError:
                     pol_items = None
                 if isinstance(pol_items, list):
-                    policy_obs.append({"scope": raw_scope, "count": len(pol_items), "assignments": pol_items})
-                    checks.append(
+                    scope_policy.append({"scope": raw_scope, "count": len(pol_items), "assignments": pol_items})
+                    scope_checks.append(
                         {
                             "category": "policy",
                             "scope": raw_scope,
                             "status": "observed",
-                            "evidence": f"Listed {len(pol_items)} policy assignment headers (enforcement modes only; effective compliance state not inferred).",
+                            "evidence": f"Listed {len(pol_items)} policy assignment headers in _meta/scoped-policy-observations.json (enforcement modes only; effective compliance state not inferred).",
                         }
                     )
                 else:
-                    checks.append(
+                    scope_checks.append(
                         {
                             "category": "policy",
                             "scope": raw_scope,
@@ -633,7 +943,7 @@ def collect_assessment_evidence(
                         }
                     )
             else:
-                checks.append(
+                scope_checks.append(
                     {
                         "category": "policy",
                         "scope": raw_scope,
@@ -661,7 +971,7 @@ def collect_assessment_evidence(
                         )
                 except json.JSONDecodeError:
                     pass
-            checks.append(
+            scope_checks.append(
                 {
                     "category": "billing",
                     "scope": raw_scope,
@@ -669,6 +979,33 @@ def collect_assessment_evidence(
                     "evidence": billing_note,
                 }
             )
+
+        return {
+            "checks": scope_checks,
+            "inventories": scope_inventories,
+            "topology": scope_topology,
+            "config": scope_config,
+            "ops": scope_ops,
+            "recovery": scope_rec,
+            "metrics": scope_metrics,
+            "policy": scope_policy,
+            "discovered": scope_discovered,
+        }
+
+    if azure_scopes:
+        workers = min(4, len(azure_scopes))
+        with concurrent.futures.ThreadPoolExecutor(max_workers=workers) as pool:
+            scope_results = list(pool.map(collect_single_scope, azure_scopes))
+        for res in scope_results:
+            checks.extend(res["checks"])
+            inventories.extend(res["inventories"])
+            topology_obs.extend(res["topology"])
+            config_obs.extend(res["config"])
+            operations_obs.extend(res["ops"])
+            recovery_obs.extend(res["recovery"])
+            metrics_obs.extend(res["metrics"])
+            policy_obs.extend(res["policy"])
+            discovered_items.extend(res["discovered"])
 
     if not checks:
         coverage = "not_assessed"
@@ -708,6 +1045,21 @@ def collect_assessment_evidence(
         safe_project_file(project_root, "_meta/controls-evidence.json"),
         {"collected_at": timestamp, "topology": topology_obs, "configuration": config_obs, "policy": policy_obs},
     )
+    if "topology" in categories:
+        write_json_atomic(
+            safe_project_file(project_root, "_meta/scalar-topology.json"),
+            {"collected_at": timestamp, "topology": topology_obs},
+        )
+    if "policy" in categories:
+        write_json_atomic(
+            safe_project_file(project_root, "_meta/scoped-policy-observations.json"),
+            {"collected_at": timestamp, "policy": policy_obs},
+        )
+    if "utilization" in categories:
+        write_json_atomic(
+            safe_project_file(project_root, "_meta/metrics-evidence.json"),
+            {"collected_at": timestamp, "utilization": metrics_obs},
+        )
     write_json_atomic(
         safe_project_file(project_root, "_meta/diagnostics-recovery-evidence.json"),
         {"collected_at": timestamp, "operations": operations_obs, "recovery": recovery_obs},
@@ -721,6 +1073,7 @@ def collect_assessment_evidence(
                 {
                     "scope": inv["scope"],
                     "subscription_id": inv["subscription_id"],
+                    "subscription_name": inv.get("subscription_name"),
                     "resource_group": inv["resource_group"],
                     "completeness": "complete" if inv.get("complete") else "partial",
                     "count": inv.get("count", 0),

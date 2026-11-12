@@ -727,3 +727,53 @@ test("optional action disposition preserves exact byte parity when absent and re
   f.save();
   assert.equal(calculate(f, root).valid, false);
 });
+
+test("workbook read-back sidecar is emitted, byte-verified from xlsx, and legacy compatible receipts remain valid", (t) => {
+  const { root, f } = setup(t, true);
+  const opts = options(root, f);
+  const res = renderAssessmentActionRegister(opts);
+  assert.equal(res.valid, true);
+
+  const readbackPath = path.join(root, ACTION_REGISTER_OUTPUTS.readback);
+  assert.equal(fs.existsSync(readbackPath), true);
+  const readback = JSON.parse(fs.readFileSync(readbackPath, "utf8"));
+  assert.equal(readback.schema_version, "action-register-workbook-readback-v1");
+  assert.equal(readback.formula_cell_count, 0);
+  assert.equal(readback.hyperlink_count, 0);
+  assert.equal(readback.sheets.length, 3);
+  assert.equal(readback.workbook_sha256, res.receipt.output_hashes.workbook);
+
+  // Tampering with cell values inside readback JSON while recomputing its receipt hash still fails workbook parity!
+  const originalReadbackBytes = fs.readFileSync(readbackPath);
+  const originalReceiptBytes = fs.readFileSync(path.join(root, ACTION_REGISTER_OUTPUTS.receipt));
+  const tampered = structuredClone(readback);
+  tampered.sheets[0].rows[0][0] = "Tampered Category";
+  const tamperedBytes = Buffer.from(`${JSON.stringify(tampered, null, 2)}\n`, "utf8");
+  fs.writeFileSync(readbackPath, tamperedBytes);
+  const tamperedReceipt = JSON.parse(originalReceiptBytes.toString("utf8"));
+  tamperedReceipt.output_hashes.readback = digest(tamperedBytes);
+  fs.writeFileSync(path.join(root, ACTION_REGISTER_OUTPUTS.receipt), `${JSON.stringify(tamperedReceipt, null, 2)}\n`);
+  const badCheck = validateAssessmentActionRegisterExport(opts);
+  assert.equal(badCheck.valid, false);
+  assert.match(badCheck.errors.join("\n"), /Workbook read-back JSON differs/);
+
+  // Restore valid readback and simulate a legacy compatible 3-key receipt without readback sidecar.
+  fs.unlinkSync(readbackPath);
+  const compat = JSON.parse(
+    fs.readFileSync(
+      path.resolve(path.dirname(fileURLToPath(import.meta.url)), "../../registry/register-tool-compatibility.json"),
+      "utf8",
+    ),
+  );
+  const legacyReceipt = JSON.parse(originalReceiptBytes.toString("utf8"));
+  delete legacyReceipt.output_hashes.readback;
+  legacyReceipt.tool_hashes = compat.compatible_tool_snapshots.at(-1).tool_hashes;
+  fs.writeFileSync(path.join(root, ACTION_REGISTER_OUTPUTS.receipt), `${JSON.stringify(legacyReceipt, null, 2)}\n`);
+  const legacyCheck = validateAssessmentActionRegisterExport(opts);
+  assert.equal(legacyCheck.valid, true, legacyCheck.errors.join("; "));
+
+  // Restore current export cleanly.
+  fs.writeFileSync(readbackPath, originalReadbackBytes);
+  fs.writeFileSync(path.join(root, ACTION_REGISTER_OUTPUTS.receipt), originalReceiptBytes);
+  assert.equal(validateAssessmentActionRegisterExport(opts).valid, true);
+});

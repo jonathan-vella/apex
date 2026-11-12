@@ -20,29 +20,136 @@ from ..state_writer import (
 )
 
 
+def _register_native_request(
+    requests: dict[str, dict],
+    *,
+    request_id: object,
+    call_id: object,
+    timestamp: object,
+    source: str,
+) -> None:
+    if not isinstance(request_id, str) or not request_id:
+        raise ValueError("Native review dispatch has no request ID")
+    if not isinstance(call_id, str) or not call_id:
+        raise ValueError("Native review dispatch has no toolCallId")
+    existing = requests.get(request_id)
+    if existing is not None:
+        if existing["call"] != call_id or source in existing["sources"]:
+            raise ValueError(f"Ambiguous duplicate native request ID: {request_id}")
+        if (
+            isinstance(timestamp, str)
+            and timestamp
+            and (not existing["timestamp"] or timestamp < existing["timestamp"])
+        ):
+            existing["timestamp"] = timestamp
+        existing["sources"].add(source)
+        return
+    requests[request_id] = {
+        "call": call_id,
+        "timestamp": timestamp if isinstance(timestamp, str) else None,
+        "sources": {source},
+    }
+
+
 def reconcile_events(events_path: Path, attempts: list[dict], project: str, step: str) -> dict:
     """Report native lifecycle evidence without editing or backdating the ledger."""
     requests: dict[str, dict] = {}
     outcomes: dict[str, bool] = {}
+    hook_pre_starts: dict[str, list[tuple[str, dict]]] = {}
+    hook_pre_ok: set[str] = set()
+    hook_post_starts: dict[str, tuple[str, bool]] = {}
+    hook_post_ok: set[str] = set()
+    subagent_starts: set[str] = set()
+    subagent_completes: set[str] = set()
     with events_path.open(encoding="utf-8") as source:
         for line in source:
             event = json.loads(line)
             data = event.get("data", {})
-            if event.get("type") == "tool.execution_start" and data.get("toolName") == "task":
+            etype = event.get("type")
+            if etype == "tool.execution_start" and data.get("toolName") == "task":
                 args = data.get("arguments", {})
                 prompt = args.get("prompt", "")
                 if args.get("agent_type") != "challenger-review-subagent" or not prompt.startswith("APEX_REVIEW\n"):
                     continue
                 request = json.loads(prompt.removeprefix("APEX_REVIEW\n"))
                 if request.get("project_name") == project and request.get("step") == step:
-                    request_id = request.get("request_id")
-                    if not isinstance(request_id, str) or not request_id:
-                        raise ValueError("Native review dispatch has no request ID")
-                    if request_id in requests:
-                        raise ValueError(f"Ambiguous duplicate native request ID: {request_id}")
-                    requests[request_id] = {"call": data["toolCallId"], "timestamp": event.get("timestamp")}
-            elif event.get("type") == "tool.execution_complete":
-                outcomes[data.get("toolCallId")] = data.get("success") is True
+                    _register_native_request(
+                        requests,
+                        request_id=request.get("request_id"),
+                        call_id=data.get("toolCallId"),
+                        timestamp=event.get("timestamp"),
+                        source="task",
+                    )
+            elif etype == "tool.execution_complete":
+                cid = data.get("toolCallId")
+                if isinstance(cid, str) and cid:
+                    outcomes[cid] = data.get("success") is True
+            elif etype == "hook.start" and (event.get("agentId") or "root") == "root":
+                inv_id = data.get("hookInvocationId")
+                hook_type = data.get("hookType")
+                inp = data.get("input") if isinstance(data.get("input"), dict) else {}
+                if hook_type == "preToolUse" and isinstance(inv_id, str) and inv_id:
+                    for tc in inp.get("toolCalls") or []:
+                        if not isinstance(tc, dict) or tc.get("name") != "task":
+                            continue
+                        args = tc.get("args") if isinstance(tc.get("args"), dict) else {}
+                        prompt = args.get("prompt", "")
+                        if (
+                            args.get("agent_type") == "challenger-review-subagent"
+                            and isinstance(prompt, str)
+                            and prompt.startswith("APEX_REVIEW\n")
+                        ):
+                            hook_pre_starts.setdefault(inv_id, []).append(
+                                (event.get("timestamp") or "", {"call": tc.get("id"), "prompt": prompt})
+                            )
+                elif (
+                    hook_type == "postToolUse" and isinstance(inv_id, str) and inv_id and inp.get("toolName") == "task"
+                ):
+                    call_id = inp.get("toolCallId")
+                    res_ok = (
+                        isinstance(inp.get("toolResult"), dict) and inp["toolResult"].get("resultType") == "success"
+                    )
+                    if isinstance(call_id, str) and call_id:
+                        hook_post_starts[inv_id] = (call_id, res_ok)
+            elif etype == "hook.end" and (event.get("agentId") or "root") == "root" and data.get("success") is True:
+                inv_id = data.get("hookInvocationId")
+                if data.get("hookType") == "preToolUse" and isinstance(inv_id, str):
+                    hook_pre_ok.add(inv_id)
+                elif data.get("hookType") == "postToolUse" and isinstance(inv_id, str):
+                    hook_post_ok.add(inv_id)
+            elif etype == "subagent.started" and data.get("agentName") == "challenger-review-subagent":
+                if (
+                    data.get("parentId") is None
+                    and data.get("executionMode") == "sync"
+                    and data.get("resumable") is False
+                ):
+                    cid = data.get("toolCallId")
+                    if isinstance(cid, str) and cid:
+                        subagent_starts.add(cid)
+            elif etype == "subagent.completed" and data.get("agentName") == "challenger-review-subagent":
+                cid = data.get("toolCallId")
+                if isinstance(cid, str) and cid:
+                    subagent_completes.add(cid)
+
+    for inv_id, entries in hook_pre_starts.items():
+        if inv_id not in hook_pre_ok:
+            continue
+        for ts, info in entries:
+            call_id = info["call"]
+            if not isinstance(call_id, str) or call_id not in subagent_starts:
+                continue
+            request = json.loads(info["prompt"].removeprefix("APEX_REVIEW\n"))
+            if request.get("project_name") == project and request.get("step") == step:
+                _register_native_request(
+                    requests,
+                    request_id=request.get("request_id"),
+                    call_id=call_id,
+                    timestamp=ts,
+                    source="root_hook",
+                )
+    for inv_id, (call_id, res_ok) in hook_post_starts.items():
+        if call_id not in outcomes and inv_id in hook_post_ok and call_id in subagent_completes:
+            outcomes[call_id] = res_ok
     records = []
     for request_id, native in requests.items():
         history = [attempt for attempt in attempts if attempt.get("id") == request_id and attempt.get("step") == step]

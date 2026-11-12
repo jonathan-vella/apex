@@ -153,13 +153,15 @@ Start with one broad lookup per service; use bounded targeted fallbacks for miss
 Unverified claims remain gaps, not remembered facts.
 
 - Score Security, Reliability, Performance Efficiency, Cost Optimization and Operational Excellence
-  from 0–10 whenever `>= 2` pillar-relevant checks are observed (excluding unknowns from numerator and
-  denominator, paired with `High (>=70%) | Medium (35-69%) | Low (<35%)` evidence coverage); reserve
-  `Not assessed` strictly for pillars with `< 2` observed checks.
+  from 0–10 whenever `>= 2` pillar-relevant workload-control checks are observed (excluding unknowns
+  from numerator/denominator, paired with `High (>=70%) | Medium (35-69%) | Low (<35%)` coverage);
+  reserve `Not assessed` strictly for `< 2` observed workload controls, and never count telemetry/billing
+  query availability as passing WAF controls (collection belongs in Coverage). For standalone Azure
+  assessments, run `collect-assessment-evidence.py` and `collect-assessment-cost.mjs` (`--include-amortized`
+  `--include-rg-breakdown` as needed) directly rather than writing custom `_meta/scratch/` collectors.
 - Include service maturity, trade-offs, an overview Mermaid diagram and meaningful traffic-light
-  statuses; do not manufacture warnings/failures merely to populate symbols.
-- Verify zonal features rather than inferring them from a tier name. Respect single-region residency,
-  reserve service overhead in capacity sizing and distinguish average RPS from concentrated peaks.
+  statuses without manufacturing filler warnings. Verify zonal features rather than inferring them from
+  tier names; respect single-region residency, reserve service overhead and separate average vs. peak RPS.
 - For Terraform include Azure Storage remote state/locking, provider pins, unique-name strategy and
   AVM-TF gaps. Do not plan HCP/cloud backends.
 - Reconcile required operator/app data paths and dependencies; mark unverified or deferred capabilities

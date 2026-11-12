@@ -202,11 +202,27 @@ export function parseAzRestResult(res, outFileText = null) {
       return { status_code: 502, headers, body: { error: { code: "MalformedJsonResponse" } } };
     }
   }
-  const is429 = debugStatus === 429 || /\b429\b|Too Many Requests/i.test(stderr);
-  const statusCode = debugStatus ?? (is429 ? 429 : 500);
+  const is429 = debugStatus === 429 || /\b429\b|Too Many Requests|throttl/i.test(stderr);
+  const retrySecMatch = /retry[\s-]+after[:\s]+(\d+)\s*(?:s|sec|seconds)?/i.exec(stderr);
+  if (is429 && retrySecMatch && !headers["retry-after"]) {
+    headers["retry-after"] = retrySecMatch[1];
+  }
+  const statusFromErr =
+    debugStatus ??
+    (is429
+      ? 429
+      : /\b403\b|authorizationfailed|forbidden|access denied/i.test(stderr)
+        ? 403
+        : /\b401\b|unauthorized|authenticationfailed/i.test(stderr)
+          ? 401
+          : /\b404\b|resourcenotfound|not found/i.test(stderr)
+            ? 404
+            : /\b400\b|badrequest|bad request/i.test(stderr)
+              ? 400
+              : 500);
   const codeMatch = /"code"\s*:\s*"([A-Za-z][A-Za-z0-9._-]{0,99})"/.exec(stderr);
   return {
-    status_code: statusCode,
+    status_code: statusFromErr,
     headers,
     body: { error: { code: codeMatch ? codeMatch[1] : is429 ? "TooManyRequests" : "CliRequestFailed" } },
   };
@@ -217,6 +233,7 @@ export function defaultHttpExecutor(url, body, spawnFn = spawnSync) {
   const outFile = path.join(scratchDir, "response.json");
   const bodyFile = path.join(scratchDir, "request.json");
   try {
+    // Use --only-show-errors rather than --debug so child stderr never contains Authorization headers.
     const args = [
       "rest",
       "--method",
@@ -227,7 +244,7 @@ export function defaultHttpExecutor(url, body, spawnFn = spawnSync) {
       "Content-Type=application/json",
       "--output-file",
       outFile,
-      "--debug",
+      "--only-show-errors",
     ];
     if (body !== null && body !== undefined) {
       fs.writeFileSync(bodyFile, JSON.stringify(body), "utf8");
@@ -399,7 +416,25 @@ export function executePhysicalCostPlan(
   return { report, physical_call_count: physicalCalls.length, attempts: attemptsLog };
 }
 
-export function runCollectCostCli(argv = process.argv.slice(2)) {
+function runAndValidateCostView(planConfig, targetRoot, collectedAt, { executor, sleep } = {}) {
+  const out = executePhysicalCostPlan(planConfig, {
+    projectRoot: targetRoot,
+    collectedAt,
+    ...(executor ? { executor } : {}),
+    ...(sleep ? { sleep } : {}),
+  });
+  const validation = validateAssessmentCost(out.report, {
+    root: targetRoot,
+    asOf: collectedAt,
+    readEvidence: (rel) => fs.readFileSync(path.join(targetRoot, rel)),
+    approvedScopes: planConfig.scopes,
+    approvedPlan: planConfig,
+  });
+  if (!validation.valid) throw new Error(validation.errors.join("; "));
+  return out;
+}
+
+export function runCollectCostCli(argv = process.argv.slice(2), runtimeOpts = {}) {
   try {
     const { values } = parseArgs({
       args: argv,
@@ -407,36 +442,62 @@ export function runCollectCostCli(argv = process.argv.slice(2)) {
         plan: { type: "string" },
         root: { type: "string" },
         "collected-at": { type: "string" },
+        "include-amortized": { type: "boolean" },
+        "include-rg-breakdown": { type: "boolean" },
         help: { type: "boolean" },
       },
     });
     if (values.help) {
       console.log(
-        "Usage: collect-assessment-cost.mjs --plan _meta/cost-plan.json --root agent-output/<project> [--collected-at ISO]",
+        "Usage: collect-assessment-cost.mjs --plan _meta/cost-plan.json --root agent-output/<project> [--collected-at ISO] [--include-amortized] [--include-rg-breakdown]",
       );
       return 0;
     }
     if (!values.plan || !values.root) throw new Error("--plan and --root are required");
+    const resolvedRoot = path.resolve(values.root);
     const planConfig = readJson(values.plan);
     const collectedAt = values["collected-at"] ?? new Date().toISOString();
-    const out = executePhysicalCostPlan(planConfig, {
-      projectRoot: path.resolve(values.root),
-      collectedAt,
-    });
-    const validation = validateAssessmentCost(out.report, {
-      root: path.resolve(values.root),
-      asOf: collectedAt,
-      readEvidence: (rel) => fs.readFileSync(path.join(path.resolve(values.root), rel)),
-      approvedScopes: planConfig.scopes,
-      approvedPlan: planConfig,
-    });
-    if (!validation.valid) throw new Error(validation.errors.join("; "));
+    const out = runAndValidateCostView(planConfig, resolvedRoot, collectedAt, runtimeOpts);
+    const companionViews = {};
+    if (values["include-amortized"]) {
+      const amortizedRoot = path.join(resolvedRoot, "_meta/amortized-cost");
+      fs.mkdirSync(path.join(amortizedRoot, "_meta"), { recursive: true });
+      const amortizedPlan = { ...structuredClone(planConfig), cost_type: "AmortizedCost" };
+      writeJson(path.join(amortizedRoot, "_meta/cost-plan.json"), amortizedPlan);
+      const amOut = runAndValidateCostView(amortizedPlan, amortizedRoot, collectedAt, runtimeOpts);
+      companionViews.amortized = {
+        status: amOut.report.status,
+        physical_call_count: amOut.physical_call_count,
+        report_path: "_meta/amortized-cost/contracts/03-cost-management.json",
+      };
+    }
+    if (values["include-rg-breakdown"]) {
+      const resolvedPeriods = planCostQueries(planConfig).periods;
+      const rgPeriods = resolvedPeriods.filter((p) => p.kind !== "forecast");
+      if (rgPeriods.length > 0) {
+        const rgRoot = path.join(resolvedRoot, "_meta/resource-group-cost");
+        fs.mkdirSync(path.join(rgRoot, "_meta"), { recursive: true });
+        const rgPlan = {
+          ...structuredClone(planConfig),
+          periods: rgPeriods,
+          group_by: ["ResourceGroupName", "ResourceId"],
+        };
+        writeJson(path.join(rgRoot, "_meta/cost-plan.json"), rgPlan);
+        const rgOut = runAndValidateCostView(rgPlan, rgRoot, collectedAt, runtimeOpts);
+        companionViews.resource_group = {
+          status: rgOut.report.status,
+          physical_call_count: rgOut.physical_call_count,
+          report_path: "_meta/resource-group-cost/contracts/03-cost-management.json",
+        };
+      }
+    }
     console.log(
       JSON.stringify({
         valid: true,
         status: out.report.status,
         physical_call_count: out.physical_call_count,
         logical_evidence_count: out.report.evidence.length,
+        ...(Object.keys(companionViews).length ? { companion_views: companionViews } : {}),
       }),
     );
     return 0;

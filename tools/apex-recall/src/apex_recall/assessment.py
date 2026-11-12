@@ -557,6 +557,13 @@ def validate_register_export(directory: Path, data: dict, path: Path) -> dict:
         revisions[relative] = _watch(data, source)
         if revisions[relative] != expected:
             raise ValueError("Action register Finance/source bytes changed during export validation")
+    output_hashes = receipt.get("output_hashes") if isinstance(receipt.get("output_hashes"), dict) else {}
+    if "readback" in output_hashes:
+        readback_rel = "_meta/action-register-workbook-readback.json"
+        readback_path = safe_path(directory, readback_rel)
+        revisions[readback_rel] = _watch(data, readback_path)
+        if revisions[readback_rel] != output_hashes["readback"]:
+            raise ValueError("Action register workbook read-back bytes changed during export validation")
     compat_path = root / "tools/registry/register-tool-compatibility.json"
     compat_snapshots: list[dict] = []
     if compat_path.is_file():

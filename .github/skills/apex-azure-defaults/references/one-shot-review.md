@@ -39,7 +39,13 @@ No manual Challenger selection or leading approval prompt replaces this path.
    ```
 
    Supply each immutable supporting path with `--supporting-input`. Do not freeze
-   mutable manifests, README, handoff, decisions or recall state as supporting inputs.
+   project-root mutable manifests, `README.md`, `00-handoff.md`, decisions or recall state, or
+   intermediate `_meta/scratch/**` helpers; immutable snapshots under `_meta/**` are allowed.
+   When two independent lenses share one frozen snapshot (such as `comprehensive` WAF and
+   `cost-feasibility`), record each `review-audit ... --attempt-outcome started` sequentially
+   first, then dispatch both `mode: sync` reviewer `task` calls in parallel in the same turn,
+   and finally record each `record-review.mjs` and `review-audit ... --attempt-outcome completed`
+   sequentially so state writes never contend on `00-session-state.json.lock`.
 3. Before invoking the reviewer, save the proposed JSON request in invocation-owned storage
    and validate it without launching or recording a worker:
 

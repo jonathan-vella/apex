@@ -1771,3 +1771,103 @@ test("--events-dir resolves unique session log by request_id, tolerates worker-f
   const [exitCode] = await once(child, "exit");
   assert.equal(exitCode, 0);
 });
+
+test("root-session mid-turn buffered dispatch records via preToolUse/postToolUse hooks and rejects overrides", (t) => {
+  const f = fixture(t, { supporting: true });
+  delete f.doc.cache_inputs;
+  delete f.doc.supporting_inputs;
+  f.flush();
+
+  const dispatchEvent = f.events.find(
+    (event) => event.type === "tool.execution_start" && event.data?.toolName === "task",
+  );
+  const args = structuredClone(dispatchEvent.data.arguments);
+  const startEvent = f.events.find((event) => event.type === "subagent.started");
+  delete startEvent.data.parentId;
+  startEvent.data.resumable = false;
+  startEvent.data.taskModelSource = "unset";
+
+  // Remove root tool.execution_start / tool.execution_complete to simulate mid-turn SDK RAM buffering.
+  const workerStream = f.events.filter(
+    (event) =>
+      !(
+        (event.type === "tool.execution_start" || event.type === "tool.execution_complete") &&
+        event.data?.toolCallId === "call-1"
+      ),
+  );
+  const preHookStart = {
+    type: "hook.start",
+    data: {
+      hookInvocationId: "hook-pre-1",
+      hookType: "preToolUse",
+      input: {
+        sessionId: "session-root",
+        cwd: f.root,
+        toolCalls: [{ id: "call-1", name: "task", args }],
+      },
+    },
+  };
+  const preHookEnd = {
+    type: "hook.end",
+    data: { hookInvocationId: "hook-pre-1", hookType: "preToolUse", success: true },
+  };
+  const postHookStart = {
+    type: "hook.start",
+    data: {
+      hookInvocationId: "hook-post-1",
+      hookType: "postToolUse",
+      input: {
+        sessionId: "session-root",
+        cwd: f.root,
+        toolCallId: "call-1",
+        toolName: "task",
+        toolArgs: structuredClone(args),
+        toolResult: { resultType: "success" },
+      },
+    },
+  };
+  const postHookEnd = {
+    type: "hook.end",
+    data: { hookInvocationId: "hook-post-1", hookType: "postToolUse", success: true },
+  };
+
+  const bufferedEvents = [preHookStart, preHookEnd, ...workerStream, postHookStart, postHookEnd];
+  const sessions = path.join(f.root, "buffered-sessions");
+  const sessionDir = path.join(sessions, "root-session");
+  fs.mkdirSync(sessionDir, { recursive: true });
+  fs.writeFileSync(path.join(sessionDir, "events.jsonl"), bufferedEvents.map((e) => JSON.stringify(e)).join("\n"));
+
+  const t0 = Date.now();
+  const recorded = recordReview({
+    root: f.root,
+    eventsDir: sessions,
+    requestId: "request-1",
+    output,
+  });
+  assert.ok(Date.now() - t0 < 5_000, "Root hook completion must not block on 25s flush timeout");
+  assert.equal(recorded.review_execution.parent_id, "root");
+  assert.equal(recorded.review_execution.request_id, "request-1");
+
+  // Missing or runtime-managed taskModelSource labels must remain nonblocking when task args have no overrides.
+  for (const labelVal of [undefined, "runtime_default", "session_inheritance"]) {
+    const variant = structuredClone(bufferedEvents);
+    const sEv = variant.find((e) => e.type === "subagent.started");
+    if (labelVal === undefined) delete sEv.data.taskModelSource;
+    else sEv.data.taskModelSource = labelVal;
+    assert.equal(extractReview(variant, "worker-1", "root").execution.request_id, "request-1");
+  }
+
+  // Caller model override inside preToolUse args must still fail closed.
+  const badOverride = structuredClone(bufferedEvents);
+  badOverride[0].data.input.toolCalls[0].args.model = "gpt-override";
+  badOverride.at(-2).data.input.toolArgs.model = "gpt-override";
+  assert.throws(() => extractReview(badOverride, "worker-1", "root"), /without caller overrides/);
+
+  // Failed postToolUse resultType must fail closed.
+  const badResult = structuredClone(bufferedEvents);
+  badResult.at(-2).data.input.toolResult.resultType = "failure";
+  assert.throws(() => extractReview(badResult, "worker-1", "root"), /successful task invocation/);
+
+  // Non-root parentId cannot use the root hook fallback.
+  assert.throws(() => extractReview(bufferedEvents, "worker-1", "subagent-parent"), /Attributed one-shot/);
+});

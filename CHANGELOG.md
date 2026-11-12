@@ -43,6 +43,23 @@ Store discovered evidence under `_meta/` to preserve the layout-v2 Markdown-only
 
 ### Fixes
 
+#### Standalone WAF assessment v2.1 review provenance, collector, pricing, and chart accuracy
+
+Accept root-session live-flushed `preToolUse`/`postToolUse` + `subagent.started`/`subagent.completed`
+envelopes in `record-review.mjs` and `apex-recall review-audit --reconcile-events` when the Copilot SDK
+buffers root `tool.execution_start` records until turn end, and scope `README.md`/`00-handoff.md` mutable-input
+checks to project-root paths. Emit a deterministic, workbook-verified `_meta/action-register-workbook-readback.json`
+sidecar during action-register export and instruct `challenger-review-subagent` never to `view` binary `.xlsx`
+or `.png` files directly. Fix the Azure Resource Graph `kind` reserved-keyword `ParserFailure`, parallelize
+per-scope probes, capture `subscription_name`, and add server-side scalar topology, SQL MI/Key Vault/Service
+Bus/App Service configuration, policy headers, and 7-day Monitor metric summaries in
+`collect-assessment-evidence.py`. Remove `--debug` from `collect-assessment-cost.mjs`, add
+`--include-amortized` and `--include-rg-breakdown` flags, align `cost-estimate-subagent` evidence directory
+guidance with `{dirname(output_path)}/pricing-evidence/`, and add SQL Managed Instance / PaaS recipes in
+`cost-estimate.mjs`. Render `NO ROWS` callout badges for 0-row inferred-currency periods, preserve signed
+sub-cent/sub-dollar labels (`<0.01`, `-<0.01`, `0.xx`), resolve subscription display names in
+`render-assessment-charts.py`, and add reusable `validate-assessment-diagram.py` bounds.
+
 #### Assessment Action Register review corrections
 
 Apply captured billing/utilization permissions and reporting plans to every imported cost report,

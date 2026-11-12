@@ -294,6 +294,63 @@ export function resolveEventsFromDir(eventsDir, requestId, { allowTrailingPartia
   return matches[0];
 }
 
+function resolveRootHookDispatch(events, call) {
+  const preStarts = events.filter(
+    (event) =>
+      event.type === "hook.start" &&
+      event.data?.hookType === "preToolUse" &&
+      (event.agentId ?? "root") === "root" &&
+      Array.isArray(event.data?.input?.toolCalls) &&
+      event.data.input.toolCalls.some((item) => item?.id === call),
+  );
+  const preStart = exactly(preStarts, "hook.start");
+  const toolCalls = preStart.data.input.toolCalls.filter((item) => item?.id === call);
+  requireEvidence(
+    toolCalls.length === 1 && nonempty(preStart.data?.hookInvocationId),
+    "Exactly one preToolUse toolCall record is required",
+  );
+  const preEnds = events.filter(
+    (event) =>
+      event.type === "hook.end" &&
+      event.data?.hookType === "preToolUse" &&
+      (event.agentId ?? "root") === "root" &&
+      event.data?.hookInvocationId === preStart.data.hookInvocationId,
+  );
+  const preEnd = exactly(preEnds, "hook.end");
+  const postStarts = events.filter(
+    (event) =>
+      event.type === "hook.start" &&
+      event.data?.hookType === "postToolUse" &&
+      (event.agentId ?? "root") === "root" &&
+      event.data?.input?.toolCallId === call,
+  );
+  const postStart = exactly(postStarts, "hook.start");
+  requireEvidence(nonempty(postStart.data?.hookInvocationId), "postToolUse hookInvocationId is required");
+  const postEnds = events.filter(
+    (event) =>
+      event.type === "hook.end" &&
+      event.data?.hookType === "postToolUse" &&
+      (event.agentId ?? "root") === "root" &&
+      event.data?.hookInvocationId === postStart.data.hookInvocationId,
+  );
+  const postEnd = exactly(postEnds, "hook.end");
+  const callSpec = toolCalls[0];
+  requireEvidence(
+    preEnd.data?.success === true &&
+      postEnd.data?.success === true &&
+      callSpec?.name === "task" &&
+      postStart.data?.input?.toolName === "task" &&
+      isDeepStrictEqual(postStart.data?.input?.toolArgs, callSpec.args) &&
+      postStart.data?.input?.toolResult?.resultType === "success",
+    "Root hook dispatch and completion must match one successful task invocation",
+  );
+  return {
+    args: callSpec.args,
+    dispatchEvents: [preStart, preEnd, postStart, postEnd],
+    orderedBounds: [preStart, preEnd, postStart, postEnd],
+  };
+}
+
 export function extractReview(events, workerId, parentId) {
   requireEvidence(
     nonempty(workerId) && nonempty(parentId) && workerId !== parentId && workerId !== "root",
@@ -326,20 +383,47 @@ export function extractReview(events, workerId, parentId) {
     exactly(linked, "subagent.started") === start && exactly(linked, "subagent.completed") === completed,
     "Dispatch must identify exactly one worker and completion",
   );
-  const dispatch = exactly(linked, "tool.execution_start");
-  const finished = exactly(linked, "tool.execution_complete");
-  const args = dispatch.data.arguments;
-  requireEvidence(
-    dispatch.data.toolName === "task" &&
-      (dispatch.agentId ?? "root") === parentId &&
-      object(args) &&
-      args.agent_type === reviewer &&
-      (!Object.hasOwn(args, "mode") || args.mode === "sync") &&
-      !["model", "reasoning_effort", "context_tier"].some((key) => Object.hasOwn(args, key)) &&
-      (finished.agentId ?? "root") === parentId &&
-      finished.data.success === true,
-    "Exactly one successful matching parent task dispatch without caller overrides is required",
+  const hasNativeTaskEvents = linked.some(
+    (event) => event.type === "tool.execution_start" || event.type === "tool.execution_complete",
   );
+  let args;
+  let dispatch;
+  let finished;
+  let rootHookBounds = null;
+  let parentBoundaryEvents;
+  if (hasNativeTaskEvents || parentId !== "root") {
+    dispatch = exactly(linked, "tool.execution_start");
+    finished = exactly(linked, "tool.execution_complete");
+    args = dispatch.data.arguments;
+    requireEvidence(
+      dispatch.data.toolName === "task" &&
+        (dispatch.agentId ?? "root") === parentId &&
+        object(args) &&
+        args.agent_type === reviewer &&
+        (!Object.hasOwn(args, "mode") || args.mode === "sync") &&
+        !["model", "reasoning_effort", "context_tier"].some((key) => Object.hasOwn(args, key)) &&
+        (finished.agentId ?? "root") === parentId &&
+        finished.data.success === true,
+      "Exactly one successful matching parent task dispatch without caller overrides is required",
+    );
+    parentBoundaryEvents = [finished];
+  } else {
+    requireEvidence(
+      start.data?.parentId === undefined && start.data?.resumable === false,
+      "Root buffered review dispatch requires one-shot root subagent telemetry",
+    );
+    const rootHook = resolveRootHookDispatch(events, call);
+    args = rootHook.args;
+    rootHookBounds = rootHook.orderedBounds;
+    parentBoundaryEvents = rootHook.dispatchEvents;
+    requireEvidence(
+      object(args) &&
+        args.agent_type === reviewer &&
+        (!Object.hasOwn(args, "mode") || args.mode === "sync") &&
+        !["model", "reasoning_effort", "context_tier"].some((key) => Object.hasOwn(args, key)),
+      "Exactly one successful matching parent task dispatch without caller overrides is required",
+    );
+  }
   requireEvidence(
     typeof args.prompt === "string" && args.prompt.startsWith("APEX_REVIEW\n"),
     "Task prompt must be APEX_REVIEW followed by one JSON object",
@@ -409,7 +493,7 @@ export function extractReview(events, workerId, parentId) {
       ),
     "Worker interaction lacks exact linked identity or final response",
   );
-  // Parent task records can be flushed after the complete worker stream.
+  // Parent task records can be flushed after the complete worker stream; root hook bounds wrap the worker stream live.
   const ordered = [
     start,
     configured,
@@ -417,9 +501,15 @@ export function extractReview(events, workerId, parentId) {
     ...turns.flatMap((turn) => [turn.start, ...turn.responses, turn.end]),
     completed,
   ];
+  const parentOrdered = rootHookBounds
+    ? events.indexOf(rootHookBounds[0]) < events.indexOf(rootHookBounds[1]) &&
+      events.indexOf(rootHookBounds[1]) < events.indexOf(start) &&
+      events.indexOf(completed) < events.indexOf(rootHookBounds[2]) &&
+      events.indexOf(rootHookBounds[2]) < events.indexOf(rootHookBounds[3])
+    : events.indexOf(dispatch) < events.indexOf(finished);
   requireEvidence(
     ordered.every((event, index) => index === 0 || events.indexOf(ordered[index - 1]) < events.indexOf(event)) &&
-      events.indexOf(dispatch) < events.indexOf(finished) &&
+      parentOrdered &&
       responses.at(-1) === response,
     "Dispatch, complete worker interaction, and completion must be ordered",
   );
@@ -436,7 +526,7 @@ export function extractReview(events, workerId, parentId) {
       ),
     "Nested delegation is not allowed",
   );
-  for (const event of [...worker, finished]) {
+  for (const event of [...worker, ...parentBoundaryEvents]) {
     if (event.type === "tool.execution_complete" && event !== finished) continue;
     requireEvidence(
       !/(?:^|[._])(?:error|failed|cancelled|aborted)$/.test(event.type) &&
@@ -739,6 +829,35 @@ function checkReview(input, doc, root) {
   requireEvidence(errors.length === 0, errors.join("\n"));
 }
 
+function hasFlushedParentCompletion(events, start) {
+  const call = start.data.toolCallId;
+  if (
+    ["tool.execution_start", "tool.execution_complete"].every((type) =>
+      events.some((event) => event.type === type && event.data?.toolCallId === call),
+    )
+  ) {
+    return true;
+  }
+  if (start.data?.parentId !== undefined) return false;
+  const postStart = events.find(
+    (event) =>
+      event.type === "hook.start" &&
+      event.data?.hookType === "postToolUse" &&
+      (event.agentId ?? "root") === "root" &&
+      event.data?.input?.toolCallId === call &&
+      nonempty(event.data?.hookInvocationId),
+  );
+  return Boolean(
+    postStart &&
+    events.some(
+      (event) =>
+        event.type === "hook.end" &&
+        event.data?.hookType === "postToolUse" &&
+        event.data?.hookInvocationId === postStart.data.hookInvocationId,
+    ),
+  );
+}
+
 function loadEventsWithFlushWait(eventsPath, workerId, { allowTrailingPartial = false } = {}) {
   let events = parseEvents(eventsPath, { allowTrailingPartial });
   const start = events.find(
@@ -754,9 +873,7 @@ function loadEventsWithFlushWait(eventsPath, workerId, { allowTrailingPartial = 
   if (start) {
     while (
       (!events.some((event) => event.agentId === workerId && event.type === "subagent.completed") ||
-        !["tool.execution_start", "tool.execution_complete"].every((type) =>
-          events.some((event) => event.type === type && event.data?.toolCallId === start.data.toolCallId),
-        )) &&
+        !hasFlushedParentCompletion(events, start)) &&
       Date.now() < deadline
     ) {
       Atomics.wait(sleepBuf, 0, 0, 500);

@@ -125,6 +125,12 @@ Skills provide domain methods, not new tool permissions or role transitions.
    (solid blue/teal = observed config/peering, dashed amber = declared/unverified flow, amber/red pill =
    region/cost drift, muted card = empty/torn-down subscription) with one compact legend row; keep
    disclaimer/unknown callout boxes to `<= 10%` of canvas height instead of omitting observed resources.
+   Bound standalone assessment deliverables to `assets/03-des-diagram.{py,png,svg}` plus **at most one**
+   optional `assets/03-des-inventory.{py,png,svg}` companion sheet for `>80`-resource multi-subscription
+   scopes (showing compact resource-family count badges inside secondary subscription cards on the primary
+   diagram rather than fanning out per-subscription diagram files). Validate with stock
+   `python3 tools/scripts/validate-assessment-diagram.py --project-dir agent-output/<project>` instead of
+   authoring custom per-project checker scripts.
 2. Select the nearest pattern in the diagrams skill; prefer `dlib` (`scripts/dlib.py`) for
    architecture, network, DNS, identity and swimlane diagrams, and `matplotlib` (`save_figure`)
    for quantitative charts. For large topologies use an overview and focused region/workload diagrams.

@@ -162,6 +162,11 @@ not a second routing table. Use current `apex-recall show` and `handoff` assessm
 4. Design renders the required existing-state diagram from the validated analysis and evidence.
    There is no intermediate Architecture approval or optional-design scope question in this profile.
    Use `.github/skills/apex-python-diagrams/SKILL.md`; execute only owned generated code.
+   Bound output to `assets/03-des-diagram.{py,png,svg}` (plus at most one optional
+   `assets/03-des-inventory.{py,png,svg}` companion for `>80`-resource multi-subscription scopes, keeping
+   resource-family count pills inside secondary subscription cards on the primary diagram) and verify with
+   `python3 tools/scripts/validate-assessment-diagram.py --project-dir agent-output/<project>` rather than
+   writing custom per-project checker scripts.
    Distinguish observed, declared, inferred and unverified connections; do not adopt a redesigned topology.
    Inspect both PNG and SVG, embedded icons and legibility, not merely nonzero file size.
    When no topology is evidenced, render the explicit scope boundary and "Topology not assessed"
@@ -171,7 +176,11 @@ not a second routing table. Use current `apex-recall show` and `handoff` assessm
    and separate cost-feasibility lenses when nested tasks are available. Otherwise return `REVIEW_REQUIRED`
    for the authorized interactive parent's sibling invocation; existing native task, recorder and freshness rules apply.
    Architecture review includes the diagram and evidence as supporting inputs. Cost review includes cost
-   source/coverage and actual query or verified pricing evidence.
+   source/coverage and actual query or verified pricing evidence; bound `supporting_inputs` to canonical
+   contracts, evidence and rendered outputs rather than `_meta/scratch/**` scripts.
+   When both lenses review the same frozen `input_digest`, record their `started` audit entries sequentially,
+   invoke both read-only `mode: sync` `challenger-review-subagent` tasks in parallel, then run
+   `record-review.mjs` and `completed` audit writes sequentially.
    The register source and exports belong to this same bundle. WAF review checks finding linkage,
    priorities, applicability and proposed status; cost review checks financial-kind evidence,
    signed contributions, exclusions, cross-report benefit deduplication and render consistency.
