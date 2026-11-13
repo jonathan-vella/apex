@@ -153,17 +153,38 @@ function getAssessmentSchemaValidator() {
 }
 
 function resolveContainedProjectFile(projectDir, relPath) {
-  if (typeof relPath !== "string" || !relPath.trim() || path.isAbsolute(relPath)) return null;
+  if (
+    typeof relPath !== "string" ||
+    !relPath.trim() ||
+    relPath.includes("\\") ||
+    relPath.includes("\0") ||
+    /[*?[\]]/.test(relPath) ||
+    relPath.split("/")[0].includes(":") ||
+    path.isAbsolute(relPath) ||
+    relPath
+      .split("/")
+      .some((part) => part === "" || part === "." || part === ".." || part.startsWith("assessment-step-")) ||
+    relPath === "00-session-state.json" ||
+    relPath === "_meta/00-session-state.json"
+  ) {
+    return null;
+  }
   const rootAbs = path.resolve(projectDir);
-  const candidate = path.resolve(rootAbs, relPath);
-  const rel = path.relative(rootAbs, candidate);
-  if (!rel || rel.startsWith("..") || path.isAbsolute(rel)) return null;
   try {
-    if (fs.lstatSync(candidate).isSymbolicLink()) return null;
+    if (fs.lstatSync(rootAbs).isSymbolicLink()) return null;
+    let cursor = rootAbs;
+    for (const part of relPath.split("/")) {
+      cursor = path.join(cursor, part);
+      if (fs.lstatSync(cursor).isSymbolicLink()) return null;
+    }
+    const realRoot = fs.realpathSync(rootAbs);
+    const realTarget = fs.realpathSync(cursor);
+    const rel = path.relative(realRoot, realTarget);
+    if (!rel || rel.startsWith("..") || path.isAbsolute(rel)) return null;
+    return cursor;
   } catch {
     return null;
   }
-  return candidate;
 }
 
 function validateAssessmentPresence(project, projectDir, state) {
@@ -208,12 +229,20 @@ function validateAssessmentPresence(project, projectDir, state) {
         ? id === cycleId
         : cycle.step === "2" && cycle.lens === lens && cycle.artifact === `agent-output/${project}/${artifact}`,
     );
-    const selected = cycles.length === 1 ? cycles[0][1].current_path : null;
-    const sidecar = recorded
-      ? resolveContainedProjectFile(projectDir, recorded.path)
-      : selected
-        ? resolveReviewPath(projectDir, selected)
-        : null;
+    const matchedCycle = cycles.length === 1 ? cycles[0][1] : null;
+    const selected =
+      matchedCycle?.current_path ||
+      (cycleId && typeof matchedCycle?.canonical_path === "string"
+        ? path.posix.basename(matchedCycle.canonical_path)
+        : null);
+    let sidecar = null;
+    if (recorded) {
+      sidecar = resolveContainedProjectFile(projectDir, recorded.path);
+    } else if (selected) {
+      const candidate = resolveReviewPath(projectDir, selected);
+      const rel = path.relative(path.resolve(projectDir), path.resolve(candidate)).split(path.sep).join("/");
+      sidecar = resolveContainedProjectFile(projectDir, rel);
+    }
     if (!sidecar || !sidecarOk(sidecar) || (recorded && sha256File(sidecar) !== recorded.sha256)) {
       r.error(label, `Missing, unreadable or changed ${lens} review at ${run.phase}`);
     }

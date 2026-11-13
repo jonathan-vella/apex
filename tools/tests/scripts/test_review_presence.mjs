@@ -1,5 +1,5 @@
 import assert from "node:assert/strict";
-import { copyFileSync, mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";
+import { copyFileSync, mkdirSync, mkdtempSync, readFileSync, rmSync, symlinkSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import path from "node:path";
 import { spawnSync } from "node:child_process";
@@ -226,6 +226,97 @@ test("accepted assessments require both recorded review files and unchanged hash
   delete run.reviews;
   f.save();
   assert.equal(f.run().status, 1);
+
+  // Symlinked intermediate directory (`reviews/` -> outside dir) must be rejected.
+  const externalDir = path.join(f.project, "../external-reviews");
+  mkdirSync(externalDir, { recursive: true });
+  const externalWaf = path.join(externalDir, "challenge-findings-comprehensive.json");
+  const externalCost = path.join(externalDir, "challenge-findings-cost-feasibility.json");
+  writeFileSync(externalWaf, JSON.stringify({ review_focus: "comprehensive" }));
+  writeFileSync(externalCost, JSON.stringify({ review_focus: "cost-feasibility" }));
+  rmSync(path.join(f.project, "reviews"), { recursive: true, force: true });
+  symlinkSync(externalDir, path.join(f.project, "reviews"), "dir");
+  run.reviews = [
+    {
+      lens: "comprehensive",
+      cycle_id: "c".repeat(64),
+      path: "reviews/challenge-findings-comprehensive.json",
+      sha256: sha256File(externalWaf),
+    },
+    {
+      lens: "cost-feasibility",
+      cycle_id: "d".repeat(64),
+      path: "reviews/challenge-findings-cost-feasibility.json",
+      sha256: sha256File(externalCost),
+    },
+  ];
+  f.save();
+  assert.equal(f.run().status, 1);
+});
+
+test("acceptance phase accepts explicitly linked canonical_path fallback and rejects unlinked missing current_path", (context) => {
+  const f = assessmentDraft(context);
+  const run = f.state.assessment_run;
+  run.phase = "acceptance";
+  run.completed_phases.push("review");
+  mkdirSync(path.join(f.project, "reviews"), { recursive: true });
+  writeFileSync(
+    path.join(f.project, "reviews/challenge-findings-architecture.json"),
+    JSON.stringify({ review_focus: "comprehensive" }),
+  );
+  writeFileSync(
+    path.join(f.project, "reviews/challenge-findings-cost-estimate.json"),
+    JSON.stringify({ review_focus: "cost-feasibility" }),
+  );
+  const wafId = "a".repeat(64);
+  const costId = "b".repeat(64);
+  f.state.decisions.review_cycles = {
+    [wafId]: {
+      step: "2",
+      artifact: "agent-output/demo/02-architecture-assessment.md",
+      lens: "comprehensive",
+      pass_number: 1,
+      canonical_path: "agent-output/demo/reviews/challenge-findings-architecture.json",
+      initial_id: "init-waf",
+      projection: "1".repeat(64),
+      calls: 1,
+      max_calls: 2,
+    },
+    [costId]: {
+      step: "2",
+      artifact: "agent-output/demo/03-cost-management-report.md",
+      lens: "cost-feasibility",
+      pass_number: 1,
+      canonical_path: "agent-output/demo/reviews/challenge-findings-cost-estimate.json",
+      initial_id: "init-cost",
+      projection: "1".repeat(64),
+      calls: 1,
+      max_calls: 2,
+    },
+  };
+  // Without explicit review_links, missing current_path is rejected.
+  f.save();
+  assert.equal(f.run().status, 1);
+
+  // With explicit review_links (adopted cycle), canonical_path basename fallback succeeds.
+  run.review_links = {
+    comprehensive: {
+      cycle_id: wafId,
+      artifact: "02-architecture-assessment.md",
+      original_artifact: "agent-output/demo/02-architecture-assessment.md",
+      original_projection: "1".repeat(64),
+      linked_at: "2026-11-11T00:00:00Z",
+    },
+    "cost-feasibility": {
+      cycle_id: costId,
+      artifact: "03-cost-management-report.md",
+      original_artifact: "agent-output/demo/03-cost-management-report.md",
+      original_projection: "1".repeat(64),
+      linked_at: "2026-11-11T00:00:00Z",
+    },
+  };
+  f.save();
+  assert.equal(f.run().status, 0);
 });
 
 test("unknown publication arguments fail explicitly", (context) => {
