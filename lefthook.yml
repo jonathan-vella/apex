@@ -201,7 +201,7 @@ pre-commit:
         if [ -n "$STAGED_JS" ]; then
           COUNT=$(echo "$STAGED_JS" | wc -l | tr -d ' ')
           echo "🧹 Linting $COUNT JS/MJS file(s) (--max-warnings=0)..."
-          echo "$STAGED_JS" | xargs npx eslint --cache --cache-location node_modules/.cache/eslint/ --quiet --format=compact --max-warnings=0
+          echo "$STAGED_JS" | xargs npx eslint --cache --cache-location node_modules/.cache/eslint/ --no-warn-ignored --format=compact --max-warnings=0
         else
           echo "ℹ️  No JS/MJS files to lint"
         fi

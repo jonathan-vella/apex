@@ -5,6 +5,7 @@ import os from "node:os";
 import { execFileSync, spawnSync } from "node:child_process";
 import { fileURLToPath } from "node:url";
 import test from "node:test";
+import { load } from "js-yaml";
 
 const command = fileURLToPath(new URL("../../scripts/check-publication-scope.mjs", import.meta.url));
 function fixture(context) {
@@ -120,4 +121,30 @@ test("template-only changes check unchanged tracked artifacts and missing local 
   assert.equal(run("markdown").status, 1);
   fs.rmSync(path.join(root, "node_modules"), { recursive: true });
   assert.equal(run("artifacts").status, 1);
+});
+
+test("JavaScript commit hook respects ignored artifacts but still rejects source lint failures", (context) => {
+  const root = fs.mkdtempSync(path.join(os.tmpdir(), "apex-js-hook-test-"));
+  context.after(() => fs.rmSync(root, { recursive: true, force: true }));
+  const repo = fileURLToPath(new URL("../../../", import.meta.url));
+  fs.symlinkSync(path.join(repo, "node_modules"), path.join(root, "node_modules"), "dir");
+  fs.copyFileSync(path.join(repo, "eslint.config.mjs"), path.join(root, "eslint.config.mjs"));
+  execFileSync("git", ["init", "-q"], { cwd: root });
+  fs.mkdirSync(path.join(root, "agent-output/demo"), { recursive: true });
+  fs.writeFileSync(path.join(root, "agent-output/demo/collector.mjs"), "ignored artifact, not source");
+  execFileSync("git", ["add", "agent-output"], { cwd: root });
+  const config = load(fs.readFileSync(path.join(repo, "lefthook.yml"), "utf8"));
+  const run = () =>
+    spawnSync("bash", ["-c", config["pre-commit"].commands["js-lint"].run], {
+      cwd: root,
+      encoding: "utf8",
+    });
+  const ignored = run();
+  assert.equal(ignored.status, 0, ignored.stdout + ignored.stderr);
+  fs.mkdirSync(path.join(root, "tools/scripts"), { recursive: true });
+  fs.writeFileSync(path.join(root, "tools/scripts/invalid.mjs"), "var unused = 1;\n");
+  execFileSync("git", ["add", "tools"], { cwd: root });
+  const invalid = run();
+  assert.notEqual(invalid.status, 0);
+  assert.match(invalid.stdout + invalid.stderr, /no-var|no-unused-vars/);
 });

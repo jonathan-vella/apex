@@ -225,6 +225,13 @@ retroactively require it. Use the persisted output contract and recall readiness
 to determine conditional outputs. New contract adoption preserves prior approvals and spent reviews;
 changed reviewed inputs require current review evidence, not a fresh allowance.
 
+Git publication checks route explicit standalone runs through `assessment_run`, not numeric delivery gates.
+Schema-valid in-progress bundles before acceptance may be committed as drafts with unresolved reviews and
+spent allowances intact; publication never accepts a bundle or authorizes downstream work. Acceptance and
+terminal snapshots require the selected WAF and cost sidecars (terminal snapshots also verify recorded
+sidecar hashes), and downstream delivery history/artifacts cannot use this draft route. ESLint hooks ignore
+configured ignored paths (`--no-warn-ignored`) while still blocking warnings/errors in source files.
+
 The evidence contract is `{coverage,checks:[{category,scope,status,evidence}]}`.
 Use the authorized read-category names and exact approved scope; evidence entries point to retained
 redacted sources. Status is `observed|declared|inferred|unknown|denied|not_applicable`.
