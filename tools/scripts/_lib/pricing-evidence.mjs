@@ -274,6 +274,7 @@ export function reserveQuery({
       query_hash,
       state: "planned",
       planned_at: new Date().toISOString(),
+      ...(retry_of ? { retry_of } : {}),
       ...binding,
     };
     ledger.attempts.push(attempt);

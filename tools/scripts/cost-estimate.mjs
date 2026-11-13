@@ -169,6 +169,7 @@ function retainPricingSemantics(item) {
         "redundancy",
         "pricing_context",
         "hours_per_month",
+        "ri_breakeven_verified",
       ]
         .filter((key) => item[key] !== undefined)
         .map((key) => [key, structuredClone(item[key])]),
@@ -725,9 +726,13 @@ function computeTieredCharge(totalUnits, tierBands) {
 
 function computeComponentCost(component, defaultQuantity = 1, options = {}) {
   const quantity = Number(component.quantity ?? defaultQuantity);
-  if (options.allowZeroQuantity && quantity === 0) return 0;
+  if (options.allowZeroQuantity && quantity === 0 && !component.reservation_term) return 0;
   if (!Number.isFinite(quantity) || quantity <= 0) {
-    throw new Error("Component quantity must be a positive number");
+    throw new Error(
+      component.reservation_term
+        ? "Prepaid Reservation commitment remains payable; cannot zero out reserved quantity"
+        : "Component quantity must be a positive number",
+    );
   }
   const unit = (component.unit_of_measure ?? component.unitOfMeasure ?? "1 Hour").trim();
   const usageAmount = component.usage_amount ?? component.usage?.amount;
@@ -850,7 +855,10 @@ function computeComponentCost(component, defaultQuantity = 1, options = {}) {
 
 export function calculateLineCost(line, options = {}) {
   if (!line || typeof line !== "object") throw new Error("Resource line must be an object");
-  if (options.allowZeroQuantity && line.quantity === 0) return 0;
+  const hasReservationComponent =
+    Boolean(line.reservation_term) ||
+    (Array.isArray(line.components) && line.components.some((comp) => Boolean(comp?.reservation_term)));
+  if (options.allowZeroQuantity && line.quantity === 0 && !hasReservationComponent) return 0;
   if (Array.isArray(line.components) && line.components.length > 0) {
     const total = line.components.reduce(
       (sum, comp) => sum + computeComponentCost(comp, line.quantity ?? 1, options),
@@ -928,7 +936,17 @@ export function comparableLineUsage(line) {
 
 export function pricingRequestSnapshot(normalized) {
   return Object.fromEntries(
-    ["purpose", "mode", "project_name", "region", "currency", "lines", "assessment_basis", "assumptions"]
+    [
+      "purpose",
+      "mode",
+      "project_name",
+      "region",
+      "currency",
+      ...(normalized.budget_tier === "portfolio" ? ["budget_tier"] : []),
+      "lines",
+      "assessment_basis",
+      "assumptions",
+    ]
       .filter((key) => normalized[key] !== undefined)
       .map((key) => [key, structuredClone(normalized[key])]),
   );
@@ -1242,9 +1260,16 @@ function loadExactEvidence(entries, options, errors) {
           evidence.ledger_path,
         );
         snapshots.push(...failureSnapshots);
+        const queryOpts = {
+          allowReservation: Boolean(options.allowReservation && evidence.query?.priceType === "Reservation"),
+        };
         validateFailure(
-          { query: evidence.query, mcp_failure: failureSnapshots.failure },
-          { now: Date.parse(evidence.pages?.[0]?.queried_at) },
+          {
+            query: evidence.query,
+            allow_reservation: queryOpts.allowReservation,
+            mcp_failure: failureSnapshots.failure,
+          },
+          { now: Date.parse(evidence.pages?.[0]?.queried_at), allowReservation: queryOpts.allowReservation },
         );
         const ledgerSnapshot = read(evidence.ledger_path);
         snapshots.push(ledgerSnapshot);
@@ -1253,10 +1278,35 @@ function loadExactEvidence(entries, options, errors) {
         if (
           !Array.isArray(evidence.pages) ||
           !evidence.pages.length ||
-          evidence.requests_used !== evidence.pages.length
+          !Array.isArray(evidence.attempts) ||
+          evidence.requests_used !== evidence.attempts.length ||
+          evidence.attempts.length < evidence.pages.length
         )
           throw new Error("Incomplete direct evidence pages");
-        const queryOpts = { allowReservation: evidence.query?.priceType === "Reservation" };
+        for (const directAttempt of evidence.attempts) {
+          const ledgerAttempt = ledger.attempts?.find((item) => item.call_id === directAttempt?.call_id);
+          if (
+            !ledgerAttempt ||
+            ledgerAttempt.source !== "direct" ||
+            !ledgerAttempt.issued_confirmed ||
+            ledgerAttempt.state !== directAttempt.state ||
+            !ledgerAttempt.evidence_path
+          )
+            throw new Error("Direct attempt lacks durable ledger provenance");
+          const attemptSnapshot = read(ledgerAttempt.evidence_path);
+          snapshots.push(attemptSnapshot);
+          const durableAttempt = JSON.parse(attemptSnapshot.bytes);
+          if (sha256(rawPageBytes(durableAttempt)) !== durableAttempt.response_sha256)
+            throw new Error("Durable direct attempt page SHA-256 mismatch");
+          if (
+            directAttempt.state !== "completed" &&
+            !(directAttempt.state === "error" && [429, 503].includes(directAttempt.http_status))
+          )
+            throw new Error("Direct evidence contains non-retryable failed attempt");
+        }
+        const completedAttempts = evidence.attempts.filter((item) => item.state === "completed");
+        if (completedAttempts.length !== evidence.pages.length)
+          throw new Error("Direct completed attempts do not match evidence pages");
         for (const [index, page] of evidence.pages.entries()) {
           if (sha256(rawPageBytes(page)) !== page.response_sha256) throw new Error("Raw page SHA-256 mismatch");
           const parsed = JSON.parse(page.raw_response);
@@ -1265,7 +1315,7 @@ function loadExactEvidence(entries, options, errors) {
             validateNextPageLink(parsed.NextPageLink, evidence.query, page.url, queryOpts);
           if (index === 0 && page.url !== retailQueryUrl(evidence.query, queryOpts).href)
             throw new Error("Direct page query differs from request");
-          const attempt = evidence.attempts?.[index];
+          const attempt = completedAttempts[index];
           const issued = ledger.attempts?.find((item) => item.call_id === attempt?.call_id);
           if (
             attempt?.state !== "completed" ||
@@ -1361,7 +1411,11 @@ function validateLinkedPricing(estimate, options, errors, quote = false) {
     )
   )
     errors.push("Normalized request lines require explicit identity and positive finite quantity");
-  const catalogs = loadExactEvidence(estimate.evidence, options, errors);
+  const catalogs = loadExactEvidence(
+    estimate.evidence,
+    { ...options, allowReservation: estimate.schema_version === "cost-estimate-v2.2" },
+    errors,
+  );
   const authority = validateOriginalRequest(estimate, catalogs, options, errors);
   if (!catalogs.size) errors.push("Every COMPLETE result requires exact captured evidence");
   const used = new Set();
@@ -1391,6 +1445,14 @@ function validateLinkedPricing(estimate, options, errors, quote = false) {
     }
     if (!quote && ["name", "service_name", "sku", "region", "quantity"].some((key) => basis[key] !== resource[key]))
       errors.push(`${resource.name}: calculation basis differs from resource`);
+    if (
+      Array.isArray(basis.components) &&
+      basis.components.length > 0 &&
+      (Object.hasOwn(basis, "reservation_term") || Object.hasOwn(basis, "ri_breakeven_verified"))
+    ) {
+      errors.push(`${resource.name}: reservation fields belong on individual components, not parent calculation_basis`);
+      continue;
+    }
     const components = basis.components?.length ? basis.components : [basis];
     const covered = new Set();
     const duplicated = new Set();
@@ -1410,14 +1472,15 @@ function validateLinkedPricing(estimate, options, errors, quote = false) {
         });
         if (new Set(ref.row_sha256).size !== ref.row_sha256.length) throw new Error("Duplicate selected row");
         const identity = (row) =>
-          stableJson(
-            Object.fromEntries(
+          stableJson({
+            ...Object.fromEntries(
               METER_FIELDS.filter((key) => !["retailPrice", "tierMinimumUnits"].includes(key)).map((key) => [
                 key,
                 row[key],
               ]),
             ),
-          );
+            ...(row.reservationTerm ? { reservationTerm: row.reservationTerm } : {}),
+          });
         const first = selected[0];
         if (selected.some((row) => identity(row) !== identity(first)))
           throw new Error("Tier rows have incompatible native identities");
@@ -1434,21 +1497,39 @@ function validateLinkedPricing(estimate, options, errors, quote = false) {
             throw new Error(`Selected native ${native} contradicts requested ${field}`);
         }
         const isV22 = estimate.schema_version === "cost-estimate-v2.2";
+        const isV22Reservation = isV22 && input.commitment?.type === "reservation";
+        const expectedPriceType = isV22Reservation ? "Reservation" : "Consumption";
+        const expectedReservationTerm = isV22Reservation
+          ? input.commitment?.term === "3-year"
+            ? "3 Years"
+            : input.commitment?.term === "1-year"
+              ? "1 Year"
+              : null
+          : null;
+        if (
+          !isV22Reservation &&
+          (Object.hasOwn(component, "reservation_term") || Object.hasOwn(component, "ri_breakeven_verified"))
+        )
+          throw new Error(
+            "Component reservation_term and ri_breakeven_verified are forbidden without a bound v2.2 reservation commitment",
+          );
+        const isBaseVmComputeProduct =
+          normalizeQueryGroupService(first.serviceName) === "Virtual Machines" &&
+          /^Virtual Machines\b/i.test(first.productName) &&
+          !/\b(windows|cloud services)\b/i.test(first.productName);
+        const isAhbWindows = isV22 && input.license === "ahb-windows";
         if (Object.hasOwn(input, "operating_system")) {
           const osLower = typeof input.operating_system === "string" ? input.operating_system.trim().toLowerCase() : "";
-          const osVerified =
-            osLower === "windows"
+          const osVerified = isAhbWindows
+            ? osLower === "windows" && isBaseVmComputeProduct
+            : osLower === "windows"
               ? /\bwindows\b/i.test(first.productName)
               : osLower === "linux"
-                ? /\blinux\b/i.test(first.productName) ||
-                  (normalizeQueryGroupService(first.serviceName) === "Virtual Machines" &&
-                    /^Virtual Machines\b/i.test(first.productName) &&
-                    !/\b(windows|cloud services)\b/i.test(first.productName))
+                ? /\blinux\b/i.test(first.productName) || isBaseVmComputeProduct
                 : false;
           if (!osVerified)
             throw new Error("Requested operating_system is unverifiable from the selected native product");
         }
-        const expectedPriceType = isV22 && input.commitment?.type === "reservation" ? "Reservation" : "Consumption";
         if (!isV22) {
           if (
             Object.hasOwn(input, "license") ||
@@ -1464,27 +1545,20 @@ function validateLinkedPricing(estimate, options, errors, quote = false) {
           if (Object.hasOwn(input, "license")) {
             if (!["ahb-windows", "sa-passive-dr"].includes(input.license))
               throw new Error("Unsupported v2.2 license mode; use ahb-windows or sa-passive-dr");
-            if (input.license === "ahb-windows" && /\bwindows\b/i.test(first.productName))
-              throw new Error("ahb-windows requires base Linux/compute-only meter without Windows OS surcharge");
+            if (input.license === "ahb-windows" && !isBaseVmComputeProduct)
+              throw new Error("ahb-windows requires a Virtual Machines base compute meter without Windows surcharge");
           }
           if (Object.hasOwn(input, "commitment")) {
             const cType = input.commitment?.type;
             if (!["on-demand", "pay-as-you-go", "reservation"].includes(cType))
               throw new Error("Unsupported commitment.type");
             if (cType === "reservation") {
-              const expectedTerm =
-                input.commitment?.term === "3-year" ? "3 Years" : input.commitment?.term === "1-year" ? "1 Year" : null;
               if (
-                !expectedTerm ||
-                first.reservationTerm !== expectedTerm ||
-                component.reservation_term !== expectedTerm
+                !expectedReservationTerm ||
+                first.reservationTerm !== expectedReservationTerm ||
+                component.reservation_term !== expectedReservationTerm
               )
                 throw new Error("Reservation commitment requires matching 1-year/3-year native reservationTerm");
-              const compHours = Number(component.hours_per_month ?? HOURS_PER_MONTH);
-              if (compHours < HOURS_PER_MONTH && component.ri_breakeven_verified !== true)
-                throw new Error(
-                  "Cold-standby (<730h/mo) resource cannot apply Reservation without ri_breakeven_verified",
-                );
             }
           }
         }
@@ -1504,6 +1578,8 @@ function validateLinkedPricing(estimate, options, errors, quote = false) {
           (row) =>
             normalizeQueryGroupService(row.serviceName) === normalizeQueryGroupService(input.service_name) &&
             [row.skuName, row.armSkuName].includes(input.sku) &&
+            row.type === expectedPriceType &&
+            (!expectedReservationTerm || row.reservationTerm === expectedReservationTerm) &&
             row.unitOfMeasure === first.unitOfMeasure &&
             row.armRegionName === first.armRegionName &&
             (!input.product_name || row.productName === input.product_name) &&
@@ -1599,15 +1675,45 @@ function validateLinkedPricing(estimate, options, errors, quote = false) {
           )
             throw new Error("Calculation usage contradicts request");
           covered.add(`${usageIndex}:${Object.hasOwn(declared, "amount") ? "amount" : dimension}`);
-        } else if (
-          serviceRecipe(input) !== null ||
-          component.usage_amount !== (input.hours_per_month ?? HOURS_PER_MONTH) ||
-          conversion.usage_unit !== "hours" ||
-          !/^(1\s*)?hours?$/i.test(first.unitOfMeasure) ||
-          conversion.units_per_native_unit !== 1 ||
-          component.usage_scope !== "per-instance"
+        } else {
+          const implicitHourly =
+            serviceRecipe(input) === null &&
+            component.usage_amount === (input.hours_per_month ?? HOURS_PER_MONTH) &&
+            conversion.usage_unit === "hours" &&
+            /^(1\s*\/?\s*)?hours?$/i.test(first.unitOfMeasure) &&
+            conversion.units_per_native_unit === 1 &&
+            component.usage_scope === "per-instance";
+          const implicitMonthly =
+            serviceRecipe(input) === null &&
+            input.hours_per_month === undefined &&
+            component.usage_amount === 1 &&
+            conversion.usage_unit === "months" &&
+            /^(1\s*\/\s*)?months?$/i.test(first.unitOfMeasure) &&
+            conversion.units_per_native_unit === 1 &&
+            component.usage_scope === "per-instance";
+          if (!implicitHourly && !implicitMonthly) throw new Error("Calculation lacks exact request usage coverage");
+        }
+        const isHourlyUnit = conversion.usage_unit === "hours" || /^(1\s*\/?\s*)?hours?$/i.test(first.unitOfMeasure);
+        const declaredHours = declared && isHourlyUnit ? amount : undefined;
+        if (
+          declaredHours !== undefined &&
+          input.hours_per_month !== undefined &&
+          declaredHours !== input.hours_per_month
         )
-          throw new Error("Calculation lacks exact request usage coverage");
+          throw new Error("Requested hours_per_month contradicts declared hourly usage");
+        const effectiveHours =
+          declaredHours ?? input.hours_per_month ?? (isHourlyUnit ? component.usage_amount : HOURS_PER_MONTH);
+        if (Object.hasOwn(component, "hours_per_month") && component.hours_per_month !== effectiveHours)
+          throw new Error("Component hours_per_month contradicts bound request or matched hourly usage");
+        if (
+          Object.hasOwn(component, "ri_breakeven_verified") &&
+          component.ri_breakeven_verified !== Boolean(input.ri_breakeven_verified)
+        )
+          throw new Error("Component ri_breakeven_verified contradicts bound request");
+        if (isV22Reservation && effectiveHours < HOURS_PER_MONTH && input.ri_breakeven_verified !== true)
+          throw new Error(
+            "Cold-standby (<730h/mo) resource cannot apply Reservation without bound ri_breakeven_verified",
+          );
         computeComponentCost(component, input.quantity);
       } catch (error) {
         errors.push(`${resource.name}: ${error.message}`);
@@ -2413,6 +2519,21 @@ export function calculateScenarios(estimate, scenarios, options = {}) {
       )
         throw new Error("Retained calculation basis differs from the verified resource");
       if (!Object.keys(override).length) return { name: resource.name, monthly_cost: resource.monthly_cost };
+      const reqLine = estimate.request_snapshot?.lines?.find((l) => l.name === resource.name);
+      const isReservedLine =
+        reqLine?.commitment?.type === "reservation" ||
+        Boolean(basis?.reservation_term) ||
+        Boolean(basis?.components?.some((c) => Boolean(c?.reservation_term)));
+      if (
+        isReservedLine &&
+        ((override.quantity !== undefined && override.quantity < resource.quantity) ||
+          override.hours_per_month !== undefined ||
+          override.usage_amount !== undefined)
+      ) {
+        throw new Error(
+          "Prepaid Reservation commitment remains payable; model a separate purchase scenario instead of deallocating reserved lines",
+        );
+      }
       const line = structuredClone(basis);
       if (override.quantity !== undefined && line.components?.some((component) => Object.hasOwn(component, "quantity")))
         throw new Error("Component-specific quantities require an explicit pricing request");
@@ -2454,6 +2575,7 @@ export function calculateScenarios(estimate, scenarios, options = {}) {
             }
           } else {
             line.hours_per_month = override[key];
+            if (line.unit_conversion?.usage_unit === "hours") line.usage_amount = override[key];
           }
         } else if (key === "usage_amount" && Array.isArray(line.components)) {
           if (line.components.length !== 1)
@@ -2550,15 +2672,22 @@ export async function main(argv = process.argv.slice(2)) {
       const output = resolveWorkspacePath(values.output);
       if (path.dirname(output) !== path.dirname(preflight.normalized.output_path))
         throw new Error("Output must share request evidence directory");
+      const matchingLines = preflight.normalized.lines.filter(
+        (line) =>
+          normalizeQueryGroupService(line.service_name) === normalizeQueryGroupService(query.serviceName) &&
+          (!query.armRegionName ||
+            query.armRegionName === (line.billing_region ?? line.region) ||
+            query.armRegionName === "Global") &&
+          (!query.armSkuName || query.armSkuName === line.sku),
+      );
+      const expectedPriceTypes = new Set(
+        matchingLines.map((line) => (line.commitment?.type === "reservation" ? "Reservation" : "Consumption")),
+      );
       if (
-        !preflight.normalized.lines.some(
-          (line) =>
-            normalizeQueryGroupService(line.service_name) === normalizeQueryGroupService(query.serviceName) &&
-            (!query.armRegionName || query.armRegionName === line.region || query.armRegionName === "Global") &&
-            (!query.armSkuName || query.armSkuName === line.sku),
-        ) ||
+        matchingLines.length === 0 ||
         query.currencyCode !== preflight.normalized.currency ||
-        query.priceType !== "Consumption"
+        !["Consumption", "Reservation"].includes(query.priceType) ||
+        !expectedPriceTypes.has(query.priceType)
       )
         throw new Error("Query must apply to the preflight request");
       const call_id = values["call-id"];

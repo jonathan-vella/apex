@@ -79,6 +79,10 @@ export function retailQueryUrl(query, options = {}) {
 }
 
 export function validateFailure(request, options = {}) {
+  const allowReservation = Boolean(options.allowReservation ?? request.allow_reservation);
+  const queryOpts = { allowReservation };
+  validateQuery(request.query, queryOpts);
+  const expectedPriceType = request.query.priceType;
   const failure = request.mcp_failure;
   if (!failure || !Array.isArray(failure.attempts) || failure.attempts.length === 0) {
     throw new Error("Documented MCP failure attempts are required");
@@ -112,8 +116,8 @@ export function validateFailure(request, options = {}) {
       }
       const currency = rawParams.currencyCode ?? rawParams.currency;
       const priceType = rawParams.priceType ?? rawParams["price-type"];
-      if (currency !== request.query.currencyCode || priceType !== "Consumption") {
-        throw new Error("MCP evidence must target the same Consumption priceType and currency");
+      if (currency !== request.query.currencyCode || priceType !== expectedPriceType) {
+        throw new Error(`MCP evidence must target the same ${expectedPriceType} priceType and currency`);
       }
       const filterText = typeof rawParams.filter === "string" ? rawParams.filter : "";
       const filterService = filterText.match(/serviceName\s+eq\s+'([^']+)'/)?.[1];
@@ -147,12 +151,13 @@ export function validateFailure(request, options = {}) {
         throw new Error("MCP failure attempt must include query or parameters");
       }
       if (attempt.query) {
-        validateQuery(attempt.query);
+        validateQuery(attempt.query, queryOpts);
         if (
           attempt.query.serviceName !== request.query.serviceName ||
-          attempt.query.currencyCode !== request.query.currencyCode
+          attempt.query.currencyCode !== request.query.currencyCode ||
+          attempt.query.priceType !== expectedPriceType
         ) {
-          throw new Error("MCP evidence must target the same service and currency");
+          throw new Error(`MCP evidence must target the same service, ${expectedPriceType} priceType, and currency`);
         }
         for (const key of ["armRegionName", "armSkuName", "productName", "skuName", "meterName"]) {
           if (attempt.query[key] && request.query[key] && attempt.query[key] !== request.query[key]) {
@@ -162,8 +167,8 @@ export function validateFailure(request, options = {}) {
       } else {
         const currency = rawParams.currencyCode ?? rawParams.currency;
         const priceType = rawParams.priceType ?? rawParams["price-type"];
-        if (currency !== request.query.currencyCode || priceType !== "Consumption") {
-          throw new Error("MCP evidence must target the same Consumption priceType and currency");
+        if (currency !== request.query.currencyCode || priceType !== expectedPriceType) {
+          throw new Error(`MCP evidence must target the same ${expectedPriceType} priceType and currency`);
         }
       }
       const prices = attempt.response?.results?.prices;
@@ -220,14 +225,16 @@ export function validateFailure(request, options = {}) {
       matching = true;
       continue;
     }
-    validateQuery(attempt.query);
+    validateQuery(attempt.query, queryOpts);
     if (
       attempt.query.serviceName !== request.query.serviceName ||
-      attempt.query.currencyCode !== request.query.currencyCode
+      attempt.query.currencyCode !== request.query.currencyCode ||
+      attempt.query.priceType !== expectedPriceType
     ) {
-      throw new Error("MCP evidence must target the same service and currency");
+      throw new Error(`MCP evidence must target the same service, ${expectedPriceType} priceType, and currency`);
     }
-    if (retailQueryUrl(attempt.query).href === retailQueryUrl(request.query).href) matching = true;
+    if (retailQueryUrl(attempt.query, queryOpts).href === retailQueryUrl(request.query, queryOpts).href)
+      matching = true;
     const response = attempt.response?.result ?? attempt.response;
     if (failure.kind === "empty_result") {
       // Azure MCP pricing_get reports no paging metadata; status 200 with prices [] is its exhausted empty result.
@@ -353,7 +360,10 @@ export async function fetchRetailEvidence(request, fetcher = fetch, options = {}
     if (prior && Date.parse(failureSnapshots.failure.recorded_at) <= Date.parse(prior.issued_at))
       failureReferenceTime = Date.parse(prior.issued_at);
   }
-  validateFailure({ ...request, mcp_failure: failureSnapshots.failure }, { now: failureReferenceTime });
+  validateFailure(
+    { ...request, mcp_failure: failureSnapshots.failure },
+    { now: failureReferenceTime, allowReservation },
+  );
   const sharedLedger = JSON.parse(readSnapshot(ledgerPath).bytes);
   const ledgerCap = sharedLedger.budget_tier === "portfolio" ? 60 : maxBudget;
   if (
@@ -384,14 +394,42 @@ export async function fetchRetailEvidence(request, fetcher = fetch, options = {}
     if (saved.status === "COMPLETE" && digestObject(saved.query) === digestObject(request.query)) {
       const savedFailure = verifyCapturedFailure(saved.mcp_failure, undefined, PRICING_ROOT, ledgerPath);
       validateFailure(
-        { query: saved.query, mcp_failure: savedFailure.failure },
-        { now: Date.parse(saved.pages?.[0]?.queried_at) },
+        { query: saved.query, allow_reservation: allowReservation, mcp_failure: savedFailure.failure },
+        { now: Date.parse(saved.pages?.[0]?.queried_at), allowReservation },
       );
       if (
         saved.request_binding_path !== requestBinding ||
         saved.request_binding_sha256 !== nativeCaptures[0]?.request_binding_sha256
       )
         throw new Error("Saved direct evidence belongs to a different original request binding");
+      if (!Array.isArray(saved.attempts) || !saved.pages.length || saved.requests_used !== saved.attempts.length)
+        throw new Error("Saved evidence incomplete");
+      for (const savedAttempt of saved.attempts) {
+        const ledgerEntry = sharedLedger.attempts.find((entry) => entry.call_id === savedAttempt?.call_id);
+        if (
+          !ledgerEntry ||
+          ledgerEntry.source !== "direct" ||
+          !ledgerEntry.issued_confirmed ||
+          ledgerEntry.state !== savedAttempt.state ||
+          !ledgerEntry.evidence_path
+        )
+          throw new Error("Saved attempt lacks durable ledger provenance");
+        const durableAttemptPage = JSON.parse(
+          readSnapshot(path.resolve(PRICING_ROOT, ledgerEntry.evidence_path)).bytes,
+        );
+        if (
+          createHash("sha256").update(rawPageBytes(durableAttemptPage)).digest("hex") !==
+          durableAttemptPage.response_sha256
+        )
+          throw new Error("Saved durable attempt byte hash mismatch");
+        if (
+          savedAttempt.state !== "completed" &&
+          !(savedAttempt.state === "error" && [429, 503].includes(savedAttempt.http_status))
+        )
+          throw new Error("Saved evidence contains non-retryable failed attempt");
+      }
+      const completedAttempts = saved.attempts.filter((a) => a.state === "completed");
+      if (completedAttempts.length !== saved.pages.length) throw new Error("Saved evidence page/attempt mismatch");
       for (const [index, page] of saved.pages.entries()) {
         if (createHash("sha256").update(rawPageBytes(page)).digest("hex") !== page.response_sha256)
           throw new Error("Saved evidence byte hash mismatch");
@@ -401,7 +439,7 @@ export async function fetchRetailEvidence(request, fetcher = fetch, options = {}
         if (index < saved.pages.length - 1 && parsed.NextPageLink !== saved.pages[index + 1].url)
           throw new Error("Saved evidence pagination chain mismatch");
         if (parsed.NextPageLink !== null) validateNextPageLink(parsed.NextPageLink, request.query, page.url, queryOpts);
-        const issued = sharedLedger.attempts.find((attempt) => attempt.call_id === saved.attempts?.[index]?.call_id);
+        const issued = sharedLedger.attempts.find((attempt) => attempt.call_id === completedAttempts[index]?.call_id);
         if (
           issued?.state !== "completed" ||
           issued.source !== "direct" ||
@@ -417,8 +455,6 @@ export async function fetchRetailEvidence(request, fetcher = fetch, options = {}
         const age = Date.now() - Date.parse(page.queried_at);
         if (!Number.isFinite(age) || age < 0 || age > 30 * 86400000) throw new Error("Saved evidence stale");
       }
-      if (!saved.pages.length || saved.requests_used !== saved.pages.length)
-        throw new Error("Saved evidence incomplete");
       return { ...saved, requests_issued_this_run: 0 };
     }
     throw new Error("Existing evidence must be preserved");
@@ -446,116 +482,161 @@ export async function fetchRetailEvidence(request, fetcher = fetch, options = {}
   try {
     while (next) {
       stage = "budget";
-      if (pages.length >= limit) throw new Error("Pagination exceeds remaining budget or four-page fallback limit");
+      if (evidence.requests_used >= limit)
+        throw new Error("Pagination exceeds remaining budget or four-page fallback limit");
       stage = "pagination";
       if (seen.has(next.href)) throw new Error("Repeated pagination URL");
       seen.add(next.href);
-      const callId = `direct-${digestObject({ query: request.query, page_url: next.href })}`;
-      stage = "reservation";
-      const reservation = reserveQuery({
-        output,
-        query: { ...request.query, page_url: next.href },
-        call_id: callId,
-        source: "direct",
-        request_binding_path: requestBinding,
-      });
-      const issued = new Date().toISOString();
-      if (!["planned", "completed"].includes(reservation.state))
-        throw new Error("Previously issued/failed direct query cannot be repeated");
-      const replay =
-        reservation.state === "completed"
-          ? JSON.parse(readSnapshot(path.resolve(PRICING_ROOT, reservation.evidence_path)).bytes)
-          : null;
-      if (replay && createHash("sha256").update(rawPageBytes(replay)).digest("hex") !== replay.response_sha256)
-        throw new Error("Saved direct page hash mismatch");
-      if (replay) {
-        const age = Date.now() - Date.parse(replay.queried_at);
-        if (!Number.isFinite(age) || age < 0 || age > 30 * 86400000) throw new Error("Saved direct page stale");
-      }
-      if (!replay) updateAttempt(output, callId, { state: "issued", issued_at: issued });
-      evidence.requests_used++;
-      const attempt = { call_id: callId, url: next.href, state: "issued", issued_at: reservation.issued_at ?? issued };
-      evidence.attempts.push(attempt);
-      stage = "fetch";
-      let response;
-      let raw;
-      try {
-        if (!replay && pages.length > 0 && minDelayMs > 0) {
-          await new Promise((resolve) => setTimeout(resolve, minDelayMs));
+      const baseCallId = `direct-${digestObject({ query: request.query, page_url: next.href })}`;
+      const maxRetryPasses = options.retryTransient === true ? 1 : 0;
+      let pageBody = null;
+      for (let retryPass = 0; retryPass <= maxRetryPasses; retryPass++) {
+        if (retryPass > 0) {
+          stage = "budget";
+          if (evidence.requests_used >= limit)
+            throw new Error("Retry exceeds remaining budget or four-request fallback limit");
         }
-        evidence.requests_issued_this_run = (evidence.requests_issued_this_run ?? 0) + (replay ? 0 : 1);
-        response = replay
-          ? { ok: true, status: 200, arrayBuffer: async () => rawPageBytes(replay) }
-          : await fetcher(next, { redirect: "error", signal: AbortSignal.timeout(15000) });
+        const callId = retryPass === 0 ? baseCallId : `${baseCallId}-retry-${retryPass}`;
+        const retryOf = retryPass === 0 ? undefined : baseCallId;
+        stage = "reservation";
+        const reservation = reserveQuery({
+          output,
+          query: { ...request.query, page_url: next.href },
+          call_id: callId,
+          retry_of: retryOf,
+          source: "direct",
+          request_binding_path: requestBinding,
+          remaining_requests: request.remaining_requests,
+        });
+        const issued = new Date().toISOString();
         if (
-          !replay &&
-          options.retryTransient === true &&
-          (response.status === 429 || response.status === 503) &&
-          pages.length + 1 < limit
+          retryPass === 0 &&
+          maxRetryPasses > 0 &&
+          reservation.state === "error" &&
+          [429, 503].includes(reservation.http_status) &&
+          reservation.evidence_path
         ) {
-          const retryAfterHeader = response.headers?.get?.("retry-after");
-          const waitMs = Math.min(
-            5000,
-            Number.isFinite(Number(retryAfterHeader)) && Number(retryAfterHeader) >= 0
-              ? Number(retryAfterHeader) * 1000
-              : 1000,
-          );
-          if (waitMs > 0) await new Promise((resolve) => setTimeout(resolve, waitMs));
-          evidence.requests_issued_this_run++;
-          response = await fetcher(next, { redirect: "error", signal: AbortSignal.timeout(15000) });
+          const failedReplay = JSON.parse(readSnapshot(path.resolve(PRICING_ROOT, reservation.evidence_path)).bytes);
+          if (createHash("sha256").update(rawPageBytes(failedReplay)).digest("hex") !== failedReplay.response_sha256)
+            throw new Error("Saved direct page hash mismatch");
+          evidence.requests_used++;
+          evidence.attempts.push({
+            call_id: callId,
+            url: next.href,
+            state: "error",
+            http_status: reservation.http_status,
+            issued_at: reservation.issued_at ?? issued,
+            evidence_path: reservation.evidence_path,
+          });
+          continue;
         }
-        attempt.http_status = response.status ?? 200;
-        stage = "http";
-        const rawBytes = response.arrayBuffer
-          ? Buffer.from(await response.arrayBuffer())
-          : Buffer.from(await response.text(), "utf8");
-        raw = rawBytes.toString("utf8");
-        const pageRecord = {
+        if (!["planned", "completed"].includes(reservation.state))
+          throw new Error("Previously issued/failed direct query cannot be repeated");
+        const replay =
+          reservation.state === "completed"
+            ? JSON.parse(readSnapshot(path.resolve(PRICING_ROOT, reservation.evidence_path)).bytes)
+            : null;
+        if (replay && createHash("sha256").update(rawPageBytes(replay)).digest("hex") !== replay.response_sha256)
+          throw new Error("Saved direct page hash mismatch");
+        if (replay) {
+          const age = Date.now() - Date.parse(replay.queried_at);
+          if (!Number.isFinite(age) || age < 0 || age > 30 * 86400000) throw new Error("Saved direct page stale");
+        }
+        if (!replay) updateAttempt(output, callId, { state: "issued", issued_at: issued });
+        evidence.requests_used++;
+        const attempt = {
+          call_id: callId,
           url: next.href,
-          queried_at: replay?.queried_at ?? issued,
-          response_sha256: createHash("sha256").update(rawBytes).digest("hex"),
-          raw_response: raw,
-          raw_response_base64: rawBytes.toString("base64"),
+          state: "issued",
+          ...(retryOf ? { retry_of: retryOf } : {}),
+          issued_at: reservation.issued_at ?? issued,
         };
-        evidence.pages.push(pageRecord);
-        // Failed and invalid pages remain exact evidence, but can never become EVIDENCE_READY.
-        const pagePath = path.join(path.dirname(path.resolve(output)), "pricing-evidence", `${callId}.page.json`);
-        if (!replay) writeExclusive(pagePath, `${JSON.stringify(pageRecord, null, 2)}\n`);
-        attempt.evidence_path = path.relative(PRICING_ROOT, pagePath).replaceAll(path.sep, "/");
-        if (!response.ok) throw new Error(`Retail API HTTP ${response.status}; no direct-API retry`);
-        stage = "decode";
-        if (Buffer.byteLength(raw) > 10 * 1024 * 1024) throw new Error("Retail response exceeds evidence size limit");
-        if (!Buffer.from(raw, "utf8").equals(rawBytes)) throw new Error("Invalid retail response UTF-8 bytes");
-        const body = JSON.parse(raw);
-        stage = "validation";
-        validatePage(body, request.query);
-        pages.push({
-          url: next.href,
-          queried_at: pageRecord.queried_at,
-          response_sha256: createHash("sha256").update(rawBytes).digest("hex"),
-          raw_response: raw,
-          raw_response_base64: rawBytes.toString("base64"),
-        });
-        attempt.state = "completed";
-        updateAttempt(output, callId, {
-          state: "completed",
-          issued_confirmed: true,
-          completed_at: new Date().toISOString(),
-          evidence_path: attempt.evidence_path,
-          http_status: attempt.http_status,
-        });
-        if (body.NextPageLink === null) break;
-        next = validateNextPageLink(body.NextPageLink, request.query, next, queryOpts);
-      } catch (error) {
-        attempt.state = "error";
-        updateAttempt(output, callId, {
-          state: "error",
-          issued_confirmed: true,
-          failure_stage: stage,
-          http_status: response?.status,
-        });
-        throw error;
+        evidence.attempts.push(attempt);
+        stage = "fetch";
+        let response;
+        let raw;
+        try {
+          if (!replay && pages.length > 0 && retryPass === 0 && minDelayMs > 0) {
+            await new Promise((resolve) => setTimeout(resolve, minDelayMs));
+          }
+          evidence.requests_issued_this_run = (evidence.requests_issued_this_run ?? 0) + (replay ? 0 : 1);
+          response = replay
+            ? { ok: true, status: 200, arrayBuffer: async () => rawPageBytes(replay) }
+            : await fetcher(next, { redirect: "error", signal: AbortSignal.timeout(15000) });
+          attempt.http_status = response.status ?? 200;
+          stage = "http";
+          const rawBytes = response.arrayBuffer
+            ? Buffer.from(await response.arrayBuffer())
+            : Buffer.from(await response.text(), "utf8");
+          raw = rawBytes.toString("utf8");
+          const pageRecord = {
+            url: next.href,
+            queried_at: replay?.queried_at ?? issued,
+            response_sha256: createHash("sha256").update(rawBytes).digest("hex"),
+            raw_response: raw,
+            raw_response_base64: rawBytes.toString("base64"),
+          };
+          evidence.pages.push(pageRecord);
+          // Failed and invalid pages remain exact evidence, but can never become EVIDENCE_READY.
+          const pagePath = path.join(path.dirname(path.resolve(output)), "pricing-evidence", `${callId}.page.json`);
+          if (!replay) writeExclusive(pagePath, `${JSON.stringify(pageRecord, null, 2)}\n`);
+          attempt.evidence_path = path.relative(PRICING_ROOT, pagePath).replaceAll(path.sep, "/");
+          if (!replay && retryPass < maxRetryPasses && (response.status === 429 || response.status === 503)) {
+            attempt.state = "error";
+            updateAttempt(output, callId, {
+              state: "error",
+              issued_confirmed: true,
+              failure_stage: stage,
+              http_status: response.status,
+              evidence_path: attempt.evidence_path,
+            });
+            const retryAfterHeader = response.headers?.get?.("retry-after");
+            const waitMs = Math.min(
+              5000,
+              Number.isFinite(Number(retryAfterHeader)) && Number(retryAfterHeader) >= 0
+                ? Number(retryAfterHeader) * 1000
+                : 1000,
+            );
+            if (waitMs > 0) await new Promise((resolve) => setTimeout(resolve, waitMs));
+            continue;
+          }
+          if (!response.ok) throw new Error(`Retail API HTTP ${response.status}; no direct-API retry`);
+          stage = "decode";
+          if (Buffer.byteLength(raw) > 10 * 1024 * 1024) throw new Error("Retail response exceeds evidence size limit");
+          if (!Buffer.from(raw, "utf8").equals(rawBytes)) throw new Error("Invalid retail response UTF-8 bytes");
+          pageBody = JSON.parse(raw);
+          stage = "validation";
+          validatePage(pageBody, request.query);
+          pages.push({
+            url: next.href,
+            queried_at: pageRecord.queried_at,
+            response_sha256: createHash("sha256").update(rawBytes).digest("hex"),
+            raw_response: raw,
+            raw_response_base64: rawBytes.toString("base64"),
+          });
+          attempt.state = "completed";
+          updateAttempt(output, callId, {
+            state: "completed",
+            issued_confirmed: true,
+            completed_at: new Date().toISOString(),
+            evidence_path: attempt.evidence_path,
+            http_status: attempt.http_status,
+          });
+          break;
+        } catch (error) {
+          attempt.state = "error";
+          updateAttempt(output, callId, {
+            state: "error",
+            issued_confirmed: true,
+            failure_stage: stage,
+            http_status: response?.status,
+            ...(attempt.evidence_path ? { evidence_path: attempt.evidence_path } : {}),
+          });
+          throw error;
+        }
       }
+      if (pageBody.NextPageLink === null) break;
+      next = validateNextPageLink(pageBody.NextPageLink, request.query, next, queryOpts);
     }
     if (!pages.some((page) => JSON.parse(page.raw_response).Items.length)) throw new Error("No retail meters returned");
     evidence.status = "COMPLETE";
