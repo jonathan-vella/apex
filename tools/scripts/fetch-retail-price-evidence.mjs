@@ -43,7 +43,7 @@ function isServiceFamilyParserError(attempt) {
   );
 }
 
-function validateQuery(query) {
+function validateQuery(query, options = {}) {
   if (!query || typeof query !== "object" || Array.isArray(query)) throw new Error("query must be an object");
   for (const [key, value] of Object.entries(query)) {
     if (
@@ -55,13 +55,18 @@ function validateQuery(query) {
       throw new Error(`Invalid query field: ${key}`);
     }
   }
-  if (!query.serviceName?.trim() || query.priceType !== "Consumption" || !/^[A-Z]{3}$/.test(query.currencyCode ?? "")) {
+  const allowedPriceTypes = options.allowReservation ? ["Consumption", "Reservation"] : ["Consumption"];
+  if (
+    !query.serviceName?.trim() ||
+    !allowedPriceTypes.includes(query.priceType) ||
+    !/^[A-Z]{3}$/.test(query.currencyCode ?? "")
+  ) {
     throw new Error("Explicit serviceName, Consumption priceType and currencyCode are required");
   }
 }
 
-export function retailQueryUrl(query) {
-  validateQuery(query);
+export function retailQueryUrl(query, options = {}) {
+  validateQuery(query, options);
   const url = new URL(ENDPOINT);
   url.searchParams.set(
     "$filter",
@@ -136,7 +141,7 @@ export function validateFailure(request, options = {}) {
       matching = true;
       continue;
     }
-    if (failure.kind === "missing_tier_metadata") {
+    if (failure.kind === "missing_tier_metadata" || failure.kind === "single_non_hourly_missing_tier_metadata") {
       const rawParams = attempt?.query ?? attempt?.parameters;
       if (!rawParams || typeof rawParams !== "object" || Array.isArray(rawParams)) {
         throw new Error("MCP failure attempt must include query or parameters");
@@ -176,19 +181,41 @@ export function validateFailure(request, options = {}) {
               Number.isFinite(r.retailPrice),
           )
         : [];
-      const distinctPrices = new Set(matchingRows.map((r) => r.retailPrice));
-      const omitsTierMinimum =
-        matchingRows.length >= 2 && matchingRows.every((r) => !Object.hasOwn(r, "tierMinimumUnits"));
-      if (
-        attempt.response?.status !== 200 ||
-        attempt.response?.error ||
-        attempt.response?.isError ||
-        !omitsTierMinimum ||
-        distinctPrices.size < 2
-      ) {
-        throw new Error(
-          "Missing-tier-metadata fallback requires a status-200 pricing_get response with multiple rate rows that omit tierMinimumUnits",
-        );
+      if (failure.kind === "single_non_hourly_missing_tier_metadata") {
+        const singleNonHourlyUnpaged =
+          Array.isArray(prices) &&
+          prices.length < 100 &&
+          matchingRows.length === 1 &&
+          Boolean(request.query.productName && request.query.skuName && request.query.meterName) &&
+          typeof matchingRows[0].unitOfMeasure === "string" &&
+          matchingRows[0].unitOfMeasure.trim().length > 0 &&
+          !/^(1\s*\/?\s*)?hours?$/i.test(matchingRows[0].unitOfMeasure) &&
+          !Object.hasOwn(matchingRows[0], "tierMinimumUnits");
+        if (
+          attempt.response?.status !== 200 ||
+          attempt.response?.error ||
+          attempt.response?.isError ||
+          !singleNonHourlyUnpaged
+        ) {
+          throw new Error(
+            "Single-non-hourly missing-tier-metadata fallback requires an unpaged (<100 rows) status-200 pricing_get response with 1 exact non-hourly meter omitting tierMinimumUnits",
+          );
+        }
+      } else {
+        const distinctPrices = new Set(matchingRows.map((r) => r.retailPrice));
+        const omitsTierMinimum =
+          matchingRows.length >= 2 && matchingRows.every((r) => !Object.hasOwn(r, "tierMinimumUnits"));
+        if (
+          attempt.response?.status !== 200 ||
+          attempt.response?.error ||
+          attempt.response?.isError ||
+          !omitsTierMinimum ||
+          distinctPrices.size < 2
+        ) {
+          throw new Error(
+            "Missing-tier-metadata fallback requires a status-200 pricing_get response with multiple rate rows that omit tierMinimumUnits",
+          );
+        }
       }
       matching = true;
       continue;
@@ -272,8 +299,8 @@ export function validatePage(page, query) {
   }
 }
 
-export function validateNextPageLink(link, query, previous) {
-  const initial = retailQueryUrl(query);
+export function validateNextPageLink(link, query, previous, options = {}) {
+  const initial = retailQueryUrl(query, options);
   const candidate = new URL(link);
   const prior = new URL(previous);
   if (
@@ -295,13 +322,17 @@ export function validateNextPageLink(link, query, previous) {
 }
 
 export async function fetchRetailEvidence(request, fetcher = fetch, options = {}) {
-  const initial = retailQueryUrl(request.query);
+  const allowReservation = Boolean(request.allow_reservation);
+  const queryOpts = { allowReservation };
+  const maxBudget = request.budget_tier === "portfolio" ? 60 : 20;
+  const minDelayMs = Number(options.minDelayMs ?? (fetcher === fetch ? 400 : 0));
+  const initial = retailQueryUrl(request.query, queryOpts);
   if (
     !Number.isInteger(request.remaining_requests) ||
     request.remaining_requests < 1 ||
-    request.remaining_requests > 20
+    request.remaining_requests > maxBudget
   ) {
-    throw new Error("remaining_requests must reflect 1-20 unused requests in the shared pricing budget");
+    throw new Error(`remaining_requests must reflect 1-${maxBudget} unused requests in the shared pricing budget`);
   }
   const limit = Math.min(4, request.remaining_requests);
   const output = options.outputPath ?? request.output_path;
@@ -324,10 +355,11 @@ export async function fetchRetailEvidence(request, fetcher = fetch, options = {}
   }
   validateFailure({ ...request, mcp_failure: failureSnapshots.failure }, { now: failureReferenceTime });
   const sharedLedger = JSON.parse(readSnapshot(ledgerPath).bytes);
+  const ledgerCap = sharedLedger.budget_tier === "portfolio" ? 60 : maxBudget;
   if (
     !Number.isInteger(sharedLedger.external_requests_used ?? 0) ||
     (sharedLedger.external_requests_used ?? 0) < 0 ||
-    sharedLedger.attempts.length + (sharedLedger.external_requests_used ?? 0) > 20
+    sharedLedger.attempts.length + (sharedLedger.external_requests_used ?? 0) > ledgerCap
   )
     throw new Error("Invalid or exhausted shared pricing request accounting");
   const nativeCaptures = failureSnapshots.flatMap((snapshot) => {
@@ -368,7 +400,7 @@ export async function fetchRetailEvidence(request, fetcher = fetch, options = {}
         if (index === 0 && page.url !== initial.href) throw new Error("Saved evidence query URL mismatch");
         if (index < saved.pages.length - 1 && parsed.NextPageLink !== saved.pages[index + 1].url)
           throw new Error("Saved evidence pagination chain mismatch");
-        if (parsed.NextPageLink !== null) validateNextPageLink(parsed.NextPageLink, request.query, page.url);
+        if (parsed.NextPageLink !== null) validateNextPageLink(parsed.NextPageLink, request.query, page.url, queryOpts);
         const issued = sharedLedger.attempts.find((attempt) => attempt.call_id === saved.attempts?.[index]?.call_id);
         if (
           issued?.state !== "completed" ||
@@ -448,10 +480,30 @@ export async function fetchRetailEvidence(request, fetcher = fetch, options = {}
       let response;
       let raw;
       try {
+        if (!replay && pages.length > 0 && minDelayMs > 0) {
+          await new Promise((resolve) => setTimeout(resolve, minDelayMs));
+        }
         evidence.requests_issued_this_run = (evidence.requests_issued_this_run ?? 0) + (replay ? 0 : 1);
         response = replay
           ? { ok: true, status: 200, arrayBuffer: async () => rawPageBytes(replay) }
           : await fetcher(next, { redirect: "error", signal: AbortSignal.timeout(15000) });
+        if (
+          !replay &&
+          options.retryTransient === true &&
+          (response.status === 429 || response.status === 503) &&
+          pages.length + 1 < limit
+        ) {
+          const retryAfterHeader = response.headers?.get?.("retry-after");
+          const waitMs = Math.min(
+            5000,
+            Number.isFinite(Number(retryAfterHeader)) && Number(retryAfterHeader) >= 0
+              ? Number(retryAfterHeader) * 1000
+              : 1000,
+          );
+          if (waitMs > 0) await new Promise((resolve) => setTimeout(resolve, waitMs));
+          evidence.requests_issued_this_run++;
+          response = await fetcher(next, { redirect: "error", signal: AbortSignal.timeout(15000) });
+        }
         attempt.http_status = response.status ?? 200;
         stage = "http";
         const rawBytes = response.arrayBuffer
@@ -493,7 +545,7 @@ export async function fetchRetailEvidence(request, fetcher = fetch, options = {}
           http_status: attempt.http_status,
         });
         if (body.NextPageLink === null) break;
-        next = validateNextPageLink(body.NextPageLink, request.query, next);
+        next = validateNextPageLink(body.NextPageLink, request.query, next, queryOpts);
       } catch (error) {
         attempt.state = "error";
         updateAttempt(output, callId, {

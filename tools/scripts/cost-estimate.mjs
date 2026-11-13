@@ -42,8 +42,13 @@ import {
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "../..");
 const RENDERER = path.join(ROOT, "tools/scripts/render-sku-manifest-md.mjs");
 const MAX_SHARED_REQUESTS = 20;
+const PORTFOLIO_SHARED_REQUESTS = 60;
 const HOURS_PER_MONTH = 730;
 const DAYS_PER_MONTH = 365 / 12;
+
+function maxRequestsFor(obj) {
+  return obj?.budget_tier === "portfolio" ? PORTFOLIO_SHARED_REQUESTS : MAX_SHARED_REQUESTS;
+}
 
 const ALLOWED_DATA_SOURCES = new Set([
   "Azure MCP pricing_get",
@@ -57,6 +62,7 @@ function serviceRecipe(line) {
   const service = String(line.service_name)
     .toLowerCase()
     .replace(/^azure /, "");
+  if (service === "managed disks" || /managed disks/i.test(line.product_name ?? "")) return null;
   if (/^(bandwidth|data transfer)$/.test(service)) return ["egress_gb"];
   if (
     /^(private link|private endpoint|private endpoints|virtual network private link)$/.test(service) ||
@@ -64,8 +70,13 @@ function serviceRecipe(line) {
       /private (link|endpoint)/i.test(`${line.product_name ?? ""} ${line.meter_name ?? ""}`))
   )
     return ["hours", "ingress_gb", "egress_gb"];
-  if (/^(storage|storage account|storage accounts)$/.test(service))
-    return ["capacity_gb", "read_operations", "write_operations", "egress_gb"];
+  if (service === "virtual network" && /peering/i.test(`${line.product_name ?? ""} ${line.meter_name ?? ""}`))
+    return ["ingress_gb", "egress_gb"];
+  if (/^(storage|storage account|storage accounts)$/.test(service)) {
+    return /\bhot\b/i.test(line.sku ?? "")
+      ? ["capacity_gb", "read_operations", "write_operations"]
+      : ["capacity_gb", "read_operations", "write_operations", "egress_gb"];
+  }
   if (/cosmos/.test(service))
     return /serverless/i.test(line.sku) ? ["request_units", "storage_gb"] : ["provisioned_ru", "storage_gb"];
   if (service === "nat gateway") return ["hours", "processed_gb"];
@@ -79,18 +90,29 @@ function serviceRecipe(line) {
     return undefined;
   }
   if (service === "container apps") {
-    if (/consumption/i.test(line.sku)) return ["vcpu_seconds", "gib_seconds", "requests"];
+    if (/consumption|standard/i.test(line.sku)) return ["vcpu_seconds", "gib_seconds", "requests"];
     if (/\b(?:dedicated|d\d+|e\d+)\b/i.test(line.sku)) return null;
     return undefined;
   }
+  if (service === "site recovery") return ["protected_instances"];
+  if (service === "backup") return ["protected_instances", "vault_storage_gb"];
+  if (/^(vpn gateway|virtual network gateways?)$/.test(service)) return null;
+  if (service === "expressroute") return /gateway/i.test(line.product_name ?? "") ? null : ["circuits"];
+  if (/^(cloud hsm|payment hsm|microsoft azure payment hsm)$/.test(service)) return null;
+  if (service === "load balancer") return ["hours"];
+  if (/^(email|communication services email)$/.test(service)) return ["emails"];
+  if (service === "data factory") return ["activity_runs", "diu_hours"];
+  if (/^(synapse analytics|microsoft fabric)$/.test(service)) return null;
+  if (service === "virtual machines licenses") return null;
   if (service === "virtual network") return undefined;
   if (/^(front door|front door service)$/.test(service)) return ["hours", "requests", "egress_gb"];
   if (/^(foundry models|openai|cognitive services)$/.test(service)) return ["input_tokens", "output_tokens"];
   if (service === "dns") return ["zones", "queries"];
   if (service === "sql database" && /serverless/i.test(line.sku)) return ["vcore_seconds", "storage_gb"];
+  if (service === "key vault" && /hsm pool/i.test(line.product_name ?? "")) return null;
   if (/^(key vault|log analytics|monitor)$/.test(service)) return [];
   if (
-    /^(app service|virtual machines?|sql database|sql managed instance|bastion|container registry|managed disks|managed redis|redis cache|cache for redis)$/.test(
+    /^(app service|virtual machines?|sql database|sql managed instance|bastion|container registry|managed redis|redis cache|cache for redis)$/.test(
       service,
     )
   )
@@ -99,9 +121,8 @@ function serviceRecipe(line) {
 }
 
 function validateBillableDimensions(line, purpose) {
-  const recipe = serviceRecipe(line);
-  if (recipe === undefined) return [`${line.name}: unsupported service recipe; explicit billing-input gap`];
   if (purpose === "rate-quote") {
+    if (!String(line.service_name ?? "").trim()) return [`${line.name}: service_name is required`];
     return typeof line.meter_applicability === "string" &&
       line.meter_applicability.trim() &&
       typeof line.native_unit === "string" &&
@@ -109,6 +130,8 @@ function validateBillableDimensions(line, purpose) {
       ? []
       : [`${line.name}: rate-quote requires meter_applicability and native_unit, not guessed monthly usage`];
   }
+  const recipe = serviceRecipe(line);
+  if (recipe === undefined) return [`${line.name}: unsupported service recipe; explicit billing-input gap`];
   const errors = validateUsageEntry(line.name, line.service_name, line.sku, line.usage);
   if (!recipe?.length) return errors;
   const usage = Array.isArray(line.usage) ? line.usage : [line.usage];
@@ -157,6 +180,15 @@ const SERVICE_QUERY_GROUP_ALIASES = new Map([
   ["azure storage", "Storage"],
   ["storage", "Storage"],
   ["storage account", "Storage"],
+  ["managed disks", "Storage"],
+  ["azure managed disks", "Storage"],
+  ["site recovery", "Azure Site Recovery"],
+  ["azure site recovery", "Azure Site Recovery"],
+  ["cloud hsm", "Azure Cloud HSM"],
+  ["azure cloud hsm", "Azure Cloud HSM"],
+  ["payment hsm", "Microsoft Azure Payment HSM"],
+  ["azure payment hsm", "Microsoft Azure Payment HSM"],
+  ["communication services email", "Email"],
   ["azure key vault", "Key Vault"],
   ["key vault", "Key Vault"],
   ["azure log analytics", "Log Analytics"],
@@ -438,7 +470,9 @@ export function normalizeCostRequest(rawRequest, options = {}) {
   const overwrite = Boolean(rawRequest.overwrite);
   const outputPath = resolveWorkspacePath(rawRequest.output_path, cwd);
   const draftPath = `${outputPath}.tmp`;
-  const remainingRequests = Number(rawRequest.recovery?.remaining_requests ?? MAX_SHARED_REQUESTS);
+  const budgetTier = rawRequest.budget_tier === "portfolio" ? "portfolio" : "standard";
+  const maxRequests = budgetTier === "portfolio" ? PORTFOLIO_SHARED_REQUESTS : MAX_SHARED_REQUESTS;
+  const remainingRequests = Number(rawRequest.recovery?.remaining_requests ?? maxRequests);
 
   let manifestPath = null;
   let manifestServiceIds = [];
@@ -543,26 +577,43 @@ export function normalizeCostRequest(rawRequest, options = {}) {
     }
   }
 
-  const queryGroups = new Set(
-    lines.map((line) =>
-      digestObject({
+  let estimatedQueryGroupCount;
+  if (rawRequest.query_coalescing === "service-region") {
+    const coalesced = new Map();
+    for (const line of lines) {
+      const k = digestObject({
         service: normalizeQueryGroupService(line.service_name),
-        sku: line.sku,
-        region: line.region,
-        meter: line.meter_name,
+        region: line.billing_region ?? line.region,
         currency,
-        product: line.product_name,
-        native_unit: line.native_unit,
-        commitment: line.commitment,
-        pricing_context: line.pricing_context,
-        operating_system: line.operating_system,
-        license: line.license,
-        redundancy: line.redundancy,
-        sku_name: line.sku_name,
-        billing_region: line.billing_region,
-      }),
-    ),
-  );
+        commitment: line.commitment?.type ?? "on-demand",
+      });
+      if (!coalesced.has(k)) coalesced.set(k, new Set());
+      coalesced.get(k).add(line.sku);
+    }
+    estimatedQueryGroupCount = [...coalesced.values()].reduce((acc, skus) => acc + Math.ceil(skus.size / 10), 0);
+  } else {
+    const queryGroups = new Set(
+      lines.map((line) =>
+        digestObject({
+          service: normalizeQueryGroupService(line.service_name),
+          sku: line.sku,
+          region: line.region,
+          meter: line.meter_name,
+          currency,
+          product: line.product_name,
+          native_unit: line.native_unit,
+          commitment: line.commitment,
+          pricing_context: line.pricing_context,
+          operating_system: line.operating_system,
+          license: line.license,
+          redundancy: line.redundancy,
+          sku_name: line.sku_name,
+          billing_region: line.billing_region,
+        }),
+      ),
+    );
+    estimatedQueryGroupCount = queryGroups.size;
+  }
 
   return {
     mode,
@@ -577,8 +628,9 @@ export function normalizeCostRequest(rawRequest, options = {}) {
       purpose === "monthly-estimate" && mode === "manifest_path" ? rawRequest.manifest_writeback !== false : false,
     manifest_service_ids: manifestServiceIds,
     overwrite,
+    budget_tier: budgetTier,
     remaining_requests: remainingRequests,
-    estimated_query_groups: queryGroups.size,
+    estimated_query_groups: estimatedQueryGroupCount,
     lines,
     recovery: rawRequest.recovery ?? null,
     ...assessmentPricingContext(rawRequest, mode, lines),
@@ -606,12 +658,13 @@ export function validateCostRequest(rawRequest, options = {}) {
       `Stale temporary draft already exists (preserve or clear before running): ${normalized.draft_path}`,
     );
   }
+  const maxReqs = maxRequestsFor(normalized);
   if (
     !Number.isInteger(normalized.remaining_requests) ||
     normalized.remaining_requests < 1 ||
-    normalized.remaining_requests > MAX_SHARED_REQUESTS
+    normalized.remaining_requests > maxReqs
   ) {
-    unresolved.push(`remaining_requests must be an integer between 1 and ${MAX_SHARED_REQUESTS}`);
+    unresolved.push(`remaining_requests must be an integer between 1 and ${maxReqs}`);
   } else if (normalized.estimated_query_groups > normalized.remaining_requests) {
     unresolved.push(
       `Estimated distinct query groups (${normalized.estimated_query_groups}) exceed remaining request budget (${normalized.remaining_requests})`,
@@ -670,8 +723,9 @@ function computeTieredCharge(totalUnits, tierBands) {
   return cost;
 }
 
-function computeComponentCost(component, defaultQuantity = 1) {
+function computeComponentCost(component, defaultQuantity = 1, options = {}) {
   const quantity = Number(component.quantity ?? defaultQuantity);
+  if (options.allowZeroQuantity && quantity === 0) return 0;
   if (!Number.isFinite(quantity) || quantity <= 0) {
     throw new Error("Component quantity must be a positive number");
   }
@@ -686,6 +740,13 @@ function computeComponentCost(component, defaultQuantity = 1) {
       (typeof component[key] !== "number" || !Number.isFinite(component[key]) || component[key] < 0)
     )
       throw new Error(`${key} must be an explicit finite nonnegative number`);
+  }
+  if (component.reservation_term) {
+    const months = component.reservation_term === "3 Years" ? 36 : component.reservation_term === "1 Year" ? 12 : null;
+    if (!months) throw new Error(`Unsupported reservation_term '${component.reservation_term}'`);
+    const rate = Number(component.retail_price ?? component.retailPrice);
+    if (!Number.isFinite(rate) || rate < 0) throw new Error("Invalid native reservation rate");
+    return (rate / months) * quantity;
   }
   if (component.unit_conversion) {
     const conversion = component.unit_conversion;
@@ -730,9 +791,20 @@ function computeComponentCost(component, defaultQuantity = 1) {
     throw new Error(`Component rate must be a nonnegative number`);
   }
 
-  if (/^(1\s*)?hours?$/i.test(unit)) {
+  if (component.reservation_term) {
+    const months = component.reservation_term === "3 Years" ? 36 : component.reservation_term === "1 Year" ? 12 : null;
+    if (!months) throw new Error(`Unsupported reservation_term '${component.reservation_term}'`);
+    return (rate / months) * quantity;
+  }
+  if (/^(1\s*\/?\s*)?hours?$/i.test(unit)) {
     const hours = Number(component.hours_per_month ?? HOURS_PER_MONTH);
     return rate * hours * quantity;
+  }
+  if (/^1\s*(gi?b\s*)?seconds?$/i.test(unit)) {
+    if (!Number.isFinite(Number(usageAmount)) || Number(usageAmount) < 0) {
+      throw new Error(`Unit '${unit}' requires explicit usage_amount`);
+    }
+    return rate * Math.max(0, Number(usageAmount) * multiplier - freeGrant);
   }
   if (/^(1\s*\/\s*)?days?$/i.test(unit)) {
     const days = Number(component.billable_days ?? DAYS_PER_MONTH);
@@ -776,14 +848,18 @@ function computeComponentCost(component, defaultQuantity = 1) {
   throw new Error(`Unsupported or ambiguous unitOfMeasure '${unit}'`);
 }
 
-export function calculateLineCost(line) {
+export function calculateLineCost(line, options = {}) {
   if (!line || typeof line !== "object") throw new Error("Resource line must be an object");
+  if (options.allowZeroQuantity && line.quantity === 0) return 0;
   if (Array.isArray(line.components) && line.components.length > 0) {
-    const total = line.components.reduce((sum, comp) => sum + computeComponentCost(comp, line.quantity ?? 1), 0);
+    const total = line.components.reduce(
+      (sum, comp) => sum + computeComponentCost(comp, line.quantity ?? 1, options),
+      0,
+    );
     return round6(total);
   }
   if (line.unit_of_measure || line.unitOfMeasure || line.retail_price !== undefined || line.tier_bands) {
-    return round6(computeComponentCost(line, line.quantity ?? 1));
+    return round6(computeComponentCost(line, line.quantity ?? 1, options));
   }
   if (line.monthly_cost !== undefined && line.monthly_cost !== null) {
     const val = Number(line.monthly_cost);
@@ -1071,16 +1147,30 @@ function validateNativeConversion(conversion) {
   const usage = conversion.usage_unit;
   let scale;
   if (native === usage) scale = 1;
-  else if (/^(1\s*)?hours?$/i.test(native) && usage === "hours") scale = 1;
+  else if (/^(1\s*\/?\s*)?hours?$/i.test(native) && usage === "hours") scale = 1;
+  else if (/^1\s*seconds?$/i.test(native) && usage === "vcpu_seconds") scale = 1;
+  else if (/^1\s*gi?b\s*seconds?$/i.test(native) && usage === "gib_seconds") scale = 1;
   else if (/^(1\s*\/\s*)?days?$/i.test(native) && usage === "days") scale = 1;
-  else if (/^(1\s*\/\s*)?months?$/i.test(native) && usage === "months") scale = 1;
-  else if (/^(1\s*)?GB(\s*\/\s*Month)?$/.test(native) && usage === "GB") scale = 1;
-  else if (/^(1\s*)?TB(\s*\/\s*Month)?$/.test(native) && usage === "TB") scale = 1;
+  else if (
+    /^(1\s*\/\s*)?months?$/i.test(native) &&
+    ["months", "protected_instances", "circuits", "zones"].includes(usage)
+  )
+    scale = 1;
+  else if (
+    /^(1\s*)?GB(\s*\/\s*Month)?$/.test(native) &&
+    ["GB", "capacity_gb", "storage_gb", "vault_storage_gb", "ingress_gb", "egress_gb", "processed_gb"].includes(usage)
+  )
+    scale = 1;
+  else if (/^(1\s*)?TB(\s*\/\s*Month)?$/.test(native) && ["TB", "capacity_tb"].includes(usage)) scale = 1;
+  else if (/^100\s*TB(\s*\/\s*Month)?$/i.test(native) && usage === "GB") scale = 102400;
+  else if (/^1\s*PB(\s*\/\s*Month)?$/i.test(native) && usage === "GB") scale = 1048576;
   else if (native === "1") scale = 1;
-  else if (["operations", "requests", "queries", "tokens", "request_units"].includes(usage)) {
-    if (/^(?:1K\b|1,000(?!,\d))/i.test(native)) scale = 1000;
-    else if (/^(?:10K\b|10,000(?!,\d))/i.test(native)) scale = 10000;
-    else if (/^(?:1M\b|1,000,000(?!,\d))/i.test(native)) scale = 1000000;
+  else if (
+    ["operations", "requests", "queries", "tokens", "request_units", "emails", "activity_runs"].includes(usage)
+  ) {
+    if (/^(?:1K\b|1,?000(?!,?\d))/i.test(native)) scale = 1000;
+    else if (/^(?:10K\b|10,?000(?!,?\d))/i.test(native)) scale = 10000;
+    else if (/^(?:1M\b|1,?000,?000(?!,?\d))/i.test(native)) scale = 1000000;
   }
   if (scale === undefined || scale !== conversion.units_per_native_unit)
     throw new Error("Unverified or contradictory native unit conversion; use native units or a rate quote");
@@ -1141,7 +1231,7 @@ function loadExactEvidence(entries, options, errors) {
         currentTimestamp(evidence.captured_at, options, "captured_at", errors);
         if (Date.parse(evidence.captured_at) < Date.parse(evidence.queried_at))
           throw new Error("Capture timestamp predates native issue");
-        if (ledger.attempts.length + (ledger.external_requests_used ?? 0) > MAX_SHARED_REQUESTS)
+        if (ledger.attempts.length + (ledger.external_requests_used ?? 0) > maxRequestsFor(ledger))
           throw new Error("Shared request budget exceeded");
       } else if (evidence.schema_version === "retail-price-evidence-v1") {
         if (!evidence.ledger_path) throw new Error("Missing durable direct request ledger");
@@ -1166,12 +1256,14 @@ function loadExactEvidence(entries, options, errors) {
           evidence.requests_used !== evidence.pages.length
         )
           throw new Error("Incomplete direct evidence pages");
+        const queryOpts = { allowReservation: evidence.query?.priceType === "Reservation" };
         for (const [index, page] of evidence.pages.entries()) {
           if (sha256(rawPageBytes(page)) !== page.response_sha256) throw new Error("Raw page SHA-256 mismatch");
           const parsed = JSON.parse(page.raw_response);
           validatePage(parsed, evidence.query);
-          if (parsed.NextPageLink !== null) validateNextPageLink(parsed.NextPageLink, evidence.query, page.url);
-          if (index === 0 && page.url !== retailQueryUrl(evidence.query).href)
+          if (parsed.NextPageLink !== null)
+            validateNextPageLink(parsed.NextPageLink, evidence.query, page.url, queryOpts);
+          if (index === 0 && page.url !== retailQueryUrl(evidence.query, queryOpts).href)
             throw new Error("Direct page query differs from request");
           const attempt = evidence.attempts?.[index];
           const issued = ledger.attempts?.find((item) => item.call_id === attempt?.call_id);
@@ -1227,7 +1319,10 @@ function loadExactEvidence(entries, options, errors) {
       }
       if (ledgerInfo?.ledger.schema_version !== "pricing-request-ledger-v1")
         throw new Error("Invalid durable request ledger schema");
-      if (ledgerInfo.ledger.attempts.length + (ledgerInfo.ledger.external_requests_used ?? 0) > MAX_SHARED_REQUESTS)
+      if (
+        ledgerInfo.ledger.attempts.length + (ledgerInfo.ledger.external_requests_used ?? 0) >
+        maxRequestsFor(ledgerInfo.ledger)
+      )
         throw new Error("Collection ledger exceeds the shared pricing budget");
       catalogs.set(filename, { meters, evidence, ledgerInfo, historical: entry.provenance === "historical-import" });
     } catch (error) {
@@ -1338,24 +1433,61 @@ function validateLinkedPricing(estimate, options, errors, quote = false) {
           if (Object.hasOwn(input, field) && input[field] !== first[native])
             throw new Error(`Selected native ${native} contradicts requested ${field}`);
         }
-        if (
-          Object.hasOwn(input, "operating_system") &&
-          (typeof input.operating_system !== "string" ||
-            !["linux", "windows"].includes(input.operating_system.trim().toLowerCase()) ||
-            !input.operating_system.trim() ||
-            !new RegExp(`\\b${String(input.operating_system).replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}\\b`, "i").test(
-              first.productName,
-            ))
-        )
-          throw new Error("Requested operating_system is unverifiable from the selected native product");
-        if (
-          Object.hasOwn(input, "license") ||
-          Object.hasOwn(input, "pricing_context") ||
-          (Object.hasOwn(input, "commitment") && !["on-demand", "pay-as-you-go"].includes(input.commitment?.type))
-        )
-          throw new Error(
-            "Requested licensing/pricing context/commitment is unverifiable from native Consumption evidence",
-          );
+        const isV22 = estimate.schema_version === "cost-estimate-v2.2";
+        if (Object.hasOwn(input, "operating_system")) {
+          const osLower = typeof input.operating_system === "string" ? input.operating_system.trim().toLowerCase() : "";
+          const osVerified =
+            osLower === "windows"
+              ? /\bwindows\b/i.test(first.productName)
+              : osLower === "linux"
+                ? /\blinux\b/i.test(first.productName) ||
+                  (normalizeQueryGroupService(first.serviceName) === "Virtual Machines" &&
+                    /^Virtual Machines\b/i.test(first.productName) &&
+                    !/\b(windows|cloud services)\b/i.test(first.productName))
+                : false;
+          if (!osVerified)
+            throw new Error("Requested operating_system is unverifiable from the selected native product");
+        }
+        const expectedPriceType = isV22 && input.commitment?.type === "reservation" ? "Reservation" : "Consumption";
+        if (!isV22) {
+          if (
+            Object.hasOwn(input, "license") ||
+            Object.hasOwn(input, "pricing_context") ||
+            (Object.hasOwn(input, "commitment") && !["on-demand", "pay-as-you-go"].includes(input.commitment?.type))
+          )
+            throw new Error(
+              "Requested licensing/pricing context/commitment is unverifiable from native Consumption evidence",
+            );
+        } else {
+          if (Object.hasOwn(input, "pricing_context"))
+            throw new Error("Requested pricing_context is unverifiable from native retail evidence");
+          if (Object.hasOwn(input, "license")) {
+            if (!["ahb-windows", "sa-passive-dr"].includes(input.license))
+              throw new Error("Unsupported v2.2 license mode; use ahb-windows or sa-passive-dr");
+            if (input.license === "ahb-windows" && /\bwindows\b/i.test(first.productName))
+              throw new Error("ahb-windows requires base Linux/compute-only meter without Windows OS surcharge");
+          }
+          if (Object.hasOwn(input, "commitment")) {
+            const cType = input.commitment?.type;
+            if (!["on-demand", "pay-as-you-go", "reservation"].includes(cType))
+              throw new Error("Unsupported commitment.type");
+            if (cType === "reservation") {
+              const expectedTerm =
+                input.commitment?.term === "3-year" ? "3 Years" : input.commitment?.term === "1-year" ? "1 Year" : null;
+              if (
+                !expectedTerm ||
+                first.reservationTerm !== expectedTerm ||
+                component.reservation_term !== expectedTerm
+              )
+                throw new Error("Reservation commitment requires matching 1-year/3-year native reservationTerm");
+              const compHours = Number(component.hours_per_month ?? HOURS_PER_MONTH);
+              if (compHours < HOURS_PER_MONTH && component.ri_breakeven_verified !== true)
+                throw new Error(
+                  "Cold-standby (<730h/mo) resource cannot apply Reservation without ri_breakeven_verified",
+                );
+            }
+          }
+        }
         if (
           Object.hasOwn(input, "redundancy") &&
           ![first.productName, first.skuName, first.armSkuName].some((value) =>
@@ -1397,7 +1529,7 @@ function validateLinkedPricing(estimate, options, errors, quote = false) {
           normalizeQueryGroupService(first.serviceName) !== normalizeQueryGroupService(input.service_name) ||
           ![first.skuName, first.armSkuName].includes(input.sku) ||
           first.currencyCode !== estimate.currency ||
-          first.type !== "Consumption" ||
+          first.type !== expectedPriceType ||
           component.billing_region !== first.armRegionName ||
           (component.unit_of_measure ?? component.unitOfMeasure) !== first.unitOfMeasure
         )
@@ -1553,7 +1685,7 @@ function validateLinkedPricing(estimate, options, errors, quote = false) {
   if (
     (estimate.unknown_request_reservations ?? 0) !== unknown ||
     [...ledgers.values()].some(
-      (ledger) => ledger.attempts.length + (ledger.external_requests_used ?? 0) > MAX_SHARED_REQUESTS,
+      (ledger) => ledger.attempts.length + (ledger.external_requests_used ?? 0) > maxRequestsFor(ledger),
     )
   )
     errors.push("Unknown reservations and conservative request budget must match the durable ledger");
@@ -1586,7 +1718,7 @@ export function validateRateQuote(quote, options = {}) {
     ![quote?.mcp_calls_used, quote?.direct_api_calls_used ?? 0].every(
       (count) => Number.isInteger(count) && count >= 0,
     ) ||
-    (quote?.mcp_calls_used ?? 0) + (quote?.direct_api_calls_used ?? 0) > MAX_SHARED_REQUESTS
+    (quote?.mcp_calls_used ?? 0) + (quote?.direct_api_calls_used ?? 0) > maxRequestsFor(quote)
   )
     errors.push("Invalid rate-quote shared request accounting");
   if (!/^[A-Z]{3}$/.test(quote.currency ?? "") || !ALLOWED_DATA_SOURCES.has(quote.data_source))
@@ -1683,8 +1815,10 @@ export function validateEstimate(estimate, options = {}) {
   }
   if (estimate.schema_version === "retail-rate-quote-v1" || estimate.purpose === "rate-quote")
     return { ok: false, errors: ["Rate quote is not a monthly estimate"], warnings };
-  if (!options.legacyAudit && estimate.schema_version !== "cost-estimate-v2")
-    errors.push("Authoritative estimates require cost-estimate-v2; use explicit legacy-audit for historical data");
+  if (!options.legacyAudit && !["cost-estimate-v2", "cost-estimate-v2.2"].includes(estimate.schema_version))
+    errors.push(
+      "Authoritative estimates require cost-estimate-v2 or cost-estimate-v2.2; use explicit legacy-audit for historical data",
+    );
   if (!options.legacyAudit && estimate.purpose !== "monthly-estimate")
     errors.push("Authoritative monthly estimates require purpose monthly-estimate");
 
@@ -1733,10 +1867,11 @@ export function validateEstimate(estimate, options = {}) {
 
   const mcpCalls = estimate.mcp_calls_used;
   const directCalls = estimate.direct_api_calls_used ?? 0;
+  const maxCeiling = maxRequestsFor(estimate);
   if (!Number.isInteger(mcpCalls) || mcpCalls < 0 || !Number.isInteger(directCalls) || directCalls < 0) {
     errors.push("mcp_calls_used and direct_api_calls_used must be nonnegative integers");
-  } else if (mcpCalls + directCalls > MAX_SHARED_REQUESTS) {
-    errors.push(`Total requests (${mcpCalls} MCP + ${directCalls} direct) exceed ceiling of ${MAX_SHARED_REQUESTS}`);
+  } else if (mcpCalls + directCalls > maxCeiling) {
+    errors.push(`Total requests (${mcpCalls} MCP + ${directCalls} direct) exceed ceiling of ${maxCeiling}`);
   }
 
   if (!Array.isArray(estimate.resources)) {
@@ -1957,7 +2092,7 @@ export function buildCompactSummary(estimate, outputPath) {
     `unresolved_items: ${estimate.unresolved_items.length}`,
     `savings_status: ${estimate.savings_status}`,
     `confidence: ${estimate.confidence}`,
-    `mcp_calls_used: ${estimate.mcp_calls_used}/${MAX_SHARED_REQUESTS}`,
+    `mcp_calls_used: ${estimate.mcp_calls_used}/${maxRequestsFor(estimate)}`,
     `budget_exceeded: ${Boolean(estimate.budget_exceeded)}`,
   ];
   return lines.join("\n");
@@ -2255,6 +2390,10 @@ export function calculateScenarios(estimate, scenarios, options = {}) {
     throw new Error("Named scenario overrides are required");
   const names = new Set(estimate.resources.map((resource) => resource.name));
   if (names.size !== estimate.resources.length) throw new Error("Scenario resource names must be unique");
+  const isV22 = estimate.schema_version === "cost-estimate-v2.2";
+  const allowedOverrideKeys = isV22
+    ? ["quantity", "usage_amount", "hours_per_month", "dimensions", "month1_factor"]
+    : ["quantity", "usage_amount"];
   const results = {};
   for (const [scenario, overrides] of Object.entries(scenarios)) {
     if (!overrides || typeof overrides !== "object" || Array.isArray(overrides))
@@ -2262,7 +2401,7 @@ export function calculateScenarios(estimate, scenarios, options = {}) {
     if (Object.keys(overrides).some((name) => !names.has(name))) throw new Error("Scenario names an unpriced resource");
     const resources = estimate.resources.map((resource) => {
       const override = overrides[resource.name] ?? {};
-      if (Object.keys(override).some((key) => !["quantity", "usage_amount"].includes(key)))
+      if (Object.keys(override).some((key) => !allowedOverrideKeys.includes(key)))
         throw new Error("Scenario cannot change SKU, meter, price, region or commitment");
       const basis = resource.calculation_basis;
       if (!basis && Object.keys(override).length)
@@ -2277,26 +2416,66 @@ export function calculateScenarios(estimate, scenarios, options = {}) {
       const line = structuredClone(basis);
       if (override.quantity !== undefined && line.components?.some((component) => Object.hasOwn(component, "quantity")))
         throw new Error("Component-specific quantities require an explicit pricing request");
+      let month1Factor = 1;
       for (const key of Object.keys(override)) {
+        if (key === "dimensions") {
+          if (!override.dimensions || typeof override.dimensions !== "object" || Array.isArray(override.dimensions))
+            throw new Error("Scenario dimensions must be a map of dimension -> finite nonnegative number");
+          if (!Array.isArray(line.components))
+            throw new Error("Dimension overrides require componentized calculation_basis");
+          for (const [dim, val] of Object.entries(override.dimensions)) {
+            if (typeof val !== "number" || !Number.isFinite(val) || val < 0)
+              throw new Error("Scenario dimension values must be explicit finite nonnegative numbers");
+            const matched = line.components.filter((c) => c.usage_dimension === dim);
+            if (!matched.length) throw new Error(`Scenario dimension '${dim}' does not match any component`);
+            for (const comp of matched) comp.usage_amount = val;
+          }
+          continue;
+        }
+        if (key === "month1_factor") {
+          const factor = override.month1_factor;
+          if (typeof factor !== "number" || !Number.isFinite(factor) || factor < 0 || factor > 1)
+            throw new Error("Scenario month1_factor must be between 0 and 1");
+          month1Factor = factor;
+          continue;
+        }
         if (
           typeof override[key] !== "number" ||
           !Number.isFinite(override[key]) ||
           override[key] < 0 ||
-          (key === "quantity" && override[key] === 0)
+          (!isV22 && key === "quantity" && override[key] === 0)
         )
           throw new Error("Scenario quantity/usage must be explicit finite nonnegative numbers");
-        if (key === "usage_amount" && Array.isArray(line.components)) {
+        if (key === "hours_per_month") {
+          if (Array.isArray(line.components)) {
+            for (const comp of line.components) {
+              comp.hours_per_month = override[key];
+              if (comp.unit_conversion?.usage_unit === "hours") comp.usage_amount = override[key];
+            }
+          } else {
+            line.hours_per_month = override[key];
+          }
+        } else if (key === "usage_amount" && Array.isArray(line.components)) {
           if (line.components.length !== 1)
             throw new Error("Multi-meter usage requires a new explicit pricing request");
           line.components[0].usage_amount = override[key];
         } else line[key] = override[key];
       }
-      const monthly = calculateLineCost(line);
+      const monthly = round6(calculateLineCost(line, { allowZeroQuantity: isV22 }) * month1Factor);
       if (!Number.isFinite(monthly)) throw new Error("Scenario calculation is unresolved");
       return { name: resource.name, monthly_cost: monthly };
     });
     const monthly = round6(resources.reduce((sum, resource) => sum + resource.monthly_cost, 0));
     results[scenario] = { resources, monthly_total: monthly, yearly_total: round6(monthly * 12) };
+  }
+  const baselineName = options.baselineScenario;
+  if (baselineName && results[baselineName]) {
+    const baseMonthly = results[baselineName].monthly_total;
+    for (const [scenario, entry] of Object.entries(results)) {
+      if (scenario === baselineName) continue;
+      entry.savings_vs_baseline = round6(baseMonthly - entry.monthly_total);
+      entry.savings_pct = baseMonthly > 0 ? round6(((baseMonthly - entry.monthly_total) / baseMonthly) * 100) : 0;
+    }
   }
   return {
     status: "COMPARISON_ONLY",
