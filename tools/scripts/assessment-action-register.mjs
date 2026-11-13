@@ -175,20 +175,25 @@ function toolHashes() {
   return Object.fromEntries(TOOL_FILES.map((file) => [file, digest(fs.readFileSync(path.resolve(HERE, file)))]));
 }
 
-function toolHashesCompatible(recorded) {
-  if (isDeepStrictEqual(recorded, toolHashes())) return true;
+function resolveToolSnapshotPolicy(recorded) {
+  if (isDeepStrictEqual(recorded, toolHashes())) {
+    return { compatible: true, readbackMode: "compact" };
+  }
   const registryPath = path.resolve(HERE, "../registry/register-tool-compatibility.json");
-  if (!fs.existsSync(registryPath)) return false;
+  if (!fs.existsSync(registryPath)) return { compatible: false, readbackMode: null };
   const policy = readJson(registryPath);
   if (policy?.contract !== "register-tool-compatibility-v1" || !Array.isArray(policy.compatible_tool_snapshots)) {
-    return false;
+    return { compatible: false, readbackMode: null };
   }
-  return policy.compatible_tool_snapshots.some(
+  const match = policy.compatible_tool_snapshots.find(
     (entry) =>
       typeof entry?.rationale === "string" &&
       entry.rationale.trim().length > 0 &&
       isDeepStrictEqual(recorded, entry.tool_hashes),
   );
+  if (!match) return { compatible: false, readbackMode: null };
+  const mode = ["none", "legacy_full_rows", "compact"].includes(match.readback_mode) ? match.readback_mode : "none";
+  return { compatible: true, readbackMode: mode };
 }
 
 function comparableRetail(leaf, basis) {
@@ -728,7 +733,14 @@ function checked(root, input, asOf) {
   };
 }
 
-function python(operation, root, input, asOf, payload, { staged = false, requireReadback = false } = {}) {
+function python(
+  operation,
+  root,
+  input,
+  asOf,
+  payload,
+  { staged = false, requireReadback = false, allowLegacyReadback = false } = {},
+) {
   const result = spawnSync(
     "python3",
     [
@@ -742,6 +754,7 @@ function python(operation, root, input, asOf, payload, { staged = false, require
       asOf,
       ...(staged ? ["--staged"] : []),
       ...(requireReadback ? ["--require-readback"] : []),
+      ...(allowLegacyReadback ? ["--allow-legacy-readback"] : []),
     ],
     { input: JSON.stringify(payload), encoding: "utf8", maxBuffer: 8 * 1024 * 1024, timeout: 120000 },
   );
@@ -784,11 +797,12 @@ export function validateAssessmentActionRegisterExport({ root, input, asOf }) {
   try {
     const payload = checked(root, input, asOf);
     const receipt = JSON.parse(reader(root)(ACTION_REGISTER_OUTPUTS.receipt));
+    const toolPolicy = resolveToolSnapshotPolicy(receipt.tool_hashes);
     requireValue(
       receipt.schema_version === "action-register-export-v1" &&
         receipt.source_sha256 === payload.source_sha256 &&
         receipt.derived_sha256 === payload.derived_sha256 &&
-        toolHashesCompatible(receipt.tool_hashes) &&
+        toolPolicy.compatible &&
         isDeepStrictEqual(receipt.evidence_hashes, sourceHashes(payload, root)),
       "Stale export receipt/source/derivation hashes",
     );
@@ -800,11 +814,12 @@ export function validateAssessmentActionRegisterExport({ root, input, asOf }) {
     );
     const keys = Object.keys(receipt.output_hashes).sort();
     const hasReadback = Object.hasOwn(receipt.output_hashes, "readback");
-    const expectedKeys = hasReadback
-      ? ["markdown", "workbook", "derived", "readback"].sort()
-      : ["markdown", "workbook", "derived"].sort();
+    const expectedKeys =
+      toolPolicy.readbackMode === "none"
+        ? ["markdown", "workbook", "derived"].sort()
+        : ["markdown", "workbook", "derived", "readback"].sort();
     requireValue(
-      isDeepStrictEqual(keys, expectedKeys) && (hasReadback || !isDeepStrictEqual(receipt.tool_hashes, toolHashes())),
+      isDeepStrictEqual(keys, expectedKeys) && (toolPolicy.readbackMode === "none" ? !hasReadback : hasReadback),
       "Receipt output contract mismatch",
     );
     for (const name of expectedKeys)
@@ -814,7 +829,10 @@ export function validateAssessmentActionRegisterExport({ root, input, asOf }) {
       );
     const saved = JSON.parse(reader(root)(ACTION_REGISTER_OUTPUTS.derived));
     requireValue(isDeepStrictEqual(saved, payload.derived), "Derived sidecar mismatch");
-    const readback = python("validate", root, input, asOf, payload, { requireReadback: hasReadback });
+    const readback = python("validate", root, input, asOf, payload, {
+      requireReadback: hasReadback,
+      allowLegacyReadback: toolPolicy.readbackMode === "legacy_full_rows",
+    });
     requireValue(receipt.renderer_version === readback.renderer_version, "Renderer dependency version changed");
     return { valid: true, errors: [], receipt };
   } catch (error) {

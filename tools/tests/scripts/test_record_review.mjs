@@ -1979,3 +1979,36 @@ test("APEX_REVIEW_FILE hash-bound request pointer records cleanly and rejects ta
     /must not persist literal private_inputs/,
   );
 });
+
+test("rg/grep regex parse error is recovered when retried on exact same paths, but unrecovered or different-path retries fail closed", (t) => {
+  const f = fixture(t);
+  addReadTurns(f, 2);
+  const targetPaths = [path.join(f.root, artifact), path.join(f.root, "other.md")];
+  const toolStarts = f.events.filter((e) => e.type === "tool.execution_start" && e.agentId === "worker-1");
+  const toolCompletes = f.events.filter((e) => e.type === "tool.execution_complete" && e.agentId === "worker-1");
+
+  toolStarts[0].data.toolName = "rg";
+  toolStarts[0].data.arguments = { pattern: '"sheet_state": "(?!visible)', paths: targetPaths };
+  toolCompletes[0].data.success = false;
+  toolCompletes[0].data.error = {
+    message: 'rg: regex parse error:\n    "sheet_state": "(?!visible)\nerror: look-around is not supported',
+  };
+
+  toolStarts[1].data.toolName = "rg";
+  toolStarts[1].data.arguments = { pattern: '"sheet_state":', paths: structuredClone(targetPaths) };
+
+  f.record();
+  const saved = f.persisted();
+  assert.deepEqual(saved.review_execution.recovered_read_calls, ["read-0"]);
+
+  // Retrying on different paths must still fail closed.
+  toolStarts[1].data.arguments = { pattern: '"sheet_state":', paths: [targetPaths[0]] };
+  f.flush();
+  assert.throws(() => extractReview(f.events, "worker-1", "root", { root: f.root }), /must complete successfully/);
+
+  // Non-regex-parse errors on rg/grep (e.g. permission denied / execution failure) must still fail closed.
+  toolStarts[1].data.arguments = { pattern: '"sheet_state":', paths: structuredClone(targetPaths) };
+  toolCompletes[0].data.error = { message: "Permission denied" };
+  f.flush();
+  assert.throws(() => extractReview(f.events, "worker-1", "root", { root: f.root }), /must complete successfully/);
+});

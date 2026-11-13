@@ -154,8 +154,9 @@ No manual Challenger selection or leading approval prompt replaces this path.
    unchanged input bytes, at most one `--attempt-kind publication-retry --retry-of <id>` is permitted per cycle.
    Capture metadata before dispatch and preserve it unchanged: empty, stale or
    conflicting hashes block recording. There is no post-dispatch refresh option.
-   A failed range read is recoverable only after a successful read of the same
-   file in that reviewer interaction; its call ID stays in execution provenance.
+   A failed range read (`view_range out of bounds`) or ripgrep regex syntax error (`rg: regex parse error`)
+   is recoverable only after a successful `view` or `rg`/`grep` on the exact same target path(s) in that
+   reviewer interaction before the final response; its call ID stays in execution provenance (`recovered_read_calls`).
    One file-not-found `view` that omitted the immediate private scope directory may also be corrected within
    that same invocation, using only the supplied canonical `private_inputs[].read_path`. A later successful
    read must precede the actual verdict. Its failed call remains in `recovered_read_calls`; no call is erased

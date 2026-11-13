@@ -75,7 +75,8 @@ contains `"action_register": true`. For `assessment-bundle-v3`, `03-Architect` w
 and runs `python3 tools/scripts/render-assessment-charts.py --project-dir agent-output/<project>` during
 `analysis` to emit `assets/02-waf-posture.{png,svg}`, `assets/03-cost-trends.{png,svg}`, and
 `assets/03-cost-drivers.{png,svg}` (embedded inline in `02-architecture-assessment.md` and
-`03-cost-management-report.md`). Do not send a guessed `bundle_contract` in the scope request.
+`03-cost-management-report.md`); do not write project-local `assets/03-cost-*.py` monkey-patch wrappers around
+the shared chart renderer. Do not send a guessed `bundle_contract` in the scope request.
 The reader explicitly supports graphs 3.1, 3.2 and 3.3, not arbitrary future versions.
 An original run without `bundle_contract` remains `assessment-bundle-v1` even under graph 3.2/3.3;
 file presence, newer source or a resume never opts it in.

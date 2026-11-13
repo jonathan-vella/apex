@@ -51,6 +51,17 @@ Store discovered evidence under `_meta/` to preserve the layout-v2 Markdown-only
 
 ### Fixes
 
+#### Reviewer `rg` regex-error self-recovery, compact workbook read-back, and 5-pillar scoring bounds
+
+Allow `record-review.mjs` to accept self-recovered `rg`/`grep` regex-parse-error calls when a subsequent
+search on the exact same `paths`/`path` succeeds before the final response (matching `view_range out of
+bounds` recovery and recording the call ID in `recovered_read_calls`), and document Rust regex syntax
+constraints in `challenger-review-subagent`. Keep full `Action Register` and `Financial Summary` rows in
+`_meta/action-register-workbook-readback.json` while replacing duplicate `Basis & Evidence` row dumps with
+a deterministic `rows_sha256` digest verified against `.xlsx` in `validate-export`. Extend the
+workload-control-only WAF denominator rule across all five pillars and forbid per-project chart
+monkey-patching wrappers around `render-assessment-charts.py`.
+
 #### Standalone WAF assessment v2.1 review provenance, collector, pricing, and chart accuracy
 
 Accept root-session live-flushed `preToolUse`/`postToolUse` + `subagent.started`/`subagent.completed`

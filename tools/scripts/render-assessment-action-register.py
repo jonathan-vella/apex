@@ -661,7 +661,7 @@ def validate_workbook(content: bytes, payload: dict) -> None:
         raise ValueError("Workbook bytes differ from the deterministic verified snapshot")
 
 
-def workbook_readback_json(content: bytes, payload: dict) -> str:
+def workbook_readback_json(content: bytes, payload: dict, *, compact: bool = True) -> str:
     workbook = load_workbook(io.BytesIO(content), data_only=False, keep_links=False)
     try:
         sheets = []
@@ -679,8 +679,11 @@ def workbook_readback_json(content: bytes, payload: dict) -> str:
                         hyperlink_cells += 1
             headers = [sheet.cell(4, col).value for col in range(1, max_col + 1)]
             rows = [[sheet.cell(r, col).value for col in range(1, max_col + 1)] for r in range(5, max_row + 1)]
-            sheets.append(
-                {
+            if compact:
+                rows_digest = hashlib.sha256(
+                    json.dumps(rows, ensure_ascii=False, separators=(",", ":")).encode("utf-8")
+                ).hexdigest()
+                sheet_entry: dict[str, object] = {
                     "name": sheet_name,
                     "state": sheet.sheet_state,
                     "table_name": TABLES[index],
@@ -689,9 +692,29 @@ def workbook_readback_json(content: bytes, payload: dict) -> str:
                     "row_count": len(rows),
                     "column_count": max_col,
                     "headers": headers,
-                    "rows": rows,
+                    "rows_sha256": rows_digest,
                 }
-            )
+                if index < 2:
+                    sheet_entry["rows"] = rows
+                else:
+                    sheet_entry["rows_omitted_reason"] = (
+                        "Verified via rows_sha256 and rendered verbatim in 04-assessment-action-register.md ## Basis of Estimate"
+                    )
+                sheets.append(sheet_entry)
+            else:
+                sheets.append(
+                    {
+                        "name": sheet_name,
+                        "state": sheet.sheet_state,
+                        "table_name": TABLES[index],
+                        "table_ref": sheet.tables[TABLES[index]].ref,
+                        "freeze_panes": sheet.freeze_panes,
+                        "row_count": len(rows),
+                        "column_count": max_col,
+                        "headers": headers,
+                        "rows": rows,
+                    }
+                )
         doc = {
             "schema_version": "action-register-workbook-readback-v1",
             "project": payload["register"]["project"],
@@ -708,7 +731,14 @@ def workbook_readback_json(content: bytes, payload: dict) -> str:
         workbook.close()
 
 
-def validate_export(root: Path, payload: dict, *, staged: bool = False, require_readback: bool = False) -> None:
+def validate_export(
+    root: Path,
+    payload: dict,
+    *,
+    staged: bool = False,
+    require_readback: bool = False,
+    allow_legacy_readback: bool = False,
+) -> None:
     md_file = safe_path(root, STAGED_MD if staged else MD)
     xlsx_file = safe_path(root, STAGED_XLSX if staged else XLSX)
     if md_file.stat().st_size > 32 * 1024 * 1024 or xlsx_file.stat().st_size > 32 * 1024 * 1024:
@@ -722,7 +752,13 @@ def validate_export(root: Path, payload: dict, *, staged: bool = False, require_
     if staged or require_readback or readback_candidate.is_file():
         if readback_candidate.stat().st_size > 32 * 1024 * 1024:
             raise ValueError("Oversized workbook read-back")
-        if readback_candidate.read_text(encoding="utf-8") != workbook_readback_json(xlsx_bytes, payload):
+        actual_text = readback_candidate.read_text(encoding="utf-8")
+        expected_compact = workbook_readback_json(xlsx_bytes, payload, compact=True)
+        if actual_text != expected_compact and not (
+            not staged
+            and allow_legacy_readback
+            and actual_text == workbook_readback_json(xlsx_bytes, payload, compact=False)
+        ):
             raise ValueError("Workbook read-back JSON differs from the verified workbook bytes")
 
 
@@ -748,6 +784,7 @@ def main() -> int:
     parser.add_argument("--as-of", required=True)
     parser.add_argument("--staged", action="store_true")
     parser.add_argument("--require-readback", action="store_true")
+    parser.add_argument("--allow-legacy-readback", action="store_true")
     args = parser.parse_args()
     try:
         supplied = json.loads(sys.stdin.read()) if not sys.stdin.isatty() else None
@@ -757,7 +794,13 @@ def main() -> int:
                 raise ValueError("Renderer only writes staging; use Node render to publish a receipt")
             render_export(args.root, payload)
         else:
-            validate_export(args.root, payload, staged=args.staged, require_readback=args.require_readback)
+            validate_export(
+                args.root,
+                payload,
+                staged=args.staged,
+                require_readback=args.require_readback,
+                allow_legacy_readback=args.allow_legacy_readback,
+            )
         print(json.dumps({"valid": True, "errors": [], "renderer_version": f"openpyxl-{openpyxl.__version__}"}))
         return 0
     except (

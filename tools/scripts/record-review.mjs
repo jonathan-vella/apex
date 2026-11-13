@@ -678,7 +678,13 @@ export function extractReview(events, workerId, parentId, { root = process.cwd()
         ].includes(message) &&
         (correctedPrivateRead === undefined || correctedPrivateRead === toolFinish.data.toolCallId);
       const retryPath = privateCorrection ? privateInput.read_path : readPath;
-      recovered =
+      const isSearchTool = ["rg", "grep"].includes(toolStart.data?.toolName);
+      const searchScope = toolStart.data?.arguments?.paths ?? toolStart.data?.arguments?.path ?? null;
+      const validSearchScope =
+        searchScope === null ||
+        nonempty(searchScope) ||
+        (Array.isArray(searchScope) && searchScope.length > 0 && searchScope.every(nonempty));
+      const recoveredView =
         toolStart.data?.toolName === "view" &&
         nonempty(readPath) &&
         (message === "view_range out of bounds" || privateCorrection) &&
@@ -697,6 +703,27 @@ export function extractReview(events, workerId, parentId, { root = process.cwd()
                 events.indexOf(finish) < events.indexOf(response),
             ),
         );
+      const recoveredSearch =
+        isSearchTool &&
+        validSearchScope &&
+        typeof message === "string" &&
+        /^(?:rg:\s*)?regex parse error\b/i.test(message.trim()) &&
+        worker.some(
+          (retry) =>
+            retry.type === "tool.execution_start" &&
+            ["rg", "grep"].includes(retry.data?.toolName) &&
+            isDeepStrictEqual(retry.data?.arguments?.paths ?? retry.data?.arguments?.path ?? null, searchScope) &&
+            events.indexOf(retry) > events.indexOf(toolFinish) &&
+            worker.some(
+              (finish) =>
+                finish.type === "tool.execution_complete" &&
+                finish.data?.toolCallId === retry.data.toolCallId &&
+                successful(finish) &&
+                events.indexOf(finish) > events.indexOf(retry) &&
+                events.indexOf(finish) < events.indexOf(response),
+            ),
+        );
+      recovered = Boolean(recoveredView || recoveredSearch);
       if (recovered) {
         recoveredReads.add(toolFinish.data.toolCallId);
         if (privateCorrection) correctedPrivateRead = toolFinish.data.toolCallId;

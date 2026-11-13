@@ -742,6 +742,10 @@ test("workbook read-back sidecar is emitted, byte-verified from xlsx, and legacy
   assert.equal(readback.hyperlink_count, 0);
   assert.equal(readback.sheets.length, 3);
   assert.equal(readback.workbook_sha256, res.receipt.output_hashes.workbook);
+  assert.equal(Array.isArray(readback.sheets[0].rows), true);
+  assert.equal(Array.isArray(readback.sheets[1].rows), true);
+  assert.equal(Object.hasOwn(readback.sheets[2], "rows"), false);
+  assert.match(readback.sheets[2].rows_sha256, /^[0-9a-f]{64}$/);
 
   // Tampering with cell values inside readback JSON while recomputing its receipt hash still fails workbook parity!
   const originalReadbackBytes = fs.readFileSync(readbackPath);
@@ -757,7 +761,7 @@ test("workbook read-back sidecar is emitted, byte-verified from xlsx, and legacy
   assert.equal(badCheck.valid, false);
   assert.match(badCheck.errors.join("\n"), /Workbook read-back JSON differs/);
 
-  // Restore valid readback and simulate a legacy compatible 3-key receipt without readback sidecar.
+  // 1. Legacy pre-#837 compatible 3-key receipt (readback_mode: "none") passes without readback sidecar.
   fs.unlinkSync(readbackPath);
   const compat = JSON.parse(
     fs.readFileSync(
@@ -765,12 +769,37 @@ test("workbook read-back sidecar is emitted, byte-verified from xlsx, and legacy
       "utf8",
     ),
   );
+  const pre837Snapshot = compat.compatible_tool_snapshots.find((s) => s.readback_mode === "none");
   const legacyReceipt = JSON.parse(originalReceiptBytes.toString("utf8"));
   delete legacyReceipt.output_hashes.readback;
-  legacyReceipt.tool_hashes = compat.compatible_tool_snapshots.at(-1).tool_hashes;
+  legacyReceipt.tool_hashes = pre837Snapshot.tool_hashes;
   fs.writeFileSync(path.join(root, ACTION_REGISTER_OUTPUTS.receipt), `${JSON.stringify(legacyReceipt, null, 2)}\n`);
   const legacyCheck = validateAssessmentActionRegisterExport(opts);
   assert.equal(legacyCheck.valid, true, legacyCheck.errors.join("; "));
+
+  // 2. PR #837 4-key receipt (readback_mode: "legacy_full_rows") rejects missing readback, and accepts deterministic v1 full-row readback!
+  const pr837Snapshot = compat.compatible_tool_snapshots.find((s) => s.readback_mode === "legacy_full_rows");
+  legacyReceipt.tool_hashes = pr837Snapshot.tool_hashes;
+  fs.writeFileSync(path.join(root, ACTION_REGISTER_OUTPUTS.receipt), `${JSON.stringify(legacyReceipt, null, 2)}\n`);
+  assert.equal(validateAssessmentActionRegisterExport(opts).valid, false);
+
+  const legacyFullReadback = spawnSync(
+    "python3",
+    [
+      "-c",
+      `import importlib.util, json, pathlib; spec = importlib.util.spec_from_file_location("r", "tools/scripts/render-assessment-action-register.py"); m = importlib.util.module_from_spec(spec); spec.loader.exec_module(m); root = pathlib.Path(json.loads(${JSON.stringify(JSON.stringify(root))})); p = m.verified_payload(root, root / m.SOURCE, ${JSON.stringify(opts.asOf)}); print(m.workbook_readback_json((root / m.XLSX).read_bytes(), p, compact=False), end="")`,
+    ],
+    { encoding: "utf8" },
+  );
+  assert.equal(legacyFullReadback.status, 0, legacyFullReadback.stderr);
+  const fullBytes = Buffer.from(legacyFullReadback.stdout, "utf8");
+  fs.writeFileSync(readbackPath, fullBytes);
+  const pr837Receipt = JSON.parse(originalReceiptBytes.toString("utf8"));
+  pr837Receipt.tool_hashes = pr837Snapshot.tool_hashes;
+  pr837Receipt.output_hashes.readback = digest(fullBytes);
+  fs.writeFileSync(path.join(root, ACTION_REGISTER_OUTPUTS.receipt), `${JSON.stringify(pr837Receipt, null, 2)}\n`);
+  const pr837Check = validateAssessmentActionRegisterExport(opts);
+  assert.equal(pr837Check.valid, true, pr837Check.errors.join("; "));
 
   // Restore current export cleanly.
   fs.writeFileSync(readbackPath, originalReadbackBytes);

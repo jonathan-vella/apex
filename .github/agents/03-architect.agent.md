@@ -155,8 +155,9 @@ Unverified claims remain gaps, not remembered facts.
 - Score Security, Reliability, Performance Efficiency, Cost Optimization and Operational Excellence
   from 0–10 whenever `>= 2` pillar-relevant workload-control checks are observed (excluding unknowns
   from numerator/denominator, paired with `High (>=70%) | Medium (35-69%) | Low (<35%)` coverage);
-  reserve `Not assessed` strictly for `< 2` observed workload controls, and never count telemetry/billing
-  query availability as passing WAF controls (collection belongs in Coverage). For standalone Azure
+  reserve `Not assessed` strictly for `< 2` observed workload controls, and never count assessment
+  data-collection availability (CPU/metric queries, policy-header listing, or billing/forecast views) as
+  passing/failing controls in any pillar (collection belongs in Coverage). For standalone Azure
   assessments, run `collect-assessment-evidence.py` and `collect-assessment-cost.mjs` (`--include-amortized`
   `--include-rg-breakdown` as needed) directly rather than writing custom `_meta/scratch/` collectors.
 - Include service maturity, trade-offs, an overview Mermaid diagram and meaningful traffic-light
