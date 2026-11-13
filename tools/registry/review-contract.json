@@ -35,7 +35,7 @@
     },
     {
       "classification": "editorial",
-      "rationale": "Allow challenger-review-subagent to omit mechanical cache_inputs/supporting_inputs hashes stamped by record-review.mjs and support hash-bound APEX_REVIEW_FILE pointers without changing checklists or review criteria.",
+      "rationale": "Allow challenger-review-subagent to omit mechanical cache_inputs/supporting_inputs hashes, support APEX_REVIEW_FILE pointers, and clarify rg/read-back rules without changing checklists or review criteria.",
       "from": {
         "checklists_sha": "418fdabfe6b6d1f762c798fd559369a89c1e607af237a5c2861abc9b34876073",
         "protocol_sha": "ee62e6840d6b4e331bf39fc6ae1a617ae17bebe795a5a9d8587cb8c5ab988182",
@@ -45,13 +45,13 @@
       "to": {
         "checklists_sha": "418fdabfe6b6d1f762c798fd559369a89c1e607af237a5c2861abc9b34876073",
         "protocol_sha": "ee62e6840d6b4e331bf39fc6ae1a617ae17bebe795a5a9d8587cb8c5ab988182",
-        "reviewer_contract_sha": "b285870f8a0116c3a31443e2637d9be750cc9c6ee3f5d37b460235bc93aa579b",
-        "reviewer_definition_sha": "53342ab46d851c11d2c657917f698c68ef3920080c3cabf44c339c610a9a349d"
+        "reviewer_contract_sha": "77be6f32ba1056277324f024709f8ab5bcf78a8b4f4fb2a7d97a6002a1fc7de1",
+        "reviewer_definition_sha": "8ed3bc0f3fcf45b7416f114017b8b18bdd4c8d747b36987338460ebed9dcd6a3"
       }
     },
     {
       "classification": "editorial",
-      "rationale": "Allow challenger-review-subagent to omit mechanical cache_inputs/supporting_inputs hashes stamped by record-review.mjs and support hash-bound APEX_REVIEW_FILE pointers without changing checklists or review criteria (arcbox-insights baseline).",
+      "rationale": "Allow challenger-review-subagent to omit mechanical cache_inputs/supporting_inputs hashes, support APEX_REVIEW_FILE pointers, and clarify rg/read-back rules without changing checklists or review criteria (arcbox-insights baseline).",
       "from": {
         "checklists_sha": "418fdabfe6b6d1f762c798fd559369a89c1e607af237a5c2861abc9b34876073",
         "protocol_sha": "ee62e6840d6b4e331bf39fc6ae1a617ae17bebe795a5a9d8587cb8c5ab988182",
@@ -61,13 +61,13 @@
       "to": {
         "checklists_sha": "418fdabfe6b6d1f762c798fd559369a89c1e607af237a5c2861abc9b34876073",
         "protocol_sha": "ee62e6840d6b4e331bf39fc6ae1a617ae17bebe795a5a9d8587cb8c5ab988182",
-        "reviewer_contract_sha": "b285870f8a0116c3a31443e2637d9be750cc9c6ee3f5d37b460235bc93aa579b",
-        "reviewer_definition_sha": "53342ab46d851c11d2c657917f698c68ef3920080c3cabf44c339c610a9a349d"
+        "reviewer_contract_sha": "77be6f32ba1056277324f024709f8ab5bcf78a8b4f4fb2a7d97a6002a1fc7de1",
+        "reviewer_definition_sha": "8ed3bc0f3fcf45b7416f114017b8b18bdd4c8d747b36987338460ebed9dcd6a3"
       }
     },
     {
       "classification": "editorial",
-      "rationale": "Clarify binary .xlsx/.png read-back guidance and support hash-bound APEX_REVIEW_FILE pointers without changing checklists or review criteria (PR #835 baseline).",
+      "rationale": "Clarify binary .xlsx/.png read-back, APEX_REVIEW_FILE pointers, and rg syntax rules without changing checklists or review criteria (PR #835 baseline).",
       "from": {
         "checklists_sha": "418fdabfe6b6d1f762c798fd559369a89c1e607af237a5c2861abc9b34876073",
         "protocol_sha": "ee62e6840d6b4e331bf39fc6ae1a617ae17bebe795a5a9d8587cb8c5ab988182",
@@ -77,13 +77,13 @@
       "to": {
         "checklists_sha": "418fdabfe6b6d1f762c798fd559369a89c1e607af237a5c2861abc9b34876073",
         "protocol_sha": "ee62e6840d6b4e331bf39fc6ae1a617ae17bebe795a5a9d8587cb8c5ab988182",
-        "reviewer_contract_sha": "b285870f8a0116c3a31443e2637d9be750cc9c6ee3f5d37b460235bc93aa579b",
-        "reviewer_definition_sha": "53342ab46d851c11d2c657917f698c68ef3920080c3cabf44c339c610a9a349d"
+        "reviewer_contract_sha": "77be6f32ba1056277324f024709f8ab5bcf78a8b4f4fb2a7d97a6002a1fc7de1",
+        "reviewer_definition_sha": "8ed3bc0f3fcf45b7416f114017b8b18bdd4c8d747b36987338460ebed9dcd6a3"
       }
     },
     {
       "classification": "editorial",
-      "rationale": "Add hash-bound APEX_REVIEW_FILE dispatch envelope support without changing checklists or review criteria (PR #837 baseline — preserves already-started partner-modernization-factory-v2 requests!).",
+      "rationale": "Add APEX_REVIEW_FILE and rg regex-error recovery guidance without changing checklists or review criteria (PR #837 baseline — preserves partner-modernization-factory-v2 review receipts!).",
       "from": {
         "checklists_sha": "418fdabfe6b6d1f762c798fd559369a89c1e607af237a5c2861abc9b34876073",
         "protocol_sha": "ee62e6840d6b4e331bf39fc6ae1a617ae17bebe795a5a9d8587cb8c5ab988182",
@@ -93,8 +93,24 @@
       "to": {
         "checklists_sha": "418fdabfe6b6d1f762c798fd559369a89c1e607af237a5c2861abc9b34876073",
         "protocol_sha": "ee62e6840d6b4e331bf39fc6ae1a617ae17bebe795a5a9d8587cb8c5ab988182",
+        "reviewer_contract_sha": "77be6f32ba1056277324f024709f8ab5bcf78a8b4f4fb2a7d97a6002a1fc7de1",
+        "reviewer_definition_sha": "8ed3bc0f3fcf45b7416f114017b8b18bdd4c8d747b36987338460ebed9dcd6a3"
+      }
+    },
+    {
+      "classification": "editorial",
+      "rationale": "Clarify Rust rg regex syntax and compact workbook read-back inspection without changing checklists or review criteria (PR #838 baseline).",
+      "from": {
+        "checklists_sha": "418fdabfe6b6d1f762c798fd559369a89c1e607af237a5c2861abc9b34876073",
+        "protocol_sha": "ee62e6840d6b4e331bf39fc6ae1a617ae17bebe795a5a9d8587cb8c5ab988182",
         "reviewer_contract_sha": "b285870f8a0116c3a31443e2637d9be750cc9c6ee3f5d37b460235bc93aa579b",
         "reviewer_definition_sha": "53342ab46d851c11d2c657917f698c68ef3920080c3cabf44c339c610a9a349d"
+      },
+      "to": {
+        "checklists_sha": "418fdabfe6b6d1f762c798fd559369a89c1e607af237a5c2861abc9b34876073",
+        "protocol_sha": "ee62e6840d6b4e331bf39fc6ae1a617ae17bebe795a5a9d8587cb8c5ab988182",
+        "reviewer_contract_sha": "77be6f32ba1056277324f024709f8ab5bcf78a8b4f4fb2a7d97a6002a1fc7de1",
+        "reviewer_definition_sha": "8ed3bc0f3fcf45b7416f114017b8b18bdd4c8d747b36987338460ebed9dcd6a3"
       }
     }
   ],

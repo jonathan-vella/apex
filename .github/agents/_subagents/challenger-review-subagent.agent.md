@@ -79,7 +79,12 @@ Preserve exact scope, pass, prior findings and metadata. Never invent paths, has
    bytes on `.xlsx` workbooks, and `record-review.mjs` already verifies their exact SHA-256 hashes); inspect
    their paired Markdown, `.svg`, `_meta/action-register-export.json` and
    `_meta/action-register-workbook-readback.json` artifacts instead, and never fail with `status: "FAILED"`
-   solely because a frozen `.xlsx` workbook is binary.
+   solely because a frozen `.xlsx` workbook is binary. When `04-assessment-action-register.md` and
+   `_meta/action-register-export.json` are verified, check workbook structural invariants (`formula_cell_count == 0`,
+   `hyperlink_count == 0`, sheet states/row counts) and `Action Register` / `Financial Summary` rows in the
+   read-back rather than paging line-by-line through duplicate `Basis & Evidence` sheet dumps.
+   When using `grep`/`rg`, use Rust regex syntax only: never use PCRE look-ahead/look-behind (`(?!...)`, `(?<=...)`)
+   or backreferences, and escape literal `{}` braces.
    For private evidence, copy the supplied `private_inputs[].read_path` literally; never reconstruct or shorten it.
    If one file-not-found read omitted the immediate scope directory, correct it once using that supplied literal
    path in this same invocation. Continue only after a successful read; retain the failed call for recorder audit.
