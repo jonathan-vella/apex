@@ -51,6 +51,15 @@ Store discovered evidence under `_meta/` to preserve the layout-v2 Markdown-only
 
 ### Fixes
 
+#### Standalone assessment review-presence routing and `apex-recall` lockfile ignore
+
+Route `workflow_mode=assessment` projects through `assessment_run` phase gates in
+`validate-challenger-presence.mjs` instead of delivery Step 1/2 sidecar filenames (preserving draft
+checkpoint publication before acceptance while requiring verified WAF and cost review sidecars at
+`acceptance`/`terminal` and blocking downstream delivery history/artifacts), pass `--no-warn-ignored`
+in `lefthook.yml`'s `js-lint` hook so ignored `agent-output/**` helpers do not fail `--max-warnings=0`,
+and ignore `agent-output/**/_meta/*.lock` and `*.bak` sidecars in `.gitignore`.
+
 #### Reviewer `rg` regex-error self-recovery, compact workbook read-back, and 5-pillar scoring bounds
 
 Allow `record-review.mjs` to accept self-recovered `rg`/`grep` regex-parse-error calls when a subsequent

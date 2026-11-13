@@ -6,6 +6,7 @@ import { spawnSync } from "node:child_process";
 import { fileURLToPath } from "node:url";
 import { test } from "node:test";
 import { loadValidator } from "../../scripts/_lib/ajv-validator.mjs";
+import { sha256File } from "../../scripts/_lib/json.mjs";
 
 const script = fileURLToPath(new URL("../../scripts/validate-challenger-presence.mjs", import.meta.url));
 
@@ -123,6 +124,108 @@ test("checkpoint mode does not waive other missing reviews", (context) => {
   const result = f.run("--publication-checkpoint");
   assert.equal(result.status, 1);
   assert.match(result.stdout + result.stderr, /Step 1 Requirements/);
+});
+
+function assessmentDraft(context) {
+  const f = governanceCheckpoint(context);
+  rmSync(f.artifact);
+  f.state.steps = { 1: { status: "pending" }, 2: { status: "pending" } };
+  f.state.decisions.workflow_mode = "assessment";
+  f.state.assessment_run = {
+    schema_version: "assessment-run-v1",
+    scenario: "requirements_led",
+    source: "iac",
+    scope: { categories: ["configuration"], iac_paths: ["infra/example"], azure_scopes: [] },
+    reporting: {
+      as_of: "2026-11-11T00:00:00Z",
+      currency: null,
+      periods: [{ id: "previous_month", from: "2026-10-01", to: "2026-10-31" }],
+    },
+    receipt: { owner: "Fixture", request_id: "scope-fixture", approved: true },
+    phase: "review",
+    status: "in_progress",
+    completed_phases: ["scope", "requirements", "evidence", "analysis", "diagram"],
+    scope_digest: "a".repeat(64),
+    frozen_inputs: { "02-architecture-assessment.md": "b".repeat(64) },
+    review_links: {},
+    coverage: "partial",
+    started_at: "2026-11-11T00:00:00Z",
+  };
+  writeFileSync(path.join(f.project, "01-requirements.md"), "# Assessment requirements\n");
+  writeFileSync(path.join(f.project, "02-architecture-assessment.md"), "# WAF draft\n");
+  f.save();
+  return f;
+}
+
+test("standalone review drafts publish without inventing delivery reviews or mutating state", (context) => {
+  const f = assessmentDraft(context);
+  const before = readFileSync(f.statePath);
+  for (const args of [[], ["--publication-checkpoint"]]) {
+    const result = f.run(...args);
+    assert.equal(result.status, 0, result.stdout + result.stderr);
+    assert.match(result.stdout, /independent WAF and cost reviews remain required/);
+  }
+  assert.deepEqual(readFileSync(f.statePath), before);
+});
+
+for (const [label, mutate] of [
+  ["missing run", (f) => delete f.state.assessment_run],
+  ["missing explicit route", (f) => delete f.state.decisions.workflow_mode],
+  ["invalid receipt", (f) => (f.state.assessment_run.receipt.approved = false)],
+  ["invalid phase", (f) => (f.state.assessment_run.phase = "unknown")],
+  ["downstream delivery history", (f) => (f.state.steps[4] = { status: "complete" })],
+  ["delivery artifact", (f) => writeFileSync(path.join(f.project, "04-implementation-plan.md"), "# Plan\n")],
+  ["acceptance without reviews", (f) => (f.state.assessment_run.phase = "acceptance")],
+  ["terminal without acceptance", (f) => (f.state.assessment_run.phase = "terminal")],
+]) {
+  test(`standalone draft routing rejects ${label}`, (context) => {
+    const f = assessmentDraft(context);
+    mutate(f);
+    f.save();
+    assert.equal(f.run("--publication-checkpoint").status, 1);
+  });
+}
+
+test("accepted assessments require both recorded review files and unchanged hashes", (context) => {
+  const f = assessmentDraft(context);
+  const run = f.state.assessment_run;
+  f.state.steps[1].status = "complete";
+  f.state.steps[2].status = "complete";
+  f.state.steps[3] = { status: "complete" };
+  run.status = "accepted";
+  run.phase = "terminal";
+  run.acceptance = { owner: "Fixture", request_id: "accept-fixture", approved: true };
+  run.accepted_at = "2026-11-12T00:00:00Z";
+  run.completed_phases.push("review", "acceptance");
+  mkdirSync(path.join(f.project, "reviews"));
+  run.reviews = ["comprehensive", "cost-feasibility"].map((lens) => {
+    const relative = `reviews/challenge-findings-${lens}.json`;
+    const target = path.join(f.project, relative);
+    writeFileSync(target, JSON.stringify({ review_focus: lens }));
+    return { lens, cycle_id: "c".repeat(64), path: relative, sha256: sha256File(target) };
+  });
+  f.save();
+  assert.equal(f.run().status, 0);
+  const review = path.join(f.project, run.reviews[1].path);
+  writeFileSync(review, "{}");
+  assert.equal(f.run("--publication-checkpoint").status, 1);
+  rmSync(review);
+  assert.equal(f.run().status, 1);
+
+  // Path-traversal recorded.path and missing run.reviews on terminal/accepted runs must also fail.
+  const outside = path.join(f.project, "../outside-review.json");
+  writeFileSync(outside, JSON.stringify({ review_focus: "cost-feasibility" }));
+  run.reviews[1] = {
+    lens: "cost-feasibility",
+    cycle_id: "c".repeat(64),
+    path: "../outside-review.json",
+    sha256: sha256File(outside),
+  };
+  f.save();
+  assert.equal(f.run().status, 1);
+  delete run.reviews;
+  f.save();
+  assert.equal(f.run().status, 1);
 });
 
 test("unknown publication arguments fail explicitly", (context) => {

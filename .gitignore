@@ -95,6 +95,10 @@ freshness-report.json
 # that single committed deliverables can be re-included with `!`.
 agent-output/_baselines/*
 
+# apex-recall file-lock and backup sidecars (never ignore .terraform.lock.hcl or package-lock.json)
+agent-output/**/_meta/*.lock
+agent-output/**/_meta/*.bak
+
 # Terraform
 *.tfstate
 *.tfstate.backup
