@@ -223,6 +223,7 @@ export function reserveQuery({
     throw new Error("Native call identity and supported source are required");
   return withLedger(output, (ledger) => {
     let binding;
+    let maxBudget = 20;
     if (request_binding_path) {
       const snapshot = readSnapshot(request_binding_path, undefined, cwd);
       const record = JSON.parse(snapshot.bytes);
@@ -232,10 +233,13 @@ export function reserveQuery({
       )
         throw new Error("Invalid immutable preflight request binding");
       binding = { request_binding_path, request_binding_sha256: snapshot.sha256 };
+      if (record.request_snapshot?.budget_tier === "portfolio") maxBudget = 60;
     }
-    if (!Number.isInteger(remaining_requests) || remaining_requests < 1 || remaining_requests > 20)
+    if (ledger.budget_tier === "portfolio") maxBudget = 60;
+    else if (maxBudget === 60) ledger.budget_tier = "portfolio";
+    if (!Number.isInteger(remaining_requests) || remaining_requests < 1 || remaining_requests > maxBudget)
       throw new Error("Invalid remaining pricing request allowance");
-    ledger.external_requests_used ??= 20 - remaining_requests;
+    ledger.external_requests_used ??= maxBudget - remaining_requests;
     const query_hash = digestObject(query);
     const existing = ledger.attempts.find((attempt) => attempt.call_id === call_id);
     if (existing) {
@@ -261,7 +265,7 @@ export function reserveQuery({
       )
         throw new Error("Unchanged query already reserved; replay evidence or resolve its existing reservation");
     }
-    if (ledger.attempts.length + ledger.external_requests_used >= 20)
+    if (ledger.attempts.length + ledger.external_requests_used >= maxBudget)
       throw new Error("Shared pricing request budget exhausted");
     const attempt = {
       call_id,
@@ -270,6 +274,7 @@ export function reserveQuery({
       query_hash,
       state: "planned",
       planned_at: new Date().toISOString(),
+      ...(retry_of ? { retry_of } : {}),
       ...binding,
     };
     ledger.attempts.push(attempt);
@@ -370,14 +375,14 @@ export const METER_FIELDS = [
 
 export function normalizeMeter(row) {
   const normalized = { ...row, armRegionName: row.armRegionName ?? row.region, type: row.type ?? row.priceType };
-  if (normalized.tierMinimumUnits === undefined && /^(1\s*)?hours?$/i.test(row.unitOfMeasure ?? ""))
+  if (normalized.tierMinimumUnits === undefined && /^(1\s*\/?\s*)?hours?$/i.test(row.unitOfMeasure ?? ""))
     normalized.tierMinimumUnits = null;
   for (const field of METER_FIELDS) {
     if (["retailPrice", "tierMinimumUnits"].includes(field)) {
       if (
         field === "tierMinimumUnits" &&
         normalized[field] === null &&
-        /^(1\s*)?hours?$/i.test(row.unitOfMeasure ?? "")
+        /^(1\s*\/?\s*)?hours?$/i.test(row.unitOfMeasure ?? "")
       )
         continue;
       if (typeof normalized[field] !== "number" || !Number.isFinite(normalized[field]) || normalized[field] < 0)
@@ -390,7 +395,11 @@ export function normalizeMeter(row) {
     }
   }
   if (!Number.isFinite(Date.parse(normalized.effectiveStartDate))) throw new Error("Invalid meter effective date");
-  return Object.fromEntries(METER_FIELDS.map((field) => [field, normalized[field]]));
+  const base = Object.fromEntries(METER_FIELDS.map((field) => [field, normalized[field]]));
+  if (normalized.type === "Reservation" && typeof row.reservationTerm === "string" && row.reservationTerm.trim()) {
+    base.reservationTerm = row.reservationTerm.trim();
+  }
+  return base;
 }
 
 export function captureMcpResponse({
@@ -517,10 +526,12 @@ export function verifyCapturedFailure(failure, readEvidenceFile, cwd = PRICING_R
       capture.query_hash !== digestObject(capture.query)
     )
       throw new Error("Invalid captured native failure provenance");
+    const isCompleteMcpFailureKind =
+      failure.kind === "missing_tier_metadata" || failure.kind === "single_non_hourly_missing_tier_metadata";
     if (
       (failure.kind === "empty_result" && capture.status !== "EMPTY") ||
-      (failure.kind === "missing_tier_metadata" && capture.status !== "COMPLETE") ||
-      (failure.kind !== "empty_result" && failure.kind !== "missing_tier_metadata" && capture.status !== "FAILED")
+      (isCompleteMcpFailureKind && capture.status !== "COMPLETE") ||
+      (failure.kind !== "empty_result" && !isCompleteMcpFailureKind && capture.status !== "FAILED")
     )
       throw new Error("Captured native result does not establish the claimed failure kind");
     const raw = read(capture.raw_path);

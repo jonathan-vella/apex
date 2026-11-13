@@ -26,10 +26,25 @@
   "additionalProperties": false,
   "allOf": [
     {
-      "if": { "required": ["schema_version"], "properties": { "schema_version": { "const": "cost-estimate-v2" } } },
+      "if": {
+        "required": ["schema_version"],
+        "properties": { "schema_version": { "enum": ["cost-estimate-v2", "cost-estimate-v2.2"] } }
+      },
       "then": {
         "required": ["purpose", "request_snapshot", "request_sha256", "evidence"],
         "properties": { "purpose": { "const": "monthly-estimate" } }
+      }
+    },
+    {
+      "if": {
+        "not": { "required": ["budget_tier"], "properties": { "budget_tier": { "const": "portfolio" } } }
+      },
+      "then": {
+        "properties": {
+          "mcp_calls_used": { "maximum": 20 },
+          "direct_api_calls_used": { "maximum": 20 },
+          "unknown_request_reservations": { "maximum": 20 }
+        }
       }
     }
   ],
@@ -54,8 +69,12 @@
     },
     "schema_version": {
       "type": "string",
-      "enum": ["cost-estimate-v1", "cost-estimate-v2"],
-      "description": "Historical v1 is shape-readable only; current publication/readiness requires verified v2."
+      "enum": ["cost-estimate-v1", "cost-estimate-v2", "cost-estimate-v2.2"],
+      "description": "Historical v1 is shape-readable only; current publication/readiness requires verified v2 or v2.2."
+    },
+    "budget_tier": {
+      "type": "string",
+      "enum": ["standard", "portfolio"]
     },
     "purpose": {
       "const": "monthly-estimate"
@@ -153,17 +172,17 @@
     "mcp_calls_used": {
       "type": "integer",
       "minimum": 0,
-      "maximum": 20
+      "maximum": 60
     },
     "direct_api_calls_used": {
       "type": "integer",
       "minimum": 0,
-      "maximum": 20
+      "maximum": 60
     },
     "unknown_request_reservations": {
       "type": "integer",
       "minimum": 0,
-      "maximum": 20
+      "maximum": 60
     },
     "budget_exceeded": {
       "type": "boolean"
