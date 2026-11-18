@@ -1669,3 +1669,46 @@ def test_ancestor_mg_definition_403_records_structured_scope_reason():
     ]
     assert env["unresolved_scopes"] == expected
     assert env["discovery_metadata"]["unresolved_scopes"] == expected
+
+
+def test_hydrated_assignment_stub_preserves_raw_list_for_self_check():
+    root_scope = "/providers/Microsoft.Management/managementGroups/tenant-root"
+    stub_asg_id = f"{root_scope}/providers/Microsoft.Authorization/policyAssignments/root-stub"
+    policy_id = "/providers/Microsoft.Authorization/policyDefinitions/deny-classic"
+    stub_asg = {"id": stub_asg_id, "name": "root-stub", "properties": {"scope": root_scope}}
+    full_asg = {
+        "id": stub_asg_id,
+        "name": "root-stub",
+        "properties": {
+            "displayName": "Deny Classic Compute",
+            "policyDefinitionId": policy_id,
+            "scope": root_scope,
+        },
+    }
+    defn = {
+        "id": policy_id,
+        "properties": {
+            "displayName": "Deny Classic Compute",
+            "policyRule": {
+                "if": {"field": "type", "equals": "Microsoft.ClassicCompute/virtualMachines"},
+                "then": {"effect": "Deny"},
+            },
+        },
+    }
+
+    def fake(url: str) -> dict[str, Any]:
+        if stub_asg_id in url:
+            return full_asg
+        if policy_id in url:
+            return defn
+        if "policyAssignments?" in url:
+            return {"value": [stub_asg]}
+        return EMPTY
+
+    env = discover.discover("s", project="p", az_rest=fake, retain_rule_evidence=True)
+    assert env["discovery_status"] == "COMPLETE"
+    assert env["unresolved_scopes"] == []
+    assert "unresolved_scopes" not in env["discovery_metadata"]
+    assert env["discovery_summary"]["blocker_count"] == 1
+    assert env["findings"][0]["policy_id"] == policy_id
+    assert discover.rule_evidence_errors(env) == []

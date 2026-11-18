@@ -1270,6 +1270,8 @@ def discover(
         )
         assignments = primary["assignments"]
 
+    raw_assignments = list(assignments)
+    assignments = list(raw_assignments)
     defs: dict[str, dict[str, Any]] = {d["id"].lower(): d for d in primary["sub_defs"]}
     sets: dict[str, dict[str, Any]] = {s["id"].lower(): s for s in primary["sub_sets"]}
     exemptions = primary["exemptions"]
@@ -1528,8 +1530,8 @@ def discover(
     self_check_ok, self_check_count = _self_check_assignments(
         az_rest,
         subscription_id,
-        len(assignments),
-        assignments,
+        len(raw_assignments),
+        raw_assignments,
         scope_filter=assignments_filter,
     )
     if not self_check_ok:
@@ -1543,7 +1545,7 @@ def discover(
         )
         print(
             f"self-check: policyAssignments inventory drift "
-            f"(expected={len(assignments)}, observed={self_check_count}); "
+            f"(expected={len(raw_assignments)}, observed={self_check_count}); "
             f"marking discovery_status=PARTIAL",
             file=sys.stderr,
         )

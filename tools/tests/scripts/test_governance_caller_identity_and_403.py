@@ -511,6 +511,24 @@ def test_ancestor_mg_assignment_403_on_stub_and_atscope_fallback(
     ]
     assert env_stub["discovery_summary"]["blocker_count"] == 1
 
+    # Case A2: when the individual GET on the stub succeeds, self-check compares against
+    # the original raw list inventory (no false assignment_inventory_drift) and resolves COMPLETE.
+    hydrated_asg = _assignment("root-stub", sub_policy_id, scope=root_scope)
+
+    def fake_stub_ok(url: str) -> dict[str, Any]:
+        if stub_asg_id in url:
+            return hydrated_asg
+        if "policyAssignments" in url:
+            return {"value": [stub_asg]}
+        if "policyDefinitions?" in url:
+            return {"value": [sub_def]}
+        return {"value": []}
+
+    env_stub_ok = discover.discover(SUBSCRIPTION_ID, project="issue-848", az_rest=fake_stub_ok)
+    assert env_stub_ok["discovery_status"] == "COMPLETE"
+    assert env_stub_ok["unresolved_scopes"] == []
+    assert env_stub_ok["discovery_summary"]["blocker_count"] == 1
+
     # Case B: policyAssignments?$filter=atScope() returns HTTP 403 citing ancestor MG scope,
     # falls back to atExactScope() without false inventory drift, and records ancestor_scope_forbidden.
     arm_403_detail = (
