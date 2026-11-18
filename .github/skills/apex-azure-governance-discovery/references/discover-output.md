@@ -14,7 +14,8 @@ the discovery-signature persistence contract.
 
 - **Line 1 only is structured** — a single JSON status object with
   fields `status`, `cache_hit`, `assignment_total`, `blockers`,
-  `auto_remediate`, `exempted`.
+  `caller_identity`, `auto_remediate`, `exempted`, and (when `PARTIAL`)
+  `unresolved_scopes`.
 - **Remaining lines are a human-readable Markdown preview for the
   user**. Do NOT pipe them back into the model. They are not for LLM
   re-ingestion.

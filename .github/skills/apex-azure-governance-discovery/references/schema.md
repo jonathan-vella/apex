@@ -24,7 +24,8 @@ fields and additionally writes:
 | `discovery_status`          | `COMPLETE` \| `PARTIAL` \| `FAILED`                                                         |
 | `source`                    | `azure-policy-rest-api`                                                                     |
 | `project`                   | Passed via `--project`                                                                      |
-| `discovery_summary`         | Assignment totals, effect counts, filter counts                                             |
+| `discovery_summary`         | Assignment totals, effect counts (`blocker_count`, `caller_identity_count`, etc.), filter counts |
+| `unresolved_scopes`         | Structured `PARTIAL` causes (`ancestor_scope_forbidden`, `definition_not_found`, etc.); `[]` when `COMPLETE` |
 | `assignment_inventory`      | Flat list of discovered assignments for audit                                               |
 | `member_policy_index`       | Lowercase IDs of every policy definition resolved (incl. initiative members and audit-only) |
 | `residual_drift_acceptance` | Optional operator-authored block; see below                                                 |
@@ -85,7 +86,8 @@ Authoring rules:
 | `terraformPropertyPath` | No                          | Reserved for Step 4                                                                             |
 | `required_value`        | For blockers/auto-remediate | Value required by the policy                                                                    |
 | `resource_types`        | No                          |                                                                                                 |
-| `classification`        | Yes                         | `blocker` \| `auto-remediate` \| `informational`                                                |
+| `classification`        | Yes                         | `blocker` \| `caller-identity` \| `auto-remediate` \| `informational`                           |
+| `identity_only`         | No                          | `true` when `policyRule.if` evaluates only `requestContext().identity` caller claims            |
 | `category`              | Yes                         | From `properties.metadata.category`, default `"Uncategorized"`                                  |
 | `exemption`             | Nullable                    | Populated when a `policyExemptions` record matches                                              |
 | `override`              | Nullable                    | Human-authored waiver; unchanged contract                                                       |

@@ -96,6 +96,7 @@ def _build_discovery_metadata(
     ttl_days: int = DEFAULT_TTL_DAYS,
     source: str = "live",  # noqa: ARG001 — reserved for future per-source attestation; envelope-level `source` is the consumer-facing field
     api_versions: dict[str, str] | None = None,
+    unresolved_scopes: list[dict[str, Any]] | None = None,
 ) -> dict[str, Any]:
     """Compose the L0 `discovery_metadata` envelope.
 
@@ -109,7 +110,7 @@ def _build_discovery_metadata(
     the helper signature. The envelope's top-level `source` field is
     what consumers actually read today.
     """
-    return {
+    metadata: dict[str, Any] = {
         "discovery_status": discovery_status,
         "discovered_at": discovered_at,
         "scope": {
@@ -128,6 +129,9 @@ def _build_discovery_metadata(
         "completeness_signature": _completeness_signature(findings),
         "ttl_days": ttl_days,
     }
+    if unresolved_scopes:
+        metadata["unresolved_scopes"] = list(unresolved_scopes)
+    return metadata
 
 
 def _utc_now_iso() -> str:
@@ -423,6 +427,13 @@ def emit_preview_md(envelope: dict[str, Any], out_path: Path, arch_resources: li
                     if not has_arch
                     else "See JSON findings[] for structured value."
                 )
+            elif cls == "caller-identity":
+                status_icon = "⚠️"
+                impl = (
+                    "Caller sign-in requirement (requestContext.identity) — not an IaC resource constraint"
+                    if not has_arch
+                    else "Caller sign-in requirement (requestContext.identity); see JSON findings[]."
+                )
             else:
                 status_icon = "⚠️"
                 impl = (
@@ -581,7 +592,8 @@ def emit_preview_md(envelope: dict[str, Any], out_path: Path, arch_resources: li
         a("| Policy | Effect | Status |")
         a("| --- | --- | --- |")
         for f in security:
-            icon = "❌" if f.get("classification") == "blocker" else "✅"
+            cls = f.get("classification")
+            icon = "❌" if cls == "blocker" else ("⚠️" if cls == "caller-identity" else "✅")
             a(f"| {f.get('display_name', '')} | {f.get('effect', '')} | {icon} |")
     else:
         a("✅ No security-specific policies discovered.\n")

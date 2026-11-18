@@ -157,8 +157,14 @@
           "type": "integer",
           "minimum": 1,
           "maximum": 90
+        },
+        "unresolved_scopes": {
+          "$ref": "#/$defs/unresolvedScopes"
         }
       }
+    },
+    "unresolved_scopes": {
+      "$ref": "#/$defs/unresolvedScopes"
     },
     "findings": {
       "type": "array",
@@ -173,6 +179,11 @@
             "type": "string",
             "enum": ["deny", "audit", "auditIfNotExists", "append", "modify", "deployIfNotExists", "disabled"]
           },
+          "classification": {
+            "type": "string",
+            "enum": ["blocker", "caller-identity", "auto-remediate", "informational"]
+          },
+          "identity_only": { "type": "boolean" },
           "scope": { "type": "string" },
           "azurePropertyPath": { "type": "string" },
           "bicepPropertyPath": { "type": "string" },
@@ -214,6 +225,39 @@
       "description": "Alias of findings — same array reference, emitted by discover.py for downstream consumers.",
       "type": "array",
       "items": { "$ref": "#/properties/findings/items" }
+    }
+  },
+  "$defs": {
+    "unresolvedScopes": {
+      "description": "Structured causes of PARTIAL discovery, distinguishing expected ancestor management-group HTTP 403 boundaries (ancestor_scope_forbidden) from broken discovery.",
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["reason", "scope", "surface", "resource_id"],
+        "additionalProperties": false,
+        "properties": {
+          "reason": {
+            "type": "string",
+            "enum": [
+              "ancestor_scope_forbidden",
+              "definition_not_found",
+              "empty_initiative_members",
+              "unresolved_effect",
+              "missing_policy_definition_id",
+              "assignment_inventory_drift",
+              "rule_evidence_invalid"
+            ]
+          },
+          "scope": { "type": "string", "minLength": 1 },
+          "management_group": { "type": "string", "minLength": 1 },
+          "surface": {
+            "type": "string",
+            "enum": ["policyAssignments", "policyDefinitions", "policySetDefinitions", "policyExemptions"]
+          },
+          "resource_id": { "type": "string", "minLength": 1 },
+          "http_status": { "type": "integer", "minimum": 100, "maximum": 599 }
+        }
+      }
     }
   }
 }

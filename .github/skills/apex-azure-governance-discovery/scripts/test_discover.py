@@ -1548,3 +1548,124 @@ def test_extract_arch_resources_returns_empty_for_missing_file(tmp_path):
     """_extract_arch_resources should return [] when file doesn't exist."""
     resources = discover._extract_arch_resources(tmp_path / "nonexistent.md")
     assert resources == []
+
+
+# --------------------------------------------------------------------------- #
+# Issue #848 — caller-identity requestContext rules & ancestor-MG HTTP 403s   #
+# --------------------------------------------------------------------------- #
+
+
+def test_pure_request_context_identity_deny_classifies_as_caller_identity():
+    policy_id = "/providers/Microsoft.Authorization/policyDefinitions/mfa-write"
+    assignment = {
+        "id": "/providers/Microsoft.Management/managementGroups/tenant-root/providers/Microsoft.Authorization/policyAssignments/mfa-write",
+        "properties": {
+            "displayName": "Multi Factor Authentication Enforcement - Write",
+            "policyDefinitionId": policy_id,
+            "scope": "/providers/Microsoft.Management/managementGroups/tenant-root",
+            "parameters": {"effect": {"value": "Deny"}},
+        },
+    }
+    definition = {
+        "id": policy_id,
+        "properties": {
+            "displayName": "Users must authenticate with multi-factor authentication to create or update resources",
+            "metadata": {"category": "General"},
+            "parameters": {"effect": {"defaultValue": "Audit"}},
+            "policyRule": {
+                "if": {
+                    "allOf": [
+                        {"value": "[contains(requestContext().identity, 'idtyp')]", "equals": True},
+                        {"value": "[requestContext().identity.idtyp]", "equals": "user"},
+                        {
+                            "value": "mfa",
+                            "notIn": "[split(tryGet(requestContext().identity, 'http://schemas.microsoft.com/claims/authnmethodsreferences'), ',')]",
+                        },
+                        {"value": "p1", "notIn": "[split(requestContext().identity.acrs, ',')]"},
+                    ]
+                },
+                "then": {"effect": "[parameters('effect')]"},
+            },
+        },
+    }
+    env = discover.discover(
+        "s",
+        project="p",
+        az_rest=_router({"policyAssignments": {"value": [assignment]}, policy_id + "?": definition}),
+    )
+    assert env["discovery_status"] == "COMPLETE"
+    assert env["unresolved_scopes"] == []
+    assert env["discovery_summary"]["blocker_count"] == 0
+    assert env["discovery_summary"]["caller_identity_count"] == 1
+    finding = env["findings"][0]
+    assert finding["classification"] == "caller-identity"
+    assert finding["identity_only"] is True
+
+
+def test_mixed_request_context_and_resource_predicates_stay_blocker():
+    policy_id = "/providers/Microsoft.Authorization/policyDefinitions/pim-only-roles"
+    assignment = {
+        "id": "/subscriptions/s/providers/Microsoft.Authorization/policyAssignments/pim-only",
+        "properties": {"scope": "/subscriptions/s", "policyDefinitionId": policy_id},
+    }
+    definition = {
+        "id": policy_id,
+        "properties": {
+            "displayName": "Restrict role assignments to PIM",
+            "policyRule": {
+                "if": {
+                    "allOf": [
+                        {"field": "type", "equals": "Microsoft.Authorization/roleAssignments"},
+                        {"value": "[requestContext().identity.idtyp]", "equals": "user"},
+                    ]
+                },
+                "then": {"effect": "Deny"},
+            },
+        },
+    }
+    env = discover.discover(
+        "s",
+        project="p",
+        az_rest=_router({"policyAssignments": {"value": [assignment]}, policy_id + "?": definition}),
+    )
+    assert env["discovery_summary"]["blocker_count"] == 1
+    assert env["discovery_summary"]["caller_identity_count"] == 0
+    assert env["findings"][0]["classification"] == "blocker"
+    assert "identity_only" not in env["findings"][0]
+
+
+def test_ancestor_mg_definition_403_records_structured_scope_reason():
+    custom_id = (
+        "/providers/Microsoft.Management/managementGroups/tenant-root"
+        "/providers/Microsoft.Authorization/policyDefinitions/root-custom"
+    )
+    assignment = {
+        "id": "/providers/Microsoft.Management/managementGroups/tenant-root/providers/Microsoft.Authorization/policyAssignments/root-asg",
+        "properties": {
+            "displayName": "Root Custom Policy",
+            "policyDefinitionId": custom_id,
+            "scope": "/providers/Microsoft.Management/managementGroups/tenant-root",
+        },
+    }
+
+    def fake(url: str) -> dict[str, Any]:
+        if custom_id in url:
+            raise discover.ArmHttpError(url, 403, "Forbidden", "AuthorizationFailed")
+        if "policyAssignments" in url:
+            return {"value": [assignment]}
+        return EMPTY
+
+    env = discover.discover("s", project="p", az_rest=fake)
+    assert env["discovery_status"] == "PARTIAL"
+    expected = [
+        {
+            "reason": "ancestor_scope_forbidden",
+            "scope": "/providers/Microsoft.Management/managementGroups/tenant-root",
+            "management_group": "tenant-root",
+            "surface": "policyDefinitions",
+            "resource_id": custom_id,
+            "http_status": 403,
+        }
+    ]
+    assert env["unresolved_scopes"] == expected
+    assert env["discovery_metadata"]["unresolved_scopes"] == expected

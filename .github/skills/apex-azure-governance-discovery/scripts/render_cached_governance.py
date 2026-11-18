@@ -230,6 +230,7 @@ def main(argv: list[str] | None = None) -> int:
         "cached_baseline": True,
         "assignment_total": summary.get("assignment_total", 0),
         "blockers": summary.get("blocker_count", 0),
+        "caller_identity": summary.get("caller_identity_count", 0),
         "auto_remediate": summary.get("auto_remediate_count", 0),
         "exempted": summary.get("exempted_count", 0),
         "out_path": str(out_path),
