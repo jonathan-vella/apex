@@ -23,6 +23,9 @@
 
 .PARAMETER MaxSubscriptions
     Maximum subscriptions to process. Default: 100.
+
+.EXAMPLE
+    pwsh -NoLogo -NoProfile -NonInteractive -File tools/scripts/collect-governance-baseline.ps1 -ManagementGroupId "mg-root"
 #>
 [CmdletBinding()]
 param(
@@ -91,8 +94,156 @@ function Get-ArmToken {
     return $token.accessToken
 }
 
+function Get-HttpStatusCode {
+    param($ErrorRecord)
+    if ($null -eq $ErrorRecord) { return $null }
+    $ex = if ($ErrorRecord -is [System.Management.Automation.ErrorRecord]) { $ErrorRecord.Exception } else { $ErrorRecord }
+    for ($cur = $ex; $null -ne $cur; $cur = $cur.InnerException) {
+        if ($cur.PSObject.Properties['Response'] -and $null -ne $cur.Response) {
+            $resp = $cur.Response
+            if ($resp.PSObject.Properties['StatusCode'] -and $null -ne $resp.StatusCode) {
+                $code = [int]$resp.StatusCode
+                if ($code -ge 100 -and $code -le 599) { return $code }
+            }
+        }
+        if ($cur.PSObject.Properties['StatusCode'] -and $null -ne $cur.StatusCode) {
+            $code = [int]$cur.StatusCode
+            if ($code -ge 100 -and $code -le 599) { return $code }
+        }
+    }
+    $text = "$ErrorRecord"
+    if ($text -match '(?i)\bHTTP(?:/\d(?:\.\d)?)?\s+(\d{3})\b') {
+        return [int]$Matches[1]
+    }
+    if ($text -match '(?i)\b(403)\s+Forbidden\b') {
+        return 403
+    }
+    return $null
+}
+
+$CANONICAL_SURFACES = @{
+    "policyassignments" = "policyAssignments"
+    "policydefinitions" = "policyDefinitions"
+    "policysetdefinitions" = "policySetDefinitions"
+    "policyexemptions" = "policyExemptions"
+}
+
+$MG_RESOURCE_REGEX = '(?i)/providers/Microsoft\.Management/managementGroups/([^/?#''"\s]+)(?:/providers/Microsoft\.Authorization/(policyAssignments|policyDefinitions|policySetDefinitions|policyExemptions)(?:/[^/?#''"\s]+)?)?'
+
+function Get-ManagementGroupScopeInfo {
+    param(
+        [string]$Target = "",
+        [string]$Detail = "",
+        [string]$SubscriptionId = "",
+        [string]$DefaultSurface = "policyDefinitions"
+    )
+    $cleanTarget = if ($Target) { ($Target -replace "^$([regex]::Escape($ARM))", "") -split '\?', 2 | Select-Object -First 1 } else { "" }
+    $targetMatch = [regex]::Match($cleanTarget, $MG_RESOURCE_REGEX)
+    if ($targetMatch.Success) {
+        $mgId = $targetMatch.Groups[1].Value
+        $rawSurface = $targetMatch.Groups[2].Value.ToLower()
+        $surface = if ($rawSurface -and $CANONICAL_SURFACES.ContainsKey($rawSurface)) { $CANONICAL_SURFACES[$rawSurface] } else { $DefaultSurface }
+        return @{
+            Scope = "/providers/Microsoft.Management/managementGroups/$mgId"
+            ManagementGroup = $mgId
+            Surface = $surface
+            ResourceId = $cleanTarget
+        }
+    }
+    if ($Detail) {
+        $loweredDetail = $Detail.ToLower()
+        if ($SubscriptionId) {
+            $subScope = "/subscriptions/$($SubscriptionId.ToLower())"
+            if ($loweredDetail.Contains("scope '$subScope'") -or $loweredDetail.Contains("scope `"$subScope`"")) {
+                return $null
+            }
+        }
+        $detailMatch = [regex]::Match($Detail, $MG_RESOURCE_REGEX)
+        if ($detailMatch.Success) {
+            $mgId = $detailMatch.Groups[1].Value
+            $rawSurface = $detailMatch.Groups[2].Value.ToLower()
+            $surface = if ($rawSurface -and $CANONICAL_SURFACES.ContainsKey($rawSurface)) { $CANONICAL_SURFACES[$rawSurface] } else { $DefaultSurface }
+            return @{
+                Scope = "/providers/Microsoft.Management/managementGroups/$mgId"
+                ManagementGroup = $mgId
+                Surface = $surface
+                ResourceId = $detailMatch.Value
+            }
+        }
+    }
+    return $null
+}
+
+function Get-ScopeMetadataForId {
+    param(
+        [string]$ResourceId = "",
+        [string]$SubscriptionId = "",
+        [string]$FallbackScope = ""
+    )
+    $clean = if ($ResourceId) { ($ResourceId -replace "^$([regex]::Escape($ARM))", "") -split '\?', 2 | Select-Object -First 1 } else { "" }
+    $lowered = $clean.ToLower()
+    $surface = "policyDefinitions"
+    foreach ($marker in $CANONICAL_SURFACES.Keys) {
+        if ($lowered.Contains("/$marker/") -or $lowered.EndsWith("/$marker")) {
+            $surface = $CANONICAL_SURFACES[$marker]
+            break
+        }
+    }
+    $mgInfo = Get-ManagementGroupScopeInfo -Target $clean -DefaultSurface $surface
+    if ($null -ne $mgInfo) {
+        return [ordered]@{
+            scope = $mgInfo.Scope
+            management_group = $mgInfo.ManagementGroup
+            surface = $mgInfo.Surface
+            resource_id = $mgInfo.ResourceId
+        }
+    }
+    $scope = $FallbackScope
+    if (-not $scope -and $lowered.Contains("/providers/microsoft.authorization/")) {
+        $scope = ($clean -split '(?i)/providers/Microsoft\.Authorization/', 2)[0]
+    }
+    if (-not $scope) {
+        $scope = if ($lowered.StartsWith("/providers/microsoft.authorization/")) { "/providers/Microsoft.Authorization" } else { "/subscriptions/$SubscriptionId" }
+    }
+    $out = [ordered]@{
+        scope = $scope
+        surface = $surface
+        resource_id = if ($clean) { $clean } else { $scope }
+    }
+    $scopeMg = Get-ManagementGroupScopeInfo -Target $scope -DefaultSurface $surface
+    if ($null -ne $scopeMg) {
+        $out.scope = $scopeMg.Scope
+        $out.management_group = $scopeMg.ManagementGroup
+    }
+    return $out
+}
+
+function Get-NormalizedUnresolvedScopes {
+    param([array]$Entries)
+    $deduped = @{}
+    foreach ($entry in $Entries) {
+        if ($null -eq $entry) { continue }
+        $statusPart = if ($entry.Contains("http_status") -and $null -ne $entry["http_status"]) { [string]$entry["http_status"] } else { "" }
+        $key = "$($entry['reason'])|$(([string]$entry['scope']).ToLower())|$($entry['surface'])|$(([string]$entry['resource_id']).ToLower())|$statusPart"
+        if (-not $deduped.ContainsKey($key)) {
+            $deduped[$key] = $entry
+        }
+    }
+    return @(
+        $deduped.Values | Sort-Object `
+            @{ Expression = { ([string]$_['scope']).ToLower() } }, `
+            @{ Expression = { [string]$_['surface'] } }, `
+            @{ Expression = { ([string]$_['resource_id']).ToLower() } }, `
+            @{ Expression = { [string]$_['reason'] } }
+    )
+}
+
 function Invoke-ArmRest {
-    param([string]$Url, [string]$Token)
+    param(
+        [string]$Url,
+        [string]$Token,
+        [switch]$PropagateErrors
+    )
     $headers = @{ Authorization = "Bearer $Token"; "Content-Type" = "application/json" }
     $allValues = @()
     $currentUrl = $Url
@@ -101,6 +252,7 @@ function Invoke-ArmRest {
             $response = Invoke-RestMethod -Uri $currentUrl -Headers $headers -Method Get -ErrorAction Stop
         }
         catch {
+            if ($PropagateErrors) { throw }
             Write-Warning "ARM REST call failed: $currentUrl — $_"
             return $allValues
         }
@@ -111,12 +263,50 @@ function Invoke-ArmRest {
 }
 
 function Invoke-ArmRestSingle {
-    param([string]$Url, [string]$Token)
+    param(
+        [string]$Url,
+        [string]$Token,
+        [string]$ExpectedId = "",
+        [string]$DefaultSurface = "policyDefinitions",
+        [System.Collections.IList]$UnresolvedScopes = $null
+    )
     $headers = @{ Authorization = "Bearer $Token"; "Content-Type" = "application/json" }
     try {
-        return Invoke-RestMethod -Uri $Url -Headers $headers -Method Get -ErrorAction Stop
+        $resp = Invoke-RestMethod -Uri $Url -Headers $headers -Method Get -ErrorAction Stop
+        if ($null -eq $resp) { return $null }
+        if ($resp.PSObject.Properties['value'] -and $resp.value -is [System.Collections.IList]) {
+            if ($ExpectedId) {
+                foreach ($item in $resp.value) {
+                    if ($item.id -and $item.id.ToLower() -eq $ExpectedId.ToLower()) { return $item }
+                }
+                return $null
+            }
+            return $(if ($resp.value.Count -gt 0) { $resp.value[0] } else { $null })
+        }
+        if ($resp.PSObject.Properties['id'] -and $resp.id) {
+            if (-not $ExpectedId -or $resp.id.ToLower() -eq $ExpectedId.ToLower()) { return $resp }
+        }
+        return $null
     }
     catch {
+        $code = Get-HttpStatusCode $_
+        if ($code -eq 404) { return $null }
+        if ($code -eq 403) {
+            $target = if ($ExpectedId) { $ExpectedId } else { $Url }
+            $mgInfo = Get-ManagementGroupScopeInfo -Target $target -Detail "$_" -DefaultSurface $DefaultSurface
+            if ($null -ne $mgInfo -and $null -ne $UnresolvedScopes) {
+                [void]$UnresolvedScopes.Add([ordered]@{
+                    reason = "ancestor_scope_forbidden"
+                    scope = $mgInfo.Scope
+                    management_group = $mgInfo.ManagementGroup
+                    surface = $mgInfo.Surface
+                    resource_id = if ($ExpectedId) { $ExpectedId } else { $mgInfo.ResourceId }
+                    http_status = 403
+                })
+                Write-Warning "Ancestor management-group scope forbidden (HTTP 403): $($mgInfo.Scope) ($($mgInfo.Surface): $(if ($ExpectedId) { $ExpectedId } else { $mgInfo.ResourceId }))"
+                return $null
+            }
+        }
         Write-Warning "ARM REST single fetch failed: $Url — $_"
         return $null
     }
@@ -125,29 +315,201 @@ function Invoke-ArmRestSingle {
 # ─── Classification (mirrors discover.py exactly) ───────────────────────────
 function Resolve-ParameterValue {
     param($Value, [hashtable]$Parameters)
-    if ($null -eq $Value -or -not ($Value -is [string])) { return $Value }
-    $trimmed = $Value.Trim()
-    if ($trimmed -match "^\[parameters\('([^']+)'\)\]$") {
-        $key = $Matches[1].ToLower()
-        if ($Parameters.ContainsKey($key)) { return $Parameters[$key] }
-        return $Value
-    }
-    if ($trimmed -match "^\[if\(contains\(parameters\('([^']+)'\),\s*'([^']+)'\),\s*parameters\('([^']+)'\),\s*'([^']+)'\)\]$") {
-        $listKey = $Matches[1].ToLower()
-        $targetType = $Matches[2].ToLower()
-        $effectKey = $Matches[3].ToLower()
-        $fallbackEffect = $Matches[4]
-        if ($Parameters.ContainsKey($listKey) -and $Parameters.ContainsKey($effectKey)) {
-            $container = $Parameters[$listKey]
-            $chosen = $Parameters[$effectKey]
-            if ($container -is [array] -and $null -ne $chosen) {
-                $lowerItems = @($container | ForEach-Object { ([string]$_).ToLower() })
-                if ($lowerItems -contains $targetType) { return [string]$chosen }
-                return [string]$fallbackEffect
+    if ($null -eq $Value) { return $null }
+    if ($Value -is [string]) {
+        $trimmed = $Value.Trim()
+        if ($trimmed -match "^\[parameters\('([^']+)'\)\]$") {
+            $key = $Matches[1].ToLower()
+            if ($Parameters.ContainsKey($key)) { return $Parameters[$key] }
+            return $Value
+        }
+        if ($trimmed -match "^\[if\(contains\(parameters\('([^']+)'\),\s*'([^']+)'\),\s*parameters\('([^']+)'\),\s*'([^']+)'\)\]$") {
+            $listKey = $Matches[1].ToLower()
+            $targetType = $Matches[2].ToLower()
+            $effectKey = $Matches[3].ToLower()
+            $fallbackEffect = $Matches[4]
+            if ($Parameters.ContainsKey($listKey) -and $Parameters.ContainsKey($effectKey)) {
+                $container = $Parameters[$listKey]
+                $chosen = $Parameters[$effectKey]
+                if ($container -is [array] -and $null -ne $chosen) {
+                    $lowerItems = @($container | ForEach-Object { ([string]$_).ToLower() })
+                    if ($lowerItems -contains $targetType) { return [string]$chosen }
+                    return [string]$fallbackEffect
+                }
             }
         }
+        return $Value
+    }
+    if ($Value -is [System.Collections.IDictionary]) {
+        $resolvedDict = [ordered]@{}
+        foreach ($entryKey in $Value.Keys) {
+            $resolvedDict[$entryKey] = Resolve-ParameterValue -Value $Value[$entryKey] -Parameters $Parameters
+        }
+        return $resolvedDict
+    }
+    if ($Value -is [System.Collections.IList]) {
+        $resolvedList = @()
+        foreach ($item in $Value) {
+            $resolvedList += ,(Resolve-ParameterValue -Value $item -Parameters $Parameters)
+        }
+        return ,$resolvedList
+    }
+    if ($Value -is [pscustomobject]) {
+        $resolvedObj = [ordered]@{}
+        foreach ($prop in $Value.PSObject.Properties) {
+            $resolvedObj[$prop.Name] = Resolve-ParameterValue -Value $prop.Value -Parameters $Parameters
+        }
+        return [pscustomobject]$resolvedObj
     }
     return $Value
+}
+
+$CALLER_IDENTITY_EXPR_REGEX = '(?i)(?:requestContext\s*\(\s*\)\s*\.\s*identity\b|requestContext\s*\(\s*\)\s*\[\s*[''"]identity[''"]\s*\]|tryGet\s*\(\s*requestContext\s*\(\s*\)\s*,\s*[''"]identity[''"]\s*\))'
+$DISALLOWED_POLICY_FN_REGEX = '(?i)\b(?:field|resourceGroup|subscription|tenant|policy|deployment)\s*\('
+$CURRENT_FN_REGEX = '(?i)\bcurrent\s*\(\s*(?:[''"]([^''"]+)[''"])?\s*\)'
+$ANY_REQUEST_CONTEXT_REGEX = '(?i)\brequestContext\b'
+$CONDITION_OPERATORS_LOWER = @(
+    "equals", "notequals", "like", "notlike", "match", "matchinsensitively",
+    "notmatch", "notmatchinsensitively", "contains", "notcontains", "in", "notin",
+    "containskey", "notcontainskey", "less", "lessorequals", "greater", "greaterorequals", "exists"
+)
+
+function ConvertTo-LowerKeyTable {
+    param($Node)
+    if ($null -eq $Node) { return $null }
+    if ($Node -is [System.Collections.IDictionary]) {
+        $map = @{}
+        foreach ($k in $Node.Keys) { $map[([string]$k).ToLower()] = $Node[$k] }
+        return $map
+    }
+    if ($Node -is [pscustomobject]) {
+        $map = @{}
+        foreach ($prop in $Node.PSObject.Properties) { $map[$prop.Name.ToLower()] = $prop.Value }
+        return $map
+    }
+    return $null
+}
+
+function Test-IdentityValue {
+    param($Value, [string[]]$BoundCountNames = @())
+    if ($null -eq $Value -or $Value -is [bool] -or $Value -is [ValueType]) {
+        return [pscustomobject]@{ Ok = $true; SawIdentity = $false }
+    }
+    if ($Value -is [string]) {
+        $trimmed = $Value.Trim()
+        if ($trimmed.StartsWith("[") -and -not $trimmed.StartsWith("[[") -and $trimmed.EndsWith("]")) {
+            if ([regex]::IsMatch($trimmed, $DISALLOWED_POLICY_FN_REGEX)) {
+                return [pscustomobject]@{ Ok = $false; SawIdentity = $false }
+            }
+            foreach ($cm in [regex]::Matches($trimmed, $CURRENT_FN_REGEX)) {
+                $boundName = if ($cm.Groups[1].Success -and $cm.Groups[1].Value) { $cm.Groups[1].Value.ToLower() } else { "default" }
+                if ($BoundCountNames -notcontains $boundName) {
+                    return [pscustomobject]@{ Ok = $false; SawIdentity = $false }
+                }
+            }
+            $hasIdentity = [regex]::IsMatch($trimmed, $CALLER_IDENTITY_EXPR_REGEX)
+            $stripped = [regex]::Replace($trimmed, $CALLER_IDENTITY_EXPR_REGEX, "")
+            if ([regex]::IsMatch($stripped, $ANY_REQUEST_CONTEXT_REGEX)) {
+                return [pscustomobject]@{ Ok = $false; SawIdentity = $false }
+            }
+            return [pscustomobject]@{ Ok = $true; SawIdentity = $hasIdentity }
+        }
+        return [pscustomobject]@{ Ok = $true; SawIdentity = $false }
+    }
+    if ($Value -is [System.Collections.IList]) {
+        $saw = $false
+        foreach ($item in $Value) {
+            $res = Test-IdentityValue -Value $item -BoundCountNames $BoundCountNames
+            if (-not $res.Ok) { return [pscustomobject]@{ Ok = $false; SawIdentity = $false } }
+            $saw = $saw -or $res.SawIdentity
+        }
+        return [pscustomobject]@{ Ok = $true; SawIdentity = $saw }
+    }
+    return [pscustomobject]@{ Ok = $false; SawIdentity = $false }
+}
+
+function Test-IdentityCondition {
+    param($Node, [string[]]$BoundCountNames = @())
+    $lowerMap = ConvertTo-LowerKeyTable $Node
+    if ($null -eq $lowerMap -or $lowerMap.Count -eq 0) {
+        return [pscustomobject]@{ Ok = $false; SawIdentity = $false }
+    }
+    if ($lowerMap.ContainsKey("field")) {
+        return [pscustomobject]@{ Ok = $false; SawIdentity = $false }
+    }
+    if ($lowerMap.Count -eq 1 -and ($lowerMap.ContainsKey("allof") -or $lowerMap.ContainsKey("anyof"))) {
+        $key = if ($lowerMap.ContainsKey("allof")) { "allof" } else { "anyof" }
+        $children = $lowerMap[$key]
+        if (-not ($children -is [System.Collections.IList]) -or $children.Count -eq 0) {
+            return [pscustomobject]@{ Ok = $false; SawIdentity = $false }
+        }
+        $saw = $false
+        foreach ($child in $children) {
+            $res = Test-IdentityCondition -Node $child -BoundCountNames $BoundCountNames
+            if (-not $res.Ok) { return [pscustomobject]@{ Ok = $false; SawIdentity = $false } }
+            $saw = $saw -or $res.SawIdentity
+        }
+        return [pscustomobject]@{ Ok = $true; SawIdentity = $saw }
+    }
+    if ($lowerMap.Count -eq 1 -and $lowerMap.ContainsKey("not")) {
+        return Test-IdentityCondition -Node $lowerMap["not"] -BoundCountNames $BoundCountNames
+    }
+    if ($lowerMap.ContainsKey("count")) {
+        $opKeys = @($lowerMap.Keys | Where-Object { $_ -ne "count" })
+        $countMap = ConvertTo-LowerKeyTable $lowerMap["count"]
+        if ($opKeys.Count -ne 1 -or ($CONDITION_OPERATORS_LOWER -notcontains $opKeys[0]) -or $null -eq $countMap) {
+            return [pscustomobject]@{ Ok = $false; SawIdentity = $false }
+        }
+        if ($countMap.ContainsKey("field") -or -not $countMap.ContainsKey("value")) {
+            return [pscustomobject]@{ Ok = $false; SawIdentity = $false }
+        }
+        foreach ($ck in $countMap.Keys) {
+            if ($ck -notin @("value", "name", "where")) {
+                return [pscustomobject]@{ Ok = $false; SawIdentity = $false }
+            }
+        }
+        $valRes = Test-IdentityValue -Value $countMap["value"] -BoundCountNames $BoundCountNames
+        if (-not $valRes.Ok) { return [pscustomobject]@{ Ok = $false; SawIdentity = $false } }
+        $opRes = Test-IdentityValue -Value $lowerMap[$opKeys[0]] -BoundCountNames $BoundCountNames
+        if (-not $opRes.Ok) { return [pscustomobject]@{ Ok = $false; SawIdentity = $false } }
+        $sawWhere = $false
+        if ($countMap.ContainsKey("where")) {
+            $rawName = $countMap["name"]
+            $nextName = if ($rawName -is [string] -and $rawName) { $rawName.ToLower() } else { "default" }
+            $nextBound = @($BoundCountNames + $nextName | Select-Object -Unique)
+            $whereRes = Test-IdentityCondition -Node $countMap["where"] -BoundCountNames $nextBound
+            if (-not $whereRes.Ok) { return [pscustomobject]@{ Ok = $false; SawIdentity = $false } }
+            $sawWhere = $whereRes.SawIdentity
+        }
+        return [pscustomobject]@{ Ok = $true; SawIdentity = ($valRes.SawIdentity -or $opRes.SawIdentity -or $sawWhere) }
+    }
+    if ($lowerMap.ContainsKey("value")) {
+        $opKeys = @($lowerMap.Keys | Where-Object { $_ -ne "value" })
+        if ($opKeys.Count -ne 1 -or ($CONDITION_OPERATORS_LOWER -notcontains $opKeys[0])) {
+            return [pscustomobject]@{ Ok = $false; SawIdentity = $false }
+        }
+        $valRes = Test-IdentityValue -Value $lowerMap["value"] -BoundCountNames $BoundCountNames
+        if (-not $valRes.Ok) { return [pscustomobject]@{ Ok = $false; SawIdentity = $false } }
+        $opRes = Test-IdentityValue -Value $lowerMap[$opKeys[0]] -BoundCountNames $BoundCountNames
+        if (-not $opRes.Ok) { return [pscustomobject]@{ Ok = $false; SawIdentity = $false } }
+        return [pscustomobject]@{ Ok = $true; SawIdentity = ($valRes.SawIdentity -or $opRes.SawIdentity) }
+    }
+    return [pscustomobject]@{ Ok = $false; SawIdentity = $false }
+}
+
+function Test-IsCallerIdentityOnly {
+    param($Defn, [hashtable]$EffectiveParameters = @{})
+    if ($null -eq $Defn -or -not $Defn.properties -or -not $Defn.properties.policyRule) { return $false }
+    $ifNode = $Defn.properties.policyRule.if
+    if ($null -eq $ifNode) { return $false }
+    $resolvedIf = if ($EffectiveParameters.Count -gt 0) {
+        Resolve-ParameterValue -Value $ifNode -Parameters $EffectiveParameters
+    }
+    else {
+        $ifNode
+    }
+    $res = Test-IdentityCondition -Node $resolvedIf
+    return [bool]($res.Ok -and $res.SawIdentity)
 }
 
 function Get-EffectiveParameters {
@@ -200,8 +562,14 @@ function Get-EffectOf {
 }
 
 function Get-Classification {
-    param([string]$Effect)
-    if ($BLOCKER_EFFECTS -contains $Effect) { return "blocker" }
+    param(
+        [string]$Effect,
+        [bool]$IdentityOnly = $false
+    )
+    if ($BLOCKER_EFFECTS -contains $Effect) {
+        if ($IdentityOnly) { return "caller-identity" }
+        return "blocker"
+    }
     if ($AUTO_REMEDIATE_EFFECTS -contains $Effect) { return "auto-remediate" }
     return "informational"
 }
@@ -341,8 +709,29 @@ function Process-Subscription {
     param([string]$SubId, [string]$Token)
 
     $base = "$ARM/subscriptions/$SubId/providers/Microsoft.Authorization"
+    $unresolvedScopeEntries = [System.Collections.ArrayList]::new()
 
-    $assignments = Invoke-ArmRest -Url "$base/policyAssignments?`$filter=atScope()&api-version=$API_ASSIGNMENTS" -Token $Token
+    $assignmentsUrl = "$base/policyAssignments?`$filter=atScope()&api-version=$API_ASSIGNMENTS"
+    try {
+        $assignments = @(Invoke-ArmRest -Url $assignmentsUrl -Token $Token -PropagateErrors)
+    }
+    catch {
+        $mgInfo = if ((Get-HttpStatusCode $_) -eq 403) {
+            Get-ManagementGroupScopeInfo -Target $assignmentsUrl -Detail "$_" -SubscriptionId $SubId -DefaultSurface "policyAssignments"
+        }
+        else { $null }
+        if ($null -eq $mgInfo) { throw }
+        [void]$unresolvedScopeEntries.Add([ordered]@{
+            reason = "ancestor_scope_forbidden"
+            scope = $mgInfo.Scope
+            management_group = $mgInfo.ManagementGroup
+            surface = "policyAssignments"
+            resource_id = $mgInfo.ResourceId
+            http_status = 403
+        })
+        $assignments = @(Invoke-ArmRest -Url "$base/policyAssignments?`$filter=atExactScope()&api-version=$API_ASSIGNMENTS" -Token $Token -PropagateErrors)
+    }
+
     $subDefs = Invoke-ArmRest -Url "$base/policyDefinitions?api-version=$API_DEFINITIONS" -Token $Token
     $subSets = Invoke-ArmRest -Url "$base/policySetDefinitions?api-version=$API_DEFINITIONS" -Token $Token
     $exemptions = Invoke-ArmRest -Url "$base/policyExemptions?`$filter=atScope()&api-version=$API_EXEMPTIONS" -Token $Token
@@ -351,6 +740,79 @@ function Process-Subscription {
     foreach ($d in $subDefs) { $defs[($d.id).ToLower()] = $d }
     $sets = @{}
     foreach ($s in $subSets) { $sets[($s.id).ToLower()] = $s }
+
+    # Hydrate any assignment stubs missing policyDefinitionId
+    for ($idx = 0; $idx -lt $assignments.Count; $idx++) {
+        $stub = $assignments[$idx]
+        if ($stub.id -and (-not $stub.properties -or -not $stub.properties.policyDefinitionId)) {
+            $hydrated = Invoke-ArmRestSingle `
+                -Url "$ARM$($stub.id)?api-version=$API_ASSIGNMENTS" `
+                -Token $Token `
+                -ExpectedId $stub.id `
+                -DefaultSurface "policyAssignments" `
+                -UnresolvedScopes $unresolvedScopeEntries
+            if ($null -ne $hydrated) {
+                $assignments[$idx] = $hydrated
+            }
+        }
+    }
+
+    # Phase 2 — Fetch referenced MG/tenant initiatives and definitions not in subscription lists
+    $tenantSetIds = [ordered]@{}
+    $tenantDefIds = [ordered]@{}
+    foreach ($a in $assignments) {
+        $pidOriginal = if ($a.properties) { [string]($a.properties.policyDefinitionId ?? "") } else { "" }
+        $pidLower = $pidOriginal.ToLower()
+        if (-not $pidLower) { continue }
+        if ($pidLower.Contains("/policysetdefinitions/") -and -not $sets.ContainsKey($pidLower)) {
+            if (-not $tenantSetIds.Contains($pidLower)) { $tenantSetIds[$pidLower] = $pidOriginal }
+        }
+        elseif ($pidLower.Contains("/policydefinitions/") -and -not $defs.ContainsKey($pidLower)) {
+            if (-not $tenantDefIds.Contains($pidLower)) { $tenantDefIds[$pidLower] = $pidOriginal }
+        }
+    }
+
+    foreach ($origSetId in ($tenantSetIds.Values | Sort-Object)) {
+        $fetchedSet = Invoke-ArmRestSingle `
+            -Url "$ARM${origSetId}?api-version=$API_DEFINITIONS" `
+            -Token $Token `
+            -ExpectedId $origSetId `
+            -DefaultSurface "policySetDefinitions" `
+            -UnresolvedScopes $unresolvedScopeEntries
+        if ($null -ne $fetchedSet -and $fetchedSet.id) {
+            $sets[$fetchedSet.id.ToLower()] = $fetchedSet
+        }
+    }
+
+    foreach ($setObj in $sets.Values) {
+        $setMembers = if ($setObj.properties) { $setObj.properties.policyDefinitions } else { $null }
+        if (-not $setMembers) { continue }
+        foreach ($m in $setMembers) {
+            $memberId = [string]($m.policyDefinitionId ?? "")
+            if ($memberId -and -not $defs.ContainsKey($memberId.ToLower()) -and -not $tenantDefIds.Contains($memberId.ToLower())) {
+                $tenantDefIds[$memberId.ToLower()] = $memberId
+            }
+        }
+    }
+
+    foreach ($origDefId in ($tenantDefIds.Values | Sort-Object)) {
+        $fetchedDef = Invoke-ArmRestSingle `
+            -Url "$ARM${origDefId}?api-version=$API_DEFINITIONS" `
+            -Token $Token `
+            -ExpectedId $origDefId `
+            -DefaultSurface "policyDefinitions" `
+            -UnresolvedScopes $unresolvedScopeEntries
+        if ($null -ne $fetchedDef -and $fetchedDef.id) {
+            $defs[$fetchedDef.id.ToLower()] = $fetchedDef
+        }
+    }
+
+    $forbiddenIds = @{}
+    foreach ($entry in $unresolvedScopeEntries) {
+        if ($entry["reason"] -eq "ancestor_scope_forbidden" -and $entry["resource_id"]) {
+            $forbiddenIds[([string]$entry["resource_id"]).ToLower()] = $true
+        }
+    }
 
     # Build exemption map
     $exemptionMap = @{}
@@ -379,9 +841,10 @@ function Process-Subscription {
 
     foreach ($a in $keptAssignments) {
         $props = $a.properties
-        $display = $props.displayName ?? $a.name ?? $a.id ?? "<unknown>"
-        $scope = $props.scope ?? ""
-        $policyDefId = ($props.policyDefinitionId ?? "").ToLower()
+        $display = $(if ($props) { $props.displayName } else { $null }) ?? $a.name ?? $a.id ?? "<unknown>"
+        $scope = $(if ($props) { $props.scope } else { $null }) ?? ""
+        $policyDefOriginal = if ($props) { [string]($props.policyDefinitionId ?? "") } else { "" }
+        $policyDefId = $policyDefOriginal.ToLower()
         $assignmentId = ($a.id ?? "").ToLower()
         $assignmentType = if ($scope.ToLower() -match '/providers/microsoft.management/managementgroups/') { "management-group" } else { "subscription" }
 
@@ -392,7 +855,15 @@ function Process-Subscription {
             policyDefinitionId = $policyDefId
         }
 
-        if (-not $policyDefId) { continue }
+        if (-not $policyDefId) {
+            $unclassifiedCount++
+            if (-not $forbiddenIds.ContainsKey($assignmentId)) {
+                $meta = Get-ScopeMetadataForId -ResourceId ([string]($a.id ?? "")) -SubscriptionId $SubId -FallbackScope $scope
+                $meta["reason"] = "missing_policy_definition_id"
+                [void]$unresolvedScopeEntries.Add($meta)
+            }
+            continue
+        }
 
         # Resolve members and effective parameters
         $members = @()
@@ -400,9 +871,16 @@ function Process-Subscription {
             $setObj = $sets[$policyDefId]
             $setParams = Get-EffectiveParameters -Defn $setObj -Supplied $props.parameters
             $setMembers = $setObj.properties.policyDefinitions
+            if (-not $setMembers -or @($setMembers).Count -eq 0) {
+                $unclassifiedCount++
+                $meta = Get-ScopeMetadataForId -ResourceId ($setObj.id ?? $policyDefOriginal) -SubscriptionId $SubId -FallbackScope $scope
+                $meta["reason"] = "empty_initiative_members"
+                [void]$unresolvedScopeEntries.Add($meta)
+            }
             if ($setMembers) {
                 foreach ($m in $setMembers) {
-                    $mid = ($m.policyDefinitionId ?? "").ToLower()
+                    $midOriginal = [string]($m.policyDefinitionId ?? "")
+                    $mid = $midOriginal.ToLower()
                     if ($defs.ContainsKey($mid)) {
                         $memberDef = $defs[$mid]
                         $memberParams = Get-EffectiveParameters -Defn $memberDef -Supplied $null
@@ -418,6 +896,12 @@ function Process-Subscription {
                     }
                     else {
                         $unclassifiedCount++
+                        $targetUid = if ($midOriginal) { $midOriginal } else { $policyDefOriginal }
+                        if (-not $forbiddenIds.ContainsKey($targetUid.ToLower())) {
+                            $meta = Get-ScopeMetadataForId -ResourceId $targetUid -SubscriptionId $SubId -FallbackScope $scope
+                            $meta["reason"] = "definition_not_found"
+                            [void]$unresolvedScopeEntries.Add($meta)
+                        }
                     }
                 }
             }
@@ -429,16 +913,35 @@ function Process-Subscription {
         }
         else {
             $unclassifiedCount++
+            if (-not $forbiddenIds.ContainsKey($policyDefId)) {
+                $meta = Get-ScopeMetadataForId -ResourceId $policyDefOriginal -SubscriptionId $SubId -FallbackScope $scope
+                $meta["reason"] = "definition_not_found"
+                [void]$unresolvedScopeEntries.Add($meta)
+            }
         }
 
         foreach ($member in $members) {
             $defn = $member.defn
             $memberRefId = $member.memberRefId
             $eff = Get-EffectOf -Defn $defn -EffectiveParameters $member.effectiveParams
-            if (-not $eff) { $unclassifiedCount++; continue }
+            if (-not $eff) {
+                $unclassifiedCount++
+                $meta = Get-ScopeMetadataForId -ResourceId ([string]($defn.id ?? $policyDefOriginal)) -SubscriptionId $SubId -FallbackScope $scope
+                $meta["reason"] = "unresolved_effect"
+                [void]$unresolvedScopeEntries.Add($meta)
+                continue
+            }
             if ($eff -eq "Disabled") { $disabledCount++; continue }
             if ($eff -in @("Audit", "AuditIfNotExists", "Append")) { $auditCount++; continue }
-            if ($eff -notin $RELEVANT_EFFECTS) { $unclassifiedCount++; continue }
+            if ($eff -notin $RELEVANT_EFFECTS) {
+                if ($eff -ne "enforceSetting") {
+                    $unclassifiedCount++
+                    $meta = Get-ScopeMetadataForId -ResourceId ([string]($defn.id ?? $policyDefOriginal)) -SubscriptionId $SubId -FallbackScope $scope
+                    $meta["reason"] = "unresolved_effect"
+                    [void]$unresolvedScopeEntries.Add($meta)
+                }
+                continue
+            }
 
             $rtypes = Get-ResourceTypes $defn
             $paths = Get-PropertyPaths $defn $rtypes
@@ -453,8 +956,13 @@ function Process-Subscription {
                 }
             }
 
-            $classification = Get-Classification $eff
-            if ($exemption -and $classification -eq "blocker") { $classification = "informational" }
+            $identityOnly = if ($BLOCKER_EFFECTS -contains $eff) {
+                Test-IsCallerIdentityOnly -Defn $defn -EffectiveParameters $member.effectiveParams
+            }
+            else { $false }
+            $classification = Get-Classification -Effect $eff -IdentityOnly $identityOnly
+            if ($exemption -and $classification -in @("blocker", "caller-identity")) { $classification = "informational" }
+            if ($props -and $props.enforcementMode -eq "DoNotEnforce") { $classification = "informational" }
 
             $effectLower = $eff.Substring(0,1).ToLower() + $eff.Substring(1)
 
@@ -474,9 +982,12 @@ function Process-Subscription {
                 exemption = $exemption
                 override = $null
             }
+            if ($identityOnly) {
+                $finding.identity_only = $true
+            }
 
             # Assignment parameters
-            $assignmentParams = $props.parameters
+            $assignmentParams = if ($props) { $props.parameters } else { $null }
             if ($assignmentParams) {
                 $paramValues = [ordered]@{}
                 foreach ($key in ($assignmentParams | Get-Member -MemberType NoteProperty | Select-Object -ExpandProperty Name)) {
@@ -490,15 +1001,17 @@ function Process-Subscription {
         }
     }
 
-    $blockerCount = ($findings | Where-Object { $_.classification -eq "blocker" }).Count
-    $autoRemediateCount = ($findings | Where-Object { $_.classification -eq "auto-remediate" }).Count
-    $exemptedCount = ($findings | Where-Object { $null -ne $_.exemption }).Count
-    $infoCount = ($findings | Where-Object { $_.classification -eq "informational" }).Count
-    $subScopeCount = ($keptAssignments | Where-Object { $_.properties.scope -and $_.properties.scope.ToLower() -notmatch '/providers/microsoft.management/' }).Count
-    $mgInheritedCount = ($keptAssignments | Where-Object { $_.properties.scope -and $_.properties.scope.ToLower() -match '/providers/microsoft.management/' }).Count
+    $blockerCount = @($findings | Where-Object { $_.classification -eq "blocker" }).Count
+    $callerIdentityCount = @($findings | Where-Object { $_.classification -eq "caller-identity" }).Count
+    $autoRemediateCount = @($findings | Where-Object { $_.classification -eq "auto-remediate" }).Count
+    $exemptedCount = @($findings | Where-Object { $null -ne $_.exemption }).Count
+    $infoCount = @($findings | Where-Object { $_.classification -eq "informational" }).Count
+    $subScopeCount = @($keptAssignments | Where-Object { $_.properties -and $_.properties.scope -and $_.properties.scope.ToLower() -notmatch '/providers/microsoft.management/' }).Count
+    $mgInheritedCount = @($keptAssignments | Where-Object { $_.properties -and $_.properties.scope -and $_.properties.scope.ToLower() -match '/providers/microsoft.management/' }).Count
 
     $tagsRequired = Get-TagsRequired $findings
     $allowedLocations = Get-AllowedLocations $findings
+    $unresolvedScopes = @(Get-NormalizedUnresolvedScopes -Entries $unresolvedScopeEntries)
 
     # L0 attestation envelope (plan-optimiseGovernanceAgent.prompt.md Phase 3b).
     # We emit every field except `completeness_signature` here; the cached
@@ -508,7 +1021,7 @@ function Process-Subscription {
     $discoveredAtIso = (Get-Date -Format "yyyy-MM-ddTHH:mm:ssZ" -AsUTC)
     $managementGroups = @(
         $keptAssignments
-        | Where-Object { $_.properties.scope -and ($_.properties.scope.ToLower() -match '/providers/microsoft.management/managementgroups/') }
+        | Where-Object { $_.properties -and $_.properties.scope -and ($_.properties.scope.ToLower() -match '/providers/microsoft.management/managementgroups/') }
         | ForEach-Object {
             $marker = '/providers/microsoft.management/managementgroups/'
             $scope = $_.properties.scope.ToLower()
@@ -517,7 +1030,7 @@ function Process-Subscription {
         | Where-Object { $_ }
         | Select-Object -Unique
     )
-    $subDiscoveryStatus = if ($unclassifiedCount -gt 0) { "PARTIAL" } else { "COMPLETE" }
+    $subDiscoveryStatus = if ($unclassifiedCount -gt 0 -or $unresolvedScopes.Count -gt 0) { "PARTIAL" } else { "COMPLETE" }
     $discoveryMetadata = [ordered]@{
         discovery_status = $subDiscoveryStatus
         discovered_at = $discoveredAtIso
@@ -540,6 +1053,9 @@ function Process-Subscription {
         completeness_signature = ""
         ttl_days = 7
     }
+    if ($unresolvedScopes.Count -gt 0) {
+        $discoveryMetadata.unresolved_scopes = @($unresolvedScopes)
+    }
 
     return [ordered]@{
         schema_version = "governance-constraints-v1"
@@ -548,6 +1064,7 @@ function Process-Subscription {
         source = "github-actions-baseline"
         discovery_status = $subDiscoveryStatus
         discovery_metadata = $discoveryMetadata
+        unresolved_scopes = @($unresolvedScopes)
         discovery_summary = [ordered]@{
             assignment_total = $assignments.Count
             assignment_kept = $keptAssignments.Count
@@ -555,6 +1072,7 @@ function Process-Subscription {
             subscription_scope_count = $subScopeCount
             management_group_inherited_count = $mgInheritedCount
             blocker_count = $blockerCount
+            caller_identity_count = $callerIdentityCount
             auto_remediate_count = $autoRemediateCount
             informational_count = $infoCount
             audit_count = $auditCount
@@ -570,6 +1088,7 @@ function Process-Subscription {
 }
 
 # ─── Main ────────────────────────────────────────────────────────────────────
+if ($MyInvocation.InvocationName -ne '.') {
 Write-Host "Governance Baseline Collector — MG: $ManagementGroupId"
 
 $token = Get-ArmToken
@@ -711,3 +1230,4 @@ $baseline | ConvertTo-Json -Depth 100 | Set-Content -Path $rawFile -NoNewline
 Write-Host "Wrote raw debug: $rawFile (gitignored)"
 
 Write-Host "Done. Coverage: $coverageStatus | Processed: $totalProcessed | Excluded: $($subscriptionsExcluded.Count) | Skipped: $($subscriptionsSkipped.Count)"
+}

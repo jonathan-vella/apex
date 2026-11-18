@@ -88,6 +88,7 @@ human-readable preview after:
   "cache_hit": false,
   "assignment_total": 247,
   "blockers": 18,
+  "caller_identity": 2,
   "auto_remediate": 12,
   "exempted": 3,
   "out_path": "agent-output/my-project/04-governance-constraints.json"
@@ -110,9 +111,11 @@ The script writes a JSON envelope conforming to
 (`schema_version: governance-constraints-v1`). Each finding carries both
 `bicepPropertyPath` and `azurePropertyPath` (always strings — empty `""` when
 unresolvable, never `null`), plus `category`, `exemption`, and `classification`
-(`"blocker"` | `"auto-remediate"` | `"informational"`; exempted Deny/Modify
-blockers downgrade to `"informational"`). Top-level envelope also includes
-`policies` (alias of `findings`), `tags_required`, `allowed_locations`, and
+(`"blocker"` | `"caller-identity"` | `"auto-remediate"` | `"informational"`;
+pure `requestContext().identity` Deny policies set `classification: "caller-identity"` and `identity_only: true`;
+exempted or `DoNotEnforce` Deny findings downgrade to `"informational"`). Top-level envelope also includes
+`policies` (alias of `findings`), `tags_required`, `allowed_locations`, `unresolved_scopes`
+(structured `PARTIAL` causes including `ancestor_scope_forbidden` for ancestor-MG HTTP `403`s), and
 `discovery_metadata` (**L0 attestation envelope — MANDATORY**).
 
 For the full per-finding schema and additive fields, read

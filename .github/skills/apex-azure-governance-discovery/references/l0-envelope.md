@@ -59,6 +59,7 @@ object FIRST and STOPS if any field is missing or stale.
 | `page_counts.*`           | yes      | Collected item totals per REST surface, retained under the historical field name; not page totals.      |
 | `completeness_signature`  | yes      | `sha256:<hex>` over canonically sorted policy tuples, including assignment/member identity when present. |
 | `ttl_days`                | yes      | Staleness threshold. Default `7`. Downstream consumers compute `age_days = (now - discovered_at)/86400`. |
+| `unresolved_scopes`       | no       | Present when `discovery_status == "PARTIAL"`. Structured array of `{reason, scope, management_group?, surface, resource_id, http_status?}` entries (e.g. `ancestor_scope_forbidden` on HTTP `403` at an ancestor MG). |
 
 ## Completeness signature
 

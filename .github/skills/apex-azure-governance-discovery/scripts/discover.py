@@ -111,6 +111,133 @@ def _get_arm_token() -> str:
     return data["accessToken"]
 
 
+class ArmHttpError(RuntimeError):
+    """ARM REST HTTP failure with structured status code, URL, and detail."""
+
+    def __init__(self, url: str, status_code: int, reason: str = "", detail: str = "") -> None:
+        self.url = url
+        self.status_code = status_code
+        self.reason = reason
+        self.detail = detail
+        suffix = f" {reason}" if reason else ""
+        super().__init__(f"ARM GET {url} failed: HTTP {status_code}{suffix}; {detail}")
+
+
+_HTTP_STATUS_RE = re.compile(r"\bHTTP(?:/\d(?:\.\d)?)?\s+(\d{3})\b|\b(403)\s+Forbidden\b", re.IGNORECASE)
+_MG_RESOURCE_RE = re.compile(
+    r"/providers/Microsoft\.Management/managementGroups/([^/?#'\"\s]+)"
+    r"(?:/providers/Microsoft\.Authorization/(policyAssignments|policyDefinitions|policySetDefinitions|policyExemptions)(?:/[^/?#'\"\s]+)?)?",
+    re.IGNORECASE,
+)
+_CANONICAL_SURFACES = {
+    "policyassignments": "policyAssignments",
+    "policydefinitions": "policyDefinitions",
+    "policysetdefinitions": "policySetDefinitions",
+    "policyexemptions": "policyExemptions",
+}
+
+
+def _http_status_code(exc: BaseException) -> int | None:
+    for candidate in (exc, getattr(exc, "__cause__", None), getattr(exc, "__context__", None)):
+        if candidate is None:
+            continue
+        for attr in ("status_code", "code"):
+            val = getattr(candidate, attr, None)
+            if isinstance(val, int) and 100 <= val <= 599:
+                return val
+    match = _HTTP_STATUS_RE.search(str(exc))
+    if match:
+        return int(match.group(1) or match.group(2))
+    return None
+
+
+def _parse_mg_scope(
+    target: str,
+    detail: str = "",
+    subscription_id: str = "",
+    default_surface: str = "policyDefinitions",
+) -> dict[str, str] | None:
+    clean_target = (target or "").removeprefix(ARM).split("?", 1)[0]
+    match = _MG_RESOURCE_RE.search(clean_target)
+    if match:
+        mg_id = match.group(1)
+        surface = _CANONICAL_SURFACES.get((match.group(2) or "").lower(), default_surface)
+        return {
+            "scope": f"/providers/Microsoft.Management/managementGroups/{mg_id}",
+            "management_group": mg_id,
+            "surface": surface,
+            "resource_id": clean_target,
+        }
+    if detail:
+        lowered_detail = detail.lower()
+        sub_scope = f"/subscriptions/{subscription_id}".lower() if subscription_id else ""
+        if sub_scope and (f"scope '{sub_scope}'" in lowered_detail or f'scope "{sub_scope}"' in lowered_detail):
+            return None
+        detail_match = _MG_RESOURCE_RE.search(detail)
+        if detail_match:
+            mg_id = detail_match.group(1)
+            surface = _CANONICAL_SURFACES.get((detail_match.group(2) or "").lower(), default_surface)
+            return {
+                "scope": f"/providers/Microsoft.Management/managementGroups/{mg_id}",
+                "management_group": mg_id,
+                "surface": surface,
+                "resource_id": detail_match.group(0),
+            }
+    return None
+
+
+def _scope_metadata_for_id(resource_id: str, subscription_id: str, fallback_scope: str = "") -> dict[str, str]:
+    clean = (resource_id or "").removeprefix(ARM).split("?", 1)[0]
+    lowered = clean.lower()
+    surface = "policyDefinitions"
+    for marker, canonical in _CANONICAL_SURFACES.items():
+        if f"/{marker}/" in lowered or lowered.endswith(f"/{marker}"):
+            surface = canonical
+            break
+    mg_info = _parse_mg_scope(clean, default_surface=surface)
+    if mg_info is not None:
+        return mg_info
+    scope = fallback_scope or (
+        clean.split("/providers/Microsoft.Authorization/", 1)[0]
+        if "/providers/microsoft.authorization/" in lowered
+        else ""
+    )
+    if not scope:
+        scope = "/providers/Microsoft.Authorization" if lowered.startswith("/providers/microsoft.authorization/") else f"/subscriptions/{subscription_id}"
+    out = {
+        "scope": scope,
+        "surface": surface,
+        "resource_id": clean or scope,
+    }
+    scope_mg = _parse_mg_scope(scope, default_surface=surface)
+    if scope_mg is not None:
+        out["scope"] = scope_mg["scope"]
+        out["management_group"] = scope_mg["management_group"]
+    return out
+
+
+def _normalize_unresolved_scopes(entries: list[dict[str, Any]]) -> list[dict[str, Any]]:
+    deduped: dict[tuple[Any, ...], dict[str, Any]] = {}
+    for entry in entries:
+        key = (
+            entry.get("reason", ""),
+            str(entry.get("scope", "")).lower(),
+            entry.get("surface", ""),
+            str(entry.get("resource_id", "")).lower(),
+            entry.get("http_status"),
+        )
+        deduped.setdefault(key, entry)
+    return sorted(
+        deduped.values(),
+        key=lambda item: (
+            str(item.get("scope", "")).lower(),
+            str(item.get("surface", "")),
+            str(item.get("resource_id", "")).lower(),
+            str(item.get("reason", "")),
+        ),
+    )
+
+
 def _default_az_rest(url: str) -> dict[str, Any]:
     """GET `url` with the cached ARM bearer token via stdlib urllib.
 
@@ -138,9 +265,7 @@ def _default_az_rest(url: str) -> dict[str, Any]:
             detail = e.read().decode("utf-8", errors="replace")[:500]
         except Exception:  # pragma: no cover
             pass
-        raise RuntimeError(
-            f"ARM GET {url} failed: HTTP {e.code} {e.reason}; {detail}"
-        ) from e
+        raise ArmHttpError(url, e.code, str(e.reason), detail) from e
 
 
 def _default_get_subscription() -> str:
@@ -203,6 +328,9 @@ def _parallel_fetch_items(
     az_rest: Callable[[str], dict[str, Any]],
     urls: list[str],
     expected_ids: list[str] | None = None,
+    *,
+    forbidden_out: list[dict[str, Any]] | None = None,
+    default_surface: str = "policyDefinitions",
 ) -> list[dict[str, Any] | None]:
     """Fetch individual items concurrently; tolerate both response shapes.
 
@@ -219,22 +347,42 @@ def _parallel_fetch_items(
     if expected_ids is None:
         expected_ids = [""] * len(urls)
 
-    def _fetch(url: str, expected_id: str) -> dict[str, Any] | None:
-        resp = az_rest(url)
+    def _fetch(url: str, expected_id: str) -> tuple[dict[str, Any] | None, dict[str, Any] | None]:
+        try:
+            resp = az_rest(url)
+        except Exception as exc:
+            if _http_status_code(exc) == 403:
+                mg_info = _parse_mg_scope(expected_id or url, str(exc), default_surface=default_surface)
+                if mg_info is not None:
+                    return None, {
+                        "reason": "ancestor_scope_forbidden",
+                        "scope": mg_info["scope"],
+                        "management_group": mg_info["management_group"],
+                        "surface": mg_info["surface"],
+                        "resource_id": expected_id or mg_info["resource_id"],
+                        "http_status": 403,
+                    }
+            raise
         if not isinstance(resp, dict) or not resp:
-            return None
+            return None, None
         if "value" in resp and isinstance(resp["value"], list):
             if expected_id:
                 for item in resp["value"]:
                     if (item.get("id") or "").lower() == expected_id.lower():
-                        return item
-            return None if expected_id else (resp["value"][0] if resp["value"] else None)
+                        return item, None
+            return (None if expected_id else (resp["value"][0] if resp["value"] else None)), None
         if resp.get("id"):
-            return resp if not expected_id or resp["id"].lower() == expected_id.lower() else None
-        return None
+            return (resp if not expected_id or resp["id"].lower() == expected_id.lower() else None), None
+        return None, None
 
     with ThreadPoolExecutor(max_workers=min(_PARALLEL_WORKERS, len(urls))) as pool:
-        return list(pool.map(_fetch, urls, expected_ids))
+        results = list(pool.map(_fetch, urls, expected_ids))
+    items: list[dict[str, Any] | None] = []
+    for item, forbidden in results:
+        items.append(item)
+        if forbidden is not None and forbidden_out is not None:
+            forbidden_out.append(forbidden)
+    return items
 
 
 # Built-in diagnostic-settings initiatives gate each member's effect on a resource-type list parameter.
@@ -697,6 +845,8 @@ def _self_check_assignments(
     subscription_id: str,
     expected_count: int,
     expected_assignments: list[dict[str, Any]] | None = None,
+    *,
+    scope_filter: str = "atScope()",
 ) -> tuple[bool, int]:
     """Re-fetch all assignment pages and compare inventory and count.
 
@@ -707,7 +857,7 @@ def _self_check_assignments(
     try:
         url = (
             f"{ARM}/subscriptions/{subscription_id}/providers/Microsoft.Authorization/"
-            f"policyAssignments?$filter=atScope()&api-version={API_ASSIGNMENTS}"
+            f"policyAssignments?$filter={scope_filter}&api-version={API_ASSIGNMENTS}"
         )
         items = _list_all(az_rest, url)
         same_inventory = expected_assignments is None or sorted(
@@ -722,10 +872,143 @@ def _self_check_assignments(
 # Core                                                                        #
 # --------------------------------------------------------------------------- #
 
+_CALLER_IDENTITY_EXPR_RE = re.compile(
+    r"(?:"
+    r"requestContext\s*\(\s*\)\s*\.\s*identity\b"
+    r"|requestContext\s*\(\s*\)\s*\[\s*['\"]identity['\"]\s*\]"
+    r"|tryGet\s*\(\s*requestContext\s*\(\s*\)\s*,\s*['\"]identity['\"]\s*\)"
+    r")",
+    re.IGNORECASE,
+)
+_DISALLOWED_POLICY_FN_RE = re.compile(
+    r"\b(?:field|resourceGroup|subscription|tenant|policy|deployment)\s*\(",
+    re.IGNORECASE,
+)
+_CURRENT_FN_RE = re.compile(r"\bcurrent\s*\(\s*(?:['\"]([^'\"]+)['\"])?\s*\)", re.IGNORECASE)
+_ANY_REQUEST_CONTEXT_RE = re.compile(r"\brequestContext\b", re.IGNORECASE)
+_CONDITION_OPERATORS_LOWER = {
+    "equals",
+    "notequals",
+    "like",
+    "notlike",
+    "match",
+    "matchinsensitively",
+    "notmatch",
+    "notmatchinsensitively",
+    "contains",
+    "notcontains",
+    "in",
+    "notin",
+    "containskey",
+    "notcontainskey",
+    "less",
+    "lessorequals",
+    "greater",
+    "greaterorequals",
+    "exists",
+}
 
-def _classify(effect: str) -> str:
+
+def _inspect_identity_value(value: Any, bound_count_names: frozenset[str] = frozenset()) -> tuple[bool, bool]:
+    if isinstance(value, str):
+        trimmed = value.strip()
+        if trimmed.startswith("[") and not trimmed.startswith("[[") and trimmed.endswith("]"):
+            if _DISALLOWED_POLICY_FN_RE.search(trimmed):
+                return False, False
+            for current_match in _CURRENT_FN_RE.finditer(trimmed):
+                name = (current_match.group(1) or "default").lower()
+                if name not in bound_count_names:
+                    return False, False
+            has_identity = bool(_CALLER_IDENTITY_EXPR_RE.search(trimmed))
+            stripped = _CALLER_IDENTITY_EXPR_RE.sub("", trimmed)
+            if _ANY_REQUEST_CONTEXT_RE.search(stripped):
+                return False, False
+            return True, has_identity
+        return True, False
+    if value is None or isinstance(value, (bool, int, float)):
+        return True, False
+    if isinstance(value, list):
+        saw_identity = False
+        for item in value:
+            ok, item_saw = _inspect_identity_value(item, bound_count_names)
+            if not ok:
+                return False, False
+            saw_identity = saw_identity or item_saw
+        return True, saw_identity
+    return False, False
+
+
+def _inspect_identity_condition(
+    node: Any,
+    bound_count_names: frozenset[str] = frozenset(),
+) -> tuple[bool, bool]:
+    if not isinstance(node, dict) or not node:
+        return False, False
+    lower_map = {str(k).lower(): v for k, v in node.items()}
+    keys = set(lower_map.keys())
+    if "field" in keys:
+        return False, False
+    if keys in ({"allof"}, {"anyof"}):
+        children = next(iter(lower_map.values()))
+        if not isinstance(children, list) or not children:
+            return False, False
+        saw_identity = False
+        for child in children:
+            ok, child_saw = _inspect_identity_condition(child, bound_count_names)
+            if not ok:
+                return False, False
+            saw_identity = saw_identity or child_saw
+        return True, saw_identity
+    if keys == {"not"}:
+        return _inspect_identity_condition(lower_map["not"], bound_count_names)
+    if "count" in keys:
+        op_keys = keys - {"count"}
+        count_obj = lower_map["count"]
+        if len(op_keys) != 1 or next(iter(op_keys)) not in _CONDITION_OPERATORS_LOWER or not isinstance(count_obj, dict):
+            return False, False
+        count_lower = {str(k).lower(): v for k, v in count_obj.items()}
+        if "field" in count_lower or "value" not in count_lower or not (set(count_lower.keys()) <= {"value", "name", "where"}):
+            return False, False
+        ok_val, saw_val = _inspect_identity_value(count_lower["value"], bound_count_names)
+        if not ok_val:
+            return False, False
+        op_key = next(iter(op_keys))
+        ok_op, saw_op = _inspect_identity_value(lower_map[op_key], bound_count_names)
+        if not ok_op:
+            return False, False
+        saw_where = False
+        if "where" in count_lower:
+            count_name = count_lower.get("name")
+            next_bound = bound_count_names | {str(count_name if isinstance(count_name, str) and count_name else "default").lower()}
+            ok_where, saw_where = _inspect_identity_condition(count_lower["where"], next_bound)
+            if not ok_where:
+                return False, False
+        return True, saw_val or saw_op or saw_where
+    if "value" in keys:
+        op_keys = keys - {"value"}
+        if len(op_keys) != 1 or next(iter(op_keys)) not in _CONDITION_OPERATORS_LOWER:
+            return False, False
+        ok_val, saw_val = _inspect_identity_value(lower_map["value"], bound_count_names)
+        if not ok_val:
+            return False, False
+        op_key = next(iter(op_keys))
+        ok_op, saw_op = _inspect_identity_value(lower_map[op_key], bound_count_names)
+        if not ok_op:
+            return False, False
+        return True, saw_val or saw_op
+    return False, False
+
+
+def _is_caller_identity_only(defn: dict[str, Any]) -> bool:
+    """Return True iff policyRule.if evaluates only requestContext().identity predicates."""
+    condition = ((defn.get("properties") or {}).get("policyRule") or {}).get("if")
+    ok, saw_identity = _inspect_identity_condition(condition)
+    return bool(ok and saw_identity)
+
+
+def _classify(effect: str, *, identity_only: bool = False) -> str:
     if effect in BLOCKER_EFFECTS:
-        return "blocker"
+        return "caller-identity" if identity_only else "blocker"
     if effect in AUTO_REMEDIATE_EFFECTS:
         return "auto-remediate"
     return "informational"
@@ -948,19 +1231,70 @@ def discover(
     # The tenant-wide built-in definition list (~1500 items) is deliberately
     # NOT fetched here; we fetch only the tenant definitions an assignment
     # actually references (Phase 2). Saves a large, mostly-unused payload.
-    primary = _parallel_list(
-        az_rest,
-        {
-            "assignments": f"{base}/policyAssignments?$filter=atScope()&api-version={API_ASSIGNMENTS}",
-            "sub_defs": f"{base}/policyDefinitions?api-version={API_DEFINITIONS}",
-            "sub_sets": f"{base}/policySetDefinitions?api-version={API_DEFINITIONS}",
-            "exemptions": f"{base}/policyExemptions?$filter=atScope()&api-version={API_EXEMPTIONS}",
-        },
-    )
-    assignments = primary["assignments"]
+    unresolved_scope_entries: list[dict[str, Any]] = []
+    assignments_filter = "atScope()"
+    assignments_url = f"{base}/policyAssignments?$filter={assignments_filter}&api-version={API_ASSIGNMENTS}"
+    sub_list_urls = {
+        "sub_defs": f"{base}/policyDefinitions?api-version={API_DEFINITIONS}",
+        "sub_sets": f"{base}/policySetDefinitions?api-version={API_DEFINITIONS}",
+        "exemptions": f"{base}/policyExemptions?$filter=atScope()&api-version={API_EXEMPTIONS}",
+    }
+    try:
+        primary = _parallel_list(az_rest, {"assignments": assignments_url, **sub_list_urls})
+        assignments = primary["assignments"]
+    except Exception as exc:
+        mg_info = (
+            _parse_mg_scope(assignments_url, str(exc), subscription_id=subscription_id, default_surface="policyAssignments")
+            if _http_status_code(exc) == 403
+            else None
+        )
+        if mg_info is None:
+            raise
+        unresolved_scope_entries.append(
+            {
+                "reason": "ancestor_scope_forbidden",
+                "scope": mg_info["scope"],
+                "management_group": mg_info["management_group"],
+                "surface": "policyAssignments",
+                "resource_id": mg_info["resource_id"],
+                "http_status": 403,
+            }
+        )
+        assignments_filter = "atExactScope()"
+        primary = _parallel_list(
+            az_rest,
+            {
+                "assignments": f"{base}/policyAssignments?$filter={assignments_filter}&api-version={API_ASSIGNMENTS}",
+                **sub_list_urls,
+            },
+        )
+        assignments = primary["assignments"]
+
+    raw_assignments = list(assignments)
+    assignments = list(raw_assignments)
     defs: dict[str, dict[str, Any]] = {d["id"].lower(): d for d in primary["sub_defs"]}
     sets: dict[str, dict[str, Any]] = {s["id"].lower(): s for s in primary["sub_sets"]}
     exemptions = primary["exemptions"]
+
+    # Hydrate any assignment stubs missing policyDefinitionId (for example,
+    # ancestor management-group assignment references requiring an individual GET).
+    stub_indices = [
+        idx
+        for idx, a in enumerate(assignments)
+        if a.get("id") and not ((a.get("properties") or {}).get("policyDefinitionId"))
+    ]
+    if stub_indices:
+        stub_ids = [str(assignments[idx]["id"]) for idx in stub_indices]
+        hydrated = _parallel_fetch_items(
+            az_rest,
+            [f"{ARM}{aid}?api-version={API_ASSIGNMENTS}" for aid in stub_ids],
+            expected_ids=stub_ids,
+            forbidden_out=unresolved_scope_entries,
+            default_surface="policyAssignments",
+        )
+        for idx, item in zip(stub_indices, hydrated, strict=True):
+            if item is not None:
+                assignments[idx] = item
 
     # Phase 2 — Fetch only the tenant-scoped initiatives and definitions that
     # assignments actually reference. Initiatives come first because their
@@ -985,6 +1319,8 @@ def discover(
             az_rest,
             [f"{ARM}{orig}?api-version={API_DEFINITIONS}" for _, orig in ordered],
             expected_ids=[orig for _, orig in ordered],
+            forbidden_out=unresolved_scope_entries,
+            default_surface="policySetDefinitions",
         )
         for s in fetched_sets:
             if s:
@@ -1002,10 +1338,18 @@ def discover(
             az_rest,
             [f"{ARM}{orig}?api-version={API_DEFINITIONS}" for _, orig in ordered],
             expected_ids=[orig for _, orig in ordered],
+            forbidden_out=unresolved_scope_entries,
+            default_surface="policyDefinitions",
         )
         for d in fetched_defs:
             if d:
                 defs.setdefault((d.get("id") or "").lower(), d)
+
+    forbidden_ids = {
+        str(entry.get("resource_id", "")).lower()
+        for entry in unresolved_scope_entries
+        if entry.get("reason") == "ancestor_scope_forbidden"
+    }
 
     exemption_map = _build_exemption_map(exemptions)
 
@@ -1055,10 +1399,24 @@ def discover(
 
         if not pid:
             unresolved.append(assignment_id)
+            if assignment_id not in forbidden_ids:
+                meta = _scope_metadata_for_id(a.get("id") or "", subscription_id, fallback_scope=scope)
+                unresolved_scope_entries.append({"reason": "missing_policy_definition_id", **meta})
             continue
 
         # Resolve to member definitions (initiative → its members; policy → itself).
+        before_unresolved = len(unresolved)
         members = _assignment_members(a, defs, sets, unresolved)
+        for uid in unresolved[before_unresolved:]:
+            if uid.lower() in forbidden_ids:
+                continue
+            reason = (
+                "empty_initiative_members"
+                if "/policysetdefinitions/" in uid.lower() and uid.lower() in sets
+                else "definition_not_found"
+            )
+            meta = _scope_metadata_for_id(uid, subscription_id, fallback_scope=scope)
+            unresolved_scope_entries.append({"reason": reason, **meta})
 
         for original_defn, member_ref_id, supplied in members:
             if retain_rule_evidence:
@@ -1067,7 +1425,10 @@ def discover(
             defn = _effective_definition(original_defn, effective_parameters)
             eff = _effect_of(defn)
             if eff is None:
-                unresolved.append(original_defn.get("id") or pid)
+                uid = original_defn.get("id") or pid
+                unresolved.append(uid)
+                meta = _scope_metadata_for_id(uid, subscription_id, fallback_scope=scope)
+                unresolved_scope_entries.append({"reason": "unresolved_effect", **meta})
                 continue
             if eff == "Disabled":
                 disabled_count += 1
@@ -1077,7 +1438,10 @@ def discover(
                 continue
             if eff not in RELEVANT_EFFECTS:
                 if eff not in {"Append", "enforceSetting"}:
-                    unresolved.append(original_defn.get("id") or pid)
+                    uid = original_defn.get("id") or pid
+                    unresolved.append(uid)
+                    meta = _scope_metadata_for_id(uid, subscription_id, fallback_scope=scope)
+                    unresolved_scope_entries.append({"reason": "unresolved_effect", **meta})
                 continue
 
             rtypes = _resource_types(defn)
@@ -1089,8 +1453,9 @@ def discover(
             exemption_candidates = exemption_map.get(assignment_id, [])
             exemption = _covering_exemption(exemption_candidates, subscription_id, scope, member_ref_id, evaluated_at)
 
-            classification = _classify(eff)
-            if exemption is not None and classification == "blocker":
+            identity_only = _is_caller_identity_only(defn) if eff in BLOCKER_EFFECTS else False
+            classification = _classify(eff, identity_only=identity_only)
+            if exemption is not None and classification in {"blocker", "caller-identity"}:
                 classification = "informational"
             if props.get("enforcementMode") == "DoNotEnforce":
                 classification = "informational"
@@ -1117,6 +1482,8 @@ def discover(
                 "exemption": exemption,
                 "override": None,
             }
+            if identity_only:
+                finding["identity_only"] = True
             if exemption_candidates:
                 finding["exemption_candidates"] = exemption_candidates
             condition = ((defn.get("properties") or {}).get("policyRule") or {}).get("if")
@@ -1152,23 +1519,47 @@ def discover(
             findings.append(finding)
 
     blockers = sum(1 for f in findings if f["classification"] == "blocker")
+    caller_identity = sum(1 for f in findings if f["classification"] == "caller-identity")
     auto_remediate = sum(1 for f in findings if f["classification"] == "auto-remediate")
     exempted = sum(1 for f in findings if f["exemption"] is not None)
 
     # L0 envelope: signature, scope, and self-check.
     management_groups = _extract_management_groups(kept_assignments)
-    discovery_status = "PARTIAL" if unresolved else "COMPLETE"
     for policy_id in sorted(set(unresolved)):
         print(f"unresolved policy definition or effect: {policy_id}", file=sys.stderr)
-    self_check_ok, self_check_count = _self_check_assignments(az_rest, subscription_id, len(assignments), assignments)
+    self_check_ok, self_check_count = _self_check_assignments(
+        az_rest,
+        subscription_id,
+        len(raw_assignments),
+        raw_assignments,
+        scope_filter=assignments_filter,
+    )
     if not self_check_ok:
-        discovery_status = "PARTIAL"
+        unresolved_scope_entries.append(
+            {
+                "reason": "assignment_inventory_drift",
+                "scope": f"/subscriptions/{subscription_id}",
+                "surface": "policyAssignments",
+                "resource_id": f"/subscriptions/{subscription_id}",
+            }
+        )
         print(
             f"self-check: policyAssignments inventory drift "
-            f"(expected={len(assignments)}, observed={self_check_count}); "
+            f"(expected={len(raw_assignments)}, observed={self_check_count}); "
             f"marking discovery_status=PARTIAL",
             file=sys.stderr,
         )
+
+    unresolved_scopes = _normalize_unresolved_scopes(unresolved_scope_entries)
+    for entry in unresolved_scopes:
+        if entry.get("reason") == "ancestor_scope_forbidden":
+            print(
+                f"ancestor management-group scope forbidden (HTTP {entry.get('http_status', 403)}): "
+                f"{entry.get('scope')} ({entry.get('surface')}: {entry.get('resource_id')})",
+                file=sys.stderr,
+            )
+
+    discovery_status = "PARTIAL" if (unresolved or unresolved_scopes or not self_check_ok) else "COMPLETE"
 
     discovered_at = datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
     discovery_metadata = _build_discovery_metadata(
@@ -1183,6 +1574,7 @@ def discover(
         discovered_at=discovered_at,
         discovery_status=discovery_status,
         source="live",
+        unresolved_scopes=unresolved_scopes or None,
     )
 
     envelope = {
@@ -1194,6 +1586,7 @@ def discover(
         "source": "azure-policy-rest-api",
         "discovery_status": discovery_status,
         "discovery_metadata": discovery_metadata,
+        "unresolved_scopes": unresolved_scopes,
         "discovery_summary": {
             "assignment_total": len(assignments),
             "assignment_kept": len(kept_assignments),
@@ -1205,6 +1598,7 @@ def discover(
                 1 for a in kept_assignments if "/providers/microsoft.management/" in (a.get("properties", {}).get("scope") or "").lower()
             ),
             "blocker_count": blockers,
+            "caller_identity_count": caller_identity,
             "auto_remediate_count": auto_remediate,
             "informational_count": sum(
                 1 for f in findings if f["classification"] == "informational"
@@ -1250,6 +1644,15 @@ def discover(
         envelope["discovery_metadata"]["rule_evidence_sha256"] = rule_evidence_digest(envelope["rule_evidence"])
         if rule_evidence_errors(envelope):
             envelope["discovery_status"] = envelope["discovery_metadata"]["discovery_status"] = "PARTIAL"
+            if not envelope["unresolved_scopes"]:
+                entry = {
+                    "reason": "rule_evidence_invalid",
+                    "scope": f"/subscriptions/{subscription_id}",
+                    "surface": "policyDefinitions",
+                    "resource_id": f"/subscriptions/{subscription_id}",
+                }
+                envelope["unresolved_scopes"] = [entry]
+                envelope["discovery_metadata"]["unresolved_scopes"] = [entry]
     return envelope
 
 
@@ -1272,6 +1675,7 @@ def _emit_preview(envelope: dict[str, Any], limit: int = 20) -> None:
         f"assignments (of {summary['assignment_total']}; "
         f"{summary['defender_auto_filtered']} Defender auto filtered); "
         f"{summary['blocker_count']} blockers, "
+        f"{summary['caller_identity_count']} caller-identity, "
         f"{summary['auto_remediate_count']} auto-remediate, "
         f"{summary['exempted_count']} exempted."
     )
@@ -1500,6 +1904,7 @@ def main(argv: list[str] | None = None) -> int:
                     "cache_hit": True,
                     "assignment_total": summary.get("assignment_total", 0),
                     "blockers": summary.get("blocker_count", 0),
+                    "caller_identity": summary.get("caller_identity_count", 0),
                     "auto_remediate": summary.get("auto_remediate_count", 0),
                     "exempted": summary.get("exempted_count", 0),
                     "out_path": str(out_path),
@@ -1570,15 +1975,18 @@ def main(argv: list[str] | None = None) -> int:
         print(f"preview: wrote {preview_path}", file=sys.stderr)
 
     summary = envelope["discovery_summary"]
-    status = {
+    status: dict[str, Any] = {
         "status": envelope["discovery_status"],
         "cache_hit": False,
         "assignment_total": summary["assignment_total"],
         "blockers": summary["blocker_count"],
+        "caller_identity": summary["caller_identity_count"],
         "auto_remediate": summary["auto_remediate_count"],
         "exempted": summary["exempted_count"],
         "out_path": str(out_path),
     }
+    if envelope.get("unresolved_scopes"):
+        status["unresolved_scopes"] = envelope["unresolved_scopes"]
     _emit_status(status)
     if not args.retain_rule_evidence:
         _emit_preview(envelope)

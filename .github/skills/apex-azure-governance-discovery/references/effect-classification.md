@@ -5,13 +5,42 @@
 `discover.py` emits only plan-relevant effects in `findings[]`. Audit/Disabled
 effects are counted in `discovery_summary` but not expanded.
 
-| Effect                       | Classification   | In `findings[]`? | Notes                                                   |
-| ---------------------------- | ---------------- | ---------------- | ------------------------------------------------------- |
-| `Deny`                       | `blocker`        | Yes              | Hard blocker unless exempted                            |
-| `DeployIfNotExists`          | `auto-remediate` | Yes              | Azure handles; plan must allow it                       |
-| `Modify`                     | `auto-remediate` | Yes              | Azure mutates resource at deploy                        |
-| `Audit` / `AuditIfNotExists` | (summary only)   | No               | Informational; count in `discovery_summary.audit_count` |
-| `Disabled`                   | (summary only)   | No               | Ignored                                                 |
+| Effect                              | Classification    | In `findings[]`? | Notes                                                                               |
+| ----------------------------------- | ----------------- | ---------------- | ----------------------------------------------------------------------------------- |
+| `Deny` (resource/mixed predicates)  | `blocker`         | Yes              | Hard IaC/deployment blocker unless exempted or `DoNotEnforce`                       |
+| `Deny` (pure `requestContext` auth) | `caller-identity` | Yes              | Caller sign-in requirement (`identity_only: true`); not an IaC resource constraint  |
+| `DeployIfNotExists`                 | `auto-remediate`  | Yes              | Azure handles; plan must allow it                                                   |
+| `Modify`                            | `auto-remediate`  | Yes              | Azure mutates resource at deploy                                                    |
+| `Audit` / `AuditIfNotExists`        | (summary only)    | No               | Informational; count in `discovery_summary.audit_count`                             |
+| `Disabled`                          | (summary only)    | No               | Ignored                                                                             |
+
+## Caller-Identity (`requestContext().identity`) Rules
+
+Policies such as **Multi Factor Authentication Enforcement - Write** and
+**Multi Factor Authentication Enforcement - Delete** evaluate only
+`requestContext().identity` claims (for example `idtyp`, `appid`, `acrs`,
+`authnmethodsreferences`, or `objectidentifier`) with no resource `field`,
+`type`, or ARM/Bicep property predicates. No Bicep or Terraform change can
+satisfy or violate these policies — only signing in with a non-compliant caller
+token triggers `RequestDisallowedByPolicy`.
+
+`discover.py` and `collect-governance-baseline.ps1` inspect the resolved
+`policyRule.if` tree:
+
+- **Pure caller-identity `Deny` rules**: every condition branch evaluates only
+  `requestContext().identity` expressions and constant/parameter values (zero
+  `"field"` keys, zero `field()`/`resourceGroup()`/`subscription()`/`tenant()`/`policy()`/`deployment()`
+  calls, and zero non-identity `requestContext()` properties such as
+  `requestContext().apiVersion`). These emit `classification: "caller-identity"`,
+  set `identity_only: true`, and increment
+  `discovery_summary.caller_identity_count` instead of `blocker_count`.
+- **Mixed or non-identity rules (fail-closed)**: any rule combining
+  `requestContext().identity` with resource `type`, resource `field`s, scope
+  functions, `requestContext().apiVersion`, or unrecognized condition shapes
+  remains `classification: "blocker"` without `identity_only`.
+- **Exemption / `DoNotEnforce`**: active covering exemptions or
+  `enforcementMode: "DoNotEnforce"` downgrade `classification` to
+  `"informational"` while retaining `identity_only: true` for provenance.
 
 ## Effective Parameters And Definitions
 
@@ -20,6 +49,18 @@ including management-group custom definitions and members of subscription or
 management-group initiatives. An unrelated GET result cannot substitute for a
 missing definition. Unresolved definitions, members, or effects produce
 `PARTIAL` rather than silently disappearing from a `COMPLETE` result.
+
+When resolving an ancestor management-group custom definition, initiative, or
+assignment fails with HTTP `403` (for example when the caller has `Reader` on
+the subscription and intermediate management groups, but lacks
+`Microsoft.Authorization/policyDefinitions/read` or `policyAssignments/read` at
+the tenant root management group), the collector records a structured entry in
+`unresolved_scopes[]` (mirrored in `discovery_metadata.unresolved_scopes[]`)
+with `reason: "ancestor_scope_forbidden"`, `scope`, `management_group`,
+`surface`, `resource_id`, and `http_status: 403`. Downstream consumers can
+distinguish expected ancestor management-group permission boundaries from
+subscription-scope failures or inventory drift (`definition_not_found`,
+`unresolved_effect`, `assignment_inventory_drift`, etc.).
 
 Direct assignment values override definition defaults. For initiatives,
 assignment values override initiative defaults, member bindings resolve against
