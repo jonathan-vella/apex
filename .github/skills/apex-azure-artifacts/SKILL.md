@@ -31,6 +31,12 @@ Register-capable runs also use
 `templates/04-assessment-action-register.template.md`: one validated source generates Excel and Markdown.
 The register is nonbinding financial-impact reporting, not an implementation gate.
 
+For ad hoc RFI, RFP, and BAFO pursuit packages authored with
+[`.github/skills/apex-rfi-rfp/SKILL.md`](../apex-rfi-rfp/SKILL.md), follow
+[`references/pursuit-advisory-packages.md`](references/pursuit-advisory-packages.md): keep the exact
+`PROJECT-README` H2 sequence in `README.md`, declare non-delivery workflow status, and avoid reserved
+delivery-step filenames so artifact and challenger validators remain clean without synthetic sidecars.
+
 ### Mandatory Compliance
 
 | Rule                  | Requirement                                         |
@@ -185,3 +191,4 @@ When generating a Step N artifact, read the corresponding template:
 | `references/cost-estimate-sections.md`   | Cost estimate H2 structure and formatting rules      |
 | `references/revision-workflow.md`        | Detailed targeted-edit revision procedure (Step 7+)  |
 | `references/sku-manifest-details.md`     | SKU manifest coverage, projection, TTL and sync tooling |
+| `references/pursuit-advisory-packages.md` | Coexistence rules for RFI/RFP/BAFO packages in `agent-output/` |
