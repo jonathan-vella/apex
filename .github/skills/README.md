@@ -45,6 +45,7 @@ name to its prefixed local directory and review the diff to retain APEX adaptati
 | `apex-python-diagrams` | WAF/cost/compliance charts and Python diagrams        | "WAF chart", "cost chart", "create chart" |
 | `apex-mermaid`         | Inline Mermaid diagrams for markdown                  | "mermaid diagram", "flowchart"            |
 | `apex-azure-adr`       | Create Architecture Decision Records with WAF mapping | "create ADR", "document decision"         |
+| `apex-rfi-rfp`         | Build Azure RFI/RFP/BAFO responses, ROM BoQs, and bid packs | "answer RFI", "answer RFP", "BAFO response" |
 
 ### Category 3: Workflow & Tool Integration
 

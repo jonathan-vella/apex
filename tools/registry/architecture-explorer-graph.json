@@ -1,6 +1,6 @@
 {
   "$schema": "../../tools/schemas/explorer-graph.schema.json",
-  "generatedAt": "2026-11-09T09:13:35.112Z",
+  "generatedAt": "2026-11-24T10:41:40.320Z",
   "categories": [
     { "id": "agent", "key": "agents", "label": "Agent", "color": "#3b82f6", "shape": "round-rectangle", "count": 14 },
     {
@@ -11,7 +11,7 @@
       "shape": "round-diamond",
       "count": 7
     },
-    { "id": "skill", "key": "skills", "label": "Skill", "color": "#10b981", "shape": "ellipse", "count": 38 },
+    { "id": "skill", "key": "skills", "label": "Skill", "color": "#10b981", "shape": "ellipse", "count": 39 },
     {
       "id": "instruction",
       "key": "instructions",
@@ -39,8 +39,8 @@
     },
     { "id": "mcp", "key": "mcp_servers", "label": "MCP Server", "color": "#f43f5e", "shape": "barrel", "count": 2 }
   ],
-  "nodeCount": 172,
-  "edgeCount": 564,
+  "nodeCount": 173,
+  "edgeCount": 578,
   "nodes": [
     {
       "id": "agent:01-orchestrator",
@@ -923,6 +923,20 @@
         "invocable": true,
         "disableModelInvocation": false,
         "argumentHint": "diagram or chart type, project and output path",
+        "context": null
+      }
+    },
+    {
+      "id": "skill:apex-rfi-rfp",
+      "category": "skill",
+      "label": "apex-rfi-rfp",
+      "description": "**WORKFLOW SKILL** — Build Azure RFI/RFP/BAFO responses, ROM BoQs, and bid packs. WHEN: \"answer RFI\", \"answer RFP\", \"BAFO response\", \"compliance matrix\", \"ROM BoQ\", \"partner bid advisory\", \"audit bid workbook\". DO NOT USE FOR: IaC code generation or deployment (05-IaC Planner, 06b/06t, apex-azure-deploy) or live tenant WAF assessments (01-Orchestrator assessment mode).",
+      "path": ".github/skills/apex-rfi-rfp/SKILL.md",
+      "links": { "source": "https://github.com/jonathan-vella/apex/blob/main/.github/skills/apex-rfi-rfp/SKILL.md" },
+      "meta": {
+        "invocable": true,
+        "disableModelInvocation": false,
+        "argumentHint": "pursuit folder/files, bidder role (1P/partner/ISV), and mode (matrix, ROM, BAFO, audit)",
         "context": null
       }
     },
@@ -3130,6 +3144,12 @@
       "kind": "applies-to"
     },
     {
+      "id": "instruction:agent-skills--applies-to->skill:apex-rfi-rfp",
+      "source": "instruction:agent-skills",
+      "target": "skill:apex-rfi-rfp",
+      "kind": "applies-to"
+    },
+    {
       "id": "instruction:agent-skills--applies-to->skill:apex-terraform-patterns",
       "source": "instruction:agent-skills",
       "target": "skill:apex-terraform-patterns",
@@ -3481,6 +3501,12 @@
       "id": "instruction:context-optimization--applies-to->skill:apex-python-diagrams",
       "source": "instruction:context-optimization",
       "target": "skill:apex-python-diagrams",
+      "kind": "applies-to"
+    },
+    {
+      "id": "instruction:context-optimization--applies-to->skill:apex-rfi-rfp",
+      "source": "instruction:context-optimization",
+      "target": "skill:apex-rfi-rfp",
       "kind": "applies-to"
     },
     {
@@ -3841,6 +3867,12 @@
       "id": "instruction:docs-trigger--applies-to->skill:apex-python-diagrams",
       "source": "instruction:docs-trigger",
       "target": "skill:apex-python-diagrams",
+      "kind": "applies-to"
+    },
+    {
+      "id": "instruction:docs-trigger--applies-to->skill:apex-rfi-rfp",
+      "source": "instruction:docs-trigger",
+      "target": "skill:apex-rfi-rfp",
       "kind": "applies-to"
     },
     {
@@ -4354,6 +4386,12 @@
       "kind": "applies-to"
     },
     {
+      "id": "instruction:markdown--applies-to->skill:apex-rfi-rfp",
+      "source": "instruction:markdown",
+      "target": "skill:apex-rfi-rfp",
+      "kind": "applies-to"
+    },
+    {
       "id": "instruction:markdown--applies-to->skill:apex-terraform-patterns",
       "source": "instruction:markdown",
       "target": "skill:apex-terraform-patterns",
@@ -4705,6 +4743,12 @@
       "id": "instruction:no-interactive-shell--applies-to->skill:apex-python-diagrams",
       "source": "instruction:no-interactive-shell",
       "target": "skill:apex-python-diagrams",
+      "kind": "applies-to"
+    },
+    {
+      "id": "instruction:no-interactive-shell--applies-to->skill:apex-rfi-rfp",
+      "source": "instruction:no-interactive-shell",
+      "target": "skill:apex-rfi-rfp",
       "kind": "applies-to"
     },
     {
@@ -5089,6 +5133,12 @@
       "id": "skill:apex-azure-artifacts--refs->skill:apex-iac-common",
       "source": "skill:apex-azure-artifacts",
       "target": "skill:apex-iac-common",
+      "kind": "refs"
+    },
+    {
+      "id": "skill:apex-azure-artifacts--refs->skill:apex-rfi-rfp",
+      "source": "skill:apex-azure-artifacts",
+      "target": "skill:apex-rfi-rfp",
       "kind": "refs"
     },
     {
@@ -5509,6 +5559,54 @@
       "id": "skill:apex-python-diagrams--refs->skill:apex-mermaid",
       "source": "skill:apex-python-diagrams",
       "target": "skill:apex-mermaid",
+      "kind": "refs"
+    },
+    {
+      "id": "skill:apex-rfi-rfp--refs->skill:apex-azure-adr",
+      "source": "skill:apex-rfi-rfp",
+      "target": "skill:apex-azure-adr",
+      "kind": "refs"
+    },
+    {
+      "id": "skill:apex-rfi-rfp--refs->skill:apex-azure-artifacts",
+      "source": "skill:apex-rfi-rfp",
+      "target": "skill:apex-azure-artifacts",
+      "kind": "refs"
+    },
+    {
+      "id": "skill:apex-rfi-rfp--refs->skill:apex-azure-deploy",
+      "source": "skill:apex-rfi-rfp",
+      "target": "skill:apex-azure-deploy",
+      "kind": "refs"
+    },
+    {
+      "id": "skill:apex-rfi-rfp--refs->skill:apex-azure-quotas",
+      "source": "skill:apex-rfi-rfp",
+      "target": "skill:apex-azure-quotas",
+      "kind": "refs"
+    },
+    {
+      "id": "skill:apex-rfi-rfp--refs->skill:apex-github-operations",
+      "source": "skill:apex-rfi-rfp",
+      "target": "skill:apex-github-operations",
+      "kind": "refs"
+    },
+    {
+      "id": "skill:apex-rfi-rfp--refs->skill:apex-mermaid",
+      "source": "skill:apex-rfi-rfp",
+      "target": "skill:apex-mermaid",
+      "kind": "refs"
+    },
+    {
+      "id": "skill:apex-rfi-rfp--refs->skill:apex-microsoft-docs",
+      "source": "skill:apex-rfi-rfp",
+      "target": "skill:apex-microsoft-docs",
+      "kind": "refs"
+    },
+    {
+      "id": "skill:apex-rfi-rfp--refs->skill:apex-python-diagrams",
+      "source": "skill:apex-rfi-rfp",
+      "target": "skill:apex-python-diagrams",
       "kind": "refs"
     },
     {
