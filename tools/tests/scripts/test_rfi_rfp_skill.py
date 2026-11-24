@@ -738,13 +738,40 @@ def test_code_review_remediations_xml_symlinks_bundles_defined_names_and_namespa
         == 0
     )
 
-    # CR-05: validate_pricing_bundle supports nested selected_meter + rejects DevTestConsumption & retired SKUs
+    # CR-05: validate_pricing_bundle verifies raw-evidence SHA-256 + meter rate & rejects unverified hashes/DevTest
+    raw_vm_evidence = tmp_path / "retail-vm-evidence.raw.json"
+    raw_vm_evidence.write_text(
+        json.dumps(
+            {
+                "Items": [
+                    {
+                        "meterId": "m-123",
+                        "serviceName": "Virtual Machines",
+                        "productName": "Virtual Machines Dlsv5 Series",
+                        "skuName": "D4ls v5",
+                        "armSkuName": "Standard_D4ls_v5",
+                        "meterName": "D4ls v5",
+                        "armRegionName": "swedencentral",
+                        "currencyCode": "USD",
+                        "type": "Consumption",
+                        "unitOfMeasure": "1 Hour",
+                        "tierMinimumUnits": 0.0,
+                        "effectiveStartDate": "2024-01-01T00:00:00Z",
+                        "retailPrice": 0.17,
+                    }
+                ]
+            }
+        ),
+        encoding="utf-8",
+    )
+    vm_ev_sha = safe_io.sha256_file(raw_vm_evidence)
+
     valid_v2_bundle = tmp_path / "valid-v2.json"
     valid_v2_bundle.write_text(
         json.dumps(
             {
                 "schema_version": "cost-estimate-v2",
-                "evidence": [{"sha256": "a" * 64}],
+                "evidence": [{"evidence_path": raw_vm_evidence.name, "sha256": vm_ev_sha}],
                 "services": [
                     {
                         "service": "Virtual Machines",
@@ -774,6 +801,44 @@ def test_code_review_remediations_xml_symlinks_bundles_defined_names_and_namespa
             ]
         )
         == 0
+    )
+
+    # Bare 64-hex hash without captured evidence bytes MUST fail closed
+    unverified_hash_bundle = tmp_path / "unverified-hash-v2.json"
+    unverified_hash_bundle.write_text(
+        json.dumps(
+            {
+                "schema_version": "cost-estimate-v2",
+                "evidence": [{"sha256": "a" * 64}],
+                "services": [
+                    {
+                        "service": "Virtual Machines",
+                        "sku": "Standard_D4ls_v5",
+                        "region": "swedencentral",
+                        "monthly_cost": 124.10,
+                        "selected_meter": {
+                            "meterId": "m-123",
+                            "armSkuName": "Standard_D4ls_v5",
+                            "armRegionName": "swedencentral",
+                            "priceType": "Consumption",
+                            "retailPrice": 0.17,
+                        },
+                    }
+                ],
+            }
+        ),
+        encoding="utf-8",
+    )
+    assert (
+        audit_mod.main(
+            [
+                "--validate-bundle",
+                str(unverified_hash_bundle),
+                "--deprecations-file",
+                str(REPO_ROOT / ".github" / "data" / "azure-deprecations.json"),
+            ]
+        )
+        == 1
     )
 
     bad_devtest_bundle = tmp_path / "bad-devtest.json"
@@ -866,3 +931,438 @@ def test_code_review_remediations_xml_symlinks_bundles_defined_names_and_namespa
     wb_clobber["Schedule"]["B3"] = 1200.0
     wb_clobber.save(clobbered_out)
     assert xlsx_mod.main(["--workbook", str(clobbered_out), "--compare-template", str(tmpl_xlsx)]) == 1
+
+
+# ============================================================================
+# 7. PR #851 Review & CodeQL Regression Tests
+# ============================================================================
+
+
+def test_pricing_evidence_rate_tampering_and_fetch_persistence(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
+    raw_response_payload = {
+        "BillingCurrency": "USD",
+        "Items": [
+            {
+                "meterId": "vm-payg-01",
+                "serviceName": "Virtual Machines",
+                "productName": "Virtual Machines Dlsv5 Series",
+                "skuName": "D4ls v5",
+                "armSkuName": "Standard_D4ls_v5",
+                "meterName": "D4ls v5",
+                "armRegionName": "swedencentral",
+                "currencyCode": "USD",
+                "type": "Consumption",
+                "unitOfMeasure": "1 Hour",
+                "tierMinimumUnits": 0.0,
+                "isPrimaryMeterRegion": True,
+                "effectiveStartDate": "2025-01-01T00:00:00Z",
+                "retailPrice": 0.17,
+                "savingsPlan": [{"term": "3 Years", "retailPrice": 0.09}],
+            },
+            {
+                "meterId": "vm-ri-3y",
+                "serviceName": "Virtual Machines",
+                "productName": "Virtual Machines Dlsv5 Series",
+                "skuName": "D4ls v5",
+                "armSkuName": "Standard_D4ls_v5",
+                "meterName": "D4ls v5",
+                "armRegionName": "swedencentral",
+                "currencyCode": "USD",
+                "type": "Reservation",
+                "reservationTerm": "3 Years",
+                "unitOfMeasure": "1 Hour",
+                "tierMinimumUnits": 0.0,
+                "isPrimaryMeterRegion": True,
+                "effectiveStartDate": "2025-01-01T00:00:00Z",
+                "retailPrice": 2100.0,
+            },
+        ],
+        "NextPageLink": None,
+    }
+    raw_bytes = json.dumps(raw_response_payload).encode("utf-8")
+
+    class _FakeResp:
+        def __enter__(self) -> _FakeResp:
+            return self
+
+        def __exit__(self, *_args: object) -> None:
+            return None
+
+        def read(self) -> bytes:
+            return raw_bytes
+
+    monkeypatch.setattr(audit_mod.urllib.request, "urlopen", lambda *_a, **_kw: _FakeResp())
+
+    quote_out = tmp_path / "quotes" / "vm-quote.json"
+    ev_dir = tmp_path / "quotes" / "pricing-evidence"
+    assert (
+        audit_mod.main(
+            [
+                "--fetch-filter",
+                "armRegionName eq 'swedencentral' and armSkuName eq 'Standard_D4ls_v5'",
+                "--region",
+                "swedencentral",
+                "--arm-sku-name",
+                "Standard_D4ls_v5",
+                "--out",
+                str(quote_out),
+                "--evidence-dir",
+                str(ev_dir),
+            ]
+        )
+        == 0
+    )
+
+    saved_quote = json.loads(quote_out.read_text(encoding="utf-8"))
+    assert "retrieved_at" in saved_quote
+    assert len(saved_quote["pages"]) == 1
+    ev_rel_path = saved_quote["pages"][0]["evidence_path"]
+    persisted_raw_file = quote_out.parent / ev_rel_path
+    assert persisted_raw_file.is_file()
+    assert persisted_raw_file.read_bytes() == raw_bytes
+
+    # Offline --validate-bundle succeeds because verbatim raw response bytes and rates match
+    assert (
+        audit_mod.main(
+            [
+                "--validate-bundle",
+                str(quote_out),
+                "--deprecations-file",
+                str(REPO_ROOT / ".github" / "data" / "azure-deprecations.json"),
+            ]
+        )
+        == 0
+    )
+
+    # Fabricated rate on a line with a valid evidence hash MUST fail --validate-bundle
+    tampered_rate_quote = tmp_path / "quotes" / "tampered-rate.json"
+    bad_doc = json.loads(quote_out.read_text(encoding="utf-8"))
+    bad_doc["lines"][0]["retailPrice"] = 0.05
+    tampered_rate_quote.write_text(json.dumps(bad_doc), encoding="utf-8")
+    assert (
+        audit_mod.main(
+            [
+                "--validate-bundle",
+                str(tampered_rate_quote),
+                "--deprecations-file",
+                str(REPO_ROOT / ".github" / "data" / "azure-deprecations.json"),
+            ]
+        )
+        == 1
+    )
+
+    # Tampering with persisted raw response bytes on disk MUST fail --validate-bundle
+    persisted_raw_file.write_bytes(raw_bytes + b" ")
+    assert (
+        audit_mod.main(
+            [
+                "--validate-bundle",
+                str(quote_out),
+                "--deprecations-file",
+                str(REPO_ROOT / ".github" / "data" / "azure-deprecations.json"),
+            ]
+        )
+        == 1
+    )
+
+
+def test_sparse_xlsx_intake_and_ast_evaluation_bounds(tmp_path: Path) -> None:
+    # Build a tiny valid .xlsx with populated cells at A1 (=10+5) and XFD1048576 (static 99)
+    sparse_xlsx = tmp_path / "rfi-docs" / "sparse.xlsx"
+    sparse_xlsx.parent.mkdir(parents=True)
+    wb = openpyxl.Workbook()
+    ws = wb.active
+    assert ws is not None
+    ws.title = "Sparse"
+    ws["A1"] = "=10+5"
+    ws["XFD1048576"] = 99
+    wb.save(sparse_xlsx)
+
+    # 1. Intake rejects 17-billion-cell dense table expansion immediately instead of exhausting memory
+    assert (
+        extract_mod.main(
+            [
+                "--source-dir",
+                str(sparse_xlsx.parent),
+                "--root",
+                str(tmp_path),
+                "--manifest-out",
+                str(tmp_path / "manifest.json"),
+            ]
+        )
+        == 1
+    )
+
+    # 2. xlsx_ast_cache enumerates only XML formula coordinates and succeeds without instantiating blank cells
+    out_sparse = tmp_path / "sparse_cached.xlsx"
+    rep = xlsx_mod.inject_and_verify_caches(sparse_xlsx, output_path=out_sparse)
+    assert rep["formulas_evaluated"] == 1
+    verify_rep = xlsx_mod.verify_workbook_caches(out_sparse)
+    assert verify_rep["formulas_evaluated"] == 1
+
+    # 3. Formula referencing an oversized range (=SUM(A1:XFD1048576)) fails closed on cell-expansion budget
+    huge_range_xlsx = tmp_path / "huge_range.xlsx"
+    wb_r = openpyxl.Workbook()
+    ws_r = wb_r.active
+    assert ws_r is not None
+    ws_r["B1"] = "=SUM(A1:XFD1048576)"
+    wb_r.save(huge_range_xlsx)
+    with pytest.raises(xlsx_mod.FormulaEvaluationError, match="safety budget"):
+        xlsx_mod.inject_and_verify_caches(huge_range_xlsx)
+
+
+def test_xlsx_counta_empty_string_and_strict_template_preservation(tmp_path: Path) -> None:
+    # COUNTA must count formula empty string ="" as 1 while excluding None
+    counta_path = tmp_path / "counta.xlsx"
+    wb_c = openpyxl.Workbook()
+    ws_c = wb_c.active
+    assert ws_c is not None
+    ws_c["A1"] = '=""'
+    ws_c["B1"] = "=COUNTA(A1)"
+    ws_c["B2"] = "=COUNTA(A1:A3)"
+    wb_c.save(counta_path)
+    xlsx_mod.inject_and_verify_caches(counta_path)
+    wb_c_val = openpyxl.load_workbook(counta_path, data_only=True)
+    assert wb_c_val.active["B1"].value == 1  # type: ignore[index]
+    assert wb_c_val.active["B2"].value == 1  # type: ignore[index]
+
+    # Build customer template with DataValidation, formula, shared formula, DefinedName, and protection
+    tmpl = tmp_path / "customer_strict.xlsx"
+    wb_t = openpyxl.Workbook()
+    ws_t = wb_t.active
+    assert ws_t is not None
+    ws_t.title = "Schedule"
+    ws_t["A1"] = 1.25
+    ws_t["B2"] = 100.0
+    ws_t["B3"] = "=B2*12"
+    ws_t["C3"] = "=B3*Rate"
+    dv = DataValidation(type="list", formula1='"USD,EUR"', allow_blank=False, showErrorMessage=True)
+    ws_t.add_data_validation(dv)
+    dv.add("D2")
+    wb_t.defined_names["Rate"] = openpyxl.workbook.defined_name.DefinedName(name="Rate", attr_text="Schedule!$A$1")
+    wb_t.save(tmpl)
+
+    # 1. Altered DataValidation choices ("USD,EUR" -> "USD,GBP") must fail --compare-template
+    bad_dv = tmp_path / "bad_dv.xlsx"
+    wb_dv = openpyxl.load_workbook(tmpl)
+    wb_dv["Schedule"].data_validations.dataValidation[0].formula1 = '"USD,GBP"'
+    wb_dv.save(bad_dv)
+    assert xlsx_mod.main(["--workbook", str(bad_dv), "--compare-template", str(tmpl)]) == 1
+
+    # 2. Altered DataValidation enforcement (allowBlank False -> True) must fail --compare-template
+    bad_dv_enf = tmp_path / "bad_dv_enf.xlsx"
+    wb_dve = openpyxl.load_workbook(tmpl)
+    wb_dve["Schedule"].data_validations.dataValidation[0].allow_blank = True
+    wb_dve.save(bad_dv_enf)
+    assert xlsx_mod.main(["--workbook", str(bad_dv_enf), "--compare-template", str(tmpl)]) == 1
+
+    # 3. Altered customer formula (=B2*12 -> =B2*0) must fail --compare-template
+    bad_formula = tmp_path / "bad_formula.xlsx"
+    wb_bf = openpyxl.load_workbook(tmpl)
+    wb_bf["Schedule"]["B3"] = "=B2*0"
+    wb_bf.save(bad_formula)
+    assert xlsx_mod.main(["--workbook", str(bad_formula), "--compare-template", str(tmpl)]) == 1
+
+    # 4. Altered DefinedName target (Schedule!$A$1 -> Schedule!$B$1) must fail --compare-template
+    bad_dn = tmp_path / "bad_dn.xlsx"
+    wb_dn = openpyxl.load_workbook(tmpl)
+    wb_dn.defined_names["Rate"] = openpyxl.workbook.defined_name.DefinedName(name="Rate", attr_text="Schedule!$B$1")
+    wb_dn.save(bad_dn)
+    assert xlsx_mod.main(["--workbook", str(bad_dn), "--compare-template", str(tmpl)]) == 1
+
+    # 5. Shared formula follower alteration & sheetProtection verifier stripping must fail --compare-template
+    wb_sp = openpyxl.load_workbook(tmpl)
+    ws_sp = wb_sp["Schedule"]
+    ws_sp.protection.sheet = True
+    ws_sp.protection.algorithmName = "SHA-512"
+    ws_sp.protection.hashValue = "YWJjMTIz"
+    ws_sp.protection.saltValue = "eHl6MTIz"
+    ws_sp.protection.spinCount = 100000
+    prot_base = tmp_path / "prot_base.xlsx"
+    wb_sp.save(prot_base)
+
+    shared_tmpl = tmp_path / "shared_tmpl.xlsx"
+    shared_buf = io.BytesIO()
+    with (
+        zipfile.ZipFile(prot_base, "r") as zin,
+        zipfile.ZipFile(shared_buf, "w", compression=zipfile.ZIP_DEFLATED) as zout,
+    ):
+        for info in zin.infolist():
+            raw = zin.read(info.filename)
+            if info.filename == "xl/worksheets/sheet1.xml":
+                xml_txt = raw.decode("utf-8")
+                xml_txt = xml_txt.replace(
+                    "<f>B2*12</f>",
+                    '<f t="shared" ref="B3:B4" si="0">B2*12</f>',
+                )
+                xml_txt = xml_txt.replace(
+                    "</sheetData>",
+                    '<row r="4"><c r="B4"><f t="shared" si="0"/></c></row></sheetData>',
+                )
+                zout.writestr(info.filename, xml_txt.encode("utf-8"))
+            else:
+                zout.writestr(info.filename, raw)
+    shared_tmpl.write_bytes(shared_buf.getvalue())
+
+    # Valid unshared equivalent (B3 = '=B2*12', B4 = '=B3*12') with intact protection passes
+    good_shared_out = tmp_path / "good_shared_out.xlsx"
+    good_shared_buf = io.BytesIO()
+    with (
+        zipfile.ZipFile(shared_tmpl, "r") as zin,
+        zipfile.ZipFile(good_shared_buf, "w", compression=zipfile.ZIP_DEFLATED) as zout,
+    ):
+        for info in zin.infolist():
+            raw = zin.read(info.filename)
+            if info.filename == "xl/worksheets/sheet1.xml":
+                xml_txt = raw.decode("utf-8").replace(
+                    '<c r="B4"><f t="shared" si="0"/></c>',
+                    '<c r="B4"><f>B3*12</f></c>',
+                )
+                zout.writestr(info.filename, xml_txt.encode("utf-8"))
+            else:
+                zout.writestr(info.filename, raw)
+    good_shared_out.write_bytes(good_shared_buf.getvalue())
+    assert xlsx_mod.main(["--workbook", str(good_shared_out), "--compare-template", str(shared_tmpl)]) == 0
+
+    # Altering shared follower B4 to B3*0 fails --compare-template
+    bad_shared_out = tmp_path / "bad_shared_out.xlsx"
+    bad_shared_buf = io.BytesIO()
+    with (
+        zipfile.ZipFile(shared_tmpl, "r") as zin,
+        zipfile.ZipFile(bad_shared_buf, "w", compression=zipfile.ZIP_DEFLATED) as zout,
+    ):
+        for info in zin.infolist():
+            raw = zin.read(info.filename)
+            if info.filename == "xl/worksheets/sheet1.xml":
+                xml_txt = raw.decode("utf-8").replace(
+                    '<c r="B4"><f t="shared" si="0"/></c>',
+                    '<c r="B4"><f>B3*0</f></c>',
+                )
+                zout.writestr(info.filename, xml_txt.encode("utf-8"))
+            else:
+                zout.writestr(info.filename, raw)
+    bad_shared_out.write_bytes(bad_shared_buf.getvalue())
+    assert xlsx_mod.main(["--workbook", str(bad_shared_out), "--compare-template", str(shared_tmpl)]) == 1
+
+    # Stripping sheetProtection hashValue fails --compare-template
+    stripped_prot_out = tmp_path / "stripped_prot.xlsx"
+    stripped_prot_buf = io.BytesIO()
+    with (
+        zipfile.ZipFile(good_shared_out, "r") as zin,
+        zipfile.ZipFile(stripped_prot_buf, "w", compression=zipfile.ZIP_DEFLATED) as zout,
+    ):
+        for info in zin.infolist():
+            raw = zin.read(info.filename)
+            if info.filename == "xl/worksheets/sheet1.xml":
+                xml_txt = raw.decode("utf-8").replace(' hashValue="YWJjMTIz"', "")
+                zout.writestr(info.filename, xml_txt.encode("utf-8"))
+            else:
+                zout.writestr(info.filename, raw)
+    stripped_prot_out.write_bytes(stripped_prot_buf.getvalue())
+    assert xlsx_mod.main(["--workbook", str(stripped_prot_out), "--compare-template", str(shared_tmpl)]) == 1
+
+
+def test_source_inventory_drift_manifest_exclusions_and_pptx_archive_order(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    pkg_dir = tmp_path / "bafo-pack"
+    src_arch = pkg_dir / "custom-originals"
+    src_arch.mkdir(parents=True)
+    (src_arch / "customer-schedule.txt").write_text("Restricted customer original", encoding="utf-8")
+
+    meta_dir = pkg_dir / "_meta"
+    manifest_path = meta_dir / "source-manifest.json"
+    assert (
+        extract_mod.main(
+            [
+                "--source-dir",
+                str(src_arch),
+                "--root",
+                str(pkg_dir),
+                "--purview-labeled",
+                "--manifest-out",
+                str(manifest_path),
+            ]
+        )
+        == 0
+    )
+
+    (pkg_dir / "README.md").write_text(
+        "# BAFO Pack\n\n"
+        "## 📋 Project Summary\n\nSummary.\n\n"
+        "## ✅ Workflow Progress\n\nStandalone pursuit; no numbered delivery step completion is asserted.\n\n"
+        "## 🏛️ Architecture\n\nSingle-region `swedencentral`.\n\n"
+        "## 📄 Generated Artifacts\n\n- [README](./README.md)\n\n"
+        "## 🔗 Related Resources\n\n- [Azure Docs](https://learn.microsoft.com/en-us/azure/)\n",
+        encoding="utf-8",
+    )
+    assert verify_mod.main(["--project-dir", str(pkg_dir)]) == 0
+
+    # Adding an unrecorded addendum after intake MUST fail verify_pursuit_package.py
+    extra_addendum = src_arch / "unrecorded-addendum.txt"
+    extra_addendum.write_text("Late addendum", encoding="utf-8")
+    assert verify_mod.main(["--project-dir", str(pkg_dir)]) == 1
+    extra_addendum.unlink()
+    assert verify_mod.main(["--project-dir", str(pkg_dir)]) == 0
+
+    # Stub scaffold_walkthrough_pptx so the test runs deterministically even without optional python-pptx
+    def _stub_scaffold(output_pptx: Path, pricing_json: Path | None = None) -> dict[str, object]:
+        output_pptx.parent.mkdir(parents=True, exist_ok=True)
+        with zipfile.ZipFile(output_pptx, "w", compression=zipfile.ZIP_DEFLATED) as zf:
+            zf.writestr("[Content_Types].xml", '<?xml version="1.0"?><Types/>')
+        return {
+            "pptx_path": str(output_pptx),
+            "slide_count": 3,
+            "aspect_ratio": "16:9",
+            "headlines_bound": {"Pricing Currency": "USD"},
+            "sha256": safe_io.sha256_file(output_pptx),
+        }
+
+    monkeypatch.setattr(pkg_mod, "scaffold_walkthrough_pptx", _stub_scaffold)
+
+    dist_dir = tmp_path / "dist-out"
+    deck_in_pkg = pkg_dir / "deliverables" / "walkthrough.pptx"
+    assert (
+        pkg_mod.main(
+            [
+                "--project-dir",
+                str(pkg_dir),
+                "--output-dir",
+                str(dist_dir),
+                "--scaffold-pptx",
+                str(deck_in_pkg),
+                "--exclude-restricted-originals",
+                "--acknowledge-purview-clearance",
+                "PURVIEW-BAFO-101",
+            ]
+        )
+        == 0
+    )
+
+    built_zip = dist_dir / "bafo-pack.package.zip"
+    assert built_zip.is_file()
+    with zipfile.ZipFile(built_zip, "r") as zf:
+        archived_members = set(zf.namelist())
+    # Manifest-derived custom-originals/ excluded, while newly generated deck IS included in the archive!
+    assert "deliverables/walkthrough.pptx" in archived_members
+    assert not any(m.startswith("custom-originals/") or m.startswith("_meta/") for m in archived_members)
+
+    # Unresolvable manifest source path must block external release (exit code 2)
+    manifest_data = json.loads(manifest_path.read_text(encoding="utf-8"))
+    manifest_data["source_dir"] = "."
+    manifest_path.write_text(json.dumps(manifest_data), encoding="utf-8")
+    assert (
+        pkg_mod.main(
+            [
+                "--project-dir",
+                str(pkg_dir),
+                "--output-dir",
+                str(tmp_path / "blocked-dist"),
+                "--exclude-restricted-originals",
+                "--acknowledge-purview-clearance",
+                "PURVIEW-BAFO-101",
+            ]
+        )
+        == 2
+    )

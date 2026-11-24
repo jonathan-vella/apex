@@ -13,7 +13,7 @@ Choose the narrowest mode that satisfies the solicitation returnables:
 | `questionnaire_matrix` | Technical/security/compliance RFI table or vendor capability grid (no commercial BoQ pack) | Single-pass fast track | `verify_pursuit_package.py` + Learn `<title>` & epistemic tag audit |
 | `rom_architecture_pack` | Full RFP/RFI response with target Azure architecture, 4K diagrams, ADRs, ROM `.xlsx` BoQ, narrative pack, and optional executive `.pptx` | Two-phase: Interactive Discovery + Hardened Plan (`docs/exec-plans/active/`) -> Autopilot `WS1`–`WS6` | `rubber-duck` on Phase 1 plan + `cost-estimate-subagent` + `code-review` on generators/workbooks |
 | `bafo_customer_schedule` | Mandatory customer-issued `.xlsx` pricing/compliance schedule where structural edits risk procurement disqualification | Non-destructive customer workbook clone + cell-scoped generator + reconciliation bridge | `cost-estimate-subagent` + `xlsx_ast_cache.py --compare-template` + `code-review` |
-| `draft_audit_remediation` | Existing bid draft, partner BoQ, or prior-round workbook suspected of scope bloat, retiring SKUs, stale rates, or formula/OOXML defects | Forensic audit -> Keep-vs-Discard ledger -> clean rebuild or scripted remediation | `audit_pursuit_skus_and_rates.py` + `xlsx_ast_cache.py` + `code-review` |
+| `draft_audit_remediation` | Existing bid draft, partner BoQ, or prior-round workbook suspected of scope bloat, retiring SKUs, stale rates, or formula/OOXML defects | Forensic audit -> Keep-vs-Discard ledger -> clean rebuild or scripted remediation | `audit_pursuit_skus_and_rates.py` + `xlsx_ast_cache.py --verify` + `code-review` |
 
 ### Mode A: `questionnaire_matrix` (Single-Pass Fast Track)
 
@@ -59,7 +59,7 @@ Complex architecture + ROM pursuits split interactive human alignment from deter
 ### Mode D: `draft_audit_remediation` (Forensic Bid & Workbook Audit)
 
 1. Hash all inherited drafts and workbooks read-only via `extract_pursuit_sources.py`.
-2. Run `audit_pursuit_skus_and_rates.py` and `xlsx_ast_cache.py` against the inherited workbook and rate card to surface:
+2. Run `audit_pursuit_skus_and_rates.py` and read-only `xlsx_ast_cache.py --workbook <inherited.xlsx> --verify` against the inherited workbook and rate card without modifying hashed originals (perform any `<v>` cache repair or remediation only on an explicit working copy via `--output <working-copy.xlsx>` outside the read-only source directory) to surface:
    - Hidden cross-scope bloat (unrelated workloads, unrequested multi-region active-active stamps, duplicate Defender/monitoring charges, compounded margin-on-buffer formulas)
    - Retiring or region-unavailable Azure SKUs (`Fsv2`, `Bv1`, classic `APIM` v1, Linux `Consumption` Functions, non-AZ `VpnGw1-5`, `Basic Public IP`, classic `App Insights`, `GPv1`, Key Vault access policies, `Dedicated HSM`, `Azure Cache for Redis`)
    - Stale or `DevTestConsumption` prices, `$0.00` masking missing quotes, broken `<v>` caches, or `>255`-char Excel repair-triggering footers

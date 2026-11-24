@@ -9,17 +9,23 @@ fallbacks or unverified regional GA claims.
 from __future__ import annotations
 
 import argparse
+import base64
 import csv
 import io
 import json
 import math
+import os
 import re
+import shutil
+import subprocess
 import sys
 import time
 import urllib.error
 import urllib.parse
 import urllib.request
 from collections.abc import Callable, Mapping, Sequence
+from dataclasses import dataclass, field
+from datetime import UTC, datetime
 from decimal import Decimal, InvalidOperation
 from pathlib import Path
 from typing import Any, TypeGuard
@@ -549,6 +555,10 @@ def _validate_retail_page_url(url: str) -> None:
         raise ContainmentError(f"Refusing untrusted Retail API URL outside prices.azure.com: {url!r}")
 
 
+def _utc_now_iso() -> str:
+    return datetime.now(UTC).isoformat().replace("+00:00", "Z")
+
+
 def fetch_retail_prices(
     odata_filter: str,
     *,
@@ -558,12 +568,27 @@ def fetch_retail_prices(
     timeout_seconds: float = 30.0,
     max_retries: int = 3,
     backoff_base_seconds: float = 1.0,
+    evidence_dir: Path | None = None,
+    relative_to_dir: Path | None = None,
+    root: Path | None = None,
     opener: Callable[..., Any] | None = None,
     sleep_fn: Callable[[float], None] = time.sleep,
 ) -> dict[str, Any]:
-    """Fetch paginated Azure Retail Prices API results with 429/5xx backoff and page SHA-256 digests."""
+    """Fetch paginated Azure Retail Prices API results, persisting verbatim raw bytes before parsing."""
     if not odata_filter or not odata_filter.strip():
         raise ValueError("odata_filter must be a non-empty OData filter string")
+
+    resolved_evidence_dir: Path | None = None
+    if evidence_dir is not None:
+        if root is not None:
+            resolved_evidence_dir = ensure_within_root(evidence_dir, root)
+        else:
+            if evidence_dir.exists() and evidence_dir.is_symlink():
+                raise ContainmentError(f"Refusing symlink evidence directory: {evidence_dir}")
+            resolved_evidence_dir = evidence_dir.resolve()
+        resolved_evidence_dir.mkdir(parents=True, exist_ok=True)
+
+    resolved_rel_base = relative_to_dir.resolve() if relative_to_dir is not None else None
 
     query = urllib.parse.urlencode(
         {
@@ -617,9 +642,36 @@ def fetch_retail_prices(
         if raw_bytes is None:
             raise MeterResolutionError(f"UNRESOLVED: Retail API request failed: {last_exc}")
 
+        retrieved_at = _utc_now_iso()
         page_sha = sha256_bytes(raw_bytes)
+
+        # Persist exact native response bytes with a locator BEFORE parsing JSON
+        evidence_locator: str | None = None
+        if resolved_evidence_dir is not None:
+            raw_target = resolved_evidence_dir / f"{page_sha}.raw.json"
+            if root is not None:
+                raw_target = ensure_within_root(raw_target, root)
+            elif raw_target.exists() and raw_target.is_symlink():
+                raise ContainmentError(f"Refusing symlink raw evidence file: {raw_target}")
+            if raw_target.exists():
+                if sha256_file(raw_target) != page_sha:
+                    raise ContainmentError(f"Raw evidence hash collision at {raw_target}")
+            else:
+                tmp_raw = raw_target.parent / f".{raw_target.name}.{os.getpid()}.tmp"
+                try:
+                    tmp_raw.write_bytes(raw_bytes)
+                    os.replace(tmp_raw, raw_target)
+                finally:
+                    if tmp_raw.exists():
+                        tmp_raw.unlink(missing_ok=True)
+            if resolved_rel_base is not None and raw_target.is_relative_to(resolved_rel_base):
+                evidence_locator = raw_target.relative_to(resolved_rel_base).as_posix()
+            else:
+                evidence_locator = raw_target.as_posix()
+
         try:
-            payload = json.loads(raw_bytes.decode("utf-8"))
+            decoded_utf8 = raw_bytes.decode("utf-8")
+            payload = json.loads(decoded_utf8)
         except (UnicodeDecodeError, json.JSONDecodeError) as exc:
             raise MeterResolutionError(f"UNRESOLVED: Invalid JSON in Retail API response: {exc}") from exc
 
@@ -628,14 +680,18 @@ def fetch_retail_prices(
 
         page_items = [item for item in payload["Items"] if isinstance(item, dict)]
         all_items.extend(page_items)
-        pages.append(
-            {
-                "page_index": len(pages),
-                "url": next_url,
-                "item_count": len(page_items),
-                "response_sha256": page_sha,
-            }
-        )
+        page_record: dict[str, Any] = {
+            "page_index": len(pages),
+            "url": next_url,
+            "retrieved_at": retrieved_at,
+            "item_count": len(page_items),
+            "response_sha256": page_sha,
+        }
+        if evidence_locator is not None:
+            page_record["evidence_path"] = evidence_locator
+        else:
+            page_record["raw_response"] = decoded_utf8
+        pages.append(page_record)
 
         raw_next = payload.get("NextPageLink")
         next_url = str(raw_next).strip() if isinstance(raw_next, str) and raw_next.strip() else None
@@ -647,6 +703,7 @@ def fetch_retail_prices(
         "schema_version": "pursuit-retail-fetch-ledger-v1",
         "filter": odata_filter.strip(),
         "currency_code": currency_code,
+        "retrieved_at": pages[0]["retrieved_at"] if pages else _utc_now_iso(),
         "page_count": len(pages),
         "total_items": len(all_items),
         "raw_evidence_sha256": pages[0]["response_sha256"] if len(pages) == 1 else combined_digest,
@@ -694,6 +751,8 @@ def evaluate_retail_meters(
     items_or_payload: Any,
     *,
     raw_evidence_sha256: str | None = None,
+    evidence_pages: Sequence[Mapping[str, Any]] | None = None,
+    retrieved_at: str | None = None,
     region: str | None = None,
     service_name: str | None = None,
     arm_sku_name: str | None = None,
@@ -722,6 +781,35 @@ def evaluate_retail_meters(
         )
     if effective_sha is None:
         effective_sha = sha256_bytes(json.dumps(items, sort_keys=True, separators=(",", ":")).encode("utf-8"))
+
+    resolved_pages: list[dict[str, Any]] = []
+    if evidence_pages is not None:
+        resolved_pages = [dict(p) for p in evidence_pages if isinstance(p, Mapping)]
+    elif isinstance(items_or_payload, Mapping) and isinstance(items_or_payload.get("pages"), list):
+        resolved_pages = [dict(p) for p in items_or_payload["pages"] if isinstance(p, Mapping)]
+
+    effective_retrieved_at = retrieved_at
+    if effective_retrieved_at is None and isinstance(items_or_payload, Mapping):
+        raw_ts = items_or_payload.get("retrieved_at") or items_or_payload.get("queried_at")
+        if isinstance(raw_ts, str) and raw_ts.strip():
+            effective_retrieved_at = raw_ts.strip()
+    if effective_retrieved_at is None and resolved_pages:
+        first_ts = resolved_pages[0].get("retrieved_at") or resolved_pages[0].get("queried_at")
+        if isinstance(first_ts, str) and first_ts.strip():
+            effective_retrieved_at = first_ts.strip()
+
+    evidence_paths = [
+        str(p["evidence_path"]).strip()
+        for p in resolved_pages
+        if isinstance(p.get("evidence_path"), str) and str(p["evidence_path"]).strip()
+    ]
+    line_evidence_ref: dict[str, Any] = {"raw_evidence_sha256": effective_sha}
+    if effective_retrieved_at is not None:
+        line_evidence_ref["retrieved_at"] = effective_retrieved_at
+    if evidence_paths:
+        line_evidence_ref["evidence_paths"] = evidence_paths
+        if len(evidence_paths) == 1:
+            line_evidence_ref["evidence_path"] = evidence_paths[0]
 
     common_kwargs: dict[str, Any] = {
         "region": region,
@@ -809,6 +897,7 @@ def evaluate_retail_meters(
             "tiers": consumption_summary["tiers"],
             "savingsPlan": savings_plans,
             "raw_evidence_sha256": effective_sha,
+            "evidence_ref": dict(line_evidence_ref),
         }
         if consumption_summary["retailPrice"] == 0.0 and consumption_summary["is_tiered"]:
             line_entry["free_tier_justified"] = True
@@ -832,10 +921,11 @@ def evaluate_retail_meters(
                 "retailPrice": ri_entry["termRetailPrice"],
                 "effectiveMonthlyPrice": ri_entry["effectiveMonthlyPrice"],
                 "raw_evidence_sha256": effective_sha,
+                "evidence_ref": dict(line_evidence_ref),
             }
         )
 
-    return {
+    evaluation_doc: dict[str, Any] = {
         "schema_version": "pursuit-rate-evaluation-v1",
         "status": "RESOLVED",
         "raw_evidence_sha256": effective_sha,
@@ -844,126 +934,591 @@ def evaluate_retail_meters(
         "reservations": reservations_summary,
         "lines": lines,
     }
+    if effective_retrieved_at is not None:
+        evaluation_doc["retrieved_at"] = effective_retrieved_at
+    if resolved_pages:
+        evaluation_doc["evidence"] = resolved_pages
+        evaluation_doc["pages"] = resolved_pages
+    return evaluation_doc
+
+
+_PAGE_EVIDENCE_SHA_KEYS: tuple[str, ...] = (
+    "raw_evidence_sha256",
+    "raw_response_sha256",
+    "response_sha256",
+    "evidence_sha256",
+    "sha256",
+    "page_sha256",
+)
+_CANONICAL_METER_FIELDS: tuple[str, ...] = (
+    "meterId",
+    "meterName",
+    "serviceName",
+    "productName",
+    "skuName",
+    "armSkuName",
+    "armRegionName",
+    "currencyCode",
+    "type",
+    "unitOfMeasure",
+    "tierMinimumUnits",
+    "effectiveStartDate",
+    "retailPrice",
+)
+REPO_ROOT_DIR = Path(__file__).resolve().parents[4]
+
+
+@dataclass(slots=True)
+class _VerifiedEvidenceCatalog:
+    """Verified raw Retail API response bytes and decoded meter rows for bundle validation."""
+
+    by_digest: dict[str, list[dict[str, Any]]] = field(default_factory=dict)
+    by_path: dict[Path, list[dict[str, Any]]] = field(default_factory=dict)
+    all_rows: list[dict[str, Any]] = field(default_factory=list)
+    verified_digests: set[str] = field(default_factory=set)
+    declared_digests: set[str] = field(default_factory=set)
+    errors: list[str] = field(default_factory=list)
+
+    def register(self, digest: str, rows: list[dict[str, Any]], *, path: Path | None = None) -> None:
+        norm_sha = digest.strip().lower()
+        self.verified_digests.add(norm_sha)
+        existing = self.by_digest.setdefault(norm_sha, [])
+        if not existing:
+            existing.extend(rows)
+            self.all_rows.extend(rows)
+        if path is not None:
+            resolved = path.resolve()
+            if resolved not in self.by_path:
+                self.by_path[resolved] = list(rows)
+
+
+def _decode_raw_retail_items(raw_bytes: bytes) -> list[dict[str, Any]]:
+    """Decode meter rows from verbatim Retail API or Azure MCP pricing response bytes."""
+    try:
+        text = raw_bytes.decode("utf-8")
+    except UnicodeDecodeError as exc:
+        raise ValueError(f"Evidence response is not valid UTF-8: {exc}") from exc
+    if text.encode("utf-8") != raw_bytes:
+        raise ValueError("Evidence UTF-8 round-trip byte mismatch")
+
+    value: Any = json.loads(text)
+    if isinstance(value, list):
+        return [dict(x) for x in value if isinstance(x, Mapping)]
+
+    for _ in range(6):
+        if not isinstance(value, Mapping):
+            raise ValueError("Unsupported pricing response structure")
+        if value.get("isError") or value.get("error"):
+            raise ValueError("Pricing response envelope reports an error")
+        if isinstance(value.get("Items"), list):
+            return [dict(x) for x in value["Items"] if isinstance(x, Mapping)]
+        if isinstance(value.get("prices"), list):
+            return [dict(x) for x in value["prices"] if isinstance(x, Mapping)]
+        if "results" in value:
+            value = value["results"]
+            continue
+        if "result" in value:
+            value = value["result"]
+            continue
+        content = value.get("content")
+        if isinstance(content, list):
+            text_parts = [p for p in content if isinstance(p, Mapping) and p.get("type") == "text"]
+            if len(text_parts) != 1 or len(content) != 1 or not isinstance(text_parts[0].get("text"), str):
+                raise ValueError("Ambiguous MCP content wrapper in pricing evidence")
+            value = json.loads(text_parts[0]["text"])
+            continue
+        break
+    raise ValueError("Pricing evidence JSON contains no 'Items' or 'prices' meter array")
+
+
+def _canonical_meter_row_sha256(row: Mapping[str, Any]) -> str | None:
+    """Compute canonical normalized-meter SHA-256 matching `tools/scripts/_lib/pricing-evidence.mjs`."""
+    normalized: dict[str, Any] = dict(row)
+    normalized["armRegionName"] = (
+        row.get("armRegionName") if row.get("armRegionName") is not None else row.get("region")
+    )
+    normalized["type"] = row.get("type") if row.get("type") is not None else row.get("priceType")
+    uom = str(row.get("unitOfMeasure") or "")
+    if normalized.get("tierMinimumUnits") is None and re.match(r"^(1\s*/?\s*)?hours?$", uom, re.IGNORECASE):
+        normalized["tierMinimumUnits"] = None
+
+    base: dict[str, Any] = {}
+    for field_name in _CANONICAL_METER_FIELDS:
+        val = normalized.get(field_name)
+        if field_name in ("retailPrice", "tierMinimumUnits"):
+            if (
+                field_name == "tierMinimumUnits"
+                and val is None
+                and re.match(r"^(1\s*/?\s*)?hours?$", uom, re.IGNORECASE)
+            ):
+                base[field_name] = None
+                continue
+            if not _is_finite_number(val) or float(val) < 0:
+                return None
+            # Match JavaScript JSON.stringify number formatting for integral floats such as 0.0 -> 0
+            fval = float(val)
+            base[field_name] = int(fval) if fval.is_integer() else val
+        else:
+            if not isinstance(val, str) or (not val and field_name not in ("armRegionName", "armSkuName")):
+                return None
+            base[field_name] = val
+
+    if base["type"] == "Reservation":
+        res_term = row.get("reservationTerm")
+        if isinstance(res_term, str) and res_term.strip():
+            base["reservationTerm"] = res_term.strip()
+
+    stable_str = json.dumps(base, sort_keys=True, separators=(",", ":"), ensure_ascii=False)
+    return sha256_bytes(stable_str.encode("utf-8"))
 
 
 def _resolve_optional_evidence_file(raw_path: str, bundle_dir: Path, root: Path | None) -> Path | None:
     """Resolve a referenced evidence/ledger JSON path safely without following symlinks or escaping `root`."""
-    rel_or_abs = Path(raw_path.strip())
-    candidates = [rel_or_abs] if rel_or_abs.is_absolute() else [bundle_dir / rel_or_abs, Path.cwd() / rel_or_abs]
+    cleaned = raw_path.strip()
+    if not cleaned:
+        return None
+    rel_or_abs = Path(cleaned)
+    if rel_or_abs.is_absolute():
+        candidates = [rel_or_abs]
+    else:
+        candidates = [bundle_dir / rel_or_abs, Path.cwd() / rel_or_abs, REPO_ROOT_DIR / rel_or_abs]
+
     for candidate in candidates:
         try:
             if root is not None:
                 resolved = ensure_within_root(candidate, root)
             else:
                 if candidate.is_symlink():
-                    continue
+                    raise ContainmentError(f"Refusing symlink evidence file: {candidate}")
                 resolved = candidate.resolve()
         except ContainmentError:
+            if candidate.is_symlink():
+                raise
             continue
         if resolved.is_file():
             return resolved
     return None
 
 
-def _extract_evidence_digests_from_node(
-    node: Any,
-    *,
-    bundle_dir: Path | None = None,
-    root: Path | None = None,
-    _depth: int = 0,
-) -> set[str]:
-    """Extract valid 64-hex SHA-256 raw-evidence digests from nested evidence/ledger structures."""
-    if _depth > 4 or node is None:
-        return set()
-    if _is_valid_sha256(node):
-        return {str(node).strip().lower()}
-
-    digests: set[str] = set()
-    if isinstance(node, list):
-        for elem in node:
-            digests.update(
-                _extract_evidence_digests_from_node(elem, bundle_dir=bundle_dir, root=root, _depth=_depth + 1)
-            )
-        return digests
-
-    if not isinstance(node, Mapping):
-        return digests
-
-    for sha_key in _EVIDENCE_SHA_KEYS:
+def _declared_page_digests_on_mapping(node: Mapping[str, Any]) -> set[str]:
+    found: set[str] = set()
+    for sha_key in _PAGE_EVIDENCE_SHA_KEYS:
         val = node.get(sha_key)
         if _is_valid_sha256(val):
-            digests.add(str(val).strip().lower())
+            found.add(str(val).strip().lower())
         elif isinstance(val, list) and val and all(_is_valid_sha256(x) for x in val):
-            digests.update(str(x).strip().lower() for x in val)
+            found.update(str(x).strip().lower() for x in val)
+    return found
 
-    for sub_key, sub_val in node.items():
-        if sub_key in _NON_EVIDENCE_SHA_KEYS or sub_key in _EVIDENCE_SHA_KEYS:
-            continue
-        if sub_key in (
-            "pages",
-            "attempts",
-            "entries",
-            "items",
-            "evidence_ref",
-            "pricing_evidence",
-            "evidence",
-            "ledger",
-        ) or (_depth <= 2 and (_is_valid_sha256(sub_val) or isinstance(sub_val, Mapping))):
-            digests.update(
-                _extract_evidence_digests_from_node(sub_val, bundle_dir=bundle_dir, root=root, _depth=_depth + 1)
+
+def _ingest_evidence_file(
+    ev_file: Path,
+    *,
+    ctx: str,
+    declared_digests: set[str],
+    root: Path | None,
+    catalog: _VerifiedEvidenceCatalog,
+    _seen_files: set[Path],
+) -> tuple[list[dict[str, Any]], set[str]]:
+    """Read, SHA-256 verify, and decode meter rows from an evidence file on disk."""
+    resolved_ev = ev_file.resolve()
+    raw_bytes = resolved_ev.read_bytes()
+    actual_file_sha = sha256_bytes(raw_bytes)
+
+    try:
+        parsed = json.loads(raw_bytes.decode("utf-8"))
+    except (UnicodeDecodeError, json.JSONDecodeError) as exc:
+        catalog.errors.append(f"{ctx}: invalid UTF-8/JSON in evidence file {ev_file}: {exc}")
+        return [], set()
+
+    # Case 1: Canonical MCP wrapper (`pricing-response-evidence-v1`) referencing a `.raw` file
+    if isinstance(parsed, Mapping) and parsed.get("schema_version") == "pricing-response-evidence-v1":
+        if str(parsed.get("status") or "").upper() != "COMPLETE":
+            catalog.errors.append(f"{ctx}: pricing-response-evidence-v1 status is not COMPLETE in {ev_file}")
+            return [], set()
+        raw_rel = parsed.get("raw_path")
+        expected_resp_sha = str(parsed.get("response_sha256") or "").strip().lower()
+        if not isinstance(raw_rel, str) or not raw_rel.strip() or not _is_valid_sha256(expected_resp_sha):
+            catalog.errors.append(f"{ctx}: pricing-response-evidence-v1 missing raw_path or response_sha256")
+            return [], set()
+        resolved_raw = _resolve_optional_evidence_file(raw_rel, resolved_ev.parent, root)
+        if resolved_raw is None:
+            catalog.errors.append(f"{ctx}: raw MCP response file not found: {raw_rel!r}")
+            return [], set()
+        mcp_raw_bytes = resolved_raw.read_bytes()
+        actual_raw_sha = sha256_bytes(mcp_raw_bytes)
+        if actual_raw_sha != expected_resp_sha:
+            catalog.errors.append(
+                f"{ctx}: raw MCP evidence SHA-256 mismatch for {raw_rel!r} "
+                f"(expected {expected_resp_sha}, actual {actual_raw_sha})"
             )
+            return [], set()
+        if declared_digests and not (declared_digests & {actual_raw_sha, actual_file_sha}):
+            catalog.errors.append(
+                f"{ctx}: declared digest {sorted(declared_digests)} does not match verified evidence ({actual_raw_sha})"
+            )
+            return [], set()
+        try:
+            rows = _decode_raw_retail_items(mcp_raw_bytes)
+        except ValueError as exc:
+            catalog.errors.append(f"{ctx}: invalid raw MCP response in {raw_rel!r}: {exc}")
+            return [], set()
+        catalog.register(actual_raw_sha, rows, path=resolved_ev)
+        catalog.register(actual_file_sha, rows, path=resolved_raw)
+        return rows, {actual_raw_sha, actual_file_sha}
 
-    if bundle_dir is not None and _depth <= 2:
-        for path_key in ("evidence_path", "ledger_path"):
-            raw_ref = node.get(path_key)
-            if not isinstance(raw_ref, str) or not raw_ref.strip():
+    # Case 2: Multi-page evidence ledger (`retail-price-evidence-v1`, `pursuit-retail-fetch-ledger-v1`, etc.)
+    if isinstance(parsed, Mapping) and isinstance(parsed.get("pages"), list):
+        if resolved_ev in _seen_files:
+            return catalog.by_path.get(resolved_ev, []), {actual_file_sha}
+        _seen_files.add(resolved_ev)
+        page_rows, page_shas = _ingest_pages_array(
+            parsed["pages"],
+            ctx=f"{ctx}({ev_file.name})",
+            base_dir=resolved_ev.parent,
+            root=root,
+            catalog=catalog,
+            _seen_files=_seen_files,
+        )
+        if not page_shas:
+            return [], set()
+        combined_sha = (
+            page_shas[0]
+            if len(page_shas) == 1
+            else sha256_bytes(json.dumps(page_shas, separators=(",", ":")).encode("utf-8"))
+        )
+        wrapper_raw_sha = parsed.get("raw_evidence_sha256")
+        if wrapper_raw_sha is not None and (
+            not _is_valid_sha256(wrapper_raw_sha) or str(wrapper_raw_sha).strip().lower() != combined_sha
+        ):
+            catalog.errors.append(
+                f"{ctx}: ledger raw_evidence_sha256={wrapper_raw_sha!r} mismatches verified page digest {combined_sha}"
+            )
+            return [], set()
+        valid_shas = set(page_shas) | {combined_sha, actual_file_sha}
+        if declared_digests and not (declared_digests & valid_shas):
+            catalog.errors.append(
+                f"{ctx}: declared digest {sorted(declared_digests)} does not match verified ledger digests"
+            )
+            return [], set()
+        catalog.register(combined_sha, page_rows, path=resolved_ev)
+        catalog.register(actual_file_sha, page_rows, path=resolved_ev)
+        return page_rows, valid_shas
+
+    # Case 3: Direct verbatim Retail API / MCP response JSON
+    if declared_digests and actual_file_sha not in declared_digests:
+        catalog.errors.append(
+            f"{ctx}: raw evidence SHA-256 mismatch for {ev_file.name!r} "
+            f"(expected {sorted(declared_digests)}, actual {actual_file_sha})"
+        )
+        return [], set()
+    try:
+        rows = _decode_raw_retail_items(raw_bytes)
+    except ValueError as exc:
+        catalog.errors.append(f"{ctx}: unable to decode Retail API meter rows from {ev_file.name!r}: {exc}")
+        return [], set()
+
+    catalog.register(actual_file_sha, rows, path=resolved_ev)
+    return rows, {actual_file_sha}
+
+
+def _ingest_pages_array(
+    pages: Sequence[Any],
+    *,
+    ctx: str,
+    base_dir: Path,
+    root: Path | None,
+    catalog: _VerifiedEvidenceCatalog,
+    _seen_files: set[Path],
+) -> tuple[list[dict[str, Any]], list[str]]:
+    """Verify every page in a `pages[]` array from persisted `evidence_path` or inline `raw_response` bytes."""
+    if not pages:
+        catalog.errors.append(f"{ctx}: pages[] array is empty")
+        return [], []
+
+    collected_rows: list[dict[str, Any]] = []
+    ordered_page_shas: list[str] = []
+
+    for p_idx, page in enumerate(pages):
+        p_ctx = f"{ctx}.pages[{p_idx}]"
+        if not isinstance(page, Mapping):
+            catalog.errors.append(f"{p_ctx}: page entry must be an object")
+            continue
+        p_declared = _declared_page_digests_on_mapping(page)
+        catalog.declared_digests.update(p_declared)
+
+        raw_path_str = _first_non_empty_str(page.get("evidence_path"), page.get("raw_path"))
+        if raw_path_str:
+            resolved_p = _resolve_optional_evidence_file(raw_path_str, base_dir, root)
+            if resolved_p is None:
+                catalog.errors.append(f"{p_ctx}: referenced page evidence file not found: {raw_path_str!r}")
                 continue
-            resolved_ev = _resolve_optional_evidence_file(raw_ref, bundle_dir, root)
-            if resolved_ev is None:
+            p_rows, p_shas = _ingest_evidence_file(
+                resolved_p,
+                ctx=p_ctx,
+                declared_digests=p_declared,
+                root=root,
+                catalog=catalog,
+                _seen_files=_seen_files,
+            )
+            if p_shas:
+                collected_rows.extend(p_rows)
+                primary_sha = next(iter(p_declared & p_shas), next(iter(p_shas)))
+                ordered_page_shas.append(primary_sha)
+            continue
+
+        raw_resp = page.get("raw_response")
+        raw_b64 = page.get("raw_response_base64")
+        if isinstance(raw_resp, str) or isinstance(raw_b64, str):
+            try:
+                if isinstance(raw_b64, str):
+                    page_bytes = base64.b64decode(raw_b64, validate=True)
+                    if isinstance(raw_resp, str) and page_bytes.decode("utf-8") != raw_resp:
+                        catalog.errors.append(f"{p_ctx}: raw_response and raw_response_base64 mismatch")
+                        continue
+                else:
+                    assert isinstance(raw_resp, str)
+                    page_bytes = raw_resp.encode("utf-8")
+            except (ValueError, UnicodeDecodeError) as exc:
+                catalog.errors.append(f"{p_ctx}: invalid inline raw response encoding: {exc}")
+                continue
+
+            actual_sha = sha256_bytes(page_bytes)
+            if not p_declared:
+                catalog.errors.append(f"{p_ctx}: inline raw_response is missing response_sha256")
+                continue
+            if actual_sha not in p_declared:
+                catalog.errors.append(
+                    f"{p_ctx}: inline raw_response SHA-256 mismatch (expected {sorted(p_declared)}, actual {actual_sha})"
+                )
                 continue
             try:
-                ev_payload = json.loads(resolved_ev.read_text(encoding="utf-8"))
-            except OSError, UnicodeDecodeError, json.JSONDecodeError:
+                p_rows = _decode_raw_retail_items(page_bytes)
+            except ValueError as exc:
+                catalog.errors.append(f"{p_ctx}: invalid Retail API JSON in inline raw_response: {exc}")
                 continue
-            if isinstance(ev_payload, Mapping):
-                digests.update(_extract_evidence_digests_from_node(ev_payload, bundle_dir=None, root=root, _depth=3))
+            catalog.register(actual_sha, p_rows)
+            collected_rows.extend(p_rows)
+            ordered_page_shas.append(actual_sha)
+            continue
 
-    return digests
+        catalog.errors.append(
+            f"{p_ctx}: missing persisted 'evidence_path' or verbatim 'raw_response' bytes to verify response_sha256"
+        )
+
+    return collected_rows, ordered_page_shas
 
 
-def _collect_top_level_digests(
+def _ingest_evidence_node(
+    node: Any,
+    *,
+    ctx: str,
+    base_dir: Path,
+    root: Path | None,
+    catalog: _VerifiedEvidenceCatalog,
+    _seen_files: set[Path],
+    _depth: int = 0,
+) -> None:
+    """Recursively verify evidence references and populate `catalog` with hashed meter rows."""
+    if _depth > 5 or node is None:
+        return
+    if _is_valid_sha256(node):
+        catalog.declared_digests.add(str(node).strip().lower())
+        return
+    if isinstance(node, list):
+        for idx, elem in enumerate(node):
+            _ingest_evidence_node(
+                elem,
+                ctx=f"{ctx}[{idx}]",
+                base_dir=base_dir,
+                root=root,
+                catalog=catalog,
+                _seen_files=_seen_files,
+                _depth=_depth + 1,
+            )
+        return
+    if not isinstance(node, Mapping):
+        return
+
+    node_digests = _declared_page_digests_on_mapping(node)
+    catalog.declared_digests.update(node_digests)
+
+    # Collect explicit file locators on this evidence node
+    path_refs: list[str] = []
+    for path_key in ("evidence_path", "raw_path"):
+        val = node.get(path_key)
+        if isinstance(val, str) and val.strip():
+            path_refs.append(val.strip())
+    ev_paths_list = node.get("evidence_paths")
+    if isinstance(ev_paths_list, list):
+        for item in ev_paths_list:
+            if isinstance(item, str) and item.strip() and item.strip() not in path_refs:
+                path_refs.append(item.strip())
+
+    if path_refs:
+        multi_rows: list[dict[str, Any]] = []
+        multi_shas: list[str] = []
+        for ref_str in path_refs:
+            resolved = _resolve_optional_evidence_file(ref_str, base_dir, root)
+            if resolved is None:
+                catalog.errors.append(f"{ctx}: referenced evidence file not found: {ref_str!r}")
+                continue
+            per_file_expected = node_digests if len(path_refs) == 1 else set()
+            f_rows, f_shas = _ingest_evidence_file(
+                resolved,
+                ctx=ctx,
+                declared_digests=per_file_expected,
+                root=root,
+                catalog=catalog,
+                _seen_files=_seen_files,
+            )
+            if f_shas:
+                multi_rows.extend(f_rows)
+                multi_shas.append(next(iter(f_shas)))
+        if len(path_refs) > 1 and len(multi_shas) == len(path_refs):
+            combined = sha256_bytes(json.dumps(multi_shas, separators=(",", ":")).encode("utf-8"))
+            if node_digests and not (node_digests & (set(multi_shas) | {combined})):
+                catalog.errors.append(
+                    f"{ctx}: declared digest {sorted(node_digests)} does not match multi-page evidence {combined}"
+                )
+            else:
+                catalog.register(combined, multi_rows)
+        return
+
+    if isinstance(node.get("raw_response"), str) or isinstance(node.get("raw_response_base64"), str):
+        _ingest_pages_array([node], ctx=ctx, base_dir=base_dir, root=root, catalog=catalog, _seen_files=_seen_files)
+        return
+
+    if isinstance(node.get("pages"), list):
+        p_rows, p_shas = _ingest_pages_array(
+            node["pages"],
+            ctx=ctx,
+            base_dir=base_dir,
+            root=root,
+            catalog=catalog,
+            _seen_files=_seen_files,
+        )
+        if p_shas:
+            combined = (
+                p_shas[0]
+                if len(p_shas) == 1
+                else sha256_bytes(json.dumps(p_shas, separators=(",", ":")).encode("utf-8"))
+            )
+            if node_digests and not (node_digests & (set(p_shas) | {combined})):
+                catalog.errors.append(
+                    f"{ctx}: declared digest {sorted(node_digests)} mismatches verified pages digest {combined}"
+                )
+            else:
+                catalog.register(combined, p_rows)
+        return
+
+    for child_key in ("entries", "items", "evidence_ref", "pricing_evidence", "evidence", "retail_api_evidence"):
+        if child_key in node:
+            _ingest_evidence_node(
+                node[child_key],
+                ctx=f"{ctx}.{child_key}",
+                base_dir=base_dir,
+                root=root,
+                catalog=catalog,
+                _seen_files=_seen_files,
+                _depth=_depth + 1,
+            )
+
+
+def _build_verified_bundle_catalog(
     bundle: Mapping[str, Any],
     *,
-    bundle_dir: Path | None = None,
-    root: Path | None = None,
-) -> set[str]:
-    """Gather valid 64-hex SHA-256 evidence digests declared at the bundle root."""
-    digests: set[str] = set()
-    for key in _EVIDENCE_SHA_KEYS:
-        val = bundle.get(key)
-        if _is_valid_sha256(val):
-            digests.add(str(val).strip().lower())
-        elif isinstance(val, list) and val and all(_is_valid_sha256(x) for x in val):
-            digests.update(str(x).strip().lower() for x in val)
+    bundle_dir: Path,
+    root: Path | None,
+) -> _VerifiedEvidenceCatalog:
+    """Verify all bundle-level and line-level evidence files/bytes and index their meter rows."""
+    catalog = _VerifiedEvidenceCatalog()
+    seen_files: set[Path] = set()
 
-    for container_key in (
-        "pages",
-        "evidence",
-        "pricing_evidence",
-        "retail_api_evidence",
-        "ledger",
-        "query_ledger",
-    ):
-        if container_key in bundle:
-            digests.update(
-                _extract_evidence_digests_from_node(
-                    bundle[container_key],
-                    bundle_dir=bundle_dir,
-                    root=root,
-                    _depth=1,
-                )
+    catalog.declared_digests.update(_declared_page_digests_on_mapping(bundle))
+
+    if isinstance(bundle.get("pages"), list):
+        p_rows, p_shas = _ingest_pages_array(
+            bundle["pages"],
+            ctx="bundle",
+            base_dir=bundle_dir,
+            root=root,
+            catalog=catalog,
+            _seen_files=seen_files,
+        )
+        if p_shas:
+            combined = (
+                p_shas[0]
+                if len(p_shas) == 1
+                else sha256_bytes(json.dumps(p_shas, separators=(",", ":")).encode("utf-8"))
             )
-    return digests
+            top_raw = bundle.get("raw_evidence_sha256")
+            if top_raw is not None and (not _is_valid_sha256(top_raw) or str(top_raw).strip().lower() != combined):
+                catalog.errors.append(
+                    f"bundle: top-level raw_evidence_sha256={top_raw!r} mismatches verified pages digest {combined}"
+                )
+            else:
+                catalog.register(combined, p_rows)
+
+    for container_key in ("evidence", "pricing_evidence", "retail_api_evidence"):
+        if container_key in bundle and bundle[container_key] is not None:
+            # Avoid double-ingesting when `evidence` and `pages` are identical lists on pursuit-rate-evaluation-v1
+            if container_key == "evidence" and bundle.get("pages") == bundle.get("evidence"):
+                continue
+            _ingest_evidence_node(
+                bundle[container_key],
+                ctx=f"bundle.{container_key}",
+                base_dir=bundle_dir,
+                root=root,
+                catalog=catalog,
+                _seen_files=seen_files,
+            )
+
+    # Also ingest any line-level / component-level evidence references
+    for candidate_key in ("resources", "services", "lines", "items", "meters"):
+        raw_lines = bundle.get(candidate_key)
+        if not isinstance(raw_lines, list):
+            continue
+        for idx, line in enumerate(raw_lines):
+            if not isinstance(line, Mapping):
+                continue
+            for ev_key in ("evidence_ref", "pricing_evidence", "evidence"):
+                if ev_key in line:
+                    _ingest_evidence_node(
+                        line[ev_key],
+                        ctx=f"line[{idx}].{ev_key}",
+                        base_dir=bundle_dir,
+                        root=root,
+                        catalog=catalog,
+                        _seen_files=seen_files,
+                    )
+            comps = None
+            cb = line.get("calculation_basis")
+            if isinstance(cb, Mapping) and isinstance(cb.get("components"), list):
+                comps = cb["components"]
+            elif isinstance(line.get("components"), list):
+                comps = line["components"]
+            if isinstance(comps, list):
+                for c_idx, comp in enumerate(comps):
+                    if isinstance(comp, Mapping):
+                        for ev_key in ("evidence_ref", "pricing_evidence", "evidence"):
+                            if ev_key in comp:
+                                _ingest_evidence_node(
+                                    comp[ev_key],
+                                    ctx=f"line[{idx}].components[{c_idx}].{ev_key}",
+                                    base_dir=bundle_dir,
+                                    root=root,
+                                    catalog=catalog,
+                                    _seen_files=seen_files,
+                                )
+
+    for unverified_sha in sorted(catalog.declared_digests - catalog.verified_digests):
+        catalog.errors.append(
+            f"Unverified evidence digest {unverified_sha}: no captured raw response file or verbatim response bytes "
+            "were found to recompute SHA-256 and verify meter selection"
+        )
+
+    return catalog
 
 
 def _has_free_tier_justification(target: Mapping[str, Any], parent: Mapping[str, Any] | None = None) -> bool:
@@ -1024,17 +1579,312 @@ def _first_non_empty_str(*values: Any) -> str:
     return ""
 
 
+def _rates_equal(a: Any, b: Any) -> bool:
+    if not _is_finite_number(a) or not _is_finite_number(b):
+        return False
+    return abs(Decimal(str(a)) - Decimal(str(b))) <= Decimal("1e-9")
+
+
+def _extract_unit_evidence_bindings(
+    unit: Mapping[str, Any],
+    selected_meter: Mapping[str, Any],
+    calc_basis: Mapping[str, Any],
+    parent: Mapping[str, Any] | None,
+    *,
+    bundle_dir: Path | None,
+    root: Path | None,
+) -> tuple[set[str], list[Path], list[str], list[str]]:
+    """Collect `(page_digests, resolved_files, row_sha256s, binding_errors)` for a priced unit."""
+    page_digests: set[str] = set()
+    resolved_files: list[Path] = []
+    row_shas: list[str] = []
+    binding_errors: list[str] = []
+
+    def _scan_ev_obj(obj: Any, *, depth: int = 0) -> None:
+        if depth > 3 or not isinstance(obj, Mapping):
+            return
+        for sha_k in _PAGE_EVIDENCE_SHA_KEYS:
+            val = obj.get(sha_k)
+            if _is_valid_sha256(val):
+                page_digests.add(str(val).strip().lower())
+            elif isinstance(val, list) and val and all(_is_valid_sha256(x) for x in val):
+                page_digests.update(str(x).strip().lower() for x in val)
+
+        raw_row_sha = obj.get("row_sha256")
+        if _is_valid_sha256(raw_row_sha):
+            row_shas.append(str(raw_row_sha).strip().lower())
+        elif isinstance(raw_row_sha, list):
+            for item in raw_row_sha:
+                if _is_valid_sha256(item):
+                    row_shas.append(str(item).strip().lower())
+                else:
+                    binding_errors.append(f"invalid non-64-hex row_sha256 entry {item!r}")
+
+        if bundle_dir is not None:
+            path_vals: list[str] = []
+            for p_k in ("evidence_path", "raw_path"):
+                pv = obj.get(p_k)
+                if isinstance(pv, str) and pv.strip():
+                    path_vals.append(pv.strip())
+            ev_list = obj.get("evidence_paths")
+            if isinstance(ev_list, list):
+                for pv in ev_list:
+                    if isinstance(pv, str) and pv.strip() and pv.strip() not in path_vals:
+                        path_vals.append(pv.strip())
+            for pv in path_vals:
+                res_f = _resolve_optional_evidence_file(pv, bundle_dir, root)
+                if res_f is not None and res_f.resolve() not in resolved_files:
+                    resolved_files.append(res_f.resolve())
+
+        for sub_k in ("evidence_ref", "pricing_evidence", "evidence", "pages"):
+            if sub_k in obj:
+                sub_v = obj[sub_k]
+                if isinstance(sub_v, list):
+                    for elem in sub_v:
+                        if _is_valid_sha256(elem):
+                            page_digests.add(str(elem).strip().lower())
+                        else:
+                            _scan_ev_obj(elem, depth=depth + 1)
+                else:
+                    _scan_ev_obj(sub_v, depth=depth + 1)
+
+    for src in (unit, selected_meter, calc_basis, parent):
+        if isinstance(src, Mapping):
+            _scan_ev_obj(src)
+
+    return page_digests, resolved_files, row_shas, binding_errors
+
+
+def _verify_unit_meter_against_catalog(
+    *,
+    label: str,
+    unit: Mapping[str, Any],
+    selected_meter: Mapping[str, Any],
+    calc_basis: Mapping[str, Any],
+    parent: Mapping[str, Any] | None,
+    meter_id: str,
+    arm_sku: str,
+    meter_name: str,
+    arm_region: str,
+    declared_rate: float | None,
+    tier_list: Any,
+    allow_devtest: bool,
+    bundle_dir: Path | None,
+    root: Path | None,
+    catalog: _VerifiedEvidenceCatalog,
+) -> list[str]:
+    """Verify that a priced unit's evidence digest, meter identity, and rate match verified raw response rows."""
+    errs: list[str] = []
+    line_digests, line_files, row_shas, bind_errs = _extract_unit_evidence_bindings(
+        unit,
+        selected_meter,
+        calc_basis,
+        parent,
+        bundle_dir=bundle_dir,
+        root=root,
+    )
+    for b_err in bind_errs:
+        errs.append(f"{label}: {b_err}")
+
+    unverified_line_shas = sorted(line_digests - catalog.verified_digests)
+    if unverified_line_shas:
+        errs.append(f"{label}: evidence digest(s) {unverified_line_shas} lack verified raw response bytes")
+        return errs
+
+    candidate_rows: list[dict[str, Any]] = []
+    if line_files:
+        for fpath in line_files:
+            candidate_rows.extend(catalog.by_path.get(fpath, []))
+    elif line_digests:
+        for d in sorted(line_digests):
+            candidate_rows.extend(catalog.by_digest.get(d, []))
+    else:
+        if not catalog.verified_digests or not catalog.all_rows:
+            errs.append(
+                f"{label}: missing verified raw-response pricing evidence "
+                "(hash strings without captured response bytes do not satisfy validation)"
+            )
+            return errs
+        candidate_rows = list(catalog.all_rows)
+
+    if not candidate_rows:
+        errs.append(f"{label}: referenced pricing evidence contains zero decoded meter rows")
+        return errs
+
+    if row_shas:
+        by_row_sha: dict[str, list[dict[str, Any]]] = {}
+        for r in candidate_rows:
+            r_digest = _canonical_meter_row_sha256(r)
+            if r_digest is not None:
+                by_row_sha.setdefault(r_digest, []).append(r)
+        missing_r_shas = [rs for rs in row_shas if rs not in by_row_sha]
+        if missing_r_shas:
+            errs.append(f"{label}: row_sha256 {missing_r_shas} not found in referenced raw pricing evidence")
+            return errs
+        narrowed: list[dict[str, Any]] = []
+        for rs in row_shas:
+            narrowed.extend(by_row_sha[rs])
+        candidate_rows = narrowed
+
+    explicit_arm_sku = _first_non_empty_str(
+        selected_meter.get("armSkuName"),
+        selected_meter.get("arm_sku_name"),
+        unit.get("armSkuName"),
+        unit.get("arm_sku_name"),
+        calc_basis.get("armSkuName"),
+    )
+    declared_price_type = _first_non_empty_str(
+        selected_meter.get("priceType"),
+        selected_meter.get("price_type"),
+        selected_meter.get("type"),
+        unit.get("priceType"),
+        unit.get("price_type"),
+        unit.get("type"),
+        calc_basis.get("priceType"),
+        calc_basis.get("price_type"),
+        calc_basis.get("type"),
+    )
+    unit_commitment = _as_mapping(unit.get("commitment")) or _as_mapping(parent.get("commitment") if parent else None)
+    declared_res_term = _first_non_empty_str(
+        selected_meter.get("reservationTerm"),
+        selected_meter.get("reservation_term"),
+        unit.get("reservationTerm"),
+        unit.get("reservation_term"),
+        unit_commitment.get("reservationTerm"),
+        unit_commitment.get("term") if declared_price_type.lower() == "reservation" else None,
+    )
+    is_savings_plan_rate = declared_price_type.lower() in {
+        "savingsplan",
+        "computesavingsplan",
+        "savings_plan",
+        "compute_savings_plan",
+    }
+    declared_sp_term = _first_non_empty_str(
+        unit.get("savingsPlanTerm"),
+        unit.get("savings_plan_term"),
+        unit_commitment.get("term") if is_savings_plan_rate else None,
+    )
+
+    matched_rows: list[dict[str, Any]] = []
+    for row in candidate_rows:
+        row_type = str(row.get("type") or row.get("priceType") or "").strip()
+        if not allow_devtest and row_type.lower() == "devtestconsumption":
+            continue
+        if meter_id and str(row.get("meterId") or "").strip() != meter_id:
+            continue
+        row_arm_sku = str(row.get("armSkuName") or "").strip()
+        row_sku_name = str(row.get("skuName") or "").strip()
+        if explicit_arm_sku:
+            if row_arm_sku.lower() != explicit_arm_sku.lower():
+                continue
+        elif arm_sku and arm_sku.lower() not in {row_arm_sku.lower(), row_sku_name.lower()}:
+            continue
+        if meter_name and str(row.get("meterName") or "").strip().lower() != meter_name.lower():
+            continue
+        if arm_region:
+            row_region = str(row.get("armRegionName") or row.get("region") or "").strip().lower()
+            if row_region != arm_region.lower():
+                continue
+        if is_savings_plan_rate:
+            if row_type.lower() != "consumption":
+                continue
+        elif declared_price_type and row_type.lower() != declared_price_type.lower():
+            continue
+        if (
+            declared_price_type.lower() == "reservation"
+            and declared_res_term
+            and str(row.get("reservationTerm") or "").strip().lower() != declared_res_term.lower()
+        ):
+            continue
+        matched_rows.append(row)
+
+    if not matched_rows:
+        errs.append(
+            f"{label}: selected meter (meterId={meter_id or 'n/a'!r}, sku={arm_sku or 'n/a'!r}, "
+            f"meterName={meter_name or 'n/a'!r}, region={arm_region or 'n/a'!r}, "
+            f"priceType={declared_price_type or 'n/a'!r}) not found in verified raw pricing evidence"
+        )
+        return errs
+
+    # Verify scalar rate against matched evidenced meter rows
+    if declared_rate is not None:
+        if is_savings_plan_rate:
+            sp_matched = False
+            for row in matched_rows:
+                sp_list = row.get("savingsPlan")
+                if not isinstance(sp_list, list):
+                    continue
+                for sp_item in sp_list:
+                    if not isinstance(sp_item, Mapping):
+                        continue
+                    if declared_sp_term and str(sp_item.get("term") or "").strip().lower() != declared_sp_term.lower():
+                        continue
+                    if _rates_equal(sp_item.get("retailPrice"), declared_rate):
+                        sp_matched = True
+                        break
+                if sp_matched:
+                    break
+            if not sp_matched:
+                errs.append(
+                    f"{label}: declared Savings Plan rate {declared_rate} does not match any evidenced "
+                    "savingsPlan retailPrice on the matched Consumption meter"
+                )
+        else:
+            if not any(_rates_equal(r.get("retailPrice"), declared_rate) for r in matched_rows):
+                evidenced_rates = [r.get("retailPrice") for r in matched_rows[:5]]
+                errs.append(
+                    f"{label}: declared rate {declared_rate} does not match evidenced Retail API "
+                    f"retailPrice {evidenced_rates} for the selected meter"
+                )
+
+    # Also verify selected_meter.retailPrice if unit and selected_meter both carry rates
+    sm_rate = selected_meter.get("retailPrice", selected_meter.get("retail_price"))
+    if (
+        sm_rate is not None
+        and _is_finite_number(sm_rate)
+        and not is_savings_plan_rate
+        and not any(_rates_equal(r.get("retailPrice"), float(sm_rate)) for r in matched_rows)
+    ):
+        evidenced_rates = [r.get("retailPrice") for r in matched_rows[:5]]
+        errs.append(
+            f"{label}: selected_meter retailPrice {sm_rate} does not match evidenced Retail API "
+            f"retailPrice {evidenced_rates}"
+        )
+
+    # Verify progressive tier bands against evidenced rows when tiers are declared
+    if isinstance(tier_list, list) and len(tier_list) > 0:
+        for t_idx, band in enumerate(tier_list):
+            if not isinstance(band, Mapping):
+                continue
+            b_min = band.get("tierMinimumUnits", band.get("tier_minimum_units", 0.0 if len(tier_list) == 1 else None))
+            b_rate = band.get("retailPrice", band.get("retail_price", band.get("unitPrice")))
+            if not _is_finite_number(b_min) or not _is_finite_number(b_rate):
+                continue
+            band_ok = any(
+                _rates_equal(r.get("tierMinimumUnits") if r.get("tierMinimumUnits") is not None else 0.0, b_min)
+                and _rates_equal(r.get("retailPrice"), b_rate)
+                for r in matched_rows
+            )
+            if not band_ok:
+                errs.append(
+                    f"{label}: tier band #{t_idx} (tierMinimumUnits={b_min}, retailPrice={b_rate}) "
+                    "does not match verified Retail API evidence rows"
+                )
+
+    return errs
+
+
 def _validate_single_priced_unit(
     unit: Mapping[str, Any],
     label: str,
-    top_level_digests: set[str],
+    catalog: _VerifiedEvidenceCatalog,
     parent: Mapping[str, Any] | None = None,
     *,
     allow_devtest: bool = False,
     bundle_dir: Path | None = None,
     root: Path | None = None,
 ) -> list[str]:
-    """Validate meter identity, region, priceType, rate/free-tier rules, and SHA-256 provenance on one unit."""
+    """Validate meter identity, region, priceType, rate/free-tier rules, and verified evidence binding on one unit."""
     errors: list[str] = []
     calc_basis = _as_mapping(unit.get("calculation_basis"))
     selected_meter = _resolve_selected_meter(unit, parent)
@@ -1151,6 +2001,7 @@ def _validate_single_priced_unit(
             break
 
     rate_present = False
+    numeric_declared_rate: float | None = None
     for rate_source in (unit, selected_meter, calc_basis):
         for rate_key in ("retailPrice", "retail_price", "unitPrice", "unit_price", "rate"):
             if rate_key in rate_source and rate_source.get(rate_key) is not None:
@@ -1160,21 +2011,23 @@ def _validate_single_priced_unit(
                     errors.append(f"{label}: non-numeric or placeholder rate {rate_key}={raw_rate!r}")
                 elif float(raw_rate) < 0:
                     errors.append(f"{label}: negative rate {rate_key}={raw_rate}")
-                elif float(raw_rate) == 0.0:
-                    has_paid_higher_tier = isinstance(tier_list, list) and any(
-                        isinstance(t, Mapping)
-                        and _is_finite_number(t_rate := t.get("retailPrice", t.get("retail_price")))
-                        and float(t_rate) > 0
-                        for t in tier_list
-                    )
-                    justified = _has_free_tier_justification(unit, parent) or _has_free_tier_justification(
-                        selected_meter, unit
-                    )
-                    if not has_paid_higher_tier and not justified:
-                        errors.append(
-                            f"{label}: $0 rate lacks explicit free-tier justification "
-                            "(unresolved/placeholder rates may not masquerade as 0)"
+                else:
+                    numeric_declared_rate = float(raw_rate)
+                    if numeric_declared_rate == 0.0:
+                        has_paid_higher_tier = isinstance(tier_list, list) and any(
+                            isinstance(t, Mapping)
+                            and _is_finite_number(t_rate := t.get("retailPrice", t.get("retail_price")))
+                            and float(t_rate) > 0
+                            for t in tier_list
                         )
+                        justified = _has_free_tier_justification(unit, parent) or _has_free_tier_justification(
+                            selected_meter, unit
+                        )
+                        if not has_paid_higher_tier and not justified:
+                            errors.append(
+                                f"{label}: $0 rate lacks explicit free-tier justification "
+                                "(unresolved/placeholder rates may not masquerade as 0)"
+                            )
                 break
         if rate_present:
             break
@@ -1205,30 +2058,25 @@ def _validate_single_priced_unit(
             elif float(c_val) == 0.0 and not _has_free_tier_justification(unit, parent):
                 errors.append(f"{label}: {cost_key}=0.0 lacks explicit free-tier justification")
 
-    line_digests: set[str] = set()
-    for ev_source in (unit, selected_meter, calc_basis, parent):
-        if not isinstance(ev_source, Mapping):
-            continue
-        for sha_key in _EVIDENCE_SHA_KEYS:
-            val = ev_source.get(sha_key)
-            if _is_valid_sha256(val):
-                line_digests.add(str(val).strip().lower())
-            elif isinstance(val, list) and val and all(_is_valid_sha256(x) for x in val):
-                line_digests.update(str(x).strip().lower() for x in val)
-        for ev_container_key in ("evidence_ref", "pricing_evidence", "evidence", "ledger"):
-            if ev_container_key in ev_source:
-                line_digests.update(
-                    _extract_evidence_digests_from_node(
-                        ev_source[ev_container_key],
-                        bundle_dir=bundle_dir,
-                        root=root,
-                        _depth=1,
-                    )
-                )
-
-    line_has_sha = bool(line_digests or top_level_digests)
-    if not line_has_sha:
-        errors.append(f"{label}: missing recorded 64-hex SHA-256 raw-evidence digest")
+    errors.extend(
+        _verify_unit_meter_against_catalog(
+            label=label,
+            unit=unit,
+            selected_meter=selected_meter,
+            calc_basis=calc_basis,
+            parent=parent,
+            meter_id=meter_id,
+            arm_sku=arm_sku,
+            meter_name=meter_name,
+            arm_region=arm_region,
+            declared_rate=numeric_declared_rate,
+            tier_list=tier_list,
+            allow_devtest=allow_devtest,
+            bundle_dir=bundle_dir,
+            root=root,
+            catalog=catalog,
+        )
+    )
 
     return errors
 
@@ -1330,10 +2178,50 @@ def _audit_bundle_line_skus(
     return audits
 
 
+def _run_canonical_cost_estimate_validator(
+    resolved_bundle: Path,
+    resolved_request: Path,
+    bundle: Mapping[str, Any],
+) -> list[str]:
+    """Delegate canonical request/evidence validation to `tools/scripts/cost-estimate.mjs` when requested."""
+    node_bin = shutil.which("node")
+    script_path = REPO_ROOT_DIR / "tools" / "scripts" / "cost-estimate.mjs"
+    if node_bin is None or not script_path.is_file():
+        return ["Canonical validator unavailable: 'node' or 'tools/scripts/cost-estimate.mjs' not found"]
+
+    is_quote = (
+        str(bundle.get("schema_version") or "").strip() == "retail-rate-quote-v1"
+        or str(bundle.get("purpose") or "").strip() == "rate-quote"
+    )
+    subcmd = "validate-quote" if is_quote else "validate"
+    proc = subprocess.run(
+        [node_bin, str(script_path), subcmd, "--input", str(resolved_bundle), "--request", str(resolved_request)],
+        cwd=str(REPO_ROOT_DIR),
+        capture_output=True,
+        text=True,
+        timeout=60,
+        check=False,
+    )
+    if proc.returncode == 0:
+        return []
+    for raw_out in (proc.stdout, proc.stderr):
+        if not raw_out.strip():
+            continue
+        try:
+            parsed = json.loads(raw_out)
+            if isinstance(parsed, Mapping) and isinstance(parsed.get("errors"), list):
+                return [f"cost-estimate.mjs: {e}" for e in parsed["errors"]]
+        except json.JSONDecodeError:
+            pass
+    msg = (proc.stderr or proc.stdout).strip() or f"exit code {proc.returncode}"
+    return [f"cost-estimate.mjs {subcmd} failed: {msg}"]
+
+
 def validate_pricing_bundle(
     bundle_path: Path,
     *,
     root: Path | None = None,
+    request_path: Path | None = None,
     deprecations_file: Path | None = DEFAULT_DEPRECATIONS_FILE,
     allow_devtest: bool = False,
     report_only: bool = False,
@@ -1345,6 +2233,15 @@ def validate_pricing_bundle(
         if bundle_path.is_symlink():
             raise ContainmentError(f"Refusing to validate symlink bundle: {bundle_path}")
         resolved_path = bundle_path.resolve()
+
+    resolved_request: Path | None = None
+    if request_path is not None:
+        if root is not None:
+            resolved_request = ensure_within_root(request_path, root)
+        else:
+            if request_path.is_symlink():
+                raise ContainmentError(f"Refusing to validate symlink request file: {request_path}")
+            resolved_request = request_path.resolve()
 
     deprecations: list[dict[str, Any]] = []
     if deprecations_file is not None:
@@ -1380,6 +2277,12 @@ def validate_pricing_bundle(
     warnings: list[str] = []
     sku_audit_results: list[dict[str, Any]] = []
 
+    if resolved_request is not None:
+        if not resolved_request.is_file():
+            errors.append(f"Request file not found: {request_path}")
+        else:
+            errors.extend(_run_canonical_cost_estimate_validator(resolved_path, resolved_request, bundle))
+
     status = bundle.get("status")
     if status is not None and str(status).strip().upper() not in {"COMPLETE", "RESOLVED"}:
         errors.append(f"Bundle top-level status is {status!r}; expected 'COMPLETE' or 'RESOLVED'")
@@ -1389,7 +2292,8 @@ def validate_pricing_bundle(
         errors.append(f"Bundle contains {len(unresolved)} unresolved_items entry(ies)")
 
     bundle_dir = resolved_path.parent
-    top_digests = _collect_top_level_digests(bundle, bundle_dir=bundle_dir, root=root)
+    evidence_catalog = _build_verified_bundle_catalog(bundle, bundle_dir=bundle_dir, root=root)
+    errors.extend(evidence_catalog.errors)
 
     raw_lines: list[Any] | None = None
     for candidate_key in ("resources", "services", "lines", "items", "meters"):
@@ -1451,7 +2355,7 @@ def validate_pricing_bundle(
                     _validate_single_priced_unit(
                         comp,
                         f"{line_name}.components[{c_idx}]",
-                        top_digests,
+                        evidence_catalog,
                         parent=line,
                         allow_devtest=allow_devtest,
                         bundle_dir=bundle_dir,
@@ -1464,7 +2368,7 @@ def validate_pricing_bundle(
                 _validate_single_priced_unit(
                     line,
                     line_name,
-                    top_digests,
+                    evidence_catalog,
                     allow_devtest=allow_devtest,
                     bundle_dir=bundle_dir,
                     root=root,
@@ -1840,6 +2744,18 @@ def build_arg_parser() -> argparse.ArgumentParser:
 
     parser.add_argument("--root", type=Path, default=None, help="Optional containment root directory.")
     parser.add_argument("--out", type=Path, default=None, help="Optional JSON output path for evaluation/ledger/audit.")
+    parser.add_argument(
+        "--evidence-dir",
+        type=Path,
+        default=None,
+        help="Directory to persist verbatim Retail API response pages during --fetch-filter.",
+    )
+    parser.add_argument(
+        "--request",
+        type=Path,
+        default=None,
+        help="Optional original pricing request JSON for canonical cost-estimate.mjs bundle validation.",
+    )
     parser.add_argument("--region", type=str, default=None, help="Target ARM region (for example, swedencentral).")
     parser.add_argument("--service-name", type=str, default=None, help="Exact Retail API serviceName filter.")
     parser.add_argument("--arm-sku-name", type=str, default=None, help="Exact Retail API armSkuName filter.")
@@ -1910,6 +2826,7 @@ def main(argv: Sequence[str] | None = None) -> int:
             report = validate_pricing_bundle(
                 args.validate_bundle,
                 root=args.root,
+                request_path=args.request,
                 deprecations_file=args.deprecations_file,
                 allow_devtest=args.allow_devtest,
                 report_only=args.report_only,
@@ -1927,10 +2844,29 @@ def main(argv: Sequence[str] | None = None) -> int:
                 raise ContainmentError(f"Refusing symlink input: {args.evaluate_retail_json}")
             raw_sha = sha256_file(json_path)
             payload = json.loads(json_path.read_text(encoding="utf-8"))
+            mtime_iso = datetime.fromtimestamp(json_path.stat().st_mtime, UTC).isoformat().replace("+00:00", "Z")
+            if args.out is not None and json_path.resolve().is_relative_to(args.out.resolve().parent):
+                ev_locator = json_path.resolve().relative_to(args.out.resolve().parent).as_posix()
+            else:
+                ev_locator = json_path.resolve().as_posix()
+            default_pages = (
+                None
+                if (isinstance(payload, Mapping) and isinstance(payload.get("pages"), list))
+                else [
+                    {
+                        "page_index": 0,
+                        "evidence_path": ev_locator,
+                        "retrieved_at": mtime_iso,
+                        "response_sha256": raw_sha,
+                    }
+                ]
+            )
             try:
                 eval_result = evaluate_retail_meters(
                     payload,
                     raw_evidence_sha256=raw_sha,
+                    evidence_pages=default_pages,
+                    retrieved_at=mtime_iso,
                     region=args.region,
                     service_name=args.service_name,
                     arm_sku_name=args.arm_sku_name,
@@ -1949,6 +2885,8 @@ def main(argv: Sequence[str] | None = None) -> int:
                     "schema_version": "pursuit-rate-evaluation-v1",
                     "status": exc.status,
                     "raw_evidence_sha256": raw_sha,
+                    "retrieved_at": mtime_iso,
+                    "evidence": default_pages or [],
                     "error": str(exc),
                 }
                 _write_or_print_json(unresolved_payload, args.out, root=args.root)
@@ -1957,11 +2895,29 @@ def main(argv: Sequence[str] | None = None) -> int:
             return 0
 
         if args.fetch_filter is not None:
+            effective_ev_dir = args.evidence_dir
+            if effective_ev_dir is None:
+                if args.out is not None:
+                    effective_ev_dir = args.out.parent / "pricing-evidence"
+                elif args.root is not None:
+                    effective_ev_dir = args.root / "_meta" / "pricing-evidence"
+                else:
+                    effective_ev_dir = Path.cwd() / "pricing-evidence"
+            rel_base = args.out.parent if args.out is not None else (args.root if args.root is not None else Path.cwd())
+            fetched: dict[str, Any] | None = None
             try:
-                fetched = fetch_retail_prices(args.fetch_filter, currency_code=args.currency)
+                fetched = fetch_retail_prices(
+                    args.fetch_filter,
+                    currency_code=args.currency,
+                    evidence_dir=effective_ev_dir,
+                    relative_to_dir=rel_base,
+                    root=args.root,
+                )
                 eval_result = evaluate_retail_meters(
                     fetched,
                     raw_evidence_sha256=fetched["raw_evidence_sha256"],
+                    evidence_pages=fetched["pages"],
+                    retrieved_at=fetched["retrieved_at"],
                     region=args.region,
                     service_name=args.service_name,
                     arm_sku_name=args.arm_sku_name,
@@ -1978,9 +2934,11 @@ def main(argv: Sequence[str] | None = None) -> int:
                 ledger_output = {
                     **eval_result,
                     "filter": fetched["filter"],
+                    "retrieved_at": fetched["retrieved_at"],
                     "page_count": fetched["page_count"],
                     "total_items": fetched["total_items"],
                     "pages": fetched["pages"],
+                    "evidence": fetched["pages"],
                 }
             except MeterResolutionError as exc:
                 unresolved_payload = {
@@ -1989,6 +2947,10 @@ def main(argv: Sequence[str] | None = None) -> int:
                     "filter": args.fetch_filter,
                     "error": str(exc),
                 }
+                if fetched is not None:
+                    unresolved_payload["raw_evidence_sha256"] = fetched["raw_evidence_sha256"]
+                    unresolved_payload["retrieved_at"] = fetched["retrieved_at"]
+                    unresolved_payload["pages"] = fetched["pages"]
                 _write_or_print_json(unresolved_payload, args.out, root=args.root)
                 return 1
             _write_or_print_json(ledger_output, args.out, root=args.root)

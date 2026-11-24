@@ -26,7 +26,7 @@ Deliver source-verified, commercially guarded Azure RFI, RFP, and Best and Final
 
 ## Prerequisites
 
-- **Runtime & Optional Packages**: Python 3.11+ standard library for core safe I/O, SHA-256 manifests, and XML/OOXML AST verification; optional `openpyxl`, `python-docx`, `pypdf`, and `python-pptx` for rich document extraction and workbook/slide generation.
+- **Runtime & Packages**: Python 3.14+ (`requires-python >=3.14`) and `openpyxl` (required by `extract_pursuit_sources.py`, `xlsx_ast_cache.py`, and `verify_pursuit_package.py`; installed via repository `requirements.txt`); optional `pypdf` (or `pdftotext` CLI) for `.pdf` text extraction and optional `python-pptx` for `--scaffold-pptx` executive slide generation.
 - **Hard Capability Stop Rule (`RD-09`)**: Retail pricing MUST route through `cost-estimate-subagent` (`cost-estimate-v2` or `retail-rate-quote-v1`) and `node tools/scripts/cost-estimate.mjs`. Plan review (`rom_architecture_pack`) requires `rubber-duck`, and generator/workbook verification requires `code-review`. If a required worker is unavailable in the active harness, **STOP** and report the missing capability—never invent inline retail prices or self-certify reviews.
 - **Authorization Boundary (`RD-09`)**: Loading this skill never authorizes `git commit`, `git push`, branch/PR creation, or external customer release.
 - **Question Batching**: Validate every `#tool:ask_user` payload before display using `python3 tools/scripts/validate_question_batching.py --form <form.json> --context <context.json> --require-context`.

@@ -15,6 +15,7 @@ import fnmatch
 import importlib
 import json
 import os
+import re
 import sys
 import zipfile
 from collections.abc import Sequence
@@ -59,8 +60,11 @@ DEFAULT_RESTRICTED_PATHS: tuple[str, ...] = (
     "emails/",
     "_meta/",
     "source/",
+    "source-archive/",
     "*.extracted.md",
 )
+
+_ISO_CURRENCY_RE = re.compile(r"^[A-Z]{3}$")
 
 COMMERCIAL_TOP_DIRS: frozenset[str] = frozenset({"pricing", "scripts", "tools"})
 COMMERCIAL_SUFFIXES: frozenset[str] = frozenset({".xlsx", ".csv", ".tsv", ".py", ".sh", ".ps1"})
@@ -396,6 +400,116 @@ def _write_and_verify_zip(
     }
 
 
+def derive_manifest_restricted_paths(
+    package_dir: Path,
+    manifest_path: Path | None,
+    manifest_data: dict[str, Any],
+) -> list[str]:
+    """Derive and validate restricted original paths from ``source-manifest.json``.
+
+    Blocks external/restricted-stripped packaging fail-closed if manifest-declared
+    source locations are malformed, traverse outside ``package_dir``, or cannot be
+    resolved safely to concrete package-relative paths.
+    """
+    if manifest_path is None and not manifest_data:
+        return []
+
+    derived: list[str] = []
+    norm_src_rel: str | None = None
+
+    raw_source_dir = manifest_data.get("source_dir")
+    if raw_source_dir is not None:
+        if not isinstance(raw_source_dir, str):
+            raise PurviewClearanceError(
+                "Cannot safely resolve restricted original paths: provenance manifest 'source_dir' must be a string."
+            )
+        stripped_src = raw_source_dir.strip()
+        if "\\" in stripped_src:
+            raise ContainmentError(f"Backslash path separator forbidden in manifest source_dir: {raw_source_dir!r}")
+        clean_src = stripped_src.strip("/")
+        if clean_src and clean_src != ".":
+            validate_archive_member_name(clean_src)
+            resolved_src_dir = ensure_within_root(package_dir / clean_src, package_dir)
+            norm_src_rel = _normalize_rel_posix(resolved_src_dir, package_dir)
+            derived.append(f"{norm_src_rel}/")
+
+    has_entries_key = "files" in manifest_data or "sources" in manifest_data
+    raw_entries = manifest_data.get("files") if "files" in manifest_data else manifest_data.get("sources")
+
+    if not has_entries_key or raw_entries is None:
+        if norm_src_rel is None:
+            raise PurviewClearanceError(
+                "Cannot safely resolve restricted original paths from provenance manifest: "
+                "missing resolvable 'source_dir' and 'files' entries."
+            )
+        return sorted(set(derived))
+
+    entry_rel_paths: list[str] = []
+    if isinstance(raw_entries, list):
+        for idx, item in enumerate(raw_entries):
+            if not isinstance(item, dict):
+                raise PurviewClearanceError(
+                    f"Cannot safely resolve restricted original paths: manifest entry #{idx} is not an object."
+                )
+            rel_val = item.get("path") or item.get("relative_path") or item.get("file")
+            if not isinstance(rel_val, str) or not rel_val.strip():
+                raise PurviewClearanceError(
+                    f"Cannot safely resolve restricted original paths: manifest entry #{idx} lacks a valid path."
+                )
+            entry_rel_paths.append(rel_val.strip())
+    elif isinstance(raw_entries, dict):
+        for rel_val in raw_entries:
+            if not isinstance(rel_val, str) or not rel_val.strip():
+                raise PurviewClearanceError(
+                    "Cannot safely resolve restricted original paths: manifest mapping contains an empty key."
+                )
+            entry_rel_paths.append(rel_val.strip())
+    else:
+        raise PurviewClearanceError(
+            "Cannot safely resolve restricted original paths: manifest 'files' must be a list or object."
+        )
+
+    if "file_count" in manifest_data and manifest_data["file_count"] is not None:
+        try:
+            declared_count = int(manifest_data["file_count"])
+        except (TypeError, ValueError) as exc:
+            raise PurviewClearanceError("Provenance manifest 'file_count' must be an integer.") from exc
+        if declared_count != len(entry_rel_paths):
+            raise PurviewClearanceError(
+                f"Provenance manifest file_count ({declared_count}) mismatches {len(entry_rel_paths)} listed entries; "
+                "refusing release because restricted original inventory is inconsistent."
+            )
+
+    manifest_in_subdir = (
+        manifest_path is not None
+        and manifest_path.resolve().is_relative_to(package_dir.resolve())
+        and manifest_path.resolve().parent != package_dir.resolve()
+    )
+
+    for rel_entry in entry_rel_paths:
+        validate_archive_member_name(rel_entry)
+        if norm_src_rel is not None:
+            cand = ensure_within_root(package_dir / norm_src_rel / rel_entry, package_dir)
+            derived.append(_normalize_rel_posix(cand, package_dir))
+        else:
+            cand_pkg = ensure_within_root(package_dir / rel_entry, package_dir)
+            cand_m: Path | None = None
+            if manifest_in_subdir and manifest_path is not None:
+                cand_m = ensure_within_root(manifest_path.parent / rel_entry, package_dir)
+
+            if cand_pkg.is_file():
+                derived.append(_normalize_rel_posix(cand_pkg, package_dir))
+            elif cand_m is not None and cand_m.is_file():
+                derived.append(_normalize_rel_posix(cand_m, package_dir))
+            else:
+                raise PurviewClearanceError(
+                    f"Cannot safely resolve restricted original path {rel_entry!r} inside package directory "
+                    "without a valid manifest 'source_dir'; refusing to build archive."
+                )
+
+    return sorted(set(derived))
+
+
 def build_pursuit_archives(
     package_dir: Path,
     *,
@@ -432,12 +546,18 @@ def build_pursuit_archives(
         public_synthetic_only=public_synthetic_only,
     )
 
-    effective_restricted = list(DEFAULT_RESTRICTED_PATHS) + list(restricted_paths)
+    manifest_restricted = (
+        derive_manifest_restricted_paths(package_dir, manifest_path, manifest_data)
+        if exclude_restricted_originals
+        else []
+    )
+    combined_restricted = list(restricted_paths) + manifest_restricted
+    effective_restricted = list(DEFAULT_RESTRICTED_PATHS) + combined_restricted
     members, stripped_paths = collect_package_files(
         package_dir,
         exclude_dirs=exclude_dirs,
         exclude_restricted_originals=exclude_restricted_originals,
-        restricted_paths=restricted_paths,
+        restricted_paths=combined_restricted,
     )
 
     dest_dir = output_dir if output_dir is not None else package_dir
@@ -508,11 +628,20 @@ def _load_optional_pptx() -> tuple[Any, Any, Any]:
         raise OptionalDependencyError("python-pptx is optional and not installed in this environment") from exc
 
 
+def _resolve_currency_code(pricing_data: dict[str, Any]) -> str:
+    """Resolve an uppercase ISO-4217 3-letter currency code from summary metadata."""
+    for key in ("currencyCode", "currency", "currency_code"):
+        raw = pricing_data.get(key)
+        if isinstance(raw, str):
+            candidate = raw.strip().upper()
+            if _ISO_CURRENCY_RE.match(candidate):
+                return str(candidate)
+    return "USD"
+
+
 def _extract_pricing_headlines(pricing_data: dict[str, Any]) -> list[tuple[str, str]]:
     """Extract clean human-readable headline rows from flexible pricing summary JSON schemas."""
-    currency = str(
-        pricing_data.get("currencyCode") or pricing_data.get("currency") or pricing_data.get("billingCurrency") or "USD"
-    )
+    currency = _resolve_currency_code(pricing_data)
     region = str(
         pricing_data.get("primaryRegion")
         or pricing_data.get("region")
@@ -570,8 +699,6 @@ def _extract_pricing_headlines(pricing_data: dict[str, Any]) -> list[tuple[str, 
         for k, v in pricing_data.items():
             if isinstance(v, (int, float)) and not isinstance(v, bool):
                 rows.append((k, f"{currency} {float(v):,.2f}"))
-            elif isinstance(v, str) and k not in ("currencyCode", "currency", "primaryRegion", "region"):
-                rows.append((k, v[:80]))
             if len(rows) >= 7:
                 break
 
@@ -829,6 +956,32 @@ def main(argv: Sequence[str] | None = None) -> int:
         if args.internal_only and args.external_release:
             raise ValueError("Cannot combine --internal-only with --external-release.")
 
+        if args.package_dir is not None and args.scaffold_pptx is not None:
+            if args.package_dir.is_symlink():
+                raise ContainmentError(f"Refusing symlink package directory: {args.package_dir}")
+            if not args.package_dir.is_dir():
+                raise FileNotFoundError(f"Package directory does not exist: {args.package_dir}")
+            pre_manifest_path, pre_manifest_data = discover_provenance_manifest(
+                args.package_dir,
+                args.provenance_manifest,
+            )
+            evaluate_purview_release_gate(
+                pre_manifest_data,
+                external_release=args.external_release,
+                internal_only=args.internal_only,
+                exclude_restricted_originals=args.exclude_restricted_originals,
+                acknowledge_purview_clearance=args.acknowledge_purview_clearance,
+                public_synthetic_only=args.public_synthetic_only,
+            )
+            if args.exclude_restricted_originals:
+                derive_manifest_restricted_paths(args.package_dir, pre_manifest_path, pre_manifest_data)
+            if args.scaffold_pptx.resolve().is_relative_to(args.package_dir.resolve()):
+                ensure_within_root(args.scaffold_pptx, args.package_dir)
+
+        if args.scaffold_pptx is not None:
+            pptx_report = scaffold_walkthrough_pptx(args.scaffold_pptx, args.pricing_json)
+            result["pptx_scaffold"] = pptx_report
+
         if args.package_dir is not None:
             pkg_report = build_pursuit_archives(
                 args.package_dir,
@@ -845,10 +998,6 @@ def main(argv: Sequence[str] | None = None) -> int:
                 acknowledge_purview_clearance=args.acknowledge_purview_clearance,
             )
             result.update(pkg_report)
-
-        if args.scaffold_pptx is not None:
-            pptx_report = scaffold_walkthrough_pptx(args.scaffold_pptx, args.pricing_json)
-            result["pptx_scaffold"] = pptx_report
 
         if args.json:
             print(json.dumps(result, indent=2, sort_keys=True))

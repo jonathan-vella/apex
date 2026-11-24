@@ -87,7 +87,8 @@ RESERVED_DELIVERY_MD_SUFFIXES: tuple[str, ...] = (
 )
 
 RESERVED_GOVERNANCE_JSON_NAME = "04-governance-constraints.json"
-READONLY_SOURCE_DIRS: frozenset[str] = frozenset({"rfi-docs", "emails", "_meta", "source"})
+READONLY_SOURCE_DIRS: frozenset[str] = frozenset({"rfi-docs", "emails", "_meta", "source", "source-archive"})
+CUSTOMER_INPUT_SOURCE_DIRS: tuple[str, ...] = ("rfi-docs", "emails", "source", "source-archive")
 EXCLUDED_NESTED_README_DIRS: frozenset[str] = READONLY_SOURCE_DIRS | frozenset({"scripts", "_baselines"})
 DEFAULT_MIN_PNG_WIDTH = 3000
 
@@ -228,11 +229,35 @@ def _find_source_manifest(package_dir: Path, explicit_manifest: Path | None) -> 
     return None
 
 
+def _discover_regular_files_strict(scan_dir: Path, containment_root: Path) -> list[Path]:
+    """Walk ``scan_dir`` recursively, rejecting symlinks and returning sorted regular files."""
+    found: list[Path] = []
+    for dirpath_str, dirnames, filenames in os.walk(scan_dir, topdown=True, followlinks=False):
+        dirpath = Path(dirpath_str)
+        ensure_within_root(dirpath, containment_root)
+        dirnames.sort()
+        filenames.sort()
+        for dname in dirnames:
+            dpath = dirpath / dname
+            if dpath.is_symlink():
+                raise ContainmentError(f"Symlink directory forbidden inside source directory: {dpath}")
+            ensure_within_root(dpath, containment_root)
+        for fname in filenames:
+            fpath = dirpath / fname
+            if fpath.is_symlink():
+                raise ContainmentError(f"Symlink file forbidden inside source directory: {fpath}")
+            resolved = ensure_within_root(fpath, containment_root)
+            if resolved.is_file():
+                found.append(fpath)
+    found.sort(key=lambda p: p.relative_to(scan_dir).as_posix())
+    return found
+
+
 def verify_source_manifest(
     package_dir: Path,
     manifest_path: Path,
 ) -> tuple[dict[str, Any], list[str], str | None]:
-    """Verify read-only source files match exact byte sizes and SHA-256 digests in ``manifest_path``."""
+    """Verify read-only source inventory, exact byte sizes, and SHA-256 digests against ``manifest_path``."""
     errors: list[str] = []
     raw_doc = json.loads(manifest_path.read_text(encoding="utf-8"))
     if not isinstance(raw_doc, dict):
@@ -260,7 +285,10 @@ def verify_source_manifest(
     elif isinstance(raw_entries, dict):
         for rel_p, meta in raw_entries.items():
             if isinstance(meta, dict):
-                size_v = meta.get("size_bytes", meta.get("size", meta.get("bytes")))
+                size_v = meta.get(
+                    "size_bytes",
+                    meta.get("size", item_bytes if (item_bytes := meta.get("bytes")) is not None else None),
+                )
                 sha_v = str(meta.get("sha256") or meta.get("hash") or "").strip().lower()
             elif isinstance(meta, list) and len(meta) == 2:
                 size_v, sha_v = meta[0], str(meta[1]).strip().lower()
@@ -274,11 +302,19 @@ def verify_source_manifest(
     else:
         errors.append(f"Manifest {manifest_path.name} 'files' must be a list or object")
 
+    seen_manifest_paths: set[str] = set()
+    for rel_p, _, _ in normalized_entries:
+        if rel_p in seen_manifest_paths:
+            errors.append(f"Duplicate path in source manifest: {rel_p!r}")
+        seen_manifest_paths.add(rel_p)
+
     if "file_count" in raw_doc and int(raw_doc["file_count"]) != len(normalized_entries):
         errors.append(
             f"Manifest file_count={raw_doc['file_count']} mismatches {len(normalized_entries)} listed entries"
         )
 
+    manifest_resolved = manifest_path.resolve()
+    verified_resolved_files: set[Path] = set()
     verified = 0
     for rel_p, exp_size, exp_sha in normalized_entries:
         candidates: list[Path] = []
@@ -301,6 +337,7 @@ def verify_source_manifest(
             continue
         if resolved_target.is_symlink():
             raise ContainmentError(f"Read-only source file is a symlink: {resolved_target}")
+        verified_resolved_files.add(resolved_target.resolve())
         actual_size = resolved_target.stat().st_size
         actual_sha = sha256_file(resolved_target)
         if actual_size != exp_size:
@@ -310,6 +347,56 @@ def verify_source_manifest(
             errors.append(f"Source file {rel_p!r} SHA-256 mismatch: expected {exp_sha}, got {actual_sha}")
             continue
         verified += 1
+
+    # Strict current-directory inventory comparison so unrecorded post-intake files fail closed
+    if source_dir_rel is not None:
+        src_dir_path = package_dir / source_dir_rel
+        if src_dir_path.is_symlink():
+            raise ContainmentError(f"Manifest source_dir cannot be a symlink: {src_dir_path}")
+        if src_dir_path.resolve().is_relative_to(package_dir.resolve()):
+            ensure_within_root(src_dir_path, package_dir)
+        if not src_dir_path.is_dir():
+            errors.append(f"Manifest source_dir {source_dir_rel!r} does not exist in {package_dir}")
+        else:
+            actual_src_files = [
+                f for f in _discover_regular_files_strict(src_dir_path, package_dir) if f.resolve() != manifest_resolved
+            ]
+            expected_src_rels: set[str] = set()
+            prefix_slash = f"{source_dir_rel}/"
+            for rel_p, _, _ in normalized_entries:
+                norm_rel = rel_p[len(prefix_slash) :] if rel_p.startswith(prefix_slash) else rel_p
+                expected_src_rels.add(norm_rel)
+
+            actual_src_rels = {f.relative_to(src_dir_path).as_posix() for f in actual_src_files}
+            for extra_rel in sorted(actual_src_rels - expected_src_rels):
+                errors.append(f"Unexpected unrecorded file in source directory {source_dir_rel!r}: {extra_rel!r}")
+            if "file_count" in raw_doc and int(raw_doc["file_count"]) != len(actual_src_rels):
+                errors.append(
+                    f"Actual source directory file count ({len(actual_src_rels)}) "
+                    f"differs from manifest file_count ({raw_doc['file_count']})"
+                )
+    else:
+        monitored_dirs: set[Path] = set()
+        for std_name in CUSTOMER_INPUT_SOURCE_DIRS:
+            cand_dir = package_dir / std_name
+            if cand_dir.is_symlink():
+                raise ContainmentError(f"Source directory cannot be a symlink: {cand_dir}")
+            if cand_dir.is_dir():
+                monitored_dirs.add(cand_dir)
+        for rel_p, _, _ in normalized_entries:
+            parts = PurePosixPath(rel_p).parts
+            if len(parts) > 1 and parts[0] != "_meta":
+                cand_sub = package_dir / parts[0]
+                if cand_sub.is_dir():
+                    monitored_dirs.add(cand_sub)
+
+        for mon_dir in sorted(monitored_dirs):
+            for disk_file in _discover_regular_files_strict(mon_dir, package_dir):
+                if disk_file.resolve() == manifest_resolved:
+                    continue
+                if disk_file.resolve() not in verified_resolved_files:
+                    rel_unrecorded = disk_file.relative_to(package_dir).as_posix()
+                    errors.append(f"Unexpected unrecorded file in read-only source directory: {rel_unrecorded!r}")
 
     top_readonly = source_dir_rel.split("/", 1)[0] if source_dir_rel else None
     return (
@@ -368,20 +455,21 @@ def _xlsx_contains_headline(xlsx_path: Path, raw_headline: str, num_target: floa
     try:
         for sh in wb.sheetnames:
             ws = wb[sh]
-            for row in ws.iter_rows(values_only=True):
-                for val in row:
-                    if val is None or isinstance(val, bool):
-                        continue
-                    if isinstance(val, (int, float)):
-                        if num_target is not None and abs(float(val) - num_target) < 0.01:
+            cells_map = getattr(ws, "_cells", {})
+            for cell in cells_map.values():
+                val = cell.value
+                if val is None or isinstance(val, bool):
+                    continue
+                if isinstance(val, (int, float)):
+                    if num_target is not None and abs(float(val) - num_target) < 0.01:
+                        return True
+                elif isinstance(val, str):
+                    if raw_headline in val:
+                        return True
+                    if num_target is not None:
+                        parsed = _parse_headline_float(val)
+                        if parsed is not None and abs(parsed - num_target) < 0.01:
                             return True
-                    elif isinstance(val, str):
-                        if raw_headline in val:
-                            return True
-                        if num_target is not None:
-                            parsed = _parse_headline_float(val)
-                            if parsed is not None and abs(parsed - num_target) < 0.01:
-                                return True
         return False
     finally:
         wb.close()

@@ -58,6 +58,11 @@ except ImportError:
 MANIFEST_SCHEMA_VERSION = "pursuit-source-manifest-v1"
 WORD_NAMESPACE = "http://schemas.openxmlformats.org/wordprocessingml/2006/main"
 
+MAX_XLSX_POPULATED_CELLS = 200_000
+MAX_XLSX_TABLE_ROWS = 10_000
+MAX_XLSX_TABLE_COLS = 512
+MAX_XLSX_TABLE_CELL_AREA = 1_000_000
+
 SUPPORTED_EXTENSIONS: dict[str, str] = {
     ".xlsx": "xlsx",
     ".docx": "docx",
@@ -263,13 +268,29 @@ def _format_xlsx_cell(formula_val: Any, cached_val: Any) -> str:
     return "" if chosen is None else str(chosen)
 
 
+def _check_xlsx_xml_cell_budget(zf: zipfile.ZipFile) -> None:
+    """Reject worksheets whose raw XML contains an excessive number of <c> elements before loading openpyxl."""
+    for member in zf.namelist():
+        low = member.lower()
+        if low.startswith("xl/worksheets/") and low.endswith(".xml"):
+            raw_xml = read_safe_zip_bytes(zf, member)
+            root_elem = parse_safe_xml_bytes(raw_xml)
+            cell_elements = sum(1 for elem in root_elem.iter() if _local_xml_name(elem.tag) == "c")
+            if cell_elements > MAX_XLSX_POPULATED_CELLS:
+                raise ExtractionError(
+                    f"Worksheet XML {member} contains {cell_elements} cell elements, "
+                    f"exceeding intake safety limit {MAX_XLSX_POPULATED_CELLS}"
+                )
+
+
 def extract_xlsx_file(xlsx_path: Path) -> tuple[str, dict[str, Any], list[str], list[str]]:
     """Safely extract all visible/hidden worksheets, merged spans, dropdowns, and Purview flags."""
     try:
         with open_validated_zip(xlsx_path) as zf:
             _validate_all_ooxml_xml_entries(zf)
+            _check_xlsx_xml_cell_budget(zf)
             purview_markers = detect_ooxml_purview_markers(zf)
-    except ContainmentError:
+    except ContainmentError, ExtractionError:
         raise
     except (zipfile.BadZipFile, OSError) as exc:
         raise ExtractionError(f"Failed to open .xlsx archive {xlsx_path.name}: {exc}") from exc
@@ -321,36 +342,49 @@ def extract_xlsx_file(xlsx_path: Path) -> tuple[str, dict[str, Any], list[str], 
                 validations.append(dv_entry)
             validations.sort(key=lambda item: (item["sqref"], item["type"], item["formula1"]))
 
-            f_rows = list(ws_f.iter_rows(values_only=True))
-            v_rows = list(ws_v.iter_rows(values_only=True))
-            row_count = max(len(f_rows), len(v_rows))
+            f_cells_map: Mapping[tuple[int, int], Any] = getattr(ws_f, "_cells", {})
+            v_cells_map: Mapping[tuple[int, int], Any] = getattr(ws_v, "_cells", {})
+            populated_coords = set(f_cells_map.keys()) | set(v_cells_map.keys())
+            if len(populated_coords) > MAX_XLSX_POPULATED_CELLS:
+                raise ExtractionError(
+                    f"Worksheet {sheet_name!r} in {xlsx_path.name} has {len(populated_coords)} populated cells, "
+                    f"exceeding intake safety limit {MAX_XLSX_POPULATED_CELLS}"
+                )
 
-            trimmed_rows: list[list[str]] = []
+            sparse_cells: dict[tuple[int, int], str] = {}
+            max_used_row = 0
             max_used_col = 0
-            for r_idx in range(row_count):
-                f_row = f_rows[r_idx] if r_idx < len(f_rows) else ()
-                v_row = v_rows[r_idx] if r_idx < len(v_rows) else ()
-                col_count = max(len(f_row), len(v_row))
-                formatted_row = [
-                    _format_xlsx_cell(
-                        f_row[c_idx] if c_idx < len(f_row) else None,
-                        v_row[c_idx] if c_idx < len(v_row) else None,
-                    )
-                    for c_idx in range(col_count)
+            for r_coord, c_coord in sorted(populated_coords):
+                f_cell = f_cells_map.get((r_coord, c_coord))
+                v_cell = v_cells_map.get((r_coord, c_coord))
+                cell_text = _format_xlsx_cell(
+                    f_cell.value if f_cell is not None else None,
+                    v_cell.value if v_cell is not None else None,
+                )
+                if cell_text != "":
+                    sparse_cells[(r_coord, c_coord)] = cell_text
+                    if r_coord > max_used_row:
+                        max_used_row = r_coord
+                    if c_coord > max_used_col:
+                        max_used_col = c_coord
+
+            cell_area = max_used_row * max_used_col
+            if (
+                max_used_row > MAX_XLSX_TABLE_ROWS
+                or max_used_col > MAX_XLSX_TABLE_COLS
+                or cell_area > MAX_XLSX_TABLE_CELL_AREA
+            ):
+                raise ExtractionError(
+                    f"Worksheet {sheet_name!r} in {xlsx_path.name} spans {max_used_row}x{max_used_col} "
+                    f"({cell_area} cells), exceeding intake table budget "
+                    f"({MAX_XLSX_TABLE_ROWS} rows, {MAX_XLSX_TABLE_COLS} cols, {MAX_XLSX_TABLE_CELL_AREA} cells)"
+                )
+
+            if max_used_row > 0 and max_used_col > 0:
+                table_rows = [
+                    [sparse_cells.get((r_idx, c_idx), "") for c_idx in range(1, max_used_col + 1)]
+                    for r_idx in range(1, max_used_row + 1)
                 ]
-                last_non_empty = 0
-                for c_idx, cell_text in enumerate(formatted_row):
-                    if cell_text != "":
-                        last_non_empty = c_idx + 1
-                if last_non_empty > max_used_col:
-                    max_used_col = last_non_empty
-                trimmed_rows.append(formatted_row[:last_non_empty])
-
-            while trimmed_rows and len(trimmed_rows[-1]) == 0:
-                trimmed_rows.pop()
-
-            if max_used_col > 0:
-                table_rows = [row + [""] * (max_used_col - len(row)) for row in trimmed_rows]
             else:
                 table_rows = []
 
@@ -393,7 +427,7 @@ def extract_xlsx_file(xlsx_path: Path) -> tuple[str, dict[str, Any], list[str], 
 
             sheet_lines.append(_render_markdown_table(table_rows))
             md_sections.append("\n".join(sheet_lines))
-    except ContainmentError:
+    except ContainmentError, ExtractionError:
         raise
     except Exception as exc:
         raise ExtractionError(f"Unable to parse workbook {xlsx_path.name}: {exc}") from exc

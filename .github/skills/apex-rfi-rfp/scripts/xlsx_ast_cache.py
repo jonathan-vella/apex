@@ -23,7 +23,8 @@ import subprocess
 import sys
 import tempfile
 import zipfile
-from collections.abc import Sequence
+from collections import Counter
+from collections.abc import Mapping, Sequence
 from dataclasses import dataclass
 from decimal import (
     ROUND_CEILING,
@@ -72,6 +73,9 @@ NS_PACKAGE_RELS = "http://schemas.openxmlformats.org/package/2006/relationships"
 MAX_EXCEL_ROW = 1_048_576
 MAX_EXCEL_COL = 16_384
 MAX_HEADER_FOOTER_CHARS = 255
+MAX_RANGE_EVAL_CELLS = 250_000
+MAX_TOTAL_RANGE_EVAL_CELLS = 1_000_000
+MAX_FORMULA_CELLS_PER_WORKBOOK = 200_000
 
 HEADER_FOOTER_TAGS: tuple[str, ...] = (
     "oddHeader",
@@ -632,11 +636,22 @@ def _format_excel_text(val: float, fmt: str) -> str:
 class WorkbookEvaluator:
     """Deterministic, fail-closed AST evaluator for Excel formulas on an ``openpyxl.Workbook``."""
 
-    def __init__(self, wb: openpyxl.Workbook) -> None:
+    def __init__(
+        self,
+        wb: openpyxl.Workbook,
+        *,
+        formula_coords_by_sheet: Mapping[str, Sequence[tuple[int, int]]] | None = None,
+        max_range_cells: int = MAX_RANGE_EVAL_CELLS,
+        max_total_range_cells: int = MAX_TOTAL_RANGE_EVAL_CELLS,
+    ) -> None:
         self.wb = wb
         self.cache: dict[tuple[str, int, int], Any] = {}
         self.visiting: set[tuple[str, int, int]] = set()
         self._ast_cache: dict[str, AstNode] = {}
+        self._formula_coords_by_sheet = formula_coords_by_sheet
+        self.max_range_cells = max_range_cells
+        self.max_total_range_cells = max_total_range_cells
+        self._expanded_range_cells = 0
 
     def eval_coord(self, sheet: str, coord: str) -> Any:
         """Evaluate a cell by worksheet name and Excel coordinate such as ``'B12'``."""
@@ -666,7 +681,12 @@ class WorkbookEvaluator:
             raise CircularFormulaError(f"Circular formula reference detected at {sheet}!{coord}")
 
         ws = self.wb[sheet]
-        raw_val = ws.cell(row, col).value
+        cells_map = getattr(ws, "_cells", None)
+        if isinstance(cells_map, dict):
+            cell_obj = cells_map.get((row, col))
+            raw_val = cell_obj.value if cell_obj is not None else None
+        else:
+            raw_val = ws.cell(row, col).value
 
         if isinstance(raw_val, (ArrayFormula, DataTableFormula)):
             coord = f"{get_column_letter(col)}{row}"
@@ -714,11 +734,23 @@ class WorkbookEvaluator:
         return raw_val
 
     def eval_range_grid(self, sheet: str, r1: int, c1: int, r2: int, c2: int) -> RangeGrid:
-        """Evaluate a 2D cell range into a shape-preserving ``RangeGrid``."""
+        """Evaluate a 2D cell range into a shape-preserving ``RangeGrid`` within cell-expansion bounds."""
         if sheet not in self.wb.sheetnames:
             raise FormulaEvaluationError(f"#REF! Worksheet {sheet!r} does not exist")
         row_start, row_end = min(r1, r2), max(r1, r2)
         col_start, col_end = min(c1, c2), max(c1, c2)
+        span_cells = (row_end - row_start + 1) * (col_end - col_start + 1)
+        if span_cells > self.max_range_cells:
+            raise FormulaEvaluationError(
+                f"Range {sheet}!{get_column_letter(col_start)}{row_start}:{get_column_letter(col_end)}{row_end} "
+                f"expands to {span_cells} cells, exceeding safety budget {self.max_range_cells}"
+            )
+        self._expanded_range_cells += span_cells
+        if self._expanded_range_cells > self.max_total_range_cells:
+            raise FormulaEvaluationError(
+                f"Cumulative evaluated range cells ({self._expanded_range_cells}) "
+                f"exceed safety budget {self.max_total_range_cells}"
+            )
         rows: list[tuple[Any, ...]] = []
         for r in range(row_start, row_end + 1):
             row_vals = tuple(self.eval_cell(sheet, r, c) for c in range(col_start, col_end + 1))
@@ -1151,7 +1183,7 @@ class WorkbookEvaluator:
             count = 0
             for val in args:
                 items = val.flat() if isinstance(val, RangeGrid) else [val]
-                count += sum(1 for item in items if item is not None and item != "")
+                count += sum(1 for item in items if item is not None)
             return count
 
         if fn == "COUNTIF":
@@ -1434,19 +1466,42 @@ class WorkbookEvaluator:
         raise UnsupportedFormulaError(f"Unsupported Excel function {fn!r} in formula: {expr!r}")
 
     def evaluate_all(self) -> dict[tuple[str, int, int], Any]:
-        """Evaluate every formula cell across all sheets in deterministic order."""
+        """Evaluate every populated formula cell across all sheets without scanning blank rectangles."""
         formula_results: dict[tuple[str, int, int], Any] = {}
+        evaluated_count = 0
         for sh in self.wb.sheetnames:
             ws = self.wb[sh]
-            for r in range(1, ws.max_row + 1):
-                for c in range(1, ws.max_column + 1):
+            cells_map = getattr(ws, "_cells", None)
+            if self._formula_coords_by_sheet is not None:
+                candidate_coords: Sequence[tuple[int, int]] = self._formula_coords_by_sheet.get(sh, ())
+            elif isinstance(cells_map, dict):
+                candidate_coords = sorted(cells_map.keys())
+            else:
+                area = ws.max_row * ws.max_column
+                if area > MAX_RANGE_EVAL_CELLS:
+                    raise FormulaEvaluationError(
+                        f"Worksheet {sh!r} rectangle ({ws.max_row}x{ws.max_column}) exceeds scan budget "
+                        f"{MAX_RANGE_EVAL_CELLS}"
+                    )
+                candidate_coords = [(r, c) for r in range(1, ws.max_row + 1) for c in range(1, ws.max_column + 1)]
+
+            for r, c in candidate_coords:
+                if isinstance(cells_map, dict):
+                    cell_obj = cells_map.get((r, c))
+                    v = cell_obj.value if cell_obj is not None else None
+                else:
                     v = ws.cell(r, c).value
-                    if isinstance(v, (ArrayFormula, DataTableFormula)):
-                        coord = f"{get_column_letter(c)}{r}"
-                        raise UnsupportedFormulaError(f"Array or data-table formula at {sh}!{coord} is not supported")
-                    if isinstance(v, str) and v.startswith("="):
-                        res = self.eval_cell(sh, r, c)
-                        formula_results[(sh, r, c)] = res
+                if isinstance(v, (ArrayFormula, DataTableFormula)):
+                    coord = f"{get_column_letter(c)}{r}"
+                    raise UnsupportedFormulaError(f"Array or data-table formula at {sh}!{coord} is not supported")
+                if isinstance(v, str) and v.startswith("="):
+                    evaluated_count += 1
+                    if evaluated_count > MAX_FORMULA_CELLS_PER_WORKBOOK:
+                        raise FormulaEvaluationError(
+                            f"Workbook formula count exceeds safety budget {MAX_FORMULA_CELLS_PER_WORKBOOK}"
+                        )
+                    res = self.eval_cell(sh, r, c)
+                    formula_results[(sh, r, c)] = res
         return formula_results
 
 
@@ -1582,14 +1637,17 @@ def _scan_ooxml_formulas_and_headers(
     sheet_paths: dict[str, str],
     *,
     enforce_header_limit: bool = True,
-) -> tuple[dict[tuple[str, str], str], list[dict[str, Any]]]:
-    """Scan all worksheet XMLs for array/shared formulas and >255-char headers/footers.
+) -> tuple[dict[tuple[str, str], str], list[dict[str, Any]], dict[str, list[tuple[int, int]]]]:
+    """Scan all worksheet XMLs for array/shared formulas, formula coordinates, and >255-char headers/footers.
 
-    Returns ``(resolved_shared_followers, header_footer_findings)`` where
-    ``resolved_shared_followers`` maps ``(sheet_name, coord) -> '=translated_formula'``.
+    Returns ``(resolved_shared_followers, header_footer_findings, formula_coords_by_sheet)`` where
+    ``resolved_shared_followers`` maps ``(sheet_name, coord) -> '=translated_formula'`` and
+    ``formula_coords_by_sheet`` maps ``sheet_name -> sorted [(row, col), ...]``.
     """
     shared_followers: dict[tuple[str, str], str] = {}
     hf_findings: list[dict[str, Any]] = []
+    formula_coords_by_sheet: dict[str, list[tuple[int, int]]] = {}
+    total_formula_cells = 0
 
     for sheet_name, xml_path in sheet_paths.items():
         raw_bytes = read_safe_zip_bytes(zf, xml_path)
@@ -1598,6 +1656,7 @@ def _scan_ooxml_formulas_and_headers(
         # Pass 1: collect shared formula masters on this sheet
         shared_masters: dict[str, tuple[str, str]] = {}
         formula_cells: list[tuple[str, ET.Element]] = []
+        sheet_coords: set[tuple[int, int]] = set()
 
         for c_el in root.iter():
             if _local_name(c_el.tag) != "c":
@@ -1622,6 +1681,14 @@ def _scan_ooxml_formulas_and_headers(
         for coord, f_el in formula_cells:
             if not coord:
                 raise UnsupportedFormulaError(f"Formula cell missing 'r' coordinate attribute in {xml_path}")
+            r_idx, c_idx = _parse_coord(coord)
+            sheet_coords.add((r_idx, c_idx))
+            total_formula_cells += 1
+            if total_formula_cells > MAX_FORMULA_CELLS_PER_WORKBOOK:
+                raise FormulaEvaluationError(
+                    f"Workbook formula count ({total_formula_cells}) exceeds safety budget "
+                    f"{MAX_FORMULA_CELLS_PER_WORKBOOK}"
+                )
             f_type = f_el.attrib.get("t", "normal")
             inline_txt = (f_el.text or "").strip()
             if f_type == "shared" and not inline_txt:
@@ -1640,6 +1707,8 @@ def _scan_ooxml_formulas_and_headers(
                 shared_followers[(sheet_name, coord)] = translated
             elif f_type == "normal" and not inline_txt:
                 raise UnsupportedFormulaError(f"Empty <f> element at {sheet_name}!{coord}")
+
+        formula_coords_by_sheet[sheet_name] = sorted(sheet_coords)
 
         # Pass 3: inspect headerFooter child elements
         for hf_el in root.iter():
@@ -1667,7 +1736,7 @@ def _scan_ooxml_formulas_and_headers(
                         f"Shorten the header/footer or pass --truncate-long-footers explicitly."
                     )
 
-    return shared_followers, hf_findings
+    return shared_followers, hf_findings, formula_coords_by_sheet
 
 
 def _apply_shared_followers_to_workbook(
@@ -1794,7 +1863,11 @@ def run_permutation_checks(
 
     with open_validated_zip(xlsx_path) as zf:
         sheet_paths = resolve_sheet_xml_paths(zf)
-        shared_followers, _ = _scan_ooxml_formulas_and_headers(zf, sheet_paths, enforce_header_limit=False)
+        shared_followers, _, formula_coords_by_sheet = _scan_ooxml_formulas_and_headers(
+            zf,
+            sheet_paths,
+            enforce_header_limit=False,
+        )
 
     parsed_targets: list[tuple[str, int, int, list[Any]]] = []
     total_combos = 1
@@ -1820,7 +1893,7 @@ def run_permutation_checks(
             wb_mut = copy.deepcopy(wb_base)
             for (sh, r, c, _), new_val in zip(parsed_targets, combo, strict=True):
                 wb_mut[sh].cell(r, c).value = new_val
-            evaluator = WorkbookEvaluator(wb_mut)
+            evaluator = WorkbookEvaluator(wb_mut, formula_coords_by_sheet=formula_coords_by_sheet)
             evaluator.evaluate_all()
             tested += 1
     finally:
@@ -1943,7 +2016,7 @@ def inject_and_verify_caches(
 
     with open_validated_zip(xlsx_path) as zf:
         sheet_paths = resolve_sheet_xml_paths(zf)
-        shared_followers, hf_findings = _scan_ooxml_formulas_and_headers(
+        shared_followers, hf_findings, formula_coords_by_sheet = _scan_ooxml_formulas_and_headers(
             zf,
             sheet_paths,
             enforce_header_limit=not truncate_long_footers,
@@ -1952,7 +2025,7 @@ def inject_and_verify_caches(
     wb_formulas = openpyxl.load_workbook(xlsx_path, data_only=False)
     try:
         _apply_shared_followers_to_workbook(wb_formulas, shared_followers)
-        evaluator = WorkbookEvaluator(wb_formulas)
+        evaluator = WorkbookEvaluator(wb_formulas, formula_coords_by_sheet=formula_coords_by_sheet)
         ast_results = evaluator.evaluate_all()
     finally:
         wb_formulas.close()
@@ -2100,7 +2173,7 @@ def verify_workbook_caches(
         if bad_member is not None:
             raise ContainmentError(f"Corrupt ZIP entry in {xlsx_path.name}: {bad_member}")
         sheet_paths = resolve_sheet_xml_paths(zf)
-        shared_followers, hf_findings = _scan_ooxml_formulas_and_headers(
+        shared_followers, hf_findings, formula_coords_by_sheet = _scan_ooxml_formulas_and_headers(
             zf,
             sheet_paths,
             enforce_header_limit=True,
@@ -2109,7 +2182,7 @@ def verify_workbook_caches(
     wb_formulas = openpyxl.load_workbook(xlsx_path, data_only=False)
     try:
         _apply_shared_followers_to_workbook(wb_formulas, shared_followers)
-        evaluator = WorkbookEvaluator(wb_formulas)
+        evaluator = WorkbookEvaluator(wb_formulas, formula_coords_by_sheet=formula_coords_by_sheet)
         ast_results = evaluator.evaluate_all()
     finally:
         wb_formulas.close()
@@ -2157,16 +2230,79 @@ _PROTECTION_LOCK_DEFAULT_TRUE_ATTRS: tuple[str, ...] = (
 )
 
 
+_WORKBOOK_PROTECTION_BOOL_FLAGS: frozenset[str] = frozenset({"lockStructure", "lockWindows", "lockRevision"})
+_SIMPLE_SHEET_IDENT_RE = re.compile(r"^[A-Za-z_][A-Za-z0-9_.]*$")
+_CELL_LIKE_RE = re.compile(r"^[A-Za-z]{1,3}[1-9]\d*$")
+
+
 def _xml_bool(val: str | None, *, default: bool) -> bool:
     if val is None:
         return default
     return val.strip().lower() in ("1", "true")
 
 
-def _extract_workbook_defined_names(zf: zipfile.ZipFile, sheet_names: list[str]) -> dict[tuple[str, str], str]:
-    """Extract ``(name_lower, scope_sheet_or_global) -> formula_text`` from ``xl/workbook.xml``."""
+def _normalize_excel_expr(expr: str) -> str:
+    """Normalize an Excel formula, defined-name, or validation expression while preserving string literals."""
+    stripped = expr.strip()
+    if not stripped:
+        return ""
+    body = stripped[1:].strip() if stripped.startswith("=") else stripped
+    out: list[str] = []
+    idx = 0
+    n = len(body)
+
+    while idx < n:
+        ch = body[idx]
+        if ch == '"':
+            end = idx + 1
+            while end < n:
+                if body[end] == '"':
+                    if end + 1 < n and body[end + 1] == '"':
+                        end += 2
+                        continue
+                    end += 1
+                    break
+                end += 1
+            out.append(body[idx:end])
+            idx = end
+        elif ch == "'":
+            end = idx + 1
+            while end < n:
+                if body[end] == "'":
+                    if end + 1 < n and body[end + 1] == "'":
+                        end += 2
+                        continue
+                    end += 1
+                    break
+                end += 1
+            raw_quoted = body[idx:end]
+            if len(raw_quoted) >= 2 and raw_quoted.endswith("'"):
+                inner = raw_quoted[1:-1].replace("''", "'")
+                if _SIMPLE_SHEET_IDENT_RE.match(inner) and not _CELL_LIKE_RE.match(inner):
+                    out.append(inner.upper())
+                else:
+                    escaped = inner.upper().replace("'", "''")
+                    out.append(f"'{escaped}'")
+            else:
+                out.append(raw_quoted.upper())
+            idx = end
+        elif ch.isspace():
+            idx += 1
+        else:
+            out.append(ch.upper())
+            idx += 1
+
+    normalized = "".join(out)
+    return re.sub(r"(?<![A-Z0-9_.])_XLFN\.", "", normalized)
+
+
+def _extract_workbook_defined_names(
+    zf: zipfile.ZipFile,
+    sheet_names: list[str],
+) -> dict[tuple[str, str], dict[str, Any]]:
+    """Extract ``(name_lower, scope_sheet_or_global) -> {expr, raw, hidden}`` from ``xl/workbook.xml``."""
     wb_root = parse_safe_xml_bytes(read_safe_zip_bytes(zf, "xl/workbook.xml"))
-    names: dict[tuple[str, str], str] = {}
+    names: dict[tuple[str, str], dict[str, Any]] = {}
     for el in wb_root.iter():
         if _local_name(el.tag) != "definedName":
             continue
@@ -2178,7 +2314,12 @@ def _extract_workbook_defined_names(zf: zipfile.ZipFile, sheet_names: list[str])
         if local_id is not None:
             idx = int(local_id)
             scope = sheet_names[idx] if 0 <= idx < len(sheet_names) else f"sheetIndex:{idx}"
-        names[(raw_name.lower(), scope)] = (el.text or "").strip()
+        raw_expr = (el.text or "").strip()
+        names[(raw_name.lower(), scope)] = {
+            "expr": _normalize_excel_expr(raw_expr),
+            "raw": raw_expr,
+            "hidden": _xml_bool(el.attrib.get("hidden"), default=False),
+        }
     return names
 
 
@@ -2217,23 +2358,20 @@ def _check_workbook_protection_regression(
         if _xml_bool(tmpl_wb_prot.get(flag), default=False) and not _xml_bool(out_wb_prot.get(flag), default=False):
             regressions.append(f"workbook: workbookProtection {flag} was disabled")
 
-    for secret_attr in (
-        "workbookPassword",
-        "revisionsPassword",
-        "workbookHashValue",
-        "revisionsHashValue",
-        "workbookAlgorithmName",
-        "revisionsAlgorithmName",
-        "workbookSaltValue",
-        "revisionsSaltValue",
-        "workbookSpinCount",
-        "revisionsSpinCount",
-    ):
-        if tmpl_wb_prot.get(secret_attr):
-            if not out_wb_prot.get(secret_attr):
-                regressions.append(f"workbook: workbookProtection {secret_attr} was stripped")
-            elif out_wb_prot.get(secret_attr) != tmpl_wb_prot.get(secret_attr):
-                regressions.append(f"workbook: workbookProtection {secret_attr} was altered")
+    stripped_verifier = False
+    altered_verifier = False
+    for attr_key, tmpl_val in tmpl_wb_prot.items():
+        if attr_key in _WORKBOOK_PROTECTION_BOOL_FLAGS or not tmpl_val:
+            continue
+        out_val = out_wb_prot.get(attr_key)
+        if not out_val:
+            stripped_verifier = True
+        elif out_val != tmpl_val:
+            altered_verifier = True
+    if stripped_verifier:
+        regressions.append("workbook: workbookProtection verifier attributes were stripped")
+    if altered_verifier:
+        regressions.append("workbook: workbookProtection verifier attributes were altered")
     return regressions
 
 
@@ -2414,6 +2552,43 @@ def _compare_non_worksheet_relationships(
     return dropped
 
 
+def _extract_dv_rule_signature(el: ET.Element) -> tuple[Any, ...]:
+    """Capture normalized constraint semantics of a SpreadsheetML ``<dataValidation>`` rule."""
+    dv_type = (el.attrib.get("type") or "none").strip().lower()
+    operator = (
+        (el.attrib.get("operator") or "between").strip().lower() if dv_type not in ("none", "list", "custom") else ""
+    )
+    allow_blank = _xml_bool(el.attrib.get("allowBlank"), default=False)
+    show_drop_down = _xml_bool(el.attrib.get("showDropDown"), default=False)
+    show_input_msg = _xml_bool(el.attrib.get("showInputMessage"), default=False)
+    show_error_msg = _xml_bool(el.attrib.get("showErrorMessage"), default=False)
+    error_style = (el.attrib.get("errorStyle") or "stop").strip().lower()
+    ime_mode = (el.attrib.get("imeMode") or "nocontrol").strip().lower()
+    error_title = (el.attrib.get("errorTitle") or "").strip()
+    error_body = (el.attrib.get("error") or "").strip()
+    prompt_title = (el.attrib.get("promptTitle") or "").strip()
+    prompt_body = (el.attrib.get("prompt") or "").strip()
+
+    f1_raw = next(((ch.text or "") for ch in el if _local_name(ch.tag) == "formula1"), "")
+    f2_raw = next(((ch.text or "") for ch in el if _local_name(ch.tag) == "formula2"), "")
+    return (
+        dv_type,
+        operator,
+        allow_blank,
+        show_drop_down,
+        show_input_msg,
+        show_error_msg,
+        error_style,
+        ime_mode,
+        error_title,
+        error_body,
+        prompt_title,
+        prompt_body,
+        _normalize_excel_expr(f1_raw),
+        _normalize_excel_expr(f2_raw),
+    )
+
+
 def _extract_sheet_features(zf: zipfile.ZipFile, xml_path: str) -> dict[str, Any]:
     """Extract protection, merges, validations, CF, embedded part refs, and formula cells from a worksheet XML."""
     root = parse_safe_xml_bytes(read_safe_zip_bytes(zf, xml_path))
@@ -2422,9 +2597,10 @@ def _extract_sheet_features(zf: zipfile.ZipFile, xml_path: str) -> dict[str, Any
     merges: set[str] = set()
     dv_count = 0
     dv_sqrefs: set[str] = set()
+    dv_rules_by_sqref: dict[str, list[tuple[Any, ...]]] = {}
     cf_blocks: dict[str, int] = {}
-    shared_masters: set[str] = set()
-    raw_formula_cells: list[tuple[str, str, str | None, str]] = []
+    shared_masters: dict[str, tuple[str, str]] = {}
+    raw_formula_cells: list[tuple[str, ET.Element]] = []
     embedded_tags: dict[str, int] = {}
 
     for el in root.iter():
@@ -2438,9 +2614,13 @@ def _extract_sheet_features(zf: zipfile.ZipFile, xml_path: str) -> dict[str, Any
         elif lname == "dataValidation":
             dv_count += 1
             sqref = el.attrib.get("sqref", "").strip().upper()
-            for tok in sqref.split():
-                if tok:
-                    dv_sqrefs.add(tok)
+            dv_sig = _extract_dv_rule_signature(el)
+            tokens = [tok for tok in sqref.split() if tok]
+            if not tokens:
+                dv_rules_by_sqref.setdefault("<EMPTY_SQREF>", []).append(dv_sig)
+            for tok in tokens:
+                dv_sqrefs.add(tok)
+                dv_rules_by_sqref.setdefault(tok, []).append(dv_sig)
         elif lname == "conditionalFormatting":
             sqref = " ".join(el.attrib.get("sqref", "").strip().upper().split())
             rule_count = sum(1 for ch in el if _local_name(ch.tag) == "cfRule")
@@ -2451,27 +2631,69 @@ def _extract_sheet_features(zf: zipfile.ZipFile, xml_path: str) -> dict[str, Any
             coord = el.attrib.get("r", "").strip().upper()
             f_el = next((ch for ch in el if _local_name(ch.tag) == "f"), None)
             if coord and f_el is not None:
-                f_type = f_el.attrib.get("t", "normal")
+                f_type = (f_el.attrib.get("t") or "normal").strip()
                 si = f_el.attrib.get("si")
                 f_txt = (f_el.text or "").strip()
                 if f_type == "shared" and f_txt and si is not None:
-                    shared_masters.add(si)
-                raw_formula_cells.append((coord, f_type, si, f_txt))
+                    shared_masters[si] = (coord, f_txt.lstrip("="))
+                raw_formula_cells.append((coord, f_el))
 
     formula_cells: set[str] = set()
-    for coord, f_type, si, f_txt in raw_formula_cells:
-        if f_txt or (f_type == "shared" and si is not None and si in shared_masters):
+    formulas: dict[str, dict[str, Any]] = {}
+    for coord, f_el in raw_formula_cells:
+        f_type = (f_el.attrib.get("t") or "normal").strip()
+        si = f_el.attrib.get("si")
+        f_txt = (f_el.text or "").strip()
+
+        resolved_expr: str | None = None
+        if f_type == "shared":
+            if f_txt:
+                resolved_expr = _normalize_excel_expr(f_txt)
+            elif si is not None and si in shared_masters:
+                master_coord, master_body = shared_masters[si]
+                try:
+                    translated = Translator(f"={master_body}", origin=master_coord).translate_formula(coord)
+                    resolved_expr = _normalize_excel_expr(translated)
+                except Exception:
+                    resolved_expr = f"<UNRESOLVED_SHARED:{si}>"
+        elif f_txt:
+            resolved_expr = _normalize_excel_expr(f_txt)
+
+        if resolved_expr is not None:
             formula_cells.add(coord)
+            calc_kind = "normal" if f_type.lower() in ("normal", "shared", "") else f_type.lower()
+            target_ref = (f_el.attrib.get("ref") or "").strip().upper() if calc_kind in ("array", "datatable") else ""
+            f_attrs = (
+                calc_kind,
+                target_ref,
+                _xml_bool(f_el.attrib.get("ca"), default=False),
+                _xml_bool(f_el.attrib.get("aca"), default=False),
+                _xml_bool(f_el.attrib.get("dt2D"), default=False),
+                _xml_bool(f_el.attrib.get("dtr"), default=False),
+                _xml_bool(f_el.attrib.get("del1"), default=False),
+                _xml_bool(f_el.attrib.get("del2"), default=False),
+                (f_el.attrib.get("r1") or "").strip().upper(),
+                (f_el.attrib.get("r2") or "").strip().upper(),
+                _xml_bool(f_el.attrib.get("bx"), default=False),
+            )
+            formulas[coord] = {"expr": resolved_expr, "attrs": f_attrs}
 
     return {
         "protection": protection,
         "merges": merges,
         "dv_count": dv_count,
         "dv_sqrefs": dv_sqrefs,
+        "dv_rules_by_sqref": dv_rules_by_sqref,
         "cf_blocks": cf_blocks,
         "embedded_tags": embedded_tags,
         "formula_cells": formula_cells,
+        "formulas": formulas,
     }
+
+
+_SHEET_PROTECTION_BOOL_ATTRS: frozenset[str] = frozenset(
+    {"sheet", "objects", "scenarios", *_PROTECTION_LOCK_DEFAULT_TRUE_ATTRS}
+)
 
 
 def _check_protection_regression(
@@ -2503,9 +2725,20 @@ def _check_protection_regression(
         if tmpl_locked and not out_locked:
             regressions.append(f"{sheet_name}: sheetProtection restriction {attr} was weakened from locked to unlocked")
 
-    for secret_attr in ("password", "hashValue"):
-        if secret_attr in tmpl_prot and secret_attr not in out_prot:
-            regressions.append(f"{sheet_name}: sheetProtection {secret_attr} hash was stripped")
+    stripped_verifier = False
+    altered_verifier = False
+    for attr_key, tmpl_val in tmpl_prot.items():
+        if attr_key in _SHEET_PROTECTION_BOOL_ATTRS or not tmpl_val:
+            continue
+        out_val = out_prot.get(attr_key)
+        if not out_val:
+            stripped_verifier = True
+        elif out_val != tmpl_val:
+            altered_verifier = True
+    if stripped_verifier:
+        regressions.append(f"{sheet_name}: sheetProtection verifier attributes were stripped")
+    if altered_verifier:
+        regressions.append(f"{sheet_name}: sheetProtection verifier attributes were altered")
 
     return regressions
 
@@ -2538,6 +2771,7 @@ def compare_template_preservation(
         lost_data_validations: dict[str, dict[str, Any]] = {}
         lost_conditional_formatting: dict[str, list[str]] = {}
         lost_formula_cells: dict[str, list[str]] = {}
+        altered_formula_cells: dict[str, list[str]] = {}
         dropped_relationships: list[str] = _compare_non_worksheet_relationships(ztmpl, zout, tmpl_paths, out_paths)
 
         for sh in template_sheets:
@@ -2565,11 +2799,21 @@ def compare_template_preservation(
                 lost_merged_cells[sh] = dropped_merges
 
             dropped_sqrefs = sorted(t_feat["dv_sqrefs"] - o_feat["dv_sqrefs"])
-            if dropped_sqrefs or o_feat["dv_count"] < t_feat["dv_count"]:
+            altered_dv_sqrefs: list[str] = []
+            for sqref_tok, t_sigs in sorted(t_feat["dv_rules_by_sqref"].items()):
+                if sqref_tok not in o_feat["dv_rules_by_sqref"]:
+                    continue
+                t_counts = Counter(t_sigs)
+                o_counts = Counter(o_feat["dv_rules_by_sqref"][sqref_tok])
+                if any(o_counts[sig] < req_cnt for sig, req_cnt in t_counts.items()):
+                    altered_dv_sqrefs.append(sqref_tok)
+
+            if dropped_sqrefs or altered_dv_sqrefs or o_feat["dv_count"] < t_feat["dv_count"]:
                 lost_data_validations[sh] = {
                     "template_count": t_feat["dv_count"],
                     "output_count": o_feat["dv_count"],
                     "dropped_sqrefs": dropped_sqrefs,
+                    "altered_sqrefs": altered_dv_sqrefs,
                 }
 
             cf_losses: list[str] = []
@@ -2591,6 +2835,17 @@ def compare_template_preservation(
             if dropped_formulas:
                 lost_formula_cells[sh] = dropped_formulas
 
+            changed_formulas: list[str] = []
+            for coord in sorted(t_feat["formula_cells"] & o_feat["formula_cells"]):
+                t_f = t_feat["formulas"][coord]
+                o_f = o_feat["formulas"][coord]
+                if t_f["expr"] != o_f["expr"]:
+                    changed_formulas.append(f"{coord} (template='={t_f['expr']}', output='={o_f['expr']}')")
+                elif t_f["attrs"] != o_f["attrs"]:
+                    changed_formulas.append(f"{coord} (formula <f> attributes altered)")
+            if changed_formulas:
+                altered_formula_cells[sh] = changed_formulas
+
         tmpl_names = _extract_workbook_defined_names(ztmpl, template_sheets)
         out_names = _extract_workbook_defined_names(zout, output_sheets)
         lost_defined_names = sorted(
@@ -2598,6 +2853,16 @@ def compare_template_preservation(
             for (name, scope) in tmpl_names
             if (name, scope) not in out_names
         )
+        altered_defined_names: list[str] = []
+        for (name, scope), t_dn in sorted(tmpl_names.items()):
+            if (name, scope) not in out_names:
+                continue
+            o_dn = out_names[(name, scope)]
+            dn_label = f"{scope}:{name}" if scope != "*GLOBAL*" else name
+            if t_dn["expr"] != o_dn["expr"]:
+                altered_defined_names.append(f"{dn_label} (template={t_dn['raw']!r}, output={o_dn['raw']!r})")
+            elif t_dn["hidden"] and not o_dn["hidden"]:
+                altered_defined_names.append(f"{dn_label} (hidden='1' was disabled)")
 
     issues: list[str] = []
     if missing_sheets:
@@ -2613,15 +2878,19 @@ def compare_template_preservation(
     if lost_merged_cells:
         issues.append(f"Dropped merged cell ranges on template sheets: {lost_merged_cells}")
     if lost_data_validations:
-        issues.append(f"Dropped data validations on template sheets: {lost_data_validations}")
+        issues.append(f"Dropped or altered data validations on template sheets: {lost_data_validations}")
     if lost_conditional_formatting:
         issues.append(f"Dropped conditional formatting on template sheets: {lost_conditional_formatting}")
     if lost_defined_names:
         issues.append(f"Dropped workbook definedNames: {lost_defined_names}")
+    if altered_defined_names:
+        issues.append(f"Altered workbook definedNames: {altered_defined_names}")
     if dropped_relationships:
         issues.append(f"Dropped non-worksheet relationship targets/parts: {dropped_relationships}")
     if lost_formula_cells:
         issues.append(f"Deleted or literal-overwritten template formula cells: {lost_formula_cells}")
+    if altered_formula_cells:
+        issues.append(f"Altered template formula cells: {altered_formula_cells}")
 
     return {
         "preserved": len(issues) == 0,
@@ -2637,8 +2906,10 @@ def compare_template_preservation(
         "lost_data_validations": lost_data_validations,
         "lost_conditional_formatting": lost_conditional_formatting,
         "lost_defined_names": lost_defined_names,
+        "altered_defined_names": altered_defined_names,
         "dropped_relationships": dropped_relationships,
         "lost_formula_cells": lost_formula_cells,
+        "altered_formula_cells": altered_formula_cells,
         "issues": issues,
     }
 
