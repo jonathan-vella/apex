@@ -44,7 +44,9 @@ authorized brief/evidence and optional business context instead of numeric deliv
 Governance, SKU/VNet confirmation, budget cap or intermediate Architecture approval). Use
 `collect-assessment-evidence.py` and `collect-assessment-cost.mjs` (plus `.github/skills/apex-azure-cost-optimization/SKILL.md`)
 for scoped evidence/billing; `cost-estimate-subagent` remains retail-only. For `assessment-bundle-v3`, write
-`_meta/waf-scores.json` and run `render-assessment-charts.py` in `analysis`. For register-capable runs, load
+`_meta/waf-checks.json`, compute `_meta/waf-scores.json` with `assessment-waf-scores.mjs`, and run
+`render-assessment-charts.py` in `analysis` (use `export-waf-review-csv.mjs` only when Microsoft WAF portal CSV
+export is requested). For register-capable runs, load
 [register rules](../skills/apex-azure-artifacts/references/assessment-action-register.md) and generate source,
 Excel and Markdown with `disposition` (`remediate_now`, `production_readiness_gap`, `intentional_lab_tradeoff`,
 `orphan_or_drift_cleanup`, `verification_followup`) without duplicating cost benefits. Return finalized analysis
@@ -156,9 +158,13 @@ Unverified claims remain gaps, not remembered facts.
   from 0–10 whenever `>= 2` pillar-relevant workload-control checks are observed (excluding unknowns
   from numerator/denominator, paired with `High (>=70%) | Medium (35-69%) | Low (<35%)` coverage);
   reserve `Not assessed` strictly for `< 2` observed workload controls, and never count assessment
-  data-collection availability (CPU/metric queries, policy-header listing, or billing/forecast views) as
-  passing/failing controls in any pillar (collection belongs in Coverage). For standalone Azure
-  assessments, run `collect-assessment-evidence.py` and `collect-assessment-cost.mjs` (`--include-amortized`
+  data-collection availability (CPU/metric queries, policy-header listing, or billing/forecast views) or
+  uncorroborated human-attested practice answers (`dr_testing_cadence`, `security_sdlc_practices`,
+  `deployment_release_practices`, `incident_response_practices`, `finops_governance_practices`,
+  `performance_testing_practices`) as passing/failing observed controls in any pillar (collection belongs in
+  Coverage; human-attested practices are reported as `declared`, runtime-unverified context across the five
+  pillars and drive WAF findings and Action Register items when gaps or telemetry contradictions appear). For
+  standalone Azure assessments, run `collect-assessment-evidence.py` and `collect-assessment-cost.mjs` (`--include-amortized`
   `--include-rg-breakdown` as needed) directly rather than writing custom `_meta/scratch/` collectors.
 - Include service maturity, trade-offs, an overview Mermaid diagram and meaningful traffic-light
   statuses without manufacturing filler warnings. Verify zonal features rather than inferring them from

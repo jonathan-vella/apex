@@ -11,28 +11,36 @@ const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "../../.
 const read = (file) => fs.readFileSync(path.join(root, file), "utf8");
 
 for (const mode of ["evidence_only", "requirements_led"]) {
-  test(`assessment entry produces the correct discovery surface for ${mode}`, () => {
-    const result = spawnSync(
-      process.execPath,
-      ["tools/scripts/requirements-discovery.mjs", "--stage", "business", "--assessment-mode", mode],
-      { cwd: root, encoding: "utf8" },
-    );
-    assert.equal(result.status, 0, result.stderr);
-    const request = JSON.parse(result.stdout);
-    assert.equal(request.complete, mode === "evidence_only");
-    if (mode === "requirements_led") {
-      const fields = Object.keys(request.form.requestedSchema.properties);
-      assert.ok(fields.includes("critical_flows"));
-      assert.ok(fields.includes("availability_target"));
-      for (const field of ["sku_vm", "iac_tool", "cost_alert_emails", "vnet_mode", "service_tier"]) {
-        assert.ok(!fields.includes(field));
+  for (const stage of ["business", "practices"]) {
+    test(`assessment entry produces the correct ${stage} discovery surface for ${mode}`, () => {
+      const result = spawnSync(
+        process.execPath,
+        ["tools/scripts/requirements-discovery.mjs", "--stage", stage, "--assessment-mode", mode],
+        { cwd: root, encoding: "utf8" },
+      );
+      assert.equal(result.status, 0, result.stderr);
+      const request = JSON.parse(result.stdout);
+      assert.equal(request.complete, mode === "evidence_only");
+      if (mode === "requirements_led") {
+        const fields = Object.keys(request.form.requestedSchema.properties);
+        if (stage === "business") {
+          assert.ok(fields.includes("critical_flows"));
+          assert.ok(fields.includes("availability_target"));
+        } else {
+          assert.ok(fields.includes("dr_testing_cadence"));
+          assert.ok(fields.includes("deployment_release_practices"));
+          assert.ok(fields.includes("finops_governance_practices"));
+        }
+        for (const field of ["sku_vm", "iac_tool", "cost_alert_emails", "vnet_mode", "service_tier"]) {
+          assert.ok(!fields.includes(field));
+        }
+        assert.ok(!Object.hasOwn(request.form, "request_id"));
+        assert.equal(request.request_id_source, "apex-local");
+      } else {
+        assert.equal(request.form, null);
       }
-      assert.ok(!Object.hasOwn(request.form, "request_id"));
-      assert.equal(request.request_id_source, "apex-local");
-    } else {
-      assert.equal(request.form, null);
-    }
-  });
+    });
+  }
 }
 
 test("assessment report templates implement their registered heading contracts", () => {
@@ -77,6 +85,14 @@ test("standalone route documentation makes the full bundle terminal and preserve
   assert.match(contract, /no next deployment owner/);
   assert.match(contract, /Spent allowance requires an actual bounded extension/);
   assert.match(contract, /do not numerically fail an unknown/);
+  assert.match(contract, /--stage practices --assessment-mode requirements_led/);
+  assert.match(
+    contract,
+    /without counting uncorroborated human\s+self-attestation as passing observed workload controls/,
+  );
   assert.match(contract, /last completed calendar month/);
   assert.match(contract, /Current|current-month forecast/);
+  const intake = read(".github/skills/apex-azure-defaults/references/existing-workload-intake.md");
+  assert.match(intake, /--stage practices/);
+  assert.match(intake, /runtime-unverified/);
 });
