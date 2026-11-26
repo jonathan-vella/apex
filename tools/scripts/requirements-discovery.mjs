@@ -45,6 +45,125 @@ function isAssessmentScenario(value) {
 }
 
 export const DISCOVERY_STAGES = ["business", "migration", "workload", "access"];
+export const ASSESSMENT_DISCOVERY_STAGES = ["business", "practices"];
+const ALL_DISCOVERY_STAGES = new Set([...DISCOVERY_STAGES, ...ASSESSMENT_DISCOVERY_STAGES]);
+
+const ASSESSMENT_BUSINESS_INPUTS = [
+  [
+    "business_objective",
+    "Business purpose",
+    "Which business outcomes and priorities should the assessment evaluate?",
+    ["Reliability and recovery", "Security posture", "Cost efficiency", "Operational readiness"],
+  ],
+  [
+    "critical_flows",
+    "Critical workload flows",
+    "Which user journeys or integrations matter most?",
+    ["Employee access", "Customer transactions", "Data processing and integrations", "Monitoring and support"],
+  ],
+  [
+    "availability_target",
+    "Availability objective",
+    "What availability target is known?",
+    ["99.9%", "99.95%", "99.99%"],
+  ],
+  [
+    "recovery_profile",
+    "Recovery objectives",
+    "What recovery time and data-loss objectives are known?",
+    ["RTO 4 hours / RPO 1 hour", "RTO 24 hours / RPO 24 hours"],
+  ],
+  [
+    "performance_target",
+    "Performance and scale objectives",
+    "What response-time, throughput or peak-demand targets are known?",
+    [],
+  ],
+  [
+    "compliance",
+    "Compliance and residency constraints",
+    "Which frameworks, data residency or security obligations are known?",
+    ["No specific regulatory framework", "EU residency / GDPR", "Organization-specific constraints"],
+  ],
+  [
+    "monthly_budget_amount",
+    "Cost planning target",
+    "Is a cost target known? This is not a spending approval or a hard-cap decision.",
+    ["No fixed budget"],
+  ],
+];
+
+const ASSESSMENT_PRACTICE_INPUTS = [
+  [
+    "dr_testing_cadence",
+    "Recovery and resilience testing",
+    "How are backups, failover, and fault recovery validated for this workload?",
+    [
+      "Regular restore and failover drills in production-like environments",
+      "Backups or replication configured; full recovery drills not yet tested",
+      "Ad-hoc or incident-driven recovery only",
+      "No formal recovery or resilience testing",
+    ],
+  ],
+  [
+    "security_sdlc_practices",
+    "Application and supply-chain security",
+    "Which threat modeling, data classification, secret hygiene, and security testing practices are in place?",
+    [
+      "Threat modeling, data classification, and automated pipeline security scans",
+      "Automated secret and dependency scanning in CI; manual reviews ad-hoc",
+      "Periodic manual security reviews or penetration testing only",
+      "No formal application or supply-chain security practices",
+    ],
+  ],
+  [
+    "deployment_release_practices",
+    "Deployment and release engineering",
+    "How are infrastructure and application changes tested and promoted to production?",
+    [
+      "All changes ship via CI/CD pipelines with IaC and automated health gates",
+      "CI/CD pipelines for app or IaC with manual promotion checks",
+      "Mixed pipeline deployments and manual portal or CLI changes",
+      "Primarily manual deployments without automated release gates",
+    ],
+  ],
+  [
+    "incident_response_practices",
+    "Incident response and runbooks",
+    "What operational runbooks, escalation paths, and post-incident review practices exist?",
+    [
+      "Documented runbooks, on-call or SOC escalation, exercises, and formal RCAs",
+      "Runbooks and escalation paths exist; exercises and RCAs are informal",
+      "Reactive troubleshooting without formal runbooks",
+      "Handled by a central platform or security operations team",
+    ],
+  ],
+  [
+    "finops_governance_practices",
+    "Cost governance and FinOps cadence",
+    "How does the team review workload spend, rate optimization, and spending guardrails?",
+    [
+      "Regular stakeholder spend reviews, cost owners, and rate or commitment reviews",
+      "Periodic spend review against a rough budget; no formal FinOps cadence",
+      "Portal visibility only; no regular spend review or rate optimization",
+      "Managed centrally outside the workload team",
+    ],
+  ],
+  [
+    "performance_testing_practices",
+    "Performance testing and capacity planning",
+    "How are load testing, capacity forecasting, and runtime bottleneck profiling performed?",
+    [
+      "Automated load testing against targets with proactive capacity forecasting",
+      "Point-in-time load testing before major releases only",
+      "Reactive tuning when live performance issues occur",
+      "No formal load testing or capacity planning",
+    ],
+  ],
+];
+
+const ASSESSMENT_PRACTICES_MESSAGE =
+  "Assessment operational & security practices: supply only known team practices, or choose Unknown. Answers are recorded as human-attested context alongside observed telemetry; no implementation choice or intermediate approval is requested.";
 
 export function answersFromRecall(view, environment) {
   if (!view?.session?.material_inputs || !environment)
@@ -56,6 +175,20 @@ export function answersFromRecall(view, environment) {
   );
 }
 
+function isInventoryResourceItem(item) {
+  return (
+    item !== null &&
+    typeof item === "object" &&
+    !Object.hasOwn(item, "input_id") &&
+    !Object.hasOwn(item, "value") &&
+    typeof item.id === "string" &&
+    /^\/subscriptions\//i.test(item.id) &&
+    typeof item.type === "string" &&
+    item.provenance === "azure-arg" &&
+    item.confidence === "observed"
+  );
+}
+
 function evidenceDefaults(evidence) {
   if (evidence === undefined) return {};
   if (!evidence || typeof evidence !== "object" || !Array.isArray(evidence.items)) {
@@ -63,6 +196,7 @@ function evidenceDefaults(evidence) {
   }
   const defaults = {};
   for (const item of evidence.items) {
+    if (isInventoryResourceItem(item)) continue;
     if (
       !item ||
       typeof item.input_id !== "string" ||
@@ -101,7 +235,7 @@ function discoveryEnvelope(stage, answers, properties, message) {
 }
 
 export function buildDiscoveryForm(stage, answers = {}, evidence, options = {}) {
-  if (!DISCOVERY_STAGES.includes(stage)) throw new Error(`Unknown discovery stage: ${stage}`);
+  if (!ALL_DISCOVERY_STAGES.has(stage)) throw new Error(`Unknown discovery stage: ${stage}`);
   if (!answers || typeof answers !== "object" || Array.isArray(answers)) {
     throw new Error("Answers must be an object containing the complete captured answer ledger");
   }
@@ -109,72 +243,14 @@ export function buildDiscoveryForm(stage, answers = {}, evidence, options = {}) 
   if (assessmentMode !== undefined && !["evidence_only", "requirements_led"].includes(assessmentMode)) {
     throw new Error("Assessment mode must be evidence_only or requirements_led");
   }
-  if (assessmentMode !== undefined) {
-    const properties = {};
-    if (assessmentMode === "requirements_led" && stage === "business") {
-      const inputs = [
-        [
-          "business_objective",
-          "Business purpose",
-          "Which business outcomes and priorities should the assessment evaluate?",
-          ["Reliability and recovery", "Security posture", "Cost efficiency", "Operational readiness"],
-        ],
-        [
-          "critical_flows",
-          "Critical workload flows",
-          "Which user journeys or integrations matter most?",
-          ["Employee access", "Customer transactions", "Data processing and integrations", "Monitoring and support"],
-        ],
-        [
-          "availability_target",
-          "Availability objective",
-          "What availability target is known?",
-          ["99.9%", "99.95%", "99.99%"],
-        ],
-        [
-          "recovery_profile",
-          "Recovery objectives",
-          "What recovery time and data-loss objectives are known?",
-          ["RTO 4 hours / RPO 1 hour", "RTO 24 hours / RPO 24 hours"],
-        ],
-        [
-          "performance_target",
-          "Performance and scale objectives",
-          "What response-time, throughput or peak-demand targets are known?",
-          [],
-        ],
-        [
-          "compliance",
-          "Compliance and residency constraints",
-          "Which frameworks, data residency or security obligations are known?",
-          ["No specific regulatory framework", "EU residency / GDPR", "Organization-specific constraints"],
-        ],
-        [
-          "monthly_budget_amount",
-          "Cost planning target",
-          "Is a cost target known? This is not a spending approval or a hard-cap decision.",
-          ["No fixed budget"],
-        ],
-      ];
-      for (const [key, title, description, suggestions] of inputs) {
-        if (!supplied(answers[key])) {
-          properties[key] = choice(title, `${description} Unknown is a valid assessment input.`, [
-            ...suggestions,
-            "Unknown — assess with available evidence",
-          ]);
-        }
-      }
-    }
-    return discoveryEnvelope(
-      stage,
-      answers,
-      properties,
-      "Assessment business context: supply only known objectives, or choose Unknown. No implementation choice or intermediate approval is requested.",
-    );
+  if (assessmentMode === "evidence_only") {
+    const message =
+      stage === "practices"
+        ? ASSESSMENT_PRACTICES_MESSAGE
+        : "Assessment business context: supply only known objectives, or choose Unknown. No implementation choice or intermediate approval is requested.";
+    return discoveryEnvelope(stage, answers, {}, message);
   }
   const defaults = evidenceDefaults(evidence);
-  const assessmentFromAnswers = isAssessmentScenario(answers.scenario);
-  const assessmentSuggestedByEvidence = !supplied(answers.scenario) && isAssessmentScenario(defaults.scenario);
   const properties = {};
   const add = (key, field) => {
     if (supplied(answers[key])) return;
@@ -191,6 +267,45 @@ export function buildDiscoveryForm(stage, answers = {}, evidence, options = {}) 
     }
     properties[key] = field;
   };
+  if (assessmentMode === "requirements_led") {
+    if (stage === "business" || stage === "practices") {
+      const inputs = stage === "business" ? ASSESSMENT_BUSINESS_INPUTS : ASSESSMENT_PRACTICE_INPUTS;
+      for (const [key, title, description, suggestions] of inputs) {
+        add(
+          key,
+          choice(title, `${description} Unknown is a valid assessment input.`, [
+            ...suggestions,
+            "Unknown — assess with available evidence",
+          ]),
+        );
+      }
+    }
+    const message =
+      stage === "practices"
+        ? ASSESSMENT_PRACTICES_MESSAGE
+        : "Assessment business context: supply only known objectives, or choose Unknown. No implementation choice or intermediate approval is requested.";
+    return discoveryEnvelope(stage, answers, properties, message);
+  }
+  const assessmentFromAnswers = isAssessmentScenario(answers.scenario);
+  const assessmentSuggestedByEvidence = !supplied(answers.scenario) && isAssessmentScenario(defaults.scenario);
+  if (stage === "practices") {
+    if (!supplied(answers.scenario)) {
+      throw new Error("Practices discovery requires the captured scenario; restore the business answer ledger first");
+    }
+    if (!assessmentFromAnswers) {
+      return { stage, complete: true, form: null };
+    }
+    for (const [key, title, description, suggestions] of ASSESSMENT_PRACTICE_INPUTS) {
+      add(
+        key,
+        choice(title, `${description} Unknown is a valid assessment input.`, [
+          ...suggestions,
+          "Unknown — assess with available evidence",
+        ]),
+      );
+    }
+    return discoveryEnvelope(stage, answers, properties, ASSESSMENT_PRACTICES_MESSAGE);
+  }
   if (assessmentFromAnswers && stage !== "business") {
     return { stage, complete: true, form: null };
   }
@@ -569,7 +684,7 @@ export function buildDiscoveryForm(stage, answers = {}, evidence, options = {}) 
 export function runDiscovery(argv = process.argv.slice(2)) {
   if (argv.includes("--help")) {
     console.log(
-      "Usage: requirements-discovery.mjs --stage business|migration|workload|access [--answers <captured-answers.json> | --recall-view <view.json> --environment <env>] [--evidence <01-discovered-evidence.json>] [--assessment-mode evidence_only|requirements_led]\nStandalone assessment modes bypass implementation questionnaires; requirements_led asks only known business targets, accepting Unknown.\nPersist the envelope and its APEX-local request_id before displaying only form through ask_user; retain the ID with the actual response. No SDK-issued request ID is required.\nEvidence: {items:[{input_id,value,provenance:iac|diagram|azure-arg,confidence:observed|inferred}]}. Suggestions require explicit owner confirmation before recording material inputs.",
+      "Usage: requirements-discovery.mjs --stage business|practices|migration|workload|access [--answers <captured-answers.json> | --recall-view <view.json> --environment <env>] [--evidence <01-discovered-evidence.json>] [--assessment-mode evidence_only|requirements_led]\nStandalone assessment modes bypass implementation questionnaires; requirements_led captures known business targets (--stage business) and human-attested operational & security practices (--stage practices), accepting Unknown.\nPersist the envelope and its APEX-local request_id before displaying only form through ask_user; retain the ID with the actual response. No SDK-issued request ID is required.\nEvidence: {items:[{input_id,value,provenance:iac|diagram|azure-arg,confidence:observed|inferred}]}. Suggestions require explicit owner confirmation before recording material inputs.",
     );
     return 0;
   }
@@ -581,17 +696,18 @@ export function runDiscovery(argv = process.argv.slice(2)) {
   let assessmentMode;
   let answersProvided = false;
   for (let index = 0; index < argv.length; index += 2) {
+    const flag = argv[index];
     const value = argv[index + 1];
-    if (!value) throw new Error(`Missing value for ${argv[index]}`);
-    if (argv[index] === "--stage") stage = value;
-    else if (argv[index] === "--answers") {
+    if (!value || value.startsWith("-")) throw new Error(`Missing value for ${flag}`);
+    if (flag === "--stage") stage = value;
+    else if (flag === "--answers") {
       answers = JSON.parse(fs.readFileSync(path.resolve(value), "utf8"));
       answersProvided = true;
-    } else if (argv[index] === "--recall-view") recallView = JSON.parse(fs.readFileSync(path.resolve(value), "utf8"));
-    else if (argv[index] === "--environment") environment = value;
-    else if (argv[index] === "--evidence") evidence = JSON.parse(fs.readFileSync(path.resolve(value), "utf8"));
-    else if (argv[index] === "--assessment-mode") assessmentMode = value;
-    else throw new Error(`Unknown option: ${argv[index]}`);
+    } else if (flag === "--recall-view") recallView = JSON.parse(fs.readFileSync(path.resolve(value), "utf8"));
+    else if (flag === "--environment") environment = value;
+    else if (flag === "--evidence") evidence = JSON.parse(fs.readFileSync(path.resolve(value), "utf8"));
+    else if (flag === "--assessment-mode") assessmentMode = value;
+    else throw new Error(`Unknown option: ${flag}`);
   }
   if (recallView) {
     if (answersProvided) throw new Error("Use captured answers or an authoritative recall view, not both");

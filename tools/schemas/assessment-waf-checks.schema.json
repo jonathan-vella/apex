@@ -1,0 +1,88 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://apexops.pro/schemas/assessment-waf-checks.schema.json",
+  "title": "Standalone Assessment Observed WAF Workload-Control Checks",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["checks"],
+  "properties": {
+    "schema_version": { "const": "assessment-waf-checks-v1" },
+    "project": { "type": "string", "pattern": "^[a-z0-9][a-z0-9-]{0,62}$" },
+    "as_of": { "type": "string", "format": "date-time" },
+    "generated_at": { "type": "string", "format": "date-time" },
+    "rubric": { "type": "string", "minLength": 1, "maxLength": 2000 },
+    "evidence_availability": {
+      "type": "array",
+      "maxItems": 500,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["id", "pillar", "state", "check", "evidence"],
+        "properties": {
+          "id": { "type": "string", "pattern": "^[A-Za-z0-9][A-Za-z0-9_.-]{0,63}$" },
+          "pillar": { "$ref": "#/$defs/pillar" },
+          "state": { "enum": ["observed", "unknown", "denied", "not_applicable"] },
+          "check": { "type": "string", "minLength": 1, "maxLength": 1000 },
+          "evidence": { "type": "string", "minLength": 1, "maxLength": 1000 },
+          "notes": { "type": "string", "maxLength": 2000 }
+        }
+      }
+    },
+    "attested_practices": {
+      "type": "array",
+      "maxItems": 50,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["input_id", "pillars", "value", "provenance"],
+        "properties": {
+          "input_id": {
+            "enum": [
+              "dr_testing_cadence",
+              "security_sdlc_practices",
+              "deployment_release_practices",
+              "incident_response_practices",
+              "finops_governance_practices",
+              "performance_testing_practices"
+            ]
+          },
+          "pillars": {
+            "type": "array",
+            "minItems": 1,
+            "uniqueItems": true,
+            "items": { "$ref": "#/$defs/pillar" }
+          },
+          "value": { "type": "string", "minLength": 1, "maxLength": 1000 },
+          "provenance": { "const": "declared" },
+          "source": { "type": "string", "maxLength": 500 },
+          "notes": { "type": "string", "maxLength": 2000 }
+        }
+      }
+    },
+    "checks": {
+      "type": "array",
+      "minItems": 1,
+      "maxItems": 2000,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["id", "pillar", "state", "check", "evidence"],
+        "properties": {
+          "id": { "type": "string", "pattern": "^[A-Za-z0-9][A-Za-z0-9_.-]{0,63}$" },
+          "pillar": { "$ref": "#/$defs/pillar" },
+          "state": { "enum": ["passed", "risk", "intentional_tradeoff", "unknown", "not_applicable"] },
+          "check": { "type": "string", "minLength": 1, "maxLength": 1000 },
+          "evidence": { "type": "string", "minLength": 1, "maxLength": 1000 },
+          "provenance": { "enum": ["observed", "declared"] },
+          "waf_code": { "type": "string", "pattern": "^(RE|SE|CO|OE|PE):[0-9]{2}$" },
+          "notes": { "type": "string", "maxLength": 2000 }
+        }
+      }
+    }
+  },
+  "$defs": {
+    "pillar": {
+      "enum": ["Security", "Reliability", "Performance Efficiency", "Cost Optimization", "Operational Excellence"]
+    }
+  }
+}

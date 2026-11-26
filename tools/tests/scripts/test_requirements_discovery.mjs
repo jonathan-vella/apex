@@ -5,7 +5,12 @@ import { spawnSync } from "node:child_process";
 import { randomUUID } from "node:crypto";
 import { fileURLToPath } from "node:url";
 import test from "node:test";
-import { buildDiscoveryForm, DISCOVERY_STAGES, answersFromRecall } from "../../scripts/requirements-discovery.mjs";
+import {
+  buildDiscoveryForm,
+  DISCOVERY_STAGES,
+  ASSESSMENT_DISCOVERY_STAGES,
+  answersFromRecall,
+} from "../../scripts/requirements-discovery.mjs";
 
 const fields = (stage, answers) => buildDiscoveryForm(stage, answers).form?.requestedSchema.properties ?? {};
 const observed = (input_id, value, extra = {}) => ({
@@ -137,10 +142,10 @@ for (const [scenario, needsMigration] of [
   });
 }
 
-test("standalone evidence-only intake never starts a business or implementation interview", () => {
+test("standalone evidence-only intake never starts a business, practices or implementation interview", () => {
   for (const source of ["iac", "azure", "combined"]) {
     const answers = { assessment_source: source };
-    for (const stage of ["business", "migration", "workload", "access"]) {
+    for (const stage of ["business", "practices", "migration", "workload", "access"]) {
       const request = buildDiscoveryForm(
         stage,
         answers,
@@ -607,4 +612,113 @@ test("CLI reads a captured ledger and reports malformed or missing inputs as fai
   assert.equal(invoke("--stage", "business", "--answers", answersPath).status, 1);
   fs.writeFileSync(evidencePath, "{broken");
   assert.equal(invoke("--stage", "business", "--evidence", evidencePath).status, 1);
+});
+
+test("assessment practices stage captures human-attested WAF process context and passes batching preflight", (t) => {
+  assert.deepEqual(ASSESSMENT_DISCOVERY_STAGES, ["business", "practices"]);
+  const expectedKeys = [
+    "dr_testing_cadence",
+    "security_sdlc_practices",
+    "deployment_release_practices",
+    "incident_response_practices",
+    "finops_governance_practices",
+    "performance_testing_practices",
+  ];
+
+  const partialAnswers = {
+    dr_testing_cadence: "Backups or replication configured; full recovery drills not yet tested",
+  };
+  const evidence = {
+    items: [observed("deployment_release_practices", "CI/CD pipelines for app or IaC with manual promotion checks")],
+  };
+  const request = buildDiscoveryForm("practices", partialAnswers, evidence, {
+    assessmentMode: "requirements_led",
+  });
+  assert.equal(request.complete, false);
+  const properties = request.form.requestedSchema.properties;
+  assert.deepEqual(Object.keys(properties), expectedKeys.slice(1));
+  assert.equal(
+    properties.deployment_release_practices.default,
+    "CI/CD pipelines for app or IaC with manual promotion checks",
+  );
+  assert.ok(Object.values(properties).every((field) => field.enum.some((value) => /Unknown/.test(value))));
+
+  const directory = fs.mkdtempSync(path.join(process.cwd(), ".apex-practices-test-"));
+  t.after(() => fs.rmSync(directory, { recursive: true }));
+  const repo = fileURLToPath(new URL("../../../", import.meta.url));
+  const formPath = path.join(directory, "form.json");
+  const contextPath = path.join(directory, "context.json");
+  fs.writeFileSync(formPath, JSON.stringify(request.form));
+  fs.writeFileSync(contextPath, JSON.stringify(request.context));
+  const preflight = spawnSync(
+    "python3",
+    [
+      path.join(repo, "tools/scripts/validate_question_batching.py"),
+      "--form",
+      formPath,
+      "--context",
+      contextPath,
+      "--require-context",
+    ],
+    { encoding: "utf8" },
+  );
+  assert.equal(preflight.status, 0, preflight.stdout + preflight.stderr);
+
+  const completed = {
+    ...partialAnswers,
+    ...Object.fromEntries(expectedKeys.slice(1).map((key) => [key, "Unknown — assess with available evidence"])),
+  };
+  assert.equal(
+    buildDiscoveryForm("practices", completed, undefined, { assessmentMode: "requirements_led" }).complete,
+    true,
+  );
+
+  const step1Assessment = buildDiscoveryForm("practices", { scenario: "Assessment — evaluate an existing workload" });
+  assert.deepEqual(Object.keys(step1Assessment.form.requestedSchema.properties), expectedKeys);
+  for (const scenario of [
+    "Greenfield — new workload",
+    "Migration — move an existing workload",
+    "Modernization — improve an existing workload",
+    "Extension — add to an existing platform",
+    "Not an assessment or brownfield project",
+  ]) {
+    assert.deepEqual(buildDiscoveryForm("practices", { scenario }), {
+      stage: "practices",
+      complete: true,
+      form: null,
+    });
+  }
+  assert.throws(() => buildDiscoveryForm("practices", {}), /captured scenario/);
+
+  // Mixed-case /Subscriptions/... ARM IDs in _meta/01-discovered-evidence.json are skipped cleanly
+  const mixedCaseInventory = {
+    items: [
+      {
+        id: "/Subscriptions/00000000-0000-0000-0000-000000000001/resourceGroups/rg/providers/Microsoft.Web/sites/app",
+        name: "app",
+        type: "Microsoft.Web/sites",
+        provenance: "azure-arg",
+        confidence: "observed",
+      },
+      observed("dr_testing_cadence", "Regular restore and failover drills in production-like environments"),
+    ],
+  };
+  const mixedForm = buildDiscoveryForm("practices", {}, mixedCaseInventory, { assessmentMode: "requirements_led" });
+  assert.equal(
+    mixedForm.form.requestedSchema.properties.dr_testing_cadence.default,
+    "Regular restore and failover drills in production-like environments",
+  );
+
+  // Flag followed immediately by another --flag fails explicitly rather than consuming the flag name as a value
+  const badFlag = spawnSync(
+    process.execPath,
+    [
+      fileURLToPath(new URL("../../scripts/requirements-discovery.mjs", import.meta.url)),
+      "--stage",
+      "--assessment-mode",
+    ],
+    { encoding: "utf8" },
+  );
+  assert.equal(badFlag.status, 1);
+  assert.match(badFlag.stderr, /Missing value for --stage/);
 });

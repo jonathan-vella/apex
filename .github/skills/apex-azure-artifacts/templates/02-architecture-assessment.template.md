@@ -28,7 +28,9 @@
 > required diagram. The Approval Gate section describes final bundle acceptance only. Requirements
 > Validation may say Not supplied; Implementation Handoff is a nonbinding roadmap, not a next-step route.
 > Rate a pillar only with an explicit evidence-backed rubric; otherwise use Not assessed and show coverage
-> and confidence separately. An unknown control must not automatically lower a numerical score.
+> and confidence separately. An unknown control must not automatically lower a numerical score. Keep
+> human-attested operational/security practices (`declared`, runtime-unverified) distinct from observed
+> technical controls so uncorroborated self-attestation never inflates `0–10` pillar scores.
 
 | ⬅️ Previous                              | 📑 Index            | Next ➡️                                            |
 | ---------------------------------------- | ------------------- | -------------------------------------------------- |

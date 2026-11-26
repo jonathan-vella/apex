@@ -41,9 +41,10 @@ are real stopping points, not permission to fill gaps with defaults.
 For explicit `decisions.workflow_mode=assessment`, use
 [standalone assessment](../skills/apex-workflow-engine/references/standalone-assessment.md).
 Evidence-only mode does not dispatch this owner or synthesize requirements. In requirements-led mode,
-capture known objectives/flows/targets with `requirements-discovery.mjs --assessment-mode requirements_led`,
-accept Unknown, and return business context to the parent without Gate 1, SKU elicitation, manifest creation
-or a separate Requirements review cycle. Numeric delivery phases below retain their original contract.
+capture known objectives/flows/targets (`--stage business`) and human-attested operational/security practices
+(`--stage practices`) with `requirements-discovery.mjs --assessment-mode requirements_led`,
+accept Unknown, and return business and practice context to the parent without Gate 1, SKU elicitation,
+manifest creation or a separate Requirements review cycle. Numeric delivery phases below retain their original contract.
 
 For `decisions.workflow_contract=practical-v1`, use the
 [practical workflow](../skills/apex-workflow-engine/references/practical-workflow.md):
@@ -75,10 +76,11 @@ If the calling context is ambiguous, resolve it before a consequential approval.
   `additionalProperties` or other full JSON Schema constraints. Direct `ask_user` receives only
   `message` and `requestedSchema`. Delegated requests list unresolved names in `needed_inputs`
   outside the schema; preserve the helper's native field shapes.
-- Build the business/migration/workload/access forms with the tested
+- Build the business/practices/migration/workload/access forms with the tested
   `tools/scripts/requirements-discovery.mjs` helper and the complete captured-answer ledger.
   `node tools/scripts/requirements-discovery.mjs --stage <stage> --answers <owned-answer-snapshot.json>`
-  emits a form, not answers or permission. Use the business stage first, then only applicable branches.
+  emits a form, not answers or permission. Use the business stage first, then only applicable branches
+  (`practices` applies to Assessment scenarios and `requirements_led` standalone assessments).
   Retain its separate `context` with the complete answer ledger for applicability preflight; forward it alongside
   delegated forms, never inside the native `message`/`requestedSchema` payload.
   Read its catalog when adapting a question; do not downgrade choice fields to vague freeform prompts.
@@ -241,10 +243,12 @@ Private DNS is required; its eventual owner is verified in Governance, not presu
 
 For implementation planning, ask user-facing access intent with guided choices: existing corporate/VPN access,
 a new secure path, application-only access, private runners, or help designing it.
-For Assessment, reuse known authentication/compliance/access constraints and record unverified details as
-assessment gaps; do not require future network design, exact identities, recipients or technical bindings to
-complete requirements. For implementation planning, capture authentication/compliance scope and known
-operational constraints, not detailed network design.
+For Assessment, capture human-attested operational and security practices (`--stage practices`: recovery drills,
+application/supply-chain security, CI/CD release gates, incident runbooks, FinOps cadence, and load testing,
+accepting Unknown), reuse known authentication/compliance/access constraints, and record human-attested answers
+with explicit unverified provenance alongside assessment gaps; do not require future network design, exact
+identities, recipients or technical bindings to complete requirements. For implementation planning, capture
+authentication/compliance scope and known operational constraints, not detailed network design.
 Never require monitoring handoff contacts, accountable teams, principal IDs/actions, exact API caller
 runtime, SQL administrator object IDs or fallback tag values just to finish discovery.
 If another team handles monitoring, record that scope once without an interrogation about who/how to reach them.

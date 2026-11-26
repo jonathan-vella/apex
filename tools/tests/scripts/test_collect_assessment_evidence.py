@@ -464,3 +464,447 @@ def test_kql_avoids_reserved_kind_alias_projects_server_side_scalars_and_collect
     )
     assert ops_out["coverage"] == "complete"
     assert len(seen_diag_query) == 1
+
+
+def test_advisor_defender_nsg_backup_caps_and_static_iac_practice_suggestions(tmp_path: Path) -> None:
+    import subprocess
+
+    ws = tmp_path
+    project = ws / "agent-output/combined-waf"
+    (project / "_meta").mkdir(parents=True)
+    (ws / "infra").mkdir(parents=True)
+    (ws / ".github/workflows").mkdir(parents=True)
+    (ws / "infra/main.bicep").write_text(
+        "module stg 'br/public:avm/res/storage/storage-account:0.15.0' = {\n"
+        "  name: 'stg'\n"
+        "  params: {\n"
+        "    supportsHttpsTrafficOnly: true\n"
+        "    minimumTlsVersion: 'TLS1_2'\n"
+        "    publicNetworkAccess: 'Disabled'\n"
+        "    allowSharedKeyAccess: false\n"
+        "    zoneRedundant: true\n"
+        "  }\n"
+        "}\n"
+        "resource kv 'Microsoft.KeyVault/vaults@2023-07-01' = {\n"
+        "  name: 'kv'\n"
+        "  properties: { enableRbacAuthorization: true }\n"
+        "}\n",
+        encoding="utf-8",
+    )
+    (ws / ".github/workflows/deploy.yml").write_text(
+        "name: deploy\n"
+        "jobs:\n"
+        "  validate-and-deploy:\n"
+        "    runs-on: ubuntu-latest\n"
+        "    environment: production\n"
+        "    steps:\n"
+        "      - run: bicep build infra/main.bicep && gitleaks detect\n"
+        "      - run: k6 run tests/load.js\n",
+        encoding="utf-8",
+    )
+
+    req = {
+        "scenario": "requirements_led",
+        "source": "combined",
+        "receipt": {"owner": "tester", "request_id": "req-combined", "approved": True},
+        "scope": {
+            "categories": ["topology", "configuration", "operations", "recovery"],
+            "iac_paths": ["infra", ".github/workflows"],
+            "azure_scopes": [f"/subscriptions/{SUB1}"],
+        },
+        "reporting": {
+            "as_of": "2026-11-11T09:00:00.000Z",
+            "currency": "USD",
+            "periods": [{"id": "previous_month", "kind": "closed_month", "from": "2026-10-01", "to": "2026-10-31"}],
+        },
+    }
+    nsg_id = f"/subscriptions/{SUB1}/resourceGroups/rg-app/providers/Microsoft.Network/networkSecurityGroups/nsg-app"
+    stg_id = f"/subscriptions/{SUB1}/resourceGroups/rg-app/providers/Microsoft.Storage/storageAccounts/stgapp01"
+    kv_id = f"/subscriptions/{SUB1}/resourceGroups/rg-app/providers/Microsoft.KeyVault/vaults/kvapp01"
+
+    def runner(cmd: list[str]) -> tuple[int, str, str]:
+        if cmd[:2] == ["az", "rest"]:
+            return (
+                0,
+                json.dumps({"subscriptionId": SUB1, "displayName": "prod-sub", "tenantId": "t", "state": "Enabled"}),
+                "",
+            )
+        if cmd[:2] == ["az", "graph"]:
+            q = cmd[cmd.index("-q") + 1]
+            if "summarize total=count()" in q:
+                return 0, json.dumps({"data": [{"total": 3}]}), ""
+            if "resourceKind=tostring(['kind'])" in q:
+                return (
+                    0,
+                    json.dumps(
+                        {
+                            "data": [
+                                {
+                                    "id": nsg_id,
+                                    "name": "nsg-app",
+                                    "type": "Microsoft.Network/networkSecurityGroups",
+                                    "location": "swedencentral",
+                                    "subscriptionId": SUB1,
+                                    "resourceGroup": "rg-app",
+                                },
+                                {
+                                    "id": stg_id,
+                                    "name": "stgapp01",
+                                    "type": "Microsoft.Storage/storageAccounts",
+                                    "location": "swedencentral",
+                                    "subscriptionId": SUB1,
+                                    "resourceGroup": "rg-app",
+                                },
+                                {
+                                    "id": kv_id,
+                                    "name": "kvapp01",
+                                    "type": "Microsoft.KeyVault/vaults",
+                                    "location": "swedencentral",
+                                    "subscriptionId": SUB1,
+                                    "resourceGroup": "rg-app",
+                                },
+                            ]
+                        }
+                    ),
+                    "",
+                )
+            if "securityRuleCount=array_length" in q:
+                return (
+                    0,
+                    json.dumps(
+                        {
+                            "data": [
+                                {
+                                    "id": nsg_id,
+                                    "name": "nsg-app",
+                                    "type": "Microsoft.Network/networkSecurityGroups",
+                                    "resourceGroup": "rg-app",
+                                    "location": "swedencentral",
+                                    "securityRuleCount": 1,
+                                }
+                            ]
+                        }
+                    ),
+                    "",
+                )
+            if "mv-expand rule=properties.securityRules" in q:
+                return (
+                    0,
+                    json.dumps(
+                        {
+                            "data": [
+                                {
+                                    "nsgId": nsg_id,
+                                    "nsgName": "nsg-app",
+                                    "resourceGroup": "rg-app",
+                                    "ruleName": "allow-rdp-any",
+                                    "direction": "Inbound",
+                                    "access": "Allow",
+                                    "protocol": "Tcp",
+                                    "sourcePrefix": "*",
+                                    "destPort": "3389",
+                                    "priority": 100,
+                                }
+                            ]
+                        }
+                    ),
+                    "",
+                )
+            if "AdvisorResources" in q:
+                return (
+                    0,
+                    json.dumps(
+                        {
+                            "data": [
+                                {
+                                    "id": "adv-1",
+                                    "name": "rec-1",
+                                    "resourceGroup": "rg-app",
+                                    "category": "Cost",
+                                    "impact": "High",
+                                    "annualSavingsAmount": 1200.0,
+                                    "savingsCurrency": "USD",
+                                }
+                            ]
+                        }
+                    ),
+                    "",
+                )
+            if "SecurityResources" in q:
+                return (
+                    0,
+                    json.dumps(
+                        {
+                            "data": [
+                                {
+                                    "id": "def-1",
+                                    "name": "sec-1",
+                                    "resourceGroup": "rg-app",
+                                    "displayName": "Enable MFA",
+                                    "statusCode": "Healthy",
+                                    "severity": "High",
+                                }
+                            ]
+                        }
+                    ),
+                    "",
+                )
+            if "RecoveryServicesResources" in q:
+                return (
+                    0,
+                    json.dumps(
+                        {
+                            "data": [
+                                {
+                                    "id": "bkp-1",
+                                    "name": "vm-bkp",
+                                    "resourceGroup": "rg-app",
+                                    "protectionState": "Protected",
+                                    "lastBackupStatus": "Completed",
+                                }
+                            ]
+                        }
+                    ),
+                    "",
+                )
+            if "storageAllowBlobPublic=tobool" in q:
+                return (
+                    0,
+                    json.dumps(
+                        {
+                            "data": [
+                                {
+                                    "id": stg_id,
+                                    "name": "stgapp01",
+                                    "type": "Microsoft.Storage/storageAccounts",
+                                    "storageHttpsOnly": True,
+                                    "storageAllowBlobPublic": False,
+                                    "storageAllowSharedKey": False,
+                                }
+                            ]
+                        }
+                    ),
+                    "",
+                )
+            return 0, json.dumps({"data": []}), ""
+        if cmd[:3] == ["az", "monitor", "diagnostic-settings"]:
+            return 0, "[]", ""
+        raise AssertionError(f"Unexpected cmd: {cmd}")
+
+    # With max_diag_targets=1 across 2 eligible targets (stg + kv), operations reports truncation honestly
+    capped = collector.collect_assessment_evidence(
+        project, req, runner=runner, collected_at="2026-11-11T09:00:00.000Z", max_diag_targets=1
+    )
+    ops_check = next(
+        c for c in capped["checks"] if c["category"] == "operations" and c["scope"].startswith("/subscriptions/")
+    )
+    assert ops_check["status"] == "unknown"
+    assert "1/2" in ops_check["evidence"]
+
+    # With default cap, everything completes and writes Advisor/Defender, NSG wildcard count, Backup items, and Static IaC
+    full = collector.collect_assessment_evidence(project, req, runner=runner, collected_at="2026-11-11T09:00:00.000Z")
+    assert full["coverage"] == "complete"
+    topo = json.loads((project / "_meta/scalar-topology.json").read_text(encoding="utf-8"))
+    assert topo["topology"][0]["wildcard_inbound_allow_count"] == 1
+    adv_def = json.loads((project / "_meta/advisor-defender-evidence.json").read_text(encoding="utf-8"))
+    assert adv_def["advisor"][0]["count"] == 1
+    assert adv_def["defender"][0]["count"] == 1
+    rec = json.loads((project / "_meta/diagnostics-recovery-evidence.json").read_text(encoding="utf-8"))
+    assert len(rec["recovery"][0]["protected_items"]) == 1
+    static_iac = json.loads((project / "_meta/static-iac-evidence.json").read_text(encoding="utf-8"))
+    assert static_iac["signals"]["avm_modules"] is True
+    assert static_iac["signals"]["cicd_security_scanning"] is True
+
+    # Combined _meta/01-discovered-evidence.json (Azure ARG resources + static practice suggestions) works directly with requirements-discovery.mjs!
+    disc_res = subprocess.run(
+        [
+            "node",
+            str(ROOT / "tools/scripts/requirements-discovery.mjs"),
+            "--stage",
+            "practices",
+            "--assessment-mode",
+            "requirements_led",
+            "--evidence",
+            str(project / "_meta/01-discovered-evidence.json"),
+        ],
+        cwd=ROOT,
+        capture_output=True,
+        text=True,
+        check=False,
+    )
+    assert disc_res.returncode == 0, disc_res.stderr
+    disc_payload = json.loads(disc_res.stdout)
+    props = disc_payload["form"]["requestedSchema"]["properties"]
+    assert (
+        props["deployment_release_practices"]["default"]
+        == "All changes ship via CI/CD pipelines with IaC and automated health gates"
+    )
+    assert (
+        props["security_sdlc_practices"]["default"]
+        == "Automated secret and dependency scanning in CI; manual reviews ad-hoc"
+    )
+    assert (
+        props["performance_testing_practices"]["default"]
+        == "Automated load testing against targets with proactive capacity forecasting"
+    )
+
+
+def test_static_scanner_containment_build_ancestor_comment_stripping_and_subquery_error_honesty(
+    tmp_path: Path,
+) -> None:
+    # Checkout under an ancestor named 'build' must NOT cause IGNORED_STATIC_DIRS to skip files
+    ws = tmp_path / "build" / "repo"
+    project = ws / "agent-output" / "sec-check"
+    (project / "_meta").mkdir(parents=True)
+    (ws / "infra").mkdir(parents=True)
+    (ws / ".github/workflows").mkdir(parents=True)
+
+    # Explicitly insecure or commented-out settings must NOT flip positive signals to True
+    (ws / "infra/insecure.bicep").write_text(
+        "// publicNetworkAccess: 'Disabled'\n"
+        "/* enableRbacAuthorization: true */\n"
+        "resource stg 'Microsoft.Storage/storageAccounts@2023-05-01' = {\n"
+        "  name: 'stginsecure'\n"
+        "  properties: {\n"
+        "    supportsHttpsTrafficOnly: false\n"
+        "    minimumTlsVersion: 'TLS1_0'\n"
+        "    allowSharedKeyAccess: true\n"
+        "    zoneRedundant: false\n"
+        "  }\n"
+        "}\n",
+        encoding="utf-8",
+    )
+    # Lint-only PR workflow mentioning 'healthcare' must NOT claim automated health-gated deployments
+    (ws / ".github/workflows/ci.yml").write_text(
+        "name: healthcare-lint\n"
+        "# gitleaks detect\n"
+        "jobs:\n"
+        "  lint:\n"
+        "    runs-on: ubuntu-latest\n"
+        "    steps:\n"
+        "      - run: bicep lint infra/insecure.bicep\n",
+        encoding="utf-8",
+    )
+
+    summary, suggestions = collector.scan_static_iac_and_cicd(
+        ws, ["infra", "infra", ".github/workflows"], "2026-11-26T12:00:00.000Z"
+    )
+    assert summary["counts"]["bicep_file_count"] == 1
+    assert summary["counts"]["bicep_resource_count"] == 1  # No double-count across duplicate iac_paths
+    assert summary["signals"]["https_or_tls"] is False
+    assert summary["signals"]["private_networking"] is False
+    assert summary["signals"]["rbac_or_entra_auth"] is False
+    assert summary["signals"]["zone_redundancy"] is False
+    assert summary["signals"]["cicd_security_scanning"] is False
+    assert summary["signals"]["cicd_deployment_gates"] is False
+    assert len(suggestions) == 1
+    assert suggestions[0]["input_id"] == "deployment_release_practices"
+    assert suggestions[0]["value"] == "CI/CD pipelines for app or IaC with manual promotion checks"
+
+    # Reject iac_paths escaping workspace_root or using absolute paths
+    for unsafe_iac in ["../outside", "/etc", "infra/../../outside"]:
+        with pytest.raises(ValueError, match="Unsafe"):
+            collector.scan_static_iac_and_cicd(ws, [unsafe_iac], "2026-11-26T12:00:00.000Z")
+
+    # Plural NSG sourceAddressPrefixes wildcard detection + Defender/Backup sub-query error honesty
+    nsg_id = f"/subscriptions/{SUB1}/resourceGroups/rg-app/providers/Microsoft.Network/networkSecurityGroups/nsg1"
+    req = {
+        "scenario": "evidence_only",
+        "source": "azure",
+        "receipt": {"owner": "tester", "request_id": "req-err", "approved": True},
+        "scope": {
+            "categories": ["topology", "configuration", "recovery"],
+            "iac_paths": [],
+            "azure_scopes": [f"/subscriptions/{SUB1}"],
+        },
+        "reporting": {
+            "as_of": "2026-11-11T09:00:00.000Z",
+            "currency": "USD",
+            "periods": [{"id": "previous_month", "kind": "closed_month", "from": "2026-10-01", "to": "2026-10-31"}],
+        },
+    }
+
+    def runner(cmd: list[str]) -> tuple[int, str, str]:
+        if cmd[:2] == ["az", "rest"]:
+            return 0, json.dumps({"subscriptionId": SUB1, "tenantId": "t", "state": "Enabled"}), ""
+        if cmd[:2] == ["az", "graph"]:
+            q = cmd[cmd.index("-q") + 1]
+            if "summarize total=count()" in q:
+                return 0, json.dumps({"data": [{"total": 1}]}), ""
+            if "resourceKind=tostring(['kind'])" in q:
+                return (
+                    0,
+                    json.dumps(
+                        {
+                            "data": [
+                                {
+                                    "id": nsg_id,
+                                    "name": "nsg1",
+                                    "type": "Microsoft.Network/networkSecurityGroups",
+                                    "location": "swedencentral",
+                                    "subscriptionId": SUB1,
+                                    "resourceGroup": "rg-app",
+                                }
+                            ]
+                        }
+                    ),
+                    "",
+                )
+            if "securityRuleCount=array_length" in q:
+                return (
+                    0,
+                    json.dumps(
+                        {
+                            "data": [
+                                {
+                                    "id": nsg_id,
+                                    "name": "nsg1",
+                                    "type": "Microsoft.Network/networkSecurityGroups",
+                                    "resourceGroup": "rg-app",
+                                    "location": "swedencentral",
+                                    "securityRuleCount": 1,
+                                }
+                            ]
+                        }
+                    ),
+                    "",
+                )
+            if "mv-expand rule=properties.securityRules" in q:
+                return (
+                    0,
+                    json.dumps(
+                        {
+                            "data": [
+                                {
+                                    "nsgId": nsg_id,
+                                    "nsgName": "nsg1",
+                                    "resourceGroup": "rg-app",
+                                    "ruleName": "plural-wildcard",
+                                    "direction": "Inbound",
+                                    "access": "Allow",
+                                    "protocol": "Tcp",
+                                    "sourcePrefix": "",
+                                    "sourcePrefixes": '["10.0.0.0/8","0.0.0.0/0"]',
+                                    "destPort": "",
+                                    "destPorts": '["443","22"]',
+                                    "priority": 110,
+                                }
+                            ]
+                        }
+                    ),
+                    "",
+                )
+            if "SecurityResources" in q:
+                return 1, "", "AuthorizationFailed on Microsoft.Security/assessments/read"
+            if "RecoveryServicesResources" in q:
+                return 1, "", "AuthorizationFailed on RecoveryServicesResources"
+            return 0, json.dumps({"data": []}), ""
+        raise AssertionError(f"Unexpected cmd: {cmd}")
+
+    res = collector.collect_assessment_evidence(project, req, runner=runner, collected_at="2026-11-26T12:00:00.000Z")
+    by_cat = {c["category"]: c for c in res["checks"]}
+    assert by_cat["topology"]["status"] == "observed"
+    assert by_cat["configuration"]["status"] == "unknown"  # Defender error must NOT be masked as observed
+    assert by_cat["recovery"]["status"] == "unknown"  # Backup items error must NOT be masked as observed
+    topo_saved = json.loads((project / "_meta/scalar-topology.json").read_text(encoding="utf-8"))
+    assert topo_saved["topology"][0]["wildcard_inbound_allow_count"] == 1

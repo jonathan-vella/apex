@@ -11,7 +11,8 @@ Existing projects remain on their recorded route until explicit adoption.
 Both scenarios deliver a WAF review, architecture diagram and cost report:
 
 - `evidence_only`: scope/evidence intake without a business interview or synthetic completed Requirements.
-- `requirements_led`: capture known business objectives, critical flows, targets and constraints first.
+- `requirements_led`: capture known business objectives, critical flows, targets, constraints and
+  human-attested operational/security practices first.
 
 Sources are `iac`, `azure` or `combined`, independently of the discovery scenario.
 Static IaC is declared intent, not live verification. Missing evidence is unknown, not compliant or failed.
@@ -33,8 +34,12 @@ plus allowed read categories: configuration/topology, utilization, operations,
 cost and optionally policy. Referenced external subscriptions remain out of scope unless explicitly added.
 Do not request secrets, sign in, change credentials or broaden access automatically.
 Use `python3 tools/scripts/collect-assessment-evidence.py --project-dir agent-output/<project>` to collect
-paginated, scalar-allowlisted inventory, topology, configuration, operations, recovery and policy headers
-uniformly across all approved scopes without persisting raw ARM properties, secrets or tag values.
+paginated, scalar-allowlisted inventory, topology (including NSG rule summaries), configuration (including
+Storage, App Service, SQL, Key Vault, ACR, Service Bus, AKS, Container Apps, PostgreSQL, Redis, plus
+`AdvisorResources` and `SecurityResources` posture in `_meta/advisor-defender-evidence.json`), operations,
+recovery (including `RecoveryServicesResources` backup protected-item status), policy headers, and read-only
+static IaC/CI-CD practice signals (`_meta/static-iac-evidence.json` + `_meta/01-discovered-evidence.json`
+suggestions) uniformly across all approved scopes without persisting raw ARM properties, secrets or tag values.
 
 Cost settings are part of the scope: last completed calendar month, preceding-month comparison,
 month-to-date and current-month forecast when available are suggested defaults. Persist resolved dates;
@@ -71,12 +76,17 @@ In the show response, `.session.assessment_run` is the authoritative route/check
 Graph 3.2 and 3.3 starts persist `assessment_run.bundle_contract: "assessment-bundle-v2"` by default
 (or `"assessment-bundle-v3"` under graph 3.3 when the scope request sets `"visual_charts": true`) and
 `assessment_run.action_register`: true for Azure/combined, false for IaC unless the actual request
-contains `"action_register": true`. For `assessment-bundle-v3`, `03-Architect` writes `_meta/waf-scores.json`
+contains `"action_register": true`. For `assessment-bundle-v3`, `03-Architect` writes `_meta/waf-checks.json`
+(`tools/schemas/assessment-waf-checks.schema.json`), computes `_meta/waf-scores.json` deterministically via
+`node tools/scripts/assessment-waf-scores.mjs compute --checks agent-output/<project>/_meta/waf-checks.json --out agent-output/<project>/_meta/waf-scores.json`,
 and runs `python3 tools/scripts/render-assessment-charts.py --project-dir agent-output/<project>` during
 `analysis` to emit `assets/02-waf-posture.{png,svg}`, `assets/03-cost-trends.{png,svg}`, and
 `assets/03-cost-drivers.{png,svg}` (embedded inline in `02-architecture-assessment.md` and
 `03-cost-management-report.md`); do not write project-local `assets/03-cost-*.py` monkey-patch wrappers around
-the shared chart renderer. Do not send a guessed `bundle_contract` in the scope request.
+the shared chart renderer. When a partner or Microsoft program requires the official portal/WARP CSV export, run
+`node tools/scripts/export-waf-review-csv.mjs --project-dir agent-output/<project> [--template <Microsoft-WAF.csv>] --out agent-output/<project>/assets/04-microsoft-waf-review-export.csv`
+to export `Selected Answer` and provenance-cited `Note` rows without fabricating `"None of the above."` for unknowns.
+Do not send a guessed `bundle_contract` in the scope request.
 The reader explicitly supports graphs 3.1, 3.2 and 3.3, not arbitrary future versions.
 An original run without `bundle_contract` remains `assessment-bundle-v1` even under graph 3.2/3.3;
 file presence, newer source or a resume never opts it in.
@@ -141,10 +151,12 @@ The graph supplies phase order and recall validates transitions; this section de
 not a second routing table. Use current `apex-recall show` and `handoff` assessment state on every resume.
 
 1. Requirements runs only for `requirements_led`. Use
-   `requirements-discovery.mjs --stage business --assessment-mode requirements_led` with the complete
-   captured-answer snapshot. Unknown targets are accepted once; no SKU, CIDR, commitment, recipient or
-   hard-budget questionnaire. There is no intermediate Requirements approval or new Requirements review cycle.
-   If an optional business input is declined, record it as Not supplied in the report and retain the actual
+   `requirements-discovery.mjs --stage business --assessment-mode requirements_led` followed by
+   `requirements-discovery.mjs --stage practices --assessment-mode requirements_led` with the complete
+   captured-answer snapshot. Unknown targets and operational/security practices are accepted once; no SKU,
+   CIDR, commitment, recipient or hard-budget questionnaire. There is no intermediate Requirements approval or
+   new Requirements review cycle.
+   If an optional business or practice input is declined, record it as Not supplied in the report and retain the actual
    question outcome outside material answers; do not invent an Unknown answer or repeat that question.
    A pending discovery suggestion is not a lifecycle gate. Missing essential read scope or authorization still blocks.
 2. Architect reads scoped evidence using
@@ -253,6 +265,12 @@ Use Not assessed where evidence is insufficient for a defensible rating; do not 
 If scoring is justified, document the rubric, assessed checks and denominator so it is reproducible.
 Never turn a pillar's low evidence confidence into a claim of confirmed control failure.
 Business-target alignment remains unknown when requirements were not supplied.
+Human-attested operational and security practices (`dr_testing_cadence`, `security_sdlc_practices`,
+`deployment_release_practices`, `incident_response_practices`, `finops_governance_practices`,
+`performance_testing_practices`) carry `declared` (human-attested, runtime-unverified) provenance: report them
+alongside observed telemetry across all five WAF pillars and link process gaps or telemetry-versus-attestation
+contradictions into findings and Action Register recommendations, without counting uncorroborated human
+self-attestation as passing observed workload controls in `0–10` pillar scores.
 
 Each workload finding records pillar, affected scope/resource, evidence, impact, priority, proposed action,
 dependencies and validation. Missing owners are unknown, not an invented assignment.

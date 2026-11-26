@@ -14,6 +14,7 @@ from collections.abc import Callable
 from datetime import UTC, datetime, timedelta
 from pathlib import Path
 from typing import Any
+from uuid import uuid4
 
 SCOPE_RE = re.compile(
     r"^/subscriptions/(?P<sub>[0-9a-fA-F]{8}(?:-[0-9a-fA-F]{4}){3}-[0-9a-fA-F]{12})"
@@ -58,12 +59,36 @@ def safe_project_file(project_root: Path, relative: str) -> Path:
     return target
 
 
+def safe_workspace_path(workspace_root: Path, relative: str) -> Path:
+    if not isinstance(relative, str) or not relative.strip() or Path(relative).is_absolute() or "\\" in relative:
+        raise ValueError(f"Unsafe workspace-relative path: {relative}")
+    resolved_root = workspace_root.resolve(strict=True)
+    if relative.strip() == ".":
+        return resolved_root
+    parts = [part for part in relative.split("/") if part]
+    if not parts or any(part in {".", ".."} for part in parts):
+        raise ValueError(f"Unsafe workspace-relative path: {relative}")
+    target = resolved_root
+    for part in parts:
+        target = target / part
+        if target.is_symlink():
+            raise ValueError(f"Symlink forbidden in iac_paths: {relative}")
+    if target.exists() and not target.resolve().is_relative_to(resolved_root):
+        raise ValueError(f"Path escapes workspace root: {relative}")
+    return target
+
+
 def write_json_atomic(target: Path, payload: Any) -> bytes:
     target.parent.mkdir(parents=True, exist_ok=True)
     encoded = (json.dumps(payload, indent=2, sort_keys=False) + "\n").encode("utf-8")
-    tmp = target.with_name(f".{target.name}.tmp")
-    tmp.write_bytes(encoded)
-    tmp.replace(target)
+    tmp = target.with_name(f".{target.name}.{uuid4().hex}.tmp")
+    try:
+        with tmp.open("xb") as handle:
+            handle.write(encoded)
+        tmp.replace(target)
+    except Exception:
+        tmp.unlink(missing_ok=True)
+        raise
     return encoded
 
 
@@ -189,7 +214,255 @@ METRIC_SPECS: dict[str, tuple[str, int, tuple[str, ...]]] = {
     "microsoft.sql/managedinstances": ("avg_cpu_percent,storage_space_used_mb", 2, ("Average", "Maximum")),
     "microsoft.sql/servers/databases": ("cpu_percent,dtu_consumption_percent", 2, ("Average", "Maximum")),
     "microsoft.servicebus/namespaces": ("IncomingMessages,ServerErrors", 2, ("Total",)),
+    "microsoft.documentdb/databaseaccounts": ("TotalRequestUnits,NormalizedRUConsumption", 2, ("Average", "Maximum")),
+    "microsoft.dbforpostgresql/flexibleservers": ("cpu_percent,memory_percent", 2, ("Average", "Maximum")),
+    "microsoft.cache/redis": ("percentProcessorTime,usedmemorypercentage", 2, ("Average", "Maximum")),
+    "microsoft.containerservice/managedclusters": (
+        "node_cpu_usage_percentage,node_memory_working_set_percentage",
+        2,
+        ("Average", "Maximum"),
+    ),
 }
+
+DIAG_TARGET_TYPES = frozenset(
+    {
+        "microsoft.web/sites",
+        "microsoft.sql/managedinstances",
+        "microsoft.sql/servers",
+        "microsoft.keyvault/vaults",
+        "microsoft.servicebus/namespaces",
+        "microsoft.storage/storageaccounts",
+        "microsoft.containerregistry/registries",
+        "microsoft.documentdb/databaseaccounts",
+        "microsoft.dbforpostgresql/flexibleservers",
+        "microsoft.cache/redis",
+        "microsoft.containerservice/managedclusters",
+        "microsoft.app/containerapps",
+        "microsoft.network/applicationgateways",
+        "microsoft.network/azurefirewalls",
+    }
+)
+WILDCARD_SOURCES = frozenset({"*", "internet", "0.0.0.0/0", "::/0"})
+IGNORED_STATIC_DIRS = frozenset({".git", "node_modules", ".terraform", ".venv", "venv", "__pycache__", "dist", "build"})
+MAX_STATIC_FILE_BYTES = 1_048_576
+
+
+def strip_static_comments(text: str, suffix: str) -> str:
+    if suffix in {".bicep", ".bicepparam"}:
+        no_block = re.sub(r"/\*[\s\S]*?\*/", "", text)
+        return re.sub(r"(?m)//.*$", "", no_block)
+    if suffix in {".tf", ".tfvars"}:
+        no_block = re.sub(r"/\*[\s\S]*?\*/", "", text)
+        no_slash = re.sub(r"(?m)//.*$", "", no_block)
+        return re.sub(r"(?m)#.*$", "", no_slash)
+    if suffix in {".yml", ".yaml"}:
+        return re.sub(r"(?m)^\s*#.*$|(?<=\s)#.*$", "", text)
+    return text
+
+
+def scan_static_iac_and_cicd(
+    workspace_root: Path,
+    iac_paths: list[str],
+    timestamp: str,
+) -> tuple[dict[str, Any], list[dict[str, Any]]]:
+    """Read-only, secret-safe scan of authorized static IaC and CI/CD paths."""
+    resolved_ws = workspace_root.resolve(strict=True)
+    seen_files: set[str] = set()
+    bicep_files: list[str] = []
+    tf_files: list[str] = []
+    pipeline_files: list[str] = []
+    bicep_resources = 0
+    bicep_modules = 0
+    tf_resources = 0
+    tf_modules = 0
+    signals = {
+        "avm_modules": False,
+        "https_or_tls": False,
+        "private_networking": False,
+        "rbac_or_entra_auth": False,
+        "zone_redundancy": False,
+        "cicd_iac_validation": False,
+        "cicd_deployment_gates": False,
+        "cicd_security_scanning": False,
+        "cicd_load_testing": False,
+    }
+    signal_sources: dict[str, str] = {}
+
+    def inspect_file(file_path: Path) -> None:
+        nonlocal bicep_resources, bicep_modules, tf_resources, tf_modules
+        if file_path.is_symlink() or not file_path.is_file():
+            return
+        try:
+            if file_path.stat().st_size > MAX_STATIC_FILE_BYTES:
+                return
+            rel_path = file_path.resolve().relative_to(resolved_ws)
+            if any(part in IGNORED_STATIC_DIRS for part in rel_path.parts):
+                return
+            rel = rel_path.as_posix()
+            if rel in seen_files:
+                return
+            seen_files.add(rel)
+            raw_text = file_path.read_text(encoding="utf-8", errors="ignore")
+        except OSError, ValueError:
+            return
+        suffix = file_path.suffix.lower()
+        cleaned = strip_static_comments(raw_text, suffix)
+        low = cleaned.lower()
+        if suffix in {".bicep", ".bicepparam"}:
+            bicep_files.append(rel)
+            bicep_resources += len(re.findall(r"(?m)^\s*resource\s+[A-Za-z_]\w*\s+'", cleaned))
+            bicep_modules += len(re.findall(r"(?m)^\s*module\s+[A-Za-z_]\w*\s+'", cleaned))
+            if "br/public:avm/" in low or "mcr.microsoft.com/bicep/avm/" in low:
+                signals["avm_modules"] = True
+            if re.search(r"\b(?:httpsonly|supportshttpstrafficonly)\s*:\s*true\b", low) or re.search(
+                r"\b(?:min|minimum|minimal)tlsversion\s*:\s*'(?:1\.[23]|tls1_[23])'", low
+            ):
+                signals["https_or_tls"] = True
+            if "microsoft.network/privateendpoints" in low or re.search(r"\bpublicnetworkaccess\s*:\s*'disabled'", low):
+                signals["private_networking"] = True
+            if re.search(
+                r"\b(?:enablerbacauthorization|azureadonlyauthentication|disablesharedkeyaccess)\s*:\s*true\b", low
+            ) or re.search(r"\ballowsharedkeyaccess\s*:\s*false\b", low):
+                signals["rbac_or_entra_auth"] = True
+            if re.search(r"\bzoneredundant\s*:\s*true\b", low) or re.search(r"\bzones\s*:\s*\[\s*['\"123]", low):
+                signals["zone_redundancy"] = True
+        elif suffix in {".tf", ".tfvars"}:
+            tf_files.append(rel)
+            tf_resources += len(re.findall(r'(?m)^\s*resource\s+"[^"]+"\s+"[^"]+"', cleaned))
+            tf_modules += len(re.findall(r'(?m)^\s*module\s+"[^"]+"', cleaned))
+            if "azure/avm-" in low:
+                signals["avm_modules"] = True
+            if re.search(r"\bhttps_only_enabled\s*=\s*true\b", low) or re.search(
+                r'\bmin(?:imum)?_tls_version\s*=\s*"(?:1\.[23]|tls1_[23])"', low
+            ):
+                signals["https_or_tls"] = True
+            if "azurerm_private_endpoint" in low or re.search(r"\bpublic_network_access_enabled\s*=\s*false\b", low):
+                signals["private_networking"] = True
+            if re.search(
+                r"\b(?:enable_rbac_authorization|rbac_authorization_enabled|azuread_authentication_only)\s*=\s*true\b",
+                low,
+            ) or re.search(r"\bshared_access_key_enabled\s*=\s*false\b", low):
+                signals["rbac_or_entra_auth"] = True
+            if re.search(r"\bzone_redundant\s*=\s*true\b", low) or re.search(r"\bzones\s*=\s*\[\s*['\"123]", low):
+                signals["zone_redundancy"] = True
+        elif suffix in {".yml", ".yaml"} and (
+            ("jobs:" in low and "runs-on:" in low) or ("stages:" in low and "trigger:" in low)
+        ):
+            pipeline_files.append(rel)
+            signal_sources.setdefault("pipeline", rel)
+            if any(
+                tok in low
+                for tok in (
+                    "bicep build",
+                    "bicep lint",
+                    "what-if",
+                    "terraform validate",
+                    "terraform plan",
+                    "azd provision",
+                    "azd up",
+                    "azd deploy",
+                )
+            ):
+                signals["cicd_iac_validation"] = True
+                signal_sources.setdefault("cicd_iac_validation", rel)
+            if re.search(r"(?m)^\s*environment\s*:", low) or re.search(
+                r"\b(?:health[-_\s]?check|smoke[-_\s]?test|readiness[-_\s]?probe|rollout)\b", low
+            ):
+                signals["cicd_deployment_gates"] = True
+                signal_sources.setdefault("cicd_deployment_gates", rel)
+            if any(
+                tok in low
+                for tok in ("codeql", "gitleaks", "trivy", "checkov", "tfsec", "dependabot", "azqr", "secret-scan")
+            ):
+                signals["cicd_security_scanning"] = True
+                signal_sources.setdefault("cicd_security_scanning", rel)
+            if any(tok in low for tok in ("azure/load-testing", "k6 ", "locust", "jmeter")):
+                signals["cicd_load_testing"] = True
+                signal_sources.setdefault("cicd_load_testing", rel)
+
+    for iac_rel in iac_paths:
+        target = safe_workspace_path(resolved_ws, iac_rel)
+        if not target.exists():
+            continue
+        if target.is_file():
+            inspect_file(target)
+        elif target.is_dir():
+            for child in sorted(target.rglob("*")):
+                try:
+                    rel_parts = child.relative_to(resolved_ws).parts
+                except ValueError:
+                    continue
+                if any(part in IGNORED_STATIC_DIRS for part in rel_parts):
+                    continue
+                inspect_file(child)
+
+    suggestions: list[dict[str, Any]] = []
+    has_iac_files = bool(bicep_files or tf_files)
+    sorted_pipelines = sorted(set(pipeline_files))
+    if has_iac_files and sorted_pipelines:
+        both_gates = signals["cicd_iac_validation"] and signals["cicd_deployment_gates"]
+        value = (
+            "All changes ship via CI/CD pipelines with IaC and automated health gates"
+            if both_gates
+            else "CI/CD pipelines for app or IaC with manual promotion checks"
+        )
+        src = (
+            signal_sources.get("cicd_deployment_gates")
+            or signal_sources.get("cicd_iac_validation")
+            or sorted_pipelines[0]
+        )
+        suggestions.append(
+            {
+                "input_id": "deployment_release_practices",
+                "value": value,
+                "provenance": "iac",
+                "confidence": "observed",
+                "source": src,
+                "observed_at": timestamp,
+            }
+        )
+    if signals["cicd_security_scanning"] and sorted_pipelines:
+        suggestions.append(
+            {
+                "input_id": "security_sdlc_practices",
+                "value": "Automated secret and dependency scanning in CI; manual reviews ad-hoc",
+                "provenance": "iac",
+                "confidence": "observed",
+                "source": signal_sources.get("cicd_security_scanning", sorted_pipelines[0]),
+                "observed_at": timestamp,
+            }
+        )
+    if signals["cicd_load_testing"] and sorted_pipelines:
+        suggestions.append(
+            {
+                "input_id": "performance_testing_practices",
+                "value": "Automated load testing against targets with proactive capacity forecasting",
+                "provenance": "iac",
+                "confidence": "observed",
+                "source": signal_sources.get("cicd_load_testing", sorted_pipelines[0]),
+                "observed_at": timestamp,
+            }
+        )
+
+    summary = {
+        "collected_at": timestamp,
+        "scoped_paths": list(iac_paths),
+        "bicep_files": sorted(set(bicep_files)),
+        "terraform_files": sorted(set(tf_files)),
+        "pipeline_files": sorted(set(pipeline_files)),
+        "counts": {
+            "bicep_file_count": len(set(bicep_files)),
+            "terraform_file_count": len(set(tf_files)),
+            "pipeline_file_count": len(set(pipeline_files)),
+            "bicep_resource_count": bicep_resources,
+            "bicep_module_count": bicep_modules,
+            "terraform_resource_count": tf_resources,
+            "terraform_module_count": tf_modules,
+        },
+        "signals": signals,
+        "suggested_practice_inputs": suggestions,
+    }
+    return summary, suggestions
 
 
 def parse_metric_summaries(raw_stdout: str) -> tuple[list[dict[str, Any]] | None, str | None]:
@@ -280,7 +553,11 @@ def collect_assessment_evidence(
     *,
     runner: Runner = default_runner,
     collected_at: str | None = None,
+    max_diag_targets: int = 100,
+    max_metric_targets: int = 100,
 ) -> dict[str, Any]:
+    if max_diag_targets < 1 or max_metric_targets < 1:
+        raise ValueError("max_diag_targets and max_metric_targets must be >= 1")
     timestamp = collected_at or iso_now()
     scope = scope_request["scope"]
     categories: list[str] = list(scope["categories"])
@@ -314,15 +591,23 @@ def collect_assessment_evidence(
     inventories: list[dict[str, Any]] = []
     topology_obs: list[dict[str, Any]] = []
     config_obs: list[dict[str, Any]] = []
+    advisor_obs: list[dict[str, Any]] = []
+    defender_obs: list[dict[str, Any]] = []
     operations_obs: list[dict[str, Any]] = []
     recovery_obs: list[dict[str, Any]] = []
     metrics_obs: list[dict[str, Any]] = []
     policy_obs: list[dict[str, Any]] = []
     discovered_items: list[dict[str, Any]] = []
 
-    workspace_root = project_root.resolve().parents[1] if project_root.parent.name == "agent-output" else project_root
+    resolved_project = project_root.resolve(strict=True)
+    workspace_root = resolved_project.parents[1] if resolved_project.parent.name == "agent-output" else resolved_project
+    validated_iac_targets = {iac_rel: safe_workspace_path(workspace_root, iac_rel) for iac_rel in iac_paths}
+    static_iac_summary: dict[str, Any] | None = None
+    if iac_paths:
+        static_iac_summary, static_suggestions = scan_static_iac_and_cicd(workspace_root, iac_paths, timestamp)
+        discovered_items.extend(static_suggestions)
     for iac_rel in iac_paths:
-        iac_target = workspace_root / iac_rel
+        iac_target = validated_iac_targets[iac_rel]
         exists = iac_target.exists() and not iac_target.is_symlink()
         for category in categories:
             if category == "billing":
@@ -369,6 +654,8 @@ def collect_assessment_evidence(
         scope_inventories: list[dict[str, Any]] = []
         scope_topology: list[dict[str, Any]] = []
         scope_config: list[dict[str, Any]] = []
+        scope_advisor: list[dict[str, Any]] = []
+        scope_defender: list[dict[str, Any]] = []
         scope_ops: list[dict[str, Any]] = []
         scope_rec: list[dict[str, Any]] = []
         scope_metrics: list[dict[str, Any]] = []
@@ -438,6 +725,8 @@ def collect_assessment_evidence(
                 "inventories": scope_inventories,
                 "topology": scope_topology,
                 "config": scope_config,
+                "advisor": scope_advisor,
+                "defender": scope_defender,
                 "ops": scope_ops,
                 "recovery": scope_rec,
                 "metrics": scope_metrics,
@@ -528,13 +817,15 @@ def collect_assessment_evidence(
                 "'microsoft.network/virtualnetworks','microsoft.network/privateendpoints',"
                 "'microsoft.network/privatednszones','microsoft.network/privatednszones/virtualnetworklinks',"
                 "'microsoft.network/azurefirewalls','microsoft.network/bastionhosts',"
-                "'microsoft.network/applicationgateways','microsoft.network/networkinterfaces') "
+                "'microsoft.network/applicationgateways','microsoft.network/networkinterfaces',"
+                "'microsoft.network/networksecuritygroups') "
                 "| project id, name, type, resourceGroup, location, skuName=tostring(sku.name), "
                 "addressPrefixesCount=array_length(properties.addressSpace.addressPrefixes), "
                 "firstAddressPrefix=tostring(properties.addressSpace.addressPrefixes[0]), "
                 "subnetCount=array_length(properties.subnets), "
                 "peeringCount=array_length(properties.virtualNetworkPeerings), "
                 "peConnectionCount=array_length(properties.privateLinkServiceConnections), "
+                "securityRuleCount=array_length(properties.securityRules), "
                 "peSubnetId=tostring(properties.subnet.id), "
                 "ipConfigSubnetId=tostring(properties.ipConfigurations[0].properties.subnet.id), "
                 "vnetLinkState=tostring(properties.virtualNetworkLinkState), "
@@ -545,7 +836,7 @@ def collect_assessment_evidence(
                 f"| mv-expand subnet=properties.subnets limit {mv_limit} "
                 "| project vnetId=id, vnetName=name, resourceGroup, "
                 "subnetName=tostring(subnet.name), "
-                "addressPrefix=tostring(subnet.properties.addressPrefix), "
+                "addressPrefix=coalesce(tostring(subnet.properties.addressPrefix), tostring(subnet.properties.addressPrefixes[0])), "
                 "nsgId=tostring(subnet.properties.networkSecurityGroup.id), "
                 "routeTableId=tostring(subnet.properties.routeTable.id), "
                 "delegationService=tostring(subnet.properties.delegations[0].properties.serviceName) "
@@ -572,10 +863,26 @@ def collect_assessment_evidence(
                 "connectionStatus=tostring(conn.properties.privateLinkServiceConnectionState.status) "
                 "| order by peId asc"
             )
+            nsg_rule_query = (
+                f"Resources | where {where_clause} and type =~ 'microsoft.network/networksecuritygroups' "
+                f"| mv-expand rule=properties.securityRules limit {mv_limit} "
+                "| project nsgId=id, nsgName=name, resourceGroup, "
+                "ruleName=tostring(rule.name), "
+                "direction=tostring(rule.properties.direction), "
+                "access=tostring(rule.properties.access), "
+                "protocol=tostring(rule.properties.protocol), "
+                "sourcePrefix=tostring(rule.properties.sourceAddressPrefix), "
+                "sourcePrefixes=tostring(rule.properties.sourceAddressPrefixes), "
+                "destPort=tostring(rule.properties.destinationPortRange), "
+                "destPorts=tostring(rule.properties.destinationPortRanges), "
+                "priority=toint(rule.properties.priority) "
+                "| order by nsgId asc, priority asc"
+            )
             topo_rows, _, topo_err = run_arg_paginated(runner, sub_id, topo_base_query)
             subnet_rows, _, sub_err = run_arg_paginated(runner, sub_id, subnet_query)
             peering_rows, _, peer_err = run_arg_paginated(runner, sub_id, peering_query)
             pe_conn_rows, _, pe_err = run_arg_paginated(runner, sub_id, pe_conn_query)
+            nsg_rule_rows, _, nsg_err = run_arg_paginated(runner, sub_id, nsg_rule_query)
             subnet_by_vnet: dict[str, int] = {}
             for srow in subnet_rows:
                 vid = str(srow.get("vnetId") or "").lower()
@@ -591,20 +898,43 @@ def collect_assessment_evidence(
                 pid = str(crow.get("peId") or "").lower()
                 if pid:
                     conn_by_pe[pid] = conn_by_pe.get(pid, 0) + 1
+            rule_by_nsg: dict[str, int] = {}
+            wildcard_inbound_allow_count = 0
+            for rrow in nsg_rule_rows:
+                nid = str(rrow.get("nsgId") or "").lower()
+                if nid:
+                    rule_by_nsg[nid] = rule_by_nsg.get(nid, 0) + 1
+                if (
+                    str(rrow.get("direction") or "").lower() == "inbound"
+                    and str(rrow.get("access") or "").lower() == "allow"
+                ):
+                    candidates = [str(rrow.get("sourcePrefix") or "").strip().lower()]
+                    raw_prefixes = rrow.get("sourcePrefixes")
+                    if isinstance(raw_prefixes, str) and raw_prefixes.strip().startswith("["):
+                        try:
+                            parsed_prefixes = json.loads(raw_prefixes)
+                            if isinstance(parsed_prefixes, list):
+                                candidates.extend(str(p).strip().lower() for p in parsed_prefixes)
+                        except json.JSONDecodeError:
+                            pass
+                    if any(cand in WILDCARD_SOURCES for cand in candidates):
+                        wildcard_inbound_allow_count += 1
             overflow_err: str | None = None
             for trow in topo_rows:
                 rid = str(trow.get("id") or "").lower()
                 sc = trow.get("subnetCount")
                 pc = trow.get("peeringCount")
                 cc = trow.get("peConnectionCount")
+                rc = trow.get("securityRuleCount")
                 if (
                     (type(sc) is int and sc > subnet_by_vnet.get(rid, 0))
                     or (type(pc) is int and pc > peering_by_vnet.get(rid, 0))
                     or (type(cc) is int and cc > conn_by_pe.get(rid, 0))
+                    or (type(rc) is int and rc > rule_by_nsg.get(rid, 0))
                 ):
                     overflow_err = "mv-expand child element count truncated or unreconciled against parent array_length"
                     break
-            combined_topo_err = topo_err or sub_err or peer_err or pe_err or overflow_err
+            combined_topo_err = topo_err or sub_err or peer_err or pe_err or nsg_err or overflow_err
             scope_topology.append(
                 {
                     "scope": raw_scope,
@@ -613,6 +943,8 @@ def collect_assessment_evidence(
                     "subnets": subnet_rows,
                     "peerings": peering_rows,
                     "private_endpoint_connections": pe_conn_rows,
+                    "nsg_rules": nsg_rule_rows,
+                    "wildcard_inbound_allow_count": wildcard_inbound_allow_count,
                     "error": combined_topo_err,
                 }
             )
@@ -622,8 +954,9 @@ def collect_assessment_evidence(
                     "scope": raw_scope,
                     "status": "observed" if inv_complete and combined_topo_err is None else "unknown",
                     "evidence": (
-                        f"Collected {len(topo_rows)} scalar network/DNS/NIC records, {len(subnet_rows)} subnets, "
-                        f"{len(peering_rows)} peerings, and {len(pe_conn_rows)} private-endpoint bindings in _meta/scalar-topology.json."
+                        f"Collected {len(topo_rows)} scalar network/DNS/NSG/NIC records, {len(subnet_rows)} subnets, "
+                        f"{len(peering_rows)} peerings, {len(pe_conn_rows)} private-endpoint bindings, and "
+                        f"{len(nsg_rule_rows)} NSG rules in _meta/scalar-topology.json."
                         if combined_topo_err is None
                         else f"Topology projection incomplete: {combined_topo_err}."
                     ),
@@ -634,13 +967,20 @@ def collect_assessment_evidence(
             cfg_query = (
                 f"Resources | where {where_clause} "
                 "| project id, name, type, resourceGroup, location, skuName=tostring(sku.name), "
+                "availabilityZones=tostring(zones), "
                 "httpsOnly=tobool(properties.httpsOnly), "
+                "http20Enabled=tobool(properties.siteConfig.http20Enabled), "
                 "minTlsVersion=tostring(properties.siteConfig.minTlsVersion), "
                 "ftpsState=tostring(properties.siteConfig.ftpsState), "
-                "publicNetworkAccess=tostring(properties.publicNetworkAccess), "
-                "vnetSubnetId=tostring(properties.virtualNetworkSubnetId), "
+                "publicNetworkAccess=coalesce(tostring(properties.publicNetworkAccess), tostring(properties.network.publicNetworkAccess)), "
+                "vnetSubnetId=coalesce(tostring(properties.virtualNetworkSubnetId), tostring(properties.network.delegatedSubnetResourceId)), "
                 "vnetRouteAllEnabled=tobool(properties.vnetRouteAllEnabled), "
                 "zoneRedundant=tobool(properties.zoneRedundant), "
+                "storageHttpsOnly=tobool(properties.supportsHttpsTrafficOnly), "
+                "storageMinTls=tostring(properties.minimumTlsVersion), "
+                "storageAllowBlobPublic=tobool(properties.allowBlobPublicAccess), "
+                "storageAllowSharedKey=tobool(properties.allowSharedKeyAccess), "
+                "sqlMinTls=tostring(properties.minimalTlsVersion), "
                 "sqlStorageAccountType=tostring(properties.storageAccountType), "
                 "sqlBackupRedundancy=tostring(properties.requestedBackupStorageRedundancy), "
                 "sqlCurrentBackupRedundancy=tostring(properties.currentBackupStorageRedundancy), "
@@ -649,6 +989,17 @@ def collect_assessment_evidence(
                 "sqlStorageSizeInGB=toint(properties.storageSizeInGB), "
                 "sqlPublicDataEndpointEnabled=tobool(properties.publicDataEndpointEnabled), "
                 "entraOnlySql=tobool(properties.administrators.azureADOnlyAuthentication), "
+                "pgEntraAuth=tostring(properties.authConfig.activeDirectoryAuth), "
+                "pgPasswordAuth=tostring(properties.authConfig.passwordAuth), "
+                "pgHaMode=tostring(properties.highAvailability.mode), "
+                "pgGeoBackup=tostring(properties.backup.geoRedundantBackup), "
+                "redisEnableNonSslPort=tobool(properties.enableNonSslPort), "
+                "redisMinTlsVersion=tostring(properties.minimumTlsVersion), "
+                "aksPrivateCluster=tobool(properties.apiServerAccessProfile.enablePrivateCluster), "
+                "aksEnableRbac=tobool(properties.enableRBAC), "
+                "aksDisableLocalAccounts=tobool(properties.disableLocalAccounts), "
+                "acaExternalIngress=tobool(properties.configuration.ingress.external), "
+                "acaAllowInsecure=tobool(properties.configuration.ingress.allowInsecure), "
                 "kvRbac=tobool(properties.enableRbacAuthorization), "
                 "kvSoftDelete=tobool(properties.enableSoftDelete), "
                 "kvPurgeProtection=tobool(properties.enablePurgeProtection), "
@@ -657,17 +1008,48 @@ def collect_assessment_evidence(
                 "sbDisableLocalAuth=tobool(properties.disableLocalAuth), "
                 "arcStatus=tostring(properties.status) | order by id asc"
             )
+            advisor_query = (
+                f"AdvisorResources | where {where_clause} and type =~ 'microsoft.advisor/recommendations' "
+                "and (isempty(tostring(properties.recommendationStatus)) or tostring(properties.recommendationStatus) in~ ('New','InProgress','Active')) "
+                "| project id, name, resourceGroup, "
+                "category=tostring(properties.category), "
+                "impact=tostring(properties.impact), "
+                "recommendationStatus=tostring(properties.recommendationStatus), "
+                "targetResourceId=tostring(properties.resourceMetadata.resourceId), "
+                "impactedField=tostring(properties.impactedField), "
+                "impactedValue=tostring(properties.impactedValue), "
+                "problem=tostring(properties.shortDescription.problem), "
+                "solution=tostring(properties.shortDescription.solution), "
+                "annualSavingsAmount=todouble(properties.extendedProperties.annualSavingsAmount), "
+                "savingsCurrency=tostring(properties.extendedProperties.savingsCurrency) "
+                "| order by id asc"
+            )
+            defender_query = (
+                f"SecurityResources | where {where_clause} and type =~ 'microsoft.security/assessments' "
+                "| project id, name, resourceGroup, "
+                "displayName=tostring(properties.displayName), "
+                "statusCode=tostring(properties.status.code), "
+                "severity=tostring(properties.metadata.severity), "
+                "resourceId=coalesce(tostring(properties.resourceDetails.Id), tostring(properties.resourceDetails.id), tostring(properties.resourceDetails.AzureResourceId)) "
+                "| order by id asc"
+            )
             cfg_rows, _, cfg_err = run_arg_paginated(runner, sub_id, cfg_query)
+            adv_rows, _, adv_err = run_arg_paginated(runner, sub_id, advisor_query)
+            def_rows, _, def_err = run_arg_paginated(runner, sub_id, defender_query)
+            combined_cfg_err = cfg_err or adv_err or def_err
             scope_config.append({"scope": raw_scope, "count": len(cfg_rows), "items": cfg_rows, "error": cfg_err})
+            scope_advisor.append({"scope": raw_scope, "count": len(adv_rows), "items": adv_rows, "error": adv_err})
+            scope_defender.append({"scope": raw_scope, "count": len(def_rows), "items": def_rows, "error": def_err})
             scope_checks.append(
                 {
                     "category": "configuration",
                     "scope": raw_scope,
-                    "status": "observed" if inv_complete and cfg_err is None else "unknown",
+                    "status": "observed" if inv_complete and combined_cfg_err is None else "unknown",
                     "evidence": (
-                        f"Collected allowlisted scalar configuration for {len(cfg_rows)} resources in _meta/controls-evidence.json."
-                        if cfg_err is None
-                        else f"Configuration projection incomplete: {cfg_err}."
+                        f"Collected allowlisted scalar configuration for {len(cfg_rows)} resources, "
+                        f"{len(adv_rows)} Advisor recommendations, and {len(def_rows)} Defender assessments in _meta/controls-evidence.json."
+                        if inv_complete and combined_cfg_err is None
+                        else f"Configuration/Advisor/Defender projection incomplete: {combined_cfg_err or 'inventory incomplete'}."
                     ),
                 }
             )
@@ -687,19 +1069,13 @@ def collect_assessment_evidence(
             )
             ops_rows, _, ops_err = run_arg_paginated(runner, sub_id, ops_query)
             diag_samples: list[dict[str, Any]] = []
-            diag_targets = [
+            eligible_diag_targets = [
                 row["id"]
                 for row in inv_rows
-                if str(row.get("type", "")).lower()
-                in {
-                    "microsoft.web/sites",
-                    "microsoft.sql/managedinstances",
-                    "microsoft.sql/servers",
-                    "microsoft.keyvault/vaults",
-                    "microsoft.servicebus/namespaces",
-                }
-                and row.get("rg_role") != "excluded"
-            ][:10]
+                if str(row.get("type", "")).lower() in DIAG_TARGET_TYPES and row.get("rg_role") != "excluded"
+            ]
+            diag_targets = eligible_diag_targets[:max_diag_targets]
+            diag_truncated = len(diag_targets) < len(eligible_diag_targets)
             diag_err: str | None = None
             diag_jmes = (
                 "not_null(value, @)[].{name:name,workspaceId:workspaceId,storageAccountId:storageAccountId,"
@@ -734,19 +1110,29 @@ def collect_assessment_evidence(
                 {
                     "scope": raw_scope,
                     "monitoring_resources": ops_rows,
+                    "eligible_diag_target_count": len(eligible_diag_targets),
+                    "sampled_diag_target_count": len(diag_targets),
                     "diagnostic_settings": diag_samples,
-                    "error": ops_err or diag_err,
+                    "error": ops_err or diag_err or ("diag_target_cap_exceeded" if diag_truncated else None),
                 }
             )
             scope_checks.append(
                 {
                     "category": "operations",
                     "scope": raw_scope,
-                    "status": "observed" if ops_err is None and diag_err is None else "unknown",
+                    "status": (
+                        "observed"
+                        if inv_complete and ops_err is None and diag_err is None and not diag_truncated
+                        else "unknown"
+                    ),
                     "evidence": (
-                        f"Observed {len(ops_rows)} monitoring resources and {len(diag_samples)} diagnostic-setting targets; runtime ingestion/delivery not tested."
-                        if ops_err is None and diag_err is None
-                        else f"Operations collection partial: {ops_err or diag_err}."
+                        f"Observed {len(ops_rows)} monitoring resources and {len(diag_samples)}/{len(eligible_diag_targets)} diagnostic-setting targets; runtime ingestion/delivery not tested."
+                        if inv_complete and ops_err is None and diag_err is None and not diag_truncated
+                        else (
+                            f"Operations diagnostic sampling capped at {len(diag_targets)}/{len(eligible_diag_targets)} targets (increase --max-diag-targets)."
+                            if inv_complete and ops_err is None and diag_err is None
+                            else f"Operations collection partial: {ops_err or diag_err or 'inventory incomplete'}."
+                        )
                     ),
                 }
             )
@@ -763,27 +1149,59 @@ def collect_assessment_evidence(
                 "requestedBackupStorageRedundancy=tostring(properties.requestedBackupStorageRedundancy) "
                 "| order by id asc"
             )
+            if rg_name:
+                safe_rg = rg_name.replace("'", "''")
+                bkp_where = (
+                    f"subscriptionId =~ '{sub_id}' and (resourceGroup =~ '{safe_rg}' or "
+                    f"tolower(coalesce(tostring(properties.sourceResourceId), tostring(properties.dataSourceInfo.resourceID))) contains '/resourcegroups/{safe_rg.lower()}/')"
+                )
+            else:
+                bkp_where = where_clause
+            bkp_items_query = (
+                f"RecoveryServicesResources | where {bkp_where} and "
+                "type in~ ('microsoft.recoveryservices/vaults/backupfabrics/protectioncontainers/protecteditems',"
+                "'microsoft.dataprotection/backupvaults/backupinstances') "
+                "| project id, name, type, resourceGroup, "
+                "protectionState=coalesce(tostring(properties.protectionState), tostring(properties.currentProtectionState)), "
+                "protectionStatus=tostring(properties.protectionStatus), "
+                "lastBackupStatus=tostring(properties.lastBackupStatus), "
+                "lastBackupTime=tostring(properties.lastBackupTime), "
+                "sourceResourceId=coalesce(tostring(properties.sourceResourceId), tostring(properties.dataSourceInfo.resourceID)) "
+                "| order by id asc"
+            )
             rec_rows, _, rec_err = run_arg_paginated(runner, sub_id, rec_query)
-            scope_rec.append({"scope": raw_scope, "items": rec_rows, "error": rec_err})
+            bkp_rows, _, bkp_err = run_arg_paginated(runner, sub_id, bkp_items_query)
+            combined_rec_err = rec_err or bkp_err
+            scope_rec.append(
+                {
+                    "scope": raw_scope,
+                    "items": rec_rows,
+                    "protected_items": bkp_rows,
+                    "protected_items_error": bkp_err,
+                    "error": combined_rec_err,
+                }
+            )
             scope_checks.append(
                 {
                     "category": "recovery",
                     "scope": raw_scope,
-                    "status": "observed" if rec_err is None else "unknown",
+                    "status": "observed" if inv_complete and combined_rec_err is None else "unknown",
                     "evidence": (
-                        f"Observed {len(rec_rows)} vault/database redundancy records; live restore/cutover drills remain unverified unless separately evidenced."
-                        if rec_err is None
-                        else f"Recovery projection incomplete: {rec_err}."
+                        f"Observed {len(rec_rows)} vault/database redundancy records and {len(bkp_rows)} backup protected-item/instance records; live restore/cutover drills remain unverified unless separately evidenced."
+                        if inv_complete and combined_rec_err is None
+                        else f"Recovery projection incomplete: {combined_rec_err or 'inventory incomplete'}."
                     ),
                 }
             )
 
         if "utilization" in categories:
-            metric_targets = [
+            eligible_metric_targets = [
                 (row["id"], str(row.get("type", "")).lower())
                 for row in inv_rows
                 if str(row.get("type", "")).lower() in METRIC_SPECS and row.get("rg_role") != "excluded"
-            ][:20]
+            ]
+            metric_targets = eligible_metric_targets[:max_metric_targets]
+            metric_truncated = len(metric_targets) < len(eligible_metric_targets)
             metric_items: list[dict[str, Any]] = []
             metric_errors: list[str] = []
             incomplete_metric_targets = 0
@@ -848,10 +1266,11 @@ def collect_assessment_evidence(
                 {
                     "scope": raw_scope,
                     "window": {"start": metrics_start, "end": metrics_end, "interval": "PT1H"},
+                    "eligible_target_count": len(eligible_metric_targets),
                     "target_count": len(metric_targets),
                     "incomplete_target_count": incomplete_metric_targets,
                     "items": metric_items,
-                    "errors": sorted(set(metric_errors)),
+                    "errors": sorted(set(metric_errors + (["metric_target_cap_exceeded"] if metric_truncated else []))),
                 }
             )
             if not inv_complete:
@@ -870,6 +1289,15 @@ def collect_assessment_evidence(
                         "scope": raw_scope,
                         "status": "unknown",
                         "evidence": f"Monitor metric collection encountered {', '.join(sorted(set(metric_errors)))} across {len(metric_targets)} targets in _meta/metrics-evidence.json.",
+                    }
+                )
+            elif metric_truncated:
+                scope_checks.append(
+                    {
+                        "category": "utilization",
+                        "scope": raw_scope,
+                        "status": "unknown",
+                        "evidence": f"Monitor metric sampling capped at {len(metric_targets)}/{len(eligible_metric_targets)} targets (increase --max-metric-targets).",
                     }
                 )
             elif incomplete_metric_targets > 0:
@@ -985,6 +1413,8 @@ def collect_assessment_evidence(
             "inventories": scope_inventories,
             "topology": scope_topology,
             "config": scope_config,
+            "advisor": scope_advisor,
+            "defender": scope_defender,
             "ops": scope_ops,
             "recovery": scope_rec,
             "metrics": scope_metrics,
@@ -1001,6 +1431,8 @@ def collect_assessment_evidence(
             inventories.extend(res["inventories"])
             topology_obs.extend(res["topology"])
             config_obs.extend(res["config"])
+            advisor_obs.extend(res["advisor"])
+            defender_obs.extend(res["defender"])
             operations_obs.extend(res["ops"])
             recovery_obs.extend(res["recovery"])
             metrics_obs.extend(res["metrics"])
@@ -1043,8 +1475,22 @@ def collect_assessment_evidence(
     )
     write_json_atomic(
         safe_project_file(project_root, "_meta/controls-evidence.json"),
-        {"collected_at": timestamp, "topology": topology_obs, "configuration": config_obs, "policy": policy_obs},
+        {
+            "collected_at": timestamp,
+            "topology": topology_obs,
+            "configuration": config_obs,
+            "advisor": advisor_obs,
+            "defender": defender_obs,
+            "policy": policy_obs,
+        },
     )
+    if "configuration" in categories:
+        write_json_atomic(
+            safe_project_file(project_root, "_meta/advisor-defender-evidence.json"),
+            {"collected_at": timestamp, "advisor": advisor_obs, "defender": defender_obs},
+        )
+    if static_iac_summary is not None:
+        write_json_atomic(safe_project_file(project_root, "_meta/static-iac-evidence.json"), static_iac_summary)
     if "topology" in categories:
         write_json_atomic(
             safe_project_file(project_root, "_meta/scalar-topology.json"),
@@ -1098,12 +1544,30 @@ def main(argv: list[str] | None = None) -> int:
         help="Path to assessment-scope.json (defaults to <project-dir>/_meta/assessment-scope.json)",
     )
     parser.add_argument("--as-of", default=None, help="Explicit ISO-8601 collection timestamp")
+    parser.add_argument(
+        "--max-diag-targets",
+        type=int,
+        default=100,
+        help="Maximum resources per scope to sample for diagnostic settings (default: 100)",
+    )
+    parser.add_argument(
+        "--max-metric-targets",
+        type=int,
+        default=100,
+        help="Maximum resources per scope to sample for Azure Monitor metrics (default: 100)",
+    )
     args = parser.parse_args(argv)
     try:
         project_dir = args.project_dir.resolve(strict=True)
         scope_path = (args.scope_file or (project_dir / "_meta/assessment-scope.json")).resolve(strict=True)
         scope_request = json.loads(scope_path.read_text(encoding="utf-8"))
-        contract = collect_assessment_evidence(project_dir, scope_request, collected_at=args.as_of)
+        contract = collect_assessment_evidence(
+            project_dir,
+            scope_request,
+            collected_at=args.as_of,
+            max_diag_targets=args.max_diag_targets,
+            max_metric_targets=args.max_metric_targets,
+        )
         print(json.dumps({"valid": True, "coverage": contract["coverage"], "check_count": len(contract["checks"])}))
         return 0
     except Exception as exc:  # noqa: BLE001

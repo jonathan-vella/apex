@@ -297,6 +297,21 @@ Table of recommended controls based on workload pattern and compliance requireme
 | SQL Entra admin principal                | {group or user and object ID}                                 |
 | Required tag values                      | {values the policy requires, or none enforced}                |
 
+### Attested Operational & Security Practices
+
+Optional for existing-workload Assessment (`--stage practices`). Record answers as human-attested
+(`declared`, runtime-unverified) context or `Unknown` / `Not supplied`; do not treat self-attestation
+as verified Azure telemetry.
+
+| Practice Area | WAF Pillar(s) | Attested Practice / Maturity | Provenance |
+| --- | --- | --- | --- |
+| Recovery and resilience testing (`dr_testing_cadence`) | Reliability | {answer or Unknown} | Human-attested (unverified) |
+| Application and supply-chain security (`security_sdlc_practices`) | Security | {answer or Unknown} | Human-attested (unverified) |
+| Deployment and release engineering (`deployment_release_practices`) | Operational Excellence | {answer or Unknown} | Human-attested (unverified) |
+| Incident response and runbooks (`incident_response_practices`) | Operational Excellence, Security | {answer or Unknown} | Human-attested (unverified) |
+| Cost governance and FinOps cadence (`finops_governance_practices`) | Cost Optimization | {answer or Unknown} | Human-attested (unverified) |
+| Performance testing and capacity planning (`performance_testing_practices`) | Performance Efficiency | {answer or Unknown} | Human-attested (unverified) |
+
 ## 🌍 Regional Preferences
 
 For an existing-workload Assessment, record observed regions and mark unknown locations explicitly. The

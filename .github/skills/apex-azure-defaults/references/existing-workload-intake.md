@@ -127,9 +127,12 @@ Persist the request and actual response receipt using
 [input request provenance](../../apex-workflow-engine/references/practical-workflow.md#input-request-provenance).
 Recover real earlier answers with a source-linked, labelled local receipt; never invent native IDs or repeat
 settled questions solely because the original capture omitted its correlation key.
-For Assessment, ask only for missing scope, evidence authorization or business intent that prevents a useful
-assessment. Do not require pain points, preservation choices, SLA/RTO/RPO, compliance targets or budget
-boundaries to begin; mark unavailable user targets and evidence as unknown gaps. For migration, modernization
+For Assessment, ask only for missing scope, evidence authorization, business intent (`--stage business`), and
+human-attested operational/security practices (`--stage practices`: `dr_testing_cadence`,
+`security_sdlc_practices`, `deployment_release_practices`, `incident_response_practices`,
+`finops_governance_practices`, `performance_testing_practices`). Do not require pain points, preservation
+choices, SLA/RTO/RPO, compliance targets, practice maturity or budget boundaries to begin; mark unavailable user
+targets, unconfirmed practices and missing evidence as unknown gaps. For migration, modernization
 or extension planning, collect applicable business drivers and constraints without reconfirming settled inputs
 or asking irrelevant greenfield questions.
 
@@ -153,9 +156,18 @@ Price recommended resources through the existing pricing owner; current SKU name
 
 For each pillar, cite dated evidence, distinguish current state from recommendation, state confidence and retain gaps.
 Do not score an unknown control as compliant or call a diagram a live verification.
-Assign a bounded `0–10` score whenever `>= 2` pillar-relevant checks are observed (computed strictly over observed
-applicable checks with `unknown` excluded from both numerator and denominator, paired with explicit evidence coverage
-`High >=70%`, `Medium 35–69%`, `Low <35%`). Reserve `Not assessed` strictly for pillars with `< 2` observed checks.
+Assign a bounded `0–10` score whenever `>= 2` pillar-relevant checks are observed (computed deterministically via
+`node tools/scripts/assessment-waf-scores.mjs compute --checks agent-output/<project>/_meta/waf-checks.json --out agent-output/<project>/_meta/waf-scores.json`
+strictly over observed applicable checks with `unknown` excluded from both numerator and denominator, paired with
+explicit evidence coverage `High >=70%`, `Medium 35–69%`, `Low <35%`). Reserve `Not assessed` strictly for pillars
+with `< 2` observed checks.
+Keep human-attested operational/security practice answers explicitly labelled as human-attested (`declared`,
+runtime-unverified) context in `attested_practices[]`, pillar narratives and findings rather than counting
+uncorroborated self-attestation as passing observed checks in `_meta/waf-checks.json` or `_meta/waf-scores.json`;
+surface contradictions between attested practices and observed telemetry (for example attested pipeline-only IaC vs.
+drifted portal resources, or untested recovery drills against stated RTO/RPO) directly in findings and the Action
+Register. When stakeholders require the Microsoft Well-Architected Review portal/WARP CSV, generate it offline with
+`node tools/scripts/export-waf-review-csv.mjs`.
 Classify action-register recommendations with `disposition` (`remediate_now`, `production_readiness_gap`,
 `intentional_lab_tradeoff`, `orphan_or_drift_cleanup`, or `verification_followup`) so user-declared lab/PoC
 trade-offs are distinguished from unintended drift/cost leaks and production cutover blockers. Quantify recurring

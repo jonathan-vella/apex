@@ -11,7 +11,9 @@ At `scope` intake, read only `standalone-assessment.md` and `tools/schemas/sessi
 (`assessmentRequest`) before initializing recall; defer worker scripts (`collect-assessment-*`,
 `render-assessment-*`) and subagent definitions to delegated phase owners.
 Select `workflow_mode=assessment` explicitly with an authorized upfront scope.
-Offer evidence-only (no business interview) or requirements-led discovery; source is IaC, Azure or combined.
+Offer evidence-only (no business interview) or requirements-led discovery (`--stage business` objectives/targets
+and `--stage practices` human-attested operational/security practices, with `Unknown` accepted); source is IaC,
+Azure or combined.
 Do not require `01-requirements.md` or a numeric Step 1 approval for evidence-only work.
 Use supplied IaC, architecture diagrams and explicitly authorized tenant/subscription read scope.
 Load `.github/skills/apex-azure-defaults/references/existing-workload-intake.md` at evidence intake.
