@@ -224,9 +224,9 @@ reset()
 
 # Top band: App Service & Managed Identity RBAC fan-out
 add(box(30, 90, 1860, 345, "#FFFFFF", SL, sw=2) + t(50, 122, "Application workload identity and RBAC", 24, "700", TL))
-legend = [("id", "Identity / authorization", PU), ("net", "Request", BL), ("tel", "Telemetry", SL)]
+legend_items = [("id", "Identity / authorization", PU), ("net", "Request", BL), ("tel", "Telemetry", SL)]
 x = 1130
-for k, label, _ in legend:
+for k, label, _ in legend_items:
     add(arr(f"M{x} 114H{x+50}", k) + t(x + 60, 120, label, 16, mw=170))
     x += 250 if k == "id" else 150
 
@@ -423,9 +423,98 @@ finish("agent-output/my-project/assets/03-des-diagram", "Existing-State Multi-Su
 
 ---
 
+## 6. AAC Hub-Spoke & Observability Reference (`tile` + `zone` + Numbered `flow`)
+
+Preferred style for technical design (`03-des-diagram`), runtime (`04-runtime-diagram`), and as-built (`07-ab-diagram`) diagrams. Uses bare official Azure icons (`tile`), neutral boundaries (`zone`), thin orthogonal connectors with numbered badges (`flow`), and a matching `dataflow_key`.
+
+```python
+import sys
+from pathlib import Path
+
+sys.path.insert(0, str(Path(".github/skills/apex-python-diagrams/scripts").resolve()))
+from dlib import *  # noqa: E402, F403
+
+reset()
+
+# Hybrid on-premises edge
+add(zone(36, 92, 230, 748, "On-Premises DC", kind="onprem", zone_id="onprem", subtitle="Hybrid & Arc agents"))
+add(tile(151, 250, "arc-machines", "Arc-Enabled Servers", node_id="arc-srv", parent_id="onprem", sublabel="AMA + probes"))
+
+# Primary Azure Region
+add(zone(300, 92, 1290, 748, "Azure Region: Sweden Central", kind="region", zone_id="reg-swc"))
+
+# Connectivity Hub VNet
+add(zone(324, 144, 410, 672, "Hub VNet", kind="vnet", zone_id="vnet-hub", parent_id="reg-swc", subtitle="10.0.0.0/16"))
+add(zone(344, 200, 370, 150, "GatewaySubnet", kind="subnet", zone_id="snet-gw", parent_id="vnet-hub", subtitle="10.0.0.0/26"))
+add(tile(440, 266, "vpngw", "VPN / ER Gateway", node_id="gw", parent_id="snet-gw"))
+add(tile(620, 266, "fw", "Hub Firewall", node_id="fw", parent_id="snet-gw"))
+add(zone(344, 374, 370, 170, "snet-private-endpoints", kind="subnet", zone_id="snet-hub-pe", parent_id="vnet-hub", subtitle="10.0.2.0/24"))
+add(tile(440, 452, "privatelink", "AMPLS Endpoint", node_id="ampls", parent_id="snet-hub-pe"))
+add(tile(620, 452, "dnsresolver", "DNS Private Resolver", node_id="dnsr", parent_id="snet-hub-pe", sublabel="privatelink.monitor"))
+add(tile(529, 690, "network-watcher", "VNet Flow Logs", node_id="nw", parent_id="vnet-hub", sublabel="Traffic Analytics"))
+
+# Workload Spoke VNet
+add(zone(764, 144, 350, 672, "Workload Spoke VNet", kind="vnet", zone_id="vnet-spoke", parent_id="reg-swc", subtitle="10.1.0.0/16"))
+add(zone(784, 200, 310, 260, "snet-app", kind="subnet", zone_id="snet-app", parent_id="vnet-spoke", subtitle="10.1.1.0/24"))
+add(tile(865, 290, "app", "App Service", node_id="app", parent_id="snet-app", sublabel="OTel SDK"))
+add(tile(1015, 290, "vm", "Workload VMs", node_id="vm", parent_id="snet-app", sublabel="AMA + VM Insights"))
+add(zone(784, 488, 310, 300, "snet-pe", kind="subnet", zone_id="snet-pe", parent_id="vnet-spoke", subtitle="10.1.2.0/24"))
+add(tile(865, 590, "sqldb", "Azure SQL DB", node_id="sql", parent_id="snet-pe"))
+add(tile(1015, 590, "kv", "Key Vault", node_id="kv", parent_id="snet-pe"))
+add(tile(940, 725, "azfiles", "Azure Files", node_id="files", parent_id="snet-pe"))
+
+# Management & Security Subscriptions
+add(zone(1144, 144, 422, 340, "Management Subscription", kind="sub", zone_id="sub-mgmt", parent_id="reg-swc"))
+add(tile(1245, 245, "dcr", "Data Collection Rules", node_id="dcr", parent_id="sub-mgmt", sublabel="Stream split"))
+add(tile(1455, 245, "law", "Ops Log Analytics", node_id="law-ops", parent_id="sub-mgmt"))
+add(tile(1245, 390, "grafana", "Managed Grafana", node_id="graf", parent_id="sub-mgmt"))
+add(tile(1455, 390, "alerts", "AMBA Alerts", node_id="alerts", parent_id="sub-mgmt"))
+
+add(zone(1144, 512, 422, 304, "Security Subscription", kind="sub", zone_id="sub-sec", parent_id="reg-swc"))
+add(tile(1255, 650, "sentinel", "Microsoft Sentinel", node_id="sent", parent_id="sub-sec", sublabel="Security LAW"))
+add(tile(1455, 650, "defender", "Defender for Cloud", node_id="mdc", parent_id="sub-sec"))
+
+# Separate DR Region
+add(zone(1624, 92, 260, 748, "DR Region", kind="region", zone_id="reg-dr", subtitle="Germany West Central"))
+add(tile(1754, 245, "law", "DR Log Analytics", node_id="law-dr", parent_id="reg-dr", sublabel="Outage-independent"))
+add(tile(1754, 430, "service-health", "Service Health", node_id="sh", parent_id="reg-dr", sublabel="Regional alerts"))
+
+# Numbered orthogonal flows
+add(flow([(210, 250), (390, 250)], step=1, style="private", source_id="arc-srv", target_id="gw"))
+add(flow([(490, 266), (570, 266)], step=2, style="sync", source_id="gw", target_id="fw"))
+add(flow([(620, 318), (620, 360), (440, 360), (440, 408)], step=3, style="private", source_id="fw", target_id="ampls"))
+add(flow([(495, 452), (565, 452)], style="dns", source_id="ampls", target_id="dnsr"))
+add(flow([(764, 452), (724, 452), (724, 560), (440, 560), (440, 505)], step=4, style="tel", source_id="vnet-spoke", target_id="ampls"))
+add(flow([(395, 452), (334, 452), (334, 124), (1245, 124), (1245, 200)], step=5, style="private", source_id="ampls", target_id="dcr"))
+add(flow([(1300, 245), (1400, 245)], step="6a", style="tel", source_id="dcr", target_id="law-ops"))
+add(flow([(1292, 272), (1355, 272), (1355, 500), (1255, 500), (1255, 605)], step="6b", style="async", source_id="dcr", target_id="sent"))
+add(flow([(1510, 245), (1695, 245)], step=7, style="async", source_id="law-ops", target_id="law-dr"))
+
+# Matching Dataflow key
+add(dataflow_key(36, 862, 1848, [
+    (1, "On-premises Arc servers stream AMA telemetry & probes over VPN/ExpressRoute."),
+    (2, "Hub firewall inspects hybrid traffic before routing to private endpoints."),
+    (3, "Telemetry enters Azure Monitor Private Link Scope (AMPLS) resolved via Hub Private DNS."),
+    (4, "Spoke workload VMs, App Service, and PaaS diagnostics send telemetry privately via AMPLS."),
+    (5, "Data Collection Rules (DCR) filter and split operational vs. security streams."),
+    ("6a", "Operational logs and APM route to Ops Log Analytics, Grafana, and AMBA alerts."),
+    ("6b", "Security events route to Microsoft Sentinel & Defender for Cloud."),
+    (7, "Critical platform alerts replicate to an independent DR Region workspace."),
+], cols=2))
+
+finish(
+    "agent-output/my-project/assets/03-des-diagram",
+    "Hub-Spoke Full-Stack Observability Architecture",
+    description="AAC-style hub-spoke observability topology with AMPLS, DCR stream split, Sentinel, and DR workspace.",
+    style="aac",
+)
+```
+
+---
+
 ## Layout Checklist Before Calling `finish()`
 
-1. **Zero `WARN overflow:` output**: Run the `.py` script and verify stdout has no `WARN overflow:` lines. Wrap long text into two lines (`chip2` or multi-line `card`) or widen the container.
-2. **20px+ sibling gap**: Leave clear whitespace between sibling cards and reserve dedicated horizontal/vertical corridors for `arr()` paths.
-3. **Boundary vs. connector semantics**: Containment is always a boundary box (`sub`, `rg`, `box`); relationships/flows are always arrows (`arr`).
-4. **Legend & footer**: Include only the connector kinds (`net`, `id`, `dns`, `tel`, `mig`, `off`) actually used in the diagram. Keep the default `footer="APEX"` unless a project-specific footer is requested.
+1. **Zero `WARN overflow:` output**: Run the `.py` script and verify stdout has no `WARN overflow:` lines. Wrap long text or widen the container.
+2. **20px+ sibling gap**: Leave clear whitespace between sibling tiles/cards and reserve dedicated horizontal/vertical corridors for connectors (`flow` / `arr`).
+3. **Boundary vs. connector semantics**: Containment is always a boundary box (`zone`, `sub`, `rg`, `box`); relationships/flows are always directed connectors (`flow` / `arr`).
+4. **Legend & footer**: For AAC diagrams, pair numbered `flow(..., step=...)` arrows with `dataflow_key(...)`. For executive slides, include only the connector kinds actually used. Keep the default `footer="APEX"` unless a project-specific footer is requested.

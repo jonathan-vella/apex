@@ -68,8 +68,13 @@ Suffix rules: `-des` for design (Step 3), `-ab` for as-built (Step 7).
 
 Draw the approved specification faithfully; never redesign or invent unapproved services.
 
-1. **Inspect scope & choose pattern**: Read the architecture/plan specification for exact titles, resource names, CIDRs, boundaries, and connectors. Consult [`references/common-patterns.md`](references/common-patterns.md) for the closest `dlib.py` generator template (hub-and-spoke routing, subscription vending, private DNS, workload placement, identities/secrets/telemetry, cutover, or multi-lane swimlanes).
-2. **Author `.py` on the `1920×1080` canvas**:
+### Choosing the Right Style: AAC Technical Architecture vs. Executive Overview Slide
+
+* **AAC Technical Architecture (default for `03-des-diagram`, `04-runtime-diagram`, `07-ab-diagram`)**: Use bare official Azure icons (`tile()`), neutral containment boundaries (`zone()` for `region`, `sub`, `rg`, `vnet`, `subnet`, `onprem`), thin dark orthogonal connectors with numbered flow badges (`flow()`), and a matching `dataflow_key()`. This aligns with Microsoft Azure Architecture Center (AAC) and Well-Architected Framework diagramming standards.
+* **Executive / Bid Overview Slide (for RFI/RFP briefings and capability overviews)**: Use horizontal `card()` tiles, semantic tinted `sub()` / `rg()` frames, `arr()` connectors, and a bottom 5-stage `chevron()` summary bar (`gen02` pattern).
+
+1. **Inspect scope & choose pattern**: Read the architecture/plan specification for exact titles, resource names, CIDRs, boundaries, and connectors. Consult [`references/common-patterns.md`](references/common-patterns.md) for the closest template (AAC hub-spoke + observability with numbered dataflows, executive overview, private DNS, identities/telemetry, or swimlanes).
+2. **Author `.py` using AAC primitives (or semantic topology spec)**:
    ```python
    import sys
    from pathlib import Path
@@ -77,13 +82,16 @@ Draw the approved specification faithfully; never redesign or invent unapproved 
    from dlib import *  # noqa: F403
 
    reset()
-   # Add boundaries (sub, rg, box), service cards (card), arrows (arr), chips (chip, chip2), badges (circ, badge)
-   add(sub(30, 95, 1860, 720, "Production workload subscription", TL, "#F2FAF8", "PRODUCTION", 190))
-   ...
-   finish("agent-output/{project}/04-runtime-diagram", "Runtime Architecture & Private Connectivity")
+   add(zone(40, 80, 1840, 820, "Azure Region: Sweden Central", kind="region", zone_id="reg-swc"))
+   add(zone(70, 130, 520, 740, "Hub VNet", kind="vnet", subtitle="10.0.0.0/16", zone_id="vnet-hub", parent_id="reg-swc"))
+   add(tile(200, 260, "fw", "Azure Firewall", node_id="fw-hub", parent_id="vnet-hub"))
+   add(tile(440, 260, "dnsresolver", "DNS Private Resolver", node_id="dns-hub", parent_id="vnet-hub"))
+   add(flow([(260, 260), (380, 260)], step=1, style="private", source_id="fw-hub", target_id="dns-hub"))
+   add(dataflow_key(40, 920, 1840, [(1, "Hub firewall proxies private DNS resolution.")]))
+   finish("agent-output/{project}/04-runtime-diagram", "Runtime Architecture & Private Connectivity", style="aac")
    ```
-3. **Run & check overflow warnings**: Execute `python3 agent-output/{project}/<name>.py`. `dlib.t()` prints `WARN overflow:` lines whenever estimated text width exceeds `mw`. Fix every warning by wrapping text into two lines (`chip2` or multi-line `card`) or widening the box — never shrink text below `12px`.
-4. **Inspect the rendered PNG & SVG**: View the rendered `.png` (`3840×2160`) to verify zero overlapping labels, uncrossed arrows, and clean visual hierarchy. Note: if the `view` tool caches by path, copy the PNG to a unique preview filename, inspect it, and remove the temporary preview afterward.
+3. **Run & check overflow warnings**: Execute `python3 agent-output/{project}/<name>.py`. `dlib.t()` prints `WARN overflow:` lines whenever estimated text width exceeds `mw`. Fix every warning by wrapping text or widening the container — never shrink text below `12px`. `tile()` and `zone()` enforce `strict=True` exact icon matching so invalid icon keys fail immediately with suggestions.
+4. **Inspect the rendered PNG & SVG**: View the rendered `.png` to verify zero overlapping labels, uncrossed arrows, and clean visual hierarchy. Note: if the `view` tool caches by path, copy the PNG to a unique preview filename, inspect it, and remove the temporary preview afterward.
 
 ## Canvas, Palette & Boundary Rules (`dlib.py`)
 
@@ -138,8 +146,9 @@ Does NOT: produce inline Mermaid diagrams (`apex-mermaid`) · generate Bicep/Ter
 
 ## Scripts
 
-`scripts/dlib.py` (primary `1920×1080` SVG + `3840×2160` 4K PNG Azure diagram engine) ·
-`scripts/diagram_io.py` (shared PNG+SVG output helper: `render_dlib`, `save_figure`, `diagram_kwargs`, `render_graphviz`, `embed_svg_images`) ·
+`scripts/dlib.py` (primary AAC + overview SVG & 4K PNG Azure diagram engine) ·
+`scripts/topology_render.py` (semantic `*.topology.json` → ELK auto-layout → AAC SVG + PNG; invoked via `diagram_io.render_topology()` inside the standard `.py` wrapper) ·
+`scripts/diagram_io.py` (shared PNG+SVG output helper: `render_dlib`, `render_topology`, `save_figure`, `diagram_kwargs`, `render_graphviz`, `embed_svg_images`) ·
 `scripts/generate_diagram.py` (interactive template generator) ·
 `scripts/multi_diagram_generator.py` (ERD, swimlane, timeline, wireframe helpers) ·
 `scripts/ascii_to_diagram.py` (ASCII art → diagram conversion) ·

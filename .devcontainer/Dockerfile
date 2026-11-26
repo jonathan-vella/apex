@@ -5,7 +5,7 @@ SHELL ["/bin/bash", "-o", "pipefail", "-c"]
 
 RUN dnf upgrade -y --refresh \
     && dnf install -y \
-        bash ca-certificates curl jq tar gzip xz unzip graphviz bats \
+        bash ca-certificates curl jq tar gzip xz unzip cairo graphviz bats \
         git openssh-clients procps-ng sudo shadow-utils util-linux findutils coreutils-single diffutils \
         icu krb5-libs libatomic openssl-libs zlib-ng-compat \
     && dnf clean all \

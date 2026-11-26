@@ -26,7 +26,7 @@ if [[ ! -w /usr/local/python/current ]]; then
 fi
 uv pip install --python /usr/local/python/current/bin/python3 --quiet \
     --requirement "${PWD}/requirements.txt" --editable "${PWD}/tools/apex-recall"
-python3 -c "import diagrams, matplotlib, PIL, pytest, ruff, apex_recall"
+python3 -c "import cairosvg, diagrams, matplotlib, PIL, pytest, ruff, apex_recall; assert cairosvg.svg2png(bytestring=b'<svg xmlns=\"http://www.w3.org/2000/svg\" width=\"10\" height=\"10\"/>')[:8] == b'\x89PNG\r\n\x1a\n'"
 apex-recall --version
 
 printf "Installing pinned PowerShell script analysis tooling...\n"

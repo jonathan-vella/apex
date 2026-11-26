@@ -206,6 +206,38 @@ def render_dlib(
     return dlib_mod.finish(base, title, footer=footer, formats=formats)
 
 
+def render_topology(
+    spec_or_path: dict[str, Any] | str | Path,
+    base_path: str | Path,
+    *,
+    formats: Iterable[str] = FORMATS,
+    engine: str = "auto",
+    strict_geometry: bool = False,
+) -> list[Path]:
+    """Validate, lay out via ELK, and render a semantic topology spec to SVG + PNG siblings."""
+    import importlib.util
+    import sys
+
+    tr_mod = sys.modules.get("topology_render")
+    if tr_mod is None:
+        tr_path = Path(__file__).resolve().parent / "topology_render.py"
+        spec = importlib.util.spec_from_file_location("topology_render", tr_path)
+        if spec is None or spec.loader is None:
+            raise RuntimeError(f"Cannot load topology_render from {tr_path}")
+        tr_mod = importlib.util.module_from_spec(spec)
+        sys.modules["topology_render"] = tr_mod
+        spec.loader.exec_module(tr_mod)
+
+    base = _strip_known_suffix(base_path)
+    return tr_mod.render_topology(
+        spec_or_path,
+        base,
+        formats=formats,
+        engine=engine,
+        strict_geometry=strict_geometry,
+    )
+
+
 __all__ = [
     "FORMATS",
     "DEFAULT_DPI",
@@ -213,5 +245,6 @@ __all__ = [
     "diagram_kwargs",
     "render_graphviz",
     "render_dlib",
+    "render_topology",
     "embed_svg_images",
 ]

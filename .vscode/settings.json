@@ -39,6 +39,10 @@
     {
       "fileMatch": ["tools/registry/npm-audit-exceptions.json"],
       "url": "./tools/schemas/npm-audit-exceptions.schema.json"
+    },
+    {
+      "fileMatch": ["**/*.topology.json"],
+      "url": "./tools/schemas/diagram-topology.schema.json"
     }
   ],
   "editor.formatOnSave": true,

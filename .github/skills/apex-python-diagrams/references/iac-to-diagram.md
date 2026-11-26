@@ -4,12 +4,11 @@
 
 Generate architecture diagrams directly from your Bicep, Terraform, ARM templates, or Azure Pipeline definitions.
 
-> **Dual-output contract:** Every `with Diagram(...)` snippet emits both
-> `.png` and `.svg` siblings when authored via
-> [`scripts/diagram_io.py`](../scripts/diagram_io.py). Replace
-> `Diagram("Title", show=False, filename="x", ...)` with
-> `Diagram("Title", **diagram_kwargs("x", ...))` and import
-> `diagram_kwargs` from `diagram_io`.
+> **Preferred engine:** For new architecture diagrams, prefer [`scripts/dlib.py`](../scripts/dlib.py)
+> with AAC primitives (`tile`, `zone`, numbered `flow`, `dataflow_key`) — see
+> [`common-patterns.md`](common-patterns.md). The `diagrams` library snippets below are
+> retained for legacy compatibility; every `with Diagram(...)` snippet emits both `.png`
+> and `.svg` siblings via [`scripts/diagram_io.py`](../scripts/diagram_io.py) (`diagram_kwargs`).
 
 ## ⚠️ Critical Guidelines
 

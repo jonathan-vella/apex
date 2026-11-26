@@ -36,12 +36,15 @@ Every library-backed `.py` generator must import `save_figure` (matplotlib chart
 [`waf-cost-charts.md`](waf-cost-charts.md) for the canonical import preamble.
 
 Standalone SVG wireframes have an optional CairoSVG-to-PNG conversion, not a
-`diagram_io` render. See the [output contract](../SKILL.md#execution--output-standards).
+`diagram_io` render. See the [routing guide](../SKILL.md#routing-guide).
 This exception does not waive required PNG+SVG workflow chart outputs.
 
-## Professional Output Standards
+## Legacy Graphviz / `diagrams` Output Settings
 
-Critical settings for clean output — use `labelloc="t"` to keep labels inside clusters:
+> Prefer `dlib.py` (AAC `tile` + `zone` + `flow` primitives) for new architecture
+> diagrams. The settings below apply only to legacy `diagrams` / Graphviz scripts.
+
+Critical settings for clean legacy output — use `labelloc="t"` to keep labels inside clusters:
 
 ```python
 node_attr = {"fontname": "Arial Bold", "fontsize": "11", "labelloc": "t"}
@@ -54,7 +57,7 @@ Requirements: `labelloc='t'` · `Arial Bold` fonts ·
 full resource names from IaC · `dpi="150"+` · `margin="30"+` ·
 CIDR blocks in VNet/Subnet labels.
 
-See `quick-reference.md` for full template, connection syntax, cluster hierarchy, and diagram attributes.
+See [`common-patterns.md`](common-patterns.md) for current `dlib.py` AAC and overview templates.
 
 ## Azure Service Categories (Python)
 
