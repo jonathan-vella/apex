@@ -389,9 +389,12 @@ def check_views(project: str, data: dict, step: str) -> None:
             check_unpriced_assessment(project, data)
     elif step in ("4", "5", "6") and data.get("decisions", {}).get("assessment_exit") == "assessment_only":
         raise ValueError("Assessment-only exit does not authorize implementation continuation")
-    elif step in ("4", "5", "6") and data["decisions"].get("policy_evidence_contract"):
-        if check_feasibility(project, data) != "current":
-            raise ValueError("Tenant-verified policy evidence is required before implementation completion")
+    elif (
+        step in ("4", "5", "6")
+        and data["decisions"].get("policy_evidence_contract")
+        and check_feasibility(project, data) != "current"
+    ):
+        raise ValueError("Tenant-verified policy evidence is required before implementation completion")
 
 
 def check_unpriced_assessment(project: str, data: dict) -> None:
