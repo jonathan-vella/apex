@@ -321,4 +321,3 @@ def test_render_png_catches_cairo_oserror(dlib: ModuleType, monkeypatch: pytest.
     svg_path.write_text('<svg xmlns="http://www.w3.org/2000/svg"/>', encoding="utf-8")
     with pytest.raises(RuntimeError, match="Neither 'cairosvg' nor a headless Chromium/Edge"):
         dlib._render_png(svg_path.read_text(encoding="utf-8"), svg_path, png_path)
-
