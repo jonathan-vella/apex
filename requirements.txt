@@ -9,7 +9,8 @@
 # Diagram generation - https://github.com/mingrammer/diagrams
 diagrams==0.25.1
 
-# Image processing (required by diagrams for PNG generation)
+# Image processing (required by diagrams and dlib SVG -> 4K PNG rasterization)
+cairosvg==2.9.1
 matplotlib==3.11.2
 pillow==13.0.0
 

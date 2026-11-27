@@ -1,0 +1,166 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://apexops.pro/schemas/diagram-topology.schema.json",
+  "title": "APEX Semantic Architecture Diagram Topology",
+  "description": "Semantic Azure architecture topology specification laid out by ELK and rendered via dlib.py into AAC SVG and PNG.",
+  "type": "object",
+  "required": ["title", "nodes"],
+  "additionalProperties": false,
+  "properties": {
+    "$schema": {
+      "type": "string"
+    },
+    "title": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 140
+    },
+    "description": {
+      "type": "string",
+      "maxLength": 400
+    },
+    "style": {
+      "type": "string",
+      "enum": ["aac", "executive"],
+      "default": "aac"
+    },
+    "direction": {
+      "type": "string",
+      "enum": ["RIGHT", "DOWN"],
+      "default": "RIGHT"
+    },
+    "footer": {
+      "type": ["string", "null"],
+      "default": "APEX"
+    },
+    "show_title": {
+      "type": "boolean",
+      "default": true
+    },
+    "groups": {
+      "type": "array",
+      "default": [],
+      "items": {
+        "type": "object",
+        "required": ["id", "label", "kind"],
+        "additionalProperties": false,
+        "properties": {
+          "id": {
+            "type": "string",
+            "pattern": "^[A-Za-z0-9_-]+$"
+          },
+          "label": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 80
+          },
+          "kind": {
+            "type": "string",
+            "enum": ["region", "sub", "rg", "vnet", "subnet", "onprem", "group"]
+          },
+          "parent": {
+            "type": ["string", "null"],
+            "pattern": "^[A-Za-z0-9_-]+$"
+          },
+          "subtitle": {
+            "type": "string",
+            "maxLength": 80
+          },
+          "icon": {
+            "type": ["string", "null"]
+          }
+        }
+      }
+    },
+    "nodes": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "required": ["id", "icon", "label"],
+        "additionalProperties": false,
+        "properties": {
+          "id": {
+            "type": "string",
+            "pattern": "^[A-Za-z0-9_-]+$"
+          },
+          "icon": {
+            "type": "string",
+            "minLength": 1
+          },
+          "label": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 60
+          },
+          "sublabel": {
+            "type": "string",
+            "maxLength": 60
+          },
+          "parent": {
+            "type": ["string", "null"],
+            "pattern": "^[A-Za-z0-9_-]+$"
+          }
+        }
+      }
+    },
+    "edges": {
+      "type": "array",
+      "default": [],
+      "items": {
+        "type": "object",
+        "required": ["id", "source", "target"],
+        "additionalProperties": false,
+        "properties": {
+          "id": {
+            "type": "string",
+            "pattern": "^[A-Za-z0-9_-]+$"
+          },
+          "source": {
+            "type": "string",
+            "pattern": "^[A-Za-z0-9_-]+$"
+          },
+          "target": {
+            "type": "string",
+            "pattern": "^[A-Za-z0-9_-]+$"
+          },
+          "step": {
+            "type": ["integer", "string"]
+          },
+          "style": {
+            "type": "string",
+            "enum": ["sync", "async", "private", "dns", "tel"],
+            "default": "sync"
+          },
+          "label": {
+            "type": "string",
+            "maxLength": 50
+          },
+          "bidirectional": {
+            "type": "boolean",
+            "default": false
+          }
+        }
+      }
+    },
+    "dataflow": {
+      "type": "array",
+      "default": [],
+      "items": {
+        "type": "object",
+        "required": ["step", "text"],
+        "additionalProperties": false,
+        "properties": {
+          "step": {
+            "type": ["integer", "string"]
+          },
+          "text": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 160
+          }
+        }
+      }
+    }
+  }
+}

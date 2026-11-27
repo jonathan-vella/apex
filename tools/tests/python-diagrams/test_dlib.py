@@ -252,3 +252,72 @@ def test_documented_overview_renders_4k_png(dlib: ModuleType, documented_overvie
     with Image.open(png_path) as image:
         image.load()
         assert image.size == (3840, 2160)
+
+
+def test_aac_primitives_and_accessibility_metadata(dlib: ModuleType) -> None:
+    dlib.reset()
+    dlib.add(dlib.zone(40, 80, 1200, 500, "Azure Region: Sweden Central", kind="region", zone_id="reg-swc"))
+    dlib.add(dlib.zone(70, 130, 500, 420, "Hub VNet", kind="vnet", subtitle="10.0.0.0/16", zone_id="vnet-hub", parent_id="reg-swc"))
+    dlib.add(dlib.tile(180, 260, "fw", "Azure Firewall", node_id="fw-hub", parent_id="vnet-hub"))
+    dlib.add(dlib.tile(420, 260, "dnsresolver", "DNS Private Resolver", node_id="dns-hub", parent_id="vnet-hub", sublabel="privatelink.monitor"))
+    dlib.add(dlib.flow([(240, 260), (360, 260)], edge_id="e1", source_id="fw-hub", target_id="dns-hub", step=1, style="private"))
+    dlib.add(dlib.dataflow_key(40, 600, 1200, [(1, "Firewall proxies private DNS resolution.")]))
+
+    svg_text = dlib.build_svg("AAC Test Topology", description="Sample AAC hub diagram", style="aac")
+    root = ElementTree.fromstring(svg_text)
+    assert root.attrib["role"] == "img"
+    assert root.attrib["data-apex-diagram"] == "true"
+    assert root.attrib["data-apex-style"] == "aac"
+    ns = "{http://www.w3.org/2000/svg}"
+    assert root.findtext(f"{ns}title") == "AAC Test Topology"
+    assert root.findtext(f"{ns}desc") == "Sample AAC hub diagram"
+
+    tiles = [el for el in root.iter(f"{ns}g") if el.attrib.get("data-apex-role") == "tile"]
+    assert len(tiles) == 2
+    assert all(el.attrib.get("data-icon-match") == "exact" for el in tiles)
+    assert {el.attrib.get("data-node-id") for el in tiles} == {"fw-hub", "dns-hub"}
+
+
+def test_strict_vs_legacy_icon_resolution_and_curated_keys(dlib: ModuleType) -> None:
+    for key in (
+        "dcr",
+        "alerts",
+        "service-health",
+        "cost-alerts",
+        "network-watcher",
+        "workbooks",
+        "grafana",
+        "update-manager",
+        "sentinel",
+        "defender",
+        "arc-machines",
+        "azfiles",
+        "privatelink",
+        "dnsresolver",
+        "ddos",
+    ):
+        path, match = dlib.resolve_icon_with_provenance(key, strict=True)
+        assert path.exists() and match == "exact", f"Curated key {key} failed exact match"
+
+    # Strict mode rejects loose substring keys, while legacy mode preserves backward compatibility
+    with pytest.raises(KeyError, match="Unknown Azure icon key"):
+        dlib.resolve_icon_path("log-analytics-work", strict=True)
+    legacy_path, legacy_match = dlib.resolve_icon_with_provenance("log-analytics-work", strict=False)
+    assert legacy_path.exists() and legacy_match == "fallback"
+
+
+def test_render_png_catches_cairo_oserror(dlib: ModuleType, monkeypatch: pytest.MonkeyPatch, tmp_path: Path) -> None:
+    broken_mod = ModuleType("cairosvg")
+
+    def boom(**kwargs: object) -> None:
+        raise OSError("libcairo.so.2 not found")
+
+    broken_mod.svg2png = boom  # type: ignore[attr-defined]
+    monkeypatch.setitem(sys.modules, "cairosvg", broken_mod)
+    monkeypatch.setattr(dlib.shutil, "which", lambda _: None)
+
+    svg_path = tmp_path / "sample.svg"
+    png_path = tmp_path / "sample.png"
+    svg_path.write_text('<svg xmlns="http://www.w3.org/2000/svg"/>', encoding="utf-8")
+    with pytest.raises(RuntimeError, match="Neither 'cairosvg' nor a headless Chromium/Edge"):
+        dlib._render_png(svg_path.read_text(encoding="utf-8"), svg_path, png_path)

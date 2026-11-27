@@ -7,6 +7,8 @@ Authors brand-consistent Azure architecture diagrams as editable SVG masters
 
 from __future__ import annotations
 
+import difflib
+import math
 import os
 import re
 import shutil
@@ -14,7 +16,7 @@ import subprocess
 import sys
 import tempfile
 import time
-from collections.abc import Iterable
+from collections.abc import Iterable, Sequence
 from pathlib import Path
 
 SKILL_ROOT = Path(__file__).resolve().parent.parent
@@ -31,20 +33,25 @@ P: dict[str, str] = {
     "pol": "management + governance/10316-icon-service-Policy.svg",
     "bud": "general/10793-icon-service-Cost-Budgets.svg",
     "arc": "management + governance/00756-icon-service-Azure-Arc.svg",
+    "arc-machines": "management + governance/01710-icon-service-Arc-Machines.svg",
     "rsv": "management + governance/00017-icon-service-Recovery-Services-Vaults.svg",
     "bvault": "other/02361-icon-service-Backup-Vault.svg",
+    "update-manager": "other/02846-icon-service-Update-Management-Center.svg",
     # Networking & Edge
     "vnet": "networking/10061-icon-service-Virtual-Networks.svg",
     "subnet": "networking/02742-icon-service-Subnet.svg",
     "fw": "networking/10084-icon-service-Firewalls.svg",
     "fwp": "networking/00272-icon-service-Azure-Firewall-Policy.svg",
     "waf": "networking/10362-icon-service-Web-Application-Firewall-Policies(WAF).svg",
+    "ddos": "networking/10072-icon-service-DDoS-Protection-Plans.svg",
     "dns": "networking/10064-icon-service-DNS-Zones.svg",
+    "dnsresolver": "networking/02882-icon-service-DNS-Private-Resolver.svg",
     "bas": "networking/02422-icon-service-Bastions.svg",
     "nat": "networking/10310-icon-service-NAT.svg",
     "peer": "other/01285-icon-service-Peerings.svg",
     "rt": "networking/10082-icon-service-Route-Tables.svg",
     "pe": "other/02579-icon-service-Private-Endpoints.svg",
+    "privatelink": "networking/00427-icon-service-Private-Link.svg",
     "pip": "networking/10069-icon-service-Public-IP-Addresses.svg",
     "nsg": "networking/10067-icon-service-Network-Security-Groups.svg",
     "afd": "networking/10073-icon-service-Front-Door-and-CDN-Profiles.svg",
@@ -76,6 +83,7 @@ P: dict[str, str] = {
     # Storage
     "blob": "storage/10086-icon-service-Storage-Accounts.svg",
     "st": "storage/10086-icon-service-Storage-Accounts.svg",
+    "azfiles": "general/10838-icon-service-Storage-Azure-Files.svg",
     "cont": "general/10839-icon-service-Storage-Container.svg",
     "queue": "general/10840-icon-service-Storage-Queue.svg",
     # Integration & Messaging
@@ -88,6 +96,8 @@ P: dict[str, str] = {
     "databricks": "analytics/10787-icon-service-Azure-Databricks.svg",
     # Security & Identity
     "kv": "security/10245-icon-service-Key-Vaults.svg",
+    "sentinel": "security/10248-icon-service-Azure-Sentinel.svg",
+    "defender": "security/10241-icon-service-Microsoft-Defender-for-Cloud.svg",
     "mi": "identity/10227-icon-service-Managed-Identities.svg",
     "user": "identity/10230-icon-service-Users.svg",
     "entra": "identity/10340-icon-service-Entra-Identity-Roles-and-Administrators.svg",
@@ -97,6 +107,13 @@ P: dict[str, str] = {
     "mon": "monitor/00001-icon-service-Monitor.svg",
     "law": "monitor/00009-icon-service-Log-Analytics-Workspaces.svg",
     "ai": "monitor/00012-icon-service-Application-Insights.svg",
+    "dcr": "other/01857-icon-service-Data-Collection-Rules.svg",
+    "alerts": "management + governance/00002-icon-service-Alerts.svg",
+    "service-health": "general/10004-icon-service-Service-Health.svg",
+    "cost-alerts": "general/10791-icon-service-Cost-Alerts.svg",
+    "network-watcher": "monitor/10066-icon-service-Network-Watcher.svg",
+    "workbooks": "monitor/02189-icon-service-Azure-Workbooks.svg",
+    "grafana": "other/02905-icon-service-Azure-Managed-Grafana.svg",
     # AI & Machine Learning
     "openai": "ai + machine learning/03438-icon-service-Azure-OpenAI.svg",
     "foundry": "ai + machine learning/03513-icon-service-AI-Studio.svg",
@@ -134,6 +151,34 @@ KIND: dict[str, str] = {
     "off": "#8A98A8",
 }
 
+# Neutral Azure Architecture Center (AAC) palette
+AAC_INK = "#323130"
+AAC_MUTED = "#605E5C"
+AAC_BORDER = "#8A8886"
+AAC_FILL = "#FAFAFA"
+AAC_BLUE_FILL = "#F3F9FD"
+AAC_SUB_FILL = "#F7FAFD"
+
+AAC_FLOW_STYLES: dict[str, tuple[str, str, str]] = {
+    # style -> (stroke_color, stroke_dasharray, marker_id)
+    "sync": (AAC_INK, "", "m-aac"),
+    "async": (AAC_INK, 'stroke-dasharray="6 4"', "m-aac"),
+    "private": (BL, "", "m-aac-private"),
+    "dns": (TL, 'stroke-dasharray="2 4" stroke-linecap="round"', "m-aac-dns"),
+    "tel": (AAC_MUTED, 'stroke-dasharray="6 4"', "m-aac-muted"),
+}
+
+AAC_ZONE_STYLES: dict[str, tuple[str, str, str, float, float, str | None]] = {
+    # kind -> (fill, stroke, dash_attr, stroke_width, rx, default_icon)
+    "region": (AAC_FILL, AAC_BORDER, 'stroke-dasharray="6 4"', 1.4, 6.0, None),
+    "sub": (AAC_SUB_FILL, BL, "", 1.5, 6.0, "sub"),
+    "rg": ("#FFFFFF", AAC_MUTED, 'stroke-dasharray="6 4"', 1.3, 6.0, "rg"),
+    "vnet": (AAC_BLUE_FILL, BL, "", 1.4, 6.0, "vnet"),
+    "subnet": ("#FFFFFF", BL, 'stroke-dasharray="5 3"', 1.2, 5.0, "subnet"),
+    "onprem": ("#F5F5F5", AAC_MUTED, 'stroke-dasharray="4 4"', 1.4, 6.0, None),
+    "group": (AAC_FILL, "#C8C6C4", "", 1.2, 6.0, None),
+}
+
 DEFAULT_FOOTER = "APEX"
 
 o: list[str] = []
@@ -165,28 +210,38 @@ def _build_v23_index() -> dict[str, Path]:
     return index
 
 
-def resolve_icon_path(k: str) -> Path:
-    """Resolve an icon key `k` to its SVG file path on disk."""
+def resolve_icon_with_provenance(k: str, *, strict: bool = False) -> tuple[Path, str]:
+    """Resolve icon key `k` to `(svg_path, match_kind)` where `match_kind` is `'exact'` or `'fallback'`."""
     if k == "gh":
         gh_path = ICONS_ROOT / "github.svg"
         if gh_path.exists():
-            return gh_path
+            return gh_path, "exact"
         raise KeyError(f"GitHub icon not found at {gh_path}")
     if k in P:
         rel_parts = P[k].replace("\\", "/").split("/")
         candidate = BASE.joinpath(*rel_parts)
         if candidate.exists():
-            return candidate
+            return candidate, "exact"
     idx = _build_v23_index()
     norm = k.replace("\\", "/").lower().removesuffix(".svg")
     for candidate_key in (norm, f"{norm}.svg", norm.replace("_", "-")):
         if candidate_key in idx:
-            return idx[candidate_key]
-    # Substring fallback on cleaned service name
-    for idx_key, svg_path in idx.items():
-        if norm in idx_key:
-            return svg_path
-    raise KeyError(f"Unknown Azure icon key: {k!r}")
+            return idx[candidate_key], "exact"
+    if not strict:
+        # Legacy substring fallback on cleaned service name (opt-out via strict=True)
+        for idx_key, svg_path in idx.items():
+            if norm in idx_key:
+                return svg_path, "fallback"
+    candidates = sorted(set(P.keys()) | {key for key in idx if "/" not in key and not key.endswith(".svg")})
+    suggestions = difflib.get_close_matches(norm, candidates, n=3, cutoff=0.45)
+    hint = f" (closest: {', '.join(suggestions)})" if suggestions else ""
+    raise KeyError(f"Unknown Azure icon key: {k!r}{hint}")
+
+
+def resolve_icon_path(k: str, *, strict: bool = False) -> Path:
+    """Resolve an icon key `k` to its SVG file path on disk."""
+    path, _ = resolve_icon_with_provenance(k, strict=strict)
+    return path
 
 
 def reset() -> None:
@@ -481,6 +536,272 @@ def gh(x: float, y: float, s: float = 40) -> str:
     return f'<use href="#ic-gh" x="{x}" y="{y}" width="{s}" height="{s}"/>'
 
 
+def _xml_attr(value: str) -> str:
+    """Escape a string for safe inclusion inside a double-quoted XML attribute."""
+    return (
+        str(value)
+        .replace("&", "&amp;")
+        .replace('"', "&quot;")
+        .replace("<", "&lt;")
+        .replace(">", "&gt;")
+    )
+
+
+def _wrap_label(text: str, max_w: float, size: float, bold: bool = False, max_lines: int = 2) -> list[str]:
+    """Word-wrap `text` into at most `max_lines` lines fitting `max_w`."""
+    explicit = [part.strip() for part in str(text).split("\n") if part.strip()]
+    if len(explicit) > 1:
+        return explicit[:max_lines]
+    words = str(text).split()
+    if not words:
+        return []
+    lines: list[str] = []
+    current = words[0]
+    for word in words[1:]:
+        candidate = f"{current} {word}"
+        if est(candidate, size, bold) <= max_w:
+            current = candidate
+        else:
+            lines.append(current)
+            current = word
+            if len(lines) == max_lines - 1:
+                break
+    remaining_idx = sum(len(line.split()) for line in lines)
+    tail = " ".join(words[remaining_idx:]) if remaining_idx < len(words) else current
+    if not lines:
+        lines.append(current)
+    elif tail and len(lines) < max_lines:
+        lines.append(tail)
+    return lines[:max_lines]
+
+
+def tile(
+    cx: float,
+    cy: float,
+    icon_key: str,
+    label: str,
+    *,
+    node_id: str | None = None,
+    parent_id: str | None = None,
+    sublabel: str | None = None,
+    isz: float = 52,
+    max_w: float = 136,
+) -> str:
+    """Draw an AAC-style bare Azure icon centered at `(cx, cy)` with caption underneath."""
+    _, match_kind = resolve_icon_with_provenance(icon_key, strict=True)
+    nid = _safe_key(node_id or f"{icon_key}_{round(cx)}_{round(cy)}")
+    label_size = 13.5
+    sub_size = 12.0
+    line_h = 16.5
+    lines = _wrap_label(label, max_w, label_size, bold=True, max_lines=2)
+    sub_lines = _wrap_label(sublabel, max_w, sub_size, bold=False, max_lines=1) if sublabel else []
+
+    ix = cx - isz / 2
+    iy = cy - isz / 2
+    parts = [ic(icon_key, ix, iy, isz)]
+    text_y = cy + isz / 2 + 16
+    max_text_w = isz
+    for idx_line, line in enumerate(lines):
+        ly = text_y + idx_line * line_h
+        max_text_w = max(max_text_w, est(line, label_size, True))
+        parts.append(t(cx, ly, line, label_size, "700", AAC_INK, "middle", mw=max_w + 14))
+    sub_base_y = text_y + len(lines) * line_h
+    for idx_sub, sline in enumerate(sub_lines):
+        sy = sub_base_y + idx_sub * 14.5
+        max_text_w = max(max_text_w, est(sline, sub_size, False))
+        parts.append(t(cx, sy, sline, sub_size, "400", AAC_MUTED, "middle", mw=max_w + 18))
+
+    bw = min(max(max_text_w + 8, isz + 8), max_w + 20)
+    bottom_y = (sub_base_y + (len(sub_lines) - 1) * 14.5 + 4) if sub_lines else (text_y + max(len(lines) - 1, 0) * line_h + 4)
+    bx = cx - bw / 2
+    by = iy - 2
+    bh = bottom_y - by
+
+    attrs = [
+        'data-apex-role="tile"',
+        f'data-node-id="{_xml_attr(nid)}"',
+        f'data-bbox="{bx:.1f},{by:.1f},{bw:.1f},{bh:.1f}"',
+        f'data-icon-key="{_xml_attr(icon_key)}"',
+        f'data-icon-match="{_xml_attr(match_kind)}"',
+    ]
+    if parent_id:
+        attrs.append(f'data-parent-id="{_xml_attr(parent_id)}"')
+    return f"<g {' '.join(attrs)}>{''.join(parts)}</g>"
+
+
+def zone(
+    x: float,
+    y: float,
+    w: float,
+    h: float,
+    title: str,
+    *,
+    kind: str = "vnet",
+    zone_id: str | None = None,
+    parent_id: str | None = None,
+    subtitle: str | None = None,
+    icon_key: str | None = None,
+) -> str:
+    """Draw a neutral AAC boundary container (`region`, `sub`, `rg`, `vnet`, `subnet`, `onprem`, `group`)."""
+    if kind not in AAC_ZONE_STYLES:
+        raise ValueError(f"Unknown AAC zone kind: {kind!r} (expected one of {sorted(AAC_ZONE_STYLES)})")
+    fill, stroke, dash, sw, rx, default_icon = AAC_ZONE_STYLES[kind]
+    eff_icon = icon_key if icon_key is not None else default_icon
+    zid = _safe_key(zone_id or f"{kind}_{round(x)}_{round(y)}")
+    parts = [box(x, y, w, h, fill, stroke, dash, sw=sw, rx=rx)]
+    tx = x + 12
+    if eff_icon:
+        resolve_icon_with_provenance(eff_icon, strict=True)
+        parts.append(ic(eff_icon, x + 10, y + 8, 22))
+        tx = x + 38
+    parts.append(t(tx, y + 24, title, 14.5, "700", AAC_INK, mw=max(w - (tx - x) - 12, 40)))
+    if subtitle:
+        parts.append(t(tx, y + 40, subtitle, 12.0, "400", AAC_MUTED, mw=max(w - (tx - x) - 12, 40)))
+
+    attrs = [
+        'data-apex-role="zone"',
+        f'data-node-id="{_xml_attr(zid)}"',
+        f'data-zone-kind="{_xml_attr(kind)}"',
+        f'data-bbox="{x:.1f},{y:.1f},{w:.1f},{h:.1f}"',
+    ]
+    if parent_id:
+        attrs.append(f'data-parent-id="{_xml_attr(parent_id)}"')
+    return f"<g {' '.join(attrs)}>{''.join(parts)}</g>"
+
+
+def _rounded_ortho_path(points: Sequence[tuple[float, float]], radius: float = 6.0) -> str:
+    """Build an SVG path string through `points` with rounded corners."""
+    if len(points) < 2:
+        raise ValueError("flow() requires at least 2 points")
+    if len(points) == 2 or radius <= 0:
+        head = f"M{points[0][0]:.1f} {points[0][1]:.1f}"
+        segs = "".join(f"L{px:.1f} {py:.1f}" for px, py in points[1:])
+        return head + segs
+
+    cmds = [f"M{points[0][0]:.1f} {points[0][1]:.1f}"]
+    for i in range(1, len(points) - 1):
+        p0, p1, p2 = points[i - 1], points[i], points[i + 1]
+        v1x, v1y = p1[0] - p0[0], p1[1] - p0[1]
+        v2x, v2y = p2[0] - p1[0], p2[1] - p1[1]
+        d1 = math.hypot(v1x, v1y)
+        d2 = math.hypot(v2x, v2y)
+        if d1 < 1e-6 or d2 < 1e-6:
+            cmds.append(f"L{p1[0]:.1f} {p1[1]:.1f}")
+            continue
+        r = min(radius, d1 / 2.0, d2 / 2.0)
+        sx, sy = p1[0] - (v1x / d1) * r, p1[1] - (v1y / d1) * r
+        ex, ey = p1[0] + (v2x / d2) * r, p1[1] + (v2y / d2) * r
+        cmds.append(f"L{sx:.1f} {sy:.1f}Q{p1[0]:.1f} {p1[1]:.1f} {ex:.1f} {ey:.1f}")
+    cmds.append(f"L{points[-1][0]:.1f} {points[-1][1]:.1f}")
+    return "".join(cmds)
+
+
+def _longest_segment_midpoint(points: Sequence[tuple[float, float]]) -> tuple[float, float, bool]:
+    """Return `(mx, my, is_horizontal)` for the longest segment in `points`."""
+    best_len = -1.0
+    best = (points[0][0], points[0][1], True)
+    for (x1, y1), (x2, y2) in zip(points, points[1:]):
+        seg_len = math.hypot(x2 - x1, y2 - y1)
+        if seg_len > best_len:
+            best_len = seg_len
+            best = ((x1 + x2) / 2.0, (y1 + y2) / 2.0, abs(x2 - x1) >= abs(y2 - y1))
+    return best
+
+
+def flow(
+    points: Sequence[tuple[float, float]],
+    *,
+    edge_id: str | None = None,
+    source_id: str | None = None,
+    target_id: str | None = None,
+    step: str | int | None = None,
+    style: str = "sync",
+    label: str | None = None,
+    bidirectional: bool = False,
+    sw: float = 1.8,
+) -> str:
+    """Draw a thin AAC orthogonal connector with optional numbered step badge and label."""
+    if style not in AAC_FLOW_STYLES:
+        raise ValueError(f"Unknown AAC flow style: {style!r} (expected one of {sorted(AAC_FLOW_STYLES)})")
+    stroke, dash, marker = AAC_FLOW_STYLES[style]
+    d = _rounded_ortho_path(points)
+    ms = f' marker-start="url(#{marker})"' if bidirectional else ""
+    me = f' marker-end="url(#{marker})"'
+    parts = [f'<path d="{d}" stroke="{stroke}" stroke-width="{sw}" fill="none" {dash}{ms}{me}/>']
+
+    mx, my, is_horiz = _longest_segment_midpoint(points)
+    if step is not None:
+        step_text = str(step)
+        r_badge = 11 if len(step_text) <= 2 else 13
+        parts.append(
+            f'<circle cx="{mx:.1f}" cy="{my:.1f}" r="{r_badge}" fill="{BL}" stroke="#FFFFFF" stroke-width="1.5"/>'
+            + t(mx, my + 4.3, step_text, 12.0, "700", "#FFFFFF", "middle")
+        )
+    if label:
+        lx = mx
+        ly = (my - 18) if (step is not None and is_horiz) else (my - 10 if is_horiz else my)
+        if step is not None and not is_horiz:
+            lx = mx + 18 + est(label, 12.0, False) / 2.0
+        lw = est(label, 12.0, False) + 12
+        parts.append(
+            f'<rect x="{lx - lw / 2:.1f}" y="{ly - 10:.1f}" width="{lw:.1f}" height="18" rx="4" fill="#FFFFFF" fill-opacity="0.92"/>'
+            + t(lx, ly + 3.5, label, 12.0, "400", AAC_MUTED, "middle")
+        )
+
+    pts_attr = ";".join(f"{px:.1f},{py:.1f}" for px, py in points)
+    attrs = [
+        'data-apex-role="edge"',
+        f'data-points="{pts_attr}"',
+    ]
+    if edge_id:
+        attrs.append(f'data-edge-id="{_xml_attr(edge_id)}"')
+    if source_id:
+        attrs.append(f'data-source="{_xml_attr(source_id)}"')
+    if target_id:
+        attrs.append(f'data-target="{_xml_attr(target_id)}"')
+    if step is not None:
+        attrs.append(f'data-step="{_xml_attr(str(step))}"')
+    return f"<g {' '.join(attrs)}>{''.join(parts)}</g>"
+
+
+def dataflow_key(
+    x: float,
+    y: float,
+    w: float,
+    steps: Sequence[tuple[str | int, str]],
+    *,
+    title: str = "Dataflow",
+    cols: int = 2,
+) -> str:
+    """Draw a compact AAC numbered Dataflow key panel at `(x, y)` with width `w`."""
+    if not steps:
+        return ""
+    col_count = max(1, min(cols, len(steps)))
+    rows = math.ceil(len(steps) / col_count)
+    row_h = 26.0
+    header_h = 28.0 if title else 8.0
+    h = header_h + rows * row_h + 10.0
+    parts = [box(x, y, w, h, AAC_FILL, "#D2D0CE", sw=1.2, rx=6)]
+    if title:
+        parts.append(t(x + 14, y + 20, title, 13.5, "700", AAC_INK))
+    col_w = (w - 28.0) / col_count
+    for idx, (num, desc) in enumerate(steps):
+        c = idx // rows
+        r = idx % rows
+        sx = x + 14 + c * col_w
+        sy = y + header_h + r * row_h + 13
+        num_s = str(num)
+        parts.append(
+            f'<circle cx="{sx + 10:.1f}" cy="{sy - 4:.1f}" r="9.5" fill="{BL}"/>'
+            + t(sx + 10, sy, num_s, 11.5, "700", "#FFFFFF", "middle")
+            + t(sx + 26, sy, desc, 12.5, "400", AAC_INK, mw=max(col_w - 34, 60))
+        )
+    return (
+        f'<g data-apex-role="dataflow-key" data-bbox="{x:.1f},{y:.1f},{w:.1f},{h:.1f}">'
+        f"{''.join(parts)}</g>"
+    )
+
+
 def symbols(used: Iterable[str]) -> str:
     """Build `<symbol id="ic-...">` definitions with namespaced internal gradient/clip IDs."""
     out = ""
@@ -512,24 +833,62 @@ def symbols(used: Iterable[str]) -> str:
     return out
 
 
-def build_svg(title: str, *, footer: str | None = DEFAULT_FOOTER) -> str:
-    """Assemble the complete 1920x1080 SVG document string from the current buffer."""
+def build_svg(
+    title: str,
+    *,
+    footer: str | None = DEFAULT_FOOTER,
+    width: int = 1920,
+    height: int = 1080,
+    out_width: int | None = None,
+    out_height: int | None = None,
+    show_title: bool = True,
+    description: str = "",
+    style: str = "legacy",
+) -> str:
+    """Assemble the complete SVG document string from the current buffer."""
     body = "\n".join(o)
     used = set(re.findall(r'#ic-([A-Za-z0-9_-]+)"', body))
+    resolved_style = (
+        "aac"
+        if style == "aac" or 'data-apex-role="tile"' in body or 'data-apex-role="zone"' in body
+        else style
+    )
+    render_w = out_width if out_width is not None else int(width * 2)
+    render_h = out_height if out_height is not None else int(height * 2)
     mk = "".join(
         f'<marker id="m-{k}" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">'
         f'<path d="M0 0L10 5L0 10z" fill="{c}"/></marker>'
         for k, c in KIND.items()
     )
-    svg = (
-        f'<svg xmlns="http://www.w3.org/2000/svg" width="3840" height="2160" viewBox="0 0 1920 1080" '
-        f'font-family="Segoe UI, Arial, sans-serif">'
-        f"<defs>{symbols(used)}{mk}</defs>"
-        f'<rect width="1920" height="1080" fill="#FFFFFF"/>'
+    aac_markers = (
+        f'<marker id="m-aac" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">'
+        f'<path d="M0 0L10 5L0 10z" fill="{AAC_INK}"/></marker>'
+        f'<marker id="m-aac-private" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">'
+        f'<path d="M0 0L10 5L0 10z" fill="{BL}"/></marker>'
+        f'<marker id="m-aac-dns" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">'
+        f'<path d="M0 0L10 5L0 10z" fill="{TL}"/></marker>'
+        f'<marker id="m-aac-muted" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">'
+        f'<path d="M0 0L10 5L0 10z" fill="{AAC_MUTED}"/></marker>'
     )
-    svg += t(960, 56, title, 40, "700", anchor="middle") + body
+    desc_text = description.strip() or f"Azure architecture diagram: {title}"
+    svg = (
+        f'<svg xmlns="http://www.w3.org/2000/svg" width="{render_w}" height="{render_h}" '
+        f'viewBox="0 0 {width} {height}" font-family="Segoe UI, Arial, sans-serif" '
+        f'role="img" aria-label="{_xml_attr(title)}" '
+        f'data-apex-diagram="true" data-apex-style="{_xml_attr(resolved_style)}">'
+        f"<title>{_xml_escape_text(title)}</title>"
+        f"<desc>{_xml_escape_text(desc_text)}</desc>"
+        f"<defs>{symbols(used)}{mk}{aac_markers}</defs>"
+        f'<rect width="{width}" height="{height}" fill="#FFFFFF"/>'
+    )
+    if show_title and title:
+        title_size = 28 if resolved_style == "aac" else 40
+        title_y = 42 if resolved_style == "aac" else 56
+        title_fill = AAC_INK if resolved_style == "aac" else NAVY
+        svg += t(width / 2, title_y, title, title_size, "700", title_fill, anchor="middle")
+    svg += body
     if footer:
-        svg += t(960, 1058, footer, 18, fill="#4A5A6A", anchor="middle")
+        svg += t(width / 2, height - 22, footer, 18 if resolved_style != "aac" else 13, fill="#4A5A6A", anchor="middle")
     svg += "</svg>"
     return svg
 
@@ -546,7 +905,7 @@ def _render_png(svg_text: str, svg_path: Path, png_path: Path, width: int = 3840
             output_height=height,
         )
         return
-    except ImportError:
+    except (ImportError, OSError):
         pass
 
     # Fallback: headless Chromium / Edge (Linux, macOS, Windows)
@@ -630,14 +989,33 @@ def finish(
     footer: str | None = DEFAULT_FOOTER,
     out_dir: str | Path | None = None,
     formats: Iterable[str] = ("svg", "png"),
+    width: int = 1920,
+    height: int = 1080,
+    out_width: int | None = None,
+    out_height: int | None = None,
+    show_title: bool = True,
+    description: str = "",
+    style: str = "legacy",
 ) -> list[Path]:
-    """Write the `.svg` master and render the `3840x2160` `.png` sibling."""
+    """Write the `.svg` master and render the `.png` sibling."""
     base = _resolve_output_base(name, out_dir=out_dir)
     if base.parent != Path():
         base.parent.mkdir(parents=True, exist_ok=True)
 
     fmt_list = [f.lower().lstrip(".") for f in formats]
-    svg_text = build_svg(title, footer=footer)
+    render_w = out_width if out_width is not None else int(width * 2)
+    render_h = out_height if out_height is not None else int(height * 2)
+    svg_text = build_svg(
+        title,
+        footer=footer,
+        width=width,
+        height=height,
+        out_width=render_w,
+        out_height=render_h,
+        show_title=show_title,
+        description=description,
+        style=style,
+    )
     svg_path = base.with_suffix(".svg")
     png_path = base.with_suffix(".png")
 
@@ -648,7 +1026,7 @@ def finish(
         written.append(svg_path)
 
     if "png" in fmt_list:
-        _render_png(svg_text, svg_path, png_path)
+        _render_png(svg_text, svg_path, png_path, width=render_w, height=render_h)
         written.append(png_path)
 
     if "svg" not in fmt_list and svg_path.exists():
@@ -677,8 +1055,17 @@ __all__ = [
     "GRF",
     "PUF",
     "KIND",
+    "AAC_INK",
+    "AAC_MUTED",
+    "AAC_BORDER",
+    "AAC_FILL",
+    "AAC_BLUE_FILL",
+    "AAC_SUB_FILL",
+    "AAC_FLOW_STYLES",
+    "AAC_ZONE_STYLES",
     "DEFAULT_FOOTER",
     "o",
+    "resolve_icon_with_provenance",
     "resolve_icon_path",
     "reset",
     "add",
@@ -700,6 +1087,10 @@ __all__ = [
     "chevron",
     "folder",
     "gh",
+    "tile",
+    "zone",
+    "flow",
+    "dataflow_key",
     "symbols",
     "build_svg",
     "finish",
